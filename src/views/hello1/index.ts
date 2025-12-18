@@ -4,11 +4,17 @@ import json5 from 'json5';
 import * as vscode from 'vscode';
 import { getCommandId } from '../../common/constants';
 
+type ConfigKind = 'choose' | 'input' | 'toggle' | 'multi-select' | 'file' | 'folder';
+
 interface ConfigItem {
   name: string;
-  kind: 'choose';
-  options: string[];
-  command: string;
+  kind: ConfigKind;
+  options?: string[];
+  command?: string;
+  icon?: string;
+  description?: string;
+  default?: string | boolean | string[];
+  group?: string;
 }
 
 interface BpmConfig {
@@ -16,13 +22,17 @@ interface BpmConfig {
 }
 
 interface BpmState {
-  [key: string]: string;
+  [key: string]: string | boolean | string[];
+}
+
+function getWorkspacePath(): string | null {
+  return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
 }
 
 function getStatePath(): string | null {
-  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-  if (!workspaceFolder) return null;
-  return path.join(workspaceFolder.uri.fsPath, '.bpm', 'state.json');
+  const workspace = getWorkspacePath();
+  if (!workspace) return null;
+  return path.join(workspace, '.bpm', 'state.json');
 }
 
 function loadState(): BpmState {
@@ -38,15 +48,61 @@ function saveState(state: BpmState): void {
   fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
 }
 
+function formatValue(value: string | boolean | string[] | undefined, config: ConfigItem): string {
+  if (value === undefined) {
+    if (config.default !== undefined) {
+      return formatValue(config.default, config);
+    }
+    return '(not set)';
+  }
+  if (typeof value === 'boolean') return value ? 'ON' : 'OFF';
+  if (Array.isArray(value)) return value.length > 0 ? value.join(', ') : '(none)';
+  return value;
+}
+
+function getIconForKind(kind: ConfigKind, customIcon?: string): vscode.ThemeIcon {
+  if (customIcon) return new vscode.ThemeIcon(customIcon);
+  switch (kind) {
+    case 'choose':
+      return new vscode.ThemeIcon('list-selection');
+    case 'input':
+      return new vscode.ThemeIcon('edit');
+    case 'toggle':
+      return new vscode.ThemeIcon('settings-gear');
+    case 'multi-select':
+      return new vscode.ThemeIcon('checklist');
+    case 'file':
+      return new vscode.ThemeIcon('file');
+    case 'folder':
+      return new vscode.ThemeIcon('folder');
+    default:
+      return new vscode.ThemeIcon('settings-gear');
+  }
+}
+
+class GroupTreeItem extends vscode.TreeItem {
+  constructor(
+    public readonly groupName: string,
+    public readonly configs: ConfigItem[],
+  ) {
+    super(groupName, vscode.TreeItemCollapsibleState.Expanded);
+    this.iconPath = new vscode.ThemeIcon('folder');
+    this.contextValue = 'groupItem';
+  }
+}
+
 class ConfigTreeItem extends vscode.TreeItem {
   constructor(
     public readonly config: ConfigItem,
-    selectedValue?: string,
+    currentValue?: string | boolean | string[],
   ) {
     super(config.name, vscode.TreeItemCollapsibleState.None);
-    this.iconPath = new vscode.ThemeIcon('settings-gear');
+    this.iconPath = getIconForKind(config.kind, config.icon);
     this.contextValue = 'configItem';
-    this.description = selectedValue || '(not set)';
+    this.description = formatValue(currentValue, config);
+    if (config.description) {
+      this.tooltip = config.description;
+    }
     this.command = {
       command: getCommandId('selectConfigOption'),
       title: 'Select Option',
@@ -73,20 +129,46 @@ export class HelloView1Provider implements vscode.TreeDataProvider<vscode.TreeIt
     return element;
   }
 
-  getChildren(): Thenable<vscode.TreeItem[]> {
+  getChildren(element?: vscode.TreeItem): Thenable<vscode.TreeItem[]> {
     const config = this.loadConfig();
-    if (!config) {
-      return Promise.resolve([]);
-    }
+    if (!config) return Promise.resolve([]);
+
     const state = loadState();
-    return Promise.resolve(config.configs.map((c) => new ConfigTreeItem(c, state[c.name])));
+
+    if (element instanceof GroupTreeItem) {
+      return Promise.resolve(element.configs.map((c) => new ConfigTreeItem(c, state[c.name])));
+    }
+
+    const grouped = new Map<string, ConfigItem[]>();
+    const ungrouped: ConfigItem[] = [];
+
+    for (const c of config.configs) {
+      if (c.group) {
+        if (!grouped.has(c.group)) grouped.set(c.group, []);
+        grouped.get(c.group)!.push(c);
+      } else {
+        ungrouped.push(c);
+      }
+    }
+
+    const items: vscode.TreeItem[] = [];
+
+    for (const [groupName, configs] of grouped) {
+      items.push(new GroupTreeItem(groupName, configs));
+    }
+
+    for (const c of ungrouped) {
+      items.push(new ConfigTreeItem(c, state[c.name]));
+    }
+
+    return Promise.resolve(items);
   }
 
   private loadConfig(): BpmConfig | null {
-    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-    if (!workspaceFolder) return null;
+    const workspace = getWorkspacePath();
+    if (!workspace) return null;
 
-    const configPath = path.join(workspaceFolder.uri.fsPath, '.bpm', 'config.jsonc');
+    const configPath = path.join(workspace, '.bpm', 'config.jsonc');
     if (!fs.existsSync(configPath)) return null;
 
     const content = fs.readFileSync(configPath, 'utf-8');
@@ -94,23 +176,98 @@ export class HelloView1Provider implements vscode.TreeDataProvider<vscode.TreeIt
   }
 }
 
-export async function selectConfigOption(config: ConfigItem): Promise<void> {
-  const selected = await vscode.window.showQuickPick(config.options, {
-    placeHolder: `Select ${config.name}`,
-  });
+async function runCommand(config: ConfigItem, value: string | boolean | string[]): Promise<void> {
+  if (!config.command) return;
 
-  if (!selected) return;
+  const workspace = getWorkspacePath();
+  if (!workspace) return;
 
-  const state = loadState();
-  state[config.name] = selected;
-  saveState(state);
-
-  providerInstance?.refresh();
-
-  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-  if (!workspaceFolder) return;
-
+  const formattedValue = Array.isArray(value) ? value.join(',') : String(value);
   const terminal = vscode.window.createTerminal(`BPM: ${config.name}`);
   terminal.show();
-  terminal.sendText(`cd "${workspaceFolder.uri.fsPath}" && ${config.command} "${selected}"`);
+  terminal.sendText(`cd "${workspace}" && ${config.command} "${formattedValue}"`);
+}
+
+export async function selectConfigOption(config: ConfigItem): Promise<void> {
+  const state = loadState();
+  let newValue: string | boolean | string[] | undefined;
+
+  switch (config.kind) {
+    case 'choose': {
+      const selected = await vscode.window.showQuickPick(config.options || [], {
+        placeHolder: `Select ${config.name}`,
+      });
+      if (!selected) return;
+      newValue = selected;
+      break;
+    }
+
+    case 'input': {
+      const currentValue = state[config.name] as string | undefined;
+      const defaultValue = config.default as string | undefined;
+      const input = await vscode.window.showInputBox({
+        prompt: config.description || `Enter value for ${config.name}`,
+        value: currentValue || defaultValue || '',
+        placeHolder: `Enter ${config.name}`,
+      });
+      if (input === undefined) return;
+      newValue = input;
+      break;
+    }
+
+    case 'toggle': {
+      const currentValue = state[config.name] as boolean | undefined;
+      const defaultValue = config.default as boolean | undefined;
+      const current = currentValue ?? defaultValue ?? false;
+      newValue = !current;
+      break;
+    }
+
+    case 'multi-select': {
+      const currentValue = (state[config.name] as string[] | undefined) || [];
+      const items = (config.options || []).map((opt) => ({
+        label: opt,
+        picked: currentValue.includes(opt),
+      }));
+      const selected = await vscode.window.showQuickPick(items, {
+        canPickMany: true,
+        placeHolder: `Select ${config.name}`,
+      });
+      if (!selected) return;
+      newValue = selected.map((s) => s.label);
+      break;
+    }
+
+    case 'file': {
+      const result = await vscode.window.showOpenDialog({
+        canSelectFiles: true,
+        canSelectFolders: false,
+        canSelectMany: false,
+        title: config.description || `Select file for ${config.name}`,
+      });
+      if (!result || result.length === 0) return;
+      newValue = result[0].fsPath;
+      break;
+    }
+
+    case 'folder': {
+      const result = await vscode.window.showOpenDialog({
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        title: config.description || `Select folder for ${config.name}`,
+      });
+      if (!result || result.length === 0) return;
+      newValue = result[0].fsPath;
+      break;
+    }
+  }
+
+  if (newValue === undefined) return;
+
+  state[config.name] = newValue;
+  saveState(state);
+  providerInstance?.refresh();
+
+  await runCommand(config, newValue);
 }

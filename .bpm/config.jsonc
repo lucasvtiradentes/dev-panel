@@ -1,10 +1,59 @@
 {
   "configs": [
+    // Environment group
     {
       "name": "environment",
       "kind": "choose",
       "options": ["local", "local-staging", "local-prod", "staging", "prod"],
-      "command": "bash .bpm/environment-select.sh"
+      "command": "bash .bpm/scripts/environment-select.sh",
+      "icon": "server",
+      "description": "Select the target environment",
+      "default": "local",
+      "group": "Environment"
+    },
+    {
+      "name": "debug",
+      "kind": "toggle",
+      "command": "bash .bpm/scripts/toggle-debug.sh",
+      "icon": "bug",
+      "description": "Enable or disable debug mode",
+      "default": false,
+      "group": "Environment"
+    },
+
+    // API group
+    {
+      "name": "api-url",
+      "kind": "input",
+      "command": "bash .bpm/scripts/set-api-url.sh",
+      "icon": "globe",
+      "description": "Set the API base URL",
+      "default": "http://localhost:3000",
+      "group": "API"
+    },
+    {
+      "name": "features",
+      "kind": "multi-select",
+      "options": ["auth", "analytics", "notifications", "dark-mode"],
+      "command": "bash .bpm/scripts/set-features.sh",
+      "icon": "extensions",
+      "description": "Enable feature flags",
+      "default": ["auth"],
+      "group": "API"
+    },
+
+    // Paths (ungrouped)
+    {
+      "name": "config-file",
+      "kind": "file",
+      "description": "Select a configuration file",
+      "icon": "file-code"
+    },
+    {
+      "name": "output-dir",
+      "kind": "folder",
+      "description": "Select output directory",
+      "icon": "folder-opened"
     }
   ]
 }
