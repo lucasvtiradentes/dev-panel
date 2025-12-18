@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
-import { TreeTask, GroupTreeItem, WorkspaceTreeItem } from './tree-items';
+import { ExtensionConfigKey, getExtensionConfig } from '../common';
 import { StatusBarManager } from '../status-bar/status-bar-manager';
+import { TreeTask, GroupTreeItem, WorkspaceTreeItem } from './tree-items';
 
 export class TaskTreeDataProvider implements
     vscode.TreeDataProvider<TreeTask | GroupTreeItem | WorkspaceTreeItem> {
@@ -11,20 +12,12 @@ export class TaskTreeDataProvider implements
     readonly onDidChangeTreeData: vscode.Event<TreeTask | null>
         = this._onDidChangeTreeData.event;
 
-    private readonly autoRefresh: boolean = true;
+    private readonly autoRefresh: boolean;
     private _unhide: boolean = false;
     private readonly statusBarManager: StatusBarManager;
 
-    constructor(private readonly context: vscode.ExtensionContext) {
-        const autoRefreshConfig: boolean | undefined = vscode.workspace
-            .getConfiguration('taskOutlinePlus').get('autorefresh');
-
-        if (autoRefreshConfig === undefined) {
-            this.autoRefresh = true;
-        } else {
-            this.autoRefresh = autoRefreshConfig;
-        }
-
+    constructor(_context: vscode.ExtensionContext) {
+        this.autoRefresh = getExtensionConfig(ExtensionConfigKey.AutoRefresh);
         this.statusBarManager = new StatusBarManager();
     }
 

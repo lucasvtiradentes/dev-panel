@@ -64,3 +64,11 @@ export async function openDocumentAtLine(uri: vscode.Uri, line: number): Promise
         selection: new vscode.Range(line, 0, line, 0)
     });
 }
+
+export enum ContextKey {
+    InCmdlineMode = 'inCmdlineMode',
+}
+
+export function setContextKey(key: ContextKey, value: boolean): Thenable<unknown> {
+    return vscode.commands.executeCommand('setContext', key, value);
+}

@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as JSON5 from 'json5';
+import type { CodeWorkspaceFile, TaskDefinition, TasksJson } from '../common/types';
+import { isMultiRootWorkspace } from '../common';
 
 export class GroupTreeItem extends vscode.TreeItem {
     children: TreeTask[] = [];
@@ -65,54 +67,59 @@ export class TreeTask extends vscode.TreeItem {
             this.workspace = vscode.workspace.name ?? "root";
         }
 
-        const multiRoot = vscode.workspace.workspaceFolders!.length > 1;
+        this.loadTaskMetadata();
+    }
 
-        for (const _workspace of vscode.workspace.workspaceFolders!) {
-            let _tasksJson;
+    private loadTaskMetadata(): void {
+        const multiRoot = isMultiRootWorkspace();
 
-            if (
-                multiRoot &&
-                fs.existsSync(`${_workspace.uri.fsPath}/${_workspace.name}.code-workspace`)
-            ) {
-                _tasksJson = JSON5.parse(
-                    fs.readFileSync(
-                        `${_workspace.uri.fsPath}/${_workspace.name}.code-workspace`, 'utf8'
-                    )
-                ).tasks;
+        for (const workspaceFolder of vscode.workspace.workspaceFolders!) {
+            const tasksJson = this.loadTasksJson(workspaceFolder, multiRoot);
+            if (!tasksJson) continue;
 
-                if (fs.existsSync(`${_workspace.uri.fsPath}/.vscode/tasks.json`)) {
-                    const _tasksJsonFile = JSON5.parse(
-                        fs.readFileSync(
-                            `${_workspace.uri.fsPath}/.vscode/tasks.json`, 'utf8'
-                        )
-                    );
-                    _tasksJson.tasks = [
-                        ..._tasksJson.tasks,
-                        ..._tasksJsonFile.tasks
-                    ]
-                }
-            } else {
-                _tasksJson = JSON5.parse(
-                    fs.readFileSync(
-                        `${_workspace.uri.fsPath}/.vscode/tasks.json`, 'utf8'
-                    )
-                );
+            const taskDef = tasksJson.tasks.find((t) => t.label === this.label);
+            if (taskDef) {
+                this.applyTaskDefinition(taskDef);
+                break;
+            }
+        }
+    }
+
+    private loadTasksJson(workspaceFolder: vscode.WorkspaceFolder, multiRoot: boolean): TasksJson | null {
+        const basePath = workspaceFolder.uri.fsPath;
+        const codeWorkspacePath = `${basePath}/${workspaceFolder.name}.code-workspace`;
+        const tasksJsonPath = `${basePath}/.vscode/tasks.json`;
+
+        if (multiRoot && fs.existsSync(codeWorkspacePath)) {
+            const codeWorkspace = JSON5.parse(
+                fs.readFileSync(codeWorkspacePath, 'utf8')
+            ) as CodeWorkspaceFile;
+
+            let tasks = codeWorkspace.tasks?.tasks ?? [];
+
+            if (fs.existsSync(tasksJsonPath)) {
+                const tasksJsonFile = JSON5.parse(
+                    fs.readFileSync(tasksJsonPath, 'utf8')
+                ) as TasksJson;
+                tasks = [...tasks, ...tasksJsonFile.tasks];
             }
 
-            for (const _task of _tasksJson.tasks) {
-                if (_task.label === this.label) {
-                    this.hide = _task.hide ?? false;
+            return { tasks };
+        }
 
-                    if (_task.icon != null && _task.icon.id !== "") {
-                        this.iconPath = new vscode.ThemeIcon(
-                            _task.icon.id,
-                            _task.icon.color
-                        );
-                    }
+        if (fs.existsSync(tasksJsonPath)) {
+            return JSON5.parse(fs.readFileSync(tasksJsonPath, 'utf8')) as TasksJson;
+        }
 
-                    break;
-                }
-            }
+        return null;
+    }
+
+    private applyTaskDefinition(taskDef: TaskDefinition): void {
+        this.hide = taskDef.hide ?? false;
+
+        if (taskDef.icon?.id) {
+            const color = taskDef.icon.color ? new vscode.ThemeColor(taskDef.icon.color) : undefined;
+            this.iconPath = new vscode.ThemeIcon(taskDef.icon.id, color);
         }
     }
 }

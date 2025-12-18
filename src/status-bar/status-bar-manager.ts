@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { ContextKey, isMultiRootWorkspace, setContextKey } from '../common';
 
 export class StatusBarManager {
     private readonly statusBarItem = vscode.window.createStatusBarItem(
@@ -12,11 +13,7 @@ export class StatusBarManager {
         this.statusBarItem.show();
         this.statusBarBuffer.push("/");
 
-        await vscode.commands.executeCommand(
-            "setContext",
-            "inCmdlineMode",
-            true
-        );
+        await setContextKey(ContextKey.InCmdlineMode, true);
 
         this.registeredType = vscode.commands.registerCommand(
             "type", async e => {
@@ -44,11 +41,7 @@ export class StatusBarManager {
 
     public async exitCommandMode(): Promise<void> {
         this.registeredType?.dispose();
-        await vscode.commands.executeCommand(
-            "setContext",
-            "inCmdlineMode",
-            false
-        );
+        await setContextKey(ContextKey.InCmdlineMode, false);
         this.statusBarBuffer = [];
         this.statusBarItem.text = "";
     }
@@ -78,13 +71,11 @@ export class StatusBarManager {
                     _matchCount++;
                 }
 
-                if (
-                    vscode.workspace.workspaceFolders != null &&
-                    vscode.workspace.workspaceFolders.length > 1
-                ) {
+                if (isMultiRootWorkspace()) {
                     let _workSpaceName = "";
+                    const folders = vscode.workspace.workspaceFolders!;
                     if (typeof _task.scope === "number") {
-                        _workSpaceName = vscode.workspace.workspaceFolders[_task.scope].name;
+                        _workSpaceName = folders[_task.scope].name;
                     } else if (typeof _task.scope !== "string") {
                         _workSpaceName = (_task.scope as vscode.WorkspaceFolder).name;
                     }
@@ -99,11 +90,7 @@ export class StatusBarManager {
             this.statusBarBuffer = ["/", ..._match.split("")];
             this.statusBarItem.text = this.statusBarBuffer.join("");
         } else if (_matchCount >= 2) {
-            await vscode.commands.executeCommand(
-                "setContext",
-                "inCmdlineMode",
-                false
-            );
+            await setContextKey(ContextKey.InCmdlineMode, false);
 
             let _pick = await vscode.window.showQuickPick(_matches);
             if (_pick != null) {
