@@ -62,8 +62,17 @@
       "message": "Type union could be replaced with an enum for better type safety",
       "severity": "warning",
       "include": ["**/*.ts"]
-    }
-  },
+    },
+    "find-enum-candidates": {
+      "include": [
+      "**/*.ts",
+      "**/*.tsx"
+      ],
+      "message": "Type union could be replaced with an enum for better type safety",
+      "mode": "agentic",
+      "prompt": "find-enum-candidates.md",
+      "severity": "warning"
+    }},
   "ai": {
     "provider": "claude"
   },
