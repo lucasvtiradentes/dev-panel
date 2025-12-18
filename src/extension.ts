@@ -4,21 +4,20 @@ import { GLOBAL_STATE_WORKSPACE_SOURCE } from './common/constants';
 import { TaskTreeDataProvider } from './views/tasks';
 
 export function activate(context: vscode.ExtensionContext): object {
-    const taskTreeDataProvider = new TaskTreeDataProvider(context);
+  const taskTreeDataProvider = new TaskTreeDataProvider(context);
 
-    void vscode.tasks.fetchTasks();
+  void vscode.tasks.fetchTasks();
 
-    vscode.window.registerTreeDataProvider('taskOutlinePlus', taskTreeDataProvider);
+  vscode.window.registerTreeDataProvider('taskOutlinePlus', taskTreeDataProvider);
 
-    const commandDisposables = registerAllCommands(context, taskTreeDataProvider);
-    context.subscriptions.push(...commandDisposables);
+  const commandDisposables = registerAllCommands(context, taskTreeDataProvider);
+  context.subscriptions.push(...commandDisposables);
 
-    return {
-        taskSource() {
-            return context.globalState.get(GLOBAL_STATE_WORKSPACE_SOURCE);
-        }
-    };
+  return {
+    taskSource() {
+      return context.globalState.get(GLOBAL_STATE_WORKSPACE_SOURCE);
+    },
+  };
 }
 
-export function deactivate(): void {
-}
+export function deactivate(): void {}

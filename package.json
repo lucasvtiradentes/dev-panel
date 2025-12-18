@@ -1,156 +1,169 @@
 {
-    "name": "taskrunnercodeplus",
-    "displayName": "Task Runner Plus",
-    "description": "VS Code extension to view and run tasks from Explorer pane",
-    "icon": "check.png",
-    "version": "1.2.4",
-    "publisher": "microhobby",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/microhobby/taskrunner-code.git"
+  "name": "better-project-tools",
+  "displayName": "Better Project Tools",
+  "description": "VS Code extension to view and run tasks from Explorer pane",
+  "icon": "resources/icon.png",
+  "version": "0.0.1",
+  "publisher": "lucasvtiradentes",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lucasvtiradentes/better-project-tools"
+  },
+  "bugs": {
+    "url": "https://github.com/lucasvtiradentes/better-project-tools/issues"
+  },
+  "homepage": "https://github.com/lucasvtiradentes/better-project-tools#readme",
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "tasks",
+    "task-runner",
+    "project-tools"
+  ],
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
+  "main": "./out/extension.js",
+  "scripts": {
+    "prepare": "husky",
+    "build": "tsx esbuild.config.ts",
+    "postbuild": "tsx scripts/install-local/install-local-vscode.ts",
+    "lint": "biome check src",
+    "lint:fix": "biome check --fix --unsafe src",
+    "format": "biome format --write src",
+    "typecheck": "tsc --noEmit",
+    "changeset": "changeset",
+    "vscode:prepublish": "pnpm run build",
+    "vscode:package": "vsce package --no-dependencies",
+    "vscode:publish": "vsce publish --no-dependencies",
+    "clean": "rimraf out dist-dev node_modules"
+  },
+  "dependencies": {
+    "json5": "^2.2.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@changesets/cli": "^2.29.7",
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.93.0",
+    "esbuild": "^0.24.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.11",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.7.0"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "id": "taskOutlinePlus",
+          "name": "Task Runner",
+          "icon": "$(tasklist)"
+        }
+      ]
     },
-    "engines": {
-        "vscode": "^1.99.1"
-    },
-    "categories": [
-        "Other"
+    "commands": [
+      {
+        "command": "taskOutlinePlus.executeTask",
+        "title": "Execute"
+      },
+      {
+        "command": "taskOutlinePlus.goToTask",
+        "title": "Go to Definition"
+      },
+      {
+        "command": "taskOutlinePlus.refresh",
+        "title": "Refresh",
+        "icon": "$(extensions-refresh)"
+      },
+      {
+        "command": "taskOutlinePlus.unhide",
+        "title": "Hide/Unhide",
+        "icon": "$(eye-closed)"
+      },
+      {
+        "command": "taskOutlinePlus.showList",
+        "title": "Filter",
+        "icon": "$(extensions-filter)"
+      },
+      {
+        "command": "taskOutlinePlus.execCmdline",
+        "title": "Execute Command Line"
+      },
+      {
+        "command": "taskOutlinePlus.exitCmdline",
+        "title": "Exit Command Line"
+      },
+      {
+        "command": "taskOutlinePlus.tabCmdline",
+        "title": "Tab Command Line"
+      }
     ],
-    "keywords": [
-        "tasks",
-        "packages",
-        "execute"
+    "keybindings": [
+      {
+        "command": "taskOutlinePlus.execCmdline",
+        "key": "Ctrl+Shift+.",
+        "when": "!inCmdlineMode"
+      },
+      {
+        "command": "taskOutlinePlus.exitCmdline",
+        "key": "escape",
+        "when": "inCmdlineMode"
+      },
+      {
+        "command": "taskOutlinePlus.backCmdline",
+        "key": "backspace",
+        "when": "inCmdlineMode"
+      },
+      {
+        "command": "taskOutlinePlus.tabCmdline",
+        "key": "tab",
+        "when": "inCmdlineMode"
+      }
     ],
-    "galleryBanner": {
-        "color": "#232323"
-    },
-    "activationEvents": [
-        "onFileSystem:.vscode/tasks.json"
-    ],
-    "main": "./out/extension",
-    "contributes": {
-        "views": {
-            "explorer": [
-                {
-                    "id": "taskOutlinePlus",
-                    "name": "Task Runner",
-                    "icon": "$(tasklist)"
-                }
-            ]
+    "menus": {
+      "view/title": [
+        {
+          "command": "taskOutlinePlus.showList",
+          "when": "view == taskOutlinePlus",
+          "group": "navigation"
         },
-        "commands": [
-            {
-                "command": "taskOutlinePlus.executeTask",
-                "title": "Execute"
-            },
-            {
-                "command": "taskOutlinePlus.goToTask",
-                "title": "Go to Definition"
-            },
-            {
-                "command": "taskOutlinePlus.refresh",
-                "title": "Refresh",
-                "icon": "$(extensions-refresh)"
-            },
-            {
-                "command": "taskOutlinePlus.unhide",
-                "title": "Hide/Unhide",
-                "icon": "$(eye-closed)"
-            },
-            {
-                "command": "taskOutlinePlus.showList",
-                "title": "Filter",
-                "icon": "$(extensions-filter)"
-            },
-            {
-                "command": "taskOutlinePlus.execCmdline",
-                "title": "Execute Command Line"
-            },
-            {
-                "command": "taskOutlinePlus.exitCmdline",
-                "title": "Exit Command Line"
-            },
-            {
-                "command": "taskOutlinePlus.tabCmdline",
-                "title": "Tab Command Line"
-            }
-        ],
-        "keybindings": [
-            {
-                "command": "taskOutlinePlus.execCmdline",
-                "key": "Ctrl+Shift+.",
-                "when": "!inCmdlineMode"
-            },
-            {
-                "command": "taskOutlinePlus.exitCmdline",
-                "key": "escape",
-                "when": "inCmdlineMode"
-            },
-            {
-                "command": "taskOutlinePlus.backCmdline",
-                "key": "backspace",
-                "when": "inCmdlineMode"
-            },
-            {
-                "command": "taskOutlinePlus.tabCmdline",
-                "key": "tab",
-                "when": "inCmdlineMode"
-            }
-        ],
-        "menus": {
-            "view/title": [
-                {
-                    "command": "taskOutlinePlus.showList",
-                    "when": "view == taskOutlinePlus",
-                    "group": "navigation"
-                },
-                {
-                    "command": "taskOutlinePlus.unhide",
-                    "when": "view == taskOutlinePlus",
-                    "group": "navigation"
-                },
-                {
-                    "command": "taskOutlinePlus.refresh",
-                    "when": "view == taskOutlinePlus",
-                    "group": "navigation"
-                }
-            ],
-            "view/item/context": [
-                {
-                    "command": "taskOutlinePlus.executeTask",
-                    "when": "view == taskOutlinePlus"
-                },
-                {
-                    "command": "taskOutlinePlus.goToTask",
-                    "when": "view == taskOutlinePlus"
-                }
-            ]
+        {
+          "command": "taskOutlinePlus.unhide",
+          "when": "view == taskOutlinePlus",
+          "group": "navigation"
         },
-        "taskDefinitions": [
-            {
-                "type": "util"
-            }
-        ]
+        {
+          "command": "taskOutlinePlus.refresh",
+          "when": "view == taskOutlinePlus",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "taskOutlinePlus.executeTask",
+          "when": "view == taskOutlinePlus"
+        },
+        {
+          "command": "taskOutlinePlus.goToTask",
+          "when": "view == taskOutlinePlus"
+        }
+      ]
     },
-    "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "pack": "vsce package --allow-star-activation",
-        "pre-pack": "vsce package --allow-star-activation --pre-release"
-    },
-    "devDependencies": {
-        "@types/mocha": "^2.2.42",
-        "@types/node": "^12.11.7",
-        "@types/vscode": "^1.99.1",
-        "@typescript-eslint/eslint-plugin": "^4.9.0",
-        "@typescript-eslint/parser": "^4.9.0",
-        "@vscode/test-electron": "^2.5.2",
-        "eslint": "^7.15.0",
-        "eslint-config-standard-jsx": "^10.0.0",
-        "eslint-config-standard-with-typescript": "^19.0.1",
-        "typescript": "^4.1.2"
-    },
-    "dependencies": {
-        "json5": "^2.2.3"
-    }
+    "taskDefinitions": [
+      {
+        "type": "util"
+      }
+    ]
+  }
 }
