@@ -1,4 +1,13 @@
-type OnBranchChange = 'revert' | 'auto-apply' | 'keep';
+export enum OnBranchChange {
+  Revert = 'revert',
+  AutoApply = 'auto-apply',
+  Keep = 'keep',
+}
+
+export enum ReplacementType {
+  File = 'file',
+  Patch = 'patch',
+}
 
 export interface PatchItem {
   search: string | string[];
@@ -13,13 +22,13 @@ interface BaseReplacement {
 }
 
 interface FileReplacement extends BaseReplacement {
-  type: 'file';
+  type: ReplacementType.File;
   source: string;
   target: string;
 }
 
 interface PatchReplacement extends BaseReplacement {
-  type: 'patch';
+  type: ReplacementType.Patch;
   target: string;
   patches: PatchItem[];
 }

@@ -4,7 +4,14 @@ import json5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, getCommandId } from '../../common';
 
-type ConfigKind = 'choose' | 'input' | 'toggle' | 'multi-select' | 'file' | 'folder';
+enum ConfigKind {
+  Choose = 'choose',
+  Input = 'input',
+  Toggle = 'toggle',
+  MultiSelect = 'multi-select',
+  File = 'file',
+  Folder = 'folder',
+}
 
 interface ConfigItem {
   name: string;
@@ -63,17 +70,17 @@ function formatValue(value: string | boolean | string[] | undefined, config: Con
 function getIconForKind(kind: ConfigKind, customIcon?: string): vscode.ThemeIcon {
   if (customIcon) return new vscode.ThemeIcon(customIcon);
   switch (kind) {
-    case 'choose':
+    case ConfigKind.Choose:
       return new vscode.ThemeIcon('list-selection');
-    case 'input':
+    case ConfigKind.Input:
       return new vscode.ThemeIcon('edit');
-    case 'toggle':
+    case ConfigKind.Toggle:
       return new vscode.ThemeIcon('settings-gear');
-    case 'multi-select':
+    case ConfigKind.MultiSelect:
       return new vscode.ThemeIcon('checklist');
-    case 'file':
+    case ConfigKind.File:
       return new vscode.ThemeIcon('file');
-    case 'folder':
+    case ConfigKind.Folder:
       return new vscode.ThemeIcon('folder');
     default:
       return new vscode.ThemeIcon('settings-gear');
@@ -212,7 +219,7 @@ export async function selectConfigOption(config: ConfigItem): Promise<void> {
   let newValue: string | boolean | string[] | undefined;
 
   switch (config.kind) {
-    case 'choose': {
+    case ConfigKind.Choose: {
       const selected = await vscode.window.showQuickPick(config.options || [], {
         placeHolder: `Select ${config.name}`,
       });
@@ -221,7 +228,7 @@ export async function selectConfigOption(config: ConfigItem): Promise<void> {
       break;
     }
 
-    case 'input': {
+    case ConfigKind.Input: {
       const currentValue = state[config.name] as string | undefined;
       const defaultValue = config.default as string | undefined;
       const input = await vscode.window.showInputBox({
@@ -234,7 +241,7 @@ export async function selectConfigOption(config: ConfigItem): Promise<void> {
       break;
     }
 
-    case 'toggle': {
+    case ConfigKind.Toggle: {
       const currentValue = state[config.name] as boolean | undefined;
       const defaultValue = config.default as boolean | undefined;
       const current = currentValue ?? defaultValue ?? false;
@@ -242,7 +249,7 @@ export async function selectConfigOption(config: ConfigItem): Promise<void> {
       break;
     }
 
-    case 'multi-select': {
+    case ConfigKind.MultiSelect: {
       const currentValue = (state[config.name] as string[] | undefined) || [];
       const items = (config.options || []).map((opt) => ({
         label: opt,
@@ -257,7 +264,7 @@ export async function selectConfigOption(config: ConfigItem): Promise<void> {
       break;
     }
 
-    case 'file': {
+    case ConfigKind.File: {
       const result = await vscode.window.showOpenDialog({
         canSelectFiles: true,
         canSelectFolders: false,
@@ -269,7 +276,7 @@ export async function selectConfigOption(config: ConfigItem): Promise<void> {
       break;
     }
 
-    case 'folder': {
+    case ConfigKind.Folder: {
       const result = await vscode.window.showOpenDialog({
         canSelectFiles: false,
         canSelectFolders: true,

@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 import { Command, getCommandId } from '../../common';
 import { applyFileReplacement, applyPatches, fileExists } from './file-ops';
 import { getCurrentBranch, isGitRepository, restoreFileFromGit, setAssumeUnchanged } from './git-utils';
-import type { BpmConfig, Replacement, ReplacementState } from './types';
+import { type BpmConfig, OnBranchChange, type Replacement, type ReplacementState, ReplacementType } from './types';
 
 function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
@@ -67,7 +67,7 @@ class ReplacementTreeItem extends vscode.TreeItem {
     this.tooltip = replacement.description || replacement.name;
     this.contextValue = 'replacementItem';
 
-    const iconName = replacement.type === 'file' ? 'file-symlink-file' : 'find-replace';
+    const iconName = replacement.type === ReplacementType.File ? 'file-symlink-file' : 'find-replace';
     this.iconPath = isActive
       ? new vscode.ThemeIcon(iconName, new vscode.ThemeColor('charts.green'))
       : new vscode.ThemeIcon(iconName);
@@ -153,11 +153,11 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
         const replacement = replacementMap.get(name);
         if (!replacement) continue;
 
-        const behavior = replacement.onBranchChange || 'revert';
+        const behavior = replacement.onBranchChange ?? OnBranchChange.Revert;
 
-        if (behavior === 'revert') {
+        if (behavior === OnBranchChange.Revert) {
           await this.deactivateReplacement(replacement);
-        } else if (behavior === 'auto-apply') {
+        } else if (behavior === OnBranchChange.AutoApply) {
           await this.deactivateReplacement(replacement);
           await this.activateReplacement(replacement);
         }
@@ -261,12 +261,12 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       return;
     }
 
-    if (replacement.type === 'file' && !fileExists(workspace, replacement.source)) {
+    if (replacement.type === ReplacementType.File && !fileExists(workspace, replacement.source)) {
       vscode.window.showErrorMessage(`Source file not found: ${replacement.source}`);
       return;
     }
 
-    if (replacement.type === 'file') {
+    if (replacement.type === ReplacementType.File) {
       applyFileReplacement(workspace, replacement.source, replacement.target);
     } else {
       applyPatches(workspace, replacement.target, replacement.patches);
