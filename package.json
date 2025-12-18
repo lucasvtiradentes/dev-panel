@@ -42,12 +42,14 @@
     "vscode:prepublish": "pnpm run build",
     "vscode:package": "vsce package --no-dependencies",
     "vscode:publish": "vsce publish --no-dependencies",
-    "clean": "rimraf out dist-dev node_modules"
+    "clean": "rimraf out dist-dev node_modules",
+    "knip": "knip"
   },
   "dependencies": {
     "json5": "^2.2.3"
   },
   "devDependencies": {
+    "knip": "^5.71.0",
     "@biomejs/biome": "^1.9.4",
     "@changesets/cli": "^2.29.7",
     "@types/node": "^22.0.0",
