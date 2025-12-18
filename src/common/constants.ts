@@ -29,28 +29,28 @@ export const EXTENSION_ID = buildExtensionId(IS_DEV);
 export const GLOBAL_STATE_WORKSPACE_SOURCE = '______betterProjectToolsWorkspaceSource______';
 
 export function getCommandId(command: string): string {
-  const prefix = IS_DEV ? `${CONTEXT_PREFIX}${DEV_SUFFIX}` : CONTEXT_PREFIX;
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
   return `${prefix}.${command}`;
 }
 
 export function getContextKey(key: string): string {
-  return IS_DEV ? `${key}${DEV_SUFFIX}` : key;
+  return IS_DEV ? addDevSuffix(key) : key;
 }
 
 export function getViewContainerId(): string {
-  return IS_DEV ? `${VIEW_CONTAINER_ID}${DEV_SUFFIX}` : VIEW_CONTAINER_ID;
+  return IS_DEV ? addDevSuffix(VIEW_CONTAINER_ID) : VIEW_CONTAINER_ID;
 }
 
 export function getViewIdTasks(): string {
-  return IS_DEV ? `${VIEW_ID_TASKS}${DEV_SUFFIX}` : VIEW_ID_TASKS;
+  return IS_DEV ? addDevSuffix(VIEW_ID_TASKS) : VIEW_ID_TASKS;
 }
 
 export function getViewIdConfigs(): string {
-  return IS_DEV ? `${VIEW_ID_CONFIGS}${DEV_SUFFIX}` : VIEW_ID_CONFIGS;
+  return IS_DEV ? addDevSuffix(VIEW_ID_CONFIGS) : VIEW_ID_CONFIGS;
 }
 
 export function getViewIdReplacements(): string {
-  return IS_DEV ? `${VIEW_ID_REPLACEMENTS}${DEV_SUFFIX}` : VIEW_ID_REPLACEMENTS;
+  return IS_DEV ? addDevSuffix(VIEW_ID_REPLACEMENTS) : VIEW_ID_REPLACEMENTS;
 }
 
 export function getDisplayName(): string {
