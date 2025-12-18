@@ -1,0 +1,156 @@
+{
+    "name": "taskrunnercodeplus",
+    "displayName": "Task Runner Plus",
+    "description": "VS Code extension to view and run tasks from Explorer pane",
+    "icon": "check.png",
+    "version": "1.2.4",
+    "publisher": "microhobby",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/microhobby/taskrunner-code.git"
+    },
+    "engines": {
+        "vscode": "^1.99.1"
+    },
+    "categories": [
+        "Other"
+    ],
+    "keywords": [
+        "tasks",
+        "packages",
+        "execute"
+    ],
+    "galleryBanner": {
+        "color": "#232323"
+    },
+    "activationEvents": [
+        "onFileSystem:.vscode/tasks.json"
+    ],
+    "main": "./out/extension",
+    "contributes": {
+        "views": {
+            "explorer": [
+                {
+                    "id": "taskOutlinePlus",
+                    "name": "Task Runner",
+                    "icon": "$(tasklist)"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "taskOutlinePlus.executeTask",
+                "title": "Execute"
+            },
+            {
+                "command": "taskOutlinePlus.goToTask",
+                "title": "Go to Definition"
+            },
+            {
+                "command": "taskOutlinePlus.refresh",
+                "title": "Refresh",
+                "icon": "$(extensions-refresh)"
+            },
+            {
+                "command": "taskOutlinePlus.unhide",
+                "title": "Hide/Unhide",
+                "icon": "$(eye-closed)"
+            },
+            {
+                "command": "taskOutlinePlus.showList",
+                "title": "Filter",
+                "icon": "$(extensions-filter)"
+            },
+            {
+                "command": "taskOutlinePlus.execCmdline",
+                "title": "Execute Command Line"
+            },
+            {
+                "command": "taskOutlinePlus.exitCmdline",
+                "title": "Exit Command Line"
+            },
+            {
+                "command": "taskOutlinePlus.tabCmdline",
+                "title": "Tab Command Line"
+            }
+        ],
+        "keybindings": [
+            {
+                "command": "taskOutlinePlus.execCmdline",
+                "key": "Ctrl+Shift+.",
+                "when": "!inCmdlineMode"
+            },
+            {
+                "command": "taskOutlinePlus.exitCmdline",
+                "key": "escape",
+                "when": "inCmdlineMode"
+            },
+            {
+                "command": "taskOutlinePlus.backCmdline",
+                "key": "backspace",
+                "when": "inCmdlineMode"
+            },
+            {
+                "command": "taskOutlinePlus.tabCmdline",
+                "key": "tab",
+                "when": "inCmdlineMode"
+            }
+        ],
+        "menus": {
+            "view/title": [
+                {
+                    "command": "taskOutlinePlus.showList",
+                    "when": "view == taskOutlinePlus",
+                    "group": "navigation"
+                },
+                {
+                    "command": "taskOutlinePlus.unhide",
+                    "when": "view == taskOutlinePlus",
+                    "group": "navigation"
+                },
+                {
+                    "command": "taskOutlinePlus.refresh",
+                    "when": "view == taskOutlinePlus",
+                    "group": "navigation"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "taskOutlinePlus.executeTask",
+                    "when": "view == taskOutlinePlus"
+                },
+                {
+                    "command": "taskOutlinePlus.goToTask",
+                    "when": "view == taskOutlinePlus"
+                }
+            ]
+        },
+        "taskDefinitions": [
+            {
+                "type": "util"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pack": "vsce package --allow-star-activation",
+        "pre-pack": "vsce package --allow-star-activation --pre-release"
+    },
+    "devDependencies": {
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^12.11.7",
+        "@types/vscode": "^1.99.1",
+        "@typescript-eslint/eslint-plugin": "^4.9.0",
+        "@typescript-eslint/parser": "^4.9.0",
+        "@vscode/test-electron": "^2.5.2",
+        "eslint": "^7.15.0",
+        "eslint-config-standard-jsx": "^10.0.0",
+        "eslint-config-standard-with-typescript": "^19.0.1",
+        "typescript": "^4.1.2"
+    },
+    "dependencies": {
+        "json5": "^2.2.3"
+    }
+}
