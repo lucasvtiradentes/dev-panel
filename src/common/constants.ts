@@ -4,7 +4,10 @@ import {
   EXTENSION_DISPLAY_NAME,
   EXTENSION_NAME,
   EXTENSION_PUBLISHER,
+  VIEW_CONTAINER_ID,
   VIEW_ID,
+  VIEW_ID_HELLO1,
+  VIEW_ID_HELLO2,
   addDevLabel,
   buildExtensionId,
 } from './scripts-constants';
@@ -24,8 +27,20 @@ export function getContextKey(key: string): string {
   return IS_DEV ? `${key}${DEV_SUFFIX}` : key;
 }
 
+export function getViewContainerId(): string {
+  return IS_DEV ? `${VIEW_CONTAINER_ID}${DEV_SUFFIX}` : VIEW_CONTAINER_ID;
+}
+
 export function getViewId(): string {
   return IS_DEV ? `${VIEW_ID}${DEV_SUFFIX}` : VIEW_ID;
+}
+
+export function getViewIdHello1(): string {
+  return IS_DEV ? `${VIEW_ID_HELLO1}${DEV_SUFFIX}` : VIEW_ID_HELLO1;
+}
+
+export function getViewIdHello2(): string {
+  return IS_DEV ? `${VIEW_ID_HELLO2}${DEV_SUFFIX}` : VIEW_ID_HELLO2;
 }
 
 export function getDisplayName(): string {
@@ -38,6 +53,9 @@ export {
   EXTENSION_DISPLAY_NAME,
   EXTENSION_NAME,
   EXTENSION_PUBLISHER,
+  VIEW_CONTAINER_ID,
   VIEW_ID,
+  VIEW_ID_HELLO1,
+  VIEW_ID_HELLO2,
   addDevLabel,
 };

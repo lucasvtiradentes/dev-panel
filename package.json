@@ -63,7 +63,26 @@
     "onStartupFinished"
   ],
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "betterProjectTools",
+          "title": "Better Project Tools",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
     "views": {
+      "betterProjectTools": [
+        {
+          "id": "betterProjectToolsHello1",
+          "name": "Hello View 1"
+        },
+        {
+          "id": "betterProjectToolsHello2",
+          "name": "Hello View 2"
+        }
+      ],
       "explorer": [
         {
           "id": "betterProjectToolsTasks",

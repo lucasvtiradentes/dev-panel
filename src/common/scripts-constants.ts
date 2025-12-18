@@ -3,7 +3,10 @@ export const EXTENSION_NAME = 'better-project-tools';
 export const EXTENSION_DISPLAY_NAME = 'Better Project Tools';
 
 export const CONTEXT_PREFIX = 'betterProjectTools';
+export const VIEW_CONTAINER_ID = 'betterProjectTools';
 export const VIEW_ID = 'betterProjectToolsTasks';
+export const VIEW_ID_HELLO1 = 'betterProjectToolsHello1';
+export const VIEW_ID_HELLO2 = 'betterProjectToolsHello2';
 export const DEV_SUFFIX = 'dev';
 
 export function addDevSuffix(str: string): string {
