@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import json5 from 'json5';
 import * as vscode from 'vscode';
-import { getCommandId } from '../../common/constants';
+import { Command, getCommandId } from '../../common';
 
 type ConfigKind = 'choose' | 'input' | 'toggle' | 'multi-select' | 'file' | 'folder';
 
@@ -104,7 +104,7 @@ class ConfigTreeItem extends vscode.TreeItem {
       this.tooltip = config.description;
     }
     this.command = {
-      command: getCommandId('selectConfigOption'),
+      command: getCommandId(Command.SelectConfigOption),
       title: 'Select Option',
       arguments: [config],
     };

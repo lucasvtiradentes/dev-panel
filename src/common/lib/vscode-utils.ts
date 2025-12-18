@@ -11,6 +11,9 @@ export enum Command {
   ExitCmdline = 'exitCmdline',
   BackCmdline = 'backCmdline',
   TabCmdline = 'tabCmdline',
+  SelectConfigOption = 'selectConfigOption',
+  ToggleReplacement = 'toggleReplacement',
+  RevertAllReplacements = 'revertAllReplacements',
 }
 
 export function registerCommand(command: Command, callback: (...args: any[]) => any): vscode.Disposable {

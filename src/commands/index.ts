@@ -7,6 +7,9 @@ import {
   createTabCmdlineCommand,
 } from './internal/cmdline';
 import { createExecuteTaskCommand } from './internal/execute-task';
+import { createRevertAllReplacementsCommand } from './internal/revert-all-replacements';
+import { createSelectConfigOptionCommand } from './internal/select-config-option';
+import { createToggleReplacementCommand } from './internal/toggle-replacement';
 import { createGoToTaskCommand } from './public/go-to-task';
 import { createRefreshCommand } from './public/refresh';
 import { createShowListCommand } from './public/show-list';
@@ -26,5 +29,8 @@ export function registerAllCommands(
     createExitCmdlineCommand(taskTreeDataProvider),
     createBackCmdlineCommand(taskTreeDataProvider),
     createTabCmdlineCommand(taskTreeDataProvider),
+    createSelectConfigOptionCommand(),
+    createToggleReplacementCommand(),
+    createRevertAllReplacementsCommand(),
   ];
 }

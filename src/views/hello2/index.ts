@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import json5 from 'json5';
 import * as vscode from 'vscode';
-import { getCommandId } from '../../common/constants';
+import { Command, getCommandId } from '../../common';
 import { applyFileReplacement, applyPatches, fileExists } from './file-ops';
 import { getCurrentBranch, isGitRepository, restoreFileFromGit, setAssumeUnchanged } from './git-utils';
 import type { BpmConfig, Replacement, ReplacementState } from './types';
@@ -73,7 +73,7 @@ class ReplacementTreeItem extends vscode.TreeItem {
       : new vscode.ThemeIcon(iconName);
 
     this.command = {
-      command: getCommandId('toggleReplacement'),
+      command: getCommandId(Command.ToggleReplacement),
       title: 'Toggle Replacement',
       arguments: [replacement],
     };
