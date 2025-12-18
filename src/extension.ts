@@ -24,6 +24,7 @@ export function activate(context: vscode.ExtensionContext): object {
 
   const selectConfigCmd = vscode.commands.registerCommand(getCommandId('selectConfigOption'), selectConfigOption);
   context.subscriptions.push(selectConfigCmd);
+  context.subscriptions.push({ dispose: () => hello1Provider.dispose() });
 
   const commandDisposables = registerAllCommands(context, taskTreeDataProvider);
   context.subscriptions.push(...commandDisposables);

@@ -116,9 +116,28 @@ let providerInstance: HelloView1Provider | null = null;
 export class HelloView1Provider implements vscode.TreeDataProvider<vscode.TreeItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
+  private fileWatcher: vscode.FileSystemWatcher | null = null;
 
   constructor() {
     providerInstance = this;
+    this.setupFileWatcher();
+  }
+
+  private setupFileWatcher(): void {
+    const workspace = getWorkspacePath();
+    if (!workspace) return;
+
+    this.fileWatcher = vscode.workspace.createFileSystemWatcher(
+      new vscode.RelativePattern(workspace, '.bpm/{config.jsonc,state.json}'),
+    );
+
+    this.fileWatcher.onDidChange(() => this.refresh());
+    this.fileWatcher.onDidCreate(() => this.refresh());
+    this.fileWatcher.onDidDelete(() => this.refresh());
+  }
+
+  dispose(): void {
+    this.fileWatcher?.dispose();
   }
 
   refresh(): void {
