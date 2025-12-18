@@ -1,0 +1,10 @@
+{
+  "configs": [
+    {
+      "name": "environment",
+      "kind": "choose",
+      "options": ["local", "local-staging", "local-prod", "staging", "prod"],
+      "command": "bash .bpm/environment-select.sh"
+    }
+  ]
+}

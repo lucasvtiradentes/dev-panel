@@ -93,6 +93,10 @@
     },
     "commands": [
       {
+        "command": "betterProjectTools.selectConfigOption",
+        "title": "Select Config Option"
+      },
+      {
         "command": "betterProjectTools.executeTask",
         "title": "Execute"
       },
