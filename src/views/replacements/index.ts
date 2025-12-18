@@ -80,9 +80,9 @@ class ReplacementTreeItem extends vscode.TreeItem {
   }
 }
 
-let providerInstance: HelloView2Provider | null = null;
+let providerInstance: ReplacementsProvider | null = null;
 
-export class HelloView2Provider implements vscode.TreeDataProvider<vscode.TreeItem> {
+export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 

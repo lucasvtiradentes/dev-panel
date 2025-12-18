@@ -111,9 +111,9 @@ class ConfigTreeItem extends vscode.TreeItem {
   }
 }
 
-let providerInstance: HelloView1Provider | null = null;
+let providerInstance: ConfigsProvider | null = null;
 
-export class HelloView1Provider implements vscode.TreeDataProvider<vscode.TreeItem> {
+export class ConfigsProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
   private fileWatcher: vscode.FileSystemWatcher | null = null;

@@ -1,23 +1,28 @@
 import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
-import { GLOBAL_STATE_WORKSPACE_SOURCE, getViewId, getViewIdHello1, getViewIdHello2 } from './common/constants';
-import { HelloView1Provider } from './views/hello1';
-import { HelloView2Provider } from './views/hello2';
+import {
+  GLOBAL_STATE_WORKSPACE_SOURCE,
+  getViewIdConfigs,
+  getViewIdReplacements,
+  getViewIdTasks,
+} from './common/constants';
+import { ConfigsProvider } from './views/configs';
+import { ReplacementsProvider } from './views/replacements';
 import { TaskTreeDataProvider } from './views/tasks';
 
 export function activate(context: vscode.ExtensionContext): object {
   const taskTreeDataProvider = new TaskTreeDataProvider(context);
-  const hello1Provider = new HelloView1Provider();
-  const hello2Provider = new HelloView2Provider();
+  const configsProvider = new ConfigsProvider();
+  const replacementsProvider = new ReplacementsProvider();
 
   void vscode.tasks.fetchTasks();
 
-  vscode.window.registerTreeDataProvider(getViewId(), taskTreeDataProvider);
-  vscode.window.registerTreeDataProvider(getViewIdHello1(), hello1Provider);
-  vscode.window.registerTreeDataProvider(getViewIdHello2(), hello2Provider);
+  vscode.window.registerTreeDataProvider(getViewIdTasks(), taskTreeDataProvider);
+  vscode.window.registerTreeDataProvider(getViewIdConfigs(), configsProvider);
+  vscode.window.registerTreeDataProvider(getViewIdReplacements(), replacementsProvider);
 
-  context.subscriptions.push({ dispose: () => hello1Provider.dispose() });
-  context.subscriptions.push({ dispose: () => hello2Provider.dispose() });
+  context.subscriptions.push({ dispose: () => configsProvider.dispose() });
+  context.subscriptions.push({ dispose: () => replacementsProvider.dispose() });
 
   const commandDisposables = registerAllCommands(context, taskTreeDataProvider);
   context.subscriptions.push(...commandDisposables);

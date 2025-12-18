@@ -1,16 +1,26 @@
-import {
-  CONTEXT_PREFIX,
-  DEV_SUFFIX,
-  EXTENSION_DISPLAY_NAME,
-  EXTENSION_NAME,
-  EXTENSION_PUBLISHER,
-  VIEW_CONTAINER_ID,
-  VIEW_ID,
-  VIEW_ID_HELLO1,
-  VIEW_ID_HELLO2,
-  addDevLabel,
-  buildExtensionId,
-} from './scripts-constants';
+export const EXTENSION_PUBLISHER = 'lucasvtiradentes';
+export const EXTENSION_NAME = 'better-project-tools';
+export const EXTENSION_DISPLAY_NAME = 'Better Project Tools';
+
+export const CONTEXT_PREFIX = 'betterProjectTools';
+export const VIEW_CONTAINER_ID = 'betterProjectTools';
+export const VIEW_ID_TASKS = 'betterProjectToolsTasks';
+export const VIEW_ID_CONFIGS = 'betterProjectToolsConfigs';
+export const VIEW_ID_REPLACEMENTS = 'betterProjectToolsReplacements';
+export const DEV_SUFFIX = 'dev';
+
+export function addDevSuffix(str: string): string {
+  return `${str}${DEV_SUFFIX}`;
+}
+
+export function addDevLabel(str: string): string {
+  return `${str} (${DEV_SUFFIX})`;
+}
+
+export function buildExtensionId(isDev: boolean): string {
+  const name = isDev ? `${EXTENSION_NAME}-${DEV_SUFFIX}` : EXTENSION_NAME;
+  return `${EXTENSION_PUBLISHER}.${name}`;
+}
 
 declare const __IS_DEV_BUILD__: boolean;
 export const IS_DEV = typeof __IS_DEV_BUILD__ !== 'undefined' && __IS_DEV_BUILD__;
@@ -31,31 +41,18 @@ export function getViewContainerId(): string {
   return IS_DEV ? `${VIEW_CONTAINER_ID}${DEV_SUFFIX}` : VIEW_CONTAINER_ID;
 }
 
-export function getViewId(): string {
-  return IS_DEV ? `${VIEW_ID}${DEV_SUFFIX}` : VIEW_ID;
+export function getViewIdTasks(): string {
+  return IS_DEV ? `${VIEW_ID_TASKS}${DEV_SUFFIX}` : VIEW_ID_TASKS;
 }
 
-export function getViewIdHello1(): string {
-  return IS_DEV ? `${VIEW_ID_HELLO1}${DEV_SUFFIX}` : VIEW_ID_HELLO1;
+export function getViewIdConfigs(): string {
+  return IS_DEV ? `${VIEW_ID_CONFIGS}${DEV_SUFFIX}` : VIEW_ID_CONFIGS;
 }
 
-export function getViewIdHello2(): string {
-  return IS_DEV ? `${VIEW_ID_HELLO2}${DEV_SUFFIX}` : VIEW_ID_HELLO2;
+export function getViewIdReplacements(): string {
+  return IS_DEV ? `${VIEW_ID_REPLACEMENTS}${DEV_SUFFIX}` : VIEW_ID_REPLACEMENTS;
 }
 
 export function getDisplayName(): string {
   return IS_DEV ? addDevLabel(EXTENSION_DISPLAY_NAME) : EXTENSION_DISPLAY_NAME;
 }
-
-export {
-  CONTEXT_PREFIX,
-  DEV_SUFFIX,
-  EXTENSION_DISPLAY_NAME,
-  EXTENSION_NAME,
-  EXTENSION_PUBLISHER,
-  VIEW_CONTAINER_ID,
-  VIEW_ID,
-  VIEW_ID_HELLO1,
-  VIEW_ID_HELLO2,
-  addDevLabel,
-};

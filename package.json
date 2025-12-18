@@ -76,12 +76,12 @@
     "views": {
       "betterProjectTools": [
         {
-          "id": "betterProjectToolsHello1",
-          "name": "Hello View 1"
+          "id": "betterProjectToolsConfigs",
+          "name": "Configs"
         },
         {
-          "id": "betterProjectToolsHello2",
-          "name": "Hello View 2"
+          "id": "betterProjectToolsReplacements",
+          "name": "Replacements"
         }
       ],
       "explorer": [
@@ -168,7 +168,7 @@
       "view/title": [
         {
           "command": "betterProjectTools.revertAllReplacements",
-          "when": "view == betterProjectToolsHello2",
+          "when": "view == betterProjectToolsReplacements",
           "group": "navigation"
         },
         {

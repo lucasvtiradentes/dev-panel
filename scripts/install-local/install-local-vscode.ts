@@ -14,11 +14,11 @@ import {
   CONTEXT_PREFIX,
   DEV_SUFFIX,
   EXTENSION_NAME,
-  VIEW_ID,
+  VIEW_ID_TASKS,
   addDevLabel,
   addDevSuffix,
   buildExtensionId,
-} from '../../src/common/scripts-constants';
+} from '../../src/common/constants';
 
 const logger = console;
 
@@ -156,7 +156,7 @@ function copyRecursive(src: string, dest: string): void {
 
 function transformContextKey(text: string): string {
   return text
-    .replace(new RegExp(`view\\s*==\\s*${VIEW_ID}\\b`, 'g'), `view == ${addDevSuffix(VIEW_ID)}`)
+    .replace(new RegExp(`view\\s*==\\s*${VIEW_ID_TASKS}\\b`, 'g'), `view == ${addDevSuffix(VIEW_ID_TASKS)}`)
     .replace(/\b(\w+)(?=\s*==|\s*!=|\s|$)/g, (match) => {
       if (match.startsWith(CONTEXT_PREFIX) && !match.endsWith(DEV_SUFFIX)) {
         return addDevSuffix(match);
