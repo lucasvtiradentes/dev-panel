@@ -20,10 +20,6 @@ export function registerCommand(command: Command, callback: (...args: any[]) => 
   return vscode.commands.registerCommand(getCommandId(command), callback);
 }
 
-export function executeCommand<T = unknown>(command: Command, ...args: unknown[]): Thenable<T> {
-  return vscode.commands.executeCommand<T>(getCommandId(command), ...args);
-}
-
 export enum ToastKind {
   Info = 'info',
   Warning = 'warning',
@@ -41,10 +37,6 @@ export function showToastMessage(kind: ToastKind, message: string, ...items: str
   }
 }
 
-export function getCurrentWorkspaceFolder(): vscode.WorkspaceFolder | undefined {
-  return vscode.workspace.workspaceFolders?.[0];
-}
-
 export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] | undefined {
   return vscode.workspace.workspaceFolders;
 }
@@ -52,14 +44,6 @@ export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] | undef
 export function isMultiRootWorkspace(): boolean {
   const folders = vscode.workspace.workspaceFolders;
   return folders != null && folders.length > 1;
-}
-
-export async function navigateToPosition(uri: vscode.Uri, line: number, column = 0): Promise<void> {
-  const doc = await vscode.workspace.openTextDocument(uri);
-  const editor = await vscode.window.showTextDocument(doc);
-  const position = new vscode.Position(line, column);
-  editor.selection = new vscode.Selection(position, position);
-  editor.revealRange(new vscode.Range(position, position), vscode.TextEditorRevealType.InCenter);
 }
 
 export async function openDocumentAtLine(uri: vscode.Uri, line: number): Promise<void> {

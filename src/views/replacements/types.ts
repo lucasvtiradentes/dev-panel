@@ -1,4 +1,4 @@
-export type OnBranchChange = 'revert' | 'auto-apply' | 'keep';
+type OnBranchChange = 'revert' | 'auto-apply' | 'keep';
 
 export interface PatchItem {
   search: string | string[];
@@ -12,13 +12,13 @@ interface BaseReplacement {
   onBranchChange?: OnBranchChange;
 }
 
-export interface FileReplacement extends BaseReplacement {
+interface FileReplacement extends BaseReplacement {
   type: 'file';
   source: string;
   target: string;
 }
 
-export interface PatchReplacement extends BaseReplacement {
+interface PatchReplacement extends BaseReplacement {
   type: 'patch';
   target: string;
   patches: PatchItem[];

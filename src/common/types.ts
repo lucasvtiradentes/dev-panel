@@ -1,4 +1,4 @@
-export interface TaskIcon {
+interface TaskIcon {
   id: string;
   color?: string;
 }
