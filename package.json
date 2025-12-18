@@ -66,7 +66,7 @@
     "views": {
       "explorer": [
         {
-          "id": "taskOutlinePlus",
+          "id": "betterProjectToolsTasks",
           "name": "Task Runner",
           "icon": "$(tasklist)"
         }
@@ -74,59 +74,59 @@
     },
     "commands": [
       {
-        "command": "taskOutlinePlus.executeTask",
+        "command": "betterProjectTools.executeTask",
         "title": "Execute"
       },
       {
-        "command": "taskOutlinePlus.goToTask",
+        "command": "betterProjectTools.goToTask",
         "title": "Go to Definition"
       },
       {
-        "command": "taskOutlinePlus.refresh",
+        "command": "betterProjectTools.refresh",
         "title": "Refresh",
         "icon": "$(extensions-refresh)"
       },
       {
-        "command": "taskOutlinePlus.unhide",
+        "command": "betterProjectTools.unhide",
         "title": "Hide/Unhide",
         "icon": "$(eye-closed)"
       },
       {
-        "command": "taskOutlinePlus.showList",
+        "command": "betterProjectTools.showList",
         "title": "Filter",
         "icon": "$(extensions-filter)"
       },
       {
-        "command": "taskOutlinePlus.execCmdline",
+        "command": "betterProjectTools.execCmdline",
         "title": "Execute Command Line"
       },
       {
-        "command": "taskOutlinePlus.exitCmdline",
+        "command": "betterProjectTools.exitCmdline",
         "title": "Exit Command Line"
       },
       {
-        "command": "taskOutlinePlus.tabCmdline",
+        "command": "betterProjectTools.tabCmdline",
         "title": "Tab Command Line"
       }
     ],
     "keybindings": [
       {
-        "command": "taskOutlinePlus.execCmdline",
+        "command": "betterProjectTools.execCmdline",
         "key": "Ctrl+Shift+.",
         "when": "!inCmdlineMode"
       },
       {
-        "command": "taskOutlinePlus.exitCmdline",
+        "command": "betterProjectTools.exitCmdline",
         "key": "escape",
         "when": "inCmdlineMode"
       },
       {
-        "command": "taskOutlinePlus.backCmdline",
+        "command": "betterProjectTools.backCmdline",
         "key": "backspace",
         "when": "inCmdlineMode"
       },
       {
-        "command": "taskOutlinePlus.tabCmdline",
+        "command": "betterProjectTools.tabCmdline",
         "key": "tab",
         "when": "inCmdlineMode"
       }
@@ -134,29 +134,29 @@
     "menus": {
       "view/title": [
         {
-          "command": "taskOutlinePlus.showList",
-          "when": "view == taskOutlinePlus",
+          "command": "betterProjectTools.showList",
+          "when": "view == betterProjectToolsTasks",
           "group": "navigation"
         },
         {
-          "command": "taskOutlinePlus.unhide",
-          "when": "view == taskOutlinePlus",
+          "command": "betterProjectTools.unhide",
+          "when": "view == betterProjectToolsTasks",
           "group": "navigation"
         },
         {
-          "command": "taskOutlinePlus.refresh",
-          "when": "view == taskOutlinePlus",
+          "command": "betterProjectTools.refresh",
+          "when": "view == betterProjectToolsTasks",
           "group": "navigation"
         }
       ],
       "view/item/context": [
         {
-          "command": "taskOutlinePlus.executeTask",
-          "when": "view == taskOutlinePlus"
+          "command": "betterProjectTools.executeTask",
+          "when": "view == betterProjectToolsTasks"
         },
         {
-          "command": "taskOutlinePlus.goToTask",
-          "when": "view == taskOutlinePlus"
+          "command": "betterProjectTools.goToTask",
+          "when": "view == betterProjectToolsTasks"
         }
       ]
     },

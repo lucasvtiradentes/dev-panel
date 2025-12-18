@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ExtensionConfigKey, getExtensionConfig } from '../../common';
+import { Command, ExtensionConfigKey, getCommandId, getExtensionConfig } from '../../common';
 import { StatusBarManager } from '../../status-bar/status-bar-manager';
 import { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
 
@@ -92,7 +92,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
         task.name,
         vscode.TreeItemCollapsibleState.None,
         {
-          command: 'taskOutlinePlus.executeTask',
+          command: getCommandId(Command.ExecuteTask),
           title: 'Execute',
           arguments: [task, task.scope],
         },

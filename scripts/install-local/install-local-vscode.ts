@@ -10,14 +10,21 @@ import {
 } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import {
+  CONTEXT_PREFIX,
+  DEV_SUFFIX,
+  EXTENSION_NAME,
+  VIEW_ID,
+  addDevLabel,
+  addDevSuffix,
+  buildExtensionId,
+} from '../../src/common/scripts-constants';
 
 const logger = console;
 
 const SCRIPT_DIR = __dirname;
 const ROOT_DIR = join(SCRIPT_DIR, '..', '..');
-const DEV_SUFFIX = 'dev';
-const EXTENSION_NAME = 'better-project-tools';
-const EXTENSION_ID_DEV = `lucasvtiradentes.${EXTENSION_NAME}-${DEV_SUFFIX}`;
+const EXTENSION_ID_DEV = buildExtensionId(true);
 
 async function main() {
   if (process.env.CI || process.env.GITHUB_ACTIONS) {
@@ -53,11 +60,8 @@ async function writePackageJson() {
   const targetDir = getLocalDistDirectory();
   const packageJsonPath = join(ROOT_DIR, 'package.json');
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
-
-  packageJson.name = `${packageJson.name}-dev`;
-  packageJson.displayName = `${packageJson.displayName} (DEV)`;
-
-  writeFileSync(join(targetDir, 'package.json'), JSON.stringify(packageJson, null, 2));
+  const modifiedPackageJson = applyDevTransformations(packageJson);
+  writeFileSync(join(targetDir, 'package.json'), JSON.stringify(modifiedPackageJson, null, 2));
 }
 
 async function copyMetaFiles() {
@@ -148,4 +152,81 @@ function copyRecursive(src: string, dest: string): void {
   } else {
     copyFileSync(src, dest);
   }
+}
+
+function transformContextKey(text: string): string {
+  return text
+    .replace(new RegExp(`view\\s*==\\s*${VIEW_ID}\\b`, 'g'), `view == ${addDevSuffix(VIEW_ID)}`)
+    .replace(/\b(\w+)(?=\s*==|\s*!=|\s|$)/g, (match) => {
+      if (match.startsWith(CONTEXT_PREFIX) && !match.endsWith(DEV_SUFFIX)) {
+        return addDevSuffix(match);
+      }
+      return match;
+    });
+}
+
+function transformCommand(cmd: string): string {
+  if (!cmd.startsWith(`${CONTEXT_PREFIX}.`)) return cmd;
+  return cmd.replace(`${CONTEXT_PREFIX}.`, `${addDevSuffix(CONTEXT_PREFIX)}.`);
+}
+
+function applyDevTransformations(pkg: Record<string, unknown>): Record<string, unknown> {
+  const transformed = { ...pkg };
+
+  transformed.name = `${EXTENSION_NAME}-${DEV_SUFFIX}`;
+  transformed.displayName = addDevLabel(pkg.displayName as string);
+
+  const contributes = transformed.contributes as Record<string, unknown>;
+  if (!contributes) return transformed;
+
+  if (contributes.views) {
+    const views = contributes.views as Record<string, Array<{ id: string; name?: string }>>;
+    const newViews: Record<string, unknown> = {};
+
+    for (const [containerKey, viewList] of Object.entries(views)) {
+      newViews[containerKey] = viewList.map((view) => ({
+        ...view,
+        id: addDevSuffix(view.id),
+        name: view.name ? addDevLabel(view.name) : undefined,
+      }));
+    }
+
+    contributes.views = newViews;
+  }
+
+  if (contributes.menus) {
+    const menus = contributes.menus as Record<string, Array<{ when?: string; command?: string }>>;
+
+    for (const menuList of Object.values(menus)) {
+      for (const menu of menuList) {
+        if (menu.when) {
+          menu.when = transformContextKey(menu.when);
+        }
+        if (menu.command) {
+          menu.command = transformCommand(menu.command);
+        }
+      }
+    }
+  }
+
+  if (contributes.commands) {
+    const commands = contributes.commands as Array<{ command: string; title?: string; enablement?: string }>;
+    for (const cmd of commands) {
+      cmd.command = transformCommand(cmd.command);
+    }
+  }
+
+  if (contributes.keybindings) {
+    const keybindings = contributes.keybindings as Array<{ when?: string; command?: string }>;
+    for (const binding of keybindings) {
+      if (binding.when) {
+        binding.when = transformContextKey(binding.when);
+      }
+      if (binding.command) {
+        binding.command = transformCommand(binding.command);
+      }
+    }
+  }
+
+  return transformed;
 }

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
-import { GLOBAL_STATE_WORKSPACE_SOURCE } from './common/constants';
+import { GLOBAL_STATE_WORKSPACE_SOURCE, getViewId } from './common/constants';
 import { TaskTreeDataProvider } from './views/tasks';
 
 export function activate(context: vscode.ExtensionContext): object {
@@ -8,7 +8,7 @@ export function activate(context: vscode.ExtensionContext): object {
 
   void vscode.tasks.fetchTasks();
 
-  vscode.window.registerTreeDataProvider('taskOutlinePlus', taskTreeDataProvider);
+  vscode.window.registerTreeDataProvider(getViewId(), taskTreeDataProvider);
 
   const commandDisposables = registerAllCommands(context, taskTreeDataProvider);
   context.subscriptions.push(...commandDisposables);

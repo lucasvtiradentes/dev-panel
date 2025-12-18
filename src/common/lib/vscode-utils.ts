@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getCommandId } from '../constants';
+import { getCommandId, getContextKey as getContextKeyWithDev } from '../constants';
 
 export enum Command {
   Refresh = 'refresh',
@@ -70,5 +70,5 @@ export enum ContextKey {
 }
 
 export function setContextKey(key: ContextKey, value: boolean): Thenable<unknown> {
-  return vscode.commands.executeCommand('setContext', key, value);
+  return vscode.commands.executeCommand('setContext', getContextKeyWithDev(key), value);
 }
