@@ -8,7 +8,7 @@ import {
   getViewIdHello2,
 } from './common/constants';
 import { HelloView1Provider, selectConfigOption } from './views/hello1';
-import { HelloView2Provider } from './views/hello2';
+import { HelloView2Provider, revertAllReplacements, toggleReplacement } from './views/hello2';
 import { TaskTreeDataProvider } from './views/tasks';
 
 export function activate(context: vscode.ExtensionContext): object {
@@ -23,8 +23,12 @@ export function activate(context: vscode.ExtensionContext): object {
   vscode.window.registerTreeDataProvider(getViewIdHello2(), hello2Provider);
 
   const selectConfigCmd = vscode.commands.registerCommand(getCommandId('selectConfigOption'), selectConfigOption);
-  context.subscriptions.push(selectConfigCmd);
+  const toggleReplacementCmd = vscode.commands.registerCommand(getCommandId('toggleReplacement'), toggleReplacement);
+  const revertAllCmd = vscode.commands.registerCommand(getCommandId('revertAllReplacements'), revertAllReplacements);
+
+  context.subscriptions.push(selectConfigCmd, toggleReplacementCmd, revertAllCmd);
   context.subscriptions.push({ dispose: () => hello1Provider.dispose() });
+  context.subscriptions.push({ dispose: () => hello2Provider.dispose() });
 
   const commandDisposables = registerAllCommands(context, taskTreeDataProvider);
   context.subscriptions.push(...commandDisposables);

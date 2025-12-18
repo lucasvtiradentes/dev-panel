@@ -3,3 +3,4 @@ dist-dev
 node_modules
 .vscode-test/
 *.vsix
+.bpm/state.json

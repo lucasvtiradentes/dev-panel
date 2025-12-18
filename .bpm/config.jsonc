@@ -55,5 +55,23 @@
       "description": "Select output directory",
       "icon": "folder-opened"
     }
+  ],
+
+  "replacements": [
+    // Example: patch replacement (multiline)
+    {
+      "name": "enable-debug-logs",
+      "type": "patch",
+      "description": "Enable debug logging in hello1 view",
+      "target": "src/views/hello1/index.ts",
+      "onBranchChange": "revert",
+      "patches": [
+        {
+          "search": "function getWorkspacePath()",
+          "replace": "// DEBUG ENABLED\nfunction getWorkspacePath()"
+        }
+      ],
+      "group": "Debug"
+    }
   ]
 }

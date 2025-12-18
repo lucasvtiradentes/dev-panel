@@ -97,6 +97,15 @@
         "title": "Select Config Option"
       },
       {
+        "command": "betterProjectTools.toggleReplacement",
+        "title": "Toggle Replacement"
+      },
+      {
+        "command": "betterProjectTools.revertAllReplacements",
+        "title": "Revert All Replacements",
+        "icon": "$(discard)"
+      },
+      {
         "command": "betterProjectTools.executeTask",
         "title": "Execute"
       },
@@ -156,6 +165,11 @@
     ],
     "menus": {
       "view/title": [
+        {
+          "command": "betterProjectTools.revertAllReplacements",
+          "when": "view == betterProjectToolsHello2",
+          "group": "navigation"
+        },
         {
           "command": "betterProjectTools.showList",
           "when": "view == betterProjectToolsTasks",
