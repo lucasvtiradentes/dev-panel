@@ -1,5 +1,5 @@
 import type * as vscode from 'vscode';
-import type { TaskTreeDataProvider } from '../tree-view';
+import type { TaskTreeDataProvider } from '../views/tasks';
 import {
     createBackCmdlineCommand,
     createExecCmdlineCommand,

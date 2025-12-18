@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { ExtensionConfigKey, getExtensionConfig } from '../common';
-import { StatusBarManager } from '../status-bar/status-bar-manager';
-import { TreeTask, GroupTreeItem, WorkspaceTreeItem } from './tree-items';
+import { ExtensionConfigKey, getExtensionConfig } from '../../common';
+import { StatusBarManager } from '../../status-bar/status-bar-manager';
+import { TreeTask, GroupTreeItem, WorkspaceTreeItem } from './items';
 
 export class TaskTreeDataProvider implements
     vscode.TreeDataProvider<TreeTask | GroupTreeItem | WorkspaceTreeItem> {

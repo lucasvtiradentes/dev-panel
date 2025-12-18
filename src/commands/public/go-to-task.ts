@@ -8,7 +8,7 @@ import {
     registerCommand,
     showToastMessage,
 } from '../../common';
-import type { TreeTask } from '../../tree-view';
+import type { TreeTask } from '../../views/tasks';
 
 export function createGoToTaskCommand() {
     return registerCommand(Command.GoToTask, async (task: TreeTask) => {
