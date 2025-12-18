@@ -1,0 +1,50 @@
+name: 'Release VSCode Extension'
+description: 'Builds and publishes VSCode extension to VS Code Marketplace and Open VSX'
+
+inputs:
+  azure-pat:
+    description: 'Azure DevOps Personal Access Token for VS Code Marketplace'
+    required: true
+  open-vsx-pat:
+    description: 'Personal Access Token for Open VSX Registry'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Build extension
+      shell: bash
+      run: pnpm run build
+      env:
+        CI: true
+
+    - name: Get version
+      id: version
+      shell: bash
+      run: |
+        VERSION=$(node -p "require('./package.json').version")
+        echo "current=$VERSION" >> $GITHUB_OUTPUT
+        echo "📦 Publishing version: $VERSION"
+
+    - name: Publish to Open VSX Registry
+      id: publishToOpenVSX
+      uses: HaaLeo/publish-vscode-extension@v2
+      with:
+        pat: ${{ inputs.open-vsx-pat }}
+        packagePath: .
+        dependencies: false
+        skipDuplicate: true
+
+    - name: Publish to VS Code Marketplace
+      uses: HaaLeo/publish-vscode-extension@v2
+      with:
+        pat: ${{ inputs.azure-pat }}
+        registryUrl: https://marketplace.visualstudio.com
+        extensionFile: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
+        dependencies: false
+        skipDuplicate: true
+
+    - name: Summary
+      shell: bash
+      run: |
+        echo "✅ VSCode extension v${{ steps.version.outputs.current }} published!"

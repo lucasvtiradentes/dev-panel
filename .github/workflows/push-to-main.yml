@@ -1,0 +1,113 @@
+name: 'Main Branch & Release'
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  pull-requests: write
+  contents: write
+
+concurrency:
+  group: main-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: 'CI'
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.check.outputs.should_release }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+        env:
+          CI: true
+
+      - name: Check if version was bumped
+        id: check
+        run: bash scripts/release/check-version-bump.sh
+
+  prepare_release:
+    name: 'Prepare Release'
+    needs: [ci]
+    runs-on: ubuntu-latest
+    outputs:
+      has_changesets: ${{ steps.changesets.outputs.hasChangesets }}
+    env:
+      HUSKY: 0
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create Release Pull Request (if changesets exist)
+        id: changesets
+        uses: changesets/action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release_vscode:
+    name: 'Release VSCode Extension'
+    needs: [ci, prepare_release]
+    if: needs.prepare_release.outputs.has_changesets == 'false' && needs.ci.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - uses: ./.github/actions/release-vscode
+        with:
+          azure-pat: ${{ secrets.AZURE_VSCODE_PAT }}
+          open-vsx-pat: ${{ secrets.OPEN_VSX_PAT }}
