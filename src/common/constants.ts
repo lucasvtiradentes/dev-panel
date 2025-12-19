@@ -1,27 +1,24 @@
-const EXTENSION_PUBLISHER = 'lucasvtiradentes';
-export const EXTENSION_NAME = 'better-project-tools';
+import {
+  CONTEXT_PREFIX,
+  VIEW_ID_BRANCH_CONTEXT,
+  VIEW_ID_CONFIGS,
+  VIEW_ID_PROMPTS,
+  VIEW_ID_REPLACEMENTS,
+  VIEW_ID_TASKS,
+  VIEW_ID_TOOLS,
+  addDevSuffix,
+  buildLogFilename,
+} from './scripts-constants';
 
-export const CONTEXT_PREFIX = 'betterProjectTools';
-export const VIEW_ID_TASKS = 'betterProjectToolsTasks';
-const VIEW_ID_CONFIGS = 'betterProjectToolsConfigs';
-const VIEW_ID_REPLACEMENTS = 'betterProjectToolsReplacements';
-const VIEW_ID_TOOLS = 'betterProjectToolsTools';
-const VIEW_ID_PROMPTS = 'betterProjectToolsPrompts';
-const VIEW_ID_BRANCH_CONTEXT = 'betterProjectToolsBranchContext';
-export const DEV_SUFFIX = 'dev';
-
-export function addDevSuffix(str: string): string {
-  return `${str}${DEV_SUFFIX}`;
-}
-
-export function addDevLabel(str: string): string {
-  return `${str} (${DEV_SUFFIX})`;
-}
-
-export function buildExtensionId(isDev: boolean): string {
-  const name = isDev ? `${EXTENSION_NAME}-${DEV_SUFFIX}` : EXTENSION_NAME;
-  return `${EXTENSION_PUBLISHER}.${name}`;
-}
+export {
+  CONTEXT_PREFIX,
+  DEV_SUFFIX,
+  EXTENSION_NAME,
+  VIEW_ID_TASKS,
+  addDevLabel,
+  addDevSuffix,
+  buildExtensionId,
+} from './scripts-constants';
 
 declare const __IS_DEV_BUILD__: boolean;
 export const IS_DEV = typeof __IS_DEV_BUILD__ !== 'undefined' && __IS_DEV_BUILD__;
@@ -59,4 +56,8 @@ export function getViewIdPrompts(): string {
 
 export function getViewIdBranchContext(): string {
   return IS_DEV ? addDevSuffix(VIEW_ID_BRANCH_CONTEXT) : VIEW_ID_BRANCH_CONTEXT;
+}
+
+export function getLogFilename(): string {
+  return buildLogFilename(IS_DEV);
 }

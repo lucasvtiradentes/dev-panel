@@ -18,7 +18,7 @@ import {
   addDevLabel,
   addDevSuffix,
   buildExtensionId,
-} from '../../src/common/constants';
+} from '../../src/common/scripts-constants';
 
 const logger = console;
 

@@ -256,6 +256,10 @@
       {
         "command": "betterProjectTools.editBranchNotes",
         "title": "Edit Branch Notes"
+      },
+      {
+        "command": "betterProjectTools.showLogs",
+        "title": "BPM: Show Logs"
       }
     ],
     "keybindings": [

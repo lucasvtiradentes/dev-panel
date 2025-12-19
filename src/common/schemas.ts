@@ -1,5 +1,22 @@
 import { z } from 'zod';
 
+export enum PromptInputType {
+  File = 'file',
+  Files = 'files',
+  Folder = 'folder',
+  Folders = 'folders',
+  Text = 'text',
+  Number = 'number',
+  Confirm = 'confirm',
+  Choice = 'choice',
+  Multichoice = 'multichoice',
+}
+
+export enum SelectionStyle {
+  Flat = 'flat',
+  Interactive = 'interactive',
+}
+
 export const TaskSourceEnum = z.enum(['vscode', 'package', 'bpm']);
 
 const BPMScriptSchema = z
@@ -22,6 +39,24 @@ const BPMToolSchema = z
   })
   .describe('A tool that can be executed from the Tools view');
 
+const BPMPromptInputSchema = z
+  .object({
+    name: z.string().describe('Variable name used in prompt template as {{name}}'),
+    type: z.nativeEnum(PromptInputType).describe('Input type'),
+    label: z.string().describe('Label shown in the input dialog'),
+    placeholder: z.string().optional().describe('Placeholder text for text/number inputs'),
+    options: z.array(z.string()).optional().describe('Available options for choice/multichoice types'),
+    selectionStyle: z
+      .nativeEnum(SelectionStyle)
+      .optional()
+      .describe('Selection style for file/folder inputs. Overrides global setting'),
+    excludes: z
+      .array(z.string())
+      .optional()
+      .describe('Glob patterns to exclude for this input. Overrides global excludes'),
+  })
+  .describe('An input required before running the prompt');
+
 const BPMPromptSchema = z
   .object({
     name: z.string().describe('Unique identifier for the prompt'),
@@ -29,6 +64,11 @@ const BPMPromptSchema = z
     icon: z.string().optional().describe('VSCode ThemeIcon id (e.g. "comment", "sparkle")'),
     group: z.string().optional().describe('Group name for organizing prompts'),
     description: z.string().optional().describe('Human-readable description shown as tooltip'),
+    inputs: z.array(BPMPromptInputSchema).optional().describe('Inputs to collect before running the prompt'),
+    saveOutput: z
+      .boolean()
+      .optional()
+      .describe('If true, save response to .ignore/{{branch}}/{{datetime}}-{{promptname}}.md'),
   })
   .describe('A prompt that can be executed in Claude Code');
 
@@ -65,9 +105,34 @@ const BPMReplacementSchema = z
   })
   .describe('A file replacement/patch shown in the Replacements view');
 
+const BPMPromptSelectionSchema = z
+  .object({
+    fileStyle: z
+      .nativeEnum(SelectionStyle)
+      .optional()
+      .describe('Selection style for file inputs: flat (all files listed) or interactive (navigate step by step)'),
+    folderStyle: z
+      .nativeEnum(SelectionStyle)
+      .optional()
+      .describe('Selection style for folder inputs: flat (all folders listed) or interactive (navigate step by step)'),
+    includes: z.array(z.string()).optional().describe('Glob patterns to include (e.g. ["src/**/*", "**/*.ts"])'),
+    excludes: z
+      .array(z.string())
+      .optional()
+      .describe('Glob patterns to exclude (e.g. ["**/node_modules/**", "**/.git/**"])'),
+  })
+  .describe('Settings for file/folder selection in prompts');
+
+const BPMSettingsSchema = z
+  .object({
+    promptSelection: BPMPromptSelectionSchema.optional().describe('File/folder selection settings for prompts'),
+  })
+  .describe('Global settings for BPM behavior');
+
 export const BPMConfigSchema = z
   .object({
     $schema: z.string().optional().describe('JSON Schema reference'),
+    settings: BPMSettingsSchema.optional().describe('Global settings'),
     configs: z.array(BPMConfigItemSchema).optional().describe('Configuration options'),
     replacements: z.array(BPMReplacementSchema).optional().describe('File replacements/patches'),
     scripts: z.array(BPMScriptSchema).optional().describe('Executable scripts'),
@@ -123,9 +188,12 @@ export const BPMStateSchema = z.object({
 export type TaskSource = z.infer<typeof TaskSourceEnum>;
 export type BPMScript = z.infer<typeof BPMScriptSchema>;
 export type BPMTool = z.infer<typeof BPMToolSchema>;
+export type BPMPromptInput = z.infer<typeof BPMPromptInputSchema>;
 export type BPMPrompt = z.infer<typeof BPMPromptSchema>;
 export type BPMConfigItem = z.infer<typeof BPMConfigItemSchema>;
 export type BPMReplacement = z.infer<typeof BPMReplacementSchema>;
+export type BPMPromptSelection = z.infer<typeof BPMPromptSelectionSchema>;
+export type BPMSettings = z.infer<typeof BPMSettingsSchema>;
 export type BPMConfig = z.infer<typeof BPMConfigSchema>;
 export type SourceState = z.infer<typeof SourceStateSchema>;
 export type TasksState = z.infer<typeof TasksStateSchema>;
