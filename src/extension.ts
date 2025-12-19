@@ -16,6 +16,7 @@ import { PromptTreeDataProvider } from './views/prompts';
 import { ReplacementsProvider } from './views/replacements';
 import { TaskTreeDataProvider } from './views/tasks';
 import { ToolTreeDataProvider } from './views/tools';
+import { createConfigWatcher } from './watchers/config-watcher';
 import { createStateWatcher } from './watchers/state-watcher';
 
 export function activate(context: vscode.ExtensionContext): object {
@@ -64,6 +65,16 @@ export function activate(context: vscode.ExtensionContext): object {
     promptTreeDataProvider.refresh();
   });
   context.subscriptions.push(stateWatcher);
+
+  const configWatcher = createConfigWatcher(() => {
+    logger.info('Config changed, refreshing views');
+    configsProvider.refresh();
+    replacementsProvider.refresh();
+    toolTreeDataProvider.refresh();
+    promptTreeDataProvider.refresh();
+    taskTreeDataProvider.refresh();
+  });
+  context.subscriptions.push(configWatcher);
 
   const commandDisposables = registerAllCommands(
     context,

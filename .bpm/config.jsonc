@@ -1,8 +1,11 @@
 {
   "$schema": "../resources/schema.json",
   "settings": {
-    "promptFileSelectionStyle": "interactive",
-    "promptFolderSelectionStyle": "flat"
+    "promptSelection": {
+      "fileStyle": "flat",
+      "folderStyle": "interactive",
+      "excludes": ["**/node_modules/**", "**/.git/**", "**/dist/**", "**/out/**", "**/.bpm/**"]
+    }
   },
   "configs": [
     // Environment group
@@ -138,7 +141,7 @@
       "group": "Analysis",
       "saveOutput": true,
       "inputs": [
-        { "name": "files", "type": "files", "label": "Select files to review", "selectionStyle": "interactive" },
+        { "name": "files", "type": "files", "label": "Select files to review" },
         {
           "name": "focus",
           "type": "multichoice",

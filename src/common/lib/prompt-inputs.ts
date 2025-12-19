@@ -5,6 +5,28 @@ import { createLogger } from './logger';
 
 const log = createLogger('prompt-inputs');
 
+const ItemTag = {
+  Back: Symbol('back'),
+  Done: Symbol('done'),
+  Folder: Symbol('folder'),
+  File: Symbol('file'),
+  SelectCurrent: Symbol('select-current'),
+} as const;
+
+type ItemTag = (typeof ItemTag)[keyof typeof ItemTag];
+
+interface TaggedQuickPickItem extends vscode.QuickPickItem {
+  tag?: ItemTag;
+}
+
+function createItem(label: string, description: string, tag: ItemTag): TaggedQuickPickItem {
+  return { label, description, tag };
+}
+
+function hasTag(item: TaggedQuickPickItem | undefined, tag: ItemTag): boolean {
+  return item?.tag === tag;
+}
+
 export type PromptInputValues = Record<string, string>;
 
 export async function collectPromptInputs(
@@ -52,6 +74,8 @@ async function collectSingleInput(
   }
 }
 
+const DEFAULT_EXCLUDES = ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/out/**'];
+
 function getSelectionStyle(
   input: BPMPromptInput,
   settings: BPMSettings | undefined,
@@ -65,16 +89,36 @@ function getSelectionStyle(
     log.debug(`Using input.selectionStyle: ${input.selectionStyle}`);
     return input.selectionStyle;
   }
-  if (inputType === 'folder' && settings?.promptFolderSelectionStyle) {
-    log.debug(`Using settings.promptFolderSelectionStyle: ${settings.promptFolderSelectionStyle}`);
-    return settings.promptFolderSelectionStyle;
+
+  const promptSelection = settings?.promptSelection;
+  if (inputType === 'folder' && promptSelection?.folderStyle) {
+    log.debug(`Using settings.promptSelection.folderStyle: ${promptSelection.folderStyle}`);
+    return promptSelection.folderStyle;
   }
-  if (inputType === 'file' && settings?.promptFileSelectionStyle) {
-    log.debug(`Using settings.promptFileSelectionStyle: ${settings.promptFileSelectionStyle}`);
-    return settings.promptFileSelectionStyle;
+  if (inputType === 'file' && promptSelection?.fileStyle) {
+    log.debug(`Using settings.promptSelection.fileStyle: ${promptSelection.fileStyle}`);
+    return promptSelection.fileStyle;
   }
+
   log.debug('Using default: flat');
   return SelectionStyle.Flat;
+}
+
+function getExcludePatterns(input: BPMPromptInput, settings: BPMSettings | undefined): string[] {
+  if (input.excludes && input.excludes.length > 0) {
+    log.debug(`Using input.excludes: ${JSON.stringify(input.excludes)}`);
+    return input.excludes;
+  }
+  if (settings?.promptSelection?.excludes && settings.promptSelection.excludes.length > 0) {
+    log.debug(`Using settings.promptSelection.excludes: ${JSON.stringify(settings.promptSelection.excludes)}`);
+    return settings.promptSelection.excludes;
+  }
+  log.debug(`Using default excludes: ${JSON.stringify(DEFAULT_EXCLUDES)}`);
+  return DEFAULT_EXCLUDES;
+}
+
+function buildExcludeGlob(excludes: string[]): string {
+  return `{${excludes.join(',')}}`;
 }
 
 async function collectFileInput(
@@ -86,25 +130,28 @@ async function collectFileInput(
   log.info(`collectFileInput called - multiple: ${multiple}`);
   log.debug(`input: ${JSON.stringify(input)}`);
   const style = getSelectionStyle(input, settings, 'file');
-  log.info(`Resolved style: ${style}`);
+  const excludes = getExcludePatterns(input, settings);
+  log.info(`Resolved style: ${style}, excludes: ${excludes.length} patterns`);
 
   if (style === SelectionStyle.Interactive) {
     log.info('Using interactive file picker');
-    return collectFileInteractive(input, workspaceFolder, multiple);
+    return collectFileInteractive(input, workspaceFolder, multiple, excludes);
   }
 
   log.info('Using flat file picker');
-  return collectFileFlat(input, workspaceFolder, multiple);
+  return collectFileFlat(input, workspaceFolder, multiple, excludes);
 }
 
 async function collectFileFlat(
   input: BPMPromptInput,
   workspaceFolder: vscode.WorkspaceFolder,
   multiple: boolean,
+  excludes: string[],
 ): Promise<string | undefined> {
+  const excludeGlob = buildExcludeGlob(excludes);
   const files = await vscode.workspace.findFiles(
     new vscode.RelativePattern(workspaceFolder, '**/*'),
-    '**/node_modules/**',
+    excludeGlob,
     1000,
   );
 
@@ -139,6 +186,7 @@ async function collectFileInteractive(
   input: BPMPromptInput,
   workspaceFolder: vscode.WorkspaceFolder,
   multiple: boolean,
+  excludes: string[],
 ): Promise<string | undefined> {
   const selectedFiles: string[] = [];
   let currentPath = '';
@@ -148,71 +196,59 @@ async function collectFileInteractive(
       ? path.join(workspaceFolder.uri.fsPath, currentPath)
       : workspaceFolder.uri.fsPath;
 
-    const entries = await getDirectoryEntries(currentFullPath);
-    const items: vscode.QuickPickItem[] = [];
+    const entries = await getDirectoryEntries(currentFullPath, excludes);
+    const items: TaggedQuickPickItem[] = [];
 
     if (currentPath) {
-      items.push({
-        label: '$(arrow-left) ..',
-        description: 'Go back',
-        detail: 'BACK',
-      });
+      items.push(createItem('$(arrow-left) ..', 'Go back', ItemTag.Back));
     }
 
     for (const entry of entries.folders) {
-      items.push({
-        label: `$(folder) ${entry}`,
-        description: currentPath ? `${currentPath}/${entry}` : entry,
-        detail: 'FOLDER',
-      });
+      const desc = currentPath ? `${currentPath}/${entry}` : entry;
+      items.push(createItem(`$(folder) ${entry}`, desc, ItemTag.Folder));
     }
 
     for (const entry of entries.files) {
       const filePath = path.join(currentFullPath, entry);
       const isSelected = selectedFiles.includes(filePath);
-      items.push({
-        label: `$(file) ${entry}${isSelected ? ' $(check)' : ''}`,
-        description: currentPath ? `${currentPath}/${entry}` : entry,
-        detail: 'FILE',
-      });
+      const desc = currentPath ? `${currentPath}/${entry}` : entry;
+      items.push(createItem(`$(file) ${entry}${isSelected ? ' $(check)' : ''}`, desc, ItemTag.File));
     }
 
     if (multiple && selectedFiles.length > 0) {
-      items.unshift({
-        label: `$(check-all) Done (${selectedFiles.length} selected)`,
-        description: 'Confirm selection',
-        detail: 'DONE',
-      });
+      items.unshift(
+        createItem(`$(check-all) Done (${selectedFiles.length} selected)`, 'Confirm selection', ItemTag.Done),
+      );
     }
 
     const placeholder = multiple
-      ? `${input.label} (${selectedFiles.length} selected) - Current: ${currentPath || '.'}`
-      : `${input.label} - Current: ${currentPath || '.'}`;
+      ? `${input.label} (${selectedFiles.length} selected) - Current: ${currentPath ?? '.'}`
+      : `${input.label} - Current: ${currentPath ?? '.'}`;
 
-    const result = await vscode.window.showQuickPick(items, {
+    const result = await vscode.window.showQuickPick<TaggedQuickPickItem>(items, {
       placeHolder: placeholder,
       ignoreFocusOut: true,
     });
 
     if (!result) return undefined;
 
-    if (result.detail === 'DONE') {
+    if (hasTag(result, ItemTag.Done)) {
       return selectedFiles.join('\n');
     }
 
-    if (result.detail === 'BACK') {
+    if (hasTag(result, ItemTag.Back)) {
       currentPath = path.dirname(currentPath);
       if (currentPath === '.') currentPath = '';
       continue;
     }
 
-    if (result.detail === 'FOLDER') {
-      currentPath = result.description!;
+    if (hasTag(result, ItemTag.Folder) && result.description) {
+      currentPath = result.description;
       continue;
     }
 
-    if (result.detail === 'FILE') {
-      const filePath = path.join(workspaceFolder.uri.fsPath, result.description!);
+    if (hasTag(result, ItemTag.File) && result.description) {
+      const filePath = path.join(workspaceFolder.uri.fsPath, result.description);
 
       if (multiple) {
         const index = selectedFiles.indexOf(filePath);
@@ -236,22 +272,25 @@ async function collectFolderInput(
   settings?: BPMSettings,
 ): Promise<string | undefined> {
   const style = getSelectionStyle(input, settings, 'folder');
+  const excludes = getExcludePatterns(input, settings);
 
   if (style === SelectionStyle.Interactive) {
-    return collectFolderInteractive(input, workspaceFolder, multiple);
+    return collectFolderInteractive(input, workspaceFolder, multiple, excludes);
   }
 
-  return collectFolderFlat(input, workspaceFolder, multiple);
+  return collectFolderFlat(input, workspaceFolder, multiple, excludes);
 }
 
 async function collectFolderFlat(
   input: BPMPromptInput,
   workspaceFolder: vscode.WorkspaceFolder,
   multiple: boolean,
+  excludes: string[],
 ): Promise<string | undefined> {
+  const excludeGlob = buildExcludeGlob(excludes);
   const files = await vscode.workspace.findFiles(
     new vscode.RelativePattern(workspaceFolder, '**/*'),
-    '**/node_modules/**',
+    excludeGlob,
     2000,
   );
 
@@ -301,6 +340,7 @@ async function collectFolderInteractive(
   input: BPMPromptInput,
   workspaceFolder: vscode.WorkspaceFolder,
   multiple: boolean,
+  excludes: string[],
 ): Promise<string | undefined> {
   const selectedFolders: string[] = [];
   let currentPath = '';
@@ -310,66 +350,59 @@ async function collectFolderInteractive(
       ? path.join(workspaceFolder.uri.fsPath, currentPath)
       : workspaceFolder.uri.fsPath;
 
-    const entries = await getDirectoryEntries(currentFullPath);
-    const items: vscode.QuickPickItem[] = [];
+    const entries = await getDirectoryEntries(currentFullPath, excludes);
+    const items: TaggedQuickPickItem[] = [];
 
     if (currentPath) {
-      items.push({
-        label: '$(arrow-left) ..',
-        description: 'Go back',
-        detail: 'BACK',
-      });
+      items.push(createItem('$(arrow-left) ..', 'Go back', ItemTag.Back));
     }
 
     const currentFolderPath = currentFullPath;
     const isCurrentSelected = selectedFolders.includes(currentFolderPath);
 
-    items.push({
-      label: `$(check) Select this folder${isCurrentSelected ? ' (selected)' : ''}`,
-      description: currentPath || '.',
-      detail: 'SELECT',
-    });
+    items.push(
+      createItem(
+        `$(check) Select this folder${isCurrentSelected ? ' (selected)' : ''}`,
+        currentPath ?? '.',
+        ItemTag.SelectCurrent,
+      ),
+    );
 
     for (const entry of entries.folders) {
       const folderFullPath = path.join(currentFullPath, entry);
       const isSelected = selectedFolders.includes(folderFullPath);
-      items.push({
-        label: `$(folder) ${entry}${isSelected ? ' $(check)' : ''}`,
-        description: currentPath ? `${currentPath}/${entry}` : entry,
-        detail: 'FOLDER',
-      });
+      const desc = currentPath ? `${currentPath}/${entry}` : entry;
+      items.push(createItem(`$(folder) ${entry}${isSelected ? ' $(check)' : ''}`, desc, ItemTag.Folder));
     }
 
     if (multiple && selectedFolders.length > 0) {
-      items.unshift({
-        label: `$(check-all) Done (${selectedFolders.length} selected)`,
-        description: 'Confirm selection',
-        detail: 'DONE',
-      });
+      items.unshift(
+        createItem(`$(check-all) Done (${selectedFolders.length} selected)`, 'Confirm selection', ItemTag.Done),
+      );
     }
 
     const placeholder = multiple
-      ? `${input.label} (${selectedFolders.length} selected) - Current: ${currentPath || '.'}`
-      : `${input.label} - Current: ${currentPath || '.'}`;
+      ? `${input.label} (${selectedFolders.length} selected) - Current: ${currentPath ?? '.'}`
+      : `${input.label} - Current: ${currentPath ?? '.'}`;
 
-    const result = await vscode.window.showQuickPick(items, {
+    const result = await vscode.window.showQuickPick<TaggedQuickPickItem>(items, {
       placeHolder: placeholder,
       ignoreFocusOut: true,
     });
 
     if (!result) return undefined;
 
-    if (result.detail === 'DONE') {
+    if (hasTag(result, ItemTag.Done)) {
       return selectedFolders.join('\n');
     }
 
-    if (result.detail === 'BACK') {
+    if (hasTag(result, ItemTag.Back)) {
       currentPath = path.dirname(currentPath);
       if (currentPath === '.') currentPath = '';
       continue;
     }
 
-    if (result.detail === 'SELECT') {
+    if (hasTag(result, ItemTag.SelectCurrent)) {
       if (multiple) {
         const index = selectedFolders.indexOf(currentFolderPath);
         if (index >= 0) {
@@ -382,13 +415,29 @@ async function collectFolderInteractive(
       return currentFolderPath;
     }
 
-    if (result.detail === 'FOLDER') {
-      currentPath = result.description!;
+    if (hasTag(result, ItemTag.Folder) && result.description) {
+      currentPath = result.description;
     }
   }
 }
 
-async function getDirectoryEntries(dirPath: string): Promise<{ folders: string[]; files: string[] }> {
+function shouldExclude(name: string, excludes: string[]): boolean {
+  for (const pattern of excludes) {
+    const simpleName = pattern
+      .replace(/\*\*\//g, '')
+      .replace(/\/\*\*/g, '')
+      .replace(/\*/g, '');
+    if (simpleName && name === simpleName) return true;
+    if (simpleName && name.startsWith('.') && pattern.includes('**/.*')) return true;
+  }
+  if (name.startsWith('.')) return true;
+  return false;
+}
+
+async function getDirectoryEntries(
+  dirPath: string,
+  excludes: string[],
+): Promise<{ folders: string[]; files: string[] }> {
   const folders: string[] = [];
   const files: string[] = [];
 
@@ -397,7 +446,7 @@ async function getDirectoryEntries(dirPath: string): Promise<{ folders: string[]
     const entries = await vscode.workspace.fs.readDirectory(uri);
 
     for (const [name, type] of entries) {
-      if (name.startsWith('.') || name === 'node_modules') continue;
+      if (shouldExclude(name, excludes)) continue;
 
       if (type === vscode.FileType.Directory) {
         folders.push(name);
@@ -428,7 +477,7 @@ async function collectNumberInput(input: BPMPromptInput): Promise<string | undef
     prompt: input.label,
     placeHolder: input.placeholder,
     ignoreFocusOut: true,
-    validateInput: (value) => {
+    validateInput: (value: string) => {
       if (value && Number.isNaN(Number(value))) {
         return 'Please enter a valid number';
       }

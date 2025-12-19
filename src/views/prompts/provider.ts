@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
+import { Command, ContextKey, createLogger, getCommandId, setContextKey } from '../../common';
 import type { BPMConfig } from '../../common/types';
 import { PromptDragAndDropController } from './dnd-controller';
 import { PromptGroupTreeItem, TreePrompt } from './items';
@@ -14,6 +14,8 @@ import {
   toggleFavorite as toggleFavoriteState,
   toggleHidden,
 } from './state';
+
+const log = createLogger('prompts-provider');
 
 export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePrompt | PromptGroupTreeItem> {
   private readonly _onDidChangeTreeData: vscode.EventEmitter<TreePrompt | null> =
@@ -34,6 +36,7 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
   }
 
   refresh(): void {
+    log.info('refresh() called - tree will re-read config');
     this._onDidChangeTreeData.fire(null);
   }
 
@@ -144,9 +147,17 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
 
   private readBPMPrompts(folder: vscode.WorkspaceFolder): NonNullable<BPMConfig['prompts']> {
     const configPath = `${folder.uri.fsPath}/.bpm/config.jsonc`;
+    log.debug(`readBPMPrompts - reading: ${configPath}`);
     if (!fs.existsSync(configPath)) return [];
     const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as BPMConfig;
-    return config.prompts ?? [];
+    const prompts = config.prompts ?? [];
+    log.info(`readBPMPrompts - found ${prompts.length} prompts`);
+    for (const p of prompts) {
+      if (p.inputs) {
+        log.debug(`prompt "${p.name}" inputs: ${JSON.stringify(p.inputs)}`);
+      }
+    }
+    return prompts;
   }
 
   private createBPMPrompt(

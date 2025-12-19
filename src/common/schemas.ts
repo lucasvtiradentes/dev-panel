@@ -50,6 +50,10 @@ const BPMPromptInputSchema = z
       .nativeEnum(SelectionStyle)
       .optional()
       .describe('Selection style for file/folder inputs. Overrides global setting'),
+    excludes: z
+      .array(z.string())
+      .optional()
+      .describe('Glob patterns to exclude for this input. Overrides global excludes'),
   })
   .describe('An input required before running the prompt');
 
@@ -101,20 +105,27 @@ const BPMReplacementSchema = z
   })
   .describe('A file replacement/patch shown in the Replacements view');
 
+const BPMPromptSelectionSchema = z
+  .object({
+    fileStyle: z
+      .nativeEnum(SelectionStyle)
+      .optional()
+      .describe('Selection style for file inputs: flat (all files listed) or interactive (navigate step by step)'),
+    folderStyle: z
+      .nativeEnum(SelectionStyle)
+      .optional()
+      .describe('Selection style for folder inputs: flat (all folders listed) or interactive (navigate step by step)'),
+    includes: z.array(z.string()).optional().describe('Glob patterns to include (e.g. ["src/**/*", "**/*.ts"])'),
+    excludes: z
+      .array(z.string())
+      .optional()
+      .describe('Glob patterns to exclude (e.g. ["**/node_modules/**", "**/.git/**"])'),
+  })
+  .describe('Settings for file/folder selection in prompts');
+
 const BPMSettingsSchema = z
   .object({
-    promptFolderSelectionStyle: z
-      .nativeEnum(SelectionStyle)
-      .optional()
-      .describe(
-        'Default selection style for folder inputs: flat (all folders listed) or interactive (navigate step by step)',
-      ),
-    promptFileSelectionStyle: z
-      .nativeEnum(SelectionStyle)
-      .optional()
-      .describe(
-        'Default selection style for file inputs: flat (all files listed) or interactive (navigate step by step)',
-      ),
+    promptSelection: BPMPromptSelectionSchema.optional().describe('File/folder selection settings for prompts'),
   })
   .describe('Global settings for BPM behavior');
 
@@ -181,6 +192,7 @@ export type BPMPromptInput = z.infer<typeof BPMPromptInputSchema>;
 export type BPMPrompt = z.infer<typeof BPMPromptSchema>;
 export type BPMConfigItem = z.infer<typeof BPMConfigItemSchema>;
 export type BPMReplacement = z.infer<typeof BPMReplacementSchema>;
+export type BPMPromptSelection = z.infer<typeof BPMPromptSelectionSchema>;
 export type BPMSettings = z.infer<typeof BPMSettingsSchema>;
 export type BPMConfig = z.infer<typeof BPMConfigSchema>;
 export type SourceState = z.infer<typeof SourceStateSchema>;
