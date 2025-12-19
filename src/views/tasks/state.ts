@@ -64,7 +64,7 @@ export function getSourceStateKey(source: TaskSource): SourceStateKey {
 export function getSourceState(source: TaskSource): TaskSourceState {
   const tasksState = loadTasksState();
   const key = getSourceStateKey(source);
-  return tasksState[key] ?? { flatOrder: [], groupOrder: [], favorites: [] };
+  return tasksState[key] ?? { flatOrder: [], groupOrder: [], favorites: [], hidden: [] };
 }
 
 export function getOrder(source: TaskSource, isGrouped: boolean): string[] {
@@ -75,7 +75,7 @@ export function getOrder(source: TaskSource, isGrouped: boolean): string[] {
 export function saveSourceOrder(source: TaskSource, isGrouped: boolean, order: string[]): void {
   const tasksState = loadTasksState();
   const key = getSourceStateKey(source);
-  const currentState = tasksState[key] ?? { flatOrder: [], groupOrder: [], favorites: [] };
+  const currentState = tasksState[key] ?? { flatOrder: [], groupOrder: [], favorites: [], hidden: [] };
 
   if (isGrouped) {
     tasksState[key] = { ...currentState, groupOrder: order };
@@ -84,6 +84,52 @@ export function saveSourceOrder(source: TaskSource, isGrouped: boolean, order: s
   }
 
   saveTasksState(tasksState);
+}
+
+export function toggleFavorite(source: TaskSource, itemName: string): boolean {
+  const tasksState = loadTasksState();
+  const key = getSourceStateKey(source);
+  const currentState = tasksState[key] ?? { flatOrder: [], groupOrder: [], favorites: [], hidden: [] };
+  const favorites = [...(currentState.favorites ?? [])];
+
+  const index = favorites.indexOf(itemName);
+  if (index === -1) {
+    favorites.push(itemName);
+  } else {
+    favorites.splice(index, 1);
+  }
+
+  tasksState[key] = { ...currentState, favorites };
+  saveTasksState(tasksState);
+  return index === -1;
+}
+
+export function toggleHidden(source: TaskSource, itemName: string): boolean {
+  const tasksState = loadTasksState();
+  const key = getSourceStateKey(source);
+  const currentState = tasksState[key] ?? { flatOrder: [], groupOrder: [], favorites: [], hidden: [] };
+  const hidden = [...(currentState.hidden ?? [])];
+
+  const index = hidden.indexOf(itemName);
+  if (index === -1) {
+    hidden.push(itemName);
+  } else {
+    hidden.splice(index, 1);
+  }
+
+  tasksState[key] = { ...currentState, hidden };
+  saveTasksState(tasksState);
+  return index === -1;
+}
+
+export function isFavorite(source: TaskSource, itemName: string): boolean {
+  const state = getSourceState(source);
+  return (state.favorites ?? []).includes(itemName);
+}
+
+export function isHidden(source: TaskSource, itemName: string): boolean {
+  const state = getSourceState(source);
+  return (state.hidden ?? []).includes(itemName);
 }
 
 export function getCurrentSource(): TaskSource {

@@ -46,6 +46,7 @@ export class TreeTask extends vscode.TreeItem {
   hide = false;
   workspace: string | null = null;
   group: string | undefined;
+  taskName: string;
 
   constructor(
     type: string,
@@ -60,6 +61,8 @@ export class TreeTask extends vscode.TreeItem {
     this.command = command;
     this.label = `${this.label as string}`;
     this.group = group;
+    this.taskName = label;
+    this.contextValue = 'task';
 
     if (typeof workspace === 'object' && workspace !== null) {
       this.workspace = workspace.name;
@@ -68,6 +71,12 @@ export class TreeTask extends vscode.TreeItem {
     }
 
     this.loadTaskMetadata();
+  }
+
+  setFavorite(isFavorite: boolean): void {
+    if (isFavorite) {
+      this.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+    }
   }
 
   private loadTaskMetadata(): void {

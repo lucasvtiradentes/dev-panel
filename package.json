@@ -147,6 +147,16 @@
         "icon": "$(list-tree)"
       },
       {
+        "command": "betterProjectTools.toggleFavorite",
+        "title": "Toggle Favorite",
+        "icon": "$(heart)"
+      },
+      {
+        "command": "betterProjectTools.toggleHide",
+        "title": "Toggle Hide",
+        "icon": "$(eye-closed)"
+      },
+      {
         "command": "betterProjectTools.execCmdline",
         "title": "Execute Command Line"
       },
@@ -220,6 +230,16 @@
         }
       ],
       "view/item/context": [
+        {
+          "command": "betterProjectTools.toggleFavorite",
+          "when": "view == betterProjectToolsTasks && viewItem == task",
+          "group": "inline@1"
+        },
+        {
+          "command": "betterProjectTools.toggleHide",
+          "when": "view == betterProjectToolsTasks && viewItem == task",
+          "group": "inline@2"
+        },
         {
           "command": "betterProjectTools.executeTask",
           "when": "view == betterProjectToolsTasks"

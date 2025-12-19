@@ -6,7 +6,17 @@ import { type BPMConfig, TASK_SOURCES, TaskSource } from '../../common/types';
 import { StatusBarManager } from '../../status-bar/status-bar-manager';
 import { TaskDragAndDropController } from './dnd-controller';
 import { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
-import { getCurrentSource, getIsGrouped, getOrder, saveCurrentSource, saveIsGrouped } from './state';
+import {
+  getCurrentSource,
+  getIsGrouped,
+  getOrder,
+  isFavorite,
+  isHidden,
+  saveCurrentSource,
+  saveIsGrouped,
+  toggleFavorite as toggleFavoriteState,
+  toggleHidden,
+} from './state';
 
 type PackageJson = {
   scripts?: Record<string, string>;
@@ -73,6 +83,20 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     saveIsGrouped(this._grouped);
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
+  }
+
+  toggleFavorite(item: TreeTask): void {
+    if (item?.taskName) {
+      toggleFavoriteState(this._source, item.taskName);
+      this._onDidChangeTreeData.fire(null);
+    }
+  }
+
+  toggleHide(item: TreeTask): void {
+    if (item?.taskName) {
+      toggleHidden(this._source, item.taskName);
+      this._onDidChangeTreeData.fire(null);
+    }
   }
 
   get currentSource(): TaskSource {
@@ -169,6 +193,8 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     const taskFolders: Record<string, WorkspaceTreeItem> = {};
 
     for (const task of tasks) {
+      if (isHidden(this._source, task.name)) continue;
+
       const group = this._grouped
         ? (task as unknown as { presentationOptions?: { group?: string } }).presentationOptions?.group
         : undefined;
@@ -186,8 +212,16 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
         group,
       );
 
+      _task.taskName = task.name;
+
       if (task.detail != null) {
         _task.tooltip = task.detail;
+      }
+
+      if (isFavorite(this._source, task.name)) {
+        _task.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+      } else if (!_task.iconPath) {
+        _task.iconPath = new vscode.ThemeIcon('terminal');
       }
 
       if (!_task.hide) {
@@ -215,7 +249,8 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
       for (const folder of folders) {
         const scripts = this.readPackageScripts(folder);
         for (const [name, command] of Object.entries(scripts)) {
-          taskElements.push(this.createNpmTask(name, command, folder));
+          const task = this.createNpmTask(name, command, folder);
+          if (task) taskElements.push(task);
         }
       }
       return this.sortElements(taskElements);
@@ -228,6 +263,8 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
       const scripts = this.readPackageScripts(folder);
       for (const [name, command] of Object.entries(scripts)) {
         const treeTask = this.createNpmTask(name, command, folder);
+        if (!treeTask) continue;
+
         const groupName = this.extractGroupName(name);
 
         if (!groups[groupName]) {
@@ -248,7 +285,9 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     return packageJson.scripts ?? {};
   }
 
-  private createNpmTask(name: string, command: string, folder: vscode.WorkspaceFolder): TreeTask {
+  private createNpmTask(name: string, command: string, folder: vscode.WorkspaceFolder): TreeTask | null {
+    if (isHidden(this._source, name)) return null;
+
     const shellExec = new vscode.ShellExecution(`npm run ${name}`);
     const task = new vscode.Task({ type: 'npm' }, folder, name, 'npm', shellExec);
     const displayName = this._grouped && name.includes(':') ? name.split(':').slice(1).join(':') : name;
@@ -264,8 +303,15 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
       },
       folder,
     );
+    treeTask.taskName = name;
     treeTask.tooltip = command;
-    treeTask.iconPath = new vscode.ThemeIcon('terminal');
+
+    if (isFavorite(this._source, name)) {
+      treeTask.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+    } else {
+      treeTask.iconPath = new vscode.ThemeIcon('terminal');
+    }
+
     return treeTask;
   }
 
@@ -284,7 +330,8 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
       for (const folder of folders) {
         const scripts = this.readBPMScripts(folder);
         for (const script of scripts) {
-          taskElements.push(this.createBPMTask(script, folder));
+          const task = this.createBPMTask(script, folder);
+          if (task) taskElements.push(task);
         }
       }
       return this.sortElements(taskElements);
@@ -297,6 +344,8 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
       const scripts = this.readBPMScripts(folder);
       for (const script of scripts) {
         const treeTask = this.createBPMTask(script, folder);
+        if (!treeTask) continue;
+
         const groupName = script.group ?? 'no-group';
 
         if (!groups[groupName]) {
@@ -317,7 +366,12 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     return config.scripts ?? [];
   }
 
-  private createBPMTask(script: NonNullable<BPMConfig['scripts']>[number], folder: vscode.WorkspaceFolder): TreeTask {
+  private createBPMTask(
+    script: NonNullable<BPMConfig['scripts']>[number],
+    folder: vscode.WorkspaceFolder,
+  ): TreeTask | null {
+    if (isHidden(this._source, script.name)) return null;
+
     const shellExec = new vscode.ShellExecution(script.command);
     const task = new vscode.Task({ type: 'bpm' }, folder, script.name, 'bpm', shellExec);
 
@@ -337,8 +391,12 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
       treeTask.tooltip = script.description;
     }
 
-    if (script.icon) {
+    if (isFavorite(this._source, script.name)) {
+      treeTask.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+    } else if (script.icon) {
       treeTask.iconPath = new vscode.ThemeIcon(script.icon);
+    } else {
+      treeTask.iconPath = new vscode.ThemeIcon('terminal');
     }
 
     return treeTask;

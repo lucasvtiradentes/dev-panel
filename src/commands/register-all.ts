@@ -24,6 +24,8 @@ export function registerAllCommands(
     ...createSwitchTaskSourceCommands(taskTreeDataProvider),
     registerCommand(Command.ToggleGroupMode, () => taskTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.ToggleGroupModeGrouped, () => taskTreeDataProvider.toggleGroupMode()),
+    registerCommand(Command.ToggleFavorite, (item) => taskTreeDataProvider.toggleFavorite(item)),
+    registerCommand(Command.ToggleHide, (item) => taskTreeDataProvider.toggleHide(item)),
     createGoToTaskCommand(),
     createExecuteTaskCommand(context),
     createExecCmdlineCommand(taskTreeDataProvider),

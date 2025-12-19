@@ -8,6 +8,8 @@ export enum Command {
   SwitchTaskSourceFromBPM = 'switchTaskSourceFromBPM',
   ToggleGroupMode = 'toggleGroupMode',
   ToggleGroupModeGrouped = 'toggleGroupModeGrouped',
+  ToggleFavorite = 'toggleFavorite',
+  ToggleHide = 'toggleHide',
   GoToTask = 'goToTask',
   ExecuteTask = 'executeTask',
   ExecCmdline = 'execCmdline',

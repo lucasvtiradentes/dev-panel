@@ -59,6 +59,7 @@ export type TaskSourceState = {
   flatOrder: string[];
   groupOrder: string[];
   favorites: string[];
+  hidden: string[];
 };
 
 export type TasksState = {
@@ -72,7 +73,7 @@ export type TasksState = {
 export const DEFAULT_TASKS_STATE: TasksState = {
   current: TaskSource.VSCode,
   isGrouped: false,
-  vscode: { flatOrder: [], groupOrder: [], favorites: [] },
-  packageJson: { flatOrder: [], groupOrder: [], favorites: [] },
-  bpm: { flatOrder: [], groupOrder: [], favorites: [] },
+  vscode: { flatOrder: [], groupOrder: [], favorites: [], hidden: [] },
+  packageJson: { flatOrder: [], groupOrder: [], favorites: [], hidden: [] },
+  bpm: { flatOrder: [], groupOrder: [], favorites: [], hidden: [] },
 };
