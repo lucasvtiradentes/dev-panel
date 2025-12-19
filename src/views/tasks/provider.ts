@@ -259,20 +259,27 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     const taskElements: Array<TreeTask | GroupTreeItem> = [];
     const groups: Record<string, GroupTreeItem> = {};
 
+    const allScripts: Array<{ name: string; command: string; folder: vscode.WorkspaceFolder }> = [];
     for (const folder of folders) {
       const scripts = this.readPackageScripts(folder);
       for (const [name, command] of Object.entries(scripts)) {
-        const treeTask = this.createNpmTask(name, command, folder);
-        if (!treeTask) continue;
-
-        const groupName = this.extractGroupName(name);
-
-        if (!groups[groupName]) {
-          groups[groupName] = new GroupTreeItem(groupName);
-          taskElements.push(groups[groupName]);
-        }
-        groups[groupName].children.push(treeTask);
+        allScripts.push({ name, command, folder });
       }
+    }
+
+    const allScriptNames = allScripts.map((s) => s.name);
+
+    for (const { name, command, folder } of allScripts) {
+      const treeTask = this.createNpmTask(name, command, folder);
+      if (!treeTask) continue;
+
+      const groupName = this.extractGroupName(name, allScriptNames);
+
+      if (!groups[groupName]) {
+        groups[groupName] = new GroupTreeItem(groupName);
+        taskElements.push(groups[groupName]);
+      }
+      groups[groupName].children.push(treeTask);
     }
 
     return this.sortElements(taskElements);
@@ -315,10 +322,16 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     return treeTask;
   }
 
-  private extractGroupName(scriptName: string): string {
+  private extractGroupName(scriptName: string, allScriptNames: string[]): string {
     if (scriptName.includes(':')) {
       return scriptName.split(':')[0];
     }
+
+    const hasRelatedScripts = allScriptNames.some((name) => name.startsWith(`${scriptName}:`));
+    if (hasRelatedScripts) {
+      return scriptName;
+    }
+
     return 'no-group';
   }
 
