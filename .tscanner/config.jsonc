@@ -19,7 +19,7 @@
       "no-empty-interface": {},
       "no-explicit-any": {},
       "no-floating-promises": {},
-      "no-forwarded-exports": {},
+      "no-forwarded-exports": {"exclude": ["**/index.ts"]},
       "no-implicit-any": {},
       "no-inferrable-types": {},
       "no-nested-require": {},
