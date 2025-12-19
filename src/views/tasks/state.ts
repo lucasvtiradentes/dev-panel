@@ -135,9 +135,9 @@ export function isHidden(source: TaskSource, itemName: string): boolean {
 export function getCurrentSource(): TaskSource {
   const tasksState = loadTasksState();
   const current = tasksState.current;
-  const validSources = Object.values(TaskSource);
+  const validSources = Object.values(TaskSource) as string[];
   if (current && validSources.includes(current)) {
-    return current;
+    return current as TaskSource;
   }
   return TaskSource.VSCode;
 }

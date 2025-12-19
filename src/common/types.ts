@@ -1,3 +1,19 @@
+import type { SourceState } from './schemas';
+
+export {
+  type BPMConfig,
+  type BPMConfigItem,
+  type BPMReplacement,
+  type BPMScript,
+  type BPMState,
+  type BPMTool,
+  type TasksState,
+  type ToolsState,
+  DEFAULT_SOURCE_STATE,
+  DEFAULT_TASKS_STATE,
+  DEFAULT_TOOLS_STATE,
+} from './schemas';
+
 export enum TaskSource {
   VSCode = 'vscode',
   Package = 'package',
@@ -21,29 +37,6 @@ type TaskIcon = {
   color?: string;
 };
 
-export type BPMScript = {
-  name: string;
-  command: string;
-  icon?: string;
-  group?: string;
-  description?: string;
-};
-
-export type BPMTool = {
-  name: string;
-  command: string;
-  icon?: string;
-  group?: string;
-  description?: string;
-};
-
-export type BPMConfig = {
-  configs?: unknown[];
-  replacements?: unknown[];
-  scripts?: BPMScript[];
-  tools?: BPMTool[];
-};
-
 export type TaskDefinition = {
   label: string;
   hide?: boolean;
@@ -64,42 +57,6 @@ export type CodeWorkspaceFile = {
   tasks?: TasksJson;
 };
 
-export type TaskSourceState = {
-  flatOrder: string[];
-  groupOrder: string[];
-  favorites: string[];
-  hidden: string[];
-};
-
-export type TasksState = {
-  current: TaskSource;
-  isGrouped: boolean;
-  vscode: TaskSourceState;
-  packageJson: TaskSourceState;
-  bpm: TaskSourceState;
-};
-
-export const DEFAULT_TASKS_STATE: TasksState = {
-  current: TaskSource.VSCode,
-  isGrouped: false,
-  vscode: { flatOrder: [], groupOrder: [], favorites: [], hidden: [] },
-  packageJson: { flatOrder: [], groupOrder: [], favorites: [], hidden: [] },
-  bpm: { flatOrder: [], groupOrder: [], favorites: [], hidden: [] },
-};
-
-export type ToolSourceState = {
-  flatOrder: string[];
-  groupOrder: string[];
-  favorites: string[];
-  hidden: string[];
-};
-
-export type ToolsState = {
-  isGrouped: boolean;
-  bpm: ToolSourceState;
-};
-
-export const DEFAULT_TOOLS_STATE: ToolsState = {
-  isGrouped: false,
-  bpm: { flatOrder: [], groupOrder: [], favorites: [], hidden: [] },
-};
+export type { SourceState };
+export type TaskSourceState = SourceState;
+export type ToolSourceState = SourceState;
