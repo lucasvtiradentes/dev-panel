@@ -11,6 +11,7 @@ import { ConfigsProvider } from './views/configs';
 import { ReplacementsProvider } from './views/replacements';
 import { TaskTreeDataProvider } from './views/tasks';
 import { ToolTreeDataProvider } from './views/tools';
+import { createStateWatcher } from './watchers/state-watcher';
 
 export function activate(context: vscode.ExtensionContext): object {
   const taskTreeDataProvider = new TaskTreeDataProvider(context);
@@ -38,6 +39,12 @@ export function activate(context: vscode.ExtensionContext): object {
   context.subscriptions.push({ dispose: () => configsProvider.dispose() });
   context.subscriptions.push({ dispose: () => replacementsProvider.dispose() });
   context.subscriptions.push({ dispose: () => toolTreeDataProvider.dispose() });
+
+  const stateWatcher = createStateWatcher(() => {
+    taskTreeDataProvider.refresh();
+    toolTreeDataProvider.refresh();
+  });
+  context.subscriptions.push(stateWatcher);
 
   const commandDisposables = registerAllCommands(context, taskTreeDataProvider, toolTreeDataProvider);
   context.subscriptions.push(...commandDisposables);
