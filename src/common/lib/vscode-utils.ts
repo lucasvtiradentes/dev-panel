@@ -25,6 +25,12 @@ export enum Command {
   ToggleToolFavorite = 'toggleToolFavorite',
   ToggleToolHide = 'toggleToolHide',
   ExecuteTool = 'executeTool',
+  RefreshPrompts = 'refreshPrompts',
+  TogglePromptsGroupMode = 'togglePromptsGroupMode',
+  TogglePromptsGroupModeGrouped = 'togglePromptsGroupModeGrouped',
+  TogglePromptFavorite = 'togglePromptFavorite',
+  TogglePromptHide = 'togglePromptHide',
+  ExecutePrompt = 'executePrompt',
 }
 
 export function registerCommand(command: Command, callback: (...args: any[]) => any): vscode.Disposable {
@@ -70,6 +76,7 @@ export enum ContextKey {
   TaskSourceBPM = 'taskSourceBPM',
   TasksGrouped = 'tasksGrouped',
   ToolsGrouped = 'toolsGrouped',
+  PromptsGrouped = 'promptsGrouped',
 }
 
 export function setContextKey(key: ContextKey, value: boolean): Thenable<unknown> {

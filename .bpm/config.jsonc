@@ -123,5 +123,29 @@
       "icon": "graph",
       "group": "Info"
     }
+  ],
+
+  "prompts": [
+    {
+      "name": "Review Code",
+      "file": "review-code.md",
+      "description": "Review current file for issues and improvements",
+      "icon": "eye",
+      "group": "Analysis"
+    },
+    {
+      "name": "Explain Code",
+      "file": "explain-code.md",
+      "description": "Explain the current file in detail",
+      "icon": "book",
+      "group": "Analysis"
+    },
+    {
+      "name": "Add Tests",
+      "file": "add-tests.md",
+      "description": "Generate tests for the current file",
+      "icon": "beaker",
+      "group": "Generate"
+    }
   ]
 }

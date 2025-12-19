@@ -1,5 +1,6 @@
 import type * as vscode from 'vscode';
 import { Command, registerCommand } from '../common';
+import type { PromptTreeDataProvider } from '../views/prompts';
 import type { TaskTreeDataProvider } from '../views/tasks';
 import type { ToolTreeDataProvider } from '../views/tools';
 import {
@@ -8,18 +9,23 @@ import {
   createExitCmdlineCommand,
   createTabCmdlineCommand,
 } from './internal/cmdline';
-import { createExecuteTaskCommand, createExecuteToolCommand } from './internal/execute-task';
+import {
+  createExecutePromptCommand,
+  createExecuteTaskCommand,
+  createExecuteToolCommand,
+} from './internal/execute-task';
 import { createRevertAllReplacementsCommand } from './internal/revert-all-replacements';
 import { createSelectConfigOptionCommand } from './internal/select-config-option';
 import { createToggleReplacementCommand } from './internal/toggle-replacement';
 import { createGoToTaskCommand } from './public/go-to-task';
-import { createRefreshCommand, createRefreshToolsCommand } from './public/refresh';
+import { createRefreshCommand, createRefreshPromptsCommand, createRefreshToolsCommand } from './public/refresh';
 import { createSwitchTaskSourceCommands } from './public/switch-task-source';
 
 export function registerAllCommands(
   context: vscode.ExtensionContext,
   taskTreeDataProvider: TaskTreeDataProvider,
   toolTreeDataProvider: ToolTreeDataProvider,
+  promptTreeDataProvider: PromptTreeDataProvider,
 ): vscode.Disposable[] {
   return [
     createRefreshCommand(taskTreeDataProvider),
@@ -43,5 +49,11 @@ export function registerAllCommands(
     registerCommand(Command.ToggleToolFavorite, (item) => toolTreeDataProvider.toggleFavorite(item)),
     registerCommand(Command.ToggleToolHide, (item) => toolTreeDataProvider.toggleHide(item)),
     createExecuteToolCommand(context),
+    createRefreshPromptsCommand(promptTreeDataProvider),
+    registerCommand(Command.TogglePromptsGroupMode, () => promptTreeDataProvider.toggleGroupMode()),
+    registerCommand(Command.TogglePromptsGroupModeGrouped, () => promptTreeDataProvider.toggleGroupMode()),
+    registerCommand(Command.TogglePromptFavorite, (item) => promptTreeDataProvider.toggleFavorite(item)),
+    registerCommand(Command.TogglePromptHide, (item) => promptTreeDataProvider.toggleHide(item)),
+    createExecutePromptCommand(),
   ];
 }

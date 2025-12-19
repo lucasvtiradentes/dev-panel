@@ -22,6 +22,16 @@ const BPMToolSchema = z
   })
   .describe('A tool that can be executed from the Tools view');
 
+const BPMPromptSchema = z
+  .object({
+    name: z.string().describe('Unique identifier for the prompt'),
+    file: z.string().describe('Path to prompt file relative to .bpm/prompts/'),
+    icon: z.string().optional().describe('VSCode ThemeIcon id (e.g. "comment", "sparkle")'),
+    group: z.string().optional().describe('Group name for organizing prompts'),
+    description: z.string().optional().describe('Human-readable description shown as tooltip'),
+  })
+  .describe('A prompt that can be executed in Claude Code');
+
 const BPMConfigItemSchema = z
   .object({
     name: z.string().describe('Unique identifier for the config'),
@@ -62,6 +72,7 @@ export const BPMConfigSchema = z
     replacements: z.array(BPMReplacementSchema).optional().describe('File replacements/patches'),
     scripts: z.array(BPMScriptSchema).optional().describe('Executable scripts'),
     tools: z.array(BPMToolSchema).optional().describe('Executable tools'),
+    prompts: z.array(BPMPromptSchema).optional().describe('Claude Code prompts'),
   })
   .describe('BPM configuration file');
 
@@ -85,6 +96,11 @@ export const ToolsStateSchema = z.object({
   bpm: SourceStateSchema,
 });
 
+export const PromptsStateSchema = z.object({
+  isGrouped: z.boolean(),
+  bpm: SourceStateSchema,
+});
+
 export const BPMStateSchema = z.object({
   debug: z.boolean().optional(),
   activeReplacements: z.array(z.string()).optional(),
@@ -92,17 +108,20 @@ export const BPMStateSchema = z.object({
   environment: z.string().optional(),
   tasks: TasksStateSchema.optional(),
   tools: ToolsStateSchema.optional(),
+  prompts: PromptsStateSchema.optional(),
 });
 
 export type TaskSource = z.infer<typeof TaskSourceEnum>;
 export type BPMScript = z.infer<typeof BPMScriptSchema>;
 export type BPMTool = z.infer<typeof BPMToolSchema>;
+export type BPMPrompt = z.infer<typeof BPMPromptSchema>;
 export type BPMConfigItem = z.infer<typeof BPMConfigItemSchema>;
 export type BPMReplacement = z.infer<typeof BPMReplacementSchema>;
 export type BPMConfig = z.infer<typeof BPMConfigSchema>;
 export type SourceState = z.infer<typeof SourceStateSchema>;
 export type TasksState = z.infer<typeof TasksStateSchema>;
 export type ToolsState = z.infer<typeof ToolsStateSchema>;
+export type PromptsState = z.infer<typeof PromptsStateSchema>;
 export type BPMState = z.infer<typeof BPMStateSchema>;
 
 export const DEFAULT_SOURCE_STATE: SourceState = {
@@ -121,6 +140,11 @@ export const DEFAULT_TASKS_STATE: TasksState = {
 };
 
 export const DEFAULT_TOOLS_STATE: ToolsState = {
+  isGrouped: false,
+  bpm: { ...DEFAULT_SOURCE_STATE },
+};
+
+export const DEFAULT_PROMPTS_STATE: PromptsState = {
   isGrouped: false,
   bpm: { ...DEFAULT_SOURCE_STATE },
 };

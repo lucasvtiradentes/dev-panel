@@ -90,6 +90,10 @@
         {
           "id": "betterProjectToolsTools",
           "name": "Tools"
+        },
+        {
+          "id": "betterProjectToolsPrompts",
+          "name": "Prompts"
         }
       ],
       "explorer": [
@@ -202,6 +206,35 @@
       {
         "command": "betterProjectTools.executeTool",
         "title": "Execute Tool"
+      },
+      {
+        "command": "betterProjectTools.refreshPrompts",
+        "title": "Refresh Prompts",
+        "icon": "$(extensions-refresh)"
+      },
+      {
+        "command": "betterProjectTools.togglePromptsGroupMode",
+        "title": "Toggle Prompts Group Mode",
+        "icon": "$(list-flat)"
+      },
+      {
+        "command": "betterProjectTools.togglePromptsGroupModeGrouped",
+        "title": "Toggle Prompts Group Mode",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "betterProjectTools.togglePromptFavorite",
+        "title": "Toggle Prompt Favorite",
+        "icon": "$(heart)"
+      },
+      {
+        "command": "betterProjectTools.togglePromptHide",
+        "title": "Toggle Prompt Hide",
+        "icon": "$(eye-closed)"
+      },
+      {
+        "command": "betterProjectTools.executePrompt",
+        "title": "Execute Prompt"
       }
     ],
     "keybindings": [
@@ -277,6 +310,21 @@
           "command": "betterProjectTools.refreshTools",
           "when": "view == betterProjectToolsTools",
           "group": "navigation@2"
+        },
+        {
+          "command": "betterProjectTools.togglePromptsGroupMode",
+          "when": "view == betterProjectToolsPrompts && !promptsGrouped",
+          "group": "navigation@1"
+        },
+        {
+          "command": "betterProjectTools.togglePromptsGroupModeGrouped",
+          "when": "view == betterProjectToolsPrompts && promptsGrouped",
+          "group": "navigation@1"
+        },
+        {
+          "command": "betterProjectTools.refreshPrompts",
+          "when": "view == betterProjectToolsPrompts",
+          "group": "navigation@2"
         }
       ],
       "view/item/context": [
@@ -311,6 +359,20 @@
         {
           "command": "betterProjectTools.executeTool",
           "when": "view == betterProjectToolsTools"
+        },
+        {
+          "command": "betterProjectTools.togglePromptFavorite",
+          "when": "view == betterProjectToolsPrompts && viewItem == prompt",
+          "group": "inline@1"
+        },
+        {
+          "command": "betterProjectTools.togglePromptHide",
+          "when": "view == betterProjectToolsPrompts && viewItem == prompt",
+          "group": "inline@2"
+        },
+        {
+          "command": "betterProjectTools.executePrompt",
+          "when": "view == betterProjectToolsPrompts"
         }
       ]
     },

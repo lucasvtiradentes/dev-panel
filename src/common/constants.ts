@@ -6,6 +6,7 @@ export const VIEW_ID_TASKS = 'betterProjectToolsTasks';
 const VIEW_ID_CONFIGS = 'betterProjectToolsConfigs';
 const VIEW_ID_REPLACEMENTS = 'betterProjectToolsReplacements';
 const VIEW_ID_TOOLS = 'betterProjectToolsTools';
+const VIEW_ID_PROMPTS = 'betterProjectToolsPrompts';
 export const DEV_SUFFIX = 'dev';
 
 export function addDevSuffix(str: string): string {
@@ -49,4 +50,8 @@ export function getViewIdReplacements(): string {
 
 export function getViewIdTools(): string {
   return IS_DEV ? addDevSuffix(VIEW_ID_TOOLS) : VIEW_ID_TOOLS;
+}
+
+export function getViewIdPrompts(): string {
+  return IS_DEV ? addDevSuffix(VIEW_ID_PROMPTS) : VIEW_ID_PROMPTS;
 }

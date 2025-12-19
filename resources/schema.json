@@ -217,6 +217,41 @@
         ],
         "additionalProperties": false
       }
+    },
+    "prompts": {
+      "description": "Claude Code prompts",
+      "type": "array",
+      "items": {
+        "description": "A prompt that can be executed in Claude Code",
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Unique identifier for the prompt",
+            "type": "string"
+          },
+          "file": {
+            "description": "Path to prompt file relative to .bpm/prompts/",
+            "type": "string"
+          },
+          "icon": {
+            "description": "VSCode ThemeIcon id (e.g. \"comment\", \"sparkle\")",
+            "type": "string"
+          },
+          "group": {
+            "description": "Group name for organizing prompts",
+            "type": "string"
+          },
+          "description": {
+            "description": "Human-readable description shown as tooltip",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "file"
+        ],
+        "additionalProperties": false
+      }
     }
   },
   "additionalProperties": false
