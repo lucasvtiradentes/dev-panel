@@ -73,5 +73,23 @@
       ],
       "group": "Debug"
     }
+  ],
+
+  "scripts": [
+    {
+      "name": "hello",
+      "command": "echo 'Hello from BPM!'",
+      "description": "Test script - prints hello"
+    },
+    {
+      "name": "list-files",
+      "command": "ls -la",
+      "group": "Utils"
+    },
+    {
+      "name": "show-date",
+      "command": "date",
+      "group": "Utils"
+    }
   ]
 }

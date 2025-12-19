@@ -1,4 +1,5 @@
 import type * as vscode from 'vscode';
+import { Command, registerCommand } from '../common';
 import type { TaskTreeDataProvider } from '../views/tasks';
 import {
   createBackCmdlineCommand,
@@ -12,8 +13,7 @@ import { createSelectConfigOptionCommand } from './internal/select-config-option
 import { createToggleReplacementCommand } from './internal/toggle-replacement';
 import { createGoToTaskCommand } from './public/go-to-task';
 import { createRefreshCommand } from './public/refresh';
-import { createShowListCommand } from './public/show-list';
-import { createUnhideCommand } from './public/unhide';
+import { createSwitchTaskSourceCommands } from './public/switch-task-source';
 
 export function registerAllCommands(
   context: vscode.ExtensionContext,
@@ -21,8 +21,9 @@ export function registerAllCommands(
 ): vscode.Disposable[] {
   return [
     createRefreshCommand(taskTreeDataProvider),
-    createUnhideCommand(taskTreeDataProvider),
-    createShowListCommand(taskTreeDataProvider),
+    ...createSwitchTaskSourceCommands(taskTreeDataProvider),
+    registerCommand(Command.ToggleGroupMode, () => taskTreeDataProvider.toggleGroupMode()),
+    registerCommand(Command.ToggleGroupModeGrouped, () => taskTreeDataProvider.toggleGroupMode()),
     createGoToTaskCommand(),
     createExecuteTaskCommand(context),
     createExecCmdlineCommand(taskTreeDataProvider),

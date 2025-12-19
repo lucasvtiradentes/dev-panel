@@ -17,7 +17,11 @@ export function activate(context: vscode.ExtensionContext): object {
 
   void vscode.tasks.fetchTasks();
 
-  vscode.window.registerTreeDataProvider(getViewIdTasks(), taskTreeDataProvider);
+  const tasksTreeView = vscode.window.createTreeView(getViewIdTasks(), {
+    treeDataProvider: taskTreeDataProvider,
+  });
+  taskTreeDataProvider.setTreeView(tasksTreeView);
+
   vscode.window.registerTreeDataProvider(getViewIdConfigs(), configsProvider);
   vscode.window.registerTreeDataProvider(getViewIdReplacements(), replacementsProvider);
 

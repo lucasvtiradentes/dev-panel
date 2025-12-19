@@ -122,14 +122,29 @@
         "icon": "$(extensions-refresh)"
       },
       {
-        "command": "betterProjectTools.unhide",
-        "title": "Hide/Unhide",
-        "icon": "$(eye-closed)"
+        "command": "betterProjectTools.switchTaskSource",
+        "title": "Switch to npm Scripts",
+        "icon": "$(checklist)"
       },
       {
-        "command": "betterProjectTools.showList",
-        "title": "Filter",
-        "icon": "$(extensions-filter)"
+        "command": "betterProjectTools.switchTaskSourceFromPackage",
+        "title": "Switch to BPM Tasks",
+        "icon": "$(package)"
+      },
+      {
+        "command": "betterProjectTools.switchTaskSourceFromBPM",
+        "title": "Switch to VSCode Tasks",
+        "icon": "$(beaker)"
+      },
+      {
+        "command": "betterProjectTools.toggleGroupMode",
+        "title": "Toggle Group Mode",
+        "icon": "$(list-flat)"
+      },
+      {
+        "command": "betterProjectTools.toggleGroupModeGrouped",
+        "title": "Toggle Group Mode",
+        "icon": "$(list-tree)"
       },
       {
         "command": "betterProjectTools.execCmdline",
@@ -174,19 +189,34 @@
           "group": "navigation"
         },
         {
-          "command": "betterProjectTools.showList",
-          "when": "view == betterProjectToolsTasks",
-          "group": "navigation"
+          "command": "betterProjectTools.switchTaskSource",
+          "when": "view == betterProjectToolsTasks && taskSourceVSCode",
+          "group": "navigation@1"
         },
         {
-          "command": "betterProjectTools.unhide",
-          "when": "view == betterProjectToolsTasks",
-          "group": "navigation"
+          "command": "betterProjectTools.switchTaskSourceFromPackage",
+          "when": "view == betterProjectToolsTasks && taskSourcePackage",
+          "group": "navigation@1"
+        },
+        {
+          "command": "betterProjectTools.switchTaskSourceFromBPM",
+          "when": "view == betterProjectToolsTasks && taskSourceBPM",
+          "group": "navigation@1"
+        },
+        {
+          "command": "betterProjectTools.toggleGroupMode",
+          "when": "view == betterProjectToolsTasks && !tasksGrouped",
+          "group": "navigation@2"
+        },
+        {
+          "command": "betterProjectTools.toggleGroupModeGrouped",
+          "when": "view == betterProjectToolsTasks && tasksGrouped",
+          "group": "navigation@2"
         },
         {
           "command": "betterProjectTools.refresh",
           "when": "view == betterProjectToolsTasks",
-          "group": "navigation"
+          "group": "navigation@3"
         }
       ],
       "view/item/context": [

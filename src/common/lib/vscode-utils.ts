@@ -1,10 +1,13 @@
 import * as vscode from 'vscode';
-import { getCommandId, getContextKey as getContextKeyWithDev } from '../constants';
+import { getCommandId } from '../constants';
 
 export enum Command {
   Refresh = 'refresh',
-  Unhide = 'unhide',
-  ShowList = 'showList',
+  SwitchTaskSource = 'switchTaskSource',
+  SwitchTaskSourceFromPackage = 'switchTaskSourceFromPackage',
+  SwitchTaskSourceFromBPM = 'switchTaskSourceFromBPM',
+  ToggleGroupMode = 'toggleGroupMode',
+  ToggleGroupModeGrouped = 'toggleGroupModeGrouped',
   GoToTask = 'goToTask',
   ExecuteTask = 'executeTask',
   ExecCmdline = 'execCmdline',
@@ -54,8 +57,12 @@ export async function openDocumentAtLine(uri: vscode.Uri, line: number): Promise
 
 export enum ContextKey {
   InCmdlineMode = 'inCmdlineMode',
+  TaskSourceVSCode = 'taskSourceVSCode',
+  TaskSourcePackage = 'taskSourcePackage',
+  TaskSourceBPM = 'taskSourceBPM',
+  TasksGrouped = 'tasksGrouped',
 }
 
 export function setContextKey(key: ContextKey, value: boolean): Thenable<unknown> {
-  return vscode.commands.executeCommand('setContext', getContextKeyWithDev(key), value);
+  return vscode.commands.executeCommand('setContext', key, value);
 }
