@@ -9,6 +9,7 @@ import {
   getViewIdTasks,
   getViewIdTools,
 } from './common/constants';
+import { logger } from './common/lib/logger';
 import { BranchContextProvider } from './views/branch-context';
 import { ConfigsProvider } from './views/configs';
 import { PromptTreeDataProvider } from './views/prompts';
@@ -18,6 +19,8 @@ import { ToolTreeDataProvider } from './views/tools';
 import { createStateWatcher } from './watchers/state-watcher';
 
 export function activate(context: vscode.ExtensionContext): object {
+  logger.clear();
+  logger.info('Better Project Tools extension activated');
   const taskTreeDataProvider = new TaskTreeDataProvider(context);
   const configsProvider = new ConfigsProvider();
   const replacementsProvider = new ReplacementsProvider();

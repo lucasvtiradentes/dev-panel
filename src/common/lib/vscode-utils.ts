@@ -35,6 +35,7 @@ export enum Command {
   EditBranchObjective = 'editBranchObjective',
   EditBranchLinearIssue = 'editBranchLinearIssue',
   EditBranchNotes = 'editBranchNotes',
+  ShowLogs = 'showLogs',
 }
 
 export function registerCommand(command: Command, callback: (...args: any[]) => any): vscode.Disposable {

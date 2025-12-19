@@ -1,5 +1,11 @@
-Explain the current file in detail:
-- What is the purpose of this code?
-- How does it work?
-- What are the main functions/classes?
-- How does it fit into the overall architecture?
+Explain the code in the following folder:
+
+Target: {{target}}
+Depth: {{depth}}
+
+Provide:
+- Purpose and responsibility of this module
+- Key functions/classes and their roles
+- Data flow and dependencies
+- How it fits into the overall architecture
+- Important patterns or conventions used

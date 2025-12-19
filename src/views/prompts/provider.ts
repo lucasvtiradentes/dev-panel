@@ -160,7 +160,7 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
     const treePrompt = new TreePrompt(prompt.name, promptFilePath, vscode.TreeItemCollapsibleState.None, {
       command: getCommandId(Command.ExecutePrompt),
       title: 'Execute',
-      arguments: [promptFilePath, folder],
+      arguments: [promptFilePath, folder, prompt],
     });
 
     if (prompt.description) {

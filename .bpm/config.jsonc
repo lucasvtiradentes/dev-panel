@@ -1,5 +1,9 @@
 {
   "$schema": "../resources/schema.json",
+  "settings": {
+    "promptFileSelectionStyle": "interactive",
+    "promptFolderSelectionStyle": "flat"
+  },
   "configs": [
     // Environment group
     {
@@ -129,23 +133,54 @@
     {
       "name": "Review Code",
       "file": "review-code.md",
-      "description": "Review current file for issues and improvements",
+      "description": "Review files for issues and improvements",
       "icon": "eye",
-      "group": "Analysis"
+      "group": "Analysis",
+      "saveOutput": true,
+      "inputs": [
+        { "name": "files", "type": "files", "label": "Select files to review", "selectionStyle": "interactive" },
+        {
+          "name": "focus",
+          "type": "multichoice",
+          "label": "Review focus areas",
+          "options": ["bugs", "performance", "security", "code-quality", "architecture"]
+        }
+      ]
     },
     {
       "name": "Explain Code",
       "file": "explain-code.md",
-      "description": "Explain the current file in detail",
+      "description": "Explain code in detail",
       "icon": "book",
-      "group": "Analysis"
+      "group": "Analysis",
+      "inputs": [
+        { "name": "target", "type": "folder", "label": "Select folder to explain" },
+        {
+          "name": "depth",
+          "type": "choice",
+          "label": "Explanation depth",
+          "options": ["overview", "detailed", "comprehensive"]
+        }
+      ],
+      "saveOutput": true
     },
     {
       "name": "Add Tests",
       "file": "add-tests.md",
-      "description": "Generate tests for the current file",
+      "description": "Generate tests for file(s)",
       "icon": "beaker",
-      "group": "Generate"
+      "group": "Generate",
+      "inputs": [
+        { "name": "file", "type": "file", "label": "Select file to test" },
+        { "name": "testCount", "type": "number", "label": "Number of test cases", "placeholder": "5" },
+        { "name": "includeEdgeCases", "type": "confirm", "label": "Include edge cases?" },
+        {
+          "name": "testStyle",
+          "type": "choice",
+          "label": "Test style",
+          "options": ["unit", "integration", "e2e"]
+        }
+      ]
     }
   ]
 }

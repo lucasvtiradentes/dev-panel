@@ -1,7 +1,21 @@
+import { exec } from 'node:child_process';
 import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { promisify } from 'node:util';
+import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { Command, isMultiRootWorkspace, registerCommand } from '../../common';
+
+const execAsync = promisify(exec);
+import {
+  Command,
+  collectPromptInputs,
+  isMultiRootWorkspace,
+  registerCommand,
+  replaceInputPlaceholders,
+} from '../../common';
 import { GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants';
+import type { BPMConfig, BPMPrompt, BPMSettings } from '../../common/schemas';
+import { getCurrentBranch } from '../../views/replacements/git-utils';
 
 export function createExecuteTaskCommand(context: vscode.ExtensionContext) {
   return registerCommand(
@@ -45,16 +59,86 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
   );
 }
 
-export function createExecutePromptCommand() {
-  return registerCommand(Command.ExecutePrompt, async (promptFilePath: string) => {
-    if (!fs.existsSync(promptFilePath)) {
-      void vscode.window.showErrorMessage(`Prompt file not found: ${promptFilePath}`);
-      return;
-    }
+function readBPMSettings(folder: vscode.WorkspaceFolder): BPMSettings | undefined {
+  const configPath = `${folder.uri.fsPath}/.bpm/config.jsonc`;
+  if (!fs.existsSync(configPath)) return undefined;
+  try {
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as BPMConfig;
+    return config.settings;
+  } catch {
+    return undefined;
+  }
+}
 
-    const promptContent = fs.readFileSync(promptFilePath, 'utf8');
-    const terminal = vscode.window.createTerminal({ name: 'Claude Code' });
-    terminal.show();
-    terminal.sendText(`claude "${promptContent.replace(/"/g, '\\"').replace(/\n/g, '\\n')}"`);
-  });
+export function createExecutePromptCommand() {
+  return registerCommand(
+    Command.ExecutePrompt,
+    async (promptFilePath: string, folder: vscode.WorkspaceFolder, promptConfig?: BPMPrompt) => {
+      if (!fs.existsSync(promptFilePath)) {
+        void vscode.window.showErrorMessage(`Prompt file not found: ${promptFilePath}`);
+        return;
+      }
+
+      let promptContent = fs.readFileSync(promptFilePath, 'utf8');
+
+      if (promptConfig?.inputs && promptConfig.inputs.length > 0) {
+        const settings = readBPMSettings(folder);
+        const inputValues = await collectPromptInputs(promptConfig.inputs, folder, settings);
+        if (inputValues === null) return;
+        promptContent = replaceInputPlaceholders(promptContent, inputValues);
+      }
+
+      const escapedPrompt = promptContent.replace(/"/g, '\\"').replace(/\n/g, '\\n');
+
+      if (promptConfig?.saveOutput) {
+        await executePromptWithSave(promptContent, folder, promptConfig.name);
+      } else {
+        const terminal = vscode.window.createTerminal({ name: 'Claude Code' });
+        terminal.show();
+        terminal.sendText(`claude "${escapedPrompt}"`);
+      }
+    },
+  );
+}
+
+async function executePromptWithSave(
+  promptContent: string,
+  folder: vscode.WorkspaceFolder,
+  promptName: string,
+): Promise<void> {
+  const workspacePath = folder.uri.fsPath;
+  const branch = await getCurrentBranch(workspacePath).catch(() => 'unknown');
+  const safeBranch = branch.replace(/[/\\:*?"<>|]/g, '_');
+  const datetime = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  const safePromptName = promptName.replace(/[/\\:*?"<>|]/g, '_');
+
+  const outputDir = path.join(workspacePath, '.ignore', safeBranch);
+  const outputFile = path.join(outputDir, `${datetime}-${safePromptName}.md`);
+  const tempFile = path.join(outputDir, '.prompt-temp.txt');
+
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
+
+  fs.writeFileSync(tempFile, promptContent);
+
+  await vscode.window.withProgress(
+    {
+      location: vscode.ProgressLocation.Notification,
+      title: `Running prompt: ${promptName}`,
+      cancellable: false,
+    },
+    async () => {
+      try {
+        await execAsync(`claude --print < "${tempFile}" > "${outputFile}"`, { cwd: workspacePath });
+        fs.unlinkSync(tempFile);
+        const doc = await vscode.workspace.openTextDocument(outputFile);
+        await vscode.window.showTextDocument(doc);
+      } catch (error) {
+        fs.unlinkSync(tempFile);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        void vscode.window.showErrorMessage(`Prompt failed: ${errorMessage}`);
+      }
+    },
+  );
 }

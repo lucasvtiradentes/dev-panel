@@ -7,6 +7,29 @@
       "description": "JSON Schema reference",
       "type": "string"
     },
+    "settings": {
+      "description": "Global settings",
+      "type": "object",
+      "properties": {
+        "promptFolderSelectionStyle": {
+          "description": "Default selection style for folder inputs: flat (all folders listed) or interactive (navigate step by step)",
+          "type": "string",
+          "enum": [
+            "flat",
+            "interactive"
+          ]
+        },
+        "promptFileSelectionStyle": {
+          "description": "Default selection style for file inputs: flat (all files listed) or interactive (navigate step by step)",
+          "type": "string",
+          "enum": [
+            "flat",
+            "interactive"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
     "configs": {
       "description": "Configuration options",
       "type": "array",
@@ -244,6 +267,68 @@
           "description": {
             "description": "Human-readable description shown as tooltip",
             "type": "string"
+          },
+          "inputs": {
+            "description": "Inputs to collect before running the prompt",
+            "type": "array",
+            "items": {
+              "description": "An input required before running the prompt",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "description": "Variable name used in prompt template as {{name}}",
+                  "type": "string"
+                },
+                "type": {
+                  "description": "Input type",
+                  "type": "string",
+                  "enum": [
+                    "file",
+                    "files",
+                    "folder",
+                    "folders",
+                    "text",
+                    "number",
+                    "confirm",
+                    "choice",
+                    "multichoice"
+                  ]
+                },
+                "label": {
+                  "description": "Label shown in the input dialog",
+                  "type": "string"
+                },
+                "placeholder": {
+                  "description": "Placeholder text for text/number inputs",
+                  "type": "string"
+                },
+                "options": {
+                  "description": "Available options for choice/multichoice types",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "selectionStyle": {
+                  "description": "Selection style for file/folder inputs. Overrides global setting",
+                  "type": "string",
+                  "enum": [
+                    "flat",
+                    "interactive"
+                  ]
+                }
+              },
+              "required": [
+                "name",
+                "type",
+                "label"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "saveOutput": {
+            "description": "If true, save response to .ignore/{{branch}}/{{datetime}}-{{promptname}}.md",
+            "type": "boolean"
           }
         },
         "required": [
