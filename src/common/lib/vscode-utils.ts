@@ -31,6 +31,10 @@ export enum Command {
   TogglePromptFavorite = 'togglePromptFavorite',
   TogglePromptHide = 'togglePromptHide',
   ExecutePrompt = 'executePrompt',
+  RefreshBranchContext = 'refreshBranchContext',
+  EditBranchObjective = 'editBranchObjective',
+  EditBranchLinearIssue = 'editBranchLinearIssue',
+  EditBranchNotes = 'editBranchNotes',
 }
 
 export function registerCommand(command: Command, callback: (...args: any[]) => any): vscode.Disposable {

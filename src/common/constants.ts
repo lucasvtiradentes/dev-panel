@@ -7,6 +7,7 @@ const VIEW_ID_CONFIGS = 'betterProjectToolsConfigs';
 const VIEW_ID_REPLACEMENTS = 'betterProjectToolsReplacements';
 const VIEW_ID_TOOLS = 'betterProjectToolsTools';
 const VIEW_ID_PROMPTS = 'betterProjectToolsPrompts';
+const VIEW_ID_BRANCH_CONTEXT = 'betterProjectToolsBranchContext';
 export const DEV_SUFFIX = 'dev';
 
 export function addDevSuffix(str: string): string {
@@ -54,4 +55,8 @@ export function getViewIdTools(): string {
 
 export function getViewIdPrompts(): string {
   return IS_DEV ? addDevSuffix(VIEW_ID_PROMPTS) : VIEW_ID_PROMPTS;
+}
+
+export function getViewIdBranchContext(): string {
+  return IS_DEV ? addDevSuffix(VIEW_ID_BRANCH_CONTEXT) : VIEW_ID_BRANCH_CONTEXT;
 }

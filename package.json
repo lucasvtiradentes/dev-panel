@@ -94,6 +94,10 @@
         {
           "id": "betterProjectToolsPrompts",
           "name": "Prompts"
+        },
+        {
+          "id": "betterProjectToolsBranchContext",
+          "name": "Branch Context"
         }
       ],
       "explorer": [
@@ -235,6 +239,23 @@
       {
         "command": "betterProjectTools.executePrompt",
         "title": "Execute Prompt"
+      },
+      {
+        "command": "betterProjectTools.refreshBranchContext",
+        "title": "Refresh Branch Context",
+        "icon": "$(extensions-refresh)"
+      },
+      {
+        "command": "betterProjectTools.editBranchObjective",
+        "title": "Edit Branch Objective"
+      },
+      {
+        "command": "betterProjectTools.editBranchLinearIssue",
+        "title": "Edit Branch Linear Issue"
+      },
+      {
+        "command": "betterProjectTools.editBranchNotes",
+        "title": "Edit Branch Notes"
       }
     ],
     "keybindings": [
@@ -325,6 +346,11 @@
           "command": "betterProjectTools.refreshPrompts",
           "when": "view == betterProjectToolsPrompts",
           "group": "navigation@2"
+        },
+        {
+          "command": "betterProjectTools.refreshBranchContext",
+          "when": "view == betterProjectToolsBranchContext",
+          "group": "navigation"
         }
       ],
       "view/item/context": [

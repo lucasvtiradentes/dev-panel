@@ -4,5 +4,6 @@ node_modules
 .vscode-test/
 *.vsix
 .bpm/state.json
+.branch-context.md
 .ignore
 

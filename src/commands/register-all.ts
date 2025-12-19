@@ -1,5 +1,6 @@
 import type * as vscode from 'vscode';
 import { Command, registerCommand } from '../common';
+import type { BranchContextProvider } from '../views/branch-context';
 import type { PromptTreeDataProvider } from '../views/prompts';
 import type { TaskTreeDataProvider } from '../views/tasks';
 import type { ToolTreeDataProvider } from '../views/tools';
@@ -26,6 +27,7 @@ export function registerAllCommands(
   taskTreeDataProvider: TaskTreeDataProvider,
   toolTreeDataProvider: ToolTreeDataProvider,
   promptTreeDataProvider: PromptTreeDataProvider,
+  branchContextProvider: BranchContextProvider,
 ): vscode.Disposable[] {
   return [
     createRefreshCommand(taskTreeDataProvider),
@@ -55,5 +57,15 @@ export function registerAllCommands(
     registerCommand(Command.TogglePromptFavorite, (item) => promptTreeDataProvider.toggleFavorite(item)),
     registerCommand(Command.TogglePromptHide, (item) => promptTreeDataProvider.toggleHide(item)),
     createExecutePromptCommand(),
+    registerCommand(Command.RefreshBranchContext, () => branchContextProvider.refresh()),
+    registerCommand(Command.EditBranchObjective, (branchName: string, value?: string) =>
+      branchContextProvider.editField(branchName, 'objective', value),
+    ),
+    registerCommand(Command.EditBranchLinearIssue, (branchName: string, value?: string) =>
+      branchContextProvider.editField(branchName, 'linearIssue', value),
+    ),
+    registerCommand(Command.EditBranchNotes, (branchName: string, value?: string) =>
+      branchContextProvider.editField(branchName, 'notes', value),
+    ),
   ];
 }

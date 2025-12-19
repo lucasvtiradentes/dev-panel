@@ -8,6 +8,8 @@ export {
   type BPMScript,
   type BPMState,
   type BPMTool,
+  type BranchContext,
+  type BranchesState,
   type PromptsState,
   type TasksState,
   type ToolsState,

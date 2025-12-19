@@ -101,6 +101,14 @@ export const PromptsStateSchema = z.object({
   bpm: SourceStateSchema,
 });
 
+export const BranchContextSchema = z.object({
+  objective: z.string().optional(),
+  linearIssue: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+export const BranchesStateSchema = z.record(z.string(), BranchContextSchema);
+
 export const BPMStateSchema = z.object({
   debug: z.boolean().optional(),
   activeReplacements: z.array(z.string()).optional(),
@@ -109,6 +117,7 @@ export const BPMStateSchema = z.object({
   tasks: TasksStateSchema.optional(),
   tools: ToolsStateSchema.optional(),
   prompts: PromptsStateSchema.optional(),
+  branches: BranchesStateSchema.optional(),
 });
 
 export type TaskSource = z.infer<typeof TaskSourceEnum>;
@@ -122,6 +131,8 @@ export type SourceState = z.infer<typeof SourceStateSchema>;
 export type TasksState = z.infer<typeof TasksStateSchema>;
 export type ToolsState = z.infer<typeof ToolsStateSchema>;
 export type PromptsState = z.infer<typeof PromptsStateSchema>;
+export type BranchContext = z.infer<typeof BranchContextSchema>;
+export type BranchesState = z.infer<typeof BranchesStateSchema>;
 export type BPMState = z.infer<typeof BPMStateSchema>;
 
 export const DEFAULT_SOURCE_STATE: SourceState = {

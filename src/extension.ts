@@ -2,12 +2,14 @@ import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import {
   GLOBAL_STATE_WORKSPACE_SOURCE,
+  getViewIdBranchContext,
   getViewIdConfigs,
   getViewIdPrompts,
   getViewIdReplacements,
   getViewIdTasks,
   getViewIdTools,
 } from './common/constants';
+import { BranchContextProvider } from './views/branch-context';
 import { ConfigsProvider } from './views/configs';
 import { PromptTreeDataProvider } from './views/prompts';
 import { ReplacementsProvider } from './views/replacements';
@@ -21,6 +23,7 @@ export function activate(context: vscode.ExtensionContext): object {
   const replacementsProvider = new ReplacementsProvider();
   const toolTreeDataProvider = new ToolTreeDataProvider();
   const promptTreeDataProvider = new PromptTreeDataProvider();
+  const branchContextProvider = new BranchContextProvider();
 
   void vscode.tasks.fetchTasks();
 
@@ -44,11 +47,13 @@ export function activate(context: vscode.ExtensionContext): object {
 
   vscode.window.registerTreeDataProvider(getViewIdConfigs(), configsProvider);
   vscode.window.registerTreeDataProvider(getViewIdReplacements(), replacementsProvider);
+  vscode.window.registerTreeDataProvider(getViewIdBranchContext(), branchContextProvider);
 
   context.subscriptions.push({ dispose: () => configsProvider.dispose() });
   context.subscriptions.push({ dispose: () => replacementsProvider.dispose() });
   context.subscriptions.push({ dispose: () => toolTreeDataProvider.dispose() });
   context.subscriptions.push({ dispose: () => promptTreeDataProvider.dispose() });
+  context.subscriptions.push({ dispose: () => branchContextProvider.dispose() });
 
   const stateWatcher = createStateWatcher(() => {
     taskTreeDataProvider.refresh();
@@ -62,6 +67,7 @@ export function activate(context: vscode.ExtensionContext): object {
     taskTreeDataProvider,
     toolTreeDataProvider,
     promptTreeDataProvider,
+    branchContextProvider,
   );
   context.subscriptions.push(...commandDisposables);
 
