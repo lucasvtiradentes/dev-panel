@@ -29,10 +29,19 @@ export type BPMScript = {
   description?: string;
 };
 
+export type BPMTool = {
+  name: string;
+  command: string;
+  icon?: string;
+  group?: string;
+  description?: string;
+};
+
 export type BPMConfig = {
   configs?: unknown[];
   replacements?: unknown[];
   scripts?: BPMScript[];
+  tools?: BPMTool[];
 };
 
 export type TaskDefinition = {
@@ -75,5 +84,22 @@ export const DEFAULT_TASKS_STATE: TasksState = {
   isGrouped: false,
   vscode: { flatOrder: [], groupOrder: [], favorites: [], hidden: [] },
   packageJson: { flatOrder: [], groupOrder: [], favorites: [], hidden: [] },
+  bpm: { flatOrder: [], groupOrder: [], favorites: [], hidden: [] },
+};
+
+export type ToolSourceState = {
+  flatOrder: string[];
+  groupOrder: string[];
+  favorites: string[];
+  hidden: string[];
+};
+
+export type ToolsState = {
+  isGrouped: boolean;
+  bpm: ToolSourceState;
+};
+
+export const DEFAULT_TOOLS_STATE: ToolsState = {
+  isGrouped: false,
   bpm: { flatOrder: [], groupOrder: [], favorites: [], hidden: [] },
 };

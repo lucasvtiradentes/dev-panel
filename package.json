@@ -84,6 +84,10 @@
         {
           "id": "betterProjectToolsReplacements",
           "name": "Replacements"
+        },
+        {
+          "id": "betterProjectToolsTools",
+          "name": "Tools"
         }
       ],
       "explorer": [
@@ -167,6 +171,35 @@
       {
         "command": "betterProjectTools.tabCmdline",
         "title": "Tab Command Line"
+      },
+      {
+        "command": "betterProjectTools.refreshTools",
+        "title": "Refresh Tools",
+        "icon": "$(extensions-refresh)"
+      },
+      {
+        "command": "betterProjectTools.toggleToolsGroupMode",
+        "title": "Toggle Tools Group Mode",
+        "icon": "$(list-flat)"
+      },
+      {
+        "command": "betterProjectTools.toggleToolsGroupModeGrouped",
+        "title": "Toggle Tools Group Mode",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "betterProjectTools.toggleToolFavorite",
+        "title": "Toggle Tool Favorite",
+        "icon": "$(heart)"
+      },
+      {
+        "command": "betterProjectTools.toggleToolHide",
+        "title": "Toggle Tool Hide",
+        "icon": "$(eye-closed)"
+      },
+      {
+        "command": "betterProjectTools.executeTool",
+        "title": "Execute Tool"
       }
     ],
     "keybindings": [
@@ -227,6 +260,21 @@
           "command": "betterProjectTools.refresh",
           "when": "view == betterProjectToolsTasks",
           "group": "navigation@3"
+        },
+        {
+          "command": "betterProjectTools.toggleToolsGroupMode",
+          "when": "view == betterProjectToolsTools && !toolsGrouped",
+          "group": "navigation@1"
+        },
+        {
+          "command": "betterProjectTools.toggleToolsGroupModeGrouped",
+          "when": "view == betterProjectToolsTools && toolsGrouped",
+          "group": "navigation@1"
+        },
+        {
+          "command": "betterProjectTools.refreshTools",
+          "when": "view == betterProjectToolsTools",
+          "group": "navigation@2"
         }
       ],
       "view/item/context": [
@@ -247,6 +295,20 @@
         {
           "command": "betterProjectTools.goToTask",
           "when": "view == betterProjectToolsTasks"
+        },
+        {
+          "command": "betterProjectTools.toggleToolFavorite",
+          "when": "view == betterProjectToolsTools && viewItem == tool",
+          "group": "inline@1"
+        },
+        {
+          "command": "betterProjectTools.toggleToolHide",
+          "when": "view == betterProjectToolsTools && viewItem == tool",
+          "group": "inline@2"
+        },
+        {
+          "command": "betterProjectTools.executeTool",
+          "when": "view == betterProjectToolsTools"
         }
       ]
     },
