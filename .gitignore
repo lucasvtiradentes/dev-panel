@@ -1,9 +1,11 @@
-out
+# FOLDERS ======================================================================
+
+.ignore
 dist-dev
 node_modules
-.vscode-test/
+out
+
+# FILES ========================================================================
+
 *.vsix
 .bpm/state.json
-.branch-context.md
-.ignore
-

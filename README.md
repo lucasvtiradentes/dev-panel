@@ -3,10 +3,8 @@
   - ai ficar salvando em pastas no proprio bpm 
   - ao trocar de branch vamos loadar de la 
   - talvez a gente escreva algumas coisas e isso fique salvo num doc na root do repo de forma untracked ai vai ser simples de mandar pro cc
-
-- ver um jeito pratico de ter o framework do POR por aqui ou algo customizavel 
-
-- ter como usar state.variables nos prompts, scripts, etc -> ${{environment}}
+s
+- ter como usar tate.variables nos prompts, scripts, etc -> ${{environment}}
 
 - ter um TODO vinculado a branch para ser facil de trackear o q precisa ser feito
 
@@ -29,3 +27,7 @@
 - adicionar integracao com linear cmd e mostrar as coisas para serem feitas no projeto/branch
   - por milestone 
   - por pessoa 
+
+# OUTRO PROJETO
+
+- ver um jeito pratico de ter o framework do POR por aqui ou algo customizavel 

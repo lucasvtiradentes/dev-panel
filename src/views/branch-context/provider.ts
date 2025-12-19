@@ -76,8 +76,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     const branchName = repo.state.HEAD?.name;
     if (branchName && !this.currentBranch) {
       this.currentBranch = branchName;
-      this.regenerateMarkdown();
-      this.refresh();
+      this.regenerateMarkdown().then(() => this.refresh());
     }
   }
 
@@ -114,7 +113,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
     if (await isGitRepository(workspace)) {
       this.currentBranch = await getCurrentBranch(workspace);
-      this.regenerateMarkdown();
+      await this.regenerateMarkdown();
       this.refresh();
     }
   }
@@ -127,7 +126,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       const newBranch = await getCurrentBranch(workspace);
       if (newBranch !== this.currentBranch) {
         this.currentBranch = newBranch;
-        this.regenerateMarkdown();
+        await this.regenerateMarkdown();
         this.refresh();
       }
     } catch {
@@ -135,10 +134,10 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
   }
 
-  private regenerateMarkdown(): void {
+  private async regenerateMarkdown(): Promise<void> {
     if (!this.currentBranch) return;
     const context = loadBranchContext(this.currentBranch);
-    generateBranchContextMarkdown(this.currentBranch, context);
+    await generateBranchContextMarkdown(this.currentBranch, context);
   }
 
   refresh(): void {
@@ -185,7 +184,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
     if (newValue !== undefined) {
       updateBranchField(branchName, field, newValue === '' ? undefined : newValue);
-      this.regenerateMarkdown();
+      await this.regenerateMarkdown();
       this.refresh();
     }
   }
