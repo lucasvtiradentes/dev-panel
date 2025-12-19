@@ -124,7 +124,7 @@
       {
         "command": "betterProjectTools.switchTaskSource",
         "title": "Switch to npm Scripts",
-        "icon": "$(checklist)"
+        "icon": "$(tools)"
       },
       {
         "command": "betterProjectTools.switchTaskSourceFromPackage",

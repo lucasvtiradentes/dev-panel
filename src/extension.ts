@@ -19,6 +19,7 @@ export function activate(context: vscode.ExtensionContext): object {
 
   const tasksTreeView = vscode.window.createTreeView(getViewIdTasks(), {
     treeDataProvider: taskTreeDataProvider,
+    dragAndDropController: taskTreeDataProvider.dragAndDropController,
   });
   taskTreeDataProvider.setTreeView(tasksTreeView);
 

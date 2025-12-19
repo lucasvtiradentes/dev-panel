@@ -11,7 +11,7 @@ export type TaskSourceInfo = {
 };
 
 export const TASK_SOURCES: TaskSourceInfo[] = [
-  { id: TaskSource.VSCode, label: 'VSCode', icon: 'checklist' },
+  { id: TaskSource.VSCode, label: 'VSCode', icon: 'tools' },
   { id: TaskSource.Package, label: 'Package.json', icon: 'package' },
   { id: TaskSource.BPM, label: 'BPM', icon: 'beaker' },
 ];
@@ -53,4 +53,26 @@ export type TasksJson = {
 export type CodeWorkspaceFile = {
   folders?: { path: string }[];
   tasks?: TasksJson;
+};
+
+export type TaskSourceState = {
+  flatOrder: string[];
+  groupOrder: string[];
+  favorites: string[];
+};
+
+export type TasksState = {
+  current: TaskSource;
+  isGrouped: boolean;
+  vscode: TaskSourceState;
+  packageJson: TaskSourceState;
+  bpm: TaskSourceState;
+};
+
+export const DEFAULT_TASKS_STATE: TasksState = {
+  current: TaskSource.VSCode,
+  isGrouped: false,
+  vscode: { flatOrder: [], groupOrder: [], favorites: [] },
+  packageJson: { flatOrder: [], groupOrder: [], favorites: [] },
+  bpm: { flatOrder: [], groupOrder: [], favorites: [] },
 };

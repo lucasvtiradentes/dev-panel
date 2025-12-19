@@ -4,7 +4,9 @@ import * as vscode from 'vscode';
 import { Command, ContextKey, ExtensionConfigKey, getCommandId, getExtensionConfig, setContextKey } from '../../common';
 import { type BPMConfig, TASK_SOURCES, TaskSource } from '../../common/types';
 import { StatusBarManager } from '../../status-bar/status-bar-manager';
+import { TaskDragAndDropController } from './dnd-controller';
 import { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
+import { getCurrentSource, getIsGrouped, getOrder, saveCurrentSource, saveIsGrouped } from './state';
 
 type PackageJson = {
   scripts?: Record<string, string>;
@@ -17,14 +19,16 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
   readonly onDidChangeTreeData: vscode.Event<TreeTask | null> = this._onDidChangeTreeData.event;
 
   private readonly autoRefresh: boolean;
-  private _source: TaskSource = TaskSource.VSCode;
-  private _grouped = false;
+  private _source: TaskSource;
+  private _grouped: boolean;
   private readonly statusBarManager: StatusBarManager;
   private _treeView: vscode.TreeView<TreeTask | GroupTreeItem | WorkspaceTreeItem> | null = null;
 
   constructor(_context: vscode.ExtensionContext) {
     this.autoRefresh = getExtensionConfig(ExtensionConfigKey.AutoRefresh);
     this.statusBarManager = new StatusBarManager();
+    this._source = getCurrentSource();
+    this._grouped = getIsGrouped();
     this.updateContextKeys();
   }
 
@@ -43,6 +47,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     const nextSource = TASK_SOURCES[nextIndex];
 
     this._source = nextSource.id;
+    saveCurrentSource(this._source);
     this.updateViewTitle();
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
@@ -65,12 +70,21 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
 
   toggleGroupMode(): void {
     this._grouped = !this._grouped;
+    saveIsGrouped(this._grouped);
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
   }
 
   get currentSource(): TaskSource {
     return this._source;
+  }
+
+  get dragAndDropController(): TaskDragAndDropController {
+    return new TaskDragAndDropController(
+      () => this._source,
+      () => this._grouped,
+      () => this.refresh(),
+    );
   }
 
   public async putTaskCmd(): Promise<void> {
@@ -89,9 +103,11 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     await this.statusBarManager.showTaskList();
   }
 
-  private async sortElements(
+  private sortElements(
     elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
-  ): Promise<Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>> {
+  ): Array<WorkspaceTreeItem | GroupTreeItem | TreeTask> {
+    const order = getOrder(this._source, this._grouped);
+
     elements.sort((a, b) => {
       const getLabel = (item: WorkspaceTreeItem | GroupTreeItem | TreeTask): string => {
         const label = typeof item.label === 'string' ? item.label : (item.label?.label ?? '');
@@ -101,6 +117,15 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
       const aLabel = getLabel(a);
       const bLabel = getLabel(b);
 
+      const aIndex = order.indexOf(aLabel);
+      const bIndex = order.indexOf(bLabel);
+
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+      if (aIndex !== -1) return -1;
+      if (bIndex !== -1) return 1;
+
+      if (aLabel === 'no-group' && bLabel !== 'no-group') return 1;
+      if (bLabel === 'no-group' && aLabel !== 'no-group') return -1;
       if (aLabel === 'other-tasks' && bLabel !== 'other-tasks') return 1;
       if (bLabel === 'other-tasks' && aLabel !== 'other-tasks') return -1;
 
