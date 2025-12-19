@@ -1,0 +1,223 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "BPM configuration file",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "description": "JSON Schema reference",
+      "type": "string"
+    },
+    "configs": {
+      "description": "Configuration options",
+      "type": "array",
+      "items": {
+        "description": "A configuration option shown in the Configs view",
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Unique identifier for the config",
+            "type": "string"
+          },
+          "kind": {
+            "description": "Type of config input",
+            "type": "string",
+            "enum": [
+              "choose",
+              "toggle",
+              "input",
+              "multi-select",
+              "file",
+              "folder"
+            ]
+          },
+          "options": {
+            "description": "Available options for choose/multi-select kinds",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "command": {
+            "description": "Shell command to execute when value changes",
+            "type": "string"
+          },
+          "icon": {
+            "description": "VSCode ThemeIcon id",
+            "type": "string"
+          },
+          "description": {
+            "description": "Human-readable description",
+            "type": "string"
+          },
+          "default": {
+            "description": "Default value",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "group": {
+            "description": "Group name for organizing configs",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "kind"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "replacements": {
+      "description": "File replacements/patches",
+      "type": "array",
+      "items": {
+        "description": "A file replacement/patch shown in the Replacements view",
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Unique identifier for the replacement",
+            "type": "string"
+          },
+          "type": {
+            "description": "Type of replacement",
+            "type": "string",
+            "enum": [
+              "patch"
+            ]
+          },
+          "description": {
+            "description": "Human-readable description",
+            "type": "string"
+          },
+          "target": {
+            "description": "Target file path relative to workspace",
+            "type": "string"
+          },
+          "onBranchChange": {
+            "description": "What to do when git branch changes",
+            "type": "string",
+            "enum": [
+              "revert",
+              "keep"
+            ]
+          },
+          "patches": {
+            "description": "List of search/replace patches",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "search": {
+                  "description": "Text or pattern to search for",
+                  "type": "string"
+                },
+                "replace": {
+                  "description": "Replacement text",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "search",
+                "replace"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "group": {
+            "description": "Group name for organizing replacements",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "target",
+          "patches"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "scripts": {
+      "description": "Executable scripts",
+      "type": "array",
+      "items": {
+        "description": "A script that can be executed from the Tasks view",
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Unique identifier for the script",
+            "type": "string"
+          },
+          "command": {
+            "description": "Shell command to execute",
+            "type": "string"
+          },
+          "icon": {
+            "description": "VSCode ThemeIcon id (e.g. \"terminal\", \"play\")",
+            "type": "string"
+          },
+          "group": {
+            "description": "Group name for organizing scripts",
+            "type": "string"
+          },
+          "description": {
+            "description": "Human-readable description shown as tooltip",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "command"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "tools": {
+      "description": "Executable tools",
+      "type": "array",
+      "items": {
+        "description": "A tool that can be executed from the Tools view",
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Unique identifier for the tool",
+            "type": "string"
+          },
+          "command": {
+            "description": "Shell command to execute",
+            "type": "string"
+          },
+          "icon": {
+            "description": "VSCode ThemeIcon id (e.g. \"tools\", \"gear\")",
+            "type": "string"
+          },
+          "group": {
+            "description": "Group name for organizing tools",
+            "type": "string"
+          },
+          "description": {
+            "description": "Human-readable description shown as tooltip",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "command"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

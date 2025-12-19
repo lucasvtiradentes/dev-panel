@@ -1,4 +1,5 @@
 {
+  "$schema": "../resources/schema.json",
   "configs": [
     // Environment group
     {

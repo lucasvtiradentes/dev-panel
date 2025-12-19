@@ -2,54 +2,68 @@ import { z } from 'zod';
 
 export const TaskSourceEnum = z.enum(['vscode', 'package', 'bpm']);
 
-const BPMScriptSchema = z.object({
-  name: z.string(),
-  command: z.string(),
-  icon: z.string().optional(),
-  group: z.string().optional(),
-  description: z.string().optional(),
-});
+const BPMScriptSchema = z
+  .object({
+    name: z.string().describe('Unique identifier for the script'),
+    command: z.string().describe('Shell command to execute'),
+    icon: z.string().optional().describe('VSCode ThemeIcon id (e.g. "terminal", "play")'),
+    group: z.string().optional().describe('Group name for organizing scripts'),
+    description: z.string().optional().describe('Human-readable description shown as tooltip'),
+  })
+  .describe('A script that can be executed from the Tasks view');
 
-const BPMToolSchema = z.object({
-  name: z.string(),
-  command: z.string(),
-  icon: z.string().optional(),
-  group: z.string().optional(),
-  description: z.string().optional(),
-});
+const BPMToolSchema = z
+  .object({
+    name: z.string().describe('Unique identifier for the tool'),
+    command: z.string().describe('Shell command to execute'),
+    icon: z.string().optional().describe('VSCode ThemeIcon id (e.g. "tools", "gear")'),
+    group: z.string().optional().describe('Group name for organizing tools'),
+    description: z.string().optional().describe('Human-readable description shown as tooltip'),
+  })
+  .describe('A tool that can be executed from the Tools view');
 
-const BPMConfigItemSchema = z.object({
-  name: z.string(),
-  kind: z.enum(['choose', 'toggle', 'input', 'multi-select', 'file', 'folder']),
-  options: z.array(z.string()).optional(),
-  command: z.string().optional(),
-  icon: z.string().optional(),
-  description: z.string().optional(),
-  default: z.union([z.string(), z.boolean(), z.array(z.string())]).optional(),
-  group: z.string().optional(),
-});
+const BPMConfigItemSchema = z
+  .object({
+    name: z.string().describe('Unique identifier for the config'),
+    kind: z.enum(['choose', 'toggle', 'input', 'multi-select', 'file', 'folder']).describe('Type of config input'),
+    options: z.array(z.string()).optional().describe('Available options for choose/multi-select kinds'),
+    command: z.string().optional().describe('Shell command to execute when value changes'),
+    icon: z.string().optional().describe('VSCode ThemeIcon id'),
+    description: z.string().optional().describe('Human-readable description'),
+    default: z
+      .union([z.string(), z.boolean(), z.array(z.string())])
+      .optional()
+      .describe('Default value'),
+    group: z.string().optional().describe('Group name for organizing configs'),
+  })
+  .describe('A configuration option shown in the Configs view');
 
 const BPMReplacementPatchSchema = z.object({
-  search: z.string(),
-  replace: z.string(),
+  search: z.string().describe('Text or pattern to search for'),
+  replace: z.string().describe('Replacement text'),
 });
 
-const BPMReplacementSchema = z.object({
-  name: z.string(),
-  type: z.enum(['patch']),
-  description: z.string().optional(),
-  target: z.string(),
-  onBranchChange: z.enum(['revert', 'keep']).optional(),
-  patches: z.array(BPMReplacementPatchSchema),
-  group: z.string().optional(),
-});
+const BPMReplacementSchema = z
+  .object({
+    name: z.string().describe('Unique identifier for the replacement'),
+    type: z.enum(['patch']).describe('Type of replacement'),
+    description: z.string().optional().describe('Human-readable description'),
+    target: z.string().describe('Target file path relative to workspace'),
+    onBranchChange: z.enum(['revert', 'keep']).optional().describe('What to do when git branch changes'),
+    patches: z.array(BPMReplacementPatchSchema).describe('List of search/replace patches'),
+    group: z.string().optional().describe('Group name for organizing replacements'),
+  })
+  .describe('A file replacement/patch shown in the Replacements view');
 
-export const BPMConfigSchema = z.object({
-  configs: z.array(BPMConfigItemSchema).optional(),
-  replacements: z.array(BPMReplacementSchema).optional(),
-  scripts: z.array(BPMScriptSchema).optional(),
-  tools: z.array(BPMToolSchema).optional(),
-});
+export const BPMConfigSchema = z
+  .object({
+    $schema: z.string().optional().describe('JSON Schema reference'),
+    configs: z.array(BPMConfigItemSchema).optional().describe('Configuration options'),
+    replacements: z.array(BPMReplacementSchema).optional().describe('File replacements/patches'),
+    scripts: z.array(BPMScriptSchema).optional().describe('Executable scripts'),
+    tools: z.array(BPMToolSchema).optional().describe('Executable tools'),
+  })
+  .describe('BPM configuration file');
 
 const SourceStateSchema = z.object({
   flatOrder: z.array(z.string()),

@@ -1,3 +1,6 @@
-# Task Runner Plus
-
-There are many tools that exist to automate parts of your project, including for installing dependencies, building, testing, linting, deploying. This extension adds an additional "Task Runner" view in your Explorer Pane to visualize and individually run the auto-detected tasks in your project. VS Code auto-detects the following task runners: Gulp, Grunt, Jake and npm.
+- ter uma view de "prompts"
+  - ao clicar em um deles, vamos rodar o prompt automaticamente
+- ter alguma coisa util para guardarmos/configurarmos info a respeito da branch atual
+  - talvez definirmos o objetivo da branch, o issue do linear, etc
+  - ai ficar salvando em pastas no proprio bpm 
+  - ao trocar de branch vamos loadar de la 

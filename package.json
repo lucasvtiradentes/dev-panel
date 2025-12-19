@@ -33,7 +33,7 @@
   "scripts": {
     "prepare": "husky",
     "build": "tsx esbuild.config.ts",
-    "postbuild": "tsx scripts/install-local/install-local-vscode.ts",
+    "postbuild": "tsx scripts/generate-schema.ts && tsx scripts/install-local/install-local-vscode.ts",
     "lint": "biome check src",
     "lint:fix": "biome check --fix --unsafe src",
     "format": "biome format --write src",
@@ -43,7 +43,8 @@
     "vscode:package": "vsce package --no-dependencies",
     "vscode:publish": "vsce publish --no-dependencies",
     "clean": "rimraf out dist-dev node_modules",
-    "knip": "knip"
+    "knip": "knip",
+    "schema": "tsx scripts/generate-schema.ts"
   },
   "dependencies": {
     "json5": "^2.2.3",
