@@ -105,28 +105,28 @@
   "tools": [
     {
       "name": "check-types",
-      "command": "bash .bpm/tools/check-types.sh",
+      "command": "bash tools/check-types.sh",
       "description": "Run TypeScript type checking",
       "icon": "symbol-type-parameter",
       "group": "Quality"
     },
     {
       "name": "check-lint",
-      "command": "bash .bpm/tools/check-lint.sh",
+      "command": "bash tools/check-lint.sh",
       "description": "Run linting checks",
       "icon": "checklist",
       "group": "Quality"
     },
     {
       "name": "check-all",
-      "command": "bash .bpm/tools/check-all.sh",
+      "command": "bash tools/check-all.sh",
       "description": "Run all quality checks (types + lint)",
       "icon": "pass-filled",
       "group": "Quality"
     },
     {
       "name": "show-stats",
-      "command": "bash .bpm/tools/show-stats.sh",
+      "command": "bash tools/show-stats.sh",
       "description": "Show project stats (files, lines, etc)",
       "icon": "graph",
       "group": "Info"

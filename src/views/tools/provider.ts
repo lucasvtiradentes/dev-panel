@@ -193,7 +193,7 @@ export class ToolTreeDataProvider implements vscode.TreeDataProvider<TreeTool | 
     if (hidden && !this._showHidden) return null;
     if (this._showOnlyFavorites && !favorite) return null;
 
-    const shellExec = new vscode.ShellExecution(tool.command);
+    const shellExec = new vscode.ShellExecution(tool.command, { cwd: `${folder.uri.fsPath}/${CONFIG_DIR_NAME}` });
     const task = new vscode.Task(
       { type: `${CONFIG_DIR_KEY}-tool` },
       folder,
@@ -203,7 +203,7 @@ export class ToolTreeDataProvider implements vscode.TreeDataProvider<TreeTool | 
     );
 
     const relativeFile = this.extractFileFromCommand(tool.command);
-    const toolFilePath = relativeFile ? `${folder.uri.fsPath}/${relativeFile}` : '';
+    const toolFilePath = relativeFile ? `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/${relativeFile}` : '';
 
     const treeTool = new TreeTool(tool.name, toolFilePath, vscode.TreeItemCollapsibleState.None, {
       command: getCommandId(Command.ExecuteTool),
