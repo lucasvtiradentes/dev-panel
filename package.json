@@ -246,6 +246,11 @@
         "title": "Execute Tool"
       },
       {
+        "command": "betterProjectTools.goToToolFile",
+        "title": "Go to Tool File",
+        "icon": "$(go-to-file)"
+      },
+      {
         "command": "betterProjectTools.refreshPrompts",
         "title": "Refresh Prompts",
         "icon": "$(extensions-refresh)"
@@ -273,6 +278,11 @@
       {
         "command": "betterProjectTools.executePrompt",
         "title": "Execute Prompt"
+      },
+      {
+        "command": "betterProjectTools.goToPromptFile",
+        "title": "Go to Prompt File",
+        "icon": "$(go-to-file)"
       },
       {
         "command": "betterProjectTools.refreshBranchContext",
@@ -451,6 +461,11 @@
           "group": "inline@2"
         },
         {
+          "command": "betterProjectTools.goToToolFile",
+          "when": "view == betterProjectToolsTools && viewItem == tool",
+          "group": "inline@3"
+        },
+        {
           "command": "betterProjectTools.executeTool",
           "when": "view == betterProjectToolsTools"
         },
@@ -463,6 +478,11 @@
           "command": "betterProjectTools.togglePromptHide",
           "when": "view == betterProjectToolsPrompts && viewItem == prompt",
           "group": "inline@2"
+        },
+        {
+          "command": "betterProjectTools.goToPromptFile",
+          "when": "view == betterProjectToolsPrompts && viewItem == prompt",
+          "group": "inline@3"
         },
         {
           "command": "betterProjectTools.executePrompt",

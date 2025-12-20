@@ -1,12 +1,12 @@
-import type * as vscode from 'vscode';
+import * as vscode from 'vscode';
 import { Command, registerCommand } from '../common';
 import type { BranchContextProvider } from '../views/branch-context';
 import type { ConfigsProvider } from '../views/configs';
-import type { PromptTreeDataProvider } from '../views/prompts';
+import type { PromptTreeDataProvider, TreePrompt } from '../views/prompts';
 import type { ReplacementsProvider } from '../views/replacements';
 import type { TaskTreeDataProvider } from '../views/tasks';
 import type { TodosProvider } from '../views/todos';
-import type { ToolTreeDataProvider } from '../views/tools';
+import type { ToolTreeDataProvider, TreeTool } from '../views/tools';
 import {
   createBackCmdlineCommand,
   createExecCmdlineCommand,
@@ -64,12 +64,24 @@ export function registerAllCommands(
     registerCommand(Command.ToggleToolFavorite, (item) => toolTreeDataProvider.toggleFavorite(item)),
     registerCommand(Command.ToggleToolHide, (item) => toolTreeDataProvider.toggleHide(item)),
     createExecuteToolCommand(context),
+    registerCommand(Command.GoToToolFile, async (item: TreeTool) => {
+      if (item?.toolFile) {
+        const uri = vscode.Uri.file(item.toolFile);
+        await vscode.window.showTextDocument(uri);
+      }
+    }),
     createRefreshPromptsCommand(promptTreeDataProvider),
     registerCommand(Command.TogglePromptsGroupMode, () => promptTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.TogglePromptsGroupModeGrouped, () => promptTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.TogglePromptFavorite, (item) => promptTreeDataProvider.toggleFavorite(item)),
     registerCommand(Command.TogglePromptHide, (item) => promptTreeDataProvider.toggleHide(item)),
     createExecutePromptCommand(),
+    registerCommand(Command.GoToPromptFile, async (item: TreePrompt) => {
+      if (item?.promptFile) {
+        const uri = vscode.Uri.file(item.promptFile);
+        await vscode.window.showTextDocument(uri);
+      }
+    }),
     registerCommand(Command.RefreshBranchContext, () => branchContextProvider.refresh()),
     registerCommand(Command.EditBranchPrLink, (branchName: string, value?: string) =>
       branchContextProvider.editField(branchName, 'prLink', value),

@@ -10,10 +10,12 @@ export class ToolGroupTreeItem extends vscode.TreeItem {
 
 export class TreeTool extends vscode.TreeItem {
   toolName: string;
+  toolFile: string;
   group: string | undefined;
 
   constructor(
     label: string,
+    file: string,
     collapsibleState: vscode.TreeItemCollapsibleState,
     command?: vscode.Command,
     group?: string,
@@ -22,6 +24,7 @@ export class TreeTool extends vscode.TreeItem {
     this.command = command;
     this.group = group;
     this.toolName = label;
+    this.toolFile = file;
     this.contextValue = 'tool';
   }
 
