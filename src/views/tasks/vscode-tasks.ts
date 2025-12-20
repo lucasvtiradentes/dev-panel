@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { Command, getCommandId } from '../../common';
-import { TaskSource } from '../../common/types';
+import { TaskSource } from '../../common/schemas/types';
 import { type GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 

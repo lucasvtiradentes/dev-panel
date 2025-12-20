@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { CONTEXT_PREFIX, DEV_SUFFIX, IS_DEV } from '../constants';
+import { CONTEXT_PREFIX, DEV_SUFFIX, IS_DEV } from '../constants/constants';
 
 export enum ExtensionConfigKey {
   AutoRefresh = 'autorefresh',

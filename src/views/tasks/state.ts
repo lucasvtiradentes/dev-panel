@@ -1,5 +1,5 @@
 import { tasksState } from '../../common/lib/workspace-state';
-import { TaskSource } from '../../common/types';
+import { TaskSource } from '../../common/schemas/types';
 
 export const loadTasksState = tasksState.load.bind(tasksState);
 export const saveTasksState = tasksState.save.bind(tasksState);

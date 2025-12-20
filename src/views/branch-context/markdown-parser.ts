@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
-import type { BranchContext } from '../../common/types';
+import type { BranchContext } from '../../common/schemas/types';
 
 const BRANCH_CONTEXT_FILE = '.branch-context.md';
 

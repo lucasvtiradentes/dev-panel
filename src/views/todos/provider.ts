@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
-import { getCommandId } from '../../common/constants';
+import { getCommandId } from '../../common/constants/constants';
 import { logger } from '../../common/lib/logger';
 import { Command } from '../../common/lib/vscode-utils';
 import { getBranchContextFilePath } from '../branch-context/markdown-parser';

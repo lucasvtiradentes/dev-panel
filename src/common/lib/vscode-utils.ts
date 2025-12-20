@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getCommandId } from '../constants';
+import { getCommandId } from '../constants/constants';
 
 export enum Command {
   Refresh = 'refresh',

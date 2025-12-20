@@ -17,7 +17,7 @@ import {
   type TasksState,
   type ToolsState,
   type WorkspaceUIState,
-} from '../types';
+} from '../schemas/types';
 
 const WORKSPACE_STATE_KEY = 'bpm.uiState';
 

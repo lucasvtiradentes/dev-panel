@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, createLogger, getCommandId, setContextKey } from '../../common';
-import type { BPMConfig } from '../../common/types';
+import type { BPMConfig } from '../../common/schemas/types';
 import { PromptDragAndDropController } from './dnd-controller';
 import { PromptGroupTreeItem, TreePrompt } from './items';
 import {

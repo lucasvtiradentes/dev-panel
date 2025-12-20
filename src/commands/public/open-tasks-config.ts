@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { Command, registerCommand } from '../../common';
-import { TaskSource } from '../../common/types';
+import { TaskSource } from '../../common/schemas/types';
 import { getExcludedDirs } from '../../views/tasks/package-json';
 import { getCurrentSource } from '../../views/tasks/state';
 

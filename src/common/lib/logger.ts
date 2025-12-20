@@ -1,7 +1,7 @@
 import { appendFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { getLogFilename } from '../constants';
+import { getLogFilename } from '../constants/constants';
 
 const LOG_CONTEXT_WIDTH = 20;
 const LOG_TIMEZONE_OFFSET_HOURS = -3;

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getCommandId } from '../../common/constants';
+import { getCommandId } from '../../common/constants/constants';
 import { Command } from '../../common/lib/vscode-utils';
 
 export class BranchHeaderItem extends vscode.TreeItem {

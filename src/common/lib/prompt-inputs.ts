@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 import * as vscode from 'vscode';
-import { type BPMPromptInput, type BPMSettings, PromptInputType, SelectionStyle } from '../schemas';
+import { type BPMPromptInput, type BPMSettings, PromptInputType, SelectionStyle } from '../schemas/schemas';
 import { createLogger } from './logger';
 
 const log = createLogger('prompt-inputs');
