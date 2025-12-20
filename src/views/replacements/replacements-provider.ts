@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
 import { applyFileReplacement, applyPatches, fileExists } from './file-ops';
 import { getCurrentBranch, isGitRepository, restoreFileFromGit, setAssumeUnchanged } from './git-utils';
+import { getIsGrouped, saveIsGrouped } from './state';
 import { type BpmConfig, OnBranchChange, type Replacement, type ReplacementState, ReplacementType } from './types';
 
 function getWorkspacePath(): string | null {
@@ -42,17 +43,6 @@ function saveReplacementState(repState: ReplacementState): void {
   const state = loadFullState();
   state.activeReplacements = repState.activeReplacements;
   state.lastBranch = repState.lastBranch;
-  saveFullState(state);
-}
-
-function getIsGrouped(): boolean {
-  const state = loadFullState();
-  return (state.replacementsGrouped as boolean) ?? true;
-}
-
-function saveIsGrouped(isGrouped: boolean): void {
-  const state = loadFullState();
-  state.replacementsGrouped = isGrouped;
   saveFullState(state);
 }
 

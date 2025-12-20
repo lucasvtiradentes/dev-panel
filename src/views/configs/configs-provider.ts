@@ -3,6 +3,7 @@ import * as path from 'node:path';
 import json5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
+import { getIsGrouped, saveIsGrouped } from './state';
 
 enum ConfigKind {
   Choose = 'choose',
@@ -65,17 +66,6 @@ function formatValue(value: string | boolean | string[] | undefined, config: Con
   if (typeof value === 'boolean') return value ? 'ON' : 'OFF';
   if (Array.isArray(value)) return value.length > 0 ? value.join(', ') : '(none)';
   return value;
-}
-
-function getIsGrouped(): boolean {
-  const state = loadState() as Record<string, unknown>;
-  return (state.configsGrouped as boolean) ?? true;
-}
-
-function saveIsGrouped(isGrouped: boolean): void {
-  const state = loadState() as Record<string, unknown>;
-  state.configsGrouped = isGrouped;
-  saveState(state as BpmState);
 }
 
 class GroupTreeItem extends vscode.TreeItem {

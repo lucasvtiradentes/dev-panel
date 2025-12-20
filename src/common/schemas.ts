@@ -176,6 +176,14 @@ export const PromptsStateSchema = z.object({
   bpm: SourceStateSchema,
 });
 
+export const ConfigsStateSchema = z.object({
+  isGrouped: z.boolean(),
+});
+
+export const ReplacementsStateSchema = z.object({
+  isGrouped: z.boolean(),
+});
+
 export const BranchContextSchema = z.object({
   prLink: z.string().optional(),
   linearProject: z.string().optional(),
@@ -195,6 +203,8 @@ export const BPMStateSchema = z.object({
   tasks: TasksStateSchema.optional(),
   tools: ToolsStateSchema.optional(),
   prompts: PromptsStateSchema.optional(),
+  configs: ConfigsStateSchema.optional(),
+  replacements: ReplacementsStateSchema.optional(),
   branches: BranchesStateSchema.optional(),
 });
 
@@ -212,6 +222,8 @@ export type SourceState = z.infer<typeof SourceStateSchema>;
 export type TasksState = z.infer<typeof TasksStateSchema>;
 export type ToolsState = z.infer<typeof ToolsStateSchema>;
 export type PromptsState = z.infer<typeof PromptsStateSchema>;
+export type ConfigsState = z.infer<typeof ConfigsStateSchema>;
+export type ReplacementsState = z.infer<typeof ReplacementsStateSchema>;
 export type BranchContext = z.infer<typeof BranchContextSchema>;
 export type BranchesState = z.infer<typeof BranchesStateSchema>;
 export type BPMState = z.infer<typeof BPMStateSchema>;
@@ -239,4 +251,12 @@ export const DEFAULT_TOOLS_STATE: ToolsState = {
 export const DEFAULT_PROMPTS_STATE: PromptsState = {
   isGrouped: false,
   bpm: { ...DEFAULT_SOURCE_STATE },
+};
+
+export const DEFAULT_CONFIGS_STATE: ConfigsState = {
+  isGrouped: true,
+};
+
+export const DEFAULT_REPLACEMENTS_STATE: ReplacementsState = {
+  isGrouped: true,
 };
