@@ -456,28 +456,28 @@
           "group": "navigation@3"
         },
         {
-          "command": "betterProjectTools.switchTaskSource",
-          "when": "view == betterProjectToolsTasks && taskSourceVSCode",
-          "group": "navigation@1"
-        },
-        {
-          "command": "betterProjectTools.switchTaskSourceFromPackage",
-          "when": "view == betterProjectToolsTasks && taskSourcePackage",
-          "group": "navigation@1"
-        },
-        {
-          "command": "betterProjectTools.switchTaskSourceFromBPM",
-          "when": "view == betterProjectToolsTasks && taskSourceBPM",
-          "group": "navigation@1"
-        },
-        {
           "command": "betterProjectTools.toggleGroupMode",
           "when": "view == betterProjectToolsTasks && !tasksGrouped && tasksHasGroups",
-          "group": "navigation@2"
+          "group": "navigation@1"
         },
         {
           "command": "betterProjectTools.toggleGroupModeGrouped",
           "when": "view == betterProjectToolsTasks && tasksGrouped && tasksHasGroups",
+          "group": "navigation@1"
+        },
+        {
+          "command": "betterProjectTools.switchTaskSource",
+          "when": "view == betterProjectToolsTasks && taskSourceVSCode",
+          "group": "navigation@2"
+        },
+        {
+          "command": "betterProjectTools.switchTaskSourceFromPackage",
+          "when": "view == betterProjectToolsTasks && taskSourcePackage",
+          "group": "navigation@2"
+        },
+        {
+          "command": "betterProjectTools.switchTaskSourceFromBPM",
+          "when": "view == betterProjectToolsTasks && taskSourceBPM",
           "group": "navigation@2"
         },
         {
