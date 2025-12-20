@@ -1,8 +1,4 @@
 import { promptsState } from '../../common/lib/workspace-state';
-
-export const loadPromptsState = promptsState.load.bind(promptsState);
-export const savePromptsState = promptsState.save.bind(promptsState);
-export const getSourceState = () => promptsState.getSourceState();
 export const getOrder = (isGrouped: boolean) => promptsState.getOrder(isGrouped);
 export const saveOrder = (isGrouped: boolean, order: string[]) => promptsState.saveOrder(isGrouped, order);
 export const toggleFavorite = (itemName: string) => promptsState.toggleFavorite(itemName);

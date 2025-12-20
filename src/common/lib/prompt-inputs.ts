@@ -27,7 +27,7 @@ function hasTag(item: TaggedQuickPickItem | undefined, tag: ItemTag): boolean {
   return item?.tag === tag;
 }
 
-export type PromptInputValues = Record<string, string>;
+type PromptInputValues = Record<string, string>;
 
 export async function collectPromptInputs(
   inputs: BPMPromptInput[],

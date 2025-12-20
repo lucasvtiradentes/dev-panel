@@ -1,21 +1,6 @@
 import { tasksState } from '../../common/lib/workspace-state';
-import { TaskSource } from '../../common/schemas/types';
+import type { TaskSource } from '../../common/schemas/types';
 
-export const loadTasksState = tasksState.load.bind(tasksState);
-export const saveTasksState = tasksState.save.bind(tasksState);
-
-export function getSourceStateKey(source: TaskSource): 'vscode' | 'packageJson' | 'bpm' {
-  switch (source) {
-    case TaskSource.VSCode:
-      return 'vscode';
-    case TaskSource.Package:
-      return 'packageJson';
-    case TaskSource.BPM:
-      return 'bpm';
-  }
-}
-
-export const getSourceState = (source: TaskSource) => tasksState.getSourceState(source);
 export const getOrder = (source: TaskSource, isGrouped: boolean) => tasksState.getOrder(source, isGrouped);
 export const saveSourceOrder = (source: TaskSource, isGrouped: boolean, order: string[]) =>
   tasksState.saveOrder(source, isGrouped, order);

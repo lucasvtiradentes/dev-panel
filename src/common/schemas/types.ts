@@ -2,12 +2,7 @@ import type { SourceState } from './schemas';
 
 export {
   type BPMConfig,
-  type BPMConfigItem,
   type BPMPrompt,
-  type BPMReplacement,
-  type BPMScript,
-  type BPMState,
-  type BPMTool,
   type BranchContext,
   type BranchesState,
   type ConfigsState,
@@ -69,5 +64,3 @@ export type CodeWorkspaceFile = {
 };
 
 export type { SourceState };
-export type TaskSourceState = SourceState;
-export type ToolSourceState = SourceState;

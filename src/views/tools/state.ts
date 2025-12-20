@@ -1,8 +1,4 @@
 import { toolsState } from '../../common/lib/workspace-state';
-
-export const loadToolsState = toolsState.load.bind(toolsState);
-export const saveToolsState = toolsState.save.bind(toolsState);
-export const getSourceState = () => toolsState.getSourceState();
 export const getOrder = (isGrouped: boolean) => toolsState.getOrder(isGrouped);
 export const saveOrder = (isGrouped: boolean, order: string[]) => toolsState.saveOrder(isGrouped, order);
 export const toggleFavorite = (itemName: string) => toolsState.toggleFavorite(itemName);

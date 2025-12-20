@@ -1,7 +1,6 @@
 export enum OnBranchChange {
   Revert = 'revert',
   AutoApply = 'auto-apply',
-  Keep = 'keep',
 }
 
 export enum ReplacementType {
