@@ -32,6 +32,7 @@ type TodoNode = {
   isChecked: boolean;
   lineIndex: number;
   children: TodoNode[];
+  isHeading?: boolean;
 };
 
 export class TodoItem extends vscode.TreeItem {
@@ -39,7 +40,7 @@ export class TodoItem extends vscode.TreeItem {
     public readonly node: TodoNode,
     hasChildren: boolean,
   ) {
-    const label = hasChildren ? ` ${node.text}` : node.text;
+    const label = node.isHeading ? node.text : hasChildren ? ` ${node.text}` : node.text;
     super(label, hasChildren ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
     this.contextValue = 'todoItem';
 
@@ -62,9 +63,26 @@ function parseTodosAsTree(todosContent: string | undefined): { nodes: TodoNode[]
   const lines = todosContent.split('\n');
   const rootNodes: TodoNode[] = [];
   const stack: { node: TodoNode; indent: number }[] = [];
+  let currentMilestone: TodoNode | null = null;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+
+    const milestoneMatch = line.match(/^##\s+(.+)$/);
+    if (milestoneMatch) {
+      const milestoneNode: TodoNode = {
+        text: milestoneMatch[1].trim(),
+        isChecked: false,
+        lineIndex: i,
+        children: [],
+        isHeading: true,
+      };
+      rootNodes.push(milestoneNode);
+      currentMilestone = milestoneNode;
+      stack.length = 0;
+      continue;
+    }
+
     const match = line.match(/^(\s*)-\s*\[([ xX])\]\s*(.*)$/);
     if (!match) continue;
 
@@ -79,7 +97,11 @@ function parseTodosAsTree(todosContent: string | undefined): { nodes: TodoNode[]
     }
 
     if (stack.length === 0) {
-      rootNodes.push(node);
+      if (currentMilestone) {
+        currentMilestone.children.push(node);
+      } else {
+        rootNodes.push(node);
+      }
     } else {
       stack[stack.length - 1].node.children.push(node);
     }
