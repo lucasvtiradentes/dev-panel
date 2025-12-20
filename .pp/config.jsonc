@@ -84,11 +84,11 @@
     }
   ],
 
-  "scripts": [
+  "tasks": [
     {
       "name": "hello",
       "command": "echo 'Hello from BPM!'",
-      "description": "Test script - prints hello"
+      "description": "Test task - prints hello"
     },
     {
       "name": "list-files",

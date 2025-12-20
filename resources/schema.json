@@ -208,15 +208,15 @@
         "additionalProperties": false
       }
     },
-    "scripts": {
-      "description": "Executable scripts",
+    "tasks": {
+      "description": "Executable tasks",
       "type": "array",
       "items": {
-        "description": "A script that can be executed from the Tasks view",
+        "description": "A task that can be executed from the Tasks view",
         "type": "object",
         "properties": {
           "name": {
-            "description": "Unique identifier for the script",
+            "description": "Unique identifier for the task",
             "type": "string"
           },
           "command": {
@@ -228,7 +228,7 @@
             "type": "string"
           },
           "group": {
-            "description": "Group name for organizing scripts",
+            "description": "Group name for organizing tasks",
             "type": "string"
           },
           "description": {

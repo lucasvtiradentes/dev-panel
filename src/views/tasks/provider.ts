@@ -5,7 +5,7 @@ import { StatusBarManager } from '../../status-bar/status-bar-manager';
 import { TaskDragAndDropController } from './dnd-controller';
 import { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
 import { getPackageScripts, hasPackageGroups } from './package-json';
-import { getPPScripts, hasPPGroups } from './pp-tasks';
+import { getPPTasks, hasPPGroups } from './pp-tasks';
 import {
   getCurrentSource,
   getFavoriteItems,
@@ -226,7 +226,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
       case TaskSource.Package:
         return getPackageScripts(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn);
       case TaskSource.PP:
-        return getPPScripts(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn);
+        return getPPTasks(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn);
     }
   }
 

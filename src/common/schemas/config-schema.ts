@@ -24,15 +24,15 @@ export enum AIProvider {
   CursorAgent = 'cursor-agent',
 }
 
-const PPScriptSchema = z
+const PPTaskSchema = z
   .object({
-    name: z.string().describe('Unique identifier for the script'),
+    name: z.string().describe('Unique identifier for the task'),
     command: z.string().describe('Shell command to execute'),
     icon: z.string().optional().describe('VSCode ThemeIcon id (e.g. "terminal", "play")'),
-    group: z.string().optional().describe('Group name for organizing scripts'),
+    group: z.string().optional().describe('Group name for organizing tasks'),
     description: z.string().optional().describe('Human-readable description shown as tooltip'),
   })
-  .describe('A script that can be executed from the Tasks view');
+  .describe('A task that can be executed from the Tasks view');
 
 const PPToolSchema = z
   .object({
@@ -150,7 +150,7 @@ export const PPConfigSchema = z
     settings: PPSettingsSchema.optional().describe('Global settings'),
     configs: z.array(PPConfigItemSchema).optional().describe('Configuration options'),
     replacements: z.array(PPReplacementSchema).optional().describe('File replacements/patches'),
-    scripts: z.array(PPScriptSchema).optional().describe('Executable scripts'),
+    tasks: z.array(PPTaskSchema).optional().describe('Executable tasks'),
     tools: z.array(PPToolSchema).optional().describe('Executable tools'),
     prompts: z.array(PPPromptSchema).optional().describe('Claude Code prompts'),
   })

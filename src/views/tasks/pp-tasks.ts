@@ -10,13 +10,13 @@ import { isFavorite, isHidden } from './state';
 export function hasPPGroups(): boolean {
   const folders = vscode.workspace.workspaceFolders ?? [];
   for (const folder of folders) {
-    const scripts = readPPScripts(folder);
-    if (scripts.some((script) => script.group != null)) return true;
+    const tasks = readPPTasks(folder);
+    if (tasks.some((task) => task.group != null)) return true;
   }
   return false;
 }
 
-export async function getPPScripts(
+export async function getPPTasks(
   grouped: boolean,
   showHidden: boolean,
   showOnlyFavorites: boolean,
@@ -29,10 +29,10 @@ export async function getPPScripts(
   if (!grouped) {
     const taskElements: TreeTask[] = [];
     for (const folder of folders) {
-      const scripts = readPPScripts(folder);
-      for (const script of scripts) {
-        const task = createPPTask(script, folder, showHidden, showOnlyFavorites);
-        if (task) taskElements.push(task);
+      const tasks = readPPTasks(folder);
+      for (const task of tasks) {
+        const treeTask = createPPTask(task, folder, showHidden, showOnlyFavorites);
+        if (treeTask) taskElements.push(treeTask);
       }
     }
     return sortFn(taskElements);
@@ -42,12 +42,12 @@ export async function getPPScripts(
   const groups: Record<string, GroupTreeItem> = {};
 
   for (const folder of folders) {
-    const scripts = readPPScripts(folder);
-    for (const script of scripts) {
-      const treeTask = createPPTask(script, folder, showHidden, showOnlyFavorites);
+    const tasks = readPPTasks(folder);
+    for (const task of tasks) {
+      const treeTask = createPPTask(task, folder, showHidden, showOnlyFavorites);
       if (!treeTask) continue;
 
-      const groupName = script.group ?? 'no-group';
+      const groupName = task.group ?? 'no-group';
 
       if (!groups[groupName]) {
         groups[groupName] = new GroupTreeItem(groupName);
@@ -60,41 +60,41 @@ export async function getPPScripts(
   return sortFn(taskElements);
 }
 
-function readPPScripts(folder: vscode.WorkspaceFolder): NonNullable<PPConfig['scripts']> {
+function readPPTasks(folder: vscode.WorkspaceFolder): NonNullable<PPConfig['tasks']> {
   const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/config.jsonc`;
   if (!fs.existsSync(configPath)) return [];
   const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
-  return config.scripts ?? [];
+  return config.tasks ?? [];
 }
 
 function createPPTask(
-  script: NonNullable<PPConfig['scripts']>[number],
+  task: NonNullable<PPConfig['tasks']>[number],
   folder: vscode.WorkspaceFolder,
   showHidden: boolean,
   showOnlyFavorites: boolean,
 ): TreeTask | null {
-  const hidden = isHidden(TaskSource.PP, script.name);
-  const favorite = isFavorite(TaskSource.PP, script.name);
+  const hidden = isHidden(TaskSource.PP, task.name);
+  const favorite = isFavorite(TaskSource.PP, task.name);
   if (hidden && !showHidden) return null;
   if (showOnlyFavorites && !favorite) return null;
 
-  const shellExec = new vscode.ShellExecution(script.command);
-  const task = new vscode.Task({ type: CONFIG_DIR_KEY }, folder, script.name, CONFIG_DIR_KEY, shellExec);
+  const shellExec = new vscode.ShellExecution(task.command);
+  const vsTask = new vscode.Task({ type: CONFIG_DIR_KEY }, folder, task.name, CONFIG_DIR_KEY, shellExec);
 
   const treeTask = new TreeTask(
     CONFIG_DIR_KEY,
-    script.name,
+    task.name,
     vscode.TreeItemCollapsibleState.None,
     {
       command: getCommandId(Command.ExecuteTask),
       title: 'Execute',
-      arguments: [task, folder],
+      arguments: [vsTask, folder],
     },
     folder,
   );
 
-  if (script.description) {
-    treeTask.tooltip = script.description;
+  if (task.description) {
+    treeTask.tooltip = task.description;
   }
 
   if (hidden) {
