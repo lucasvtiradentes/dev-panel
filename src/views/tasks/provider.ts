@@ -1,21 +1,27 @@
 import * as vscode from 'vscode';
 import { ContextKey, ExtensionConfigKey, getExtensionConfig, setContextKey } from '../../common';
-import { TASK_SOURCES, TaskSource } from '../../common/types';
+import { TASK_SOURCES, TaskSource } from '../../common/schemas/types';
 import { StatusBarManager } from '../../status-bar/status-bar-manager';
-import { getBPMScripts } from './bpm-tasks';
+import { getBPMScripts, hasBPMGroups } from './bpm-tasks';
 import { TaskDragAndDropController } from './dnd-controller';
 import { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
-import { getPackageScripts } from './package-json';
+import { getPackageScripts, hasPackageGroups } from './package-json';
 import {
   getCurrentSource,
+  getFavoriteItems,
+  getHiddenItems,
   getIsGrouped,
   getOrder,
+  getShowHidden,
+  getShowOnlyFavorites,
   saveCurrentSource,
   saveIsGrouped,
+  saveShowHidden,
+  saveShowOnlyFavorites,
   toggleFavorite as toggleFavoriteState,
   toggleHidden,
 } from './state';
-import { getVSCodeTasks } from './vscode-tasks';
+import { getVSCodeTasks, hasVSCodeGroups } from './vscode-tasks';
 
 export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | GroupTreeItem | WorkspaceTreeItem> {
   private readonly _onDidChangeTreeData: vscode.EventEmitter<TreeTask | null> =
@@ -26,6 +32,8 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
   private readonly autoRefresh: boolean;
   private _source: TaskSource;
   private _grouped: boolean;
+  private _showHidden: boolean;
+  private _showOnlyFavorites: boolean;
   private readonly statusBarManager: StatusBarManager;
   private _treeView: vscode.TreeView<TreeTask | GroupTreeItem | WorkspaceTreeItem> | null = null;
 
@@ -34,6 +42,8 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     this.statusBarManager = new StatusBarManager();
     this._source = getCurrentSource();
     this._grouped = getIsGrouped();
+    this._showHidden = getShowHidden(this._source);
+    this._showOnlyFavorites = getShowOnlyFavorites(this._source);
     this.updateContextKeys();
   }
 
@@ -52,6 +62,8 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     const nextSource = TASK_SOURCES[nextIndex];
 
     this._source = nextSource.id;
+    this._showHidden = getShowHidden(this._source);
+    this._showOnlyFavorites = getShowOnlyFavorites(this._source);
     saveCurrentSource(this._source);
     this.updateViewTitle();
     this.updateContextKeys();
@@ -66,11 +78,30 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     }
   }
 
-  private updateContextKeys(): void {
+  private async checkHasGroups(): Promise<boolean> {
+    switch (this._source) {
+      case TaskSource.VSCode:
+        return hasVSCodeGroups();
+      case TaskSource.Package:
+        return hasPackageGroups();
+      case TaskSource.BPM:
+        return hasBPMGroups();
+    }
+  }
+
+  private async updateContextKeys(): Promise<void> {
+    const hiddenItems = getHiddenItems(this._source);
+    const favoriteItems = getFavoriteItems(this._source);
+    const hasGroups = await this.checkHasGroups();
     void setContextKey(ContextKey.TaskSourceVSCode, this._source === TaskSource.VSCode);
     void setContextKey(ContextKey.TaskSourcePackage, this._source === TaskSource.Package);
     void setContextKey(ContextKey.TaskSourceBPM, this._source === TaskSource.BPM);
     void setContextKey(ContextKey.TasksGrouped, this._grouped);
+    void setContextKey(ContextKey.TasksHasGroups, hasGroups);
+    void setContextKey(ContextKey.TasksHasHidden, hiddenItems.length > 0);
+    void setContextKey(ContextKey.TasksShowHidden, this._showHidden);
+    void setContextKey(ContextKey.TasksHasFavorites, favoriteItems.length > 0);
+    void setContextKey(ContextKey.TasksShowOnlyFavorites, this._showOnlyFavorites);
   }
 
   toggleGroupMode(): void {
@@ -80,9 +111,24 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     this._onDidChangeTreeData.fire(null);
   }
 
+  toggleShowHidden(): void {
+    this._showHidden = !this._showHidden;
+    saveShowHidden(this._source, this._showHidden);
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire(null);
+  }
+
+  toggleShowOnlyFavorites(): void {
+    this._showOnlyFavorites = !this._showOnlyFavorites;
+    saveShowOnlyFavorites(this._source, this._showOnlyFavorites);
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire(null);
+  }
+
   toggleFavorite(item: TreeTask): void {
     if (item?.taskName) {
       toggleFavoriteState(this._source, item.taskName);
+      this.updateContextKeys();
       this._onDidChangeTreeData.fire(null);
     }
   }
@@ -90,6 +136,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
   toggleHide(item: TreeTask): void {
     if (item?.taskName) {
       toggleHidden(this._source, item.taskName);
+      this.updateContextKeys();
       this._onDidChangeTreeData.fire(null);
     }
   }
@@ -175,11 +222,11 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
 
     switch (this._source) {
       case TaskSource.VSCode:
-        return getVSCodeTasks(this._grouped, sortFn, getLowestLevelFn);
+        return getVSCodeTasks(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn, getLowestLevelFn);
       case TaskSource.Package:
-        return getPackageScripts(this._grouped, sortFn);
+        return getPackageScripts(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn);
       case TaskSource.BPM:
-        return getBPMScripts(this._grouped, sortFn);
+        return getBPMScripts(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn);
     }
   }
 

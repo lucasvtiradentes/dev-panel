@@ -17,7 +17,7 @@ import {
   type TasksState,
   type ToolsState,
   type WorkspaceUIState,
-} from '../types';
+} from '../schemas/types';
 
 const WORKSPACE_STATE_KEY = 'bpm.uiState';
 
@@ -115,6 +115,28 @@ export const tasksState = {
     this.saveSourceState(source, sourceState);
     return index === -1;
   },
+  getShowHidden(source: TaskSource): boolean {
+    return this.getSourceState(source).showHidden ?? false;
+  },
+  saveShowHidden(source: TaskSource, showHidden: boolean): void {
+    const sourceState = this.getSourceState(source);
+    sourceState.showHidden = showHidden;
+    this.saveSourceState(source, sourceState);
+  },
+  getHiddenItems(source: TaskSource): string[] {
+    return this.getSourceState(source).hidden;
+  },
+  getShowOnlyFavorites(source: TaskSource): boolean {
+    return this.getSourceState(source).showOnlyFavorites ?? false;
+  },
+  saveShowOnlyFavorites(source: TaskSource, showOnlyFavorites: boolean): void {
+    const sourceState = this.getSourceState(source);
+    sourceState.showOnlyFavorites = showOnlyFavorites;
+    this.saveSourceState(source, sourceState);
+  },
+  getFavoriteItems(source: TaskSource): string[] {
+    return this.getSourceState(source).favorites;
+  },
 };
 
 export const toolsState = {
@@ -133,6 +155,28 @@ export const toolsState = {
     const tools = this.load();
     tools.isGrouped = isGrouped;
     this.save(tools);
+  },
+  getShowHidden(): boolean {
+    return this.load().showHidden ?? false;
+  },
+  saveShowHidden(showHidden: boolean): void {
+    const tools = this.load();
+    tools.showHidden = showHidden;
+    this.save(tools);
+  },
+  getHiddenItems(): string[] {
+    return this.getSourceState().hidden;
+  },
+  getShowOnlyFavorites(): boolean {
+    return this.load().showOnlyFavorites ?? false;
+  },
+  saveShowOnlyFavorites(showOnlyFavorites: boolean): void {
+    const tools = this.load();
+    tools.showOnlyFavorites = showOnlyFavorites;
+    this.save(tools);
+  },
+  getFavoriteItems(): string[] {
+    return this.getSourceState().favorites;
   },
   getSourceState(): SourceState {
     return this.load().bpm ?? { ...DEFAULT_SOURCE_STATE };
@@ -201,6 +245,28 @@ export const promptsState = {
     const prompts = this.load();
     prompts.isGrouped = isGrouped;
     this.save(prompts);
+  },
+  getShowHidden(): boolean {
+    return this.load().showHidden ?? false;
+  },
+  saveShowHidden(showHidden: boolean): void {
+    const prompts = this.load();
+    prompts.showHidden = showHidden;
+    this.save(prompts);
+  },
+  getHiddenItems(): string[] {
+    return this.getSourceState().hidden;
+  },
+  getShowOnlyFavorites(): boolean {
+    return this.load().showOnlyFavorites ?? false;
+  },
+  saveShowOnlyFavorites(showOnlyFavorites: boolean): void {
+    const prompts = this.load();
+    prompts.showOnlyFavorites = showOnlyFavorites;
+    this.save(prompts);
+  },
+  getFavoriteItems(): string[] {
+    return this.getSourceState().favorites;
   },
   getSourceState(): SourceState {
     return this.load().bpm ?? { ...DEFAULT_SOURCE_STATE };

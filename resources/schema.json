@@ -56,6 +56,13 @@
             "gemini",
             "cursor-agent"
           ]
+        },
+        "excludedDirs": {
+          "description": "Additional directories to exclude when searching for package.json files. Always excluded (hardcoded): node_modules, dist, .git. Add custom exclusions as needed (e.g. [\"dist-dev\", \"out\", \".bpm\", \"temp\"])",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "additionalProperties": false

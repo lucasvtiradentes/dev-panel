@@ -14,7 +14,7 @@ import {
   registerCommand,
   replaceInputPlaceholders,
 } from '../../common';
-import { GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants';
+import { GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
 import type { BPMConfig, BPMPrompt, BPMSettings } from '../../common/schemas';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';

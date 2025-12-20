@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getCommandId } from '../../common/constants';
+import { getCommandId } from '../../common/constants/constants';
 import { Command } from '../../common/lib/vscode-utils';
 
 export class BranchHeaderItem extends vscode.TreeItem {
@@ -7,17 +7,26 @@ export class BranchHeaderItem extends vscode.TreeItem {
     super(branchName, vscode.TreeItemCollapsibleState.None);
     this.iconPath = new vscode.ThemeIcon('git-branch');
     this.contextValue = 'branchHeader';
+    this.tooltip = 'Click to switch branch';
+    this.command = {
+      command: 'git.checkout',
+      title: 'Switch Branch',
+    };
   }
 }
 
-export type BranchContextField = 'prLink' | 'linearProject' | 'linearIssue' | 'objective' | 'notes';
+export enum BranchContextField {
+  PrLink = 'prLink',
+  LinearLink = 'linearLink',
+  Objective = 'objective',
+  Notes = 'notes',
+}
 
 const FIELD_CONFIG: Record<BranchContextField, { label: string; icon: string; command: Command }> = {
-  prLink: { label: 'PR Link', icon: 'git-pull-request', command: Command.EditBranchPrLink },
-  linearProject: { label: 'Linear Project', icon: 'project', command: Command.EditBranchLinearProject },
-  linearIssue: { label: 'Linear Issue', icon: 'issues', command: Command.EditBranchLinearIssue },
-  objective: { label: 'Objective', icon: 'target', command: Command.EditBranchObjective },
-  notes: { label: 'Notes', icon: 'note', command: Command.EditBranchNotes },
+  [BranchContextField.PrLink]: { label: 'PR Link', icon: 'git-pull-request', command: Command.EditBranchPrLink },
+  [BranchContextField.LinearLink]: { label: 'Linear Link', icon: 'link', command: Command.EditBranchLinearLink },
+  [BranchContextField.Objective]: { label: 'Objective', icon: 'target', command: Command.EditBranchObjective },
+  [BranchContextField.Notes]: { label: 'Notes', icon: 'note', command: Command.EditBranchNotes },
 };
 
 export class BranchContextFieldItem extends vscode.TreeItem {

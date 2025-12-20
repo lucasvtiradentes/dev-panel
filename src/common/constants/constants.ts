@@ -14,11 +14,6 @@ import {
 export {
   CONTEXT_PREFIX,
   DEV_SUFFIX,
-  EXTENSION_NAME,
-  VIEW_ID_TASKS,
-  addDevLabel,
-  addDevSuffix,
-  buildExtensionId,
 } from './scripts-constants';
 
 declare const __IS_DEV_BUILD__: boolean;
@@ -29,10 +24,6 @@ export const GLOBAL_STATE_WORKSPACE_SOURCE = '______betterProjectToolsWorkspaceS
 export function getCommandId(command: string): string {
   const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
   return `${prefix}.${command}`;
-}
-
-export function getContextKey(key: string): string {
-  return IS_DEV ? addDevSuffix(key) : key;
 }
 
 export function getViewIdTasks(): string {

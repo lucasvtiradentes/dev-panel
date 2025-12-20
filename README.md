@@ -5,8 +5,8 @@
 
 ## BETTER CLAUDE CODE
 
-- [ ] ter um view de flags de calude code
 - [ ] ter uma view de custom commands
+- [ ] ter um view de flags de calude code
 
 ## BETTER PROJECT CONFIGS 
 

@@ -2,15 +2,21 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, createLogger, getCommandId, setContextKey } from '../../common';
-import type { BPMConfig } from '../../common/types';
+import type { BPMConfig } from '../../common/schemas/types';
 import { PromptDragAndDropController } from './dnd-controller';
 import { PromptGroupTreeItem, TreePrompt } from './items';
 import {
+  getFavoriteItems,
+  getHiddenItems,
   getIsGrouped,
   getOrder,
+  getShowHidden,
+  getShowOnlyFavorites,
   isFavorite,
   isHidden,
   saveIsGrouped,
+  saveShowHidden,
+  saveShowOnlyFavorites,
   toggleFavorite as toggleFavoriteState,
   toggleHidden,
 } from './state';
@@ -24,10 +30,14 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
   readonly onDidChangeTreeData: vscode.Event<TreePrompt | null> = this._onDidChangeTreeData.event;
 
   private _grouped: boolean;
+  private _showHidden: boolean;
+  private _showOnlyFavorites: boolean;
   private _treeView: vscode.TreeView<TreePrompt | PromptGroupTreeItem> | null = null;
 
   constructor() {
     this._grouped = getIsGrouped();
+    this._showHidden = getShowHidden();
+    this._showOnlyFavorites = getShowOnlyFavorites();
     this.updateContextKeys();
   }
 
@@ -41,7 +51,13 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
   }
 
   private updateContextKeys(): void {
+    const hiddenItems = getHiddenItems();
+    const favoriteItems = getFavoriteItems();
     void setContextKey(ContextKey.PromptsGrouped, this._grouped);
+    void setContextKey(ContextKey.PromptsHasHidden, hiddenItems.length > 0);
+    void setContextKey(ContextKey.PromptsShowHidden, this._showHidden);
+    void setContextKey(ContextKey.PromptsHasFavorites, favoriteItems.length > 0);
+    void setContextKey(ContextKey.PromptsShowOnlyFavorites, this._showOnlyFavorites);
   }
 
   toggleGroupMode(): void {
@@ -51,9 +67,24 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
     this._onDidChangeTreeData.fire(null);
   }
 
+  toggleShowHidden(): void {
+    this._showHidden = !this._showHidden;
+    saveShowHidden(this._showHidden);
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire(null);
+  }
+
+  toggleShowOnlyFavorites(): void {
+    this._showOnlyFavorites = !this._showOnlyFavorites;
+    saveShowOnlyFavorites(this._showOnlyFavorites);
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire(null);
+  }
+
   toggleFavorite(item: TreePrompt): void {
     if (item?.promptName) {
       toggleFavoriteState(item.promptName);
+      this.updateContextKeys();
       this._onDidChangeTreeData.fire(null);
     }
   }
@@ -61,6 +92,7 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
   toggleHide(item: TreePrompt): void {
     if (item?.promptName) {
       toggleHidden(item.promptName);
+      this.updateContextKeys();
       this._onDidChangeTreeData.fire(null);
     }
   }
@@ -164,7 +196,10 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
     prompt: NonNullable<BPMConfig['prompts']>[number],
     folder: vscode.WorkspaceFolder,
   ): TreePrompt | null {
-    if (isHidden(prompt.name)) return null;
+    const hidden = isHidden(prompt.name);
+    const favorite = isFavorite(prompt.name);
+    if (hidden && !this._showHidden) return null;
+    if (this._showOnlyFavorites && !favorite) return null;
 
     const promptFilePath = `${folder.uri.fsPath}/.bpm/prompts/${prompt.file}`;
 
@@ -178,8 +213,12 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
       treePrompt.tooltip = prompt.description;
     }
 
-    if (isFavorite(prompt.name)) {
-      treePrompt.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
+    if (hidden) {
+      treePrompt.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+      treePrompt.contextValue = 'prompt-hidden';
+    } else if (favorite) {
+      treePrompt.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+      treePrompt.contextValue = 'prompt-favorite';
     }
 
     return treePrompt;

@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
-import type { BranchContext } from '../../common/types';
+import type { BranchContext } from '../../common/schemas/types';
 import { isGitRepository } from '../replacements/git-utils';
 
 const BRANCH_CONTEXT_FILE = '.branch-context.md';
@@ -36,8 +36,7 @@ export async function generateBranchContextMarkdown(branchName: string, context:
     `# ${branchName}`,
     '',
     `PR LINK: ${context.prLink || NA}`,
-    `LINEAR PROJECT: ${context.linearProject || NA}`,
-    `LINEAR ISSUE: ${context.linearIssue || NA}`,
+    `LINEAR LINK: ${context.linearLink || NA}`,
     '',
     '# OBJECTIVE',
     '',

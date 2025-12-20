@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
-import type { BranchContext } from '../../common/types';
+import type { BranchContext } from '../../common/schemas/types';
 
 const BRANCH_CONTEXT_FILE = '.branch-context.md';
 
@@ -52,8 +52,7 @@ export function parseBranchContextMarkdown(): { branchName: string; context: Bra
 
   const context: BranchContext = {
     prLink: extractField(content, 'PR LINK'),
-    linearProject: extractField(content, 'LINEAR PROJECT'),
-    linearIssue: extractField(content, 'LINEAR ISSUE'),
+    linearLink: extractField(content, 'LINEAR LINK'),
     objective: extractSection(content, 'OBJECTIVE'),
     notes: extractSection(content, 'NOTES'),
     todos: extractSection(content, 'TODO'),
@@ -66,4 +65,26 @@ export function getBranchContextFilePath(): string | null {
   const workspace = getWorkspacePath();
   if (!workspace) return null;
   return path.join(workspace, BRANCH_CONTEXT_FILE);
+}
+
+export function getFieldLineNumber(fieldName: string): number {
+  const workspace = getWorkspacePath();
+  if (!workspace) return 0;
+
+  const mdPath = path.join(workspace, BRANCH_CONTEXT_FILE);
+  if (!fs.existsSync(mdPath)) return 0;
+
+  const content = fs.readFileSync(mdPath, 'utf-8');
+  const lines = content.split('\n');
+
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].match(new RegExp(`^#\\s+${fieldName}\\s*$`, 'i'))) {
+      return i + 2;
+    }
+    if (lines[i].match(new RegExp(`^${fieldName}:`, 'i'))) {
+      return i;
+    }
+  }
+
+  return 0;
 }

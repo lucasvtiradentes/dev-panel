@@ -20,7 +20,7 @@ import {
   addDevSuffix,
   buildExtensionId,
   buildLogFilename,
-} from '../../src/common/scripts-constants';
+} from '../../src/common/constants/scripts-constants';
 
 const logger = console;
 

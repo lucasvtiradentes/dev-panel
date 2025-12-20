@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { isMultiRootWorkspace } from '../../common';
-import type { CodeWorkspaceFile, TaskDefinition, TasksJson } from '../../common/types';
+import type { CodeWorkspaceFile, TaskDefinition, TasksJson } from '../../common/schemas/types';
 
 export class GroupTreeItem extends vscode.TreeItem {
   children: TreeTask[] = [];
