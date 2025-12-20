@@ -127,6 +127,21 @@
         "icon": "$(discard)"
       },
       {
+        "command": "betterProjectTools.refreshReplacements",
+        "title": "Refresh Replacements",
+        "icon": "$(extensions-refresh)"
+      },
+      {
+        "command": "betterProjectTools.toggleReplacementsGroupMode",
+        "title": "Toggle Replacements Group Mode",
+        "icon": "$(list-flat)"
+      },
+      {
+        "command": "betterProjectTools.toggleReplacementsGroupModeGrouped",
+        "title": "Toggle Replacements Group Mode",
+        "icon": "$(list-tree)"
+      },
+      {
         "command": "betterProjectTools.executeTask",
         "title": "Execute"
       },
@@ -291,9 +306,24 @@
     "menus": {
       "view/title": [
         {
+          "command": "betterProjectTools.toggleReplacementsGroupMode",
+          "when": "view == betterProjectToolsReplacements && !replacementsGrouped",
+          "group": "navigation@1"
+        },
+        {
+          "command": "betterProjectTools.toggleReplacementsGroupModeGrouped",
+          "when": "view == betterProjectToolsReplacements && replacementsGrouped",
+          "group": "navigation@1"
+        },
+        {
           "command": "betterProjectTools.revertAllReplacements",
           "when": "view == betterProjectToolsReplacements",
-          "group": "navigation"
+          "group": "navigation@2"
+        },
+        {
+          "command": "betterProjectTools.refreshReplacements",
+          "when": "view == betterProjectToolsReplacements",
+          "group": "navigation@3"
         },
         {
           "command": "betterProjectTools.switchTaskSource",

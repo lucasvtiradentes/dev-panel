@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import json5 from 'json5';
 import * as vscode from 'vscode';
-import { Command, getCommandId } from '../../common';
+import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
 import { applyFileReplacement, applyPatches, fileExists } from './file-ops';
 import { getCurrentBranch, isGitRepository, restoreFileFromGit, setAssumeUnchanged } from './git-utils';
 import { type BpmConfig, OnBranchChange, type Replacement, type ReplacementState, ReplacementType } from './types';
@@ -45,13 +45,23 @@ function saveReplacementState(repState: ReplacementState): void {
   saveFullState(state);
 }
 
+function getIsGrouped(): boolean {
+  const state = loadFullState();
+  return (state.replacementsGrouped as boolean) ?? true;
+}
+
+function saveIsGrouped(isGrouped: boolean): void {
+  const state = loadFullState();
+  state.replacementsGrouped = isGrouped;
+  saveFullState(state);
+}
+
 class ReplacementGroupTreeItem extends vscode.TreeItem {
   constructor(
     public readonly groupName: string,
     public readonly replacements: Replacement[],
   ) {
     super(groupName, vscode.TreeItemCollapsibleState.Expanded);
-    this.iconPath = new vscode.ThemeIcon('folder');
     this.contextValue = 'replacementGroup';
   }
 }
@@ -67,10 +77,9 @@ class ReplacementTreeItem extends vscode.TreeItem {
     this.tooltip = replacement.description || replacement.name;
     this.contextValue = 'replacementItem';
 
-    const iconName = replacement.type === ReplacementType.File ? 'file-symlink-file' : 'find-replace';
-    this.iconPath = isActive
-      ? new vscode.ThemeIcon(iconName, new vscode.ThemeColor('charts.green'))
-      : new vscode.ThemeIcon(iconName);
+    if (isActive) {
+      this.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
+    }
 
     this.command = {
       command: getCommandId(Command.ToggleReplacement),
@@ -88,12 +97,26 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
 
   private configWatcher: vscode.FileSystemWatcher | null = null;
   private gitHeadWatcher: vscode.FileSystemWatcher | null = null;
+  private _grouped: boolean;
 
   constructor() {
     providerInstance = this;
+    this._grouped = getIsGrouped();
+    this.updateContextKeys();
     this.setupFileWatcher();
     this.setupBranchWatcher();
     this.handleStartup();
+  }
+
+  private updateContextKeys(): void {
+    void setContextKey(ContextKey.ReplacementsGrouped, this._grouped);
+  }
+
+  toggleGroupMode(): void {
+    this._grouped = !this._grouped;
+    saveIsGrouped(this._grouped);
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire(undefined);
   }
 
   private setupFileWatcher(): void {
@@ -195,6 +218,12 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     if (element instanceof ReplacementGroupTreeItem) {
       return Promise.resolve(
         element.replacements.map((r) => new ReplacementTreeItem(r, state.activeReplacements.includes(r.name))),
+      );
+    }
+
+    if (!this._grouped) {
+      return Promise.resolve(
+        config.replacements.map((r) => new ReplacementTreeItem(r, state.activeReplacements.includes(r.name))),
       );
     }
 

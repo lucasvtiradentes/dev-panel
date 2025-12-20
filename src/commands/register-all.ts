@@ -2,6 +2,7 @@ import type * as vscode from 'vscode';
 import { Command, registerCommand } from '../common';
 import type { BranchContextProvider } from '../views/branch-context';
 import type { PromptTreeDataProvider } from '../views/prompts';
+import type { ReplacementsProvider } from '../views/replacements';
 import type { TaskTreeDataProvider } from '../views/tasks';
 import type { TodosProvider } from '../views/todos';
 import type { ToolTreeDataProvider } from '../views/tools';
@@ -29,6 +30,7 @@ export function registerAllCommands(
   taskTreeDataProvider: TaskTreeDataProvider,
   toolTreeDataProvider: ToolTreeDataProvider,
   promptTreeDataProvider: PromptTreeDataProvider,
+  replacementsProvider: ReplacementsProvider,
   branchContextProvider: BranchContextProvider,
   todosProvider: TodosProvider,
 ): vscode.Disposable[] {
@@ -48,6 +50,9 @@ export function registerAllCommands(
     createSelectConfigOptionCommand(),
     createToggleReplacementCommand(),
     createRevertAllReplacementsCommand(),
+    registerCommand(Command.RefreshReplacements, () => replacementsProvider.refresh()),
+    registerCommand(Command.ToggleReplacementsGroupMode, () => replacementsProvider.toggleGroupMode()),
+    registerCommand(Command.ToggleReplacementsGroupModeGrouped, () => replacementsProvider.toggleGroupMode()),
     createRefreshToolsCommand(toolTreeDataProvider),
     registerCommand(Command.ToggleToolsGroupMode, () => toolTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.ToggleToolsGroupModeGrouped, () => toolTreeDataProvider.toggleGroupMode()),
