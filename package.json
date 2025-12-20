@@ -457,12 +457,12 @@
         },
         {
           "command": "betterProjectTools.toggleGroupMode",
-          "when": "view == betterProjectToolsTasks && !tasksGrouped",
+          "when": "view == betterProjectToolsTasks && !tasksGrouped && tasksHasGroups",
           "group": "navigation@2"
         },
         {
           "command": "betterProjectTools.toggleGroupModeGrouped",
-          "when": "view == betterProjectToolsTasks && tasksGrouped",
+          "when": "view == betterProjectToolsTasks && tasksGrouped && tasksHasGroups",
           "group": "navigation@2"
         },
         {

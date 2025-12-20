@@ -4,6 +4,14 @@ import { TaskSource } from '../../common/types';
 import { type GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
+export async function hasVSCodeGroups(): Promise<boolean> {
+  const tasks: vscode.Task[] = await vscode.tasks.fetchTasks();
+  const workspaceTasks = tasks.filter((t) => t.source === 'Workspace');
+  return workspaceTasks.some(
+    (task) => (task as unknown as { presentationOptions?: { group?: string } }).presentationOptions?.group != null,
+  );
+}
+
 export async function getVSCodeTasks(
   grouped: boolean,
   showHidden: boolean,

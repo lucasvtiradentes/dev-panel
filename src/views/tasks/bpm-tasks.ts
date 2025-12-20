@@ -6,6 +6,15 @@ import { type BPMConfig, TaskSource } from '../../common/types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
+export function hasBPMGroups(): boolean {
+  const folders = vscode.workspace.workspaceFolders ?? [];
+  for (const folder of folders) {
+    const scripts = readBPMScripts(folder);
+    if (scripts.some((script) => script.group != null)) return true;
+  }
+  return false;
+}
+
 export async function getBPMScripts(
   grouped: boolean,
   showHidden: boolean,

@@ -19,6 +19,26 @@ type PackageLocation = {
 
 const EXCLUDED_DIRS = new Set(['node_modules', 'dist', 'out', '.ignore', '.git', 'coverage', '.bpm']);
 
+export async function hasPackageGroups(): Promise<boolean> {
+  const folders = vscode.workspace.workspaceFolders ?? [];
+  const allPackages: PackageLocation[] = [];
+
+  for (const folder of folders) {
+    const packages = await findAllPackageJsons(folder);
+    allPackages.push(...packages);
+  }
+
+  if (allPackages.length === 0) return false;
+  if (allPackages.length > 1) return true;
+
+  const pkg = allPackages[0];
+  const scriptNames = Object.keys(pkg.scripts);
+  return scriptNames.some((name) => {
+    if (name.includes(':')) return true;
+    return scriptNames.some((other) => other.startsWith(`${name}:`));
+  });
+}
+
 export async function getPackageScripts(
   grouped: boolean,
   showHidden: boolean,

@@ -108,6 +108,7 @@ export enum ContextKey {
   TaskSourcePackage = 'taskSourcePackage',
   TaskSourceBPM = 'taskSourceBPM',
   TasksGrouped = 'tasksGrouped',
+  TasksHasGroups = 'tasksHasGroups',
   TasksHasHidden = 'tasksHasHidden',
   TasksShowHidden = 'tasksShowHidden',
   TasksHasFavorites = 'tasksHasFavorites',
