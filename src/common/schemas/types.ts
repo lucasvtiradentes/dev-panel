@@ -1,5 +1,3 @@
-import type { SourceState } from './schemas';
-
 export {
   type BPMConfig,
   type BPMPrompt,
@@ -8,6 +6,7 @@ export {
   type ConfigsState,
   type PromptsState,
   type ReplacementsState,
+  type SourceState,
   type TasksState,
   type ToolsState,
   type WorkspaceUIState,
@@ -18,7 +17,7 @@ export {
   DEFAULT_TASKS_STATE,
   DEFAULT_TOOLS_STATE,
   DEFAULT_WORKSPACE_UI_STATE,
-} from './schemas';
+} from './index';
 
 export enum TaskSource {
   VSCode = 'vscode',
@@ -62,5 +61,3 @@ export type CodeWorkspaceFile = {
   folders?: { path: string }[];
   tasks?: TasksJson;
 };
-
-export type { SourceState };

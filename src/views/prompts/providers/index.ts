@@ -1,4 +1,4 @@
-import { AIProvider } from '../../../common/schemas/schemas';
+import { AIProvider } from '../../../common/schemas';
 import { claudeProvider } from './claude';
 import { cursorAgentProvider } from './cursor-agent';
 import { geminiProvider } from './gemini';

@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { z } from 'zod';
-import { BPMConfigSchema } from '../src/common/schemas/schemas';
+import { BPMConfigSchema } from '../src/common/schemas';
 
 const jsonSchema = z.toJSONSchema(BPMConfigSchema, { target: 'draft-7' });
 

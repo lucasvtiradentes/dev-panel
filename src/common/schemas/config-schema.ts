@@ -23,8 +23,6 @@ export enum AIProvider {
   CursorAgent = 'cursor-agent',
 }
 
-const TaskSourceEnum = z.enum(['vscode', 'package', 'bpm']);
-
 const BPMScriptSchema = z
   .object({
     name: z.string().describe('Unique identifier for the script'),
@@ -157,123 +155,7 @@ export const BPMConfigSchema = z
   })
   .describe('BPM configuration file');
 
-const SourceStateSchema = z.object({
-  flatOrder: z.array(z.string()),
-  groupOrder: z.array(z.string()),
-  favorites: z.array(z.string()),
-  hidden: z.array(z.string()),
-  showHidden: z.boolean().optional(),
-  showOnlyFavorites: z.boolean().optional(),
-});
-
-const TasksStateSchema = z.object({
-  current: TaskSourceEnum,
-  isGrouped: z.boolean(),
-  vscode: SourceStateSchema,
-  packageJson: SourceStateSchema,
-  bpm: SourceStateSchema,
-});
-
-const ToolsStateSchema = z.object({
-  isGrouped: z.boolean(),
-  showHidden: z.boolean().optional(),
-  showOnlyFavorites: z.boolean().optional(),
-  bpm: SourceStateSchema,
-});
-
-const PromptsStateSchema = z.object({
-  isGrouped: z.boolean(),
-  showHidden: z.boolean().optional(),
-  showOnlyFavorites: z.boolean().optional(),
-  bpm: SourceStateSchema,
-});
-
-const ConfigsStateSchema = z.object({
-  isGrouped: z.boolean(),
-});
-
-const ReplacementsStateSchema = z.object({
-  isGrouped: z.boolean(),
-});
-
-const BranchContextSchema = z.object({
-  prLink: z.string().optional(),
-  linearLink: z.string().optional(),
-  objective: z.string().optional(),
-  notes: z.string().optional(),
-  todos: z.string().optional(),
-});
-
-const BranchesStateSchema = z.record(z.string(), BranchContextSchema);
-
-const BPMStateSchema = z.object({
-  debug: z.boolean().optional(),
-  activeReplacements: z.array(z.string()).optional(),
-  lastBranch: z.string().optional(),
-  environment: z.string().optional(),
-});
-
-const WorkspaceUIStateSchema = z.object({
-  tasks: TasksStateSchema.optional(),
-  tools: ToolsStateSchema.optional(),
-  prompts: PromptsStateSchema.optional(),
-  configs: ConfigsStateSchema.optional(),
-  replacements: ReplacementsStateSchema.optional(),
-  branches: BranchesStateSchema.optional(),
-});
-
 export type BPMPromptInput = z.infer<typeof BPMPromptInputSchema>;
 export type BPMPrompt = z.infer<typeof BPMPromptSchema>;
 export type BPMSettings = z.infer<typeof BPMSettingsSchema>;
 export type BPMConfig = z.infer<typeof BPMConfigSchema>;
-export type SourceState = z.infer<typeof SourceStateSchema>;
-export type TasksState = z.infer<typeof TasksStateSchema>;
-export type ToolsState = z.infer<typeof ToolsStateSchema>;
-export type PromptsState = z.infer<typeof PromptsStateSchema>;
-export type ConfigsState = z.infer<typeof ConfigsStateSchema>;
-export type ReplacementsState = z.infer<typeof ReplacementsStateSchema>;
-export type BranchContext = z.infer<typeof BranchContextSchema>;
-export type BranchesState = z.infer<typeof BranchesStateSchema>;
-export type WorkspaceUIState = z.infer<typeof WorkspaceUIStateSchema>;
-
-export const DEFAULT_SOURCE_STATE: SourceState = {
-  flatOrder: [],
-  groupOrder: [],
-  favorites: [],
-  hidden: [],
-};
-
-export const DEFAULT_TASKS_STATE: TasksState = {
-  current: 'vscode',
-  isGrouped: false,
-  vscode: { ...DEFAULT_SOURCE_STATE },
-  packageJson: { ...DEFAULT_SOURCE_STATE },
-  bpm: { ...DEFAULT_SOURCE_STATE },
-};
-
-export const DEFAULT_TOOLS_STATE: ToolsState = {
-  isGrouped: false,
-  bpm: { ...DEFAULT_SOURCE_STATE },
-};
-
-export const DEFAULT_PROMPTS_STATE: PromptsState = {
-  isGrouped: false,
-  bpm: { ...DEFAULT_SOURCE_STATE },
-};
-
-export const DEFAULT_CONFIGS_STATE: ConfigsState = {
-  isGrouped: true,
-};
-
-export const DEFAULT_REPLACEMENTS_STATE: ReplacementsState = {
-  isGrouped: true,
-};
-
-export const DEFAULT_WORKSPACE_UI_STATE: WorkspaceUIState = {
-  tasks: DEFAULT_TASKS_STATE,
-  tools: DEFAULT_TOOLS_STATE,
-  prompts: DEFAULT_PROMPTS_STATE,
-  configs: DEFAULT_CONFIGS_STATE,
-  replacements: DEFAULT_REPLACEMENTS_STATE,
-  branches: {},
-};
