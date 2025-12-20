@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
 import { Command, registerCommand } from '../common';
 import { BranchContextField, type BranchContextProvider } from '../views/branch-context';
-import type { ConfigsProvider } from '../views/configs';
 import type { PromptTreeDataProvider, TreePrompt } from '../views/prompts';
 import type { ReplacementsProvider } from '../views/replacements';
 import type { TaskTreeDataProvider } from '../views/tasks';
 import type { TodosProvider } from '../views/todos';
 import type { ToolTreeDataProvider, TreeTool } from '../views/tools';
+import type { VariablesProvider } from '../views/variables';
 import {
   createBackCmdlineCommand,
   createExecCmdlineCommand,
@@ -32,7 +32,7 @@ export function registerAllCommands(
   taskTreeDataProvider: TaskTreeDataProvider,
   toolTreeDataProvider: ToolTreeDataProvider,
   promptTreeDataProvider: PromptTreeDataProvider,
-  configsProvider: ConfigsProvider,
+  variablesProvider: VariablesProvider,
   replacementsProvider: ReplacementsProvider,
   branchContextProvider: BranchContextProvider,
   todosProvider: TodosProvider,
@@ -58,9 +58,9 @@ export function registerAllCommands(
     createTabCmdlineCommand(taskTreeDataProvider),
     createSelectConfigOptionCommand(),
     createResetConfigOptionCommand(),
-    registerCommand(Command.RefreshConfigs, () => configsProvider.refresh()),
-    registerCommand(Command.ToggleConfigsGroupMode, () => configsProvider.toggleGroupMode()),
-    registerCommand(Command.ToggleConfigsGroupModeGrouped, () => configsProvider.toggleGroupMode()),
+    registerCommand(Command.RefreshConfigs, () => variablesProvider.refresh()),
+    registerCommand(Command.ToggleConfigsGroupMode, () => variablesProvider.toggleGroupMode()),
+    registerCommand(Command.ToggleConfigsGroupModeGrouped, () => variablesProvider.toggleGroupMode()),
     createToggleReplacementCommand(),
     createRevertAllReplacementsCommand(),
     registerCommand(Command.RefreshReplacements, () => replacementsProvider.refresh()),

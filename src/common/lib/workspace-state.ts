@@ -3,13 +3,12 @@ import { CONFIG_DIR_KEY } from '../constants/constants';
 import {
   type BranchContext,
   type BranchesState,
-  type ConfigsState,
-  DEFAULT_CONFIGS_STATE,
   DEFAULT_PROMPTS_STATE,
   DEFAULT_REPLACEMENTS_STATE,
   DEFAULT_SOURCE_STATE,
   DEFAULT_TASKS_STATE,
   DEFAULT_TOOLS_STATE,
+  DEFAULT_VARIABLES_STATE,
   DEFAULT_WORKSPACE_UI_STATE,
   type PromptsState,
   type ReplacementsState,
@@ -17,6 +16,7 @@ import {
   TaskSource,
   type TasksState,
   type ToolsState,
+  type VariablesState,
   type WorkspaceUIState,
 } from '../schemas/types';
 
@@ -322,22 +322,22 @@ export const promptsState = {
   },
 };
 
-export const configsState = {
-  load(): ConfigsState {
-    return getState().configs ?? { ...DEFAULT_CONFIGS_STATE };
+export const variablesState = {
+  load(): VariablesState {
+    return getState().variables ?? { ...DEFAULT_VARIABLES_STATE };
   },
-  save(configsState: ConfigsState): void {
+  save(variablesState: VariablesState): void {
     const state = getState();
-    state.configs = configsState;
+    state.variables = variablesState;
     saveState(state);
   },
   getIsGrouped(): boolean {
     return this.load().isGrouped ?? true;
   },
   saveIsGrouped(isGrouped: boolean): void {
-    const configs = this.load();
-    configs.isGrouped = isGrouped;
-    this.save(configs);
+    const variables = this.load();
+    variables.isGrouped = isGrouped;
+    this.save(variables);
   },
 };
 

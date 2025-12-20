@@ -67,19 +67,19 @@
       },
       "additionalProperties": false
     },
-    "configs": {
-      "description": "Configuration options",
+    "variables": {
+      "description": "Configuration variables",
       "type": "array",
       "items": {
-        "description": "A configuration option shown in the Configs view",
+        "description": "A configuration variable shown in the Variables view",
         "type": "object",
         "properties": {
           "name": {
-            "description": "Unique identifier for the config",
+            "description": "Unique identifier for the variable",
             "type": "string"
           },
           "kind": {
-            "description": "Type of config input",
+            "description": "Type of variable input",
             "type": "string",
             "enum": [
               "choose",
@@ -127,7 +127,7 @@
             ]
           },
           "group": {
-            "description": "Group name for organizing configs",
+            "description": "Group name for organizing variables",
             "type": "string"
           }
         },

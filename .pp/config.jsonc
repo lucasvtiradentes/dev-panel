@@ -9,13 +9,13 @@
     },
     "excludedDirs": []
   },
-  "configs": [
+  "variables": [
     // Environment group
     {
       "name": "environment",
       "kind": "choose",
       "options": ["local", "local-staging", "local-prod", "staging", "prod"],
-      "command": "bash .bpm/scripts/environment-select.sh",
+      "command": "bash scripts/environment-select.sh",
       "icon": "server",
       "description": "Select the target environment",
       "default": "local",
@@ -24,7 +24,7 @@
     {
       "name": "debug",
       "kind": "toggle",
-      "command": "bash .bpm/scripts/toggle-debug.sh",
+      "command": "bash scripts/toggle-debug.sh",
       "icon": "bug",
       "description": "Enable or disable debug mode",
       "default": false,
@@ -35,7 +35,7 @@
     {
       "name": "api-url",
       "kind": "input",
-      "command": "bash .bpm/scripts/set-api-url.sh",
+      "command": "bash scripts/set-api-url.sh",
       "icon": "globe",
       "description": "Set the API base URL",
       "group": "API"
@@ -44,7 +44,7 @@
       "name": "features",
       "kind": "multi-select",
       "options": ["auth", "analytics", "notifications", "dark-mode"],
-      "command": "bash .bpm/scripts/set-features.sh",
+      "command": "bash scripts/set-features.sh",
       "icon": "extensions",
       "description": "Enable feature flags",
       "default": ["auth"],

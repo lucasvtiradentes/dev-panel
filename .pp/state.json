@@ -6,5 +6,6 @@
   "features": [
     "auth",
     "dark-mode"
-  ]
+  ],
+  "debug": false
 }
