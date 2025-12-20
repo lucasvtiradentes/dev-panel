@@ -1,9 +1,13 @@
+import { exec } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { promisify } from 'node:util';
 import json5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
 import { getIsGrouped, saveIsGrouped } from './state';
+
+const execAsync = promisify(exec);
 
 enum ConfigKind {
   Choose = 'choose',
@@ -23,6 +27,7 @@ interface ConfigItem {
   description?: string;
   default?: string | boolean | string[];
   group?: string;
+  showTerminal?: boolean;
 }
 
 interface BpmConfig {
@@ -206,9 +211,29 @@ async function runCommand(config: ConfigItem, value: string | boolean | string[]
   if (!workspace) return;
 
   const formattedValue = Array.isArray(value) ? value.join(',') : String(value);
-  const terminal = vscode.window.createTerminal(`BPM: ${config.name}`);
-  terminal.show();
-  terminal.sendText(`cd "${workspace}" && ${config.command} "${formattedValue}"`);
+  const command = `${config.command} "${formattedValue}"`;
+
+  if (config.showTerminal) {
+    const terminal = vscode.window.createTerminal(`BPM: ${config.name}`);
+    terminal.show();
+    terminal.sendText(`cd "${workspace}" && ${command}`);
+  } else {
+    await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: `Running: ${config.name}`,
+        cancellable: false,
+      },
+      async () => {
+        try {
+          await execAsync(command, { cwd: workspace });
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          void vscode.window.showErrorMessage(`Config command failed: ${errorMessage}`);
+        }
+      },
+    );
+  }
 }
 
 export async function selectConfigOption(config: ConfigItem): Promise<void> {
