@@ -169,11 +169,7 @@ export class ToolTreeDataProvider implements vscode.TreeDataProvider<TreeTool | 
     }
 
     if (isFavorite(tool.name)) {
-      treeTool.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
-    } else if (tool.icon) {
-      treeTool.iconPath = new vscode.ThemeIcon(tool.icon);
-    } else {
-      treeTool.iconPath = new vscode.ThemeIcon('tools');
+      treeTool.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
     }
 
     return treeTool;
