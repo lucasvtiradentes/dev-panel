@@ -6,6 +6,7 @@ import { CONFIG_DIR_KEY, CONFIG_DIR_NAME } from '../../common/constants';
 import type { PPConfig } from '../../common/schemas/types';
 import { ToolDragAndDropController } from './dnd-controller';
 import { ToolGroupTreeItem, TreeTool } from './items';
+import { getToolKeybinding } from './keybindings-local';
 import {
   getFavoriteItems,
   getHiddenItems,
@@ -210,6 +211,12 @@ export class ToolTreeDataProvider implements vscode.TreeDataProvider<TreeTool | 
       title: 'Execute',
       arguments: [task, folder],
     });
+
+    const keybinding = getToolKeybinding(tool.name);
+
+    if (keybinding) {
+      treeTool.description = keybinding;
+    }
 
     if (tool.description) {
       treeTool.tooltip = tool.description;

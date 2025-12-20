@@ -16,6 +16,8 @@ export const VIEW_ID_BRANCH_CONTEXT = 'projectPanelBranchContext';
 export const VIEW_ID_TODOS = 'projectPanelTodos';
 export const DEV_SUFFIX = 'dev';
 export const LOG_BASENAME = 'project-panel';
+export const TOOL_COMMAND_SUFFIX = 'tool';
+export const TOOL_TASK_TYPE = 'projectPanel-tool';
 
 export function addDevSuffix(str: string): string {
   return `${str}${DEV_SUFFIX}`;

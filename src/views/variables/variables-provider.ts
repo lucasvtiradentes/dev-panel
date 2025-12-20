@@ -31,11 +31,11 @@ interface VariableItem {
   showTerminal?: boolean;
 }
 
-interface BpmVariables {
+interface PpVariables {
   variables: VariableItem[];
 }
 
-interface BpmState {
+interface PpState {
   [key: string]: string | boolean | string[];
 }
 
@@ -49,14 +49,14 @@ function getStatePath(): string | null {
   return path.join(workspace, CONFIG_DIR_NAME, 'state.json');
 }
 
-function loadState(): BpmState {
+function loadState(): PpState {
   const statePath = getStatePath();
   if (!statePath || !fs.existsSync(statePath)) return {};
   const content = fs.readFileSync(statePath, 'utf-8');
   return JSON.parse(content);
 }
 
-function saveState(state: BpmState): void {
+function saveState(state: PpState): void {
   const statePath = getStatePath();
   if (!statePath) return;
   fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
@@ -193,7 +193,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     return Promise.resolve(items);
   }
 
-  private loadConfig(): BpmVariables | null {
+  private loadConfig(): PpVariables | null {
     const workspace = getWorkspacePath();
     if (!workspace) return null;
 

@@ -1,5 +1,6 @@
 import {
   CONTEXT_PREFIX,
+  TOOL_COMMAND_SUFFIX,
   VIEW_ID_BRANCH_CONTEXT,
   VIEW_ID_CONFIGS,
   VIEW_ID_PROMPTS,
@@ -17,6 +18,8 @@ export {
   CONFIG_DIR_NAME,
   DEV_SUFFIX,
   DISPLAY_PREFIX,
+  TOOL_COMMAND_SUFFIX,
+  TOOL_TASK_TYPE,
 } from './scripts-constants';
 
 declare const __IS_DEV_BUILD__: boolean;
@@ -59,4 +62,14 @@ export function getViewIdTodos(): string {
 
 export function getLogFilename(): string {
   return buildLogFilename(IS_DEV);
+}
+
+export function getToolCommandId(toolName: string): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${TOOL_COMMAND_SUFFIX}.${toolName}`;
+}
+
+export function getToolCommandPrefix(): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${TOOL_COMMAND_SUFFIX}.`;
 }

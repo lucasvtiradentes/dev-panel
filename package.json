@@ -190,7 +190,7 @@
         "icon": "$(package)"
       },
       {
-        "command": "projectPanel.switchTaskSourceFromBPM",
+        "command": "projectPanel.switchTaskSourceFromPP",
         "title": "Switch to VSCode Tasks",
         "icon": "$(beaker)"
       },
@@ -399,6 +399,20 @@
       {
         "command": "projectPanel.showLogs",
         "title": "Project Panel: Show Logs"
+      },
+      {
+        "command": "projectPanel.syncToolKeybindings",
+        "title": "Project Panel: Sync Tool Keybindings"
+      },
+      {
+        "command": "projectPanel.setToolKeybinding",
+        "title": "Set Keybinding",
+        "icon": "$(keyboard)"
+      },
+      {
+        "command": "projectPanel.openToolsKeybindings",
+        "title": "Open Tools Keybindings",
+        "icon": "$(keyboard)"
       }
     ],
     "keybindings": [
@@ -481,7 +495,7 @@
           "group": "navigation@2"
         },
         {
-          "command": "projectPanel.switchTaskSourceFromBPM",
+          "command": "projectPanel.switchTaskSourceFromPP",
           "when": "view == projectPanelTasks && taskSourcePP",
           "group": "navigation@2"
         },
@@ -549,6 +563,11 @@
           "command": "projectPanel.refreshTools",
           "when": "view == projectPanelTools",
           "group": "navigation@4"
+        },
+        {
+          "command": "projectPanel.openToolsKeybindings",
+          "when": "view == projectPanelTools",
+          "group": "navigation@5"
         },
         {
           "command": "projectPanel.togglePromptsGroupMode",
@@ -641,9 +660,14 @@
           "group": "inline@2"
         },
         {
-          "command": "projectPanel.goToToolFile",
+          "command": "projectPanel.setToolKeybinding",
           "when": "view == projectPanelTools && viewItem =~ /^tool/",
           "group": "inline@3"
+        },
+        {
+          "command": "projectPanel.goToToolFile",
+          "when": "view == projectPanelTools && viewItem =~ /^tool/",
+          "group": "inline@4"
         },
         {
           "command": "projectPanel.executeTool",

@@ -65,6 +65,9 @@ export enum Command {
   OpenBranchContextFile = 'openBranchContextFile',
   ToggleTodo = 'toggleTodo',
   ShowLogs = 'showLogs',
+  SyncToolKeybindings = 'syncToolKeybindings',
+  SetToolKeybinding = 'setToolKeybinding',
+  OpenToolsKeybindings = 'openToolsKeybindings',
 }
 
 export function registerCommand(command: Command, callback: (...args: any[]) => any): vscode.Disposable {
