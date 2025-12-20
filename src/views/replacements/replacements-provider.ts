@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import json5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
-import { applyFileReplacement, applyPatches, fileExists } from './file-ops';
+import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
 import { getIsGrouped, saveIsGrouped } from './state';
 import { type BpmConfig, OnBranchChange, type Replacement, type ReplacementState, ReplacementType } from './types';
@@ -114,7 +114,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     if (!workspace) return;
 
     this.configWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, '.bpm/{config.jsonc,state.json}'),
+      new vscode.RelativePattern(workspace, '.bpm/config.jsonc'),
     );
 
     this.configWatcher.onDidChange(() => this.refresh());
@@ -139,6 +139,26 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       newState.lastBranch = currentBranch;
       saveReplacementState(newState);
     }
+    this.syncReplacementState();
+  }
+
+  private syncReplacementState(): void {
+    const workspace = getWorkspacePath();
+    if (!workspace) return;
+
+    const config = this.loadConfig();
+    if (!config?.replacements) return;
+
+    const activeReplacements: string[] = [];
+    for (const replacement of config.replacements) {
+      if (isReplacementActive(workspace, replacement)) {
+        activeReplacements.push(replacement.name);
+      }
+    }
+
+    const state = loadReplacementState();
+    state.activeReplacements = activeReplacements;
+    saveReplacementState(state);
   }
 
   private async handleBranchChange(): Promise<void> {
@@ -174,6 +194,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
 
     state.lastBranch = currentBranch;
     saveReplacementState(state);
+    this.syncReplacementState();
   }
 
   dispose(): void {
@@ -182,6 +203,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
   }
 
   refresh(): void {
+    this.syncReplacementState();
     this._onDidChangeTreeData.fire(undefined);
   }
 
