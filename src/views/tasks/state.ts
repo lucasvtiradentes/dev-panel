@@ -27,3 +27,11 @@ export const getCurrentSource = () => tasksState.getCurrentSource();
 export const saveCurrentSource = (source: TaskSource) => tasksState.saveCurrentSource(source);
 export const getIsGrouped = () => tasksState.getIsGrouped();
 export const saveIsGrouped = (isGrouped: boolean) => tasksState.saveIsGrouped(isGrouped);
+export const getShowHidden = (source: TaskSource) => tasksState.getShowHidden(source);
+export const saveShowHidden = (source: TaskSource, showHidden: boolean) =>
+  tasksState.saveShowHidden(source, showHidden);
+export const getHiddenItems = (source: TaskSource) => tasksState.getHiddenItems(source);
+export const getShowOnlyFavorites = (source: TaskSource) => tasksState.getShowOnlyFavorites(source);
+export const saveShowOnlyFavorites = (source: TaskSource, showOnlyFavorites: boolean) =>
+  tasksState.saveShowOnlyFavorites(source, showOnlyFavorites);
+export const getFavoriteItems = (source: TaskSource) => tasksState.getFavoriteItems(source);

@@ -115,6 +115,28 @@ export const tasksState = {
     this.saveSourceState(source, sourceState);
     return index === -1;
   },
+  getShowHidden(source: TaskSource): boolean {
+    return this.getSourceState(source).showHidden ?? false;
+  },
+  saveShowHidden(source: TaskSource, showHidden: boolean): void {
+    const sourceState = this.getSourceState(source);
+    sourceState.showHidden = showHidden;
+    this.saveSourceState(source, sourceState);
+  },
+  getHiddenItems(source: TaskSource): string[] {
+    return this.getSourceState(source).hidden;
+  },
+  getShowOnlyFavorites(source: TaskSource): boolean {
+    return this.getSourceState(source).showOnlyFavorites ?? false;
+  },
+  saveShowOnlyFavorites(source: TaskSource, showOnlyFavorites: boolean): void {
+    const sourceState = this.getSourceState(source);
+    sourceState.showOnlyFavorites = showOnlyFavorites;
+    this.saveSourceState(source, sourceState);
+  },
+  getFavoriteItems(source: TaskSource): string[] {
+    return this.getSourceState(source).favorites;
+  },
 };
 
 export const toolsState = {

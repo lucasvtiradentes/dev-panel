@@ -21,6 +21,8 @@ const EXCLUDED_DIRS = new Set(['node_modules', 'dist', 'out', '.ignore', '.git',
 
 export async function getPackageScripts(
   grouped: boolean,
+  showHidden: boolean,
+  showOnlyFavorites: boolean,
   sortFn: (
     elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
   ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
@@ -43,17 +45,17 @@ export async function getPackageScripts(
     const pkg = allPackages[0];
     const taskElements: TreeTask[] = [];
     for (const [name, command] of Object.entries(pkg.scripts)) {
-      const task = createNpmTask(name, command, pkg.folder, pkg.absolutePath, false);
+      const task = createNpmTask(name, command, pkg.folder, pkg.absolutePath, false, showHidden, showOnlyFavorites);
       if (task) taskElements.push(task);
     }
     return sortFn(taskElements);
   }
 
   if (isSinglePackage && grouped) {
-    return getGroupedByScriptPrefix(allPackages[0], sortFn);
+    return getGroupedByScriptPrefix(allPackages[0], showHidden, showOnlyFavorites, sortFn);
   }
 
-  return getGroupedByLocation(allPackages, sortFn);
+  return getGroupedByLocation(allPackages, showHidden, showOnlyFavorites, sortFn);
 }
 
 async function findAllPackageJsons(folder: vscode.WorkspaceFolder): Promise<PackageLocation[]> {
@@ -110,6 +112,8 @@ function findPackageJsonsRecursive(dir: string, maxDepth = 5, currentDepth = 0):
 
 function getGroupedByLocation(
   packages: PackageLocation[],
+  showHidden: boolean,
+  showOnlyFavorites: boolean,
   sortFn: (
     elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
   ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
@@ -121,7 +125,7 @@ function getGroupedByLocation(
     const group = new GroupTreeItem(groupName);
 
     for (const [name, command] of Object.entries(pkg.scripts)) {
-      const task = createNpmTask(name, command, pkg.folder, pkg.absolutePath, false);
+      const task = createNpmTask(name, command, pkg.folder, pkg.absolutePath, false, showHidden, showOnlyFavorites);
       if (task) group.children.push(task);
     }
 
@@ -135,6 +139,8 @@ function getGroupedByLocation(
 
 function getGroupedByScriptPrefix(
   pkg: PackageLocation,
+  showHidden: boolean,
+  showOnlyFavorites: boolean,
   sortFn: (
     elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
   ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
@@ -144,7 +150,7 @@ function getGroupedByScriptPrefix(
   const allScriptNames = Object.keys(pkg.scripts);
 
   for (const [name, command] of Object.entries(pkg.scripts)) {
-    const treeTask = createNpmTask(name, command, pkg.folder, pkg.absolutePath, true);
+    const treeTask = createNpmTask(name, command, pkg.folder, pkg.absolutePath, true, showHidden, showOnlyFavorites);
     if (!treeTask) continue;
 
     const groupName = extractGroupName(name, allScriptNames);
@@ -175,8 +181,13 @@ function createNpmTask(
   folder: vscode.WorkspaceFolder,
   cwd: string,
   useDisplayName: boolean,
+  showHidden: boolean,
+  showOnlyFavorites: boolean,
 ): TreeTask | null {
-  if (isHidden(TaskSource.Package, name)) return null;
+  const hidden = isHidden(TaskSource.Package, name);
+  const favorite = isFavorite(TaskSource.Package, name);
+  if (hidden && !showHidden) return null;
+  if (showOnlyFavorites && !favorite) return null;
 
   const shellExec = new vscode.ShellExecution(`npm run ${name}`, { cwd });
   const task = new vscode.Task({ type: 'npm' }, folder, name, 'npm', shellExec);
@@ -196,8 +207,12 @@ function createNpmTask(
   treeTask.taskName = name;
   treeTask.tooltip = command;
 
-  if (isFavorite(TaskSource.Package, name)) {
-    treeTask.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
+  if (hidden) {
+    treeTask.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+    treeTask.contextValue = 'task-hidden';
+  } else if (favorite) {
+    treeTask.iconPath = new vscode.ThemeIcon('heart');
+    treeTask.contextValue = 'task-favorite';
   }
 
   return treeTask;

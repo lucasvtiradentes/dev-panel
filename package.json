@@ -205,6 +205,31 @@
         "icon": "$(eye-closed)"
       },
       {
+        "command": "betterProjectTools.toggleUnfavorite",
+        "title": "Remove from Favorites",
+        "icon": "$(heart-filled)"
+      },
+      {
+        "command": "betterProjectTools.toggleTasksShowHidden",
+        "title": "Show Hidden Tasks",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "betterProjectTools.toggleTasksShowHiddenActive",
+        "title": "Hide Hidden Tasks",
+        "icon": "$(eye-closed)"
+      },
+      {
+        "command": "betterProjectTools.toggleTasksShowOnlyFavorites",
+        "title": "Show Only Favorites",
+        "icon": "$(heart)"
+      },
+      {
+        "command": "betterProjectTools.toggleTasksShowOnlyFavoritesActive",
+        "title": "Show All Tasks",
+        "icon": "$(heart-filled)"
+      },
+      {
         "command": "betterProjectTools.execCmdline",
         "title": "Execute Command Line"
       },
@@ -441,9 +466,29 @@
           "group": "navigation@2"
         },
         {
+          "command": "betterProjectTools.toggleTasksShowOnlyFavorites",
+          "when": "view == betterProjectToolsTasks && tasksHasFavorites && !tasksShowOnlyFavorites",
+          "group": "navigation@3"
+        },
+        {
+          "command": "betterProjectTools.toggleTasksShowOnlyFavoritesActive",
+          "when": "view == betterProjectToolsTasks && tasksHasFavorites && tasksShowOnlyFavorites",
+          "group": "navigation@3"
+        },
+        {
+          "command": "betterProjectTools.toggleTasksShowHidden",
+          "when": "view == betterProjectToolsTasks && tasksHasHidden && !tasksShowHidden",
+          "group": "navigation@4"
+        },
+        {
+          "command": "betterProjectTools.toggleTasksShowHiddenActive",
+          "when": "view == betterProjectToolsTasks && tasksHasHidden && tasksShowHidden",
+          "group": "navigation@4"
+        },
+        {
           "command": "betterProjectTools.refresh",
           "when": "view == betterProjectToolsTasks",
-          "group": "navigation@3"
+          "group": "navigation@5"
         },
         {
           "command": "betterProjectTools.toggleToolsGroupMode",
@@ -528,8 +573,13 @@
           "group": "inline@1"
         },
         {
+          "command": "betterProjectTools.toggleUnfavorite",
+          "when": "view == betterProjectToolsTasks && viewItem == task-favorite",
+          "group": "inline@1"
+        },
+        {
           "command": "betterProjectTools.toggleHide",
-          "when": "view == betterProjectToolsTasks && viewItem == task",
+          "when": "view == betterProjectToolsTasks && viewItem =~ /^task/",
           "group": "inline@2"
         },
         {

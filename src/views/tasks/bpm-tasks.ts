@@ -8,6 +8,8 @@ import { isFavorite, isHidden } from './state';
 
 export async function getBPMScripts(
   grouped: boolean,
+  showHidden: boolean,
+  showOnlyFavorites: boolean,
   sortFn: (
     elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
   ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
@@ -19,7 +21,7 @@ export async function getBPMScripts(
     for (const folder of folders) {
       const scripts = readBPMScripts(folder);
       for (const script of scripts) {
-        const task = createBPMTask(script, folder);
+        const task = createBPMTask(script, folder, showHidden, showOnlyFavorites);
         if (task) taskElements.push(task);
       }
     }
@@ -32,7 +34,7 @@ export async function getBPMScripts(
   for (const folder of folders) {
     const scripts = readBPMScripts(folder);
     for (const script of scripts) {
-      const treeTask = createBPMTask(script, folder);
+      const treeTask = createBPMTask(script, folder, showHidden, showOnlyFavorites);
       if (!treeTask) continue;
 
       const groupName = script.group ?? 'no-group';
@@ -58,8 +60,13 @@ function readBPMScripts(folder: vscode.WorkspaceFolder): NonNullable<BPMConfig['
 function createBPMTask(
   script: NonNullable<BPMConfig['scripts']>[number],
   folder: vscode.WorkspaceFolder,
+  showHidden: boolean,
+  showOnlyFavorites: boolean,
 ): TreeTask | null {
-  if (isHidden(TaskSource.BPM, script.name)) return null;
+  const hidden = isHidden(TaskSource.BPM, script.name);
+  const favorite = isFavorite(TaskSource.BPM, script.name);
+  if (hidden && !showHidden) return null;
+  if (showOnlyFavorites && !favorite) return null;
 
   const shellExec = new vscode.ShellExecution(script.command);
   const task = new vscode.Task({ type: 'bpm' }, folder, script.name, 'bpm', shellExec);
@@ -80,8 +87,12 @@ function createBPMTask(
     treeTask.tooltip = script.description;
   }
 
-  if (isFavorite(TaskSource.BPM, script.name)) {
-    treeTask.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
+  if (hidden) {
+    treeTask.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+    treeTask.contextValue = 'task-hidden';
+  } else if (favorite) {
+    treeTask.iconPath = new vscode.ThemeIcon('heart');
+    treeTask.contextValue = 'task-favorite';
   }
 
   return treeTask;

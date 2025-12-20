@@ -6,6 +6,8 @@ import { isFavorite, isHidden } from './state';
 
 export async function getVSCodeTasks(
   grouped: boolean,
+  showHidden: boolean,
+  showOnlyFavorites: boolean,
   sortFn: (
     elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
   ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
@@ -20,7 +22,10 @@ export async function getVSCodeTasks(
   const taskFolders: Record<string, WorkspaceTreeItem> = {};
 
   for (const task of tasks) {
-    if (isHidden(TaskSource.VSCode, task.name)) continue;
+    const hidden = isHidden(TaskSource.VSCode, task.name);
+    const favorite = isFavorite(TaskSource.VSCode, task.name);
+    if (hidden && !showHidden) continue;
+    if (showOnlyFavorites && !favorite) continue;
 
     const group = grouped
       ? (task as unknown as { presentationOptions?: { group?: string } }).presentationOptions?.group
@@ -45,8 +50,12 @@ export async function getVSCodeTasks(
       _task.tooltip = task.detail;
     }
 
-    if (isFavorite(TaskSource.VSCode, task.name)) {
-      _task.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
+    if (hidden) {
+      _task.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+      _task.contextValue = 'task-hidden';
+    } else if (favorite) {
+      _task.iconPath = new vscode.ThemeIcon('heart');
+      _task.contextValue = 'task-favorite';
     }
 
     if (!_task.hide) {

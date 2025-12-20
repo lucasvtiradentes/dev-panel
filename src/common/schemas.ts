@@ -156,6 +156,8 @@ const SourceStateSchema = z.object({
   groupOrder: z.array(z.string()),
   favorites: z.array(z.string()),
   hidden: z.array(z.string()),
+  showHidden: z.boolean().optional(),
+  showOnlyFavorites: z.boolean().optional(),
 });
 
 export const TasksStateSchema = z.object({
