@@ -168,6 +168,8 @@ export const TasksStateSchema = z.object({
 
 export const ToolsStateSchema = z.object({
   isGrouped: z.boolean(),
+  showHidden: z.boolean().optional(),
+  showOnlyFavorites: z.boolean().optional(),
   bpm: SourceStateSchema,
 });
 

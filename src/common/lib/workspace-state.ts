@@ -134,6 +134,28 @@ export const toolsState = {
     tools.isGrouped = isGrouped;
     this.save(tools);
   },
+  getShowHidden(): boolean {
+    return this.load().showHidden ?? false;
+  },
+  saveShowHidden(showHidden: boolean): void {
+    const tools = this.load();
+    tools.showHidden = showHidden;
+    this.save(tools);
+  },
+  getHiddenItems(): string[] {
+    return this.getSourceState().hidden;
+  },
+  getShowOnlyFavorites(): boolean {
+    return this.load().showOnlyFavorites ?? false;
+  },
+  saveShowOnlyFavorites(showOnlyFavorites: boolean): void {
+    const tools = this.load();
+    tools.showOnlyFavorites = showOnlyFavorites;
+    this.save(tools);
+  },
+  getFavoriteItems(): string[] {
+    return this.getSourceState().favorites;
+  },
   getSourceState(): SourceState {
     return this.load().bpm ?? { ...DEFAULT_SOURCE_STATE };
   },

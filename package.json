@@ -242,6 +242,31 @@
         "icon": "$(eye-closed)"
       },
       {
+        "command": "betterProjectTools.toggleToolUnfavorite",
+        "title": "Remove from Favorites",
+        "icon": "$(heart-filled)"
+      },
+      {
+        "command": "betterProjectTools.toggleToolsShowHidden",
+        "title": "Show Hidden Tools",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "betterProjectTools.toggleToolsShowHiddenActive",
+        "title": "Hide Hidden Tools",
+        "icon": "$(eye-closed)"
+      },
+      {
+        "command": "betterProjectTools.toggleToolsShowOnlyFavorites",
+        "title": "Show Only Favorites",
+        "icon": "$(heart)"
+      },
+      {
+        "command": "betterProjectTools.toggleToolsShowOnlyFavoritesActive",
+        "title": "Show All Tools",
+        "icon": "$(heart-filled)"
+      },
+      {
         "command": "betterProjectTools.executeTool",
         "title": "Execute Tool"
       },
@@ -431,9 +456,29 @@
           "group": "navigation@1"
         },
         {
+          "command": "betterProjectTools.toggleToolsShowOnlyFavorites",
+          "when": "view == betterProjectToolsTools && toolsHasFavorites && !toolsShowOnlyFavorites",
+          "group": "navigation@2"
+        },
+        {
+          "command": "betterProjectTools.toggleToolsShowOnlyFavoritesActive",
+          "when": "view == betterProjectToolsTools && toolsHasFavorites && toolsShowOnlyFavorites",
+          "group": "navigation@2"
+        },
+        {
+          "command": "betterProjectTools.toggleToolsShowHidden",
+          "when": "view == betterProjectToolsTools && toolsHasHidden && !toolsShowHidden",
+          "group": "navigation@3"
+        },
+        {
+          "command": "betterProjectTools.toggleToolsShowHiddenActive",
+          "when": "view == betterProjectToolsTools && toolsHasHidden && toolsShowHidden",
+          "group": "navigation@3"
+        },
+        {
           "command": "betterProjectTools.refreshTools",
           "when": "view == betterProjectToolsTools",
-          "group": "navigation@2"
+          "group": "navigation@4"
         },
         {
           "command": "betterProjectTools.togglePromptsGroupMode",
@@ -501,13 +546,18 @@
           "group": "inline@1"
         },
         {
+          "command": "betterProjectTools.toggleToolUnfavorite",
+          "when": "view == betterProjectToolsTools && viewItem == tool-favorite",
+          "group": "inline@1"
+        },
+        {
           "command": "betterProjectTools.toggleToolHide",
-          "when": "view == betterProjectToolsTools && viewItem == tool",
+          "when": "view == betterProjectToolsTools && viewItem =~ /^tool/",
           "group": "inline@2"
         },
         {
           "command": "betterProjectTools.goToToolFile",
-          "when": "view == betterProjectToolsTools && viewItem == tool",
+          "when": "view == betterProjectToolsTools && viewItem =~ /^tool/",
           "group": "inline@3"
         },
         {

@@ -6,11 +6,17 @@ import type { BPMConfig } from '../../common/types';
 import { ToolDragAndDropController } from './dnd-controller';
 import { ToolGroupTreeItem, TreeTool } from './items';
 import {
+  getFavoriteItems,
+  getHiddenItems,
   getIsGrouped,
   getOrder,
+  getShowHidden,
+  getShowOnlyFavorites,
   isFavorite,
   isHidden,
   saveIsGrouped,
+  saveShowHidden,
+  saveShowOnlyFavorites,
   toggleFavorite as toggleFavoriteState,
   toggleHidden,
 } from './state';
@@ -22,10 +28,14 @@ export class ToolTreeDataProvider implements vscode.TreeDataProvider<TreeTool | 
   readonly onDidChangeTreeData: vscode.Event<TreeTool | null> = this._onDidChangeTreeData.event;
 
   private _grouped: boolean;
+  private _showHidden: boolean;
+  private _showOnlyFavorites: boolean;
   private _treeView: vscode.TreeView<TreeTool | ToolGroupTreeItem> | null = null;
 
   constructor() {
     this._grouped = getIsGrouped();
+    this._showHidden = getShowHidden();
+    this._showOnlyFavorites = getShowOnlyFavorites();
     this.updateContextKeys();
   }
 
@@ -38,7 +48,13 @@ export class ToolTreeDataProvider implements vscode.TreeDataProvider<TreeTool | 
   }
 
   private updateContextKeys(): void {
+    const hiddenItems = getHiddenItems();
+    const favoriteItems = getFavoriteItems();
     void setContextKey(ContextKey.ToolsGrouped, this._grouped);
+    void setContextKey(ContextKey.ToolsHasHidden, hiddenItems.length > 0);
+    void setContextKey(ContextKey.ToolsShowHidden, this._showHidden);
+    void setContextKey(ContextKey.ToolsHasFavorites, favoriteItems.length > 0);
+    void setContextKey(ContextKey.ToolsShowOnlyFavorites, this._showOnlyFavorites);
   }
 
   toggleGroupMode(): void {
@@ -48,9 +64,24 @@ export class ToolTreeDataProvider implements vscode.TreeDataProvider<TreeTool | 
     this._onDidChangeTreeData.fire(null);
   }
 
+  toggleShowHidden(): void {
+    this._showHidden = !this._showHidden;
+    saveShowHidden(this._showHidden);
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire(null);
+  }
+
+  toggleShowOnlyFavorites(): void {
+    this._showOnlyFavorites = !this._showOnlyFavorites;
+    saveShowOnlyFavorites(this._showOnlyFavorites);
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire(null);
+  }
+
   toggleFavorite(item: TreeTool): void {
     if (item?.toolName) {
       toggleFavoriteState(item.toolName);
+      this.updateContextKeys();
       this._onDidChangeTreeData.fire(null);
     }
   }
@@ -58,6 +89,7 @@ export class ToolTreeDataProvider implements vscode.TreeDataProvider<TreeTool | 
   toggleHide(item: TreeTool): void {
     if (item?.toolName) {
       toggleHidden(item.toolName);
+      this.updateContextKeys();
       this._onDidChangeTreeData.fire(null);
     }
   }
@@ -158,7 +190,10 @@ export class ToolTreeDataProvider implements vscode.TreeDataProvider<TreeTool | 
     tool: NonNullable<BPMConfig['tools']>[number],
     folder: vscode.WorkspaceFolder,
   ): TreeTool | null {
-    if (isHidden(tool.name)) return null;
+    const hidden = isHidden(tool.name);
+    const favorite = isFavorite(tool.name);
+    if (hidden && !this._showHidden) return null;
+    if (this._showOnlyFavorites && !favorite) return null;
 
     const shellExec = new vscode.ShellExecution(tool.command);
     const task = new vscode.Task({ type: 'bpm-tool' }, folder, tool.name, 'bpm-tool', shellExec);
@@ -176,8 +211,12 @@ export class ToolTreeDataProvider implements vscode.TreeDataProvider<TreeTool | 
       treeTool.tooltip = tool.description;
     }
 
-    if (isFavorite(tool.name)) {
-      treeTool.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
+    if (hidden) {
+      treeTool.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+      treeTool.contextValue = 'tool-hidden';
+    } else if (favorite) {
+      treeTool.iconPath = new vscode.ThemeIcon('heart');
+      treeTool.contextValue = 'tool-favorite';
     }
 
     return treeTool;
