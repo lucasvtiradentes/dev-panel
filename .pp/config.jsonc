@@ -136,7 +136,7 @@
   "prompts": [
     {
       "name": "Review Code",
-      "file": "review-code.md",
+      "file": "prompts/review-code.md",
       "description": "Review files for issues and improvements",
       "icon": "eye",
       "group": "Analysis",
@@ -153,7 +153,7 @@
     },
     {
       "name": "Explain Code",
-      "file": "explain-code.md",
+      "file": "prompts/explain-code.md",
       "description": "Explain code in detail",
       "icon": "book",
       "group": "Analysis",
@@ -170,7 +170,7 @@
     },
     {
       "name": "Add Tests",
-      "file": "add-tests.md",
+      "file": "prompts/add-tests.md",
       "description": "Generate tests for file(s)",
       "icon": "beaker",
       "group": "Generate",

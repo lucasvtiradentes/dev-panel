@@ -202,7 +202,7 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
     if (hidden && !this._showHidden) return null;
     if (this._showOnlyFavorites && !favorite) return null;
 
-    const promptFilePath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/prompts/${prompt.file}`;
+    const promptFilePath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/${prompt.file}`;
 
     const treePrompt = new TreePrompt(prompt.name, promptFilePath, vscode.TreeItemCollapsibleState.None, {
       command: getCommandId(Command.ExecutePrompt),
