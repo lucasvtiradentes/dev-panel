@@ -1,0 +1,84 @@
+name: 'Callable CI'
+
+on:
+  workflow_call:
+    inputs:
+      run_lint:
+        description: 'Run lint checks'
+        type: boolean
+        required: true
+      run_build:
+        description: 'Run build'
+        type: boolean
+        required: true
+    outputs:
+      should_release:
+        description: 'Whether version was bumped and should trigger release'
+        value: ${{ jobs.check_version.outputs.should_release }}
+
+jobs:
+  check_version:
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.check.outputs.should_release }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check if version was bumped
+        id: check
+        run: bash scripts/release/check-version-bump.sh
+
+  lint:
+    if: inputs.run_lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run lint
+        run: pnpm run lint
+
+      - name: Run format check
+        run: pnpm run format
+
+      - name: Check if any changes were made
+        run: git diff --exit-code
+
+  build:
+    if: inputs.run_build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run typecheck
+        run: pnpm run typecheck
+
+      - name: Build
+        run: pnpm run build
+        env:
+          CI: true
