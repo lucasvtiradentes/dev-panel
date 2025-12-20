@@ -132,14 +132,6 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
   }
 
   private async handleStartup(): Promise<void> {
-    const state = loadReplacementState();
-    if (state.activeReplacements.length > 0) {
-      await this.revertAllReplacements();
-      vscode.window.showInformationMessage(
-        `BPM: Reverted ${state.activeReplacements.length} replacement(s) on startup`,
-      );
-    }
-
     const workspace = getWorkspacePath();
     if (workspace && (await isGitRepository(workspace))) {
       const currentBranch = await getCurrentBranch(workspace);
@@ -285,13 +277,13 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       return;
     }
 
+    await setSkipWorktree(workspace, replacement.target, true);
+
     if (replacement.type === ReplacementType.File) {
       applyFileReplacement(workspace, replacement.source, replacement.target);
     } else {
       applyPatches(workspace, replacement.target, replacement.patches);
     }
-
-    await setSkipWorktree(workspace, replacement.target, true);
 
     const state = loadReplacementState();
     state.activeReplacements.push(replacement.name);
