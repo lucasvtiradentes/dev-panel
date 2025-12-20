@@ -17,6 +17,12 @@ export enum SelectionStyle {
   Interactive = 'interactive',
 }
 
+export enum AIProvider {
+  Claude = 'claude',
+  Gemini = 'gemini',
+  CursorAgent = 'cursor-agent',
+}
+
 export const TaskSourceEnum = z.enum(['vscode', 'package', 'bpm']);
 
 const BPMScriptSchema = z
@@ -126,6 +132,10 @@ const BPMPromptSelectionSchema = z
 const BPMSettingsSchema = z
   .object({
     promptSelection: BPMPromptSelectionSchema.optional().describe('File/folder selection settings for prompts'),
+    aiProvider: z
+      .nativeEnum(AIProvider)
+      .optional()
+      .describe('AI provider to use for prompts: claude, gemini, or cursor-agent'),
   })
   .describe('Global settings for BPM behavior');
 

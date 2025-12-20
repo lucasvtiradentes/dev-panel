@@ -16,6 +16,7 @@ import {
 } from '../../common';
 import { GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants';
 import type { BPMConfig, BPMPrompt, BPMSettings } from '../../common/schemas';
+import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';
 
 const log = createLogger('execute-task');
@@ -95,24 +96,30 @@ export function createExecutePromptCommand() {
       }
 
       let promptContent = fs.readFileSync(promptFilePath, 'utf8');
+      const settings = readBPMSettings(folder);
+      log.info(`settings: ${JSON.stringify(settings)}`);
 
       if (promptConfig?.inputs && promptConfig.inputs.length > 0) {
         log.info(`inputs from promptConfig: ${JSON.stringify(promptConfig.inputs)}`);
-        const settings = readBPMSettings(folder);
-        log.info(`settings read fresh: ${JSON.stringify(settings)}`);
         const inputValues = await collectPromptInputs(promptConfig.inputs, folder, settings);
         if (inputValues === null) return;
         promptContent = replaceInputPlaceholders(promptContent, inputValues);
       }
 
-      const escapedPrompt = promptContent.replace(/"/g, '\\"').replace(/\n/g, '\\n');
+      const provider = getProvider(settings?.aiProvider);
+      if (!provider) {
+        void vscode.window.showErrorMessage(
+          'AI provider not configured. Set "settings.aiProvider" in .bpm/config.jsonc (claude, gemini, or cursor-agent)',
+        );
+        return;
+      }
 
       if (promptConfig?.saveOutput) {
-        await executePromptWithSave(promptContent, folder, promptConfig.name);
+        await executePromptWithSave(promptContent, folder, promptConfig.name, provider);
       } else {
-        const terminal = vscode.window.createTerminal({ name: 'Claude Code' });
+        const terminal = vscode.window.createTerminal({ name: provider.name });
         terminal.show();
-        terminal.sendText(`claude "${escapedPrompt}"`);
+        provider.executeInteractive(terminal, promptContent);
       }
     },
   );
@@ -122,6 +129,7 @@ async function executePromptWithSave(
   promptContent: string,
   folder: vscode.WorkspaceFolder,
   promptName: string,
+  provider: PromptProvider,
 ): Promise<void> {
   const workspacePath = folder.uri.fsPath;
   const branch = await getCurrentBranch(workspacePath).catch(() => 'unknown');
@@ -147,7 +155,8 @@ async function executePromptWithSave(
     },
     async () => {
       try {
-        await execAsync(`claude --print < "${tempFile}" > "${outputFile}"`, { cwd: workspacePath });
+        const command = provider.getExecuteCommand(tempFile, outputFile);
+        await execAsync(command, { cwd: workspacePath });
         fs.unlinkSync(tempFile);
         const doc = await vscode.workspace.openTextDocument(outputFile);
         await vscode.window.showTextDocument(doc);

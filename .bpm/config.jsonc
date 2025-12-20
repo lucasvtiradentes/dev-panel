@@ -1,6 +1,7 @@
 {
   "$schema": "../resources/schema.json",
   "settings": {
+    "aiProvider": "cursor-agent",
     "promptSelection": {
       "fileStyle": "flat",
       "folderStyle": "interactive",
