@@ -170,6 +170,11 @@
         "title": "Go to Definition"
       },
       {
+        "command": "betterProjectTools.openTasksConfig",
+        "title": "Open Tasks Config",
+        "icon": "$(go-to-file)"
+      },
+      {
         "command": "betterProjectTools.refresh",
         "title": "Refresh",
         "icon": "$(extensions-refresh)"
@@ -481,29 +486,34 @@
           "group": "navigation@2"
         },
         {
+          "command": "betterProjectTools.openTasksConfig",
+          "when": "view == betterProjectToolsTasks",
+          "group": "navigation@3"
+        },
+        {
           "command": "betterProjectTools.toggleTasksShowOnlyFavorites",
           "when": "view == betterProjectToolsTasks && tasksHasFavorites && !tasksShowOnlyFavorites",
-          "group": "navigation@3"
+          "group": "navigation@4"
         },
         {
           "command": "betterProjectTools.toggleTasksShowOnlyFavoritesActive",
           "when": "view == betterProjectToolsTasks && tasksHasFavorites && tasksShowOnlyFavorites",
-          "group": "navigation@3"
+          "group": "navigation@4"
         },
         {
           "command": "betterProjectTools.toggleTasksShowHidden",
           "when": "view == betterProjectToolsTasks && tasksHasHidden && !tasksShowHidden",
-          "group": "navigation@4"
+          "group": "navigation@5"
         },
         {
           "command": "betterProjectTools.toggleTasksShowHiddenActive",
           "when": "view == betterProjectToolsTasks && tasksHasHidden && tasksShowHidden",
-          "group": "navigation@4"
+          "group": "navigation@5"
         },
         {
           "command": "betterProjectTools.refresh",
           "when": "view == betterProjectToolsTasks",
-          "group": "navigation@5"
+          "group": "navigation@6"
         },
         {
           "command": "betterProjectTools.toggleToolsGroupMode",

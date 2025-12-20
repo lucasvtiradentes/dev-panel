@@ -17,6 +17,7 @@ export enum Command {
   ToggleTasksShowOnlyFavoritesActive = 'toggleTasksShowOnlyFavoritesActive',
   GoToTask = 'goToTask',
   ExecuteTask = 'executeTask',
+  OpenTasksConfig = 'openTasksConfig',
   ExecCmdline = 'execCmdline',
   ExitCmdline = 'exitCmdline',
   BackCmdline = 'backCmdline',

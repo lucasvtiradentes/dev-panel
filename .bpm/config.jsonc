@@ -6,7 +6,8 @@
       "fileStyle": "flat",
       "folderStyle": "interactive",
       "excludes": ["**/node_modules/**", "**/.git/**", "**/dist/**", "**/out/**", "**/.bpm/**"]
-    }
+    },
+    "excludedDirs": []
   },
   "configs": [
     // Environment group

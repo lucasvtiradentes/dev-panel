@@ -136,6 +136,12 @@ const BPMSettingsSchema = z
       .nativeEnum(AIProvider)
       .optional()
       .describe('AI provider to use for prompts: claude, gemini, or cursor-agent'),
+    excludedDirs: z
+      .array(z.string())
+      .optional()
+      .describe(
+        'Additional directories to exclude when searching for package.json files. Always excluded (hardcoded): node_modules, dist, .git. Add custom exclusions as needed (e.g. ["dist-dev", "out", ".bpm", "temp"])',
+      ),
   })
   .describe('Global settings for BPM behavior');
 

@@ -22,6 +22,7 @@ import { createRevertAllReplacementsCommand } from './internal/revert-all-replac
 import { createResetConfigOptionCommand, createSelectConfigOptionCommand } from './internal/select-config-option';
 import { createToggleReplacementCommand } from './internal/toggle-replacement';
 import { createGoToTaskCommand } from './public/go-to-task';
+import { createOpenTasksConfigCommand } from './public/open-tasks-config';
 import { createRefreshCommand, createRefreshPromptsCommand, createRefreshToolsCommand } from './public/refresh';
 import { createShowLogsCommand } from './public/show-logs';
 import { createSwitchTaskSourceCommands } from './public/switch-task-source';
@@ -49,6 +50,7 @@ export function registerAllCommands(
     registerCommand(Command.ToggleTasksShowOnlyFavorites, () => taskTreeDataProvider.toggleShowOnlyFavorites()),
     registerCommand(Command.ToggleTasksShowOnlyFavoritesActive, () => taskTreeDataProvider.toggleShowOnlyFavorites()),
     createGoToTaskCommand(),
+    createOpenTasksConfigCommand(),
     createExecuteTaskCommand(context),
     createExecCmdlineCommand(taskTreeDataProvider),
     createExitCmdlineCommand(taskTreeDataProvider),

@@ -1,8 +1,9 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, getCommandId } from '../../common';
-import { TaskSource } from '../../common/types';
+import { type BPMConfig, TaskSource } from '../../common/types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
@@ -17,7 +18,26 @@ type PackageLocation = {
   folder: vscode.WorkspaceFolder;
 };
 
-const EXCLUDED_DIRS = new Set(['node_modules', 'dist', 'out', '.ignore', '.git', 'coverage', '.bpm']);
+const DEFAULT_EXCLUDED_DIRS = ['node_modules', 'dist', '.git'];
+
+export function getExcludedDirs(workspacePath: string): Set<string> {
+  const configPath = path.join(workspacePath, '.bpm', 'config.jsonc');
+  const excluded = new Set(DEFAULT_EXCLUDED_DIRS);
+
+  if (fs.existsSync(configPath)) {
+    try {
+      const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8')) as BPMConfig;
+      const customExcluded = config.settings?.excludedDirs ?? [];
+      for (const dir of customExcluded) {
+        excluded.add(dir);
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  return excluded;
+}
 
 export async function hasPackageGroups(): Promise<boolean> {
   const folders = vscode.workspace.workspaceFolders ?? [];
@@ -81,8 +101,9 @@ export async function getPackageScripts(
 async function findAllPackageJsons(folder: vscode.WorkspaceFolder): Promise<PackageLocation[]> {
   const packages: PackageLocation[] = [];
   const rootPath = folder.uri.fsPath;
+  const excludedDirs = getExcludedDirs(rootPath);
 
-  const packageJsonPaths = findPackageJsonsRecursive(rootPath);
+  const packageJsonPaths = findPackageJsonsRecursive(rootPath, excludedDirs);
 
   for (const pkgPath of packageJsonPaths) {
     const scripts = readPackageScripts(pkgPath);
@@ -108,7 +129,7 @@ async function findAllPackageJsons(folder: vscode.WorkspaceFolder): Promise<Pack
   return packages;
 }
 
-function findPackageJsonsRecursive(dir: string, maxDepth = 5, currentDepth = 0): string[] {
+function findPackageJsonsRecursive(dir: string, excludedDirs: Set<string>, maxDepth = 5, currentDepth = 0): string[] {
   if (currentDepth > maxDepth) return [];
 
   const results: string[] = [];
@@ -119,8 +140,10 @@ function findPackageJsonsRecursive(dir: string, maxDepth = 5, currentDepth = 0):
     for (const entry of entries) {
       if (entry.name === 'package.json' && entry.isFile()) {
         results.push(path.join(dir, entry.name));
-      } else if (entry.isDirectory() && !EXCLUDED_DIRS.has(entry.name) && !entry.name.startsWith('dist-')) {
-        results.push(...findPackageJsonsRecursive(path.join(dir, entry.name), maxDepth, currentDepth + 1));
+      } else if (entry.isDirectory() && !excludedDirs.has(entry.name) && !entry.name.startsWith('dist-')) {
+        results.push(
+          ...findPackageJsonsRecursive(path.join(dir, entry.name), excludedDirs, maxDepth, currentDepth + 1),
+        );
       }
     }
   } catch {
