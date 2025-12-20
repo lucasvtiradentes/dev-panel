@@ -4,7 +4,7 @@ import json5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
 import { applyFileReplacement, applyPatches, fileExists } from './file-ops';
-import { getCurrentBranch, isGitRepository, restoreFileFromGit, setAssumeUnchanged } from './git-utils';
+import { getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
 import { getIsGrouped, saveIsGrouped } from './state';
 import { type BpmConfig, OnBranchChange, type Replacement, type ReplacementState, ReplacementType } from './types';
 
@@ -291,7 +291,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       applyPatches(workspace, replacement.target, replacement.patches);
     }
 
-    await setAssumeUnchanged(workspace, replacement.target, true);
+    await setSkipWorktree(workspace, replacement.target, true);
 
     const state = loadReplacementState();
     state.activeReplacements.push(replacement.name);
@@ -303,7 +303,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     if (!workspace) return;
 
     if (await isGitRepository(workspace)) {
-      await setAssumeUnchanged(workspace, replacement.target, false);
+      await setSkipWorktree(workspace, replacement.target, false);
       await restoreFileFromGit(workspace, replacement.target);
     }
 
