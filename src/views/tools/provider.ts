@@ -215,7 +215,7 @@ export class ToolTreeDataProvider implements vscode.TreeDataProvider<TreeTool | 
       treeTool.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
       treeTool.contextValue = 'tool-hidden';
     } else if (favorite) {
-      treeTool.iconPath = new vscode.ThemeIcon('heart');
+      treeTool.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
       treeTool.contextValue = 'tool-favorite';
     }
 

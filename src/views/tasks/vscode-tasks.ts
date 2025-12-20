@@ -54,7 +54,7 @@ export async function getVSCodeTasks(
       _task.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
       _task.contextValue = 'task-hidden';
     } else if (favorite) {
-      _task.iconPath = new vscode.ThemeIcon('heart');
+      _task.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
       _task.contextValue = 'task-favorite';
     }
 

@@ -91,7 +91,7 @@ function createBPMTask(
     treeTask.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
     treeTask.contextValue = 'task-hidden';
   } else if (favorite) {
-    treeTask.iconPath = new vscode.ThemeIcon('heart');
+    treeTask.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
     treeTask.contextValue = 'task-favorite';
   }
 

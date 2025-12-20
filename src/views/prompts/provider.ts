@@ -217,7 +217,7 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
       treePrompt.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
       treePrompt.contextValue = 'prompt-hidden';
     } else if (favorite) {
-      treePrompt.iconPath = new vscode.ThemeIcon('heart');
+      treePrompt.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
       treePrompt.contextValue = 'prompt-favorite';
     }
 
