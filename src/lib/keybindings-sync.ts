@@ -1,9 +1,16 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { getPromptCommandId, getReplacementCommandId, getToolCommandId, getVariableCommandId } from '../common';
+import {
+  getPromptCommandId,
+  getReplacementCommandId,
+  getTaskCommandId,
+  getToolCommandId,
+  getVariableCommandId,
+} from '../common';
 import { getAllPromptKeybindings } from '../views/prompts/keybindings-local';
 import { getAllReplacementKeybindings } from '../views/replacements/keybindings-local';
+import { getAllTaskKeybindings } from '../views/tasks/keybindings-local';
 import { getAllKeybindings } from '../views/tools/keybindings-local';
 import { getAllVariableKeybindings } from '../views/variables/keybindings-local';
 import { getVSCodeKeybindingsPath } from './vscode-keybindings-utils';
@@ -42,6 +49,14 @@ export function syncKeybindings(): void {
   for (const [variableName, keybinding] of Object.entries(variableKeybindings)) {
     keybindingsToAdd.push({
       command: getVariableCommandId(variableName),
+      key: keybinding,
+    });
+  }
+
+  const taskKeybindings = getAllTaskKeybindings();
+  for (const [taskName, keybinding] of Object.entries(taskKeybindings)) {
+    keybindingsToAdd.push({
+      command: getTaskCommandId(taskName),
       key: keybinding,
     });
   }

@@ -2,6 +2,7 @@ import {
   CONTEXT_PREFIX,
   PROMPT_COMMAND_SUFFIX,
   REPLACEMENT_COMMAND_SUFFIX,
+  TASK_COMMAND_SUFFIX,
   TOOL_COMMAND_SUFFIX,
   VARIABLE_COMMAND_SUFFIX,
   VIEW_ID_BRANCH_CONTEXT,
@@ -23,6 +24,7 @@ export {
   DISPLAY_PREFIX,
   PROMPT_COMMAND_SUFFIX,
   REPLACEMENT_COMMAND_SUFFIX,
+  TASK_COMMAND_SUFFIX,
   TOOL_COMMAND_SUFFIX,
   TOOL_TASK_TYPE,
   VARIABLE_COMMAND_SUFFIX,
@@ -108,4 +110,14 @@ export function getVariableCommandId(variableName: string): string {
 export function getVariableCommandPrefix(): string {
   const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
   return `${prefix}.${VARIABLE_COMMAND_SUFFIX}.`;
+}
+
+export function getTaskCommandId(taskName: string): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${TASK_COMMAND_SUFFIX}.${taskName}`;
+}
+
+export function getTaskCommandPrefix(): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${TASK_COMMAND_SUFFIX}.`;
 }

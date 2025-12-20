@@ -455,6 +455,20 @@
         "command": "projectPanel.openVariablesKeybindings",
         "title": "Open Configs Keybindings",
         "icon": "$(keyboard)"
+      },
+      {
+        "command": "projectPanel.syncTaskKeybindings",
+        "title": "Project Panel: Sync Task Keybindings"
+      },
+      {
+        "command": "projectPanel.setTaskKeybinding",
+        "title": "Set Keybinding",
+        "icon": "$(keyboard)"
+      },
+      {
+        "command": "projectPanel.openTasksKeybindings",
+        "title": "Open Tasks Keybindings",
+        "icon": "$(keyboard)"
       }
     ],
     "keybindings": [
@@ -582,6 +596,11 @@
           "group": "navigation@6"
         },
         {
+          "command": "projectPanel.openTasksKeybindings",
+          "when": "view == projectPanelTasks && taskSourcePP",
+          "group": "navigation@7"
+        },
+        {
           "command": "projectPanel.toggleToolsGroupMode",
           "when": "view == projectPanelTools && !toolsGrouped",
           "group": "navigation@1"
@@ -692,6 +711,11 @@
           "command": "projectPanel.toggleHide",
           "when": "view == projectPanelTasks && viewItem =~ /^task/",
           "group": "inline@2"
+        },
+        {
+          "command": "projectPanel.setTaskKeybinding",
+          "when": "view == projectPanelTasks && viewItem =~ /^task/ && taskSourcePP",
+          "group": "inline@3"
         },
         {
           "command": "projectPanel.executeTask",

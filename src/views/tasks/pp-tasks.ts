@@ -5,6 +5,7 @@ import { Command, getCommandId } from '../../common';
 import { CONFIG_DIR_KEY, CONFIG_DIR_NAME } from '../../common/constants';
 import { type PPConfig, TaskSource } from '../../common/schemas/types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
+import { getTaskKeybinding } from './keybindings-local';
 import { isFavorite, isHidden } from './state';
 
 export function hasPPGroups(): boolean {
@@ -92,6 +93,11 @@ function createPPTask(
     },
     folder,
   );
+
+  const keybinding = getTaskKeybinding(task.name);
+  if (keybinding) {
+    treeTask.description = keybinding;
+  }
 
   if (task.description) {
     treeTask.tooltip = task.description;

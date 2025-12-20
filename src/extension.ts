@@ -4,11 +4,13 @@ import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import { Command, getCommandId } from './common';
 import {
+  CONFIG_DIR_KEY,
   CONFIG_DIR_NAME,
   GLOBAL_STATE_WORKSPACE_SOURCE,
   TOOL_TASK_TYPE,
   getPromptCommandId,
   getReplacementCommandId,
+  getTaskCommandId,
   getToolCommandId,
   getVariableCommandId,
   getViewIdBranchContext,
@@ -124,6 +126,30 @@ function registerVariableKeybindings(context: vscode.ExtensionContext): void {
   syncKeybindings();
 }
 
+function registerTaskKeybindings(context: vscode.ExtensionContext): void {
+  const folders = vscode.workspace.workspaceFolders ?? [];
+  if (!folders || folders.length === 0) return;
+
+  for (const folder of folders) {
+    const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/config.jsonc`;
+    if (!fs.existsSync(configPath)) continue;
+
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
+    const tasks = config.tasks ?? [];
+
+    for (const task of tasks) {
+      const commandId = getTaskCommandId(task.name);
+      const disposable = vscode.commands.registerCommand(commandId, () => {
+        const shellExec = new vscode.ShellExecution(task.command);
+        const vsTask = new vscode.Task({ type: CONFIG_DIR_KEY }, folder, task.name, CONFIG_DIR_KEY, shellExec);
+        void vscode.tasks.executeTask(vsTask);
+      });
+      context.subscriptions.push(disposable);
+    }
+  }
+  syncKeybindings();
+}
+
 export function activate(context: vscode.ExtensionContext): object {
   logger.clear();
   logger.info('Better Project Tools extension activated');
@@ -183,6 +209,7 @@ export function activate(context: vscode.ExtensionContext): object {
     promptTreeDataProvider.refresh();
     replacementsProvider.refresh();
     variablesProvider.refresh();
+    taskTreeDataProvider.refresh();
   });
   context.subscriptions.push(keybindingsWatcher);
 
@@ -202,6 +229,7 @@ export function activate(context: vscode.ExtensionContext): object {
   registerPromptKeybindings(context);
   registerReplacementKeybindings(context);
   registerVariableKeybindings(context);
+  registerTaskKeybindings(context);
 
   return {
     taskSource() {
