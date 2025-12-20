@@ -47,8 +47,8 @@ jobs:
       - name: Detect AI provider
         id: ai-provider
         run: |
-          PROVIDER=$(node -e "const fs=require('fs'); const c=fs.readFileSync('.tscanner/config.jsonc','utf8').replace(/\/\/.*/g,''); const j=JSON.parse(c); console.log(j.ai?.provider || 'none')")
-          echo "provider=$PROVIDER" >> $GITHUB_OUTPUT
+          PROVIDER=$(grep -o '"provider":\s*"[^"]*"' .tscanner/config.jsonc | head -1 | sed 's/.*"\([^"]*\)"$/\1/')
+          echo "provider=${PROVIDER:-none}" >> $GITHUB_OUTPUT
 
       - name: Setup Claude CLI
         if: steps.ai-provider.outputs.provider == 'claude'
