@@ -16,40 +16,10 @@ concurrency:
 jobs:
   ci:
     name: 'CI'
-    runs-on: ubuntu-latest
-    outputs:
-      should_release: ${{ steps.check.outputs.should_release }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Build
-        run: pnpm build
-        env:
-          CI: true
-
-      - name: Check if version was bumped
-        id: check
-        run: bash scripts/release/check-version-bump.sh
+    uses: ./.github/workflows/callable-ci.yml
+    with:
+      run_lint: true
+      run_build: true
 
   prepare_release:
     name: 'Prepare Release'

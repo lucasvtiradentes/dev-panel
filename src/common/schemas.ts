@@ -17,6 +17,12 @@ export enum SelectionStyle {
   Interactive = 'interactive',
 }
 
+export enum AIProvider {
+  Claude = 'claude',
+  Gemini = 'gemini',
+  CursorAgent = 'cursor-agent',
+}
+
 export const TaskSourceEnum = z.enum(['vscode', 'package', 'bpm']);
 
 const BPMScriptSchema = z
@@ -126,6 +132,10 @@ const BPMPromptSelectionSchema = z
 const BPMSettingsSchema = z
   .object({
     promptSelection: BPMPromptSelectionSchema.optional().describe('File/folder selection settings for prompts'),
+    aiProvider: z
+      .nativeEnum(AIProvider)
+      .optional()
+      .describe('AI provider to use for prompts: claude, gemini, or cursor-agent'),
   })
   .describe('Global settings for BPM behavior');
 
@@ -166,10 +176,21 @@ export const PromptsStateSchema = z.object({
   bpm: SourceStateSchema,
 });
 
+export const ConfigsStateSchema = z.object({
+  isGrouped: z.boolean(),
+});
+
+export const ReplacementsStateSchema = z.object({
+  isGrouped: z.boolean(),
+});
+
 export const BranchContextSchema = z.object({
-  objective: z.string().optional(),
+  prLink: z.string().optional(),
+  linearProject: z.string().optional(),
   linearIssue: z.string().optional(),
+  objective: z.string().optional(),
   notes: z.string().optional(),
+  todos: z.string().optional(),
 });
 
 export const BranchesStateSchema = z.record(z.string(), BranchContextSchema);
@@ -179,9 +200,14 @@ export const BPMStateSchema = z.object({
   activeReplacements: z.array(z.string()).optional(),
   lastBranch: z.string().optional(),
   environment: z.string().optional(),
+});
+
+export const WorkspaceUIStateSchema = z.object({
   tasks: TasksStateSchema.optional(),
   tools: ToolsStateSchema.optional(),
   prompts: PromptsStateSchema.optional(),
+  configs: ConfigsStateSchema.optional(),
+  replacements: ReplacementsStateSchema.optional(),
   branches: BranchesStateSchema.optional(),
 });
 
@@ -199,9 +225,12 @@ export type SourceState = z.infer<typeof SourceStateSchema>;
 export type TasksState = z.infer<typeof TasksStateSchema>;
 export type ToolsState = z.infer<typeof ToolsStateSchema>;
 export type PromptsState = z.infer<typeof PromptsStateSchema>;
+export type ConfigsState = z.infer<typeof ConfigsStateSchema>;
+export type ReplacementsState = z.infer<typeof ReplacementsStateSchema>;
 export type BranchContext = z.infer<typeof BranchContextSchema>;
 export type BranchesState = z.infer<typeof BranchesStateSchema>;
 export type BPMState = z.infer<typeof BPMStateSchema>;
+export type WorkspaceUIState = z.infer<typeof WorkspaceUIStateSchema>;
 
 export const DEFAULT_SOURCE_STATE: SourceState = {
   flatOrder: [],
@@ -226,4 +255,21 @@ export const DEFAULT_TOOLS_STATE: ToolsState = {
 export const DEFAULT_PROMPTS_STATE: PromptsState = {
   isGrouped: false,
   bpm: { ...DEFAULT_SOURCE_STATE },
+};
+
+export const DEFAULT_CONFIGS_STATE: ConfigsState = {
+  isGrouped: true,
+};
+
+export const DEFAULT_REPLACEMENTS_STATE: ReplacementsState = {
+  isGrouped: true,
+};
+
+export const DEFAULT_WORKSPACE_UI_STATE: WorkspaceUIState = {
+  tasks: DEFAULT_TASKS_STATE,
+  tools: DEFAULT_TOOLS_STATE,
+  prompts: DEFAULT_PROMPTS_STATE,
+  configs: DEFAULT_CONFIGS_STATE,
+  replacements: DEFAULT_REPLACEMENTS_STATE,
+  branches: {},
 };

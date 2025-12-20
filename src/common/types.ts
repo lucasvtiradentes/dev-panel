@@ -10,13 +10,19 @@ export {
   type BPMTool,
   type BranchContext,
   type BranchesState,
+  type ConfigsState,
   type PromptsState,
+  type ReplacementsState,
   type TasksState,
   type ToolsState,
+  type WorkspaceUIState,
+  DEFAULT_CONFIGS_STATE,
   DEFAULT_PROMPTS_STATE,
+  DEFAULT_REPLACEMENTS_STATE,
   DEFAULT_SOURCE_STATE,
   DEFAULT_TASKS_STATE,
   DEFAULT_TOOLS_STATE,
+  DEFAULT_WORKSPACE_UI_STATE,
 } from './schemas';
 
 export enum TaskSource {

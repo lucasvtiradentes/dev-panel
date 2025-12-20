@@ -98,6 +98,10 @@
         {
           "id": "betterProjectToolsBranchContext",
           "name": "Branch Context"
+        },
+        {
+          "id": "betterProjectToolsTodos",
+          "name": "Todos"
         }
       ],
       "explorer": [
@@ -114,6 +118,21 @@
         "title": "Select Config Option"
       },
       {
+        "command": "betterProjectTools.refreshConfigs",
+        "title": "Refresh Configs",
+        "icon": "$(extensions-refresh)"
+      },
+      {
+        "command": "betterProjectTools.toggleConfigsGroupMode",
+        "title": "Toggle Configs Group Mode",
+        "icon": "$(list-flat)"
+      },
+      {
+        "command": "betterProjectTools.toggleConfigsGroupModeGrouped",
+        "title": "Toggle Configs Group Mode",
+        "icon": "$(list-tree)"
+      },
+      {
         "command": "betterProjectTools.toggleReplacement",
         "title": "Toggle Replacement"
       },
@@ -121,6 +140,21 @@
         "command": "betterProjectTools.revertAllReplacements",
         "title": "Revert All Replacements",
         "icon": "$(discard)"
+      },
+      {
+        "command": "betterProjectTools.refreshReplacements",
+        "title": "Refresh Replacements",
+        "icon": "$(extensions-refresh)"
+      },
+      {
+        "command": "betterProjectTools.toggleReplacementsGroupMode",
+        "title": "Toggle Replacements Group Mode",
+        "icon": "$(list-flat)"
+      },
+      {
+        "command": "betterProjectTools.toggleReplacementsGroupModeGrouped",
+        "title": "Toggle Replacements Group Mode",
+        "icon": "$(list-tree)"
       },
       {
         "command": "betterProjectTools.executeTask",
@@ -212,6 +246,11 @@
         "title": "Execute Tool"
       },
       {
+        "command": "betterProjectTools.goToToolFile",
+        "title": "Go to Tool File",
+        "icon": "$(go-to-file)"
+      },
+      {
         "command": "betterProjectTools.refreshPrompts",
         "title": "Refresh Prompts",
         "icon": "$(extensions-refresh)"
@@ -239,6 +278,11 @@
       {
         "command": "betterProjectTools.executePrompt",
         "title": "Execute Prompt"
+      },
+      {
+        "command": "betterProjectTools.goToPromptFile",
+        "title": "Go to Prompt File",
+        "icon": "$(go-to-file)"
       },
       {
         "command": "betterProjectTools.refreshBranchContext",
@@ -287,9 +331,39 @@
     "menus": {
       "view/title": [
         {
+          "command": "betterProjectTools.toggleConfigsGroupMode",
+          "when": "view == betterProjectToolsConfigs && !configsGrouped",
+          "group": "navigation@1"
+        },
+        {
+          "command": "betterProjectTools.toggleConfigsGroupModeGrouped",
+          "when": "view == betterProjectToolsConfigs && configsGrouped",
+          "group": "navigation@1"
+        },
+        {
+          "command": "betterProjectTools.refreshConfigs",
+          "when": "view == betterProjectToolsConfigs",
+          "group": "navigation@2"
+        },
+        {
+          "command": "betterProjectTools.toggleReplacementsGroupMode",
+          "when": "view == betterProjectToolsReplacements && !replacementsGrouped",
+          "group": "navigation@1"
+        },
+        {
+          "command": "betterProjectTools.toggleReplacementsGroupModeGrouped",
+          "when": "view == betterProjectToolsReplacements && replacementsGrouped",
+          "group": "navigation@1"
+        },
+        {
           "command": "betterProjectTools.revertAllReplacements",
           "when": "view == betterProjectToolsReplacements",
-          "group": "navigation"
+          "group": "navigation@2"
+        },
+        {
+          "command": "betterProjectTools.refreshReplacements",
+          "when": "view == betterProjectToolsReplacements",
+          "group": "navigation@3"
         },
         {
           "command": "betterProjectTools.switchTaskSource",
@@ -387,6 +461,11 @@
           "group": "inline@2"
         },
         {
+          "command": "betterProjectTools.goToToolFile",
+          "when": "view == betterProjectToolsTools && viewItem == tool",
+          "group": "inline@3"
+        },
+        {
           "command": "betterProjectTools.executeTool",
           "when": "view == betterProjectToolsTools"
         },
@@ -399,6 +478,11 @@
           "command": "betterProjectTools.togglePromptHide",
           "when": "view == betterProjectToolsPrompts && viewItem == prompt",
           "group": "inline@2"
+        },
+        {
+          "command": "betterProjectTools.goToPromptFile",
+          "when": "view == betterProjectToolsPrompts && viewItem == prompt",
+          "group": "inline@3"
         },
         {
           "command": "betterProjectTools.executePrompt",

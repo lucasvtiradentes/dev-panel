@@ -179,11 +179,7 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
     }
 
     if (isFavorite(prompt.name)) {
-      treePrompt.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
-    } else if (prompt.icon) {
-      treePrompt.iconPath = new vscode.ThemeIcon(prompt.icon);
-    } else {
-      treePrompt.iconPath = new vscode.ThemeIcon('comment-discussion');
+      treePrompt.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
     }
 
     return treePrompt;

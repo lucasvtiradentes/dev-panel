@@ -4,13 +4,21 @@ import { Command } from '../../common/lib/vscode-utils';
 
 export class BranchHeaderItem extends vscode.TreeItem {
   constructor(branchName: string) {
-    super(`Branch: ${branchName}`, vscode.TreeItemCollapsibleState.None);
+    super(branchName, vscode.TreeItemCollapsibleState.None);
     this.iconPath = new vscode.ThemeIcon('git-branch');
     this.contextValue = 'branchHeader';
   }
 }
 
-type BranchContextField = 'objective' | 'linearIssue' | 'notes';
+export type BranchContextField = 'prLink' | 'linearProject' | 'linearIssue' | 'objective' | 'notes';
+
+const FIELD_CONFIG: Record<BranchContextField, { label: string; icon: string; command: Command }> = {
+  prLink: { label: 'PR Link', icon: 'git-pull-request', command: Command.EditBranchPrLink },
+  linearProject: { label: 'Linear Project', icon: 'project', command: Command.EditBranchLinearProject },
+  linearIssue: { label: 'Linear Issue', icon: 'issues', command: Command.EditBranchLinearIssue },
+  objective: { label: 'Objective', icon: 'target', command: Command.EditBranchObjective },
+  notes: { label: 'Notes', icon: 'note', command: Command.EditBranchNotes },
+};
 
 export class BranchContextFieldItem extends vscode.TreeItem {
   constructor(
@@ -18,30 +26,24 @@ export class BranchContextFieldItem extends vscode.TreeItem {
     public readonly value: string | undefined,
     private readonly branchName: string,
   ) {
-    const label = fieldKey === 'linearIssue' ? 'Linear Issue' : fieldKey.charAt(0).toUpperCase() + fieldKey.slice(1);
-    super(label, vscode.TreeItemCollapsibleState.None);
+    const config = FIELD_CONFIG[fieldKey];
+    super(config.label, vscode.TreeItemCollapsibleState.None);
 
-    this.description = value ?? '(not set)';
-    this.tooltip = value ?? `Click to set ${label.toLowerCase()}`;
+    this.description = value ? truncate(value, 50) : '(not set)';
+    this.tooltip = value ?? `Click to set ${config.label.toLowerCase()}`;
     this.contextValue = 'branchContextField';
-
-    const iconMap: Record<BranchContextField, string> = {
-      objective: 'target',
-      linearIssue: 'issues',
-      notes: 'note',
-    };
-    this.iconPath = new vscode.ThemeIcon(iconMap[fieldKey]);
-
-    const commandMap: Record<BranchContextField, Command> = {
-      objective: Command.EditBranchObjective,
-      linearIssue: Command.EditBranchLinearIssue,
-      notes: Command.EditBranchNotes,
-    };
+    this.iconPath = new vscode.ThemeIcon(config.icon);
 
     this.command = {
-      command: getCommandId(commandMap[fieldKey]),
-      title: `Edit ${label}`,
+      command: getCommandId(config.command),
+      title: `Edit ${config.label}`,
       arguments: [branchName, value],
     };
   }
+}
+
+function truncate(str: string, maxLen: number): string {
+  const firstLine = str.split('\n')[0];
+  if (firstLine.length <= maxLen) return firstLine;
+  return `${firstLine.slice(0, maxLen - 3)}...`;
 }

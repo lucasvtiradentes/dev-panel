@@ -1,6 +1,7 @@
 {
   "$schema": "../resources/schema.json",
   "settings": {
+    "aiProvider": "cursor-agent",
     "promptSelection": {
       "fileStyle": "flat",
       "folderStyle": "interactive",
@@ -71,12 +72,12 @@
       "name": "enable-debug-logs",
       "type": "patch",
       "description": "Enable debug logging in hello1 view",
-      "target": "src/views/hello1/index.ts",
+      "target": "src/extension.ts",
       "onBranchChange": "revert",
       "patches": [
         {
-          "search": "function getWorkspacePath()",
-          "replace": "// DEBUG ENABLED\nfunction getWorkspacePath()"
+          "search": "void vscode.tasks.fetchTasks();",
+          "replace": "// DEBUG ENABLED\n  void vscode.tasks.fetchTasks();"
         }
       ],
       "group": "Debug"

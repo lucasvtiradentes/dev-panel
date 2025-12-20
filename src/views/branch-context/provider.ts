@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import type { BranchContext } from '../../common/types';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
-import { BranchContextFieldItem, BranchHeaderItem } from './items';
+import { type BranchContextField, BranchContextFieldItem, BranchHeaderItem } from './items';
 import { generateBranchContextMarkdown } from './markdown-generator';
-import { loadBranchContext, updateBranchField } from './state';
+import { getBranchContextFilePath, parseBranchContextMarkdown } from './markdown-parser';
+import { loadBranchContext, saveBranchContext, updateBranchField } from './state';
 
 type GitAPI = {
   repositories: GitRepository[];
@@ -38,12 +38,15 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
   private disposables: vscode.Disposable[] = [];
   private stateWatcher: vscode.FileSystemWatcher | null = null;
+  private markdownWatcher: vscode.FileSystemWatcher | null = null;
   private pollInterval: ReturnType<typeof setInterval> | null = null;
   private currentBranch = '';
+  private isWritingMarkdown = false;
 
   constructor() {
     this.setupGitWatcher();
     this.setupStateWatcher();
+    this.setupMarkdownWatcher();
     this.setupHeadFileWatcher();
     this.setupPolling();
     this.initializeBranch();
@@ -76,8 +79,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     const branchName = repo.state.HEAD?.name;
     if (branchName && !this.currentBranch) {
       this.currentBranch = branchName;
-      this.regenerateMarkdown();
-      this.refresh();
+      this.regenerateMarkdown().then(() => this.refresh());
     }
   }
 
@@ -108,13 +110,36 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     this.stateWatcher.onDidChange(() => this.refresh());
   }
 
+  private setupMarkdownWatcher(): void {
+    const workspace = getWorkspacePath();
+    if (!workspace) return;
+
+    this.markdownWatcher = vscode.workspace.createFileSystemWatcher(
+      new vscode.RelativePattern(workspace, '.branch-context.md'),
+    );
+
+    this.markdownWatcher.onDidChange(() => this.handleMarkdownChange());
+  }
+
+  private handleMarkdownChange(): void {
+    if (this.isWritingMarkdown) return;
+
+    const parsed = parseBranchContextMarkdown();
+    if (!parsed) return;
+
+    if (parsed.branchName === this.currentBranch) {
+      saveBranchContext(this.currentBranch, parsed.context);
+      this.refresh();
+    }
+  }
+
   private async initializeBranch(): Promise<void> {
     const workspace = getWorkspacePath();
     if (!workspace) return;
 
     if (await isGitRepository(workspace)) {
       this.currentBranch = await getCurrentBranch(workspace);
-      this.regenerateMarkdown();
+      await this.regenerateMarkdown();
       this.refresh();
     }
   }
@@ -127,7 +152,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       const newBranch = await getCurrentBranch(workspace);
       if (newBranch !== this.currentBranch) {
         this.currentBranch = newBranch;
-        this.regenerateMarkdown();
+        await this.regenerateMarkdown();
         this.refresh();
       }
     } catch {
@@ -135,10 +160,17 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
   }
 
-  private regenerateMarkdown(): void {
+  private async regenerateMarkdown(): Promise<void> {
     if (!this.currentBranch) return;
     const context = loadBranchContext(this.currentBranch);
-    generateBranchContextMarkdown(this.currentBranch, context);
+    this.isWritingMarkdown = true;
+    try {
+      await generateBranchContextMarkdown(this.currentBranch, context);
+    } finally {
+      setTimeout(() => {
+        this.isWritingMarkdown = false;
+      }, 100);
+    }
   }
 
   refresh(): void {
@@ -167,27 +199,46 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
     return [
       new BranchHeaderItem(this.currentBranch),
-      new BranchContextFieldItem('objective', context.objective, this.currentBranch),
+      new BranchContextFieldItem('prLink', context.prLink, this.currentBranch),
+      new BranchContextFieldItem('linearProject', context.linearProject, this.currentBranch),
       new BranchContextFieldItem('linearIssue', context.linearIssue, this.currentBranch),
+      new BranchContextFieldItem('objective', context.objective, this.currentBranch),
       new BranchContextFieldItem('notes', context.notes, this.currentBranch),
     ];
   }
 
-  async editField(branchName: string, field: keyof BranchContext, currentValue: string | undefined): Promise<void> {
-    const label = field === 'linearIssue' ? 'Linear Issue' : field.charAt(0).toUpperCase() + field.slice(1);
+  async editField(branchName: string, field: BranchContextField, currentValue: string | undefined): Promise<void> {
+    if (field === 'objective' || field === 'notes') {
+      await this.openMarkdownFile();
+      return;
+    }
+
+    const labelMap: Record<string, string> = {
+      prLink: 'PR Link',
+      linearProject: 'Linear Project',
+      linearIssue: 'Linear Issue',
+    };
+    const label = labelMap[field] ?? field;
 
     const newValue = await vscode.window.showInputBox({
       prompt: `Enter ${label} for branch "${branchName}"`,
       value: currentValue ?? '',
-      placeHolder:
-        field === 'linearIssue' ? 'e.g., ABC-123 or https://linear.app/...' : `Enter ${label.toLowerCase()}...`,
+      placeHolder: `Enter ${label.toLowerCase()}...`,
     });
 
     if (newValue !== undefined) {
       updateBranchField(branchName, field, newValue === '' ? undefined : newValue);
-      this.regenerateMarkdown();
+      await this.regenerateMarkdown();
       this.refresh();
     }
+  }
+
+  async openMarkdownFile(): Promise<void> {
+    const filePath = getBranchContextFilePath();
+    if (!filePath) return;
+
+    const uri = vscode.Uri.file(filePath);
+    await vscode.window.showTextDocument(uri);
   }
 
   dispose(): void {
@@ -198,5 +249,6 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       d.dispose();
     }
     this.stateWatcher?.dispose();
+    this.markdownWatcher?.dispose();
   }
 }

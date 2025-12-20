@@ -9,6 +9,7 @@ export const VIEW_ID_REPLACEMENTS = 'betterProjectToolsReplacements';
 export const VIEW_ID_TOOLS = 'betterProjectToolsTools';
 export const VIEW_ID_PROMPTS = 'betterProjectToolsPrompts';
 export const VIEW_ID_BRANCH_CONTEXT = 'betterProjectToolsBranchContext';
+export const VIEW_ID_TODOS = 'betterProjectToolsTodos';
 export const DEV_SUFFIX = 'dev';
 export const LOG_BASENAME = 'better-project-tools';
 

@@ -13,11 +13,13 @@ import { join } from 'node:path';
 import {
   CONTEXT_PREFIX,
   DEV_SUFFIX,
+  EXTENSION_DISPLAY_NAME,
   EXTENSION_NAME,
   VIEW_ID_TASKS,
   addDevLabel,
   addDevSuffix,
   buildExtensionId,
+  buildLogFilename,
 } from '../../src/common/scripts-constants';
 
 const logger = console;
@@ -34,9 +36,11 @@ async function main() {
 
   await setupLocalDistDirectory();
   await copyExtensionFiles();
+  await patchExtensionCode();
   await writePackageJson();
   await copyMetaFiles();
   await copyToVSCodeExtensions();
+  await registerExtensionInEditors();
   await printSuccessMessage();
 }
 
@@ -54,6 +58,29 @@ async function copyExtensionFiles() {
   const targetDir = getLocalDistDirectory();
   copyRecursive(join(ROOT_DIR, 'out'), join(targetDir, 'out'));
   copyRecursive(join(ROOT_DIR, 'resources'), join(targetDir, 'resources'));
+}
+
+async function patchExtensionCode() {
+  const targetDir = getLocalDistDirectory();
+  const extensionJsPath = join(targetDir, 'out', 'extension.js');
+
+  const extensionJs = readFileSync(extensionJsPath, 'utf8');
+  const isDevUnminified = /var IS_DEV = false;/;
+  const logFileProd = buildLogFilename(false);
+  const logFileDev = buildLogFilename(true);
+  const logFilePattern = new RegExp(logFileProd.replace('.', '\\.'), 'g');
+  const statusBarPattern = new RegExp(`${EXTENSION_DISPLAY_NAME}:`, 'g');
+
+  let patchedExtensionJs = extensionJs;
+
+  if (isDevUnminified.test(patchedExtensionJs)) {
+    patchedExtensionJs = patchedExtensionJs.replace(isDevUnminified, 'var IS_DEV = true;');
+  } else {
+    patchedExtensionJs = patchedExtensionJs.replace(logFilePattern, logFileDev);
+    patchedExtensionJs = patchedExtensionJs.replace(statusBarPattern, `${addDevLabel(EXTENSION_DISPLAY_NAME)}:`);
+  }
+
+  writeFileSync(extensionJsPath, patchedExtensionJs);
 }
 
 async function writePackageJson() {
@@ -101,6 +128,56 @@ async function copyToVSCodeExtensions() {
     logger.log(`[VSCode] ✅ Installed to: ${installedEditors.join(', ')}`);
   }
 }
+
+async function registerExtensionInEditors() {
+  const targetDir = getLocalDistDirectory();
+  const packageJsonPath = join(targetDir, 'package.json');
+  const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+  const version = packageJson.version as string;
+
+  for (const editor of Object.values(Editor)) {
+    const extensionsPath = getEditorExtensionsPath(editor);
+    if (!existsSync(extensionsPath)) continue;
+
+    const extensionsJsonPath = join(extensionsPath, 'extensions.json');
+    if (!existsSync(extensionsJsonPath)) continue;
+
+    try {
+      const extensionsJson = JSON.parse(readFileSync(extensionsJsonPath, 'utf8')) as ExtensionEntry[];
+
+      // Remove existing entry for this extension
+      const filteredExtensions = extensionsJson.filter((ext) => ext.identifier?.id !== EXTENSION_ID_DEV);
+
+      // Add new entry
+      const newEntry: ExtensionEntry = {
+        identifier: {
+          id: EXTENSION_ID_DEV,
+        },
+        version,
+        location: {
+          $mid: 1,
+          path: join(extensionsPath, EXTENSION_ID_DEV),
+          scheme: 'file',
+        },
+        relativeLocation: EXTENSION_ID_DEV,
+      };
+
+      filteredExtensions.push(newEntry);
+
+      writeFileSync(extensionsJsonPath, JSON.stringify(filteredExtensions, null, 2));
+      logger.log(`[VSCode] ✅ Registered in ${EDITOR_DISPLAY_NAMES[editor]} extensions.json`);
+    } catch (error) {
+      logger.log(`[VSCode] ⚠️  Failed to register in ${EDITOR_DISPLAY_NAMES[editor]}: ${error}`);
+    }
+  }
+}
+
+type ExtensionEntry = {
+  identifier?: { id: string };
+  version?: string;
+  location?: { $mid: number; path: string; scheme: string };
+  relativeLocation?: string;
+};
 
 async function printSuccessMessage() {
   logger.log(`[VSCode] ✅ ID: ${EXTENSION_ID_DEV} - Reload editor to activate`);
@@ -170,6 +247,16 @@ function transformCommand(cmd: string): string {
   return cmd.replace(`${CONTEXT_PREFIX}.`, `${addDevSuffix(CONTEXT_PREFIX)}.`);
 }
 
+function transformTitle(title: string): string {
+  if (title.startsWith(`${EXTENSION_DISPLAY_NAME}:`)) {
+    return title.replace(`${EXTENSION_DISPLAY_NAME}:`, `${EXTENSION_DISPLAY_NAME} (${DEV_SUFFIX}):`);
+  }
+  if (title.startsWith(`${CONTEXT_PREFIX}:`)) {
+    return title.replace(`${CONTEXT_PREFIX}:`, `${CONTEXT_PREFIX} (${DEV_SUFFIX}):`);
+  }
+  return title;
+}
+
 function applyDevTransformations(pkg: Record<string, unknown>): Record<string, unknown> {
   const transformed = { ...pkg };
 
@@ -179,12 +266,28 @@ function applyDevTransformations(pkg: Record<string, unknown>): Record<string, u
   const contributes = transformed.contributes as Record<string, unknown>;
   if (!contributes) return transformed;
 
+  if (contributes.viewsContainers) {
+    const containers = contributes.viewsContainers as Record<string, unknown>;
+    if (containers.activitybar) {
+      containers.activitybar = (containers.activitybar as Array<{ id: string; title: string }>).map((container) => ({
+        ...container,
+        id: addDevSuffix(container.id),
+        title: addDevLabel(container.title),
+      }));
+    }
+  }
+
   if (contributes.views) {
     const views = contributes.views as Record<string, Array<{ id: string; name?: string }>>;
     const newViews: Record<string, unknown> = {};
 
+    // Standard VS Code containers that should not be transformed
+    const standardContainers = ['explorer', 'scm', 'debug', 'test', 'remote'];
+
     for (const [containerKey, viewList] of Object.entries(views)) {
-      newViews[containerKey] = viewList.map((view) => ({
+      // Only transform custom containers, not standard ones
+      const newContainerKey = standardContainers.includes(containerKey) ? containerKey : addDevSuffix(containerKey);
+      newViews[newContainerKey] = viewList.map((view) => ({
         ...view,
         id: addDevSuffix(view.id),
         name: view.name ? addDevLabel(view.name) : undefined,
@@ -192,6 +295,16 @@ function applyDevTransformations(pkg: Record<string, unknown>): Record<string, u
     }
 
     contributes.views = newViews;
+  }
+
+  if (contributes.viewsWelcome) {
+    const viewsWelcome = contributes.viewsWelcome as Array<{ view: string; contents: string; when?: string }>;
+    for (const welcome of viewsWelcome) {
+      welcome.view = addDevSuffix(welcome.view);
+      if (welcome.when) {
+        welcome.when = transformContextKey(welcome.when);
+      }
+    }
   }
 
   if (contributes.menus) {
@@ -213,6 +326,12 @@ function applyDevTransformations(pkg: Record<string, unknown>): Record<string, u
     const commands = contributes.commands as Array<{ command: string; title?: string; enablement?: string }>;
     for (const cmd of commands) {
       cmd.command = transformCommand(cmd.command);
+      if (cmd.title) {
+        cmd.title = transformTitle(cmd.title);
+      }
+      if (cmd.enablement) {
+        cmd.enablement = transformContextKey(cmd.enablement);
+      }
     }
   }
 
@@ -225,6 +344,21 @@ function applyDevTransformations(pkg: Record<string, unknown>): Record<string, u
       if (binding.command) {
         binding.command = transformCommand(binding.command);
       }
+    }
+  }
+
+  if (contributes.configuration) {
+    const configuration = contributes.configuration as { title?: string; properties?: Record<string, unknown> };
+    if (configuration.title) {
+      configuration.title = addDevLabel(configuration.title);
+    }
+    if (configuration.properties) {
+      const newProperties: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(configuration.properties)) {
+        const newKey = key.replace(`${CONTEXT_PREFIX}.`, `${addDevSuffix(CONTEXT_PREFIX)}.`);
+        newProperties[newKey] = value;
+      }
+      configuration.properties = newProperties;
     }
   }
 

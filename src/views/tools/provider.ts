@@ -149,6 +149,11 @@ export class ToolTreeDataProvider implements vscode.TreeDataProvider<TreeTool | 
     return config.tools ?? [];
   }
 
+  private extractFileFromCommand(command: string): string | null {
+    const match = command.match(/(?:bash\s+|sh\s+|\.\/)?(.+\.sh)$/);
+    return match ? match[1] : null;
+  }
+
   private createBPMTool(
     tool: NonNullable<BPMConfig['tools']>[number],
     folder: vscode.WorkspaceFolder,
@@ -158,7 +163,10 @@ export class ToolTreeDataProvider implements vscode.TreeDataProvider<TreeTool | 
     const shellExec = new vscode.ShellExecution(tool.command);
     const task = new vscode.Task({ type: 'bpm-tool' }, folder, tool.name, 'bpm-tool', shellExec);
 
-    const treeTool = new TreeTool(tool.name, vscode.TreeItemCollapsibleState.None, {
+    const relativeFile = this.extractFileFromCommand(tool.command);
+    const toolFilePath = relativeFile ? `${folder.uri.fsPath}/${relativeFile}` : '';
+
+    const treeTool = new TreeTool(tool.name, toolFilePath, vscode.TreeItemCollapsibleState.None, {
       command: getCommandId(Command.ExecuteTool),
       title: 'Execute',
       arguments: [task, folder],
@@ -169,11 +177,7 @@ export class ToolTreeDataProvider implements vscode.TreeDataProvider<TreeTool | 
     }
 
     if (isFavorite(tool.name)) {
-      treeTool.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
-    } else if (tool.icon) {
-      treeTool.iconPath = new vscode.ThemeIcon(tool.icon);
-    } else {
-      treeTool.iconPath = new vscode.ThemeIcon('tools');
+      treeTool.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
     }
 
     return treeTool;

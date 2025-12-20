@@ -5,6 +5,7 @@ import {
   VIEW_ID_PROMPTS,
   VIEW_ID_REPLACEMENTS,
   VIEW_ID_TASKS,
+  VIEW_ID_TODOS,
   VIEW_ID_TOOLS,
   addDevSuffix,
   buildLogFilename,
@@ -56,6 +57,10 @@ export function getViewIdPrompts(): string {
 
 export function getViewIdBranchContext(): string {
   return IS_DEV ? addDevSuffix(VIEW_ID_BRANCH_CONTEXT) : VIEW_ID_BRANCH_CONTEXT;
+}
+
+export function getViewIdTodos(): string {
+  return IS_DEV ? addDevSuffix(VIEW_ID_TODOS) : VIEW_ID_TODOS;
 }
 
 export function getLogFilename(): string {

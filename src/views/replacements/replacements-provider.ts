@@ -2,9 +2,10 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import json5 from 'json5';
 import * as vscode from 'vscode';
-import { Command, getCommandId } from '../../common';
-import { applyFileReplacement, applyPatches, fileExists } from './file-ops';
-import { getCurrentBranch, isGitRepository, restoreFileFromGit, setAssumeUnchanged } from './git-utils';
+import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
+import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
+import { getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
+import { getIsGrouped, saveIsGrouped } from './state';
 import { type BpmConfig, OnBranchChange, type Replacement, type ReplacementState, ReplacementType } from './types';
 
 function getWorkspacePath(): string | null {
@@ -51,7 +52,6 @@ class ReplacementGroupTreeItem extends vscode.TreeItem {
     public readonly replacements: Replacement[],
   ) {
     super(groupName, vscode.TreeItemCollapsibleState.Expanded);
-    this.iconPath = new vscode.ThemeIcon('folder');
     this.contextValue = 'replacementGroup';
   }
 }
@@ -67,10 +67,9 @@ class ReplacementTreeItem extends vscode.TreeItem {
     this.tooltip = replacement.description || replacement.name;
     this.contextValue = 'replacementItem';
 
-    const iconName = replacement.type === ReplacementType.File ? 'file-symlink-file' : 'find-replace';
-    this.iconPath = isActive
-      ? new vscode.ThemeIcon(iconName, new vscode.ThemeColor('charts.green'))
-      : new vscode.ThemeIcon(iconName);
+    if (isActive) {
+      this.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
+    }
 
     this.command = {
       command: getCommandId(Command.ToggleReplacement),
@@ -88,12 +87,26 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
 
   private configWatcher: vscode.FileSystemWatcher | null = null;
   private gitHeadWatcher: vscode.FileSystemWatcher | null = null;
+  private _grouped: boolean;
 
   constructor() {
     providerInstance = this;
+    this._grouped = getIsGrouped();
+    this.updateContextKeys();
     this.setupFileWatcher();
     this.setupBranchWatcher();
     this.handleStartup();
+  }
+
+  private updateContextKeys(): void {
+    void setContextKey(ContextKey.ReplacementsGrouped, this._grouped);
+  }
+
+  toggleGroupMode(): void {
+    this._grouped = !this._grouped;
+    saveIsGrouped(this._grouped);
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire(undefined);
   }
 
   private setupFileWatcher(): void {
@@ -101,7 +114,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     if (!workspace) return;
 
     this.configWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, '.bpm/{config.jsonc,state.json}'),
+      new vscode.RelativePattern(workspace, '.bpm/config.jsonc'),
     );
 
     this.configWatcher.onDidChange(() => this.refresh());
@@ -119,14 +132,6 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
   }
 
   private async handleStartup(): Promise<void> {
-    const state = loadReplacementState();
-    if (state.activeReplacements.length > 0) {
-      await this.revertAllReplacements();
-      vscode.window.showInformationMessage(
-        `BPM: Reverted ${state.activeReplacements.length} replacement(s) on startup`,
-      );
-    }
-
     const workspace = getWorkspacePath();
     if (workspace && (await isGitRepository(workspace))) {
       const currentBranch = await getCurrentBranch(workspace);
@@ -134,6 +139,26 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       newState.lastBranch = currentBranch;
       saveReplacementState(newState);
     }
+    this.syncReplacementState();
+  }
+
+  private syncReplacementState(): void {
+    const workspace = getWorkspacePath();
+    if (!workspace) return;
+
+    const config = this.loadConfig();
+    if (!config?.replacements) return;
+
+    const activeReplacements: string[] = [];
+    for (const replacement of config.replacements) {
+      if (isReplacementActive(workspace, replacement)) {
+        activeReplacements.push(replacement.name);
+      }
+    }
+
+    const state = loadReplacementState();
+    state.activeReplacements = activeReplacements;
+    saveReplacementState(state);
   }
 
   private async handleBranchChange(): Promise<void> {
@@ -169,6 +194,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
 
     state.lastBranch = currentBranch;
     saveReplacementState(state);
+    this.syncReplacementState();
   }
 
   dispose(): void {
@@ -177,6 +203,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
   }
 
   refresh(): void {
+    this.syncReplacementState();
     this._onDidChangeTreeData.fire(undefined);
   }
 
@@ -195,6 +222,12 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     if (element instanceof ReplacementGroupTreeItem) {
       return Promise.resolve(
         element.replacements.map((r) => new ReplacementTreeItem(r, state.activeReplacements.includes(r.name))),
+      );
+    }
+
+    if (!this._grouped) {
+      return Promise.resolve(
+        config.replacements.map((r) => new ReplacementTreeItem(r, state.activeReplacements.includes(r.name))),
       );
     }
 
@@ -266,13 +299,13 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       return;
     }
 
+    await setSkipWorktree(workspace, replacement.target, true);
+
     if (replacement.type === ReplacementType.File) {
       applyFileReplacement(workspace, replacement.source, replacement.target);
     } else {
       applyPatches(workspace, replacement.target, replacement.patches);
     }
-
-    await setAssumeUnchanged(workspace, replacement.target, true);
 
     const state = loadReplacementState();
     state.activeReplacements.push(replacement.name);
@@ -284,7 +317,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     if (!workspace) return;
 
     if (await isGitRepository(workspace)) {
-      await setAssumeUnchanged(workspace, replacement.target, false);
+      await setSkipWorktree(workspace, replacement.target, false);
       await restoreFileFromGit(workspace, replacement.target);
     }
 

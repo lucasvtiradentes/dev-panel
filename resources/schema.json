@@ -47,6 +47,15 @@
             }
           },
           "additionalProperties": false
+        },
+        "aiProvider": {
+          "description": "AI provider to use for prompts: claude, gemini, or cursor-agent",
+          "type": "string",
+          "enum": [
+            "claude",
+            "gemini",
+            "cursor-agent"
+          ]
         }
       },
       "additionalProperties": false
