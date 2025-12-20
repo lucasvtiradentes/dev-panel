@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
-import { Command, getCommandId } from './common';
+import { Command, ContextKey, generateWorkspaceId, getCommandId, setContextKey, setWorkspaceId } from './common';
 import {
   CONFIG_DIR_KEY,
   CONFIG_DIR_NAME,
@@ -154,6 +154,12 @@ export function activate(context: vscode.ExtensionContext): object {
   logger.clear();
   logger.info('Better Project Tools extension activated');
   initWorkspaceState(context);
+
+  const workspaceId = generateWorkspaceId();
+  setWorkspaceId(workspaceId);
+  void setContextKey(ContextKey.WorkspaceId, workspaceId);
+  logger.info(`Workspace ID: ${workspaceId}`);
+
   const taskTreeDataProvider = new TaskTreeDataProvider(context);
   const variablesProvider = new VariablesProvider();
   const replacementsProvider = new ReplacementsProvider();

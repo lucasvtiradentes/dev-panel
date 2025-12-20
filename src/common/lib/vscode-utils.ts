@@ -141,8 +141,33 @@ export enum ContextKey {
   PromptsShowOnlyFavorites = 'promptsShowOnlyFavorites',
   ReplacementsGrouped = 'replacementsGrouped',
   ConfigsGrouped = 'configsGrouped',
+  WorkspaceId = 'projectPanel.workspaceId',
 }
 
-export function setContextKey(key: ContextKey, value: boolean): Thenable<unknown> {
+export function setContextKey(key: ContextKey, value: boolean | string): Thenable<unknown> {
   return vscode.commands.executeCommand('setContext', key, value);
+}
+
+export function generateWorkspaceId(): string {
+  const folders = vscode.workspace.workspaceFolders ?? [];
+  if (folders.length === 0) return '';
+  const paths = folders
+    .map((f) => f.uri.fsPath)
+    .sort()
+    .join('|');
+  let hash = 0;
+  for (let i = 0; i < paths.length; i++) {
+    const char = paths.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash).toString(36);
+}
+
+let currentWorkspaceId = '';
+export function getWorkspaceId(): string {
+  return currentWorkspaceId;
+}
+export function setWorkspaceId(id: string): void {
+  currentWorkspaceId = id;
 }
