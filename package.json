@@ -98,6 +98,10 @@
         {
           "id": "betterProjectToolsBranchContext",
           "name": "Branch Context"
+        },
+        {
+          "id": "betterProjectToolsTodos",
+          "name": "Todos"
         }
       ],
       "explorer": [

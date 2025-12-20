@@ -3,6 +3,7 @@ import { Command, registerCommand } from '../common';
 import type { BranchContextProvider } from '../views/branch-context';
 import type { PromptTreeDataProvider } from '../views/prompts';
 import type { TaskTreeDataProvider } from '../views/tasks';
+import type { TodosProvider } from '../views/todos';
 import type { ToolTreeDataProvider } from '../views/tools';
 import {
   createBackCmdlineCommand,
@@ -29,6 +30,7 @@ export function registerAllCommands(
   toolTreeDataProvider: ToolTreeDataProvider,
   promptTreeDataProvider: PromptTreeDataProvider,
   branchContextProvider: BranchContextProvider,
+  todosProvider: TodosProvider,
 ): vscode.Disposable[] {
   return [
     createRefreshCommand(taskTreeDataProvider),
@@ -59,15 +61,24 @@ export function registerAllCommands(
     registerCommand(Command.TogglePromptHide, (item) => promptTreeDataProvider.toggleHide(item)),
     createExecutePromptCommand(),
     registerCommand(Command.RefreshBranchContext, () => branchContextProvider.refresh()),
-    registerCommand(Command.EditBranchObjective, (branchName: string, value?: string) =>
-      branchContextProvider.editField(branchName, 'objective', value),
+    registerCommand(Command.EditBranchPrLink, (branchName: string, value?: string) =>
+      branchContextProvider.editField(branchName, 'prLink', value),
+    ),
+    registerCommand(Command.EditBranchLinearProject, (branchName: string, value?: string) =>
+      branchContextProvider.editField(branchName, 'linearProject', value),
     ),
     registerCommand(Command.EditBranchLinearIssue, (branchName: string, value?: string) =>
       branchContextProvider.editField(branchName, 'linearIssue', value),
     ),
+    registerCommand(Command.EditBranchObjective, (branchName: string, value?: string) =>
+      branchContextProvider.editField(branchName, 'objective', value),
+    ),
     registerCommand(Command.EditBranchNotes, (branchName: string, value?: string) =>
       branchContextProvider.editField(branchName, 'notes', value),
     ),
+    registerCommand(Command.EditBranchTodos, () => branchContextProvider.openMarkdownFile()),
+    registerCommand(Command.OpenBranchContextFile, () => branchContextProvider.openMarkdownFile()),
+    registerCommand(Command.ToggleTodo, (lineIndex: number) => todosProvider.toggleTodo(lineIndex)),
     createShowLogsCommand(),
   ];
 }

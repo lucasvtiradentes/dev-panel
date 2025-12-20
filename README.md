@@ -20,6 +20,8 @@ s
 
 - adicionar botao de ir direto para o prompt/tool/script 
 
+- ter um claude.md proprio da extensao onde vamos falar dos arquivos importantes api/cicd é onde ta a infra etc
+
 - remover botao de refresh da maioria das views
 
 - adicionar o link do pr ali no branch context 

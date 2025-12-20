@@ -7,6 +7,7 @@ import {
   getViewIdPrompts,
   getViewIdReplacements,
   getViewIdTasks,
+  getViewIdTodos,
   getViewIdTools,
 } from './common/constants';
 import { logger } from './common/lib/logger';
@@ -15,6 +16,7 @@ import { ConfigsProvider } from './views/configs';
 import { PromptTreeDataProvider } from './views/prompts';
 import { ReplacementsProvider } from './views/replacements';
 import { TaskTreeDataProvider } from './views/tasks';
+import { TodosProvider } from './views/todos';
 import { ToolTreeDataProvider } from './views/tools';
 import { createConfigWatcher } from './watchers/config-watcher';
 import { createStateWatcher } from './watchers/state-watcher';
@@ -28,6 +30,7 @@ export function activate(context: vscode.ExtensionContext): object {
   const toolTreeDataProvider = new ToolTreeDataProvider();
   const promptTreeDataProvider = new PromptTreeDataProvider();
   const branchContextProvider = new BranchContextProvider();
+  const todosProvider = new TodosProvider();
 
   void vscode.tasks.fetchTasks();
 
@@ -52,12 +55,14 @@ export function activate(context: vscode.ExtensionContext): object {
   vscode.window.registerTreeDataProvider(getViewIdConfigs(), configsProvider);
   vscode.window.registerTreeDataProvider(getViewIdReplacements(), replacementsProvider);
   vscode.window.registerTreeDataProvider(getViewIdBranchContext(), branchContextProvider);
+  vscode.window.registerTreeDataProvider(getViewIdTodos(), todosProvider);
 
   context.subscriptions.push({ dispose: () => configsProvider.dispose() });
   context.subscriptions.push({ dispose: () => replacementsProvider.dispose() });
   context.subscriptions.push({ dispose: () => toolTreeDataProvider.dispose() });
   context.subscriptions.push({ dispose: () => promptTreeDataProvider.dispose() });
   context.subscriptions.push({ dispose: () => branchContextProvider.dispose() });
+  context.subscriptions.push({ dispose: () => todosProvider.dispose() });
 
   const stateWatcher = createStateWatcher(() => {
     taskTreeDataProvider.refresh();
@@ -82,6 +87,7 @@ export function activate(context: vscode.ExtensionContext): object {
     toolTreeDataProvider,
     promptTreeDataProvider,
     branchContextProvider,
+    todosProvider,
   );
   context.subscriptions.push(...commandDisposables);
 

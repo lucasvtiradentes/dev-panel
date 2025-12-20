@@ -32,9 +32,14 @@ export enum Command {
   TogglePromptHide = 'togglePromptHide',
   ExecutePrompt = 'executePrompt',
   RefreshBranchContext = 'refreshBranchContext',
-  EditBranchObjective = 'editBranchObjective',
+  EditBranchPrLink = 'editBranchPrLink',
+  EditBranchLinearProject = 'editBranchLinearProject',
   EditBranchLinearIssue = 'editBranchLinearIssue',
+  EditBranchObjective = 'editBranchObjective',
   EditBranchNotes = 'editBranchNotes',
+  EditBranchTodos = 'editBranchTodos',
+  OpenBranchContextFile = 'openBranchContextFile',
+  ToggleTodo = 'toggleTodo',
   ShowLogs = 'showLogs',
 }
 

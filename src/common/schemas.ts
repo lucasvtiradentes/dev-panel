@@ -167,9 +167,12 @@ export const PromptsStateSchema = z.object({
 });
 
 export const BranchContextSchema = z.object({
-  objective: z.string().optional(),
+  prLink: z.string().optional(),
+  linearProject: z.string().optional(),
   linearIssue: z.string().optional(),
+  objective: z.string().optional(),
   notes: z.string().optional(),
+  todos: z.string().optional(),
 });
 
 export const BranchesStateSchema = z.record(z.string(), BranchContextSchema);

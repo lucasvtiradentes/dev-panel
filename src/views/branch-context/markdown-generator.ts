@@ -21,29 +21,37 @@ function addToGitExclude(workspace: string, pattern: string): void {
   fs.writeFileSync(excludePath, newContent);
 }
 
+const DEFAULT_TODOS = `- [ ] task1
+- [ ] task2`;
+
+const NA = 'N/A';
+
 export async function generateBranchContextMarkdown(branchName: string, context: BranchContext): Promise<void> {
   const workspace = getWorkspacePath();
   if (!workspace) return;
 
   const mdPath = path.join(workspace, BRANCH_CONTEXT_FILE);
 
-  const lines: string[] = [`# Branch Context: ${branchName}`, ''];
-
-  if (context.objective) {
-    lines.push('## Objective', '', context.objective, '');
-  }
-
-  if (context.linearIssue) {
-    lines.push('## Linear Issue', '', context.linearIssue, '');
-  }
-
-  if (context.notes) {
-    lines.push('## Notes', '', context.notes, '');
-  }
-
-  if (!context.objective && !context.linearIssue && !context.notes) {
-    lines.push('*No context set for this branch.*', '');
-  }
+  const lines: string[] = [
+    `# ${branchName}`,
+    '',
+    `PR LINK: ${context.prLink || NA}`,
+    `LINEAR PROJECT: ${context.linearProject || NA}`,
+    `LINEAR ISSUE: ${context.linearIssue || NA}`,
+    '',
+    '# OBJECTIVE',
+    '',
+    context.objective || NA,
+    '',
+    '# NOTES',
+    '',
+    context.notes || NA,
+    '',
+    '# TODO',
+    '',
+    context.todos || DEFAULT_TODOS,
+    '',
+  ];
 
   fs.writeFileSync(mdPath, lines.join('\n'));
 
