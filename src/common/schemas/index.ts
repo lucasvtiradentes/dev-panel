@@ -10,9 +10,6 @@ export {
   SelectionStyle,
 } from './config-schema';
 
-// State schema exports (for .pp/state.json)
-export { PPStateSchema } from './state-schema';
-
 // VSCode workspace schema exports (for VSCode workspace state)
 export {
   type BranchContext,
