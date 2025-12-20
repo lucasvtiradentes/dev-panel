@@ -25,6 +25,7 @@ import { createToggleReplacementCommand } from './internal/toggle-replacement';
 import { createGoToTaskCommand } from './public/go-to-task';
 import { createOpenTasksConfigCommand } from './public/open-tasks-config';
 import { createRefreshCommand, createRefreshPromptsCommand, createRefreshToolsCommand } from './public/refresh';
+import { createOpenPromptsKeybindingsCommand, createSetPromptKeybindingCommand } from './public/set-prompt-keybinding';
 import { createOpenToolsKeybindingsCommand, createSetToolKeybindingCommand } from './public/set-tool-keybinding';
 import { createShowLogsCommand } from './public/show-logs';
 import { createSwitchTaskSourceCommands } from './public/switch-task-source';
@@ -124,5 +125,8 @@ export function registerAllCommands(
     registerCommand(Command.SyncToolKeybindings, () => syncKeybindings()),
     createSetToolKeybindingCommand(),
     createOpenToolsKeybindingsCommand(),
+    registerCommand(Command.SyncPromptKeybindings, () => syncKeybindings()),
+    createSetPromptKeybindingCommand(),
+    createOpenPromptsKeybindingsCommand(),
   ];
 }

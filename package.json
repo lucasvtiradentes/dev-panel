@@ -413,6 +413,20 @@
         "command": "projectPanel.openToolsKeybindings",
         "title": "Open Tools Keybindings",
         "icon": "$(keyboard)"
+      },
+      {
+        "command": "projectPanel.syncPromptKeybindings",
+        "title": "Project Panel: Sync Prompt Keybindings"
+      },
+      {
+        "command": "projectPanel.setPromptKeybinding",
+        "title": "Set Keybinding",
+        "icon": "$(keyboard)"
+      },
+      {
+        "command": "projectPanel.openPromptsKeybindings",
+        "title": "Open Prompts Keybindings",
+        "icon": "$(keyboard)"
       }
     ],
     "keybindings": [
@@ -605,6 +619,11 @@
           "group": "navigation@4"
         },
         {
+          "command": "projectPanel.openPromptsKeybindings",
+          "when": "view == projectPanelPrompts",
+          "group": "navigation@5"
+        },
+        {
           "command": "projectPanel.openBranchContextFile",
           "when": "view == projectPanelBranchContext",
           "group": "navigation@1"
@@ -689,9 +708,14 @@
           "group": "inline@2"
         },
         {
-          "command": "projectPanel.goToPromptFile",
+          "command": "projectPanel.setPromptKeybinding",
           "when": "view == projectPanelPrompts && viewItem =~ /^prompt/",
           "group": "inline@3"
+        },
+        {
+          "command": "projectPanel.goToPromptFile",
+          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/",
+          "group": "inline@4"
         },
         {
           "command": "projectPanel.executePrompt",

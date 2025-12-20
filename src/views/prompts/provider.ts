@@ -6,6 +6,7 @@ import { CONFIG_DIR_NAME } from '../../common/constants';
 import type { PPConfig } from '../../common/schemas/types';
 import { PromptDragAndDropController } from './dnd-controller';
 import { PromptGroupTreeItem, TreePrompt } from './items';
+import { getPromptKeybinding } from './keybindings-local';
 import {
   getFavoriteItems,
   getHiddenItems,
@@ -209,6 +210,12 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
       title: 'Execute',
       arguments: [promptFilePath, folder, prompt],
     });
+
+    const keybinding = getPromptKeybinding(prompt.name);
+
+    if (keybinding) {
+      treePrompt.description = keybinding;
+    }
 
     if (prompt.description) {
       treePrompt.tooltip = prompt.description;

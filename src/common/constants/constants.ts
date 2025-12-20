@@ -1,5 +1,6 @@
 import {
   CONTEXT_PREFIX,
+  PROMPT_COMMAND_SUFFIX,
   TOOL_COMMAND_SUFFIX,
   VIEW_ID_BRANCH_CONTEXT,
   VIEW_ID_CONFIGS,
@@ -18,6 +19,7 @@ export {
   CONFIG_DIR_NAME,
   DEV_SUFFIX,
   DISPLAY_PREFIX,
+  PROMPT_COMMAND_SUFFIX,
   TOOL_COMMAND_SUFFIX,
   TOOL_TASK_TYPE,
 } from './scripts-constants';
@@ -72,4 +74,14 @@ export function getToolCommandId(toolName: string): string {
 export function getToolCommandPrefix(): string {
   const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
   return `${prefix}.${TOOL_COMMAND_SUFFIX}.`;
+}
+
+export function getPromptCommandId(promptName: string): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${PROMPT_COMMAND_SUFFIX}.${promptName}`;
+}
+
+export function getPromptCommandPrefix(): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${PROMPT_COMMAND_SUFFIX}.`;
 }

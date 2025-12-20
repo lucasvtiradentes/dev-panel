@@ -18,6 +18,7 @@ export const DEV_SUFFIX = 'dev';
 export const LOG_BASENAME = 'project-panel';
 export const TOOL_COMMAND_SUFFIX = 'tool';
 export const TOOL_TASK_TYPE = 'projectPanel-tool';
+export const PROMPT_COMMAND_SUFFIX = 'prompt';
 
 export function addDevSuffix(str: string): string {
   return `${str}${DEV_SUFFIX}`;
