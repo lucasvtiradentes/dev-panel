@@ -67,7 +67,7 @@ export function getBranchContextFilePath(): string | null {
   return path.join(workspace, BRANCH_CONTEXT_FILE);
 }
 
-export function getSectionLineNumber(sectionName: string): number {
+export function getFieldLineNumber(fieldName: string): number {
   const workspace = getWorkspacePath();
   if (!workspace) return 0;
 
@@ -78,8 +78,11 @@ export function getSectionLineNumber(sectionName: string): number {
   const lines = content.split('\n');
 
   for (let i = 0; i < lines.length; i++) {
-    if (lines[i].match(new RegExp(`^#\\s+${sectionName}\\s*$`, 'i'))) {
+    if (lines[i].match(new RegExp(`^#\\s+${fieldName}\\s*$`, 'i'))) {
       return i + 2;
+    }
+    if (lines[i].match(new RegExp(`^${fieldName}:`, 'i'))) {
+      return i;
     }
   }
 

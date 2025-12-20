@@ -101,7 +101,7 @@
         },
         {
           "id": "betterProjectToolsTodos",
-          "name": "Todos"
+          "name": "Branch Todos"
         }
       ],
       "explorer": [
@@ -382,6 +382,11 @@
         "title": "Edit Branch Notes"
       },
       {
+        "command": "betterProjectTools.editBranchTodos",
+        "title": "Edit Branch Todos",
+        "icon": "$(go-to-file)"
+      },
+      {
         "command": "betterProjectTools.showLogs",
         "title": "BPM: Show Logs"
       }
@@ -574,6 +579,11 @@
           "command": "betterProjectTools.refreshBranchContext",
           "when": "view == betterProjectToolsBranchContext",
           "group": "navigation@2"
+        },
+        {
+          "command": "betterProjectTools.editBranchTodos",
+          "when": "view == betterProjectToolsTodos",
+          "group": "navigation"
         }
       ],
       "view/item/context": [

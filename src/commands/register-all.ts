@@ -112,7 +112,7 @@ export function registerAllCommands(
     registerCommand(Command.EditBranchNotes, (branchName: string, value?: string) =>
       branchContextProvider.editField(branchName, BranchContextField.Notes, value),
     ),
-    registerCommand(Command.EditBranchTodos, () => branchContextProvider.openMarkdownFile()),
+    registerCommand(Command.EditBranchTodos, () => branchContextProvider.openMarkdownFileAtLine('TODO')),
     registerCommand(Command.OpenBranchContextFile, () => branchContextProvider.openMarkdownFile()),
     registerCommand(Command.ToggleTodo, (lineIndex: number) => todosProvider.toggleTodo(lineIndex)),
     createShowLogsCommand(),
