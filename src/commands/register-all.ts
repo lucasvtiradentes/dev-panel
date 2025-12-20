@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { Command, registerCommand } from '../common';
-import type { BranchContextProvider } from '../views/branch-context';
+import { BranchContextField, type BranchContextProvider } from '../views/branch-context';
 import type { ConfigsProvider } from '../views/configs';
 import type { PromptTreeDataProvider, TreePrompt } from '../views/prompts';
 import type { ReplacementsProvider } from '../views/replacements';
@@ -101,19 +101,16 @@ export function registerAllCommands(
     }),
     registerCommand(Command.RefreshBranchContext, () => branchContextProvider.refresh()),
     registerCommand(Command.EditBranchPrLink, (branchName: string, value?: string) =>
-      branchContextProvider.editField(branchName, 'prLink', value),
+      branchContextProvider.editField(branchName, BranchContextField.PrLink, value),
     ),
-    registerCommand(Command.EditBranchLinearProject, (branchName: string, value?: string) =>
-      branchContextProvider.editField(branchName, 'linearProject', value),
-    ),
-    registerCommand(Command.EditBranchLinearIssue, (branchName: string, value?: string) =>
-      branchContextProvider.editField(branchName, 'linearIssue', value),
+    registerCommand(Command.EditBranchLinearLink, (branchName: string, value?: string) =>
+      branchContextProvider.editField(branchName, BranchContextField.LinearLink, value),
     ),
     registerCommand(Command.EditBranchObjective, (branchName: string, value?: string) =>
-      branchContextProvider.editField(branchName, 'objective', value),
+      branchContextProvider.editField(branchName, BranchContextField.Objective, value),
     ),
     registerCommand(Command.EditBranchNotes, (branchName: string, value?: string) =>
-      branchContextProvider.editField(branchName, 'notes', value),
+      branchContextProvider.editField(branchName, BranchContextField.Notes, value),
     ),
     registerCommand(Command.EditBranchTodos, () => branchContextProvider.openMarkdownFile()),
     registerCommand(Command.OpenBranchContextFile, () => branchContextProvider.openMarkdownFile()),

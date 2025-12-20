@@ -365,12 +365,17 @@
         "icon": "$(extensions-refresh)"
       },
       {
+        "command": "betterProjectTools.openBranchContextFile",
+        "title": "Open Branch Context File",
+        "icon": "$(go-to-file)"
+      },
+      {
         "command": "betterProjectTools.editBranchObjective",
         "title": "Edit Branch Objective"
       },
       {
-        "command": "betterProjectTools.editBranchLinearIssue",
-        "title": "Edit Branch Linear Issue"
+        "command": "betterProjectTools.editBranchLinearLink",
+        "title": "Edit Branch Linear Link"
       },
       {
         "command": "betterProjectTools.editBranchNotes",
@@ -561,9 +566,14 @@
           "group": "navigation@4"
         },
         {
+          "command": "betterProjectTools.openBranchContextFile",
+          "when": "view == betterProjectToolsBranchContext",
+          "group": "navigation@1"
+        },
+        {
           "command": "betterProjectTools.refreshBranchContext",
           "when": "view == betterProjectToolsBranchContext",
-          "group": "navigation"
+          "group": "navigation@2"
         }
       ],
       "view/item/context": [

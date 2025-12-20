@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
-import { type BranchContextField, BranchContextFieldItem, BranchHeaderItem } from './items';
+import { BranchContextField, BranchContextFieldItem, BranchHeaderItem } from './items';
 import { generateBranchContextMarkdown } from './markdown-generator';
-import { getBranchContextFilePath, parseBranchContextMarkdown } from './markdown-parser';
+import { getBranchContextFilePath, getSectionLineNumber, parseBranchContextMarkdown } from './markdown-parser';
 import { loadBranchContext, saveBranchContext, updateBranchField } from './state';
 
 type GitAPI = {
@@ -199,29 +199,30 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
     return [
       new BranchHeaderItem(this.currentBranch),
-      new BranchContextFieldItem('prLink', context.prLink, this.currentBranch),
-      new BranchContextFieldItem('linearProject', context.linearProject, this.currentBranch),
-      new BranchContextFieldItem('linearIssue', context.linearIssue, this.currentBranch),
-      new BranchContextFieldItem('objective', context.objective, this.currentBranch),
-      new BranchContextFieldItem('notes', context.notes, this.currentBranch),
+      new BranchContextFieldItem(BranchContextField.PrLink, context.prLink, this.currentBranch),
+      new BranchContextFieldItem(BranchContextField.LinearLink, context.linearLink, this.currentBranch),
+      new BranchContextFieldItem(BranchContextField.Objective, context.objective, this.currentBranch),
+      new BranchContextFieldItem(BranchContextField.Notes, context.notes, this.currentBranch),
     ];
   }
 
   async editField(branchName: string, field: BranchContextField, currentValue: string | undefined): Promise<void> {
-    if (field === 'objective' || field === 'notes') {
-      await this.openMarkdownFile();
+    if (field === BranchContextField.Objective || field === BranchContextField.Notes) {
+      const sectionName = field === BranchContextField.Objective ? 'OBJECTIVE' : 'NOTES';
+      await this.openMarkdownFileAtSection(sectionName);
       return;
     }
 
-    const labelMap: Record<string, string> = {
-      prLink: 'PR Link',
-      linearProject: 'Linear Project',
-      linearIssue: 'Linear Issue',
+    const labelMap: Record<BranchContextField, string> = {
+      [BranchContextField.PrLink]: 'PR Link',
+      [BranchContextField.LinearLink]: 'Linear Link',
+      [BranchContextField.Objective]: 'Objective',
+      [BranchContextField.Notes]: 'Notes',
     };
-    const label = labelMap[field] ?? field;
+    const label = labelMap[field];
 
     const newValue = await vscode.window.showInputBox({
-      prompt: `Enter ${label} for branch "${branchName}"`,
+      prompt: `Enter ${label}`,
       value: currentValue ?? '',
       placeHolder: `Enter ${label.toLowerCase()}...`,
     });
@@ -239,6 +240,18 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
     const uri = vscode.Uri.file(filePath);
     await vscode.window.showTextDocument(uri);
+  }
+
+  async openMarkdownFileAtSection(sectionName: string): Promise<void> {
+    const filePath = getBranchContextFilePath();
+    if (!filePath) return;
+
+    const lineNumber = getSectionLineNumber(sectionName);
+    const uri = vscode.Uri.file(filePath);
+    const doc = await vscode.workspace.openTextDocument(uri);
+    await vscode.window.showTextDocument(doc, {
+      selection: new vscode.Range(lineNumber, 0, lineNumber, 0),
+    });
   }
 
   dispose(): void {

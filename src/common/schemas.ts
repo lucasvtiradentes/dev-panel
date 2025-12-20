@@ -192,8 +192,7 @@ export const ReplacementsStateSchema = z.object({
 
 export const BranchContextSchema = z.object({
   prLink: z.string().optional(),
-  linearProject: z.string().optional(),
-  linearIssue: z.string().optional(),
+  linearLink: z.string().optional(),
   objective: z.string().optional(),
   notes: z.string().optional(),
   todos: z.string().optional(),
