@@ -74,6 +74,9 @@ export enum Command {
   SyncReplacementKeybindings = 'syncReplacementKeybindings',
   SetReplacementKeybinding = 'setReplacementKeybinding',
   OpenReplacementsKeybindings = 'openReplacementsKeybindings',
+  SyncVariableKeybindings = 'syncVariableKeybindings',
+  SetVariableKeybinding = 'setVariableKeybinding',
+  OpenVariablesKeybindings = 'openVariablesKeybindings',
 }
 
 export function registerCommand(command: Command, callback: (...args: any[]) => any): vscode.Disposable {

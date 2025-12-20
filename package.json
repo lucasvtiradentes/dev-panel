@@ -81,7 +81,7 @@
       "projectPanel": [
         {
           "id": "projectPanelConfigs",
-          "name": "Configs"
+          "name": "Variables"
         },
         {
           "id": "projectPanelReplacements",
@@ -441,6 +441,20 @@
         "command": "projectPanel.openReplacementsKeybindings",
         "title": "Open Replacements Keybindings",
         "icon": "$(keyboard)"
+      },
+      {
+        "command": "projectPanel.syncVariableKeybindings",
+        "title": "Project Panel: Sync Variable Keybindings"
+      },
+      {
+        "command": "projectPanel.setVariableKeybinding",
+        "title": "Set Keybinding",
+        "icon": "$(keyboard)"
+      },
+      {
+        "command": "projectPanel.openVariablesKeybindings",
+        "title": "Open Configs Keybindings",
+        "icon": "$(keyboard)"
       }
     ],
     "keybindings": [
@@ -481,6 +495,11 @@
           "command": "projectPanel.refreshConfigs",
           "when": "view == projectPanelConfigs",
           "group": "navigation@2"
+        },
+        {
+          "command": "projectPanel.openVariablesKeybindings",
+          "when": "view == projectPanelConfigs",
+          "group": "navigation@3"
         },
         {
           "command": "projectPanel.toggleReplacementsGroupMode",
@@ -746,9 +765,14 @@
           "when": "view == projectPanelPrompts"
         },
         {
+          "command": "projectPanel.setVariableKeybinding",
+          "when": "view == projectPanelConfigs && viewItem == variableItem",
+          "group": "inline@1"
+        },
+        {
           "command": "projectPanel.resetConfigOption",
-          "when": "view == projectPanelConfigs && viewItem == configItem",
-          "group": "inline"
+          "when": "view == projectPanelConfigs && viewItem == variableItem",
+          "group": "inline@2"
         }
       ]
     },

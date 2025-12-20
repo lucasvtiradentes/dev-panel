@@ -31,6 +31,10 @@ import {
   createSetReplacementKeybindingCommand,
 } from './public/set-replacement-keybinding';
 import { createOpenToolsKeybindingsCommand, createSetToolKeybindingCommand } from './public/set-tool-keybinding';
+import {
+  createOpenVariablesKeybindingsCommand,
+  createSetVariableKeybindingCommand,
+} from './public/set-variable-keybinding';
 import { createShowLogsCommand } from './public/show-logs';
 import { createSwitchTaskSourceCommands } from './public/switch-task-source';
 
@@ -135,5 +139,8 @@ export function registerAllCommands(
     registerCommand(Command.SyncReplacementKeybindings, () => syncKeybindings()),
     createSetReplacementKeybindingCommand(),
     createOpenReplacementsKeybindingsCommand(),
+    registerCommand(Command.SyncVariableKeybindings, () => syncKeybindings()),
+    createSetVariableKeybindingCommand(),
+    createOpenVariablesKeybindingsCommand(),
   ];
 }

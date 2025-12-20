@@ -6,6 +6,7 @@ import json5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
 import { CONFIG_DIR_NAME, DISPLAY_PREFIX } from '../../common/constants';
+import { getVariableKeybinding } from './keybindings-local';
 import { getIsGrouped, saveIsGrouped } from './state';
 
 const execAsync = promisify(exec);
@@ -91,7 +92,9 @@ export class VariableTreeItem extends vscode.TreeItem {
   ) {
     super(variable.name, vscode.TreeItemCollapsibleState.None);
     this.contextValue = 'variableItem';
-    this.description = formatValue(currentValue, variable);
+    const keybinding = getVariableKeybinding(variable.name);
+    const value = formatValue(currentValue, variable);
+    this.description = keybinding ? `${value} • ${keybinding}` : value;
     if (variable.description) {
       this.tooltip = variable.description;
     }

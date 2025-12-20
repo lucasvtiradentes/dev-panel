@@ -3,6 +3,7 @@ import {
   PROMPT_COMMAND_SUFFIX,
   REPLACEMENT_COMMAND_SUFFIX,
   TOOL_COMMAND_SUFFIX,
+  VARIABLE_COMMAND_SUFFIX,
   VIEW_ID_BRANCH_CONTEXT,
   VIEW_ID_CONFIGS,
   VIEW_ID_PROMPTS,
@@ -24,6 +25,7 @@ export {
   REPLACEMENT_COMMAND_SUFFIX,
   TOOL_COMMAND_SUFFIX,
   TOOL_TASK_TYPE,
+  VARIABLE_COMMAND_SUFFIX,
 } from './scripts-constants';
 
 declare const __IS_DEV_BUILD__: boolean;
@@ -96,4 +98,14 @@ export function getReplacementCommandId(replacementName: string): string {
 export function getReplacementCommandPrefix(): string {
   const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
   return `${prefix}.${REPLACEMENT_COMMAND_SUFFIX}.`;
+}
+
+export function getVariableCommandId(variableName: string): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${VARIABLE_COMMAND_SUFFIX}.${variableName}`;
+}
+
+export function getVariableCommandPrefix(): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${VARIABLE_COMMAND_SUFFIX}.`;
 }
