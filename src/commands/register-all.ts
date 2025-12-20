@@ -75,6 +75,8 @@ export function registerAllCommands(
     registerCommand(Command.TogglePromptsGroupModeGrouped, () => promptTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.TogglePromptFavorite, (item) => promptTreeDataProvider.toggleFavorite(item)),
     registerCommand(Command.TogglePromptHide, (item) => promptTreeDataProvider.toggleHide(item)),
+    registerCommand(Command.TogglePromptsShowHidden, () => promptTreeDataProvider.toggleShowHidden()),
+    registerCommand(Command.TogglePromptsShowHiddenActive, () => promptTreeDataProvider.toggleShowHidden()),
     createExecutePromptCommand(),
     registerCommand(Command.GoToPromptFile, async (item: TreePrompt) => {
       if (item?.promptFile) {

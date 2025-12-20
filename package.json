@@ -276,6 +276,16 @@
         "icon": "$(eye-closed)"
       },
       {
+        "command": "betterProjectTools.togglePromptsShowHidden",
+        "title": "Show Hidden Prompts",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "betterProjectTools.togglePromptsShowHiddenActive",
+        "title": "Hide Hidden Prompts",
+        "icon": "$(eye-closed)"
+      },
+      {
         "command": "betterProjectTools.executePrompt",
         "title": "Execute Prompt"
       },
@@ -421,9 +431,19 @@
           "group": "navigation@1"
         },
         {
+          "command": "betterProjectTools.togglePromptsShowHidden",
+          "when": "view == betterProjectToolsPrompts && promptsHasHidden && !promptsShowHidden",
+          "group": "navigation@2"
+        },
+        {
+          "command": "betterProjectTools.togglePromptsShowHiddenActive",
+          "when": "view == betterProjectToolsPrompts && promptsHasHidden && promptsShowHidden",
+          "group": "navigation@2"
+        },
+        {
           "command": "betterProjectTools.refreshPrompts",
           "when": "view == betterProjectToolsPrompts",
-          "group": "navigation@2"
+          "group": "navigation@3"
         },
         {
           "command": "betterProjectTools.refreshBranchContext",

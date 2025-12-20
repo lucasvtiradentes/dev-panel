@@ -37,6 +37,8 @@ export enum Command {
   TogglePromptsGroupModeGrouped = 'togglePromptsGroupModeGrouped',
   TogglePromptFavorite = 'togglePromptFavorite',
   TogglePromptHide = 'togglePromptHide',
+  TogglePromptsShowHidden = 'togglePromptsShowHidden',
+  TogglePromptsShowHiddenActive = 'togglePromptsShowHiddenActive',
   ExecutePrompt = 'executePrompt',
   GoToPromptFile = 'goToPromptFile',
   RefreshBranchContext = 'refreshBranchContext',
@@ -95,6 +97,8 @@ export enum ContextKey {
   TasksGrouped = 'tasksGrouped',
   ToolsGrouped = 'toolsGrouped',
   PromptsGrouped = 'promptsGrouped',
+  PromptsHasHidden = 'promptsHasHidden',
+  PromptsShowHidden = 'promptsShowHidden',
   ReplacementsGrouped = 'replacementsGrouped',
   ConfigsGrouped = 'configsGrouped',
 }

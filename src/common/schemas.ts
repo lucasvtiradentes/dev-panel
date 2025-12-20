@@ -173,6 +173,7 @@ export const ToolsStateSchema = z.object({
 
 export const PromptsStateSchema = z.object({
   isGrouped: z.boolean(),
+  showHidden: z.boolean().optional(),
   bpm: SourceStateSchema,
 });
 

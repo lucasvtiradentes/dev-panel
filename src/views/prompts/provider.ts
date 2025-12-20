@@ -6,11 +6,14 @@ import type { BPMConfig } from '../../common/types';
 import { PromptDragAndDropController } from './dnd-controller';
 import { PromptGroupTreeItem, TreePrompt } from './items';
 import {
+  getHiddenItems,
   getIsGrouped,
   getOrder,
+  getShowHidden,
   isFavorite,
   isHidden,
   saveIsGrouped,
+  saveShowHidden,
   toggleFavorite as toggleFavoriteState,
   toggleHidden,
 } from './state';
@@ -24,10 +27,12 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
   readonly onDidChangeTreeData: vscode.Event<TreePrompt | null> = this._onDidChangeTreeData.event;
 
   private _grouped: boolean;
+  private _showHidden: boolean;
   private _treeView: vscode.TreeView<TreePrompt | PromptGroupTreeItem> | null = null;
 
   constructor() {
     this._grouped = getIsGrouped();
+    this._showHidden = getShowHidden();
     this.updateContextKeys();
   }
 
@@ -41,12 +46,22 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
   }
 
   private updateContextKeys(): void {
+    const hiddenItems = getHiddenItems();
     void setContextKey(ContextKey.PromptsGrouped, this._grouped);
+    void setContextKey(ContextKey.PromptsHasHidden, hiddenItems.length > 0);
+    void setContextKey(ContextKey.PromptsShowHidden, this._showHidden);
   }
 
   toggleGroupMode(): void {
     this._grouped = !this._grouped;
     saveIsGrouped(this._grouped);
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire(null);
+  }
+
+  toggleShowHidden(): void {
+    this._showHidden = !this._showHidden;
+    saveShowHidden(this._showHidden);
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
   }
@@ -61,6 +76,7 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
   toggleHide(item: TreePrompt): void {
     if (item?.promptName) {
       toggleHidden(item.promptName);
+      this.updateContextKeys();
       this._onDidChangeTreeData.fire(null);
     }
   }
@@ -164,7 +180,8 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
     prompt: NonNullable<BPMConfig['prompts']>[number],
     folder: vscode.WorkspaceFolder,
   ): TreePrompt | null {
-    if (isHidden(prompt.name)) return null;
+    const hidden = isHidden(prompt.name);
+    if (hidden && !this._showHidden) return null;
 
     const promptFilePath = `${folder.uri.fsPath}/.bpm/prompts/${prompt.file}`;
 
@@ -178,7 +195,9 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
       treePrompt.tooltip = prompt.description;
     }
 
-    if (isFavorite(prompt.name)) {
+    if (hidden) {
+      treePrompt.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+    } else if (isFavorite(prompt.name)) {
       treePrompt.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
     }
 

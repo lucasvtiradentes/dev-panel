@@ -202,6 +202,17 @@ export const promptsState = {
     prompts.isGrouped = isGrouped;
     this.save(prompts);
   },
+  getShowHidden(): boolean {
+    return this.load().showHidden ?? false;
+  },
+  saveShowHidden(showHidden: boolean): void {
+    const prompts = this.load();
+    prompts.showHidden = showHidden;
+    this.save(prompts);
+  },
+  getHiddenItems(): string[] {
+    return this.getSourceState().hidden;
+  },
   getSourceState(): SourceState {
     return this.load().bpm ?? { ...DEFAULT_SOURCE_STATE };
   },
