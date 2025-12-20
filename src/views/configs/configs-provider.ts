@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import json5 from 'json5';
 import * as vscode from 'vscode';
-import { Command, getCommandId } from '../../common';
+import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
 
 enum ConfigKind {
   Choose = 'choose',
@@ -67,24 +67,15 @@ function formatValue(value: string | boolean | string[] | undefined, config: Con
   return value;
 }
 
-function getIconForKind(kind: ConfigKind, customIcon?: string): vscode.ThemeIcon {
-  if (customIcon) return new vscode.ThemeIcon(customIcon);
-  switch (kind) {
-    case ConfigKind.Choose:
-      return new vscode.ThemeIcon('list-selection');
-    case ConfigKind.Input:
-      return new vscode.ThemeIcon('edit');
-    case ConfigKind.Toggle:
-      return new vscode.ThemeIcon('settings-gear');
-    case ConfigKind.MultiSelect:
-      return new vscode.ThemeIcon('checklist');
-    case ConfigKind.File:
-      return new vscode.ThemeIcon('file');
-    case ConfigKind.Folder:
-      return new vscode.ThemeIcon('folder');
-    default:
-      return new vscode.ThemeIcon('settings-gear');
-  }
+function getIsGrouped(): boolean {
+  const state = loadState() as Record<string, unknown>;
+  return (state.configsGrouped as boolean) ?? true;
+}
+
+function saveIsGrouped(isGrouped: boolean): void {
+  const state = loadState() as Record<string, unknown>;
+  state.configsGrouped = isGrouped;
+  saveState(state as BpmState);
 }
 
 class GroupTreeItem extends vscode.TreeItem {
@@ -93,7 +84,6 @@ class GroupTreeItem extends vscode.TreeItem {
     public readonly configs: ConfigItem[],
   ) {
     super(groupName, vscode.TreeItemCollapsibleState.Expanded);
-    this.iconPath = new vscode.ThemeIcon('folder');
     this.contextValue = 'groupItem';
   }
 }
@@ -104,7 +94,6 @@ class ConfigTreeItem extends vscode.TreeItem {
     currentValue?: string | boolean | string[],
   ) {
     super(config.name, vscode.TreeItemCollapsibleState.None);
-    this.iconPath = getIconForKind(config.kind, config.icon);
     this.contextValue = 'configItem';
     this.description = formatValue(currentValue, config);
     if (config.description) {
@@ -124,10 +113,24 @@ export class ConfigsProvider implements vscode.TreeDataProvider<vscode.TreeItem>
   private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
   private fileWatcher: vscode.FileSystemWatcher | null = null;
+  private _grouped: boolean;
 
   constructor() {
     providerInstance = this;
+    this._grouped = getIsGrouped();
+    this.updateContextKeys();
     this.setupFileWatcher();
+  }
+
+  private updateContextKeys(): void {
+    void setContextKey(ContextKey.ConfigsGrouped, this._grouped);
+  }
+
+  toggleGroupMode(): void {
+    this._grouped = !this._grouped;
+    saveIsGrouped(this._grouped);
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire(undefined);
   }
 
   private setupFileWatcher(): void {
@@ -163,6 +166,10 @@ export class ConfigsProvider implements vscode.TreeDataProvider<vscode.TreeItem>
 
     if (element instanceof GroupTreeItem) {
       return Promise.resolve(element.configs.map((c) => new ConfigTreeItem(c, state[c.name])));
+    }
+
+    if (!this._grouped) {
+      return Promise.resolve(config.configs.map((c) => new ConfigTreeItem(c, state[c.name])));
     }
 
     const grouped = new Map<string, ConfigItem[]>();

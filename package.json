@@ -118,6 +118,21 @@
         "title": "Select Config Option"
       },
       {
+        "command": "betterProjectTools.refreshConfigs",
+        "title": "Refresh Configs",
+        "icon": "$(extensions-refresh)"
+      },
+      {
+        "command": "betterProjectTools.toggleConfigsGroupMode",
+        "title": "Toggle Configs Group Mode",
+        "icon": "$(list-flat)"
+      },
+      {
+        "command": "betterProjectTools.toggleConfigsGroupModeGrouped",
+        "title": "Toggle Configs Group Mode",
+        "icon": "$(list-tree)"
+      },
+      {
         "command": "betterProjectTools.toggleReplacement",
         "title": "Toggle Replacement"
       },
@@ -305,6 +320,21 @@
     ],
     "menus": {
       "view/title": [
+        {
+          "command": "betterProjectTools.toggleConfigsGroupMode",
+          "when": "view == betterProjectToolsConfigs && !configsGrouped",
+          "group": "navigation@1"
+        },
+        {
+          "command": "betterProjectTools.toggleConfigsGroupModeGrouped",
+          "when": "view == betterProjectToolsConfigs && configsGrouped",
+          "group": "navigation@1"
+        },
+        {
+          "command": "betterProjectTools.refreshConfigs",
+          "when": "view == betterProjectToolsConfigs",
+          "group": "navigation@2"
+        },
         {
           "command": "betterProjectTools.toggleReplacementsGroupMode",
           "when": "view == betterProjectToolsReplacements && !replacementsGrouped",

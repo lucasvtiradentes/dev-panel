@@ -86,6 +86,7 @@ export function activate(context: vscode.ExtensionContext): object {
     taskTreeDataProvider,
     toolTreeDataProvider,
     promptTreeDataProvider,
+    configsProvider,
     replacementsProvider,
     branchContextProvider,
     todosProvider,

@@ -1,6 +1,7 @@
 import type * as vscode from 'vscode';
 import { Command, registerCommand } from '../common';
 import type { BranchContextProvider } from '../views/branch-context';
+import type { ConfigsProvider } from '../views/configs';
 import type { PromptTreeDataProvider } from '../views/prompts';
 import type { ReplacementsProvider } from '../views/replacements';
 import type { TaskTreeDataProvider } from '../views/tasks';
@@ -30,6 +31,7 @@ export function registerAllCommands(
   taskTreeDataProvider: TaskTreeDataProvider,
   toolTreeDataProvider: ToolTreeDataProvider,
   promptTreeDataProvider: PromptTreeDataProvider,
+  configsProvider: ConfigsProvider,
   replacementsProvider: ReplacementsProvider,
   branchContextProvider: BranchContextProvider,
   todosProvider: TodosProvider,
@@ -48,6 +50,9 @@ export function registerAllCommands(
     createBackCmdlineCommand(taskTreeDataProvider),
     createTabCmdlineCommand(taskTreeDataProvider),
     createSelectConfigOptionCommand(),
+    registerCommand(Command.RefreshConfigs, () => configsProvider.refresh()),
+    registerCommand(Command.ToggleConfigsGroupMode, () => configsProvider.toggleGroupMode()),
+    registerCommand(Command.ToggleConfigsGroupModeGrouped, () => configsProvider.toggleGroupMode()),
     createToggleReplacementCommand(),
     createRevertAllReplacementsCommand(),
     registerCommand(Command.RefreshReplacements, () => replacementsProvider.refresh()),

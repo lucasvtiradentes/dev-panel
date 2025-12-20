@@ -17,6 +17,9 @@ export enum Command {
   BackCmdline = 'backCmdline',
   TabCmdline = 'tabCmdline',
   SelectConfigOption = 'selectConfigOption',
+  RefreshConfigs = 'refreshConfigs',
+  ToggleConfigsGroupMode = 'toggleConfigsGroupMode',
+  ToggleConfigsGroupModeGrouped = 'toggleConfigsGroupModeGrouped',
   ToggleReplacement = 'toggleReplacement',
   RevertAllReplacements = 'revertAllReplacements',
   RefreshReplacements = 'refreshReplacements',
@@ -91,6 +94,7 @@ export enum ContextKey {
   ToolsGrouped = 'toolsGrouped',
   PromptsGrouped = 'promptsGrouped',
   ReplacementsGrouped = 'replacementsGrouped',
+  ConfigsGrouped = 'configsGrouped',
 }
 
 export function setContextKey(key: ContextKey, value: boolean): Thenable<unknown> {
