@@ -1,0 +1,10 @@
+{
+  "activeReplacements": [
+    "enable-debug-logs"
+  ],
+  "lastBranch": "feature/general_improvements_v2",
+  "features": [
+    "auth",
+    "dark-mode"
+  ]
+}
