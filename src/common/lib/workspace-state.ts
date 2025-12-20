@@ -213,6 +213,17 @@ export const promptsState = {
   getHiddenItems(): string[] {
     return this.getSourceState().hidden;
   },
+  getShowOnlyFavorites(): boolean {
+    return this.load().showOnlyFavorites ?? false;
+  },
+  saveShowOnlyFavorites(showOnlyFavorites: boolean): void {
+    const prompts = this.load();
+    prompts.showOnlyFavorites = showOnlyFavorites;
+    this.save(prompts);
+  },
+  getFavoriteItems(): string[] {
+    return this.getSourceState().favorites;
+  },
   getSourceState(): SourceState {
     return this.load().bpm ?? { ...DEFAULT_SOURCE_STATE };
   },

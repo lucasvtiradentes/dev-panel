@@ -267,8 +267,13 @@
       },
       {
         "command": "betterProjectTools.togglePromptFavorite",
-        "title": "Toggle Prompt Favorite",
+        "title": "Add to Favorites",
         "icon": "$(heart)"
+      },
+      {
+        "command": "betterProjectTools.togglePromptUnfavorite",
+        "title": "Remove from Favorites",
+        "icon": "$(heart-filled)"
       },
       {
         "command": "betterProjectTools.togglePromptHide",
@@ -284,6 +289,16 @@
         "command": "betterProjectTools.togglePromptsShowHiddenActive",
         "title": "Hide Hidden Prompts",
         "icon": "$(eye-closed)"
+      },
+      {
+        "command": "betterProjectTools.togglePromptsShowOnlyFavorites",
+        "title": "Show Only Favorites",
+        "icon": "$(heart)"
+      },
+      {
+        "command": "betterProjectTools.togglePromptsShowOnlyFavoritesActive",
+        "title": "Show All Prompts",
+        "icon": "$(heart-filled)"
       },
       {
         "command": "betterProjectTools.executePrompt",
@@ -431,19 +446,29 @@
           "group": "navigation@1"
         },
         {
+          "command": "betterProjectTools.togglePromptsShowOnlyFavorites",
+          "when": "view == betterProjectToolsPrompts && promptsHasFavorites && !promptsShowOnlyFavorites",
+          "group": "navigation@2"
+        },
+        {
+          "command": "betterProjectTools.togglePromptsShowOnlyFavoritesActive",
+          "when": "view == betterProjectToolsPrompts && promptsHasFavorites && promptsShowOnlyFavorites",
+          "group": "navigation@2"
+        },
+        {
           "command": "betterProjectTools.togglePromptsShowHidden",
           "when": "view == betterProjectToolsPrompts && promptsHasHidden && !promptsShowHidden",
-          "group": "navigation@2"
+          "group": "navigation@3"
         },
         {
           "command": "betterProjectTools.togglePromptsShowHiddenActive",
           "when": "view == betterProjectToolsPrompts && promptsHasHidden && promptsShowHidden",
-          "group": "navigation@2"
+          "group": "navigation@3"
         },
         {
           "command": "betterProjectTools.refreshPrompts",
           "when": "view == betterProjectToolsPrompts",
-          "group": "navigation@3"
+          "group": "navigation@4"
         },
         {
           "command": "betterProjectTools.refreshBranchContext",
@@ -495,13 +520,18 @@
           "group": "inline@1"
         },
         {
+          "command": "betterProjectTools.togglePromptUnfavorite",
+          "when": "view == betterProjectToolsPrompts && viewItem == prompt-favorite",
+          "group": "inline@1"
+        },
+        {
           "command": "betterProjectTools.togglePromptHide",
-          "when": "view == betterProjectToolsPrompts && viewItem == prompt",
+          "when": "view == betterProjectToolsPrompts && viewItem =~ /^prompt/",
           "group": "inline@2"
         },
         {
           "command": "betterProjectTools.goToPromptFile",
-          "when": "view == betterProjectToolsPrompts && viewItem == prompt",
+          "when": "view == betterProjectToolsPrompts && viewItem =~ /^prompt/",
           "group": "inline@3"
         },
         {

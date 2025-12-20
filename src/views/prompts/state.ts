@@ -14,3 +14,7 @@ export const saveIsGrouped = (isGrouped: boolean) => promptsState.saveIsGrouped(
 export const getShowHidden = () => promptsState.getShowHidden();
 export const saveShowHidden = (showHidden: boolean) => promptsState.saveShowHidden(showHidden);
 export const getHiddenItems = () => promptsState.getHiddenItems();
+export const getShowOnlyFavorites = () => promptsState.getShowOnlyFavorites();
+export const saveShowOnlyFavorites = (showOnlyFavorites: boolean) =>
+  promptsState.saveShowOnlyFavorites(showOnlyFavorites);
+export const getFavoriteItems = () => promptsState.getFavoriteItems();
