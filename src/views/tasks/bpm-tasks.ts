@@ -81,11 +81,7 @@ function createBPMTask(
   }
 
   if (isFavorite(TaskSource.BPM, script.name)) {
-    treeTask.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
-  } else if (script.icon) {
-    treeTask.iconPath = new vscode.ThemeIcon(script.icon);
-  } else {
-    treeTask.iconPath = new vscode.ThemeIcon('terminal');
+    treeTask.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
   }
 
   return treeTask;

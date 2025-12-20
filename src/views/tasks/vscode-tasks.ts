@@ -46,9 +46,7 @@ export async function getVSCodeTasks(
     }
 
     if (isFavorite(TaskSource.VSCode, task.name)) {
-      _task.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
-    } else if (!_task.iconPath) {
-      _task.iconPath = new vscode.ThemeIcon('terminal');
+      _task.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
     }
 
     if (!_task.hide) {

@@ -75,7 +75,7 @@ export class TreeTask extends vscode.TreeItem {
 
   setFavorite(isFavorite: boolean): void {
     if (isFavorite) {
-      this.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+      this.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
     }
   }
 
@@ -121,10 +121,5 @@ export class TreeTask extends vscode.TreeItem {
 
   private applyTaskDefinition(taskDef: TaskDefinition): void {
     this.hide = taskDef.hide ?? false;
-
-    if (taskDef.icon?.id) {
-      const color = taskDef.icon.color ? new vscode.ThemeColor(taskDef.icon.color) : undefined;
-      this.iconPath = new vscode.ThemeIcon(taskDef.icon.id, color);
-    }
   }
 }

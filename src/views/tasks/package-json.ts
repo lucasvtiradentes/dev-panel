@@ -197,9 +197,7 @@ function createNpmTask(
   treeTask.tooltip = command;
 
   if (isFavorite(TaskSource.Package, name)) {
-    treeTask.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
-  } else {
-    treeTask.iconPath = new vscode.ThemeIcon('terminal');
+    treeTask.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
   }
 
   return treeTask;
