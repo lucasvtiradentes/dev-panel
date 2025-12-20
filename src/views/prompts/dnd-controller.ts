@@ -1,72 +1,29 @@
-import * as vscode from 'vscode';
-import type { PromptGroupTreeItem, TreePrompt } from './items';
-import { getOrder, saveOrder } from './state';
+import { promptsState } from '../../common/lib/workspace-state';
+import { createDragAndDropController } from '../common';
+import type { TreePrompt } from './items';
 
 const MIME_TYPE = 'application/vnd.code.tree.projectpanelprompts';
 
-export class PromptDragAndDropController implements vscode.TreeDragAndDropController<TreePrompt | PromptGroupTreeItem> {
-  readonly dropMimeTypes = [MIME_TYPE];
-  readonly dragMimeTypes = [MIME_TYPE];
-
-  private _isGrouped: () => boolean;
-  private _onReorder: () => void;
+export class PromptDragAndDropController {
+  private controller: ReturnType<typeof createDragAndDropController<TreePrompt>>;
 
   constructor(getIsGrouped: () => boolean, onReorder: () => void) {
-    this._isGrouped = getIsGrouped;
-    this._onReorder = onReorder;
+    this.controller = createDragAndDropController<TreePrompt>(MIME_TYPE, promptsState, getIsGrouped, onReorder);
   }
 
-  handleDrag(
-    source: readonly (TreePrompt | PromptGroupTreeItem)[],
-    dataTransfer: vscode.DataTransfer,
-    _token: vscode.CancellationToken,
-  ): void {
-    const item = source[0];
-    if (!item) return;
-
-    const label = typeof item.label === 'string' ? item.label : (item.label?.label ?? '');
-    dataTransfer.set(MIME_TYPE, new vscode.DataTransferItem(label));
+  get dropMimeTypes() {
+    return this.controller.dropMimeTypes;
   }
 
-  handleDrop(
-    target: TreePrompt | PromptGroupTreeItem | undefined,
-    dataTransfer: vscode.DataTransfer,
-    _token: vscode.CancellationToken,
-  ): void {
-    const transferItem = dataTransfer.get(MIME_TYPE);
-    if (!transferItem || !target) return;
-
-    const draggedLabel = transferItem.value as string;
-    const targetLabel = typeof target.label === 'string' ? target.label : (target.label?.label ?? '');
-
-    if (draggedLabel === targetLabel) return;
-
-    this.reorderItems(draggedLabel, targetLabel);
-    this._onReorder();
+  get dragMimeTypes() {
+    return this.controller.dragMimeTypes;
   }
 
-  private reorderItems(draggedLabel: string, targetLabel: string): void {
-    const isGrouped = this._isGrouped();
-    const currentOrder = getOrder(isGrouped);
-    const order = [...currentOrder];
+  handleDrag(...args: Parameters<typeof this.controller.handleDrag>) {
+    return this.controller.handleDrag(...args);
+  }
 
-    const draggedIndex = order.indexOf(draggedLabel);
-    const targetIndex = order.indexOf(targetLabel);
-
-    if (draggedIndex === -1 && targetIndex === -1) {
-      order.push(targetLabel);
-      order.push(draggedLabel);
-    } else if (draggedIndex === -1) {
-      order.splice(targetIndex, 0, draggedLabel);
-    } else if (targetIndex === -1) {
-      order.splice(draggedIndex, 1);
-      order.push(targetLabel);
-      order.push(draggedLabel);
-    } else {
-      order.splice(draggedIndex, 1);
-      order.splice(targetIndex, 0, draggedLabel);
-    }
-
-    saveOrder(isGrouped, order);
+  handleDrop(...args: Parameters<typeof this.controller.handleDrop>) {
+    return this.controller.handleDrop(...args);
   }
 }

@@ -11,7 +11,7 @@ import {
 import { getAllPromptKeybindings } from '../views/prompts/keybindings-local';
 import { getAllReplacementKeybindings } from '../views/replacements/keybindings-local';
 import { getAllTaskKeybindings } from '../views/tasks/keybindings-local';
-import { getAllKeybindings } from '../views/tools/keybindings-local';
+import { getAllToolKeybindings } from '../views/tools/keybindings-local';
 import { getAllVariableKeybindings } from '../views/variables/keybindings-local';
 import { getVSCodeKeybindingsPath } from './vscode-keybindings-utils';
 
@@ -21,7 +21,7 @@ export function syncKeybindings(): void {
 
   const keybindingsToAdd: Array<{ command: string; key: string }> = [];
 
-  const toolKeybindings = getAllKeybindings();
+  const toolKeybindings = getAllToolKeybindings();
   for (const [toolName, keybinding] of Object.entries(toolKeybindings)) {
     keybindingsToAdd.push({
       command: getToolCommandId(toolName),

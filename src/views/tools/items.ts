@@ -1,14 +1,9 @@
 import * as vscode from 'vscode';
+import { BaseGroupTreeItem, BaseNamedTreeItem } from '../common';
 
-export class ToolGroupTreeItem extends vscode.TreeItem {
-  children: TreeTool[] = [];
+export class ToolGroupTreeItem extends BaseGroupTreeItem<TreeTool> {}
 
-  constructor(groupName: string) {
-    super(groupName, vscode.TreeItemCollapsibleState.Expanded);
-  }
-}
-
-export class TreeTool extends vscode.TreeItem {
+export class TreeTool extends BaseNamedTreeItem {
   toolName: string;
   toolFile: string;
   group: string | undefined;
@@ -20,12 +15,15 @@ export class TreeTool extends vscode.TreeItem {
     command?: vscode.Command,
     group?: string,
   ) {
-    super(label, collapsibleState);
-    this.command = command;
+    super(label, collapsibleState, command);
     this.group = group;
     this.toolName = label;
     this.toolFile = file;
     this.contextValue = 'tool';
+  }
+
+  getName(): string {
+    return this.toolName;
   }
 
   setFavorite(isFavorite: boolean): void {

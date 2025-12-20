@@ -1,14 +1,9 @@
 import * as vscode from 'vscode';
+import { BaseGroupTreeItem, BaseNamedTreeItem } from '../common';
 
-export class PromptGroupTreeItem extends vscode.TreeItem {
-  children: TreePrompt[] = [];
+export class PromptGroupTreeItem extends BaseGroupTreeItem<TreePrompt> {}
 
-  constructor(groupName: string) {
-    super(groupName, vscode.TreeItemCollapsibleState.Expanded);
-  }
-}
-
-export class TreePrompt extends vscode.TreeItem {
+export class TreePrompt extends BaseNamedTreeItem {
   promptName: string;
   promptFile: string;
   group: string | undefined;
@@ -20,12 +15,15 @@ export class TreePrompt extends vscode.TreeItem {
     command?: vscode.Command,
     group?: string,
   ) {
-    super(label, collapsibleState);
-    this.command = command;
+    super(label, collapsibleState, command);
     this.group = group;
     this.promptName = label;
     this.promptFile = file;
     this.contextValue = 'prompt';
+  }
+
+  getName(): string {
+    return this.promptName;
   }
 
   setFavorite(isFavorite: boolean): void {
