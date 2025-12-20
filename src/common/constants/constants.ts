@@ -1,6 +1,7 @@
 import {
   CONTEXT_PREFIX,
   PROMPT_COMMAND_SUFFIX,
+  REPLACEMENT_COMMAND_SUFFIX,
   TOOL_COMMAND_SUFFIX,
   VIEW_ID_BRANCH_CONTEXT,
   VIEW_ID_CONFIGS,
@@ -20,6 +21,7 @@ export {
   DEV_SUFFIX,
   DISPLAY_PREFIX,
   PROMPT_COMMAND_SUFFIX,
+  REPLACEMENT_COMMAND_SUFFIX,
   TOOL_COMMAND_SUFFIX,
   TOOL_TASK_TYPE,
 } from './scripts-constants';
@@ -84,4 +86,14 @@ export function getPromptCommandId(promptName: string): string {
 export function getPromptCommandPrefix(): string {
   const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
   return `${prefix}.${PROMPT_COMMAND_SUFFIX}.`;
+}
+
+export function getReplacementCommandId(replacementName: string): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${REPLACEMENT_COMMAND_SUFFIX}.${replacementName}`;
+}
+
+export function getReplacementCommandPrefix(): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${REPLACEMENT_COMMAND_SUFFIX}.`;
 }

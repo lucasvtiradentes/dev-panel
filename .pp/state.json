@@ -1,7 +1,5 @@
 {
-  "activeReplacements": [
-    "enable-debug-logs"
-  ],
+  "activeReplacements": [],
   "lastBranch": "feature/general_improvements_v3",
   "features": [
     "auth",

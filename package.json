@@ -427,6 +427,20 @@
         "command": "projectPanel.openPromptsKeybindings",
         "title": "Open Prompts Keybindings",
         "icon": "$(keyboard)"
+      },
+      {
+        "command": "projectPanel.syncReplacementKeybindings",
+        "title": "Project Panel: Sync Replacement Keybindings"
+      },
+      {
+        "command": "projectPanel.setReplacementKeybinding",
+        "title": "Set Keybinding",
+        "icon": "$(keyboard)"
+      },
+      {
+        "command": "projectPanel.openReplacementsKeybindings",
+        "title": "Open Replacements Keybindings",
+        "icon": "$(keyboard)"
       }
     ],
     "keybindings": [
@@ -487,6 +501,11 @@
           "command": "projectPanel.refreshReplacements",
           "when": "view == projectPanelReplacements",
           "group": "navigation@3"
+        },
+        {
+          "command": "projectPanel.openReplacementsKeybindings",
+          "when": "view == projectPanelReplacements",
+          "group": "navigation@4"
         },
         {
           "command": "projectPanel.toggleGroupMode",
@@ -662,6 +681,11 @@
         {
           "command": "projectPanel.goToTask",
           "when": "view == projectPanelTasks"
+        },
+        {
+          "command": "projectPanel.setReplacementKeybinding",
+          "when": "view == projectPanelReplacements && viewItem == replacementItem",
+          "group": "inline@1"
         },
         {
           "command": "projectPanel.toggleToolFavorite",

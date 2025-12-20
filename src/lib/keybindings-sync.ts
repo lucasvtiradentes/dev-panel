@@ -1,8 +1,9 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { getPromptCommandId, getToolCommandId } from '../common';
+import { getPromptCommandId, getReplacementCommandId, getToolCommandId } from '../common';
 import { getAllPromptKeybindings } from '../views/prompts/keybindings-local';
+import { getAllReplacementKeybindings } from '../views/replacements/keybindings-local';
 import { getAllKeybindings } from '../views/tools/keybindings-local';
 import { getVSCodeKeybindingsPath } from './vscode-keybindings-utils';
 
@@ -24,6 +25,14 @@ export function syncKeybindings(): void {
   for (const [promptName, keybinding] of Object.entries(promptKeybindings)) {
     keybindingsToAdd.push({
       command: getPromptCommandId(promptName),
+      key: keybinding,
+    });
+  }
+
+  const replacementKeybindings = getAllReplacementKeybindings();
+  for (const [replacementName, keybinding] of Object.entries(replacementKeybindings)) {
+    keybindingsToAdd.push({
+      command: getReplacementCommandId(replacementName),
       key: keybinding,
     });
   }

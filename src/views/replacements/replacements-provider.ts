@@ -6,6 +6,7 @@ import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
 import { CONFIG_DIR_NAME, DISPLAY_PREFIX } from '../../common/constants';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
+import { getReplacementKeybinding } from './keybindings-local';
 import { getIsGrouped, saveIsGrouped } from './state';
 import { OnBranchChange, type PPConfig, type Replacement, type ReplacementState, ReplacementType } from './types';
 
@@ -64,7 +65,9 @@ class ReplacementTreeItem extends vscode.TreeItem {
   ) {
     super(replacement.name, vscode.TreeItemCollapsibleState.None);
 
-    this.description = isActive ? 'ON' : 'OFF';
+    const keybinding = getReplacementKeybinding(replacement.name);
+    const status = isActive ? 'ON' : 'OFF';
+    this.description = keybinding ? keybinding : '';
     this.tooltip = replacement.description || replacement.name;
     this.contextValue = 'replacementItem';
 
