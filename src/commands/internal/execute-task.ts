@@ -15,7 +15,7 @@ import {
   replaceInputPlaceholders,
 } from '../../common';
 import { GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
-import type { BPMConfig, BPMPrompt, BPMSettings } from '../../common/schemas';
+import type { PPConfig, PPPrompt, PPSettings } from '../../common/schemas';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';
 
@@ -63,21 +63,21 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
   );
 }
 
-function readBPMSettings(folder: vscode.WorkspaceFolder): BPMSettings | undefined {
-  const configPath = `${folder.uri.fsPath}/.bpm/config.jsonc`;
-  log.debug(`readBPMSettings - configPath: ${configPath}`);
+function readPPSettings(folder: vscode.WorkspaceFolder): PPSettings | undefined {
+  const configPath = `${folder.uri.fsPath}/.pp/config.jsonc`;
+  log.debug(`readPPSettings - configPath: ${configPath}`);
   if (!fs.existsSync(configPath)) {
-    log.debug('readBPMSettings - config file not found');
+    log.debug('readPPSettings - config file not found');
     return undefined;
   }
   try {
     const configContent = fs.readFileSync(configPath, 'utf8');
-    log.debug(`readBPMSettings - file read, length: ${configContent.length}`);
-    const config = JSON5.parse(configContent) as BPMConfig;
-    log.info(`readBPMSettings - settings: ${JSON.stringify(config.settings)}`);
+    log.debug(`readPPSettings - file read, length: ${configContent.length}`);
+    const config = JSON5.parse(configContent) as PPConfig;
+    log.info(`readPPSettings - settings: ${JSON.stringify(config.settings)}`);
     return config.settings;
   } catch (err) {
-    log.error(`readBPMSettings - error: ${err}`);
+    log.error(`readPPSettings - error: ${err}`);
     return undefined;
   }
 }
@@ -85,7 +85,7 @@ function readBPMSettings(folder: vscode.WorkspaceFolder): BPMSettings | undefine
 export function createExecutePromptCommand() {
   return registerCommand(
     Command.ExecutePrompt,
-    async (promptFilePath: string, folder: vscode.WorkspaceFolder, promptConfig?: BPMPrompt) => {
+    async (promptFilePath: string, folder: vscode.WorkspaceFolder, promptConfig?: PPPrompt) => {
       log.info('=== ExecutePrompt called ===');
       log.info(`promptFilePath: ${promptFilePath}`);
       log.info(`promptConfig (from tree): ${JSON.stringify(promptConfig)}`);
@@ -96,7 +96,7 @@ export function createExecutePromptCommand() {
       }
 
       let promptContent = fs.readFileSync(promptFilePath, 'utf8');
-      const settings = readBPMSettings(folder);
+      const settings = readPPSettings(folder);
       log.info(`settings: ${JSON.stringify(settings)}`);
 
       if (promptConfig?.inputs && promptConfig.inputs.length > 0) {
@@ -109,7 +109,7 @@ export function createExecutePromptCommand() {
       const provider = getProvider(settings?.aiProvider);
       if (!provider) {
         void vscode.window.showErrorMessage(
-          'AI provider not configured. Set "settings.aiProvider" in .bpm/config.jsonc (claude, gemini, or cursor-agent)',
+          'AI provider not configured. Set "settings.aiProvider" in .pp/config.jsonc (claude, gemini, or cursor-agent)',
         );
         return;
       }

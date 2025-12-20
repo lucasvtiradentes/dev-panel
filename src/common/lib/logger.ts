@@ -104,7 +104,7 @@ class ContextualLogger implements ILogger {
   }
 }
 
-export const logger = new Logger('bpm');
+export const logger = new Logger('pp');
 
 export function createLogger(prefix: string): ILogger {
   return new ContextualLogger(logger, prefix);

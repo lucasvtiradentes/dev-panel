@@ -39,7 +39,7 @@ export interface ReplacementState {
   lastBranch: string;
 }
 
-export interface BpmConfig {
+export interface PPConfig {
   configs?: unknown[];
   replacements?: Replacement[];
 }

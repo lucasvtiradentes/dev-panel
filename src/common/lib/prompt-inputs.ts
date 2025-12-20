@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 import * as vscode from 'vscode';
-import { type BPMPromptInput, type BPMSettings, PromptInputType, SelectionStyle } from '../schemas';
+import { type PPPromptInput, type PPSettings, PromptInputType, SelectionStyle } from '../schemas';
 import { createLogger } from './logger';
 
 const log = createLogger('prompt-inputs');
@@ -30,9 +30,9 @@ function hasTag(item: TaggedQuickPickItem | undefined, tag: ItemTag): boolean {
 type PromptInputValues = Record<string, string>;
 
 export async function collectPromptInputs(
-  inputs: BPMPromptInput[],
+  inputs: PPPromptInput[],
   workspaceFolder: vscode.WorkspaceFolder,
-  settings?: BPMSettings,
+  settings?: PPSettings,
 ): Promise<PromptInputValues | null> {
   const values: PromptInputValues = {};
 
@@ -46,9 +46,9 @@ export async function collectPromptInputs(
 }
 
 async function collectSingleInput(
-  input: BPMPromptInput,
+  input: PPPromptInput,
   workspaceFolder: vscode.WorkspaceFolder,
-  settings?: BPMSettings,
+  settings?: PPSettings,
 ): Promise<string | undefined> {
   switch (input.type) {
     case PromptInputType.File:
@@ -77,8 +77,8 @@ async function collectSingleInput(
 const DEFAULT_EXCLUDES = ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/out/**'];
 
 function getSelectionStyle(
-  input: BPMPromptInput,
-  settings: BPMSettings | undefined,
+  input: PPPromptInput,
+  settings: PPSettings | undefined,
   inputType: 'file' | 'folder',
 ): SelectionStyle {
   log.debug(`getSelectionStyle called - inputType: ${inputType}`);
@@ -104,7 +104,7 @@ function getSelectionStyle(
   return SelectionStyle.Flat;
 }
 
-function getExcludePatterns(input: BPMPromptInput, settings: BPMSettings | undefined): string[] {
+function getExcludePatterns(input: PPPromptInput, settings: PPSettings | undefined): string[] {
   if (input.excludes && input.excludes.length > 0) {
     log.debug(`Using input.excludes: ${JSON.stringify(input.excludes)}`);
     return input.excludes;
@@ -122,10 +122,10 @@ function buildExcludeGlob(excludes: string[]): string {
 }
 
 async function collectFileInput(
-  input: BPMPromptInput,
+  input: PPPromptInput,
   workspaceFolder: vscode.WorkspaceFolder,
   multiple: boolean,
-  settings?: BPMSettings,
+  settings?: PPSettings,
 ): Promise<string | undefined> {
   log.info(`collectFileInput called - multiple: ${multiple}`);
   log.debug(`input: ${JSON.stringify(input)}`);
@@ -143,7 +143,7 @@ async function collectFileInput(
 }
 
 async function collectFileFlat(
-  input: BPMPromptInput,
+  input: PPPromptInput,
   workspaceFolder: vscode.WorkspaceFolder,
   multiple: boolean,
   excludes: string[],
@@ -183,7 +183,7 @@ async function collectFileFlat(
 }
 
 async function collectFileInteractive(
-  input: BPMPromptInput,
+  input: PPPromptInput,
   workspaceFolder: vscode.WorkspaceFolder,
   multiple: boolean,
   excludes: string[],
@@ -266,10 +266,10 @@ async function collectFileInteractive(
 }
 
 async function collectFolderInput(
-  input: BPMPromptInput,
+  input: PPPromptInput,
   workspaceFolder: vscode.WorkspaceFolder,
   multiple: boolean,
-  settings?: BPMSettings,
+  settings?: PPSettings,
 ): Promise<string | undefined> {
   const style = getSelectionStyle(input, settings, 'folder');
   const excludes = getExcludePatterns(input, settings);
@@ -282,7 +282,7 @@ async function collectFolderInput(
 }
 
 async function collectFolderFlat(
-  input: BPMPromptInput,
+  input: PPPromptInput,
   workspaceFolder: vscode.WorkspaceFolder,
   multiple: boolean,
   excludes: string[],
@@ -337,7 +337,7 @@ async function collectFolderFlat(
 }
 
 async function collectFolderInteractive(
-  input: BPMPromptInput,
+  input: PPPromptInput,
   workspaceFolder: vscode.WorkspaceFolder,
   multiple: boolean,
   excludes: string[],
@@ -464,7 +464,7 @@ async function getDirectoryEntries(
   return { folders, files };
 }
 
-async function collectTextInput(input: BPMPromptInput): Promise<string | undefined> {
+async function collectTextInput(input: PPPromptInput): Promise<string | undefined> {
   return vscode.window.showInputBox({
     prompt: input.label,
     placeHolder: input.placeholder,
@@ -472,7 +472,7 @@ async function collectTextInput(input: BPMPromptInput): Promise<string | undefin
   });
 }
 
-async function collectNumberInput(input: BPMPromptInput): Promise<string | undefined> {
+async function collectNumberInput(input: PPPromptInput): Promise<string | undefined> {
   return vscode.window.showInputBox({
     prompt: input.label,
     placeHolder: input.placeholder,
@@ -486,7 +486,7 @@ async function collectNumberInput(input: BPMPromptInput): Promise<string | undef
   });
 }
 
-async function collectConfirmInput(input: BPMPromptInput): Promise<string | undefined> {
+async function collectConfirmInput(input: PPPromptInput): Promise<string | undefined> {
   const result = await vscode.window.showQuickPick(['Yes', 'No'], {
     placeHolder: input.label,
     ignoreFocusOut: true,
@@ -495,7 +495,7 @@ async function collectConfirmInput(input: BPMPromptInput): Promise<string | unde
   return result === 'Yes' ? 'true' : 'false';
 }
 
-async function collectChoiceInput(input: BPMPromptInput, multiple: boolean): Promise<string | undefined> {
+async function collectChoiceInput(input: PPPromptInput, multiple: boolean): Promise<string | undefined> {
   if (!input.options || input.options.length === 0) return undefined;
 
   if (multiple) {

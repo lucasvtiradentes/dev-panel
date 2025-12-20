@@ -19,7 +19,7 @@ import {
   type WorkspaceUIState,
 } from '../schemas/types';
 
-const WORKSPACE_STATE_KEY = 'bpm.uiState';
+const WORKSPACE_STATE_KEY = 'pp.uiState';
 
 let _context: vscode.ExtensionContext | null = null;
 
@@ -65,12 +65,12 @@ export const tasksState = {
   },
   getSourceState(source: TaskSource): SourceState {
     const tasks = this.load();
-    const key = source === TaskSource.VSCode ? 'vscode' : source === TaskSource.Package ? 'packageJson' : 'bpm';
+    const key = source === TaskSource.VSCode ? 'vscode' : source === TaskSource.Package ? 'packageJson' : 'pp';
     return tasks[key] ?? { ...DEFAULT_SOURCE_STATE };
   },
   saveSourceState(source: TaskSource, sourceState: SourceState): void {
     const tasks = this.load();
-    const key = source === TaskSource.VSCode ? 'vscode' : source === TaskSource.Package ? 'packageJson' : 'bpm';
+    const key = source === TaskSource.VSCode ? 'vscode' : source === TaskSource.Package ? 'packageJson' : 'pp';
     tasks[key] = sourceState;
     this.save(tasks);
   },
@@ -179,11 +179,11 @@ export const toolsState = {
     return this.getSourceState().favorites;
   },
   getSourceState(): SourceState {
-    return this.load().bpm ?? { ...DEFAULT_SOURCE_STATE };
+    return this.load().pp ?? { ...DEFAULT_SOURCE_STATE };
   },
   saveSourceState(sourceState: SourceState): void {
     const tools = this.load();
-    tools.bpm = sourceState;
+    tools.pp = sourceState;
     this.save(tools);
   },
   getOrder(isGrouped: boolean): string[] {
@@ -269,11 +269,11 @@ export const promptsState = {
     return this.getSourceState().favorites;
   },
   getSourceState(): SourceState {
-    return this.load().bpm ?? { ...DEFAULT_SOURCE_STATE };
+    return this.load().pp ?? { ...DEFAULT_SOURCE_STATE };
   },
   saveSourceState(sourceState: SourceState): void {
     const prompts = this.load();
-    prompts.bpm = sourceState;
+    prompts.pp = sourceState;
     this.save(prompts);
   },
   getOrder(isGrouped: boolean): string[] {

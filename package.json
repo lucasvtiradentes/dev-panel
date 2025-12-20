@@ -1,6 +1,6 @@
 {
-  "name": "better-project-tools",
-  "displayName": "Better Project Tools",
+  "name": "project-panel",
+  "displayName": "Project Panel",
   "description": "VS Code extension to view and run tasks from Explorer pane",
   "icon": "resources/icon.png",
   "version": "0.0.1",
@@ -71,42 +71,42 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "betterProjectTools",
-          "title": "Better Project Tools",
+          "id": "projectPanel",
+          "title": "Project Panel",
           "icon": "resources/icon.svg"
         }
       ]
     },
     "views": {
-      "betterProjectTools": [
+      "projectPanel": [
         {
-          "id": "betterProjectToolsConfigs",
+          "id": "projectPanelConfigs",
           "name": "Configs"
         },
         {
-          "id": "betterProjectToolsReplacements",
+          "id": "projectPanelReplacements",
           "name": "Replacements"
         },
         {
-          "id": "betterProjectToolsTools",
+          "id": "projectPanelTools",
           "name": "Tools"
         },
         {
-          "id": "betterProjectToolsPrompts",
+          "id": "projectPanelPrompts",
           "name": "Prompts"
         },
         {
-          "id": "betterProjectToolsBranchContext",
+          "id": "projectPanelBranchContext",
           "name": "Branch Context"
         },
         {
-          "id": "betterProjectToolsTodos",
+          "id": "projectPanelTodos",
           "name": "Branch Todos"
         }
       ],
       "explorer": [
         {
-          "id": "betterProjectToolsTasks",
+          "id": "projectPanelTasks",
           "name": "Task Runner",
           "icon": "$(tasklist)"
         }
@@ -114,311 +114,311 @@
     },
     "commands": [
       {
-        "command": "betterProjectTools.selectConfigOption",
+        "command": "projectPanel.selectConfigOption",
         "title": "Select Config Option"
       },
       {
-        "command": "betterProjectTools.resetConfigOption",
+        "command": "projectPanel.resetConfigOption",
         "title": "Reset Config Option",
         "icon": "$(discard)"
       },
       {
-        "command": "betterProjectTools.refreshConfigs",
+        "command": "projectPanel.refreshConfigs",
         "title": "Refresh Configs",
         "icon": "$(extensions-refresh)"
       },
       {
-        "command": "betterProjectTools.toggleConfigsGroupMode",
+        "command": "projectPanel.toggleConfigsGroupMode",
         "title": "Toggle Configs Group Mode",
         "icon": "$(list-flat)"
       },
       {
-        "command": "betterProjectTools.toggleConfigsGroupModeGrouped",
+        "command": "projectPanel.toggleConfigsGroupModeGrouped",
         "title": "Toggle Configs Group Mode",
         "icon": "$(list-tree)"
       },
       {
-        "command": "betterProjectTools.toggleReplacement",
+        "command": "projectPanel.toggleReplacement",
         "title": "Toggle Replacement"
       },
       {
-        "command": "betterProjectTools.revertAllReplacements",
+        "command": "projectPanel.revertAllReplacements",
         "title": "Revert All Replacements",
         "icon": "$(discard)"
       },
       {
-        "command": "betterProjectTools.refreshReplacements",
+        "command": "projectPanel.refreshReplacements",
         "title": "Refresh Replacements",
         "icon": "$(extensions-refresh)"
       },
       {
-        "command": "betterProjectTools.toggleReplacementsGroupMode",
+        "command": "projectPanel.toggleReplacementsGroupMode",
         "title": "Toggle Replacements Group Mode",
         "icon": "$(list-flat)"
       },
       {
-        "command": "betterProjectTools.toggleReplacementsGroupModeGrouped",
+        "command": "projectPanel.toggleReplacementsGroupModeGrouped",
         "title": "Toggle Replacements Group Mode",
         "icon": "$(list-tree)"
       },
       {
-        "command": "betterProjectTools.executeTask",
+        "command": "projectPanel.executeTask",
         "title": "Execute"
       },
       {
-        "command": "betterProjectTools.goToTask",
+        "command": "projectPanel.goToTask",
         "title": "Go to Definition"
       },
       {
-        "command": "betterProjectTools.openTasksConfig",
+        "command": "projectPanel.openTasksConfig",
         "title": "Open Tasks Config",
         "icon": "$(go-to-file)"
       },
       {
-        "command": "betterProjectTools.refresh",
+        "command": "projectPanel.refresh",
         "title": "Refresh",
         "icon": "$(extensions-refresh)"
       },
       {
-        "command": "betterProjectTools.switchTaskSource",
+        "command": "projectPanel.switchTaskSource",
         "title": "Switch to npm Scripts",
         "icon": "$(tools)"
       },
       {
-        "command": "betterProjectTools.switchTaskSourceFromPackage",
-        "title": "Switch to BPM Tasks",
+        "command": "projectPanel.switchTaskSourceFromPackage",
+        "title": "Switch to PP Tasks",
         "icon": "$(package)"
       },
       {
-        "command": "betterProjectTools.switchTaskSourceFromBPM",
+        "command": "projectPanel.switchTaskSourceFromBPM",
         "title": "Switch to VSCode Tasks",
         "icon": "$(beaker)"
       },
       {
-        "command": "betterProjectTools.toggleGroupMode",
+        "command": "projectPanel.toggleGroupMode",
         "title": "Toggle Group Mode",
         "icon": "$(list-flat)"
       },
       {
-        "command": "betterProjectTools.toggleGroupModeGrouped",
+        "command": "projectPanel.toggleGroupModeGrouped",
         "title": "Toggle Group Mode",
         "icon": "$(list-tree)"
       },
       {
-        "command": "betterProjectTools.toggleFavorite",
+        "command": "projectPanel.toggleFavorite",
         "title": "Toggle Favorite",
         "icon": "$(heart)"
       },
       {
-        "command": "betterProjectTools.toggleHide",
+        "command": "projectPanel.toggleHide",
         "title": "Toggle Hide",
         "icon": "$(eye-closed)"
       },
       {
-        "command": "betterProjectTools.toggleUnfavorite",
+        "command": "projectPanel.toggleUnfavorite",
         "title": "Remove from Favorites",
         "icon": "$(heart-filled)"
       },
       {
-        "command": "betterProjectTools.toggleTasksShowHidden",
+        "command": "projectPanel.toggleTasksShowHidden",
         "title": "Show Hidden Tasks",
         "icon": "$(eye)"
       },
       {
-        "command": "betterProjectTools.toggleTasksShowHiddenActive",
+        "command": "projectPanel.toggleTasksShowHiddenActive",
         "title": "Hide Hidden Tasks",
         "icon": "$(eye-closed)"
       },
       {
-        "command": "betterProjectTools.toggleTasksShowOnlyFavorites",
+        "command": "projectPanel.toggleTasksShowOnlyFavorites",
         "title": "Show Only Favorites",
         "icon": "$(heart)"
       },
       {
-        "command": "betterProjectTools.toggleTasksShowOnlyFavoritesActive",
+        "command": "projectPanel.toggleTasksShowOnlyFavoritesActive",
         "title": "Show All Tasks",
         "icon": "$(heart-filled)"
       },
       {
-        "command": "betterProjectTools.execCmdline",
+        "command": "projectPanel.execCmdline",
         "title": "Execute Command Line"
       },
       {
-        "command": "betterProjectTools.exitCmdline",
+        "command": "projectPanel.exitCmdline",
         "title": "Exit Command Line"
       },
       {
-        "command": "betterProjectTools.tabCmdline",
+        "command": "projectPanel.tabCmdline",
         "title": "Tab Command Line"
       },
       {
-        "command": "betterProjectTools.refreshTools",
+        "command": "projectPanel.refreshTools",
         "title": "Refresh Tools",
         "icon": "$(extensions-refresh)"
       },
       {
-        "command": "betterProjectTools.toggleToolsGroupMode",
+        "command": "projectPanel.toggleToolsGroupMode",
         "title": "Toggle Tools Group Mode",
         "icon": "$(list-flat)"
       },
       {
-        "command": "betterProjectTools.toggleToolsGroupModeGrouped",
+        "command": "projectPanel.toggleToolsGroupModeGrouped",
         "title": "Toggle Tools Group Mode",
         "icon": "$(list-tree)"
       },
       {
-        "command": "betterProjectTools.toggleToolFavorite",
+        "command": "projectPanel.toggleToolFavorite",
         "title": "Toggle Tool Favorite",
         "icon": "$(heart)"
       },
       {
-        "command": "betterProjectTools.toggleToolHide",
+        "command": "projectPanel.toggleToolHide",
         "title": "Toggle Tool Hide",
         "icon": "$(eye-closed)"
       },
       {
-        "command": "betterProjectTools.toggleToolUnfavorite",
+        "command": "projectPanel.toggleToolUnfavorite",
         "title": "Remove from Favorites",
         "icon": "$(heart-filled)"
       },
       {
-        "command": "betterProjectTools.toggleToolsShowHidden",
+        "command": "projectPanel.toggleToolsShowHidden",
         "title": "Show Hidden Tools",
         "icon": "$(eye)"
       },
       {
-        "command": "betterProjectTools.toggleToolsShowHiddenActive",
+        "command": "projectPanel.toggleToolsShowHiddenActive",
         "title": "Hide Hidden Tools",
         "icon": "$(eye-closed)"
       },
       {
-        "command": "betterProjectTools.toggleToolsShowOnlyFavorites",
+        "command": "projectPanel.toggleToolsShowOnlyFavorites",
         "title": "Show Only Favorites",
         "icon": "$(heart)"
       },
       {
-        "command": "betterProjectTools.toggleToolsShowOnlyFavoritesActive",
+        "command": "projectPanel.toggleToolsShowOnlyFavoritesActive",
         "title": "Show All Tools",
         "icon": "$(heart-filled)"
       },
       {
-        "command": "betterProjectTools.executeTool",
+        "command": "projectPanel.executeTool",
         "title": "Execute Tool"
       },
       {
-        "command": "betterProjectTools.goToToolFile",
+        "command": "projectPanel.goToToolFile",
         "title": "Go to Tool File",
         "icon": "$(go-to-file)"
       },
       {
-        "command": "betterProjectTools.refreshPrompts",
+        "command": "projectPanel.refreshPrompts",
         "title": "Refresh Prompts",
         "icon": "$(extensions-refresh)"
       },
       {
-        "command": "betterProjectTools.togglePromptsGroupMode",
+        "command": "projectPanel.togglePromptsGroupMode",
         "title": "Toggle Prompts Group Mode",
         "icon": "$(list-flat)"
       },
       {
-        "command": "betterProjectTools.togglePromptsGroupModeGrouped",
+        "command": "projectPanel.togglePromptsGroupModeGrouped",
         "title": "Toggle Prompts Group Mode",
         "icon": "$(list-tree)"
       },
       {
-        "command": "betterProjectTools.togglePromptFavorite",
+        "command": "projectPanel.togglePromptFavorite",
         "title": "Add to Favorites",
         "icon": "$(heart)"
       },
       {
-        "command": "betterProjectTools.togglePromptUnfavorite",
+        "command": "projectPanel.togglePromptUnfavorite",
         "title": "Remove from Favorites",
         "icon": "$(heart-filled)"
       },
       {
-        "command": "betterProjectTools.togglePromptHide",
+        "command": "projectPanel.togglePromptHide",
         "title": "Toggle Prompt Hide",
         "icon": "$(eye-closed)"
       },
       {
-        "command": "betterProjectTools.togglePromptsShowHidden",
+        "command": "projectPanel.togglePromptsShowHidden",
         "title": "Show Hidden Prompts",
         "icon": "$(eye)"
       },
       {
-        "command": "betterProjectTools.togglePromptsShowHiddenActive",
+        "command": "projectPanel.togglePromptsShowHiddenActive",
         "title": "Hide Hidden Prompts",
         "icon": "$(eye-closed)"
       },
       {
-        "command": "betterProjectTools.togglePromptsShowOnlyFavorites",
+        "command": "projectPanel.togglePromptsShowOnlyFavorites",
         "title": "Show Only Favorites",
         "icon": "$(heart)"
       },
       {
-        "command": "betterProjectTools.togglePromptsShowOnlyFavoritesActive",
+        "command": "projectPanel.togglePromptsShowOnlyFavoritesActive",
         "title": "Show All Prompts",
         "icon": "$(heart-filled)"
       },
       {
-        "command": "betterProjectTools.executePrompt",
+        "command": "projectPanel.executePrompt",
         "title": "Execute Prompt"
       },
       {
-        "command": "betterProjectTools.goToPromptFile",
+        "command": "projectPanel.goToPromptFile",
         "title": "Go to Prompt File",
         "icon": "$(go-to-file)"
       },
       {
-        "command": "betterProjectTools.refreshBranchContext",
+        "command": "projectPanel.refreshBranchContext",
         "title": "Refresh Branch Context",
         "icon": "$(extensions-refresh)"
       },
       {
-        "command": "betterProjectTools.openBranchContextFile",
+        "command": "projectPanel.openBranchContextFile",
         "title": "Open Branch Context File",
         "icon": "$(go-to-file)"
       },
       {
-        "command": "betterProjectTools.editBranchObjective",
+        "command": "projectPanel.editBranchObjective",
         "title": "Edit Branch Objective"
       },
       {
-        "command": "betterProjectTools.editBranchLinearLink",
+        "command": "projectPanel.editBranchLinearLink",
         "title": "Edit Branch Linear Link"
       },
       {
-        "command": "betterProjectTools.editBranchNotes",
+        "command": "projectPanel.editBranchNotes",
         "title": "Edit Branch Notes"
       },
       {
-        "command": "betterProjectTools.editBranchTodos",
+        "command": "projectPanel.editBranchTodos",
         "title": "Edit Branch Todos",
         "icon": "$(go-to-file)"
       },
       {
-        "command": "betterProjectTools.showLogs",
-        "title": "BPM: Show Logs"
+        "command": "projectPanel.showLogs",
+        "title": "PP: Show Logs"
       }
     ],
     "keybindings": [
       {
-        "command": "betterProjectTools.execCmdline",
+        "command": "projectPanel.execCmdline",
         "key": "Ctrl+Shift+.",
         "when": "!inCmdlineMode"
       },
       {
-        "command": "betterProjectTools.exitCmdline",
+        "command": "projectPanel.exitCmdline",
         "key": "escape",
         "when": "inCmdlineMode"
       },
       {
-        "command": "betterProjectTools.backCmdline",
+        "command": "projectPanel.backCmdline",
         "key": "backspace",
         "when": "inCmdlineMode"
       },
       {
-        "command": "betterProjectTools.tabCmdline",
+        "command": "projectPanel.tabCmdline",
         "key": "tab",
         "when": "inCmdlineMode"
       }
@@ -426,256 +426,256 @@
     "menus": {
       "view/title": [
         {
-          "command": "betterProjectTools.toggleConfigsGroupMode",
-          "when": "view == betterProjectToolsConfigs && !configsGrouped",
+          "command": "projectPanel.toggleConfigsGroupMode",
+          "when": "view == projectPanelConfigs && !configsGrouped",
           "group": "navigation@1"
         },
         {
-          "command": "betterProjectTools.toggleConfigsGroupModeGrouped",
-          "when": "view == betterProjectToolsConfigs && configsGrouped",
+          "command": "projectPanel.toggleConfigsGroupModeGrouped",
+          "when": "view == projectPanelConfigs && configsGrouped",
           "group": "navigation@1"
         },
         {
-          "command": "betterProjectTools.refreshConfigs",
-          "when": "view == betterProjectToolsConfigs",
+          "command": "projectPanel.refreshConfigs",
+          "when": "view == projectPanelConfigs",
           "group": "navigation@2"
         },
         {
-          "command": "betterProjectTools.toggleReplacementsGroupMode",
-          "when": "view == betterProjectToolsReplacements && !replacementsGrouped",
+          "command": "projectPanel.toggleReplacementsGroupMode",
+          "when": "view == projectPanelReplacements && !replacementsGrouped",
           "group": "navigation@1"
         },
         {
-          "command": "betterProjectTools.toggleReplacementsGroupModeGrouped",
-          "when": "view == betterProjectToolsReplacements && replacementsGrouped",
+          "command": "projectPanel.toggleReplacementsGroupModeGrouped",
+          "when": "view == projectPanelReplacements && replacementsGrouped",
           "group": "navigation@1"
         },
         {
-          "command": "betterProjectTools.revertAllReplacements",
-          "when": "view == betterProjectToolsReplacements",
+          "command": "projectPanel.revertAllReplacements",
+          "when": "view == projectPanelReplacements",
           "group": "navigation@2"
         },
         {
-          "command": "betterProjectTools.refreshReplacements",
-          "when": "view == betterProjectToolsReplacements",
+          "command": "projectPanel.refreshReplacements",
+          "when": "view == projectPanelReplacements",
           "group": "navigation@3"
         },
         {
-          "command": "betterProjectTools.toggleGroupMode",
-          "when": "view == betterProjectToolsTasks && !tasksGrouped && tasksHasGroups",
+          "command": "projectPanel.toggleGroupMode",
+          "when": "view == projectPanelTasks && !tasksGrouped && tasksHasGroups",
           "group": "navigation@1"
         },
         {
-          "command": "betterProjectTools.toggleGroupModeGrouped",
-          "when": "view == betterProjectToolsTasks && tasksGrouped && tasksHasGroups",
+          "command": "projectPanel.toggleGroupModeGrouped",
+          "when": "view == projectPanelTasks && tasksGrouped && tasksHasGroups",
           "group": "navigation@1"
         },
         {
-          "command": "betterProjectTools.switchTaskSource",
-          "when": "view == betterProjectToolsTasks && taskSourceVSCode",
+          "command": "projectPanel.switchTaskSource",
+          "when": "view == projectPanelTasks && taskSourceVSCode",
           "group": "navigation@2"
         },
         {
-          "command": "betterProjectTools.switchTaskSourceFromPackage",
-          "when": "view == betterProjectToolsTasks && taskSourcePackage",
+          "command": "projectPanel.switchTaskSourceFromPackage",
+          "when": "view == projectPanelTasks && taskSourcePackage",
           "group": "navigation@2"
         },
         {
-          "command": "betterProjectTools.switchTaskSourceFromBPM",
-          "when": "view == betterProjectToolsTasks && taskSourceBPM",
+          "command": "projectPanel.switchTaskSourceFromBPM",
+          "when": "view == projectPanelTasks && taskSourcePP",
           "group": "navigation@2"
         },
         {
-          "command": "betterProjectTools.openTasksConfig",
-          "when": "view == betterProjectToolsTasks",
+          "command": "projectPanel.openTasksConfig",
+          "when": "view == projectPanelTasks",
           "group": "navigation@3"
         },
         {
-          "command": "betterProjectTools.toggleTasksShowOnlyFavorites",
-          "when": "view == betterProjectToolsTasks && tasksHasFavorites && !tasksShowOnlyFavorites",
+          "command": "projectPanel.toggleTasksShowOnlyFavorites",
+          "when": "view == projectPanelTasks && tasksHasFavorites && !tasksShowOnlyFavorites",
           "group": "navigation@4"
         },
         {
-          "command": "betterProjectTools.toggleTasksShowOnlyFavoritesActive",
-          "when": "view == betterProjectToolsTasks && tasksHasFavorites && tasksShowOnlyFavorites",
+          "command": "projectPanel.toggleTasksShowOnlyFavoritesActive",
+          "when": "view == projectPanelTasks && tasksHasFavorites && tasksShowOnlyFavorites",
           "group": "navigation@4"
         },
         {
-          "command": "betterProjectTools.toggleTasksShowHidden",
-          "when": "view == betterProjectToolsTasks && tasksHasHidden && !tasksShowHidden",
+          "command": "projectPanel.toggleTasksShowHidden",
+          "when": "view == projectPanelTasks && tasksHasHidden && !tasksShowHidden",
           "group": "navigation@5"
         },
         {
-          "command": "betterProjectTools.toggleTasksShowHiddenActive",
-          "when": "view == betterProjectToolsTasks && tasksHasHidden && tasksShowHidden",
+          "command": "projectPanel.toggleTasksShowHiddenActive",
+          "when": "view == projectPanelTasks && tasksHasHidden && tasksShowHidden",
           "group": "navigation@5"
         },
         {
-          "command": "betterProjectTools.refresh",
-          "when": "view == betterProjectToolsTasks",
+          "command": "projectPanel.refresh",
+          "when": "view == projectPanelTasks",
           "group": "navigation@6"
         },
         {
-          "command": "betterProjectTools.toggleToolsGroupMode",
-          "when": "view == betterProjectToolsTools && !toolsGrouped",
+          "command": "projectPanel.toggleToolsGroupMode",
+          "when": "view == projectPanelTools && !toolsGrouped",
           "group": "navigation@1"
         },
         {
-          "command": "betterProjectTools.toggleToolsGroupModeGrouped",
-          "when": "view == betterProjectToolsTools && toolsGrouped",
+          "command": "projectPanel.toggleToolsGroupModeGrouped",
+          "when": "view == projectPanelTools && toolsGrouped",
           "group": "navigation@1"
         },
         {
-          "command": "betterProjectTools.toggleToolsShowOnlyFavorites",
-          "when": "view == betterProjectToolsTools && toolsHasFavorites && !toolsShowOnlyFavorites",
+          "command": "projectPanel.toggleToolsShowOnlyFavorites",
+          "when": "view == projectPanelTools && toolsHasFavorites && !toolsShowOnlyFavorites",
           "group": "navigation@2"
         },
         {
-          "command": "betterProjectTools.toggleToolsShowOnlyFavoritesActive",
-          "when": "view == betterProjectToolsTools && toolsHasFavorites && toolsShowOnlyFavorites",
+          "command": "projectPanel.toggleToolsShowOnlyFavoritesActive",
+          "when": "view == projectPanelTools && toolsHasFavorites && toolsShowOnlyFavorites",
           "group": "navigation@2"
         },
         {
-          "command": "betterProjectTools.toggleToolsShowHidden",
-          "when": "view == betterProjectToolsTools && toolsHasHidden && !toolsShowHidden",
+          "command": "projectPanel.toggleToolsShowHidden",
+          "when": "view == projectPanelTools && toolsHasHidden && !toolsShowHidden",
           "group": "navigation@3"
         },
         {
-          "command": "betterProjectTools.toggleToolsShowHiddenActive",
-          "when": "view == betterProjectToolsTools && toolsHasHidden && toolsShowHidden",
+          "command": "projectPanel.toggleToolsShowHiddenActive",
+          "when": "view == projectPanelTools && toolsHasHidden && toolsShowHidden",
           "group": "navigation@3"
         },
         {
-          "command": "betterProjectTools.refreshTools",
-          "when": "view == betterProjectToolsTools",
+          "command": "projectPanel.refreshTools",
+          "when": "view == projectPanelTools",
           "group": "navigation@4"
         },
         {
-          "command": "betterProjectTools.togglePromptsGroupMode",
-          "when": "view == betterProjectToolsPrompts && !promptsGrouped",
+          "command": "projectPanel.togglePromptsGroupMode",
+          "when": "view == projectPanelPrompts && !promptsGrouped",
           "group": "navigation@1"
         },
         {
-          "command": "betterProjectTools.togglePromptsGroupModeGrouped",
-          "when": "view == betterProjectToolsPrompts && promptsGrouped",
+          "command": "projectPanel.togglePromptsGroupModeGrouped",
+          "when": "view == projectPanelPrompts && promptsGrouped",
           "group": "navigation@1"
         },
         {
-          "command": "betterProjectTools.togglePromptsShowOnlyFavorites",
-          "when": "view == betterProjectToolsPrompts && promptsHasFavorites && !promptsShowOnlyFavorites",
+          "command": "projectPanel.togglePromptsShowOnlyFavorites",
+          "when": "view == projectPanelPrompts && promptsHasFavorites && !promptsShowOnlyFavorites",
           "group": "navigation@2"
         },
         {
-          "command": "betterProjectTools.togglePromptsShowOnlyFavoritesActive",
-          "when": "view == betterProjectToolsPrompts && promptsHasFavorites && promptsShowOnlyFavorites",
+          "command": "projectPanel.togglePromptsShowOnlyFavoritesActive",
+          "when": "view == projectPanelPrompts && promptsHasFavorites && promptsShowOnlyFavorites",
           "group": "navigation@2"
         },
         {
-          "command": "betterProjectTools.togglePromptsShowHidden",
-          "when": "view == betterProjectToolsPrompts && promptsHasHidden && !promptsShowHidden",
+          "command": "projectPanel.togglePromptsShowHidden",
+          "when": "view == projectPanelPrompts && promptsHasHidden && !promptsShowHidden",
           "group": "navigation@3"
         },
         {
-          "command": "betterProjectTools.togglePromptsShowHiddenActive",
-          "when": "view == betterProjectToolsPrompts && promptsHasHidden && promptsShowHidden",
+          "command": "projectPanel.togglePromptsShowHiddenActive",
+          "when": "view == projectPanelPrompts && promptsHasHidden && promptsShowHidden",
           "group": "navigation@3"
         },
         {
-          "command": "betterProjectTools.refreshPrompts",
-          "when": "view == betterProjectToolsPrompts",
+          "command": "projectPanel.refreshPrompts",
+          "when": "view == projectPanelPrompts",
           "group": "navigation@4"
         },
         {
-          "command": "betterProjectTools.openBranchContextFile",
-          "when": "view == betterProjectToolsBranchContext",
+          "command": "projectPanel.openBranchContextFile",
+          "when": "view == projectPanelBranchContext",
           "group": "navigation@1"
         },
         {
-          "command": "betterProjectTools.refreshBranchContext",
-          "when": "view == betterProjectToolsBranchContext",
+          "command": "projectPanel.refreshBranchContext",
+          "when": "view == projectPanelBranchContext",
           "group": "navigation@2"
         },
         {
-          "command": "betterProjectTools.editBranchTodos",
-          "when": "view == betterProjectToolsTodos",
+          "command": "projectPanel.editBranchTodos",
+          "when": "view == projectPanelTodos",
           "group": "navigation"
         }
       ],
       "view/item/context": [
         {
-          "command": "betterProjectTools.toggleFavorite",
-          "when": "view == betterProjectToolsTasks && viewItem == task",
+          "command": "projectPanel.toggleFavorite",
+          "when": "view == projectPanelTasks && viewItem == task",
           "group": "inline@1"
         },
         {
-          "command": "betterProjectTools.toggleUnfavorite",
-          "when": "view == betterProjectToolsTasks && viewItem == task-favorite",
+          "command": "projectPanel.toggleUnfavorite",
+          "when": "view == projectPanelTasks && viewItem == task-favorite",
           "group": "inline@1"
         },
         {
-          "command": "betterProjectTools.toggleHide",
-          "when": "view == betterProjectToolsTasks && viewItem =~ /^task/",
+          "command": "projectPanel.toggleHide",
+          "when": "view == projectPanelTasks && viewItem =~ /^task/",
           "group": "inline@2"
         },
         {
-          "command": "betterProjectTools.executeTask",
-          "when": "view == betterProjectToolsTasks"
+          "command": "projectPanel.executeTask",
+          "when": "view == projectPanelTasks"
         },
         {
-          "command": "betterProjectTools.goToTask",
-          "when": "view == betterProjectToolsTasks"
+          "command": "projectPanel.goToTask",
+          "when": "view == projectPanelTasks"
         },
         {
-          "command": "betterProjectTools.toggleToolFavorite",
-          "when": "view == betterProjectToolsTools && viewItem == tool",
+          "command": "projectPanel.toggleToolFavorite",
+          "when": "view == projectPanelTools && viewItem == tool",
           "group": "inline@1"
         },
         {
-          "command": "betterProjectTools.toggleToolUnfavorite",
-          "when": "view == betterProjectToolsTools && viewItem == tool-favorite",
+          "command": "projectPanel.toggleToolUnfavorite",
+          "when": "view == projectPanelTools && viewItem == tool-favorite",
           "group": "inline@1"
         },
         {
-          "command": "betterProjectTools.toggleToolHide",
-          "when": "view == betterProjectToolsTools && viewItem =~ /^tool/",
+          "command": "projectPanel.toggleToolHide",
+          "when": "view == projectPanelTools && viewItem =~ /^tool/",
           "group": "inline@2"
         },
         {
-          "command": "betterProjectTools.goToToolFile",
-          "when": "view == betterProjectToolsTools && viewItem =~ /^tool/",
+          "command": "projectPanel.goToToolFile",
+          "when": "view == projectPanelTools && viewItem =~ /^tool/",
           "group": "inline@3"
         },
         {
-          "command": "betterProjectTools.executeTool",
-          "when": "view == betterProjectToolsTools"
+          "command": "projectPanel.executeTool",
+          "when": "view == projectPanelTools"
         },
         {
-          "command": "betterProjectTools.togglePromptFavorite",
-          "when": "view == betterProjectToolsPrompts && viewItem == prompt",
+          "command": "projectPanel.togglePromptFavorite",
+          "when": "view == projectPanelPrompts && viewItem == prompt",
           "group": "inline@1"
         },
         {
-          "command": "betterProjectTools.togglePromptUnfavorite",
-          "when": "view == betterProjectToolsPrompts && viewItem == prompt-favorite",
+          "command": "projectPanel.togglePromptUnfavorite",
+          "when": "view == projectPanelPrompts && viewItem == prompt-favorite",
           "group": "inline@1"
         },
         {
-          "command": "betterProjectTools.togglePromptHide",
-          "when": "view == betterProjectToolsPrompts && viewItem =~ /^prompt/",
+          "command": "projectPanel.togglePromptHide",
+          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/",
           "group": "inline@2"
         },
         {
-          "command": "betterProjectTools.goToPromptFile",
-          "when": "view == betterProjectToolsPrompts && viewItem =~ /^prompt/",
+          "command": "projectPanel.goToPromptFile",
+          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/",
           "group": "inline@3"
         },
         {
-          "command": "betterProjectTools.executePrompt",
-          "when": "view == betterProjectToolsPrompts"
+          "command": "projectPanel.executePrompt",
+          "when": "view == projectPanelPrompts"
         },
         {
-          "command": "betterProjectTools.resetConfigOption",
-          "when": "view == betterProjectToolsConfigs && viewItem == configItem",
+          "command": "projectPanel.resetConfigOption",
+          "when": "view == projectPanelConfigs && viewItem == configItem",
           "group": "inline"
         }
       ]

@@ -104,7 +104,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     if (!workspace) return;
 
     this.stateWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, '.bpm/state.json'),
+      new vscode.RelativePattern(workspace, '.pp/state.json'),
     );
 
     this.stateWatcher.onDidChange(() => this.refresh());

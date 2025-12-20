@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const TaskSourceEnum = z.enum(['vscode', 'package', 'bpm']);
+const TaskSourceEnum = z.enum(['vscode', 'package', 'pp']);
 
 const SourceStateSchema = z.object({
   flatOrder: z.array(z.string()),
@@ -16,21 +16,21 @@ const TasksStateSchema = z.object({
   isGrouped: z.boolean(),
   vscode: SourceStateSchema,
   packageJson: SourceStateSchema,
-  bpm: SourceStateSchema,
+  pp: SourceStateSchema,
 });
 
 const ToolsStateSchema = z.object({
   isGrouped: z.boolean(),
   showHidden: z.boolean().optional(),
   showOnlyFavorites: z.boolean().optional(),
-  bpm: SourceStateSchema,
+  pp: SourceStateSchema,
 });
 
 const PromptsStateSchema = z.object({
   isGrouped: z.boolean(),
   showHidden: z.boolean().optional(),
   showOnlyFavorites: z.boolean().optional(),
-  bpm: SourceStateSchema,
+  pp: SourceStateSchema,
 });
 
 const ConfigsStateSchema = z.object({
@@ -82,17 +82,17 @@ export const DEFAULT_TASKS_STATE: TasksState = {
   isGrouped: false,
   vscode: { ...DEFAULT_SOURCE_STATE },
   packageJson: { ...DEFAULT_SOURCE_STATE },
-  bpm: { ...DEFAULT_SOURCE_STATE },
+  pp: { ...DEFAULT_SOURCE_STATE },
 };
 
 export const DEFAULT_TOOLS_STATE: ToolsState = {
   isGrouped: false,
-  bpm: { ...DEFAULT_SOURCE_STATE },
+  pp: { ...DEFAULT_SOURCE_STATE },
 };
 
 export const DEFAULT_PROMPTS_STATE: PromptsState = {
   isGrouped: false,
-  bpm: { ...DEFAULT_SOURCE_STATE },
+  pp: { ...DEFAULT_SOURCE_STATE },
 };
 
 export const DEFAULT_CONFIGS_STATE: ConfigsState = {

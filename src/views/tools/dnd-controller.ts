@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import type { ToolGroupTreeItem, TreeTool } from './items';
 import { getOrder, saveOrder } from './state';
 
-const MIME_TYPE = 'application/vnd.code.tree.betterprojecttoolstools';
+const MIME_TYPE = 'application/vnd.code.tree.projectpaneltools';
 
 export class ToolDragAndDropController implements vscode.TreeDragAndDropController<TreeTool | ToolGroupTreeItem> {
   readonly dropMimeTypes = [MIME_TYPE];

@@ -45,7 +45,7 @@ function getWorkspacePath(): string | null {
 function getStatePath(): string | null {
   const workspace = getWorkspacePath();
   if (!workspace) return null;
-  return path.join(workspace, '.bpm', 'state.json');
+  return path.join(workspace, '.pp', 'state.json');
 }
 
 function loadState(): BpmState {
@@ -133,7 +133,7 @@ export class ConfigsProvider implements vscode.TreeDataProvider<vscode.TreeItem>
     if (!workspace) return;
 
     this.fileWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, '.bpm/{config.jsonc,state.json}'),
+      new vscode.RelativePattern(workspace, '.pp/{config.jsonc,state.json}'),
     );
 
     this.fileWatcher.onDidChange(() => this.refresh());
@@ -196,7 +196,7 @@ export class ConfigsProvider implements vscode.TreeDataProvider<vscode.TreeItem>
     const workspace = getWorkspacePath();
     if (!workspace) return null;
 
-    const configPath = path.join(workspace, '.bpm', 'config.jsonc');
+    const configPath = path.join(workspace, '.pp', 'config.jsonc');
     if (!fs.existsSync(configPath)) return null;
 
     const content = fs.readFileSync(configPath, 'utf-8');
@@ -214,7 +214,7 @@ async function runCommand(config: ConfigItem, value: string | boolean | string[]
   const command = `${config.command} "${formattedValue}"`;
 
   if (config.showTerminal) {
-    const terminal = vscode.window.createTerminal(`BPM: ${config.name}`);
+    const terminal = vscode.window.createTerminal(`PP: ${config.name}`);
     terminal.show();
     terminal.sendText(`cd "${workspace}" && ${command}`);
   } else {

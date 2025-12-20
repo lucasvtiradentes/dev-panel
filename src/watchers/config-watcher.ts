@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 type RefreshCallback = () => void;
 
 export function createConfigWatcher(onConfigChange: RefreshCallback): vscode.FileSystemWatcher {
-  const configWatcher = vscode.workspace.createFileSystemWatcher('**/.bpm/config.jsonc');
+  const configWatcher = vscode.workspace.createFileSystemWatcher('**/.pp/config.jsonc');
 
   const handleConfigChange = (_uri: vscode.Uri) => {
     onConfigChange();

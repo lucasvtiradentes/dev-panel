@@ -69,10 +69,10 @@ export function createOpenTasksConfigCommand() {
         break;
       }
 
-      case TaskSource.BPM: {
-        const bpmConfigPath = path.join(workspacePath, '.bpm', 'config.jsonc');
-        if (fs.existsSync(bpmConfigPath)) {
-          const content = fs.readFileSync(bpmConfigPath, 'utf-8');
+      case TaskSource.PP: {
+        const ppConfigPath = path.join(workspacePath, '.pp', 'config.jsonc');
+        if (fs.existsSync(ppConfigPath)) {
+          const content = fs.readFileSync(ppConfigPath, 'utf-8');
           const lines = content.split('\n');
           let scriptsLine = 0;
 
@@ -83,13 +83,13 @@ export function createOpenTasksConfigCommand() {
             }
           }
 
-          const uri = vscode.Uri.file(bpmConfigPath);
+          const uri = vscode.Uri.file(ppConfigPath);
           const doc = await vscode.workspace.openTextDocument(uri);
           await vscode.window.showTextDocument(doc, {
             selection: new vscode.Range(scriptsLine, 0, scriptsLine, 0),
           });
         } else {
-          void vscode.window.showErrorMessage('.bpm/config.jsonc not found');
+          void vscode.window.showErrorMessage('.pp/config.jsonc not found');
         }
         break;
       }

@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, createLogger, getCommandId, setContextKey } from '../../common';
-import type { BPMConfig } from '../../common/schemas/types';
+import type { PPConfig } from '../../common/schemas/types';
 import { PromptDragAndDropController } from './dnd-controller';
 import { PromptGroupTreeItem, TreePrompt } from './items';
 import {
@@ -137,18 +137,18 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
       return this.sortElements(item.children);
     }
 
-    return this.getBPMPrompts();
+    return this.getPPPrompts();
   }
 
-  private async getBPMPrompts(): Promise<Array<TreePrompt | PromptGroupTreeItem>> {
+  private async getPPPrompts(): Promise<Array<TreePrompt | PromptGroupTreeItem>> {
     const folders = vscode.workspace.workspaceFolders ?? [];
 
     if (!this._grouped) {
       const promptElements: TreePrompt[] = [];
       for (const folder of folders) {
-        const prompts = this.readBPMPrompts(folder);
+        const prompts = this.readPPPrompts(folder);
         for (const prompt of prompts) {
-          const treePrompt = this.createBPMPrompt(prompt, folder);
+          const treePrompt = this.createPPPrompt(prompt, folder);
           if (treePrompt) promptElements.push(treePrompt);
         }
       }
@@ -159,9 +159,9 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
     const groups: Record<string, PromptGroupTreeItem> = {};
 
     for (const folder of folders) {
-      const prompts = this.readBPMPrompts(folder);
+      const prompts = this.readPPPrompts(folder);
       for (const prompt of prompts) {
-        const treePrompt = this.createBPMPrompt(prompt, folder);
+        const treePrompt = this.createPPPrompt(prompt, folder);
         if (!treePrompt) continue;
 
         const groupName = prompt.group ?? 'no-group';
@@ -177,13 +177,13 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
     return this.sortElements(promptElements);
   }
 
-  private readBPMPrompts(folder: vscode.WorkspaceFolder): NonNullable<BPMConfig['prompts']> {
-    const configPath = `${folder.uri.fsPath}/.bpm/config.jsonc`;
-    log.debug(`readBPMPrompts - reading: ${configPath}`);
+  private readPPPrompts(folder: vscode.WorkspaceFolder): NonNullable<PPConfig['prompts']> {
+    const configPath = `${folder.uri.fsPath}/.pp/config.jsonc`;
+    log.debug(`readPPPrompts - reading: ${configPath}`);
     if (!fs.existsSync(configPath)) return [];
-    const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as BPMConfig;
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
     const prompts = config.prompts ?? [];
-    log.info(`readBPMPrompts - found ${prompts.length} prompts`);
+    log.info(`readPPPrompts - found ${prompts.length} prompts`);
     for (const p of prompts) {
       if (p.inputs) {
         log.debug(`prompt "${p.name}" inputs: ${JSON.stringify(p.inputs)}`);
@@ -192,8 +192,8 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
     return prompts;
   }
 
-  private createBPMPrompt(
-    prompt: NonNullable<BPMConfig['prompts']>[number],
+  private createPPPrompt(
+    prompt: NonNullable<PPConfig['prompts']>[number],
     folder: vscode.WorkspaceFolder,
   ): TreePrompt | null {
     const hidden = isHidden(prompt.name);
@@ -201,7 +201,7 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
     if (hidden && !this._showHidden) return null;
     if (this._showOnlyFavorites && !favorite) return null;
 
-    const promptFilePath = `${folder.uri.fsPath}/.bpm/prompts/${prompt.file}`;
+    const promptFilePath = `${folder.uri.fsPath}/.pp/prompts/${prompt.file}`;
 
     const treePrompt = new TreePrompt(prompt.name, promptFilePath, vscode.TreeItemCollapsibleState.None, {
       command: getCommandId(Command.ExecutePrompt),

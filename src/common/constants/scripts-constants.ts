@@ -1,17 +1,17 @@
 export const EXTENSION_PUBLISHER = 'lucasvtiradentes';
-export const EXTENSION_NAME = 'better-project-tools';
-export const EXTENSION_DISPLAY_NAME = 'Better Project Tools';
+export const EXTENSION_NAME = 'project-panel';
+export const EXTENSION_DISPLAY_NAME = 'Project Panel';
 
-export const CONTEXT_PREFIX = 'betterProjectTools';
-export const VIEW_ID_TASKS = 'betterProjectToolsTasks';
-export const VIEW_ID_CONFIGS = 'betterProjectToolsConfigs';
-export const VIEW_ID_REPLACEMENTS = 'betterProjectToolsReplacements';
-export const VIEW_ID_TOOLS = 'betterProjectToolsTools';
-export const VIEW_ID_PROMPTS = 'betterProjectToolsPrompts';
-export const VIEW_ID_BRANCH_CONTEXT = 'betterProjectToolsBranchContext';
-export const VIEW_ID_TODOS = 'betterProjectToolsTodos';
+export const CONTEXT_PREFIX = 'projectPanel';
+export const VIEW_ID_TASKS = 'projectPanelTasks';
+export const VIEW_ID_CONFIGS = 'projectPanelConfigs';
+export const VIEW_ID_REPLACEMENTS = 'projectPanelReplacements';
+export const VIEW_ID_TOOLS = 'projectPanelTools';
+export const VIEW_ID_PROMPTS = 'projectPanelPrompts';
+export const VIEW_ID_BRANCH_CONTEXT = 'projectPanelBranchContext';
+export const VIEW_ID_TODOS = 'projectPanelTodos';
 export const DEV_SUFFIX = 'dev';
-export const LOG_BASENAME = 'better-project-tools';
+export const LOG_BASENAME = 'project-panel';
 
 export function addDevSuffix(str: string): string {
   return `${str}${DEV_SUFFIX}`;
