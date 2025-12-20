@@ -27,10 +27,13 @@ import type { PPConfig } from './common/schemas/types';
 import { syncKeybindings } from './lib/keybindings-sync';
 import { BranchContextProvider } from './views/branch-context';
 import { PromptTreeDataProvider } from './views/prompts';
+import { reloadPromptKeybindings } from './views/prompts/keybindings-local';
 import { ReplacementsProvider } from './views/replacements';
 import { TaskTreeDataProvider } from './views/tasks';
+import { reloadTaskKeybindings } from './views/tasks/keybindings-local';
 import { TodosProvider } from './views/todos';
 import { ToolTreeDataProvider } from './views/tools';
+import { reloadToolKeybindings } from './views/tools/keybindings-local';
 import { VariablesProvider } from './views/variables';
 import { createConfigWatcher } from './watchers/config-watcher';
 import { createKeybindingsWatcher } from './watchers/keybindings-watcher';
@@ -160,6 +163,12 @@ export function activate(context: vscode.ExtensionContext): object {
   void setContextKey(ContextKey.WorkspaceId, workspaceId);
   logger.info(`Workspace ID: ${workspaceId}`);
 
+  // Reload keybinding managers after workspaceId is set
+  console.log('[extension] Reloading keybinding managers after workspaceId initialization');
+  reloadToolKeybindings();
+  reloadPromptKeybindings();
+  reloadTaskKeybindings();
+
   const taskTreeDataProvider = new TaskTreeDataProvider(context);
   const variablesProvider = new VariablesProvider();
   const replacementsProvider = new ReplacementsProvider();
@@ -211,6 +220,14 @@ export function activate(context: vscode.ExtensionContext): object {
   context.subscriptions.push(configWatcher);
 
   const keybindingsWatcher = createKeybindingsWatcher(() => {
+    console.log('[extension] Keybindings changed, reloading managers and refreshing providers');
+
+    // Reload keybinding managers first
+    reloadToolKeybindings();
+    reloadPromptKeybindings();
+    reloadTaskKeybindings();
+
+    // Then refresh providers
     toolTreeDataProvider.refresh();
     promptTreeDataProvider.refresh();
     replacementsProvider.refresh();

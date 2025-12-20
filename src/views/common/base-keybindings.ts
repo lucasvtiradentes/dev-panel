@@ -11,12 +11,21 @@ export class KeybindingManager {
   private workspaceId: string | null = null;
 
   constructor(private readonly config: KeybindingConfig) {
+    console.log(`[KeybindingManager] Creating manager for prefix: ${config.commandPrefix}`);
+    this.loadKeybindings();
+  }
+
+  reload(): void {
+    console.log(`[KeybindingManager] Reloading keybindings for prefix: ${this.config.commandPrefix}`);
     this.loadKeybindings();
   }
 
   private loadKeybindings(): void {
     const filePath = getVSCodeKeybindingsPath();
+    console.log(`[KeybindingManager] Loading keybindings from: ${filePath}`);
+
     if (!fs.existsSync(filePath)) {
+      console.log('[KeybindingManager] Keybindings file does not exist');
       this.keybindings = [];
       return;
     }
@@ -24,11 +33,14 @@ export class KeybindingManager {
     try {
       const content = fs.readFileSync(filePath, 'utf8');
       this.keybindings = content.trim() ? JSON5.parse(content) : [];
-    } catch {
+      console.log(`[KeybindingManager] Loaded ${this.keybindings.length} keybindings`);
+    } catch (error) {
+      console.error('[KeybindingManager] Error loading keybindings:', error);
       this.keybindings = [];
     }
 
     this.workspaceId = getWorkspaceId();
+    console.log(`[KeybindingManager] Workspace ID: ${this.workspaceId}`);
   }
 
   private matchesWorkspace(kb: VSCodeKeybinding): boolean {
@@ -39,6 +51,9 @@ export class KeybindingManager {
   getKeybinding(itemName: string): string | undefined {
     const commandId = this.config.getCommandId(itemName);
     const binding = this.keybindings.find((kb) => kb.command === commandId && this.matchesWorkspace(kb));
+    console.log(
+      `[KeybindingManager] getKeybinding("${itemName}") -> commandId: ${commandId}, found: ${binding?.key ?? 'none'}`,
+    );
     return binding?.key;
   }
 
@@ -53,6 +68,7 @@ export class KeybindingManager {
       }
     }
 
+    console.log(`[KeybindingManager] getAllKeybindings() -> found ${Object.keys(result).length} keybindings`);
     return result;
   }
 }

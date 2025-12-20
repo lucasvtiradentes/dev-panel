@@ -120,7 +120,9 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
       arguments: [task, folder],
     });
 
+    console.log(`[ToolTreeDataProvider] Creating tool "${tool.name}"`);
     const keybinding = getToolKeybinding(tool.name);
+    console.log(`[ToolTreeDataProvider] Tool "${tool.name}" keybinding: ${keybinding ?? 'none'}`);
 
     if (keybinding) {
       treeTool.description = keybinding;

@@ -63,6 +63,7 @@ export function createKeybindingsWatcher(onKeybindingsChange: () => void): vscod
   );
 
   const handleChange = () => {
+    console.log('[keybindings-watcher] Keybindings file changed, updating and notifying');
     addWhenClauseToOurKeybindings();
     onKeybindingsChange();
   };

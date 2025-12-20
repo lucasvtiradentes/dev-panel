@@ -8,3 +8,4 @@ const manager = new KeybindingManager({
 
 export const getToolKeybinding = (name: string) => manager.getKeybinding(name);
 export const getAllToolKeybindings = () => manager.getAllKeybindings();
+export const reloadToolKeybindings = () => manager.reload();
