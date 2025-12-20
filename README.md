@@ -13,7 +13,7 @@
 - rodar tasks de 5 em 5 horas de forma randomica
   - revisar PR 
   - revisar issues
-  
+
 ## PROJECT PANEL
 
 ## prompts 
@@ -29,6 +29,8 @@
   - create PR
   - review PR
 - [ ] botao de sincronizar as toosl no CLAUDE.md etc
+- [ ] ver oq podermos fazer para ter um keybindings
+- [ ] ver oq podermos fazer para ter views dinamuicas
 - [ ] salvar as coisas em uma pasta branch la no ".pp" ao inves de salvar no state.json
 - [ ] no "branch context" devemos ter o prefixo de "Branch: " na primeira linha ao inves de so mostrar a branch
 - [ ] adicionar uma pasta global onde posso colocar prompts / tools / scripts globais 
