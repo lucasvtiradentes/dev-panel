@@ -200,6 +200,9 @@ export const BPMStateSchema = z.object({
   activeReplacements: z.array(z.string()).optional(),
   lastBranch: z.string().optional(),
   environment: z.string().optional(),
+});
+
+export const WorkspaceUIStateSchema = z.object({
   tasks: TasksStateSchema.optional(),
   tools: ToolsStateSchema.optional(),
   prompts: PromptsStateSchema.optional(),
@@ -227,6 +230,7 @@ export type ReplacementsState = z.infer<typeof ReplacementsStateSchema>;
 export type BranchContext = z.infer<typeof BranchContextSchema>;
 export type BranchesState = z.infer<typeof BranchesStateSchema>;
 export type BPMState = z.infer<typeof BPMStateSchema>;
+export type WorkspaceUIState = z.infer<typeof WorkspaceUIStateSchema>;
 
 export const DEFAULT_SOURCE_STATE: SourceState = {
   flatOrder: [],
@@ -259,4 +263,13 @@ export const DEFAULT_CONFIGS_STATE: ConfigsState = {
 
 export const DEFAULT_REPLACEMENTS_STATE: ReplacementsState = {
   isGrouped: true,
+};
+
+export const DEFAULT_WORKSPACE_UI_STATE: WorkspaceUIState = {
+  tasks: DEFAULT_TASKS_STATE,
+  tools: DEFAULT_TOOLS_STATE,
+  prompts: DEFAULT_PROMPTS_STATE,
+  configs: DEFAULT_CONFIGS_STATE,
+  replacements: DEFAULT_REPLACEMENTS_STATE,
+  branches: {},
 };

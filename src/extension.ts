@@ -11,6 +11,7 @@ import {
   getViewIdTools,
 } from './common/constants';
 import { logger } from './common/lib/logger';
+import { initWorkspaceState } from './common/lib/workspace-state';
 import { BranchContextProvider } from './views/branch-context';
 import { ConfigsProvider } from './views/configs';
 import { PromptTreeDataProvider } from './views/prompts';
@@ -19,11 +20,11 @@ import { TaskTreeDataProvider } from './views/tasks';
 import { TodosProvider } from './views/todos';
 import { ToolTreeDataProvider } from './views/tools';
 import { createConfigWatcher } from './watchers/config-watcher';
-import { createStateWatcher } from './watchers/state-watcher';
 
 export function activate(context: vscode.ExtensionContext): object {
   logger.clear();
   logger.info('Better Project Tools extension activated');
+  initWorkspaceState(context);
   const taskTreeDataProvider = new TaskTreeDataProvider(context);
   const configsProvider = new ConfigsProvider();
   const replacementsProvider = new ReplacementsProvider();
@@ -63,13 +64,6 @@ export function activate(context: vscode.ExtensionContext): object {
   context.subscriptions.push({ dispose: () => promptTreeDataProvider.dispose() });
   context.subscriptions.push({ dispose: () => branchContextProvider.dispose() });
   context.subscriptions.push({ dispose: () => todosProvider.dispose() });
-
-  const stateWatcher = createStateWatcher(() => {
-    taskTreeDataProvider.refresh();
-    toolTreeDataProvider.refresh();
-    promptTreeDataProvider.refresh();
-  });
-  context.subscriptions.push(stateWatcher);
 
   const configWatcher = createConfigWatcher(() => {
     logger.info('Config changed, refreshing views');
