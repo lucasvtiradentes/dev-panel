@@ -7,3 +7,25 @@
 
 - [ ] ter um view de flags de calude code
 - [ ] ter uma view de custom commands
+
+## BETTER PROJECT CONFIGS 
+
+## prompts 
+
+- [ ] ter um changes-review vinculado a branch para ser facil de feedar novas secoes do claude code
+- [ ] entrypoint -> draw
+- [ ] find test cases
+- [ ] adicionar prompt de revisar pr/branch
+
+## views
+
+- [ ] no botao da branch ser possivel mudar a branch para por exemplo pegar uma branch q nao esta no pc 
+- [ ] adicionar botao de ir direto para o prompt/tool/script 
+
+## outros
+
+- [ ] ter como usar tate.variables nos prompts, scripts, etc -> ${{environment}}
+- [ ] adicionar integracao com linear cmd e mostrar as coisas para serem feitas no projeto/branch
+  - por milestone 
+  - por pessoa 
+
