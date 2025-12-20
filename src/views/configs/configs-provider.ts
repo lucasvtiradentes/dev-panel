@@ -83,7 +83,7 @@ class GroupTreeItem extends vscode.TreeItem {
   }
 }
 
-class ConfigTreeItem extends vscode.TreeItem {
+export class ConfigTreeItem extends vscode.TreeItem {
   constructor(
     public readonly config: ConfigItem,
     currentValue?: string | boolean | string[],
@@ -318,4 +318,11 @@ export async function selectConfigOption(config: ConfigItem): Promise<void> {
   providerInstance?.refresh();
 
   await runCommand(config, newValue);
+}
+
+export function resetConfigOption(item: ConfigTreeItem): void {
+  const state = loadState();
+  delete state[item.config.name];
+  saveState(state);
+  providerInstance?.refresh();
 }

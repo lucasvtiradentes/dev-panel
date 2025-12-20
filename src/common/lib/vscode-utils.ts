@@ -22,6 +22,7 @@ export enum Command {
   BackCmdline = 'backCmdline',
   TabCmdline = 'tabCmdline',
   SelectConfigOption = 'selectConfigOption',
+  ResetConfigOption = 'resetConfigOption',
   RefreshConfigs = 'refreshConfigs',
   ToggleConfigsGroupMode = 'toggleConfigsGroupMode',
   ToggleConfigsGroupModeGrouped = 'toggleConfigsGroupModeGrouped',

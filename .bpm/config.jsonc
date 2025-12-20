@@ -37,7 +37,6 @@
       "command": "bash .bpm/scripts/set-api-url.sh",
       "icon": "globe",
       "description": "Set the API base URL",
-      "default": "http://localhost:3000",
       "group": "API"
     },
     {

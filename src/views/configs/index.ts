@@ -1,1 +1,1 @@
-export { ConfigsProvider, selectConfigOption } from './configs-provider';
+export { ConfigsProvider, ConfigTreeItem, selectConfigOption, resetConfigOption } from './configs-provider';

@@ -118,6 +118,11 @@
         "title": "Select Config Option"
       },
       {
+        "command": "betterProjectTools.resetConfigOption",
+        "title": "Reset Config Option",
+        "icon": "$(discard)"
+      },
+      {
         "command": "betterProjectTools.refreshConfigs",
         "title": "Refresh Configs",
         "icon": "$(extensions-refresh)"
@@ -657,6 +662,11 @@
         {
           "command": "betterProjectTools.executePrompt",
           "when": "view == betterProjectToolsPrompts"
+        },
+        {
+          "command": "betterProjectTools.resetConfigOption",
+          "when": "view == betterProjectToolsConfigs && viewItem == configItem",
+          "group": "inline"
         }
       ]
     },

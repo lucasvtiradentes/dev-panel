@@ -19,7 +19,7 @@ import {
   createExecuteToolCommand,
 } from './internal/execute-task';
 import { createRevertAllReplacementsCommand } from './internal/revert-all-replacements';
-import { createSelectConfigOptionCommand } from './internal/select-config-option';
+import { createResetConfigOptionCommand, createSelectConfigOptionCommand } from './internal/select-config-option';
 import { createToggleReplacementCommand } from './internal/toggle-replacement';
 import { createGoToTaskCommand } from './public/go-to-task';
 import { createRefreshCommand, createRefreshPromptsCommand, createRefreshToolsCommand } from './public/refresh';
@@ -55,6 +55,7 @@ export function registerAllCommands(
     createBackCmdlineCommand(taskTreeDataProvider),
     createTabCmdlineCommand(taskTreeDataProvider),
     createSelectConfigOptionCommand(),
+    createResetConfigOptionCommand(),
     registerCommand(Command.RefreshConfigs, () => configsProvider.refresh()),
     registerCommand(Command.ToggleConfigsGroupMode, () => configsProvider.toggleGroupMode()),
     registerCommand(Command.ToggleConfigsGroupModeGrouped, () => configsProvider.toggleGroupMode()),
