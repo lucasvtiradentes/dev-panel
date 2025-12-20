@@ -2,7 +2,7 @@
   "activeReplacements": [
     "enable-debug-logs"
   ],
-  "lastBranch": "main",
+  "lastBranch": "feature/general_improvements_v3",
   "features": [
     "auth",
     "dark-mode"

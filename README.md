@@ -7,6 +7,7 @@
 
 - [ ] ter uma view de custom commands
 - [ ] ter um view de flags de calude code
+- [ ] uma vez por semana analisar o projeto, sugerir PR, etc
 
 ## AUTO CLAUDE
 
@@ -28,15 +29,18 @@
 - [ ] ter uma view de actions talvez: (PENSAR MTO PQ JA TEMOS SCRIPTS / TOOLS)
   - create PR
   - review PR
-- [ ] botao de sincronizar as toosl no CLAUDE.md etc
+- [ ] adicionar uma pasta global onde posso colocar prompts / tools / scripts globais 
+  - ter um botao em cada script para mudar para o global talvez
+- [ ] adicionar integracao com linear cmd e mostrar as coisas para serem feitas no projeto/branch
+  - por milestone 
+  - por pessoa 
+- [ ] ter um registry ou algo assim para adicionar tools nos projetos facilmente
+  - prompts
+  - tools
+  - scripts 
+- [ ] botao de sincronizar as tools no CLAUDE.md etc
 - [ ] ver oq podermos fazer para ter um keybindings
 - [ ] ver oq podermos fazer para ter views dinamuicas
 - [ ] salvar as coisas em uma pasta branch la no ".pp" ao inves de salvar no state.json
 - [ ] no "branch context" devemos ter o prefixo de "Branch: " na primeira linha ao inves de so mostrar a branch
-- [ ] adicionar uma pasta global onde posso colocar prompts / tools / scripts globais 
-  - ter um botao em cada script para mudar para o global talvez
-- [ ] ter como usar tate.variables nos prompts, scripts, etc -> ${{environment}}
-- [ ] adicionar integracao com linear cmd e mostrar as coisas para serem feitas no projeto/branch
-  - por milestone 
-  - por pessoa 
-
+- [ ] ter como usar state.variables nos prompts, scripts, etc -> ${{environment}}

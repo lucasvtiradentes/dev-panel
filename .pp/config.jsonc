@@ -5,7 +5,7 @@
     "promptSelection": {
       "fileStyle": "flat",
       "folderStyle": "interactive",
-      "excludes": ["**/node_modules/**", "**/.git/**", "**/dist/**", "**/out/**", "**/.bpm/**"]
+      "excludes": ["**/node_modules/**", "**/.git/**", "**/dist/**", "**/out/**", "**/.pp/**"]
     },
     "excludedDirs": []
   },
@@ -87,7 +87,7 @@
   "tasks": [
     {
       "name": "hello",
-      "command": "echo 'Hello from BPM!'",
+      "command": "echo 'Hello from PP!'",
       "description": "Test task - prints hello"
     },
     {
