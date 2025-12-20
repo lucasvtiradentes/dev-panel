@@ -2,6 +2,10 @@ export const EXTENSION_PUBLISHER = 'lucasvtiradentes';
 export const EXTENSION_NAME = 'project-panel';
 export const EXTENSION_DISPLAY_NAME = 'Project Panel';
 
+export const CONFIG_DIR_NAME = '.pp';
+export const CONFIG_DIR_KEY = 'pp'; // Key used in workspace state objects (without the dot)
+export const DISPLAY_PREFIX = 'Project Panel:';
+
 export const CONTEXT_PREFIX = 'projectPanel';
 export const VIEW_ID_TASKS = 'projectPanelTasks';
 export const VIEW_ID_CONFIGS = 'projectPanelConfigs';

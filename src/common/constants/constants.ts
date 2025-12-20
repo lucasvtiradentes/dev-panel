@@ -13,7 +13,10 @@ import {
 
 export {
   CONTEXT_PREFIX,
+  CONFIG_DIR_KEY,
+  CONFIG_DIR_NAME,
   DEV_SUFFIX,
+  DISPLAY_PREFIX,
 } from './scripts-constants';
 
 declare const __IS_DEV_BUILD__: boolean;

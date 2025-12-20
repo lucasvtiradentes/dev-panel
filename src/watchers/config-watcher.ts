@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
+import { CONFIG_DIR_NAME } from '../common/constants';
 
 type RefreshCallback = () => void;
 
 export function createConfigWatcher(onConfigChange: RefreshCallback): vscode.FileSystemWatcher {
-  const configWatcher = vscode.workspace.createFileSystemWatcher('**/.pp/config.jsonc');
+  const configWatcher = vscode.workspace.createFileSystemWatcher(`**/${CONFIG_DIR_NAME}/config.jsonc`);
 
   const handleConfigChange = (_uri: vscode.Uri) => {
     onConfigChange();

@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { Command, registerCommand } from '../../common';
+import { CONFIG_DIR_NAME } from '../../common/constants';
 import { TaskSource } from '../../common/schemas/types';
 import { getExcludedDirs } from '../../views/tasks/package-json';
 import { getCurrentSource } from '../../views/tasks/state';
@@ -70,7 +71,7 @@ export function createOpenTasksConfigCommand() {
       }
 
       case TaskSource.PP: {
-        const ppConfigPath = path.join(workspacePath, '.pp', 'config.jsonc');
+        const ppConfigPath = path.join(workspacePath, CONFIG_DIR_NAME, 'config.jsonc');
         if (fs.existsSync(ppConfigPath)) {
           const content = fs.readFileSync(ppConfigPath, 'utf-8');
           const lines = content.split('\n');
@@ -89,7 +90,7 @@ export function createOpenTasksConfigCommand() {
             selection: new vscode.Range(scriptsLine, 0, scriptsLine, 0),
           });
         } else {
-          void vscode.window.showErrorMessage('.pp/config.jsonc not found');
+          void vscode.window.showErrorMessage(`${CONFIG_DIR_NAME}/config.jsonc not found`);
         }
         break;
       }

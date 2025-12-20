@@ -1,7 +1,7 @@
 import { appendFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { getLogFilename } from '../constants/constants';
+import { CONFIG_DIR_KEY, getLogFilename } from '../constants/constants';
 
 const LOG_CONTEXT_WIDTH = 20;
 const LOG_TIMEZONE_OFFSET_HOURS = -3;
@@ -104,7 +104,7 @@ class ContextualLogger implements ILogger {
   }
 }
 
-export const logger = new Logger('pp');
+export const logger = new Logger(CONFIG_DIR_KEY);
 
 export function createLogger(prefix: string): ILogger {
   return new ContextualLogger(logger, prefix);

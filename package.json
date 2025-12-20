@@ -8,12 +8,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lucasvtiradentes/better-project-tools"
+    "url": "https://github.com/lucasvtiradentes/project-panel"
   },
   "bugs": {
-    "url": "https://github.com/lucasvtiradentes/better-project-tools/issues"
+    "url": "https://github.com/lucasvtiradentes/project-panel/issues"
   },
-  "homepage": "https://github.com/lucasvtiradentes/better-project-tools#readme",
+  "homepage": "https://github.com/lucasvtiradentes/project-panel#readme",
   "engines": {
     "vscode": "^1.93.0"
   },
@@ -398,7 +398,7 @@
       },
       {
         "command": "projectPanel.showLogs",
-        "title": "PP: Show Logs"
+        "title": "Project Panel: Show Logs"
       }
     ],
     "keybindings": [

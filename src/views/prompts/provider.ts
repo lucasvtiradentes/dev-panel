@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, createLogger, getCommandId, setContextKey } from '../../common';
+import { CONFIG_DIR_NAME } from '../../common/constants';
 import type { PPConfig } from '../../common/schemas/types';
 import { PromptDragAndDropController } from './dnd-controller';
 import { PromptGroupTreeItem, TreePrompt } from './items';
@@ -178,7 +179,7 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
   }
 
   private readPPPrompts(folder: vscode.WorkspaceFolder): NonNullable<PPConfig['prompts']> {
-    const configPath = `${folder.uri.fsPath}/.pp/config.jsonc`;
+    const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/config.jsonc`;
     log.debug(`readPPPrompts - reading: ${configPath}`);
     if (!fs.existsSync(configPath)) return [];
     const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
@@ -201,7 +202,7 @@ export class PromptTreeDataProvider implements vscode.TreeDataProvider<TreePromp
     if (hidden && !this._showHidden) return null;
     if (this._showOnlyFavorites && !favorite) return null;
 
-    const promptFilePath = `${folder.uri.fsPath}/.pp/prompts/${prompt.file}`;
+    const promptFilePath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/prompts/${prompt.file}`;
 
     const treePrompt = new TreePrompt(prompt.name, promptFilePath, vscode.TreeItemCollapsibleState.None, {
       command: getCommandId(Command.ExecutePrompt),

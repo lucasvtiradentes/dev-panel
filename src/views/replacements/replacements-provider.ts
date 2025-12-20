@@ -3,6 +3,7 @@ import * as path from 'node:path';
 import json5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
+import { CONFIG_DIR_NAME, DISPLAY_PREFIX } from '../../common/constants';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
 import { getIsGrouped, saveIsGrouped } from './state';
@@ -15,7 +16,7 @@ function getWorkspacePath(): string | null {
 function getStatePath(): string | null {
   const workspace = getWorkspacePath();
   if (!workspace) return null;
-  return path.join(workspace, '.pp', 'state.json');
+  return path.join(workspace, CONFIG_DIR_NAME, 'state.json');
 }
 
 function loadFullState(): Record<string, unknown> {
@@ -114,7 +115,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     if (!workspace) return;
 
     this.configWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, '.pp/config.jsonc'),
+      new vscode.RelativePattern(workspace, `${CONFIG_DIR_NAME}/config.jsonc`),
     );
 
     this.configWatcher.onDidChange(() => this.refresh());
@@ -189,7 +190,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       }
 
       this.refresh();
-      vscode.window.showInformationMessage(`PP: Branch changed to ${currentBranch}`);
+      vscode.window.showInformationMessage(`${DISPLAY_PREFIX} Branch changed to ${currentBranch}`);
     }
 
     state.lastBranch = currentBranch;
@@ -260,7 +261,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     const workspace = getWorkspacePath();
     if (!workspace) return null;
 
-    const configPath = path.join(workspace, '.pp', 'config.jsonc');
+    const configPath = path.join(workspace, CONFIG_DIR_NAME, 'config.jsonc');
     if (!fs.existsSync(configPath)) return null;
 
     const content = fs.readFileSync(configPath, 'utf-8');
@@ -350,5 +351,5 @@ export async function toggleReplacement(replacement: Replacement): Promise<void>
 
 export async function revertAllReplacements(): Promise<void> {
   await providerInstance?.revertAllReplacements();
-  vscode.window.showInformationMessage('PP: Reverted all replacements');
+  vscode.window.showInformationMessage(`${DISPLAY_PREFIX} Reverted all replacements`);
 }

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { CONFIG_DIR_NAME } from '../constants/scripts-constants';
 
 export enum PromptInputType {
   File = 'file',
@@ -64,7 +65,7 @@ const PPPromptInputSchema = z
 const PPPromptSchema = z
   .object({
     name: z.string().describe('Unique identifier for the prompt'),
-    file: z.string().describe('Path to prompt file relative to .pp/prompts/'),
+    file: z.string().describe(`Path to prompt file relative to ${CONFIG_DIR_NAME}/prompts/`),
     icon: z.string().optional().describe('VSCode ThemeIcon id (e.g. "comment", "sparkle")'),
     group: z.string().optional().describe('Group name for organizing prompts'),
     description: z.string().optional().describe('Human-readable description shown as tooltip'),
@@ -138,7 +139,7 @@ const PPSettingsSchema = z
       .array(z.string())
       .optional()
       .describe(
-        'Additional directories to exclude when searching for package.json files. Always excluded (hardcoded): node_modules, dist, .git. Add custom exclusions as needed (e.g. ["dist-dev", "out", ".pp", "temp"])',
+        `Additional directories to exclude when searching for package.json files. Always excluded (hardcoded): node_modules, dist, .git. Add custom exclusions as needed (e.g. ["dist-dev", "out", "${CONFIG_DIR_NAME}", "temp"])`,
       ),
   })
   .describe('Global settings for Project Panel behavior');
