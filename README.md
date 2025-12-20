@@ -8,6 +8,12 @@
 - [ ] ter uma view de custom commands
 - [ ] ter um view de flags de calude code
 
+## AUTO CLAUDE
+
+- rodar tasks de 5 em 5 horas de forma randomica
+  - revisar PR 
+  - revisar issues
+  
 ## PROJECT PANEL
 
 ## prompts 
