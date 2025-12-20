@@ -7,6 +7,11 @@ export class BranchHeaderItem extends vscode.TreeItem {
     super(branchName, vscode.TreeItemCollapsibleState.None);
     this.iconPath = new vscode.ThemeIcon('git-branch');
     this.contextValue = 'branchHeader';
+    this.tooltip = 'Click to switch branch';
+    this.command = {
+      command: 'git.checkout',
+      title: 'Switch Branch',
+    };
   }
 }
 
