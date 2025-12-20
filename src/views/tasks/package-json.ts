@@ -3,7 +3,8 @@ import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, getCommandId } from '../../common';
-import { type BPMConfig, TaskSource } from '../../common/schemas/types';
+import { CONFIG_DIR_NAME } from '../../common/constants';
+import { type PPConfig, TaskSource } from '../../common/schemas/types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
@@ -21,12 +22,12 @@ type PackageLocation = {
 const DEFAULT_EXCLUDED_DIRS = ['node_modules', 'dist', '.git'];
 
 export function getExcludedDirs(workspacePath: string): Set<string> {
-  const configPath = path.join(workspacePath, '.bpm', 'config.jsonc');
+  const configPath = path.join(workspacePath, CONFIG_DIR_NAME, 'config.jsonc');
   const excluded = new Set(DEFAULT_EXCLUDED_DIRS);
 
   if (fs.existsSync(configPath)) {
     try {
-      const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8')) as BPMConfig;
+      const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8')) as PPConfig;
       const customExcluded = config.settings?.excludedDirs ?? [];
       for (const dir of customExcluded) {
         excluded.add(dir);

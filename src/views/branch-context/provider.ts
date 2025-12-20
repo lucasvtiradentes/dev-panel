@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { CONFIG_DIR_NAME } from '../../common/constants';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { BranchContextField, BranchContextFieldItem, BranchHeaderItem } from './items';
 import { generateBranchContextMarkdown } from './markdown-generator';
@@ -104,7 +105,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     if (!workspace) return;
 
     this.stateWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, '.bpm/state.json'),
+      new vscode.RelativePattern(workspace, `${CONFIG_DIR_NAME}/state.json`),
     );
 
     this.stateWatcher.onDidChange(() => this.refresh());

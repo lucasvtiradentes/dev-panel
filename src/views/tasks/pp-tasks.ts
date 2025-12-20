@@ -2,20 +2,21 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, getCommandId } from '../../common';
-import { type BPMConfig, TaskSource } from '../../common/schemas/types';
+import { CONFIG_DIR_KEY, CONFIG_DIR_NAME } from '../../common/constants';
+import { type PPConfig, TaskSource } from '../../common/schemas/types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
-export function hasBPMGroups(): boolean {
+export function hasPPGroups(): boolean {
   const folders = vscode.workspace.workspaceFolders ?? [];
   for (const folder of folders) {
-    const scripts = readBPMScripts(folder);
+    const scripts = readPPScripts(folder);
     if (scripts.some((script) => script.group != null)) return true;
   }
   return false;
 }
 
-export async function getBPMScripts(
+export async function getPPScripts(
   grouped: boolean,
   showHidden: boolean,
   showOnlyFavorites: boolean,
@@ -28,9 +29,9 @@ export async function getBPMScripts(
   if (!grouped) {
     const taskElements: TreeTask[] = [];
     for (const folder of folders) {
-      const scripts = readBPMScripts(folder);
+      const scripts = readPPScripts(folder);
       for (const script of scripts) {
-        const task = createBPMTask(script, folder, showHidden, showOnlyFavorites);
+        const task = createPPTask(script, folder, showHidden, showOnlyFavorites);
         if (task) taskElements.push(task);
       }
     }
@@ -41,9 +42,9 @@ export async function getBPMScripts(
   const groups: Record<string, GroupTreeItem> = {};
 
   for (const folder of folders) {
-    const scripts = readBPMScripts(folder);
+    const scripts = readPPScripts(folder);
     for (const script of scripts) {
-      const treeTask = createBPMTask(script, folder, showHidden, showOnlyFavorites);
+      const treeTask = createPPTask(script, folder, showHidden, showOnlyFavorites);
       if (!treeTask) continue;
 
       const groupName = script.group ?? 'no-group';
@@ -59,29 +60,29 @@ export async function getBPMScripts(
   return sortFn(taskElements);
 }
 
-function readBPMScripts(folder: vscode.WorkspaceFolder): NonNullable<BPMConfig['scripts']> {
-  const configPath = `${folder.uri.fsPath}/.bpm/config.jsonc`;
+function readPPScripts(folder: vscode.WorkspaceFolder): NonNullable<PPConfig['scripts']> {
+  const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/config.jsonc`;
   if (!fs.existsSync(configPath)) return [];
-  const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as BPMConfig;
+  const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
   return config.scripts ?? [];
 }
 
-function createBPMTask(
-  script: NonNullable<BPMConfig['scripts']>[number],
+function createPPTask(
+  script: NonNullable<PPConfig['scripts']>[number],
   folder: vscode.WorkspaceFolder,
   showHidden: boolean,
   showOnlyFavorites: boolean,
 ): TreeTask | null {
-  const hidden = isHidden(TaskSource.BPM, script.name);
-  const favorite = isFavorite(TaskSource.BPM, script.name);
+  const hidden = isHidden(TaskSource.PP, script.name);
+  const favorite = isFavorite(TaskSource.PP, script.name);
   if (hidden && !showHidden) return null;
   if (showOnlyFavorites && !favorite) return null;
 
   const shellExec = new vscode.ShellExecution(script.command);
-  const task = new vscode.Task({ type: 'bpm' }, folder, script.name, 'bpm', shellExec);
+  const task = new vscode.Task({ type: CONFIG_DIR_KEY }, folder, script.name, CONFIG_DIR_KEY, shellExec);
 
   const treeTask = new TreeTask(
-    'bpm',
+    CONFIG_DIR_KEY,
     script.name,
     vscode.TreeItemCollapsibleState.None,
     {

@@ -2,10 +2,10 @@ import * as vscode from 'vscode';
 import { ContextKey, ExtensionConfigKey, getExtensionConfig, setContextKey } from '../../common';
 import { TASK_SOURCES, TaskSource } from '../../common/schemas/types';
 import { StatusBarManager } from '../../status-bar/status-bar-manager';
-import { getBPMScripts, hasBPMGroups } from './bpm-tasks';
 import { TaskDragAndDropController } from './dnd-controller';
 import { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
 import { getPackageScripts, hasPackageGroups } from './package-json';
+import { getPPScripts, hasPPGroups } from './pp-tasks';
 import {
   getCurrentSource,
   getFavoriteItems,
@@ -84,8 +84,8 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
         return hasVSCodeGroups();
       case TaskSource.Package:
         return hasPackageGroups();
-      case TaskSource.BPM:
-        return hasBPMGroups();
+      case TaskSource.PP:
+        return hasPPGroups();
     }
   }
 
@@ -95,7 +95,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     const hasGroups = await this.checkHasGroups();
     void setContextKey(ContextKey.TaskSourceVSCode, this._source === TaskSource.VSCode);
     void setContextKey(ContextKey.TaskSourcePackage, this._source === TaskSource.Package);
-    void setContextKey(ContextKey.TaskSourceBPM, this._source === TaskSource.BPM);
+    void setContextKey(ContextKey.TaskSourcePP, this._source === TaskSource.PP);
     void setContextKey(ContextKey.TasksGrouped, this._grouped);
     void setContextKey(ContextKey.TasksHasGroups, hasGroups);
     void setContextKey(ContextKey.TasksHasHidden, hiddenItems.length > 0);
@@ -225,8 +225,8 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
         return getVSCodeTasks(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn, getLowestLevelFn);
       case TaskSource.Package:
         return getPackageScripts(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn);
-      case TaskSource.BPM:
-        return getBPMScripts(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn);
+      case TaskSource.PP:
+        return getPPScripts(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn);
     }
   }
 

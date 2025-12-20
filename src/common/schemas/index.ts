@@ -1,17 +1,17 @@
-// Config schema exports (for .bpm/config.jsonc)
+// Config schema exports (for .pp/config.jsonc)
 export {
-  type BPMConfig,
-  type BPMPrompt,
-  type BPMPromptInput,
-  type BPMSettings,
-  BPMConfigSchema,
+  type PPConfig,
+  type PPPrompt,
+  type PPPromptInput,
+  type PPSettings,
+  PPConfigSchema,
   AIProvider,
   PromptInputType,
   SelectionStyle,
 } from './config-schema';
 
-// State schema exports (for .bpm/state.json)
-export { BPMStateSchema } from './state-schema';
+// State schema exports (for .pp/state.json)
+export { PPStateSchema } from './state-schema';
 
 // VSCode workspace schema exports (for VSCode workspace state)
 export {

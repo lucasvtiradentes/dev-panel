@@ -3,7 +3,7 @@ import type { TaskSource } from '../../common/schemas/types';
 import type { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
 import { getOrder, saveSourceOrder } from './state';
 
-const MIME_TYPE = 'application/vnd.code.tree.betterprojecttoolstasks';
+const MIME_TYPE = 'application/vnd.code.tree.projectpaneltasks';
 
 export class TaskDragAndDropController
   implements vscode.TreeDragAndDropController<TreeTask | GroupTreeItem | WorkspaceTreeItem>

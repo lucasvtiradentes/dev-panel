@@ -1,6 +1,6 @@
 export {
-  type BPMConfig,
-  type BPMPrompt,
+  type PPConfig,
+  type PPPrompt,
   type BranchContext,
   type BranchesState,
   type ConfigsState,
@@ -22,7 +22,7 @@ export {
 export enum TaskSource {
   VSCode = 'vscode',
   Package = 'package',
-  BPM = 'bpm',
+  PP = 'pp',
 }
 
 export type TaskSourceInfo = {
@@ -34,7 +34,7 @@ export type TaskSourceInfo = {
 export const TASK_SOURCES: TaskSourceInfo[] = [
   { id: TaskSource.VSCode, label: 'VSCode', icon: 'tools' },
   { id: TaskSource.Package, label: 'Package.json', icon: 'package' },
-  { id: TaskSource.BPM, label: 'BPM', icon: 'beaker' },
+  { id: TaskSource.PP, label: 'PP', icon: 'beaker' },
 ];
 
 type TaskIcon = {

@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import type { PromptGroupTreeItem, TreePrompt } from './items';
 import { getOrder, saveOrder } from './state';
 
-const MIME_TYPE = 'application/vnd.code.tree.betterprojecttoolsprompts';
+const MIME_TYPE = 'application/vnd.code.tree.projectpanelprompts';
 
 export class PromptDragAndDropController implements vscode.TreeDragAndDropController<TreePrompt | PromptGroupTreeItem> {
   readonly dropMimeTypes = [MIME_TYPE];

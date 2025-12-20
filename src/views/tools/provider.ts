@@ -2,7 +2,8 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
-import type { BPMConfig } from '../../common/schemas/types';
+import { CONFIG_DIR_KEY, CONFIG_DIR_NAME } from '../../common/constants';
+import type { PPConfig } from '../../common/schemas/types';
 import { ToolDragAndDropController } from './dnd-controller';
 import { ToolGroupTreeItem, TreeTool } from './items';
 import {
@@ -134,18 +135,18 @@ export class ToolTreeDataProvider implements vscode.TreeDataProvider<TreeTool | 
       return this.sortElements(item.children);
     }
 
-    return this.getBPMTools();
+    return this.getPPTools();
   }
 
-  private async getBPMTools(): Promise<Array<TreeTool | ToolGroupTreeItem>> {
+  private async getPPTools(): Promise<Array<TreeTool | ToolGroupTreeItem>> {
     const folders = vscode.workspace.workspaceFolders ?? [];
 
     if (!this._grouped) {
       const toolElements: TreeTool[] = [];
       for (const folder of folders) {
-        const tools = this.readBPMTools(folder);
+        const tools = this.readPPTools(folder);
         for (const tool of tools) {
-          const treeTool = this.createBPMTool(tool, folder);
+          const treeTool = this.createPPTool(tool, folder);
           if (treeTool) toolElements.push(treeTool);
         }
       }
@@ -156,9 +157,9 @@ export class ToolTreeDataProvider implements vscode.TreeDataProvider<TreeTool | 
     const groups: Record<string, ToolGroupTreeItem> = {};
 
     for (const folder of folders) {
-      const tools = this.readBPMTools(folder);
+      const tools = this.readPPTools(folder);
       for (const tool of tools) {
-        const treeTool = this.createBPMTool(tool, folder);
+        const treeTool = this.createPPTool(tool, folder);
         if (!treeTool) continue;
 
         const groupName = tool.group ?? 'no-group';
@@ -174,10 +175,10 @@ export class ToolTreeDataProvider implements vscode.TreeDataProvider<TreeTool | 
     return this.sortElements(toolElements);
   }
 
-  private readBPMTools(folder: vscode.WorkspaceFolder): NonNullable<BPMConfig['tools']> {
-    const configPath = `${folder.uri.fsPath}/.bpm/config.jsonc`;
+  private readPPTools(folder: vscode.WorkspaceFolder): NonNullable<PPConfig['tools']> {
+    const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/config.jsonc`;
     if (!fs.existsSync(configPath)) return [];
-    const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as BPMConfig;
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
     return config.tools ?? [];
   }
 
@@ -186,17 +187,20 @@ export class ToolTreeDataProvider implements vscode.TreeDataProvider<TreeTool | 
     return match ? match[1] : null;
   }
 
-  private createBPMTool(
-    tool: NonNullable<BPMConfig['tools']>[number],
-    folder: vscode.WorkspaceFolder,
-  ): TreeTool | null {
+  private createPPTool(tool: NonNullable<PPConfig['tools']>[number], folder: vscode.WorkspaceFolder): TreeTool | null {
     const hidden = isHidden(tool.name);
     const favorite = isFavorite(tool.name);
     if (hidden && !this._showHidden) return null;
     if (this._showOnlyFavorites && !favorite) return null;
 
     const shellExec = new vscode.ShellExecution(tool.command);
-    const task = new vscode.Task({ type: 'bpm-tool' }, folder, tool.name, 'bpm-tool', shellExec);
+    const task = new vscode.Task(
+      { type: `${CONFIG_DIR_KEY}-tool` },
+      folder,
+      tool.name,
+      `${CONFIG_DIR_KEY}-tool`,
+      shellExec,
+    );
 
     const relativeFile = this.extractFileFromCommand(tool.command);
     const toolFilePath = relativeFile ? `${folder.uri.fsPath}/${relativeFile}` : '';

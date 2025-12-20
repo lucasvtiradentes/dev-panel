@@ -5,6 +5,7 @@ import { promisify } from 'node:util';
 import json5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
+import { CONFIG_DIR_NAME, DISPLAY_PREFIX } from '../../common/constants';
 import { getIsGrouped, saveIsGrouped } from './state';
 
 const execAsync = promisify(exec);
@@ -45,7 +46,7 @@ function getWorkspacePath(): string | null {
 function getStatePath(): string | null {
   const workspace = getWorkspacePath();
   if (!workspace) return null;
-  return path.join(workspace, '.bpm', 'state.json');
+  return path.join(workspace, CONFIG_DIR_NAME, 'state.json');
 }
 
 function loadState(): BpmState {
@@ -133,7 +134,7 @@ export class ConfigsProvider implements vscode.TreeDataProvider<vscode.TreeItem>
     if (!workspace) return;
 
     this.fileWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, '.bpm/{config.jsonc,state.json}'),
+      new vscode.RelativePattern(workspace, `${CONFIG_DIR_NAME}/{config.jsonc,state.json}`),
     );
 
     this.fileWatcher.onDidChange(() => this.refresh());
@@ -196,7 +197,7 @@ export class ConfigsProvider implements vscode.TreeDataProvider<vscode.TreeItem>
     const workspace = getWorkspacePath();
     if (!workspace) return null;
 
-    const configPath = path.join(workspace, '.bpm', 'config.jsonc');
+    const configPath = path.join(workspace, CONFIG_DIR_NAME, 'config.jsonc');
     if (!fs.existsSync(configPath)) return null;
 
     const content = fs.readFileSync(configPath, 'utf-8');
@@ -214,7 +215,7 @@ async function runCommand(config: ConfigItem, value: string | boolean | string[]
   const command = `${config.command} "${formattedValue}"`;
 
   if (config.showTerminal) {
-    const terminal = vscode.window.createTerminal(`BPM: ${config.name}`);
+    const terminal = vscode.window.createTerminal(`${DISPLAY_PREFIX} ${config.name}`);
     terminal.show();
     terminal.sendText(`cd "${workspace}" && ${command}`);
   } else {
