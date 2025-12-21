@@ -1,11 +1,11 @@
 {
   "$schema": "../resources/schema.json",
   "settings": {
-    "aiProvider": "gemini",
+    "aiProvider": "claude",
     "promptSelection": {
       "fileStyle": "flat",
       "folderStyle": "interactive",
-      "excludes": ["**/node_modules/**", "**/.git/**", "**/dist/**", "**/out/**", "**/.pp/**"]
+      "excludes": ["node_modules/**", ".git/**", "dist/**", "out/**", ".pp/**", ".changeset/**", ".ignore/**", ".github/**", ".husky/**", "dist-dev/**", ".tscanner/**", ".vscode/**"]
     },
     "excludedDirs": []
   },
@@ -184,6 +184,17 @@
           "label": "Test style",
           "options": ["unit", "integration", "e2e"]
         }
+      ]
+    },
+    {
+      "name": "Explain Flow",
+      "file": "prompts/explain-flow.md",
+      "description": "Explain execution flow with ASCII diagrams",
+      "icon": "type-hierarchy",
+      "group": "Analysis",
+      "saveOutput": true,
+      "inputs": [
+        { "name": "target", "type": "file", "label": "Target to analyze (file path, folder, function name, etc)" }
       ]
     }
   ]
