@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, getCommandId } from '../../common';
-import { CONFIG_DIR_KEY, CONFIG_DIR_NAME } from '../../common/constants';
+import { CONFIG_DIR_KEY, CONFIG_DIR_NAME, NO_GROUP_NAME } from '../../common/constants';
 import { type PPConfig, TaskSource } from '../../common/schemas/types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { getTaskKeybinding } from './keybindings-local';
@@ -48,7 +48,7 @@ export async function getPPTasks(
       const treeTask = createPPTask(task, folder, showHidden, showOnlyFavorites);
       if (!treeTask) continue;
 
-      const groupName = task.group ?? 'no-group';
+      const groupName = task.group ?? NO_GROUP_NAME;
 
       if (!groups[groupName]) {
         groups[groupName] = new GroupTreeItem(groupName);

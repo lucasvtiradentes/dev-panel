@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { type ContextKey, setContextKey } from '../../common';
+import { NO_GROUP_NAME } from '../../common/constants';
 import type { GroupTreeItem, NamedTreeItem, SimpleStateManager, StateManager } from './types';
 
 export type ProviderConfig<TSource = void> = {
@@ -149,10 +150,8 @@ export abstract class BaseTreeDataProvider<
       if (aIndex !== -1) return -1;
       if (bIndex !== -1) return 1;
 
-      if (aLabel === 'no-group' && bLabel !== 'no-group') return 1;
-      if (bLabel === 'no-group' && aLabel !== 'no-group') return -1;
-      if (aLabel === 'other-tasks' && bLabel !== 'other-tasks') return 1;
-      if (bLabel === 'other-tasks' && aLabel !== 'other-tasks') return -1;
+      if (aLabel === NO_GROUP_NAME && bLabel !== NO_GROUP_NAME) return 1;
+      if (bLabel === NO_GROUP_NAME && aLabel !== NO_GROUP_NAME) return -1;
 
       return aLabel.localeCompare(bLabel);
     });

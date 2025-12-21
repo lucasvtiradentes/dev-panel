@@ -5,7 +5,7 @@ import { promisify } from 'node:util';
 import json5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
-import { CONFIG_DIR_NAME, DISPLAY_PREFIX } from '../../common/constants';
+import { CONFIG_DIR_NAME, DISPLAY_PREFIX, NO_GROUP_NAME } from '../../common/constants';
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/lib/file-selection';
 import { type PPSettings, SelectionStyle } from '../../common/schemas';
 import { getVariableKeybinding } from './keybindings-local';
@@ -176,25 +176,17 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     }
 
     const grouped = new Map<string, VariableItem[]>();
-    const ungrouped: VariableItem[] = [];
 
     for (const v of config.variables) {
-      if (v.group) {
-        if (!grouped.has(v.group)) grouped.set(v.group, []);
-        grouped.get(v.group)!.push(v);
-      } else {
-        ungrouped.push(v);
-      }
+      const groupName = v.group ?? NO_GROUP_NAME;
+      if (!grouped.has(groupName)) grouped.set(groupName, []);
+      grouped.get(groupName)!.push(v);
     }
 
     const items: vscode.TreeItem[] = [];
 
     for (const [groupName, variables] of grouped) {
       items.push(new GroupTreeItem(groupName, variables));
-    }
-
-    for (const v of ungrouped) {
-      items.push(new VariableTreeItem(v, state[v.name]));
     }
 
     return Promise.resolve(items);

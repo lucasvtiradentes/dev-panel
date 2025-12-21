@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { isMultiRootWorkspace } from '../../common';
+import { NO_GROUP_NAME } from '../../common/constants';
 import type { CodeWorkspaceFile, TaskDefinition, TasksJson } from '../../common/schemas/types';
 import { BaseGroupTreeItem } from '../common';
 
@@ -9,26 +10,18 @@ export class GroupTreeItem extends BaseGroupTreeItem<TreeTask> {}
 
 export class WorkspaceTreeItem extends vscode.TreeItem {
   public childrenObject: { [key: string]: GroupTreeItem } = {};
-  private static readonly otherGroups = 'other-tasks';
 
   constructor(label: string) {
     super(label, vscode.TreeItemCollapsibleState.Expanded);
   }
 
   public async addChildren(child: TreeTask): Promise<void> {
-    if (child.group !== null && child.group !== undefined) {
-      if (this.childrenObject[child.group] === undefined) {
-        const group = new GroupTreeItem(child.group);
-        this.childrenObject[child.group] = group;
-      }
-      this.childrenObject[child.group].children.push(child);
-    } else {
-      if (this.childrenObject[WorkspaceTreeItem.otherGroups] === undefined) {
-        const group = new GroupTreeItem(WorkspaceTreeItem.otherGroups);
-        this.childrenObject[WorkspaceTreeItem.otherGroups] = group;
-      }
-      this.childrenObject[WorkspaceTreeItem.otherGroups].children.push(child);
+    const groupName = child.group ?? NO_GROUP_NAME;
+    if (this.childrenObject[groupName] === undefined) {
+      const group = new GroupTreeItem(groupName);
+      this.childrenObject[groupName] = group;
     }
+    this.childrenObject[groupName].children.push(child);
   }
 
   public get children(): Array<TreeTask | GroupTreeItem> {

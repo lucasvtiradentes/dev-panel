@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import json5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
-import { CONFIG_DIR_NAME, DISPLAY_PREFIX } from '../../common/constants';
+import { CONFIG_DIR_NAME, DISPLAY_PREFIX, NO_GROUP_NAME } from '../../common/constants';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
 import { getReplacementKeybinding } from './keybindings-local';
@@ -236,25 +236,17 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     }
 
     const grouped = new Map<string, Replacement[]>();
-    const ungrouped: Replacement[] = [];
 
     for (const r of config.replacements) {
-      if (r.group) {
-        if (!grouped.has(r.group)) grouped.set(r.group, []);
-        grouped.get(r.group)!.push(r);
-      } else {
-        ungrouped.push(r);
-      }
+      const groupName = r.group ?? NO_GROUP_NAME;
+      if (!grouped.has(groupName)) grouped.set(groupName, []);
+      grouped.get(groupName)!.push(r);
     }
 
     const items: vscode.TreeItem[] = [];
 
     for (const [groupName, replacements] of grouped) {
       items.push(new ReplacementGroupTreeItem(groupName, replacements));
-    }
-
-    for (const r of ungrouped) {
-      items.push(new ReplacementTreeItem(r, state.activeReplacements.includes(r.name)));
     }
 
     return Promise.resolve(items);

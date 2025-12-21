@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, createLogger, getCommandId } from '../../common';
-import { CONFIG_DIR_NAME } from '../../common/constants';
+import { CONFIG_DIR_NAME, NO_GROUP_NAME } from '../../common/constants';
 import { promptsState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas/types';
 import { BaseTreeDataProvider, type ProviderConfig } from '../common';
@@ -78,7 +78,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
         const treePrompt = this.createPPPrompt(prompt, folder);
         if (!treePrompt) continue;
 
-        const groupName = prompt.group ?? 'no-group';
+        const groupName = prompt.group ?? NO_GROUP_NAME;
 
         if (!groups[groupName]) {
           groups[groupName] = new PromptGroupTreeItem(groupName);

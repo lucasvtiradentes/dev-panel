@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId } from '../../common';
-import { CONFIG_DIR_KEY, CONFIG_DIR_NAME } from '../../common/constants';
+import { CONFIG_DIR_KEY, CONFIG_DIR_NAME, NO_GROUP_NAME } from '../../common/constants';
 import { toolsState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas/types';
 import { BaseTreeDataProvider, type ProviderConfig } from '../common';
@@ -71,7 +71,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
         const treeTool = this.createPPTool(tool, folder);
         if (!treeTool) continue;
 
-        const groupName = tool.group ?? 'no-group';
+        const groupName = tool.group ?? NO_GROUP_NAME;
 
         if (!groups[groupName]) {
           groups[groupName] = new ToolGroupTreeItem(groupName);
