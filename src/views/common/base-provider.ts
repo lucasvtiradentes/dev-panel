@@ -138,6 +138,17 @@ export abstract class BaseTreeDataProvider<
       } else {
         this.stateManager.toggleHidden(this.getSource!(), name);
       }
+
+      const hiddenItems = this.getHiddenItems();
+      if (this._showHidden && hiddenItems.length === 0) {
+        this._showHidden = false;
+        if (this.isSimpleStateManager(this.stateManager)) {
+          this.stateManager.saveShowHidden(this._showHidden);
+        } else {
+          this.stateManager.saveShowHidden(this.getSource!(), this._showHidden);
+        }
+      }
+
       this.updateContextKeys();
       this._onDidChangeTreeData.fire(null);
     }
