@@ -2,12 +2,7 @@
   "$schema": "../resources/schema.json",
   "settings": {
     "aiProvider": "claude",
-    "promptSelection": {
-      "fileStyle": "flat",
-      "folderStyle": "interactive",
-      "excludes": ["node_modules/**", ".git/**", "dist/**", "out/**", ".pp/**", ".changeset/**", ".ignore/**", ".github/**", ".husky/**", "dist-dev/**", ".tscanner/**", ".vscode/**"]
-    },
-    "excludedDirs": []
+    "exclude": ["**/.pp/**", "**/.changeset/**", "**/.ignore/**", "**/.github/**", "**/.husky/**", "**/dist-dev/**", "**/.tscanner/**", "**/.vscode/**", "**/out/**"]
   },
   "variables": [
     // Environment group
@@ -126,6 +121,13 @@
   ],
 
   "prompts": [
+    {
+      "name": "Review Constants",
+      "file": "prompts/review-constants.md",
+      "description": "Review constants and suggest centralizing hardcoded values",
+      "group": "Analysis",
+      "saveOutput": true
+    },
     {
       "name": "Review Code",
       "file": "prompts/review-code.md",

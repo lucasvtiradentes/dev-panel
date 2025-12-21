@@ -1,15 +1,14 @@
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
+import { BRANCH_CONTEXT_NA } from '../../common/constants';
 import { getBranchContextFilePath as getBranchContextFilePathUtil } from '../../common/constants/scripts-constants';
 
 function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
 }
 
-const NA = 'N/A';
-
 function normalizeValue(value: string | undefined): string | undefined {
-  if (!value || value === NA) return undefined;
+  if (!value || value === BRANCH_CONTEXT_NA) return undefined;
   return value;
 }
 

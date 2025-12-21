@@ -1,14 +1,13 @@
+import { DND_MIME_TYPE_TOOLS } from '../../common/constants';
 import { toolsState } from '../../common/lib/workspace-state';
 import { createDragAndDropController } from '../common';
 import type { TreeTool } from './items';
-
-const MIME_TYPE = 'application/vnd.code.tree.projectpaneltools';
 
 export class ToolDragAndDropController {
   private controller: ReturnType<typeof createDragAndDropController<TreeTool>>;
 
   constructor(getIsGrouped: () => boolean, onReorder: () => void) {
-    this.controller = createDragAndDropController<TreeTool>(MIME_TYPE, toolsState, getIsGrouped, onReorder);
+    this.controller = createDragAndDropController<TreeTool>(DND_MIME_TYPE_TOOLS, toolsState, getIsGrouped, onReorder);
   }
 
   get dropMimeTypes() {

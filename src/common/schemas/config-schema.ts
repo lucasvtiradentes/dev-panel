@@ -11,11 +11,6 @@ export enum PromptInputType {
   Multichoice = 'multichoice',
 }
 
-export enum SelectionStyle {
-  Flat = 'flat',
-  Interactive = 'interactive',
-}
-
 export enum AIProvider {
   Claude = 'claude',
   Gemini = 'gemini',
@@ -52,10 +47,6 @@ const PPPromptInputSchema = z
     placeholder: z.string().optional().describe('Placeholder text for text/number inputs'),
     options: z.array(z.string()).optional().describe('Available options for choice/multichoice types'),
     multiSelect: z.boolean().optional().describe('Enable multi-selection for file/folder types'),
-    selectionStyle: z
-      .nativeEnum(SelectionStyle)
-      .optional()
-      .describe('Selection style for file/folder inputs. Overrides global setting'),
     excludes: z
       .array(z.string())
       .optional()
@@ -90,10 +81,6 @@ const PPVariableSchema = z
       .describe('Default value'),
     group: z.string().optional().describe('Group name for organizing variables'),
     multiSelect: z.boolean().optional().describe('Enable multi-selection for file/folder kinds'),
-    selectionStyle: z
-      .nativeEnum(SelectionStyle)
-      .optional()
-      .describe('Selection style for file/folder kinds. Overrides global setting'),
     excludes: z
       .array(z.string())
       .optional()
@@ -118,27 +105,8 @@ const PPReplacementSchema = z
   })
   .describe('A file replacement/patch shown in the Replacements view');
 
-const PPPromptSelectionSchema = z
-  .object({
-    fileStyle: z
-      .nativeEnum(SelectionStyle)
-      .optional()
-      .describe('Selection style for file inputs: flat (all files listed) or interactive (navigate step by step)'),
-    folderStyle: z
-      .nativeEnum(SelectionStyle)
-      .optional()
-      .describe('Selection style for folder inputs: flat (all folders listed) or interactive (navigate step by step)'),
-    includes: z.array(z.string()).optional().describe('Glob patterns to include (e.g. ["src/**/*", "**/*.ts"])'),
-    excludes: z
-      .array(z.string())
-      .optional()
-      .describe('Glob patterns to exclude (e.g. ["**/node_modules/**", "**/.git/**"])'),
-  })
-  .describe('Settings for file/folder selection in prompts');
-
 const PPSettingsSchema = z
   .object({
-    promptSelection: PPPromptSelectionSchema.optional().describe('File/folder selection settings for prompts'),
     aiProvider: z
       .nativeEnum(AIProvider)
       .optional()
@@ -149,11 +117,11 @@ const PPSettingsSchema = z
       .describe(
         'Execution mode for prompts with saveOutput: "timestamped" creates new file each time with timestamp, "overwrite" replaces previous file',
       ),
-    excludedDirs: z
+    exclude: z
       .array(z.string())
       .optional()
       .describe(
-        `Additional directories to exclude when searching for package.json files. Always excluded (hardcoded): node_modules, dist, .git. Add custom exclusions as needed (e.g. ["dist-dev", "out", "${CONFIG_DIR_NAME}", "temp"])`,
+        `Glob patterns to exclude globally (package.json search, prompt file/folder selection, variable file/folder selection). Always excluded (hardcoded): node_modules, dist, .git. Add custom exclusions as needed (e.g. ["**/.pp/**", "**/.changeset/**", "**/out/**", "**/*.log"])`,
       ),
   })
   .describe('Global settings for Project Panel behavior');

@@ -1,5 +1,5 @@
 import type * as vscode from 'vscode';
-import { CONFIG_DIR_KEY } from '../constants/constants';
+import { CONFIG_DIR_KEY, WORKSPACE_STATE_KEY } from '../constants/constants';
 import {
   DEFAULT_PROMPTS_STATE,
   DEFAULT_REPLACEMENTS_STATE,
@@ -17,8 +17,6 @@ import {
   type VariablesState,
   type WorkspaceUIState,
 } from '../schemas/types';
-
-const WORKSPACE_STATE_KEY = 'pp.uiState';
 
 let _context: vscode.ExtensionContext | null = null;
 

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { DEFAULT_EXCLUDES } from '../constants';
-import { type PPPromptInput, type PPSettings, PromptInputType, SelectionStyle } from '../schemas';
+import { type PPPromptInput, type PPSettings, PromptInputType } from '../schemas';
 import { type FileSelectionOptions, selectFiles, selectFolders } from './file-selection';
 import { createLogger } from './logger';
 
@@ -49,42 +49,14 @@ async function collectSingleInput(
   }
 }
 
-function getSelectionStyle(
-  input: PPPromptInput,
-  settings: PPSettings | undefined,
-  inputType: 'file' | 'folder',
-): SelectionStyle {
-  log.debug(`getSelectionStyle called - inputType: ${inputType}`);
-  log.debug(`input.selectionStyle: ${input.selectionStyle}`);
-  log.debug(`settings: ${JSON.stringify(settings)}`);
-
-  if (input.selectionStyle) {
-    log.debug(`Using input.selectionStyle: ${input.selectionStyle}`);
-    return input.selectionStyle;
-  }
-
-  const promptSelection = settings?.promptSelection;
-  if (inputType === 'folder' && promptSelection?.folderStyle) {
-    log.debug(`Using settings.promptSelection.folderStyle: ${promptSelection.folderStyle}`);
-    return promptSelection.folderStyle;
-  }
-  if (inputType === 'file' && promptSelection?.fileStyle) {
-    log.debug(`Using settings.promptSelection.fileStyle: ${promptSelection.fileStyle}`);
-    return promptSelection.fileStyle;
-  }
-
-  log.debug('Using default: flat');
-  return SelectionStyle.Flat;
-}
-
 function getExcludePatterns(input: PPPromptInput, settings: PPSettings | undefined): string[] {
   if (input.excludes && input.excludes.length > 0) {
     log.debug(`Using input.excludes: ${JSON.stringify(input.excludes)}`);
     return input.excludes;
   }
-  if (settings?.promptSelection?.excludes && settings.promptSelection.excludes.length > 0) {
-    log.debug(`Using settings.promptSelection.excludes: ${JSON.stringify(settings.promptSelection.excludes)}`);
-    return settings.promptSelection.excludes;
+  if (settings?.exclude && settings.exclude.length > 0) {
+    log.debug(`Using settings.exclude: ${JSON.stringify(settings.exclude)}`);
+    return settings.exclude;
   }
   log.debug(`Using default excludes: ${JSON.stringify(DEFAULT_EXCLUDES)}`);
   return DEFAULT_EXCLUDES;
@@ -98,14 +70,12 @@ async function collectFileInput(
 ): Promise<string | undefined> {
   log.info(`collectFileInput called - multiple: ${multiple}`);
   log.debug(`input: ${JSON.stringify(input)}`);
-  const style = getSelectionStyle(input, settings, 'file');
   const excludes = getExcludePatterns(input, settings);
-  log.info(`Resolved style: ${style}, excludes: ${excludes.length} patterns`);
+  log.info(`Resolved excludes: ${excludes.length} patterns`);
 
   const options: FileSelectionOptions = {
     label: input.label,
     multiSelect: multiple,
-    selectionStyle: style,
     excludes,
   };
 
@@ -118,13 +88,11 @@ async function collectFolderInput(
   multiple: boolean,
   settings?: PPSettings,
 ): Promise<string | undefined> {
-  const style = getSelectionStyle(input, settings, 'folder');
   const excludes = getExcludePatterns(input, settings);
 
   const options: FileSelectionOptions = {
     label: input.label,
     multiSelect: multiple,
-    selectionStyle: style,
     excludes,
   };
 

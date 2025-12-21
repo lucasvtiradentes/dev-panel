@@ -1,16 +1,12 @@
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
+import { BRANCH_CONTEXT_DEFAULT_TODOS, BRANCH_CONTEXT_NA } from '../../common/constants';
 import { getBranchContextFilePath, getBranchDirectory } from '../../common/constants/scripts-constants';
 import type { BranchContext } from '../../common/schemas/types';
 
 function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
 }
-
-const DEFAULT_TODOS = `- [ ] task1
-- [ ] task2`;
-
-const NA = 'N/A';
 
 export async function generateBranchContextMarkdown(branchName: string, context: BranchContext): Promise<void> {
   const workspace = getWorkspacePath();
@@ -26,20 +22,20 @@ export async function generateBranchContextMarkdown(branchName: string, context:
   const lines: string[] = [
     `# ${branchName}`,
     '',
-    `PR LINK: ${context.prLink || NA}`,
-    `LINEAR LINK: ${context.linearLink || NA}`,
+    `PR LINK: ${context.prLink || BRANCH_CONTEXT_NA}`,
+    `LINEAR LINK: ${context.linearLink || BRANCH_CONTEXT_NA}`,
     '',
     '# OBJECTIVE',
     '',
-    context.objective || NA,
+    context.objective || BRANCH_CONTEXT_NA,
     '',
     '# NOTES',
     '',
-    context.notes || NA,
+    context.notes || BRANCH_CONTEXT_NA,
     '',
     '# TODO',
     '',
-    context.todos || DEFAULT_TODOS,
+    context.todos || BRANCH_CONTEXT_DEFAULT_TODOS,
     '',
   ];
 

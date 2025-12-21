@@ -15,6 +15,30 @@ export const BRANCH_CONTEXT_FILENAME = 'branch-context.md';
 export const ROOT_BRANCH_CONTEXT_FILE_NAME = '.branch-context.md';
 export const BRANCH_CONTEXT_GLOB_PATTERN = `${CONFIG_DIR_NAME}/${BRANCHES_DIR_NAME}/*/${BRANCH_CONTEXT_FILENAME}`;
 export const DEFAULT_EXCLUDES = ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/out/**'];
+export const DEFAULT_EXCLUDED_DIRS = ['node_modules', 'dist', '.git'];
+
+export const BRANCH_CONTEXT_NA = 'N/A';
+export const BRANCH_CONTEXT_DEFAULT_TODOS = '- [ ] task1\n- [ ] task2';
+
+export const DND_MIME_TYPE_TASKS = 'application/vnd.code.tree.projectpaneltasks';
+export const DND_MIME_TYPE_PROMPTS = 'application/vnd.code.tree.projectpanelprompts';
+export const DND_MIME_TYPE_TOOLS = 'application/vnd.code.tree.projectpaneltools';
+
+export const WORKSPACE_STATE_KEY = 'pp.uiState';
+
+export const LOCAL_DIST_DIR = 'dist-dev';
+
+export const VSCODE_STANDARD_CONTAINERS = ['explorer', 'scm', 'debug', 'test', 'remote'];
+
+export const EDITOR_EXTENSIONS_PATHS = {
+  vscode: '.vscode/extensions',
+  cursor: '.cursor/extensions',
+  windsurf: '.windsurf/extensions',
+  vscodium: {
+    darwin: '.vscode-oss/extensions',
+    linux: '.config/VSCodium/extensions',
+  },
+} as const;
 
 export const CONTEXT_PREFIX = 'projectPanel';
 export const VIEW_ID_TASKS = 'projectPanelTasks';

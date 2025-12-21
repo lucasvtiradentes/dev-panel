@@ -3,7 +3,13 @@ import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, getCommandId } from '../../common';
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, NO_GROUP_NAME, VARIABLES_FILE_NAME } from '../../common/constants';
+import {
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  DEFAULT_EXCLUDED_DIRS,
+  NO_GROUP_NAME,
+  VARIABLES_FILE_NAME,
+} from '../../common/constants';
 import { type PPConfig, TaskSource } from '../../common/schemas/types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
@@ -18,8 +24,6 @@ type PackageLocation = {
   scripts: Record<string, string>;
   folder: vscode.WorkspaceFolder;
 };
-
-const DEFAULT_EXCLUDED_DIRS = ['node_modules', 'dist', '.git'];
 
 function readPPVariablesAsEnv(workspacePath: string): Record<string, string> {
   const variablesPath = path.join(workspacePath, CONFIG_DIR_NAME, VARIABLES_FILE_NAME);
@@ -38,6 +42,20 @@ function readPPVariablesAsEnv(workspacePath: string): Record<string, string> {
   }
 }
 
+function extractDirNamesFromGlobs(patterns: string[]): string[] {
+  const dirs: string[] = [];
+  for (const pattern of patterns) {
+    const cleaned = pattern
+      .replace(/\*\*\//g, '')
+      .replace(/\/\*\*/g, '')
+      .replace(/\*/g, '');
+    if (cleaned && !cleaned.includes('/')) {
+      dirs.push(cleaned);
+    }
+  }
+  return dirs;
+}
+
 export function getExcludedDirs(workspacePath: string): Set<string> {
   const configPath = path.join(workspacePath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
   const excluded = new Set(DEFAULT_EXCLUDED_DIRS);
@@ -45,8 +63,9 @@ export function getExcludedDirs(workspacePath: string): Set<string> {
   if (fs.existsSync(configPath)) {
     try {
       const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8')) as PPConfig;
-      const customExcluded = config.settings?.excludedDirs ?? [];
-      for (const dir of customExcluded) {
+      const customExcludePatterns = config.settings?.exclude ?? [];
+      const customDirs = extractDirNamesFromGlobs(customExcludePatterns);
+      for (const dir of customDirs) {
         excluded.add(dir);
       }
     } catch {

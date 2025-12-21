@@ -8,7 +8,6 @@ export {
   AIProvider,
   PromptExecutionMode,
   PromptInputType,
-  SelectionStyle,
 } from './config-schema';
 
 // VSCode workspace schema exports (for VSCode workspace state)

@@ -1,9 +1,7 @@
 import * as fs from 'node:fs';
+import { BRANCH_CONTEXT_DEFAULT_TODOS, BRANCH_CONTEXT_NA } from '../../common/constants';
 import { getBranchContextFilePath, getBranchDirectory } from '../../common/constants/scripts-constants';
 import type { BranchContext } from '../../common/schemas/types';
-
-const NA = 'N/A';
-const DEFAULT_TODOS = '- [ ] task1\n- [ ] task2';
 
 export function ensureBranchDirectory(workspace: string, branchName: string): void {
   const dirPath = getBranchDirectory(workspace, branchName);
@@ -39,20 +37,20 @@ function generateMarkdown(branchName: string, context: BranchContext): string {
   const lines = [
     `# ${branchName}`,
     '',
-    `PR LINK: ${context.prLink || NA}`,
-    `LINEAR LINK: ${context.linearLink || NA}`,
+    `PR LINK: ${context.prLink || BRANCH_CONTEXT_NA}`,
+    `LINEAR LINK: ${context.linearLink || BRANCH_CONTEXT_NA}`,
     '',
     '# OBJECTIVE',
     '',
-    context.objective || NA,
+    context.objective || BRANCH_CONTEXT_NA,
     '',
     '# NOTES',
     '',
-    context.notes || NA,
+    context.notes || BRANCH_CONTEXT_NA,
     '',
     '# TODO',
     '',
-    context.todos || DEFAULT_TODOS,
+    context.todos || BRANCH_CONTEXT_DEFAULT_TODOS,
     '',
   ];
   return lines.join('\n');
@@ -64,7 +62,7 @@ function extractField(content: string, fieldName: string): string | undefined {
   if (!match) return undefined;
 
   const value = match[1].trim();
-  if (value === NA || value === '') return undefined;
+  if (value === BRANCH_CONTEXT_NA || value === '') return undefined;
   return value;
 }
 
@@ -80,7 +78,7 @@ function extractSection(content: string, sectionName: string): string | undefine
   const endIndex = nextHeaderMatch ? nextHeaderMatch.index! : afterHeader.length;
   const sectionContent = afterHeader.slice(0, endIndex).trim();
 
-  if (sectionContent === NA || sectionContent === '') return undefined;
+  if (sectionContent === BRANCH_CONTEXT_NA || sectionContent === '') return undefined;
   return sectionContent;
 }
 

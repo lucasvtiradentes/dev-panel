@@ -11,43 +11,6 @@
       "description": "Global settings",
       "type": "object",
       "properties": {
-        "promptSelection": {
-          "description": "File/folder selection settings for prompts",
-          "type": "object",
-          "properties": {
-            "fileStyle": {
-              "description": "Selection style for file inputs: flat (all files listed) or interactive (navigate step by step)",
-              "type": "string",
-              "enum": [
-                "flat",
-                "interactive"
-              ]
-            },
-            "folderStyle": {
-              "description": "Selection style for folder inputs: flat (all folders listed) or interactive (navigate step by step)",
-              "type": "string",
-              "enum": [
-                "flat",
-                "interactive"
-              ]
-            },
-            "includes": {
-              "description": "Glob patterns to include (e.g. [\"src/**/*\", \"**/*.ts\"])",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "excludes": {
-              "description": "Glob patterns to exclude (e.g. [\"**/node_modules/**\", \"**/.git/**\"])",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "additionalProperties": false
-        },
         "aiProvider": {
           "description": "AI provider to use for prompts: claude, gemini, or cursor-agent",
           "type": "string",
@@ -65,8 +28,8 @@
             "overwrite"
           ]
         },
-        "excludedDirs": {
-          "description": "Additional directories to exclude when searching for package.json files. Always excluded (hardcoded): node_modules, dist, .git. Add custom exclusions as needed (e.g. [\"dist-dev\", \"out\", \".pp\", \"temp\"])",
+        "exclude": {
+          "description": "Glob patterns to exclude globally (package.json search, prompt file/folder selection, variable file/folder selection). Always excluded (hardcoded): node_modules, dist, .git. Add custom exclusions as needed (e.g. [\"**/.pp/**\", \"**/.changeset/**\", \"**/out/**\", \"**/*.log\"])",
           "type": "array",
           "items": {
             "type": "string"
@@ -137,14 +100,6 @@
           "multiSelect": {
             "description": "Enable multi-selection for file/folder kinds",
             "type": "boolean"
-          },
-          "selectionStyle": {
-            "description": "Selection style for file/folder kinds. Overrides global setting",
-            "type": "string",
-            "enum": [
-              "flat",
-              "interactive"
-            ]
           },
           "excludes": {
             "description": "Glob patterns to exclude for file/folder kinds. Overrides global excludes",
@@ -354,14 +309,6 @@
                 "multiSelect": {
                   "description": "Enable multi-selection for file/folder types",
                   "type": "boolean"
-                },
-                "selectionStyle": {
-                  "description": "Selection style for file/folder inputs. Overrides global setting",
-                  "type": "string",
-                  "enum": [
-                    "flat",
-                    "interactive"
-                  ]
                 },
                 "excludes": {
                   "description": "Glob patterns to exclude for this input. Overrides global excludes",

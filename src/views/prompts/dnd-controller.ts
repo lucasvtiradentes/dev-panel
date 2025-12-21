@@ -1,14 +1,18 @@
+import { DND_MIME_TYPE_PROMPTS } from '../../common/constants';
 import { promptsState } from '../../common/lib/workspace-state';
 import { createDragAndDropController } from '../common';
 import type { TreePrompt } from './items';
-
-const MIME_TYPE = 'application/vnd.code.tree.projectpanelprompts';
 
 export class PromptDragAndDropController {
   private controller: ReturnType<typeof createDragAndDropController<TreePrompt>>;
 
   constructor(getIsGrouped: () => boolean, onReorder: () => void) {
-    this.controller = createDragAndDropController<TreePrompt>(MIME_TYPE, promptsState, getIsGrouped, onReorder);
+    this.controller = createDragAndDropController<TreePrompt>(
+      DND_MIME_TYPE_PROMPTS,
+      promptsState,
+      getIsGrouped,
+      onReorder,
+    );
   }
 
   get dropMimeTypes() {

@@ -14,7 +14,7 @@ import {
   VARIABLES_FILE_NAME,
 } from '../../common/constants';
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/lib/file-selection';
-import { type PPSettings, SelectionStyle } from '../../common/schemas';
+import type { PPSettings } from '../../common/schemas';
 import { getVariableKeybinding } from './keybindings-local';
 import { getIsGrouped, saveIsGrouped } from './state';
 
@@ -39,7 +39,6 @@ interface VariableItem {
   group?: string;
   showTerminal?: boolean;
   multiSelect?: boolean;
-  selectionStyle?: SelectionStyle;
   excludes?: string[];
 }
 
@@ -310,13 +309,12 @@ export async function selectVariableOption(variable: VariableItem): Promise<void
       if (!workspaceFolder) return;
 
       const settings = providerInstance?.loadSettings();
-      const style = variable.selectionStyle ?? settings?.promptSelection?.fileStyle ?? SelectionStyle.Flat;
-      const excludes = variable.excludes ?? settings?.promptSelection?.excludes ?? DEFAULT_EXCLUDES;
+      const excludes =
+        variable.excludes ?? (settings?.exclude && settings.exclude.length > 0 ? settings.exclude : DEFAULT_EXCLUDES);
 
       const options: FileSelectionOptions = {
         label: variable.description || `Select file for ${variable.name}`,
         multiSelect: variable.multiSelect ?? false,
-        selectionStyle: style,
         excludes,
       };
 
@@ -331,13 +329,12 @@ export async function selectVariableOption(variable: VariableItem): Promise<void
       if (!workspaceFolder) return;
 
       const settings = providerInstance?.loadSettings();
-      const style = variable.selectionStyle ?? settings?.promptSelection?.folderStyle ?? SelectionStyle.Flat;
-      const excludes = variable.excludes ?? settings?.promptSelection?.excludes ?? DEFAULT_EXCLUDES;
+      const excludes =
+        variable.excludes ?? (settings?.exclude && settings.exclude.length > 0 ? settings.exclude : DEFAULT_EXCLUDES);
 
       const options: FileSelectionOptions = {
         label: variable.description || `Select folder for ${variable.name}`,
         multiSelect: variable.multiSelect ?? false,
-        selectionStyle: style,
         excludes,
       };
 
