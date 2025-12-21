@@ -114,6 +114,17 @@ export abstract class BaseTreeDataProvider<
       } else {
         this.stateManager.toggleFavorite(this.getSource!(), name);
       }
+
+      const favoriteItems = this.getFavoriteItems();
+      if (this._showOnlyFavorites && favoriteItems.length === 0) {
+        this._showOnlyFavorites = false;
+        if (this.isSimpleStateManager(this.stateManager)) {
+          this.stateManager.saveShowOnlyFavorites(this._showOnlyFavorites);
+        } else {
+          this.stateManager.saveShowOnlyFavorites(this.getSource!(), this._showOnlyFavorites);
+        }
+      }
+
       this.updateContextKeys();
       this._onDidChangeTreeData.fire(null);
     }
