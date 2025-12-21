@@ -4,7 +4,8 @@ import { Command } from '../../common/lib/vscode-utils';
 
 export class BranchHeaderItem extends vscode.TreeItem {
   constructor(branchName: string) {
-    super(branchName, vscode.TreeItemCollapsibleState.None);
+    super('Branch', vscode.TreeItemCollapsibleState.None);
+    this.description = branchName;
     this.iconPath = new vscode.ThemeIcon('git-branch');
     this.contextValue = 'branchHeader';
     this.tooltip = 'Click to switch branch';

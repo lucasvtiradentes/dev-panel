@@ -75,11 +75,11 @@ export function createOpenTasksConfigCommand() {
         if (fs.existsSync(ppConfigPath)) {
           const content = fs.readFileSync(ppConfigPath, 'utf-8');
           const lines = content.split('\n');
-          let scriptsLine = 0;
+          let tasksLine = 0;
 
           for (let i = 0; i < lines.length; i++) {
-            if (lines[i].match(/"scripts"\s*:\s*\[/)) {
-              scriptsLine = i;
+            if (lines[i].match(/"tasks"\s*:\s*\[/)) {
+              tasksLine = i;
               break;
             }
           }
@@ -87,7 +87,7 @@ export function createOpenTasksConfigCommand() {
           const uri = vscode.Uri.file(ppConfigPath);
           const doc = await vscode.workspace.openTextDocument(uri);
           await vscode.window.showTextDocument(doc, {
-            selection: new vscode.Range(scriptsLine, 0, scriptsLine, 0),
+            selection: new vscode.Range(tasksLine, 0, tasksLine, 0),
           });
         } else {
           void vscode.window.showErrorMessage(`${CONFIG_DIR_NAME}/config.jsonc not found`);

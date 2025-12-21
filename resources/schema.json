@@ -67,19 +67,19 @@
       },
       "additionalProperties": false
     },
-    "configs": {
-      "description": "Configuration options",
+    "variables": {
+      "description": "Configuration variables",
       "type": "array",
       "items": {
-        "description": "A configuration option shown in the Configs view",
+        "description": "A configuration variable shown in the Variables view",
         "type": "object",
         "properties": {
           "name": {
-            "description": "Unique identifier for the config",
+            "description": "Unique identifier for the variable",
             "type": "string"
           },
           "kind": {
-            "description": "Type of config input",
+            "description": "Type of variable input",
             "type": "string",
             "enum": [
               "choose",
@@ -127,7 +127,7 @@
             ]
           },
           "group": {
-            "description": "Group name for organizing configs",
+            "description": "Group name for organizing variables",
             "type": "string"
           }
         },
@@ -208,15 +208,15 @@
         "additionalProperties": false
       }
     },
-    "scripts": {
-      "description": "Executable scripts",
+    "tasks": {
+      "description": "Executable tasks",
       "type": "array",
       "items": {
-        "description": "A script that can be executed from the Tasks view",
+        "description": "A task that can be executed from the Tasks view",
         "type": "object",
         "properties": {
           "name": {
-            "description": "Unique identifier for the script",
+            "description": "Unique identifier for the task",
             "type": "string"
           },
           "command": {
@@ -228,7 +228,7 @@
             "type": "string"
           },
           "group": {
-            "description": "Group name for organizing scripts",
+            "description": "Group name for organizing tasks",
             "type": "string"
           },
           "description": {

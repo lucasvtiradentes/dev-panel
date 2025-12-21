@@ -1,5 +1,10 @@
 import {
   CONTEXT_PREFIX,
+  PROMPT_COMMAND_SUFFIX,
+  REPLACEMENT_COMMAND_SUFFIX,
+  TASK_COMMAND_SUFFIX,
+  TOOL_COMMAND_SUFFIX,
+  VARIABLE_COMMAND_SUFFIX,
   VIEW_ID_BRANCH_CONTEXT,
   VIEW_ID_CONFIGS,
   VIEW_ID_PROMPTS,
@@ -17,6 +22,12 @@ export {
   CONFIG_DIR_NAME,
   DEV_SUFFIX,
   DISPLAY_PREFIX,
+  PROMPT_COMMAND_SUFFIX,
+  REPLACEMENT_COMMAND_SUFFIX,
+  TASK_COMMAND_SUFFIX,
+  TOOL_COMMAND_SUFFIX,
+  TOOL_TASK_TYPE,
+  VARIABLE_COMMAND_SUFFIX,
 } from './scripts-constants';
 
 declare const __IS_DEV_BUILD__: boolean;
@@ -59,4 +70,54 @@ export function getViewIdTodos(): string {
 
 export function getLogFilename(): string {
   return buildLogFilename(IS_DEV);
+}
+
+export function getToolCommandId(toolName: string): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${TOOL_COMMAND_SUFFIX}.${toolName}`;
+}
+
+export function getToolCommandPrefix(): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${TOOL_COMMAND_SUFFIX}.`;
+}
+
+export function getPromptCommandId(promptName: string): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${PROMPT_COMMAND_SUFFIX}.${promptName}`;
+}
+
+export function getPromptCommandPrefix(): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${PROMPT_COMMAND_SUFFIX}.`;
+}
+
+export function getReplacementCommandId(replacementName: string): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${REPLACEMENT_COMMAND_SUFFIX}.${replacementName}`;
+}
+
+export function getReplacementCommandPrefix(): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${REPLACEMENT_COMMAND_SUFFIX}.`;
+}
+
+export function getVariableCommandId(variableName: string): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${VARIABLE_COMMAND_SUFFIX}.${variableName}`;
+}
+
+export function getVariableCommandPrefix(): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${VARIABLE_COMMAND_SUFFIX}.`;
+}
+
+export function getTaskCommandId(taskName: string): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${TASK_COMMAND_SUFFIX}.${taskName}`;
+}
+
+export function getTaskCommandPrefix(): string {
+  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+  return `${prefix}.${TASK_COMMAND_SUFFIX}.`;
 }

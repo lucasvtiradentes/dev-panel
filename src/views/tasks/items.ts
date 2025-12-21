@@ -3,14 +3,9 @@ import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { isMultiRootWorkspace } from '../../common';
 import type { CodeWorkspaceFile, TaskDefinition, TasksJson } from '../../common/schemas/types';
+import { BaseGroupTreeItem } from '../common';
 
-export class GroupTreeItem extends vscode.TreeItem {
-  children: TreeTask[] = [];
-
-  constructor(groupName: string) {
-    super(groupName, vscode.TreeItemCollapsibleState.Expanded);
-  }
-}
+export class GroupTreeItem extends BaseGroupTreeItem<TreeTask> {}
 
 export class WorkspaceTreeItem extends vscode.TreeItem {
   public childrenObject: { [key: string]: GroupTreeItem } = {};
@@ -71,6 +66,10 @@ export class TreeTask extends vscode.TreeItem {
     }
 
     this.loadTaskMetadata();
+  }
+
+  getName(): string {
+    return this.taskName;
   }
 
   setFavorite(isFavorite: boolean): void {

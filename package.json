@@ -81,7 +81,7 @@
       "projectPanel": [
         {
           "id": "projectPanelConfigs",
-          "name": "Configs"
+          "name": "Variables"
         },
         {
           "id": "projectPanelReplacements",
@@ -123,11 +123,6 @@
         "icon": "$(discard)"
       },
       {
-        "command": "projectPanel.refreshConfigs",
-        "title": "Refresh Configs",
-        "icon": "$(extensions-refresh)"
-      },
-      {
         "command": "projectPanel.toggleConfigsGroupMode",
         "title": "Toggle Configs Group Mode",
         "icon": "$(list-flat)"
@@ -145,11 +140,6 @@
         "command": "projectPanel.revertAllReplacements",
         "title": "Revert All Replacements",
         "icon": "$(discard)"
-      },
-      {
-        "command": "projectPanel.refreshReplacements",
-        "title": "Refresh Replacements",
-        "icon": "$(extensions-refresh)"
       },
       {
         "command": "projectPanel.toggleReplacementsGroupMode",
@@ -190,7 +180,7 @@
         "icon": "$(package)"
       },
       {
-        "command": "projectPanel.switchTaskSourceFromBPM",
+        "command": "projectPanel.switchTaskSourceFromPP",
         "title": "Switch to VSCode Tasks",
         "icon": "$(beaker)"
       },
@@ -252,11 +242,6 @@
         "title": "Tab Command Line"
       },
       {
-        "command": "projectPanel.refreshTools",
-        "title": "Refresh Tools",
-        "icon": "$(extensions-refresh)"
-      },
-      {
         "command": "projectPanel.toggleToolsGroupMode",
         "title": "Toggle Tools Group Mode",
         "icon": "$(list-flat)"
@@ -309,11 +294,6 @@
         "command": "projectPanel.goToToolFile",
         "title": "Go to Tool File",
         "icon": "$(go-to-file)"
-      },
-      {
-        "command": "projectPanel.refreshPrompts",
-        "title": "Refresh Prompts",
-        "icon": "$(extensions-refresh)"
       },
       {
         "command": "projectPanel.togglePromptsGroupMode",
@@ -370,11 +350,6 @@
         "icon": "$(go-to-file)"
       },
       {
-        "command": "projectPanel.refreshBranchContext",
-        "title": "Refresh Branch Context",
-        "icon": "$(extensions-refresh)"
-      },
-      {
         "command": "projectPanel.openBranchContextFile",
         "title": "Open Branch Context File",
         "icon": "$(go-to-file)"
@@ -399,6 +374,76 @@
       {
         "command": "projectPanel.showLogs",
         "title": "Project Panel: Show Logs"
+      },
+      {
+        "command": "projectPanel.syncToolKeybindings",
+        "title": "Project Panel: Sync Tool Keybindings"
+      },
+      {
+        "command": "projectPanel.setToolKeybinding",
+        "title": "Set Keybinding",
+        "icon": "$(keyboard)"
+      },
+      {
+        "command": "projectPanel.openToolsKeybindings",
+        "title": "Open Tools Keybindings",
+        "icon": "$(keyboard)"
+      },
+      {
+        "command": "projectPanel.syncPromptKeybindings",
+        "title": "Project Panel: Sync Prompt Keybindings"
+      },
+      {
+        "command": "projectPanel.setPromptKeybinding",
+        "title": "Set Keybinding",
+        "icon": "$(keyboard)"
+      },
+      {
+        "command": "projectPanel.openPromptsKeybindings",
+        "title": "Open Prompts Keybindings",
+        "icon": "$(keyboard)"
+      },
+      {
+        "command": "projectPanel.syncReplacementKeybindings",
+        "title": "Project Panel: Sync Replacement Keybindings"
+      },
+      {
+        "command": "projectPanel.setReplacementKeybinding",
+        "title": "Set Keybinding",
+        "icon": "$(keyboard)"
+      },
+      {
+        "command": "projectPanel.openReplacementsKeybindings",
+        "title": "Open Replacements Keybindings",
+        "icon": "$(keyboard)"
+      },
+      {
+        "command": "projectPanel.syncVariableKeybindings",
+        "title": "Project Panel: Sync Variable Keybindings"
+      },
+      {
+        "command": "projectPanel.setVariableKeybinding",
+        "title": "Set Keybinding",
+        "icon": "$(keyboard)"
+      },
+      {
+        "command": "projectPanel.openVariablesKeybindings",
+        "title": "Open Configs Keybindings",
+        "icon": "$(keyboard)"
+      },
+      {
+        "command": "projectPanel.syncTaskKeybindings",
+        "title": "Project Panel: Sync Task Keybindings"
+      },
+      {
+        "command": "projectPanel.setTaskKeybinding",
+        "title": "Set Keybinding",
+        "icon": "$(keyboard)"
+      },
+      {
+        "command": "projectPanel.openTasksKeybindings",
+        "title": "Open Tasks Keybindings",
+        "icon": "$(keyboard)"
       }
     ],
     "keybindings": [
@@ -436,9 +481,9 @@
           "group": "navigation@1"
         },
         {
-          "command": "projectPanel.refreshConfigs",
+          "command": "projectPanel.openVariablesKeybindings",
           "when": "view == projectPanelConfigs",
-          "group": "navigation@2"
+          "group": "navigation@3"
         },
         {
           "command": "projectPanel.toggleReplacementsGroupMode",
@@ -456,9 +501,9 @@
           "group": "navigation@2"
         },
         {
-          "command": "projectPanel.refreshReplacements",
+          "command": "projectPanel.openReplacementsKeybindings",
           "when": "view == projectPanelReplacements",
-          "group": "navigation@3"
+          "group": "navigation@4"
         },
         {
           "command": "projectPanel.toggleGroupMode",
@@ -481,7 +526,7 @@
           "group": "navigation@2"
         },
         {
-          "command": "projectPanel.switchTaskSourceFromBPM",
+          "command": "projectPanel.switchTaskSourceFromPP",
           "when": "view == projectPanelTasks && taskSourcePP",
           "group": "navigation@2"
         },
@@ -516,6 +561,11 @@
           "group": "navigation@6"
         },
         {
+          "command": "projectPanel.openTasksKeybindings",
+          "when": "view == projectPanelTasks && taskSourcePP",
+          "group": "navigation@7"
+        },
+        {
           "command": "projectPanel.toggleToolsGroupMode",
           "when": "view == projectPanelTools && !toolsGrouped",
           "group": "navigation@1"
@@ -546,9 +596,9 @@
           "group": "navigation@3"
         },
         {
-          "command": "projectPanel.refreshTools",
+          "command": "projectPanel.openToolsKeybindings",
           "when": "view == projectPanelTools",
-          "group": "navigation@4"
+          "group": "navigation@5"
         },
         {
           "command": "projectPanel.togglePromptsGroupMode",
@@ -581,19 +631,14 @@
           "group": "navigation@3"
         },
         {
-          "command": "projectPanel.refreshPrompts",
+          "command": "projectPanel.openPromptsKeybindings",
           "when": "view == projectPanelPrompts",
-          "group": "navigation@4"
+          "group": "navigation@5"
         },
         {
           "command": "projectPanel.openBranchContextFile",
           "when": "view == projectPanelBranchContext",
           "group": "navigation@1"
-        },
-        {
-          "command": "projectPanel.refreshBranchContext",
-          "when": "view == projectPanelBranchContext",
-          "group": "navigation@2"
         },
         {
           "command": "projectPanel.editBranchTodos",
@@ -618,12 +663,22 @@
           "group": "inline@2"
         },
         {
+          "command": "projectPanel.setTaskKeybinding",
+          "when": "view == projectPanelTasks && viewItem =~ /^task/ && taskSourcePP",
+          "group": "inline@3"
+        },
+        {
           "command": "projectPanel.executeTask",
           "when": "view == projectPanelTasks"
         },
         {
           "command": "projectPanel.goToTask",
           "when": "view == projectPanelTasks"
+        },
+        {
+          "command": "projectPanel.setReplacementKeybinding",
+          "when": "view == projectPanelReplacements && viewItem == replacementItem",
+          "group": "inline@1"
         },
         {
           "command": "projectPanel.toggleToolFavorite",
@@ -641,9 +696,14 @@
           "group": "inline@2"
         },
         {
-          "command": "projectPanel.goToToolFile",
+          "command": "projectPanel.setToolKeybinding",
           "when": "view == projectPanelTools && viewItem =~ /^tool/",
           "group": "inline@3"
+        },
+        {
+          "command": "projectPanel.goToToolFile",
+          "when": "view == projectPanelTools && viewItem =~ /^tool/",
+          "group": "inline@4"
         },
         {
           "command": "projectPanel.executeTool",
@@ -665,18 +725,28 @@
           "group": "inline@2"
         },
         {
-          "command": "projectPanel.goToPromptFile",
+          "command": "projectPanel.setPromptKeybinding",
           "when": "view == projectPanelPrompts && viewItem =~ /^prompt/",
           "group": "inline@3"
+        },
+        {
+          "command": "projectPanel.goToPromptFile",
+          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/",
+          "group": "inline@4"
         },
         {
           "command": "projectPanel.executePrompt",
           "when": "view == projectPanelPrompts"
         },
         {
+          "command": "projectPanel.setVariableKeybinding",
+          "when": "view == projectPanelConfigs && viewItem == variableItem",
+          "group": "inline@1"
+        },
+        {
           "command": "projectPanel.resetConfigOption",
-          "when": "view == projectPanelConfigs && viewItem == configItem",
-          "group": "inline"
+          "when": "view == projectPanelConfigs && viewItem == variableItem",
+          "group": "inline@2"
         }
       ]
     },

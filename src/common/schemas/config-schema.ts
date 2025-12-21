@@ -24,15 +24,15 @@ export enum AIProvider {
   CursorAgent = 'cursor-agent',
 }
 
-const PPScriptSchema = z
+const PPTaskSchema = z
   .object({
-    name: z.string().describe('Unique identifier for the script'),
+    name: z.string().describe('Unique identifier for the task'),
     command: z.string().describe('Shell command to execute'),
     icon: z.string().optional().describe('VSCode ThemeIcon id (e.g. "terminal", "play")'),
-    group: z.string().optional().describe('Group name for organizing scripts'),
+    group: z.string().optional().describe('Group name for organizing tasks'),
     description: z.string().optional().describe('Human-readable description shown as tooltip'),
   })
-  .describe('A script that can be executed from the Tasks view');
+  .describe('A task that can be executed from the Tasks view');
 
 const PPToolSchema = z
   .object({
@@ -77,10 +77,10 @@ const PPPromptSchema = z
   })
   .describe('A prompt that can be executed in Claude Code');
 
-const PPConfigItemSchema = z
+const PPVariableSchema = z
   .object({
-    name: z.string().describe('Unique identifier for the config'),
-    kind: z.enum(['choose', 'toggle', 'input', 'multi-select', 'file', 'folder']).describe('Type of config input'),
+    name: z.string().describe('Unique identifier for the variable'),
+    kind: z.enum(['choose', 'toggle', 'input', 'multi-select', 'file', 'folder']).describe('Type of variable input'),
     options: z.array(z.string()).optional().describe('Available options for choose/multi-select kinds'),
     command: z.string().optional().describe('Shell command to execute when value changes'),
     icon: z.string().optional().describe('VSCode ThemeIcon id'),
@@ -89,9 +89,9 @@ const PPConfigItemSchema = z
       .union([z.string(), z.boolean(), z.array(z.string())])
       .optional()
       .describe('Default value'),
-    group: z.string().optional().describe('Group name for organizing configs'),
+    group: z.string().optional().describe('Group name for organizing variables'),
   })
-  .describe('A configuration option shown in the Configs view');
+  .describe('A configuration variable shown in the Variables view');
 
 const PPReplacementPatchSchema = z.object({
   search: z.string().describe('Text or pattern to search for'),
@@ -148,9 +148,9 @@ export const PPConfigSchema = z
   .object({
     $schema: z.string().optional().describe('JSON Schema reference'),
     settings: PPSettingsSchema.optional().describe('Global settings'),
-    configs: z.array(PPConfigItemSchema).optional().describe('Configuration options'),
+    variables: z.array(PPVariableSchema).optional().describe('Configuration variables'),
     replacements: z.array(PPReplacementSchema).optional().describe('File replacements/patches'),
-    scripts: z.array(PPScriptSchema).optional().describe('Executable scripts'),
+    tasks: z.array(PPTaskSchema).optional().describe('Executable tasks'),
     tools: z.array(PPToolSchema).optional().describe('Executable tools'),
     prompts: z.array(PPPromptSchema).optional().describe('Claude Code prompts'),
   })

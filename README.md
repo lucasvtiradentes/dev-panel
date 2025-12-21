@@ -1,14 +1,21 @@
-# BETTER PROJECT DOCS
+# LAZY DOCS
 
 - [ ] ver um jeito pratico de ter o framework do POR por aqui ou algo customizavel 
 - [ ] ter um claude.md proprio da extensao onde vamos falar dos arquivos importantes api/cicd é onde ta a infra etc
 
-## BETTER CLAUDE CODE
+## CLAUDE CODE MANAGER
 
 - [ ] ter uma view de custom commands
 - [ ] ter um view de flags de calude code
+- [ ] uma vez por semana analisar o projeto, sugerir PR, etc
 
-## BETTER PROJECT CONFIGS 
+## AUTO CLAUDE
+
+- rodar tasks de 5 em 5 horas de forma randomica
+  - revisar PR 
+  - revisar issues
+
+## PROJECT PANEL
 
 ## prompts 
 
@@ -17,15 +24,23 @@
 - [ ] find test cases
 - [ ] adicionar prompt de revisar pr/branch
 
-## views
-
-- [ ] no botao da branch ser possivel mudar a branch para por exemplo pegar uma branch q nao esta no pc 
-- [ ] adicionar botao de ir direto para o prompt/tool/script 
-
 ## outros
 
-- [ ] ter como usar tate.variables nos prompts, scripts, etc -> ${{environment}}
+- [ ] ter uma view de actions talvez: (PENSAR MTO PQ JA TEMOS SCRIPTS / TOOLS)
+  - create PR
+  - review PR
+- [ ] adicionar uma pasta global onde posso colocar prompts / tools / scripts globais 
+  - ter um botao em cada script para mudar para o global talvez
 - [ ] adicionar integracao com linear cmd e mostrar as coisas para serem feitas no projeto/branch
   - por milestone 
   - por pessoa 
-
+- [ ] ter um registry ou algo assim para adicionar tools nos projetos facilmente
+  - prompts
+  - tools
+  - scripts 
+- [ ] botao de sincronizar as tools no CLAUDE.md etc
+- [ ] ver oq podermos fazer para ter um keybindings
+- [ ] ver oq podermos fazer para ter views dinamuicas
+- [ ] salvar as coisas em uma pasta branch la no ".pp" ao inves de salvar no state.json
+- [ ] no "branch context" devemos ter o prefixo de "Branch: " na primeira linha ao inves de so mostrar a branch
+- [ ] ter como usar state.variables nos prompts, scripts, etc -> ${{environment}}

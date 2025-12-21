@@ -1,12 +1,13 @@
 import * as vscode from 'vscode';
 import { Command, registerCommand } from '../common';
+import { syncKeybindings } from '../lib/keybindings-sync';
 import { BranchContextField, type BranchContextProvider } from '../views/branch-context';
-import type { ConfigsProvider } from '../views/configs';
 import type { PromptTreeDataProvider, TreePrompt } from '../views/prompts';
 import type { ReplacementsProvider } from '../views/replacements';
 import type { TaskTreeDataProvider } from '../views/tasks';
 import type { TodosProvider } from '../views/todos';
 import type { ToolTreeDataProvider, TreeTool } from '../views/tools';
+import type { VariablesProvider } from '../views/variables';
 import {
   createBackCmdlineCommand,
   createExecCmdlineCommand,
@@ -23,7 +24,18 @@ import { createResetConfigOptionCommand, createSelectConfigOptionCommand } from 
 import { createToggleReplacementCommand } from './internal/toggle-replacement';
 import { createGoToTaskCommand } from './public/go-to-task';
 import { createOpenTasksConfigCommand } from './public/open-tasks-config';
-import { createRefreshCommand, createRefreshPromptsCommand, createRefreshToolsCommand } from './public/refresh';
+import { createRefreshCommand } from './public/refresh';
+import { createOpenPromptsKeybindingsCommand, createSetPromptKeybindingCommand } from './public/set-prompt-keybinding';
+import {
+  createOpenReplacementsKeybindingsCommand,
+  createSetReplacementKeybindingCommand,
+} from './public/set-replacement-keybinding';
+import { createOpenTasksKeybindingsCommand, createSetTaskKeybindingCommand } from './public/set-task-keybinding';
+import { createOpenToolsKeybindingsCommand, createSetToolKeybindingCommand } from './public/set-tool-keybinding';
+import {
+  createOpenVariablesKeybindingsCommand,
+  createSetVariableKeybindingCommand,
+} from './public/set-variable-keybinding';
 import { createShowLogsCommand } from './public/show-logs';
 import { createSwitchTaskSourceCommands } from './public/switch-task-source';
 
@@ -32,7 +44,7 @@ export function registerAllCommands(
   taskTreeDataProvider: TaskTreeDataProvider,
   toolTreeDataProvider: ToolTreeDataProvider,
   promptTreeDataProvider: PromptTreeDataProvider,
-  configsProvider: ConfigsProvider,
+  variablesProvider: VariablesProvider,
   replacementsProvider: ReplacementsProvider,
   branchContextProvider: BranchContextProvider,
   todosProvider: TodosProvider,
@@ -58,15 +70,12 @@ export function registerAllCommands(
     createTabCmdlineCommand(taskTreeDataProvider),
     createSelectConfigOptionCommand(),
     createResetConfigOptionCommand(),
-    registerCommand(Command.RefreshConfigs, () => configsProvider.refresh()),
-    registerCommand(Command.ToggleConfigsGroupMode, () => configsProvider.toggleGroupMode()),
-    registerCommand(Command.ToggleConfigsGroupModeGrouped, () => configsProvider.toggleGroupMode()),
+    registerCommand(Command.ToggleConfigsGroupMode, () => variablesProvider.toggleGroupMode()),
+    registerCommand(Command.ToggleConfigsGroupModeGrouped, () => variablesProvider.toggleGroupMode()),
     createToggleReplacementCommand(),
     createRevertAllReplacementsCommand(),
-    registerCommand(Command.RefreshReplacements, () => replacementsProvider.refresh()),
     registerCommand(Command.ToggleReplacementsGroupMode, () => replacementsProvider.toggleGroupMode()),
     registerCommand(Command.ToggleReplacementsGroupModeGrouped, () => replacementsProvider.toggleGroupMode()),
-    createRefreshToolsCommand(toolTreeDataProvider),
     registerCommand(Command.ToggleToolsGroupMode, () => toolTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.ToggleToolsGroupModeGrouped, () => toolTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.ToggleToolFavorite, (item) => toolTreeDataProvider.toggleFavorite(item)),
@@ -83,7 +92,6 @@ export function registerAllCommands(
         await vscode.window.showTextDocument(uri);
       }
     }),
-    createRefreshPromptsCommand(promptTreeDataProvider),
     registerCommand(Command.TogglePromptsGroupMode, () => promptTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.TogglePromptsGroupModeGrouped, () => promptTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.TogglePromptFavorite, (item) => promptTreeDataProvider.toggleFavorite(item)),
@@ -102,7 +110,6 @@ export function registerAllCommands(
         await vscode.window.showTextDocument(uri);
       }
     }),
-    registerCommand(Command.RefreshBranchContext, () => branchContextProvider.refresh()),
     registerCommand(Command.EditBranchPrLink, (branchName: string, value?: string) =>
       branchContextProvider.editField(branchName, BranchContextField.PrLink, value),
     ),
@@ -119,5 +126,20 @@ export function registerAllCommands(
     registerCommand(Command.OpenBranchContextFile, () => branchContextProvider.openMarkdownFile()),
     registerCommand(Command.ToggleTodo, (lineIndex: number) => todosProvider.toggleTodo(lineIndex)),
     createShowLogsCommand(),
+    registerCommand(Command.SyncToolKeybindings, () => syncKeybindings()),
+    createSetToolKeybindingCommand(),
+    createOpenToolsKeybindingsCommand(),
+    registerCommand(Command.SyncPromptKeybindings, () => syncKeybindings()),
+    createSetPromptKeybindingCommand(),
+    createOpenPromptsKeybindingsCommand(),
+    registerCommand(Command.SyncReplacementKeybindings, () => syncKeybindings()),
+    createSetReplacementKeybindingCommand(),
+    createOpenReplacementsKeybindingsCommand(),
+    registerCommand(Command.SyncVariableKeybindings, () => syncKeybindings()),
+    createSetVariableKeybindingCommand(),
+    createOpenVariablesKeybindingsCommand(),
+    registerCommand(Command.SyncTaskKeybindings, () => syncKeybindings()),
+    createSetTaskKeybindingCommand(),
+    createOpenTasksKeybindingsCommand(),
   ];
 }

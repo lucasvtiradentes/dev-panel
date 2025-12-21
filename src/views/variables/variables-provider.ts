@@ -6,11 +6,12 @@ import json5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
 import { CONFIG_DIR_NAME, DISPLAY_PREFIX } from '../../common/constants';
+import { getVariableKeybinding } from './keybindings-local';
 import { getIsGrouped, saveIsGrouped } from './state';
 
 const execAsync = promisify(exec);
 
-enum ConfigKind {
+enum VariableKind {
   Choose = 'choose',
   Input = 'input',
   Toggle = 'toggle',
@@ -19,9 +20,9 @@ enum ConfigKind {
   Folder = 'folder',
 }
 
-interface ConfigItem {
+interface VariableItem {
   name: string;
-  kind: ConfigKind;
+  kind: VariableKind;
   options?: string[];
   command?: string;
   icon?: string;
@@ -31,11 +32,11 @@ interface ConfigItem {
   showTerminal?: boolean;
 }
 
-interface BpmConfig {
-  configs: ConfigItem[];
+interface PpVariables {
+  variables: VariableItem[];
 }
 
-interface BpmState {
+interface PpState {
   [key: string]: string | boolean | string[];
 }
 
@@ -49,23 +50,23 @@ function getStatePath(): string | null {
   return path.join(workspace, CONFIG_DIR_NAME, 'state.json');
 }
 
-function loadState(): BpmState {
+function loadState(): PpState {
   const statePath = getStatePath();
   if (!statePath || !fs.existsSync(statePath)) return {};
   const content = fs.readFileSync(statePath, 'utf-8');
   return JSON.parse(content);
 }
 
-function saveState(state: BpmState): void {
+function saveState(state: PpState): void {
   const statePath = getStatePath();
   if (!statePath) return;
   fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
 }
 
-function formatValue(value: string | boolean | string[] | undefined, config: ConfigItem): string {
+function formatValue(value: string | boolean | string[] | undefined, variable: VariableItem): string {
   if (value === undefined) {
-    if (config.default !== undefined) {
-      return formatValue(config.default, config);
+    if (variable.default !== undefined) {
+      return formatValue(variable.default, variable);
     }
     return '(not set)';
   }
@@ -77,35 +78,37 @@ function formatValue(value: string | boolean | string[] | undefined, config: Con
 class GroupTreeItem extends vscode.TreeItem {
   constructor(
     public readonly groupName: string,
-    public readonly configs: ConfigItem[],
+    public readonly variables: VariableItem[],
   ) {
     super(groupName, vscode.TreeItemCollapsibleState.Expanded);
     this.contextValue = 'groupItem';
   }
 }
 
-export class ConfigTreeItem extends vscode.TreeItem {
+export class VariableTreeItem extends vscode.TreeItem {
   constructor(
-    public readonly config: ConfigItem,
+    public readonly variable: VariableItem,
     currentValue?: string | boolean | string[],
   ) {
-    super(config.name, vscode.TreeItemCollapsibleState.None);
-    this.contextValue = 'configItem';
-    this.description = formatValue(currentValue, config);
-    if (config.description) {
-      this.tooltip = config.description;
+    super(variable.name, vscode.TreeItemCollapsibleState.None);
+    this.contextValue = 'variableItem';
+    const keybinding = getVariableKeybinding(variable.name);
+    const value = formatValue(currentValue, variable);
+    this.description = keybinding ? `${value} • ${keybinding}` : value;
+    if (variable.description) {
+      this.tooltip = variable.description;
     }
     this.command = {
       command: getCommandId(Command.SelectConfigOption),
       title: 'Select Option',
-      arguments: [config],
+      arguments: [variable],
     };
   }
 }
 
-let providerInstance: ConfigsProvider | null = null;
+let providerInstance: VariablesProvider | null = null;
 
-export class ConfigsProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
+export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
   private fileWatcher: vscode.FileSystemWatcher | null = null;
@@ -161,39 +164,39 @@ export class ConfigsProvider implements vscode.TreeDataProvider<vscode.TreeItem>
     const state = loadState();
 
     if (element instanceof GroupTreeItem) {
-      return Promise.resolve(element.configs.map((c) => new ConfigTreeItem(c, state[c.name])));
+      return Promise.resolve(element.variables.map((v) => new VariableTreeItem(v, state[v.name])));
     }
 
     if (!this._grouped) {
-      return Promise.resolve(config.configs.map((c) => new ConfigTreeItem(c, state[c.name])));
+      return Promise.resolve(config.variables.map((v) => new VariableTreeItem(v, state[v.name])));
     }
 
-    const grouped = new Map<string, ConfigItem[]>();
-    const ungrouped: ConfigItem[] = [];
+    const grouped = new Map<string, VariableItem[]>();
+    const ungrouped: VariableItem[] = [];
 
-    for (const c of config.configs) {
-      if (c.group) {
-        if (!grouped.has(c.group)) grouped.set(c.group, []);
-        grouped.get(c.group)!.push(c);
+    for (const v of config.variables) {
+      if (v.group) {
+        if (!grouped.has(v.group)) grouped.set(v.group, []);
+        grouped.get(v.group)!.push(v);
       } else {
-        ungrouped.push(c);
+        ungrouped.push(v);
       }
     }
 
     const items: vscode.TreeItem[] = [];
 
-    for (const [groupName, configs] of grouped) {
-      items.push(new GroupTreeItem(groupName, configs));
+    for (const [groupName, variables] of grouped) {
+      items.push(new GroupTreeItem(groupName, variables));
     }
 
-    for (const c of ungrouped) {
-      items.push(new ConfigTreeItem(c, state[c.name]));
+    for (const v of ungrouped) {
+      items.push(new VariableTreeItem(v, state[v.name]));
     }
 
     return Promise.resolve(items);
   }
 
-  private loadConfig(): BpmConfig | null {
+  private loadConfig(): PpVariables | null {
     const workspace = getWorkspacePath();
     if (!workspace) return null;
 
@@ -205,106 +208,106 @@ export class ConfigsProvider implements vscode.TreeDataProvider<vscode.TreeItem>
   }
 }
 
-async function runCommand(config: ConfigItem, value: string | boolean | string[]): Promise<void> {
-  if (!config.command) return;
+async function runCommand(variable: VariableItem, value: string | boolean | string[]): Promise<void> {
+  if (!variable.command) return;
 
   const workspace = getWorkspacePath();
   if (!workspace) return;
 
   const formattedValue = Array.isArray(value) ? value.join(',') : String(value);
-  const command = `${config.command} "${formattedValue}"`;
+  const command = `${variable.command} "${formattedValue}"`;
 
-  if (config.showTerminal) {
-    const terminal = vscode.window.createTerminal(`${DISPLAY_PREFIX} ${config.name}`);
+  if (variable.showTerminal) {
+    const terminal = vscode.window.createTerminal(`${DISPLAY_PREFIX} ${variable.name}`);
     terminal.show();
-    terminal.sendText(`cd "${workspace}" && ${command}`);
+    terminal.sendText(`cd "${workspace}/${CONFIG_DIR_NAME}" && ${command}`);
   } else {
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
-        title: `Running: ${config.name}`,
+        title: `Running: ${variable.name}`,
         cancellable: false,
       },
       async () => {
         try {
-          await execAsync(command, { cwd: workspace });
+          await execAsync(command, { cwd: `${workspace}/${CONFIG_DIR_NAME}` });
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
-          void vscode.window.showErrorMessage(`Config command failed: ${errorMessage}`);
+          void vscode.window.showErrorMessage(`Variable command failed: ${errorMessage}`);
         }
       },
     );
   }
 }
 
-export async function selectConfigOption(config: ConfigItem): Promise<void> {
+export async function selectVariableOption(variable: VariableItem): Promise<void> {
   const state = loadState();
   let newValue: string | boolean | string[] | undefined;
 
-  switch (config.kind) {
-    case ConfigKind.Choose: {
-      const selected = await vscode.window.showQuickPick(config.options || [], {
-        placeHolder: `Select ${config.name}`,
+  switch (variable.kind) {
+    case VariableKind.Choose: {
+      const selected = await vscode.window.showQuickPick(variable.options || [], {
+        placeHolder: `Select ${variable.name}`,
       });
       if (!selected) return;
       newValue = selected;
       break;
     }
 
-    case ConfigKind.Input: {
-      const currentValue = state[config.name] as string | undefined;
-      const defaultValue = config.default as string | undefined;
+    case VariableKind.Input: {
+      const currentValue = state[variable.name] as string | undefined;
+      const defaultValue = variable.default as string | undefined;
       const input = await vscode.window.showInputBox({
-        prompt: config.description || `Enter value for ${config.name}`,
+        prompt: variable.description || `Enter value for ${variable.name}`,
         value: currentValue || defaultValue || '',
-        placeHolder: `Enter ${config.name}`,
+        placeHolder: `Enter ${variable.name}`,
       });
       if (input === undefined) return;
       newValue = input;
       break;
     }
 
-    case ConfigKind.Toggle: {
-      const currentValue = state[config.name] as boolean | undefined;
-      const defaultValue = config.default as boolean | undefined;
+    case VariableKind.Toggle: {
+      const currentValue = state[variable.name] as boolean | undefined;
+      const defaultValue = variable.default as boolean | undefined;
       const current = currentValue ?? defaultValue ?? false;
       newValue = !current;
       break;
     }
 
-    case ConfigKind.MultiSelect: {
-      const currentValue = (state[config.name] as string[] | undefined) || [];
-      const items = (config.options || []).map((opt) => ({
+    case VariableKind.MultiSelect: {
+      const currentValue = (state[variable.name] as string[] | undefined) || [];
+      const items = (variable.options || []).map((opt) => ({
         label: opt,
         picked: currentValue.includes(opt),
       }));
       const selected = await vscode.window.showQuickPick(items, {
         canPickMany: true,
-        placeHolder: `Select ${config.name}`,
+        placeHolder: `Select ${variable.name}`,
       });
       if (!selected) return;
       newValue = selected.map((s) => s.label);
       break;
     }
 
-    case ConfigKind.File: {
+    case VariableKind.File: {
       const result = await vscode.window.showOpenDialog({
         canSelectFiles: true,
         canSelectFolders: false,
         canSelectMany: false,
-        title: config.description || `Select file for ${config.name}`,
+        title: variable.description || `Select file for ${variable.name}`,
       });
       if (!result || result.length === 0) return;
       newValue = result[0].fsPath;
       break;
     }
 
-    case ConfigKind.Folder: {
+    case VariableKind.Folder: {
       const result = await vscode.window.showOpenDialog({
         canSelectFiles: false,
         canSelectFolders: true,
         canSelectMany: false,
-        title: config.description || `Select folder for ${config.name}`,
+        title: variable.description || `Select folder for ${variable.name}`,
       });
       if (!result || result.length === 0) return;
       newValue = result[0].fsPath;
@@ -314,16 +317,16 @@ export async function selectConfigOption(config: ConfigItem): Promise<void> {
 
   if (newValue === undefined) return;
 
-  state[config.name] = newValue;
+  state[variable.name] = newValue;
   saveState(state);
   providerInstance?.refresh();
 
-  await runCommand(config, newValue);
+  await runCommand(variable, newValue);
 }
 
-export function resetConfigOption(item: ConfigTreeItem): void {
+export function resetVariableOption(item: VariableTreeItem): void {
   const state = loadState();
-  delete state[item.config.name];
+  delete state[item.variable.name];
   saveState(state);
   providerInstance?.refresh();
 }

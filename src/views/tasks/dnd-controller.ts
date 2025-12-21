@@ -1,78 +1,36 @@
-import * as vscode from 'vscode';
+import { tasksState } from '../../common/lib/workspace-state';
 import type { TaskSource } from '../../common/schemas/types';
-import type { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
-import { getOrder, saveSourceOrder } from './state';
+import { createSourcedDragAndDropController } from '../common';
+import type { TreeTask } from './items';
 
 const MIME_TYPE = 'application/vnd.code.tree.projectpaneltasks';
 
-export class TaskDragAndDropController
-  implements vscode.TreeDragAndDropController<TreeTask | GroupTreeItem | WorkspaceTreeItem>
-{
-  readonly dropMimeTypes = [MIME_TYPE];
-  readonly dragMimeTypes = [MIME_TYPE];
-
-  private _currentSource: () => TaskSource;
-  private _isGrouped: () => boolean;
-  private _onReorder: () => void;
+export class TaskDragAndDropController {
+  private controller: ReturnType<typeof createSourcedDragAndDropController<TreeTask, TaskSource>>;
 
   constructor(getCurrentSource: () => TaskSource, getIsGrouped: () => boolean, onReorder: () => void) {
-    this._currentSource = getCurrentSource;
-    this._isGrouped = getIsGrouped;
-    this._onReorder = onReorder;
+    this.controller = createSourcedDragAndDropController<TreeTask, TaskSource>(
+      MIME_TYPE,
+      tasksState,
+      getIsGrouped,
+      getCurrentSource,
+      onReorder,
+    );
   }
 
-  handleDrag(
-    source: readonly (TreeTask | GroupTreeItem | WorkspaceTreeItem)[],
-    dataTransfer: vscode.DataTransfer,
-    _token: vscode.CancellationToken,
-  ): void {
-    const item = source[0];
-    if (!item) return;
-
-    const label = typeof item.label === 'string' ? item.label : (item.label?.label ?? '');
-    dataTransfer.set(MIME_TYPE, new vscode.DataTransferItem(label));
+  get dropMimeTypes() {
+    return this.controller.dropMimeTypes;
   }
 
-  handleDrop(
-    target: TreeTask | GroupTreeItem | WorkspaceTreeItem | undefined,
-    dataTransfer: vscode.DataTransfer,
-    _token: vscode.CancellationToken,
-  ): void {
-    const transferItem = dataTransfer.get(MIME_TYPE);
-    if (!transferItem || !target) return;
-
-    const draggedLabel = transferItem.value as string;
-    const targetLabel = typeof target.label === 'string' ? target.label : (target.label?.label ?? '');
-
-    if (draggedLabel === targetLabel) return;
-
-    const source = this._currentSource();
-    this.reorderItems(source, draggedLabel, targetLabel);
-    this._onReorder();
+  get dragMimeTypes() {
+    return this.controller.dragMimeTypes;
   }
 
-  private reorderItems(source: TaskSource, draggedLabel: string, targetLabel: string): void {
-    const isGrouped = this._isGrouped();
-    const currentOrder = getOrder(source, isGrouped);
-    const order = [...currentOrder];
+  handleDrag(...args: Parameters<typeof this.controller.handleDrag>) {
+    return this.controller.handleDrag(...args);
+  }
 
-    const draggedIndex = order.indexOf(draggedLabel);
-    const targetIndex = order.indexOf(targetLabel);
-
-    if (draggedIndex === -1 && targetIndex === -1) {
-      order.push(targetLabel);
-      order.push(draggedLabel);
-    } else if (draggedIndex === -1) {
-      order.splice(targetIndex, 0, draggedLabel);
-    } else if (targetIndex === -1) {
-      order.splice(draggedIndex, 1);
-      order.push(targetLabel);
-      order.push(draggedLabel);
-    } else {
-      order.splice(draggedIndex, 1);
-      order.splice(targetIndex, 0, draggedLabel);
-    }
-
-    saveSourceOrder(source, isGrouped, order);
+  handleDrop(...args: Parameters<typeof this.controller.handleDrop>) {
+    return this.controller.handleDrop(...args);
   }
 }

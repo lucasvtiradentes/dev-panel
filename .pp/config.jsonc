@@ -1,21 +1,21 @@
 {
   "$schema": "../resources/schema.json",
   "settings": {
-    "aiProvider": "cursor-agent",
+    "aiProvider": "gemini",
     "promptSelection": {
       "fileStyle": "flat",
       "folderStyle": "interactive",
-      "excludes": ["**/node_modules/**", "**/.git/**", "**/dist/**", "**/out/**", "**/.bpm/**"]
+      "excludes": ["**/node_modules/**", "**/.git/**", "**/dist/**", "**/out/**", "**/.pp/**"]
     },
     "excludedDirs": []
   },
-  "configs": [
+  "variables": [
     // Environment group
     {
       "name": "environment",
       "kind": "choose",
       "options": ["local", "local-staging", "local-prod", "staging", "prod"],
-      "command": "bash .bpm/scripts/environment-select.sh",
+      "command": "bash scripts/environment-select.sh",
       "icon": "server",
       "description": "Select the target environment",
       "default": "local",
@@ -24,7 +24,7 @@
     {
       "name": "debug",
       "kind": "toggle",
-      "command": "bash .bpm/scripts/toggle-debug.sh",
+      "command": "bash scripts/toggle-debug.sh",
       "icon": "bug",
       "description": "Enable or disable debug mode",
       "default": false,
@@ -35,7 +35,7 @@
     {
       "name": "api-url",
       "kind": "input",
-      "command": "bash .bpm/scripts/set-api-url.sh",
+      "command": "bash scripts/set-api-url.sh",
       "icon": "globe",
       "description": "Set the API base URL",
       "group": "API"
@@ -44,7 +44,7 @@
       "name": "features",
       "kind": "multi-select",
       "options": ["auth", "analytics", "notifications", "dark-mode"],
-      "command": "bash .bpm/scripts/set-features.sh",
+      "command": "bash scripts/set-features.sh",
       "icon": "extensions",
       "description": "Enable feature flags",
       "default": ["auth"],
@@ -84,11 +84,11 @@
     }
   ],
 
-  "scripts": [
+  "tasks": [
     {
       "name": "hello",
-      "command": "echo 'Hello from BPM!'",
-      "description": "Test script - prints hello"
+      "command": "echo 'Hello from PP!'",
+      "description": "Test task - prints hello"
     },
     {
       "name": "list-files",
@@ -105,28 +105,28 @@
   "tools": [
     {
       "name": "check-types",
-      "command": "bash .bpm/tools/check-types.sh",
+      "command": "bash tools/check-types.sh",
       "description": "Run TypeScript type checking",
       "icon": "symbol-type-parameter",
       "group": "Quality"
     },
     {
       "name": "check-lint",
-      "command": "bash .bpm/tools/check-lint.sh",
+      "command": "bash tools/check-lint.sh",
       "description": "Run linting checks",
       "icon": "checklist",
       "group": "Quality"
     },
     {
       "name": "check-all",
-      "command": "bash .bpm/tools/check-all.sh",
+      "command": "bash tools/check-all.sh",
       "description": "Run all quality checks (types + lint)",
       "icon": "pass-filled",
       "group": "Quality"
     },
     {
       "name": "show-stats",
-      "command": "bash .bpm/tools/show-stats.sh",
+      "command": "bash tools/show-stats.sh",
       "description": "Show project stats (files, lines, etc)",
       "icon": "graph",
       "group": "Info"
@@ -136,7 +136,7 @@
   "prompts": [
     {
       "name": "Review Code",
-      "file": "review-code.md",
+      "file": "prompts/review-code.md",
       "description": "Review files for issues and improvements",
       "icon": "eye",
       "group": "Analysis",
@@ -153,7 +153,7 @@
     },
     {
       "name": "Explain Code",
-      "file": "explain-code.md",
+      "file": "prompts/explain-code.md",
       "description": "Explain code in detail",
       "icon": "book",
       "group": "Analysis",
@@ -170,7 +170,7 @@
     },
     {
       "name": "Add Tests",
-      "file": "add-tests.md",
+      "file": "prompts/add-tests.md",
       "description": "Generate tests for file(s)",
       "icon": "beaker",
       "group": "Generate",

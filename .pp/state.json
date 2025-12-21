@@ -1,0 +1,10 @@
+{
+  "activeReplacements": [],
+  "lastBranch": "feature/general_improvements_v3",
+  "features": [
+    "auth",
+    "dark-mode"
+  ],
+  "debug": false,
+  "environment": "local-prod"
+}

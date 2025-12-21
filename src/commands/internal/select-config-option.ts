@@ -1,10 +1,10 @@
 import { Command, registerCommand } from '../../common';
-import { type ConfigTreeItem, resetConfigOption, selectConfigOption } from '../../views/configs';
+import { type VariableTreeItem, resetVariableOption, selectVariableOption } from '../../views/variables';
 
 export function createSelectConfigOptionCommand() {
-  return registerCommand(Command.SelectConfigOption, selectConfigOption);
+  return registerCommand(Command.SelectConfigOption, selectVariableOption);
 }
 
 export function createResetConfigOptionCommand() {
-  return registerCommand(Command.ResetConfigOption, (item: ConfigTreeItem) => resetConfigOption(item));
+  return registerCommand(Command.ResetConfigOption, (item: VariableTreeItem) => resetVariableOption(item));
 }

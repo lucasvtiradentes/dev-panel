@@ -24,15 +24,12 @@ export enum Command {
   TabCmdline = 'tabCmdline',
   SelectConfigOption = 'selectConfigOption',
   ResetConfigOption = 'resetConfigOption',
-  RefreshConfigs = 'refreshConfigs',
   ToggleConfigsGroupMode = 'toggleConfigsGroupMode',
   ToggleConfigsGroupModeGrouped = 'toggleConfigsGroupModeGrouped',
   ToggleReplacement = 'toggleReplacement',
   RevertAllReplacements = 'revertAllReplacements',
-  RefreshReplacements = 'refreshReplacements',
   ToggleReplacementsGroupMode = 'toggleReplacementsGroupMode',
   ToggleReplacementsGroupModeGrouped = 'toggleReplacementsGroupModeGrouped',
-  RefreshTools = 'refreshTools',
   ToggleToolsGroupMode = 'toggleToolsGroupMode',
   ToggleToolsGroupModeGrouped = 'toggleToolsGroupModeGrouped',
   ToggleToolFavorite = 'toggleToolFavorite',
@@ -44,7 +41,6 @@ export enum Command {
   ToggleToolsShowOnlyFavoritesActive = 'toggleToolsShowOnlyFavoritesActive',
   ExecuteTool = 'executeTool',
   GoToToolFile = 'goToToolFile',
-  RefreshPrompts = 'refreshPrompts',
   TogglePromptsGroupMode = 'togglePromptsGroupMode',
   TogglePromptsGroupModeGrouped = 'togglePromptsGroupModeGrouped',
   TogglePromptFavorite = 'togglePromptFavorite',
@@ -56,7 +52,6 @@ export enum Command {
   TogglePromptsShowOnlyFavoritesActive = 'togglePromptsShowOnlyFavoritesActive',
   ExecutePrompt = 'executePrompt',
   GoToPromptFile = 'goToPromptFile',
-  RefreshBranchContext = 'refreshBranchContext',
   EditBranchPrLink = 'editBranchPrLink',
   EditBranchLinearLink = 'editBranchLinearLink',
   EditBranchObjective = 'editBranchObjective',
@@ -65,6 +60,21 @@ export enum Command {
   OpenBranchContextFile = 'openBranchContextFile',
   ToggleTodo = 'toggleTodo',
   ShowLogs = 'showLogs',
+  SyncToolKeybindings = 'syncToolKeybindings',
+  SetToolKeybinding = 'setToolKeybinding',
+  OpenToolsKeybindings = 'openToolsKeybindings',
+  SyncPromptKeybindings = 'syncPromptKeybindings',
+  SetPromptKeybinding = 'setPromptKeybinding',
+  OpenPromptsKeybindings = 'openPromptsKeybindings',
+  SyncReplacementKeybindings = 'syncReplacementKeybindings',
+  SetReplacementKeybinding = 'setReplacementKeybinding',
+  OpenReplacementsKeybindings = 'openReplacementsKeybindings',
+  SyncVariableKeybindings = 'syncVariableKeybindings',
+  SetVariableKeybinding = 'setVariableKeybinding',
+  OpenVariablesKeybindings = 'openVariablesKeybindings',
+  SyncTaskKeybindings = 'syncTaskKeybindings',
+  SetTaskKeybinding = 'setTaskKeybinding',
+  OpenTasksKeybindings = 'openTasksKeybindings',
 }
 
 export function registerCommand(command: Command, callback: (...args: any[]) => any): vscode.Disposable {
@@ -126,8 +136,33 @@ export enum ContextKey {
   PromptsShowOnlyFavorites = 'promptsShowOnlyFavorites',
   ReplacementsGrouped = 'replacementsGrouped',
   ConfigsGrouped = 'configsGrouped',
+  WorkspaceId = 'projectPanel.workspaceId',
 }
 
-export function setContextKey(key: ContextKey, value: boolean): Thenable<unknown> {
+export function setContextKey(key: ContextKey, value: boolean | string): Thenable<unknown> {
   return vscode.commands.executeCommand('setContext', key, value);
+}
+
+export function generateWorkspaceId(): string {
+  const folders = vscode.workspace.workspaceFolders ?? [];
+  if (folders.length === 0) return '';
+  const paths = folders
+    .map((f) => f.uri.fsPath)
+    .sort()
+    .join('|');
+  let hash = 0;
+  for (let i = 0; i < paths.length; i++) {
+    const char = paths.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash).toString(36);
+}
+
+let currentWorkspaceId = '';
+export function getWorkspaceId(): string {
+  return currentWorkspaceId;
+}
+export function setWorkspaceId(id: string): void {
+  currentWorkspaceId = id;
 }

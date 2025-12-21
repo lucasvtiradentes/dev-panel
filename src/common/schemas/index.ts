@@ -10,21 +10,18 @@ export {
   SelectionStyle,
 } from './config-schema';
 
-// State schema exports (for .pp/state.json)
-export { PPStateSchema } from './state-schema';
-
 // VSCode workspace schema exports (for VSCode workspace state)
 export {
   type BranchContext,
   type BranchesState,
-  type ConfigsState,
+  type VariablesState,
   type PromptsState,
   type ReplacementsState,
   type SourceState,
   type TasksState,
   type ToolsState,
   type WorkspaceUIState,
-  DEFAULT_CONFIGS_STATE,
+  DEFAULT_VARIABLES_STATE,
   DEFAULT_PROMPTS_STATE,
   DEFAULT_REPLACEMENTS_STATE,
   DEFAULT_SOURCE_STATE,
