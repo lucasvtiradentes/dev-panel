@@ -129,6 +129,25 @@
           "group": {
             "description": "Group name for organizing variables",
             "type": "string"
+          },
+          "multiSelect": {
+            "description": "Enable multi-selection for file/folder kinds",
+            "type": "boolean"
+          },
+          "selectionStyle": {
+            "description": "Selection style for file/folder kinds. Overrides global setting",
+            "type": "string",
+            "enum": [
+              "flat",
+              "interactive"
+            ]
+          },
+          "excludes": {
+            "description": "Glob patterns to exclude for file/folder kinds. Overrides global excludes",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -321,9 +340,7 @@
                   "type": "string",
                   "enum": [
                     "file",
-                    "files",
                     "folder",
-                    "folders",
                     "text",
                     "number",
                     "confirm",
@@ -345,6 +362,10 @@
                   "items": {
                     "type": "string"
                   }
+                },
+                "multiSelect": {
+                  "description": "Enable multi-selection for file/folder types",
+                  "type": "boolean"
                 },
                 "selectionStyle": {
                   "description": "Selection style for file/folder inputs. Overrides global setting",

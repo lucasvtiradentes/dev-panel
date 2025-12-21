@@ -6,6 +6,8 @@ import json5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
 import { CONFIG_DIR_NAME, DISPLAY_PREFIX } from '../../common/constants';
+import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/lib/file-selection';
+import { type PPSettings, SelectionStyle } from '../../common/schemas';
 import { getVariableKeybinding } from './keybindings-local';
 import { getIsGrouped, saveIsGrouped } from './state';
 
@@ -30,6 +32,9 @@ interface VariableItem {
   default?: string | boolean | string[];
   group?: string;
   showTerminal?: boolean;
+  multiSelect?: boolean;
+  selectionStyle?: SelectionStyle;
+  excludes?: string[];
 }
 
 interface PpVariables {
@@ -206,6 +211,18 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     const content = fs.readFileSync(configPath, 'utf-8');
     return json5.parse(content);
   }
+
+  public loadSettings(): PPSettings | undefined {
+    const workspace = getWorkspacePath();
+    if (!workspace) return undefined;
+
+    const configPath = path.join(workspace, CONFIG_DIR_NAME, 'config.jsonc');
+    if (!fs.existsSync(configPath)) return undefined;
+
+    const content = fs.readFileSync(configPath, 'utf-8');
+    const config = json5.parse(content);
+    return config.settings;
+  }
 }
 
 async function runCommand(variable: VariableItem, value: string | boolean | string[]): Promise<void> {
@@ -291,26 +308,44 @@ export async function selectVariableOption(variable: VariableItem): Promise<void
     }
 
     case VariableKind.File: {
-      const result = await vscode.window.showOpenDialog({
-        canSelectFiles: true,
-        canSelectFolders: false,
-        canSelectMany: false,
-        title: variable.description || `Select file for ${variable.name}`,
-      });
-      if (!result || result.length === 0) return;
-      newValue = result[0].fsPath;
+      const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+      if (!workspaceFolder) return;
+
+      const settings = providerInstance?.loadSettings();
+      const style = variable.selectionStyle ?? settings?.promptSelection?.fileStyle ?? SelectionStyle.Flat;
+      const excludes = variable.excludes ?? settings?.promptSelection?.excludes ?? ['**/node_modules/**', '**/.git/**'];
+
+      const options: FileSelectionOptions = {
+        label: variable.description || `Select file for ${variable.name}`,
+        multiSelect: variable.multiSelect ?? false,
+        selectionStyle: style,
+        excludes,
+      };
+
+      const result = await selectFiles(workspaceFolder, options);
+      if (!result) return;
+      newValue = result;
       break;
     }
 
     case VariableKind.Folder: {
-      const result = await vscode.window.showOpenDialog({
-        canSelectFiles: false,
-        canSelectFolders: true,
-        canSelectMany: false,
-        title: variable.description || `Select folder for ${variable.name}`,
-      });
-      if (!result || result.length === 0) return;
-      newValue = result[0].fsPath;
+      const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+      if (!workspaceFolder) return;
+
+      const settings = providerInstance?.loadSettings();
+      const style = variable.selectionStyle ?? settings?.promptSelection?.folderStyle ?? SelectionStyle.Flat;
+      const excludes = variable.excludes ?? settings?.promptSelection?.excludes ?? ['**/node_modules/**', '**/.git/**'];
+
+      const options: FileSelectionOptions = {
+        label: variable.description || `Select folder for ${variable.name}`,
+        multiSelect: variable.multiSelect ?? false,
+        selectionStyle: style,
+        excludes,
+      };
+
+      const result = await selectFolders(workspaceFolder, options);
+      if (!result) return;
+      newValue = result;
       break;
     }
   }

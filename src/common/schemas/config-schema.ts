@@ -3,9 +3,7 @@ import { CONFIG_DIR_NAME } from '../constants/scripts-constants';
 
 export enum PromptInputType {
   File = 'file',
-  Files = 'files',
   Folder = 'folder',
-  Folders = 'folders',
   Text = 'text',
   Number = 'number',
   Confirm = 'confirm',
@@ -51,6 +49,7 @@ const PPPromptInputSchema = z
     label: z.string().describe('Label shown in the input dialog'),
     placeholder: z.string().optional().describe('Placeholder text for text/number inputs'),
     options: z.array(z.string()).optional().describe('Available options for choice/multichoice types'),
+    multiSelect: z.boolean().optional().describe('Enable multi-selection for file/folder types'),
     selectionStyle: z
       .nativeEnum(SelectionStyle)
       .optional()
@@ -90,6 +89,15 @@ const PPVariableSchema = z
       .optional()
       .describe('Default value'),
     group: z.string().optional().describe('Group name for organizing variables'),
+    multiSelect: z.boolean().optional().describe('Enable multi-selection for file/folder kinds'),
+    selectionStyle: z
+      .nativeEnum(SelectionStyle)
+      .optional()
+      .describe('Selection style for file/folder kinds. Overrides global setting'),
+    excludes: z
+      .array(z.string())
+      .optional()
+      .describe('Glob patterns to exclude for file/folder kinds. Overrides global excludes'),
   })
   .describe('A configuration variable shown in the Variables view');
 

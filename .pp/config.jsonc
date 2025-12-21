@@ -63,6 +63,20 @@
       "kind": "folder",
       "description": "Select output directory",
       "icon": "folder-opened"
+    },
+    {
+      "name": "multiple-files",
+      "kind": "file",
+      "multiSelect": true,
+      "description": "Select multiple files",
+      "icon": "files"
+    },
+    {
+      "name": "multiple-folders",
+      "kind": "folder",
+      "multiSelect": true,
+      "description": "Select multiple folders",
+      "icon": "folder-library"
     }
   ],
 
@@ -142,7 +156,7 @@
       "group": "Analysis",
       "saveOutput": true,
       "inputs": [
-        { "name": "files", "type": "files", "label": "Select files to review" },
+        { "name": "files", "type": "file", "multiSelect": true, "label": "Select files to review" },
         {
           "name": "focus",
           "type": "multichoice",
