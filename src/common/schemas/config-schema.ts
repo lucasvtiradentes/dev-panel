@@ -22,6 +22,11 @@ export enum AIProvider {
   CursorAgent = 'cursor-agent',
 }
 
+export enum PromptExecutionMode {
+  Timestamped = 'timestamped',
+  Overwrite = 'overwrite',
+}
+
 const PPTaskSchema = z
   .object({
     name: z.string().describe('Unique identifier for the task'),
@@ -68,7 +73,7 @@ const PPPromptSchema = z
     saveOutput: z
       .boolean()
       .optional()
-      .describe('If true, save response to .ignore/{{branch}}/{{datetime}}-{{promptname}}.md'),
+      .describe('If true, save response to .pp/branches/{{branch}}/prompts/{{promptname}}.md'),
   })
   .describe('A prompt that can be executed in Claude Code');
 
@@ -138,6 +143,12 @@ const PPSettingsSchema = z
       .nativeEnum(AIProvider)
       .optional()
       .describe('AI provider to use for prompts: claude, gemini, or cursor-agent'),
+    promptExecution: z
+      .nativeEnum(PromptExecutionMode)
+      .optional()
+      .describe(
+        'Execution mode for prompts with saveOutput: "timestamped" creates new file each time with timestamp, "overwrite" replaces previous file',
+      ),
     excludedDirs: z
       .array(z.string())
       .optional()

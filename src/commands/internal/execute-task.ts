@@ -19,8 +19,9 @@ import {
   CONFIG_FILE_NAME,
   GLOBAL_STATE_WORKSPACE_SOURCE,
   VARIABLES_FILE_NAME,
+  getPromptOutputFilePath,
 } from '../../common/constants/constants';
-import type { PPConfig, PPPrompt, PPSettings } from '../../common/schemas';
+import { type PPConfig, type PPPrompt, type PPSettings, PromptExecutionMode } from '../../common/schemas';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';
 
@@ -231,7 +232,7 @@ export function createExecutePromptCommand() {
       }
 
       if (promptConfig?.saveOutput) {
-        await executePromptWithSave(promptContent, folder, promptConfig.name, provider);
+        await executePromptWithSave(promptContent, folder, promptConfig.name, provider, settings);
       } else {
         const terminal = vscode.window.createTerminal({ name: provider.name });
         terminal.show();
@@ -246,15 +247,14 @@ async function executePromptWithSave(
   folder: vscode.WorkspaceFolder,
   promptName: string,
   provider: PromptProvider,
+  settings?: PPSettings,
 ): Promise<void> {
   const workspacePath = folder.uri.fsPath;
   const branch = await getCurrentBranch(workspacePath).catch(() => 'unknown');
-  const safeBranch = branch.replace(/[/\\:*?"<>|]/g, '_');
-  const datetime = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-  const safePromptName = promptName.replace(/[/\\:*?"<>|]/g, '_');
 
-  const outputDir = path.join(workspacePath, '.ignore', safeBranch);
-  const outputFile = path.join(outputDir, `${datetime}-${safePromptName}.md`);
+  const timestamped = settings?.promptExecution !== PromptExecutionMode.Overwrite;
+  const outputFile = getPromptOutputFilePath(workspacePath, branch, promptName, timestamped);
+  const outputDir = path.dirname(outputFile);
   const tempFile = path.join(outputDir, '.prompt-temp.txt');
 
   if (!fs.existsSync(outputDir)) {

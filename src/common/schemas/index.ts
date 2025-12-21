@@ -6,6 +6,7 @@ export {
   type PPSettings,
   PPConfigSchema,
   AIProvider,
+  PromptExecutionMode,
   PromptInputType,
   SelectionStyle,
 } from './config-schema';

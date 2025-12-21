@@ -10,6 +10,7 @@ export const DISPLAY_PREFIX = 'Project Panel:';
 export const CONFIG_FILE_NAME = 'config.jsonc';
 export const VARIABLES_FILE_NAME = 'variables.json';
 export const BRANCHES_DIR_NAME = 'branches';
+export const PROMPTS_DIR_NAME = 'prompts';
 export const BRANCH_CONTEXT_FILENAME = 'branch-context.md';
 export const ROOT_BRANCH_CONTEXT_FILE_NAME = '.branch-context.md';
 export const BRANCH_CONTEXT_GLOB_PATTERN = `${CONFIG_DIR_NAME}/${BRANCHES_DIR_NAME}/*/${BRANCH_CONTEXT_FILENAME}`;
@@ -61,4 +62,25 @@ export function getBranchDirectory(workspace: string, branchName: string): strin
 
 export function getBranchContextFilePath(workspace: string, branchName: string): string {
   return path.join(getBranchDirectory(workspace, branchName), BRANCH_CONTEXT_FILENAME);
+}
+
+export function getBranchPromptsDirectory(workspace: string, branchName: string): string {
+  return path.join(getBranchDirectory(workspace, branchName), PROMPTS_DIR_NAME);
+}
+
+export function getPromptOutputFilePath(
+  workspace: string,
+  branchName: string,
+  promptName: string,
+  timestamped: boolean,
+): string {
+  const promptsDir = getBranchPromptsDirectory(workspace, branchName);
+  const safePromptName = promptName.replace(/[/\\:*?"<>|]/g, '_');
+
+  if (timestamped) {
+    const datetime = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    return path.join(promptsDir, `${safePromptName}-${datetime}.md`);
+  }
+
+  return path.join(promptsDir, `${safePromptName}.md`);
 }

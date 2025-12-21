@@ -25,6 +25,7 @@ export {
   DEV_SUFFIX,
   DISPLAY_PREFIX,
   NO_GROUP_NAME,
+  PROMPTS_DIR_NAME,
   PROMPT_COMMAND_SUFFIX,
   REPLACEMENT_COMMAND_SUFFIX,
   TASK_COMMAND_SUFFIX,
@@ -32,6 +33,8 @@ export {
   TOOL_TASK_TYPE,
   VARIABLE_COMMAND_SUFFIX,
   VARIABLES_FILE_NAME,
+  getBranchPromptsDirectory,
+  getPromptOutputFilePath,
 } from './scripts-constants';
 
 declare const __IS_DEV_BUILD__: boolean;

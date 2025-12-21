@@ -108,7 +108,8 @@
     }
   ],
 
-  "tools": [{
+  "tools": [
+    {
       "name": "linear",
       "command": "linear",
       "group": "Quality"
@@ -146,6 +147,7 @@
       "file": "prompts/explain-code.md",
       "description": "Explain code in detail",
       "group": "Analysis",
+      "saveOutput": true,
       "inputs": [
         { "name": "target", "type": "folder", "label": "Select folder to explain" },
         {
@@ -154,14 +156,14 @@
           "label": "Explanation depth",
           "options": ["overview", "detailed", "comprehensive"]
         }
-      ],
-      "saveOutput": true
+      ]
     },
     {
       "name": "Add Tests",
       "file": "prompts/add-tests.md",
       "description": "Generate tests for file(s)",
       "group": "Generate",
+      "saveOutput": true,
       "inputs": [
         { "name": "file", "type": "file", "label": "Select file to test" },
         { "name": "testCount", "type": "number", "label": "Number of test cases", "placeholder": "5" },

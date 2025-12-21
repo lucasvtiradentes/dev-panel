@@ -57,6 +57,14 @@
             "cursor-agent"
           ]
         },
+        "promptExecution": {
+          "description": "Execution mode for prompts with saveOutput: \"timestamped\" creates new file each time with timestamp, \"overwrite\" replaces previous file",
+          "type": "string",
+          "enum": [
+            "timestamped",
+            "overwrite"
+          ]
+        },
         "excludedDirs": {
           "description": "Additional directories to exclude when searching for package.json files. Always excluded (hardcoded): node_modules, dist, .git. Add custom exclusions as needed (e.g. [\"dist-dev\", \"out\", \".pp\", \"temp\"])",
           "type": "array",
@@ -372,7 +380,7 @@
             }
           },
           "saveOutput": {
-            "description": "If true, save response to .ignore/{{branch}}/{{datetime}}-{{promptname}}.md",
+            "description": "If true, save response to .pp/branches/{{branch}}/prompts/{{promptname}}.md",
             "type": "boolean"
           }
         },
