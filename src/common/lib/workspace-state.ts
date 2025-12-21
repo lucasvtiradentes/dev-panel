@@ -358,6 +358,34 @@ export const replacementsState = {
     replacements.isGrouped = isGrouped;
     this.save(replacements);
   },
+  getActiveReplacements(): string[] {
+    return this.load().activeReplacements ?? [];
+  },
+  setActiveReplacements(active: string[]): void {
+    const replacements = this.load();
+    replacements.activeReplacements = active;
+    this.save(replacements);
+  },
+  addActiveReplacement(name: string): void {
+    const replacements = this.load();
+    if (!replacements.activeReplacements.includes(name)) {
+      replacements.activeReplacements.push(name);
+      this.save(replacements);
+    }
+  },
+  removeActiveReplacement(name: string): void {
+    const replacements = this.load();
+    replacements.activeReplacements = replacements.activeReplacements.filter((n) => n !== name);
+    this.save(replacements);
+  },
+  getLastBranch(): string {
+    return this.load().lastBranch ?? '';
+  },
+  setLastBranch(branch: string): void {
+    const replacements = this.load();
+    replacements.lastBranch = branch;
+    this.save(replacements);
+  },
 };
 
 export const branchesState = {

@@ -20,15 +20,11 @@
 ## prompts 
 
 - [ ] ter um changes-review vinculado a branch para ser facil de feedar novas secoes do claude code
-- [ ] entrypoint -> draw
 - [ ] find test cases
 - [ ] adicionar prompt de revisar pr/branch
 
 ## outros
 
-- [ ] ter uma view de actions talvez: (PENSAR MTO PQ JA TEMOS SCRIPTS / TOOLS)
-  - create PR
-  - review PR
 - [ ] adicionar uma pasta global onde posso colocar prompts / tools / scripts globais 
   - ter um botao em cada script para mudar para o global talvez
 - [ ] adicionar integracao com linear cmd e mostrar as coisas para serem feitas no projeto/branch
@@ -39,8 +35,6 @@
   - tools
   - scripts 
 - [ ] botao de sincronizar as tools no CLAUDE.md etc
-- [ ] ver oq podermos fazer para ter um keybindings
 - [ ] ver oq podermos fazer para ter views dinamuicas
 - [ ] salvar as coisas em uma pasta branch la no ".pp" ao inves de salvar no state.json
-- [ ] no "branch context" devemos ter o prefixo de "Branch: " na primeira linha ao inves de so mostrar a branch
 - [ ] ter como usar state.variables nos prompts, scripts, etc -> ${{environment}}

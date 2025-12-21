@@ -39,6 +39,8 @@ const VariablesStateSchema = z.object({
 
 const ReplacementsStateSchema = z.object({
   isGrouped: z.boolean(),
+  activeReplacements: z.array(z.string()),
+  lastBranch: z.string().optional(),
 });
 
 const BranchContextSchema = z.object({
@@ -101,6 +103,7 @@ export const DEFAULT_VARIABLES_STATE: VariablesState = {
 
 export const DEFAULT_REPLACEMENTS_STATE: ReplacementsState = {
   isGrouped: true,
+  activeReplacements: [],
 };
 
 export const DEFAULT_WORKSPACE_UI_STATE: WorkspaceUIState = {

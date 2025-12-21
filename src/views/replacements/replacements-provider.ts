@@ -7,45 +7,20 @@ import { CONFIG_DIR_NAME, DISPLAY_PREFIX, NO_GROUP_NAME } from '../../common/con
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
 import { getReplacementKeybinding } from './keybindings-local';
-import { getIsGrouped, saveIsGrouped } from './state';
-import { OnBranchChange, type PPConfig, type Replacement, type ReplacementState, ReplacementType } from './types';
+import {
+  addActiveReplacement,
+  getActiveReplacements,
+  getIsGrouped,
+  getLastBranch,
+  removeActiveReplacement,
+  saveIsGrouped,
+  setActiveReplacements,
+  setLastBranch,
+} from './state';
+import { OnBranchChange, type PPConfig, type Replacement, ReplacementType } from './types';
 
 function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
-}
-
-function getStatePath(): string | null {
-  const workspace = getWorkspacePath();
-  if (!workspace) return null;
-  return path.join(workspace, CONFIG_DIR_NAME, 'state.json');
-}
-
-function loadFullState(): Record<string, unknown> {
-  const statePath = getStatePath();
-  if (!statePath || !fs.existsSync(statePath)) return {};
-  const content = fs.readFileSync(statePath, 'utf-8');
-  return JSON.parse(content);
-}
-
-function saveFullState(state: Record<string, unknown>): void {
-  const statePath = getStatePath();
-  if (!statePath) return;
-  fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
-}
-
-function loadReplacementState(): ReplacementState {
-  const state = loadFullState();
-  return {
-    activeReplacements: (state.activeReplacements as string[]) || [],
-    lastBranch: (state.lastBranch as string) || '',
-  };
-}
-
-function saveReplacementState(repState: ReplacementState): void {
-  const state = loadFullState();
-  state.activeReplacements = repState.activeReplacements;
-  state.lastBranch = repState.lastBranch;
-  saveFullState(state);
 }
 
 class ReplacementGroupTreeItem extends vscode.TreeItem {
@@ -139,9 +114,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     const workspace = getWorkspacePath();
     if (workspace && (await isGitRepository(workspace))) {
       const currentBranch = await getCurrentBranch(workspace);
-      const newState = loadReplacementState();
-      newState.lastBranch = currentBranch;
-      saveReplacementState(newState);
+      setLastBranch(currentBranch);
     }
     this.syncReplacementState();
   }
@@ -160,25 +133,24 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       }
     }
 
-    const state = loadReplacementState();
-    state.activeReplacements = activeReplacements;
-    saveReplacementState(state);
+    setActiveReplacements(activeReplacements);
   }
 
   private async handleBranchChange(): Promise<void> {
     const workspace = getWorkspacePath();
     if (!workspace) return;
 
-    const state = loadReplacementState();
+    const lastBranch = getLastBranch();
+    const activeReplacements = getActiveReplacements();
     const currentBranch = await getCurrentBranch(workspace);
 
-    if (state.lastBranch && state.lastBranch !== currentBranch && state.activeReplacements.length > 0) {
+    if (lastBranch && lastBranch !== currentBranch && activeReplacements.length > 0) {
       const config = this.loadConfig();
       if (!config?.replacements) return;
 
       const replacementMap = new Map(config.replacements.map((r) => [r.name, r]));
 
-      for (const name of [...state.activeReplacements]) {
+      for (const name of [...activeReplacements]) {
         const replacement = replacementMap.get(name);
         if (!replacement) continue;
 
@@ -196,8 +168,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       vscode.window.showInformationMessage(`${DISPLAY_PREFIX} Branch changed to ${currentBranch}`);
     }
 
-    state.lastBranch = currentBranch;
-    saveReplacementState(state);
+    setLastBranch(currentBranch);
     this.syncReplacementState();
   }
 
@@ -221,17 +192,17 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       return Promise.resolve([]);
     }
 
-    const state = loadReplacementState();
+    const activeReplacements = getActiveReplacements();
 
     if (element instanceof ReplacementGroupTreeItem) {
       return Promise.resolve(
-        element.replacements.map((r) => new ReplacementTreeItem(r, state.activeReplacements.includes(r.name))),
+        element.replacements.map((r) => new ReplacementTreeItem(r, activeReplacements.includes(r.name))),
       );
     }
 
     if (!this._grouped) {
       return Promise.resolve(
-        config.replacements.map((r) => new ReplacementTreeItem(r, state.activeReplacements.includes(r.name))),
+        config.replacements.map((r) => new ReplacementTreeItem(r, activeReplacements.includes(r.name))),
       );
     }
 
@@ -264,8 +235,8 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
   }
 
   async toggleReplacement(replacement: Replacement): Promise<void> {
-    const state = loadReplacementState();
-    const isActive = state.activeReplacements.includes(replacement.name);
+    const activeReplacements = getActiveReplacements();
+    const isActive = activeReplacements.includes(replacement.name);
 
     if (isActive) {
       await this.deactivateReplacement(replacement);
@@ -303,9 +274,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       applyPatches(workspace, replacement.target, replacement.patches);
     }
 
-    const state = loadReplacementState();
-    state.activeReplacements.push(replacement.name);
-    saveReplacementState(state);
+    addActiveReplacement(replacement.name);
   }
 
   private async deactivateReplacement(replacement: Replacement): Promise<void> {
@@ -317,19 +286,17 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       await restoreFileFromGit(workspace, replacement.target);
     }
 
-    const state = loadReplacementState();
-    state.activeReplacements = state.activeReplacements.filter((n) => n !== replacement.name);
-    saveReplacementState(state);
+    removeActiveReplacement(replacement.name);
   }
 
   async revertAllReplacements(): Promise<void> {
     const config = this.loadConfig();
     if (!config?.replacements) return;
 
-    const state = loadReplacementState();
+    const activeReplacements = getActiveReplacements();
     const replacementMap = new Map(config.replacements.map((r) => [r.name, r]));
 
-    for (const name of [...state.activeReplacements]) {
+    for (const name of [...activeReplacements]) {
       const replacement = replacementMap.get(name);
       if (replacement) {
         await this.deactivateReplacement(replacement);

@@ -34,11 +34,6 @@ interface PatchReplacement extends BaseReplacement {
 
 export type Replacement = FileReplacement | PatchReplacement;
 
-export interface ReplacementState {
-  activeReplacements: string[];
-  lastBranch: string;
-}
-
 export interface PPConfig {
   configs?: unknown[];
   replacements?: Replacement[];
