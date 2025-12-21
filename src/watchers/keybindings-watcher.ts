@@ -27,13 +27,13 @@ function addWhenClauseToOurKeybindings(): void {
     return;
   }
 
-  const expectedWhen = `projectPanel.workspaceId == '${workspaceId}'`;
+  const expectedWhen = `${CONTEXT_PREFIX}.workspaceId == '${workspaceId}'`;
   let modified = false;
 
   for (const kb of keybindings) {
     if (!kb.command.startsWith(CONTEXT_PREFIX)) continue;
     if (kb.when === expectedWhen) continue;
-    if (kb.when?.includes('projectPanel.workspaceId')) continue;
+    if (kb.when?.includes(`${CONTEXT_PREFIX}.workspaceId`)) continue;
 
     kb.when = expectedWhen;
     modified = true;

@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
-import { getWorkspaceId } from '../../common';
+import { CONTEXT_PREFIX, getWorkspaceId } from '../../common';
 import { getVSCodeKeybindingsPath } from '../../lib/vscode-keybindings-utils';
 import type { KeybindingConfig } from './types';
 
@@ -45,7 +45,7 @@ export class KeybindingManager {
 
   private matchesWorkspace(kb: VSCodeKeybinding): boolean {
     if (!this.workspaceId) return !kb.when;
-    return kb.when?.includes(`projectPanel.workspaceId == '${this.workspaceId}'`) ?? false;
+    return kb.when?.includes(`${CONTEXT_PREFIX}.workspaceId == '${this.workspaceId}'`) ?? false;
   }
 
   getKeybinding(itemName: string): string | undefined {

@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
-import { getReplacementCommandId, getReplacementCommandPrefix, getWorkspaceId } from '../../common';
+import { CONTEXT_PREFIX, getReplacementCommandId, getReplacementCommandPrefix, getWorkspaceId } from '../../common';
 import { getVSCodeKeybindingsPath } from '../../lib/vscode-keybindings-utils';
 
 type VSCodeKeybinding = { key: string; command: string; when?: string };
@@ -20,7 +20,7 @@ function readVSCodeKeybindings(): VSCodeKeybinding[] {
 function matchesWorkspace(kb: VSCodeKeybinding): boolean {
   const workspaceId = getWorkspaceId();
   if (!workspaceId) return !kb.when;
-  return kb.when?.includes(`projectPanel.workspaceId == '${workspaceId}'`) ?? false;
+  return kb.when?.includes(`${CONTEXT_PREFIX}.workspaceId == '${workspaceId}'`) ?? false;
 }
 
 export function getReplacementKeybinding(replacementName: string): string | undefined {
