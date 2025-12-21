@@ -27,7 +27,6 @@ interface VariableItem {
   kind: VariableKind;
   options?: string[];
   command?: string;
-  icon?: string;
   description?: string;
   default?: string | boolean | string[];
   group?: string;

@@ -16,7 +16,6 @@
       "kind": "choose",
       "options": ["local", "local-staging", "local-prod", "staging", "prod"],
       "command": "bash scripts/environment-select.sh",
-      "icon": "server",
       "description": "Select the target environment",
       "default": "local",
       "group": "Environment"
@@ -25,7 +24,6 @@
       "name": "debug",
       "kind": "toggle",
       "command": "bash scripts/toggle-debug.sh",
-      "icon": "bug",
       "description": "Enable or disable debug mode",
       "default": false,
       "group": "Environment"
@@ -36,7 +34,6 @@
       "name": "api-url",
       "kind": "input",
       "command": "bash scripts/set-api-url.sh",
-      "icon": "globe",
       "description": "Set the API base URL",
       "group": "API"
     },
@@ -45,7 +42,6 @@
       "kind": "multi-select",
       "options": ["auth", "analytics", "notifications", "dark-mode"],
       "command": "bash scripts/set-features.sh",
-      "icon": "extensions",
       "description": "Enable feature flags",
       "default": ["auth"],
       "group": "API"
@@ -55,28 +51,24 @@
     {
       "name": "config-file",
       "kind": "file",
-      "description": "Select a configuration file",
-      "icon": "file-code"
+      "description": "Select a configuration file"
     },
     {
       "name": "output-dir",
       "kind": "folder",
-      "description": "Select output directory",
-      "icon": "folder-opened"
+      "description": "Select output directory"
     },
     {
       "name": "multiple-files",
       "kind": "file",
       "multiSelect": true,
-      "description": "Select multiple files",
-      "icon": "files"
+      "description": "Select multiple files"
     },
     {
       "name": "multiple-folders",
       "kind": "folder",
       "multiSelect": true,
-      "description": "Select multiple folders",
-      "icon": "folder-library"
+      "description": "Select multiple folders"
     }
   ],
 
@@ -121,28 +113,24 @@
       "name": "check-types",
       "command": "bash tools/check-types.sh",
       "description": "Run TypeScript type checking",
-      "icon": "symbol-type-parameter",
       "group": "Quality"
     },
     {
       "name": "check-lint",
       "command": "bash tools/check-lint.sh",
       "description": "Run linting checks",
-      "icon": "checklist",
       "group": "Quality"
     },
     {
       "name": "check-all",
       "command": "bash tools/check-all.sh",
       "description": "Run all quality checks (types + lint)",
-      "icon": "pass-filled",
       "group": "Quality"
     },
     {
       "name": "show-stats",
       "command": "bash tools/show-stats.sh",
       "description": "Show project stats (files, lines, etc)",
-      "icon": "graph",
       "group": "Info"
     }
   ],
@@ -152,7 +140,6 @@
       "name": "Review Code",
       "file": "prompts/review-code.md",
       "description": "Review files for issues and improvements",
-      "icon": "eye",
       "group": "Analysis",
       "saveOutput": true,
       "inputs": [
@@ -169,7 +156,6 @@
       "name": "Explain Code",
       "file": "prompts/explain-code.md",
       "description": "Explain code in detail",
-      "icon": "book",
       "group": "Analysis",
       "inputs": [
         { "name": "target", "type": "folder", "label": "Select folder to explain" },
@@ -186,7 +172,6 @@
       "name": "Add Tests",
       "file": "prompts/add-tests.md",
       "description": "Generate tests for file(s)",
-      "icon": "beaker",
       "group": "Generate",
       "inputs": [
         { "name": "file", "type": "file", "label": "Select file to test" },
@@ -204,7 +189,6 @@
       "name": "Explain Flow",
       "file": "prompts/explain-flow.md",
       "description": "Explain execution flow with ASCII diagrams",
-      "icon": "type-hierarchy",
       "group": "Analysis",
       "saveOutput": true,
       "inputs": [

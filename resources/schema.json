@@ -101,10 +101,6 @@
             "description": "Shell command to execute when value changes",
             "type": "string"
           },
-          "icon": {
-            "description": "VSCode ThemeIcon id",
-            "type": "string"
-          },
           "description": {
             "description": "Human-readable description",
             "type": "string"
@@ -242,10 +238,6 @@
             "description": "Shell command to execute",
             "type": "string"
           },
-          "icon": {
-            "description": "VSCode ThemeIcon id (e.g. \"terminal\", \"play\")",
-            "type": "string"
-          },
           "group": {
             "description": "Group name for organizing tasks",
             "type": "string"
@@ -277,10 +269,6 @@
             "description": "Shell command to execute",
             "type": "string"
           },
-          "icon": {
-            "description": "VSCode ThemeIcon id (e.g. \"tools\", \"gear\")",
-            "type": "string"
-          },
           "group": {
             "description": "Group name for organizing tools",
             "type": "string"
@@ -310,10 +298,6 @@
           },
           "file": {
             "description": "Path to prompt file relative to .pp/prompts/",
-            "type": "string"
-          },
-          "icon": {
-            "description": "VSCode ThemeIcon id (e.g. \"comment\", \"sparkle\")",
             "type": "string"
           },
           "group": {

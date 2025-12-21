@@ -26,7 +26,6 @@ const PPTaskSchema = z
   .object({
     name: z.string().describe('Unique identifier for the task'),
     command: z.string().describe('Shell command to execute'),
-    icon: z.string().optional().describe('VSCode ThemeIcon id (e.g. "terminal", "play")'),
     group: z.string().optional().describe('Group name for organizing tasks'),
     description: z.string().optional().describe('Human-readable description shown as tooltip'),
   })
@@ -36,7 +35,6 @@ const PPToolSchema = z
   .object({
     name: z.string().describe('Unique identifier for the tool'),
     command: z.string().describe('Shell command to execute'),
-    icon: z.string().optional().describe('VSCode ThemeIcon id (e.g. "tools", "gear")'),
     group: z.string().optional().describe('Group name for organizing tools'),
     description: z.string().optional().describe('Human-readable description shown as tooltip'),
   })
@@ -65,7 +63,6 @@ const PPPromptSchema = z
   .object({
     name: z.string().describe('Unique identifier for the prompt'),
     file: z.string().describe(`Path to prompt file relative to ${CONFIG_DIR_NAME}/prompts/`),
-    icon: z.string().optional().describe('VSCode ThemeIcon id (e.g. "comment", "sparkle")'),
     group: z.string().optional().describe('Group name for organizing prompts'),
     description: z.string().optional().describe('Human-readable description shown as tooltip'),
     inputs: z.array(PPPromptInputSchema).optional().describe('Inputs to collect before running the prompt'),
@@ -82,7 +79,6 @@ const PPVariableSchema = z
     kind: z.enum(['choose', 'toggle', 'input', 'multi-select', 'file', 'folder']).describe('Type of variable input'),
     options: z.array(z.string()).optional().describe('Available options for choose/multi-select kinds'),
     command: z.string().optional().describe('Shell command to execute when value changes'),
-    icon: z.string().optional().describe('VSCode ThemeIcon id'),
     description: z.string().optional().describe('Human-readable description'),
     default: z
       .union([z.string(), z.boolean(), z.array(z.string())])
