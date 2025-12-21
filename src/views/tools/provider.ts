@@ -8,7 +8,6 @@ import type { PPConfig } from '../../common/schemas/types';
 import { BaseTreeDataProvider, type ProviderConfig } from '../common';
 import { ToolDragAndDropController } from './dnd-controller';
 import { ToolGroupTreeItem, TreeTool } from './items';
-import { getToolKeybinding } from './keybindings-local';
 import { isFavorite, isHidden } from './state';
 
 const TOOLS_CONFIG: ProviderConfig = {
@@ -119,14 +118,6 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
       title: 'Execute',
       arguments: [task, folder],
     });
-
-    console.log(`[ToolTreeDataProvider] Creating tool "${tool.name}"`);
-    const keybinding = getToolKeybinding(tool.name);
-    console.log(`[ToolTreeDataProvider] Tool "${tool.name}" keybinding: ${keybinding ?? 'none'}`);
-
-    if (keybinding) {
-      treeTool.description = keybinding;
-    }
 
     if (tool.description) {
       treeTool.tooltip = tool.description;

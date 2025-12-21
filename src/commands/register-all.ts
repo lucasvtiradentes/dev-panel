@@ -31,7 +31,6 @@ import {
   createSetReplacementKeybindingCommand,
 } from './public/set-replacement-keybinding';
 import { createOpenTasksKeybindingsCommand, createSetTaskKeybindingCommand } from './public/set-task-keybinding';
-import { createOpenToolsKeybindingsCommand, createSetToolKeybindingCommand } from './public/set-tool-keybinding';
 import {
   createOpenVariablesKeybindingsCommand,
   createSetVariableKeybindingCommand,
@@ -87,9 +86,13 @@ export function registerAllCommands(
     registerCommand(Command.ToggleToolsShowOnlyFavoritesActive, () => toolTreeDataProvider.toggleShowOnlyFavorites()),
     createExecuteToolCommand(context),
     registerCommand(Command.GoToToolFile, async (item: TreeTool) => {
-      if (item?.toolFile) {
-        const uri = vscode.Uri.file(item.toolFile);
-        await vscode.window.showTextDocument(uri);
+      if (item?.toolName) {
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        if (workspaceFolder) {
+          const instructionsPath = `${workspaceFolder.uri.fsPath}/.pp/tools/${item.toolName}/instructions.md`;
+          const uri = vscode.Uri.file(instructionsPath);
+          await vscode.window.showTextDocument(uri);
+        }
       }
     }),
     registerCommand(Command.TogglePromptsGroupMode, () => promptTreeDataProvider.toggleGroupMode()),
@@ -126,9 +129,6 @@ export function registerAllCommands(
     registerCommand(Command.OpenBranchContextFile, () => branchContextProvider.openMarkdownFile()),
     registerCommand(Command.ToggleTodo, (lineIndex: number) => todosProvider.toggleTodo(lineIndex)),
     createShowLogsCommand(),
-    registerCommand(Command.SyncToolKeybindings, () => syncKeybindings()),
-    createSetToolKeybindingCommand(),
-    createOpenToolsKeybindingsCommand(),
     registerCommand(Command.SyncPromptKeybindings, () => syncKeybindings()),
     createSetPromptKeybindingCommand(),
     createOpenPromptsKeybindingsCommand(),

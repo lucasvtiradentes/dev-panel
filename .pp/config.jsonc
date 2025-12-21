@@ -110,28 +110,16 @@
 
   "tools": [
     {
-      "name": "check-types",
-      "command": "bash tools/check-types.sh",
-      "description": "Run TypeScript type checking",
+      "name": "linear",
+      "command": "linear",
+      "description": "Interact with linear",
       "group": "Quality"
     },
     {
-      "name": "check-lint",
-      "command": "bash tools/check-lint.sh",
-      "description": "Run linting checks",
+      "name": "github-cli",
+      "command": "gh",
+      "description": "Interact with github",
       "group": "Quality"
-    },
-    {
-      "name": "check-all",
-      "command": "bash tools/check-all.sh",
-      "description": "Run all quality checks (types + lint)",
-      "group": "Quality"
-    },
-    {
-      "name": "show-stats",
-      "command": "bash tools/show-stats.sh",
-      "description": "Show project stats (files, lines, etc)",
-      "group": "Info"
     }
   ],
 

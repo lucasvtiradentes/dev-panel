@@ -376,20 +376,6 @@
         "title": "Project Panel: Show Logs"
       },
       {
-        "command": "projectPanel.syncToolKeybindings",
-        "title": "Project Panel: Sync Tool Keybindings"
-      },
-      {
-        "command": "projectPanel.setToolKeybinding",
-        "title": "Set Keybinding",
-        "icon": "$(keyboard)"
-      },
-      {
-        "command": "projectPanel.openToolsKeybindings",
-        "title": "Open Tools Keybindings",
-        "icon": "$(keyboard)"
-      },
-      {
         "command": "projectPanel.syncPromptKeybindings",
         "title": "Project Panel: Sync Prompt Keybindings"
       },
@@ -696,14 +682,9 @@
           "group": "inline@2"
         },
         {
-          "command": "projectPanel.setToolKeybinding",
-          "when": "view == projectPanelTools && viewItem =~ /^tool/",
-          "group": "inline@3"
-        },
-        {
           "command": "projectPanel.goToToolFile",
           "when": "view == projectPanelTools && viewItem =~ /^tool/",
-          "group": "inline@4"
+          "group": "inline@3"
         },
         {
           "command": "projectPanel.executeTool",
