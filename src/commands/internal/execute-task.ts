@@ -14,7 +14,12 @@ import {
   registerCommand,
   replaceInputPlaceholders,
 } from '../../common';
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
+import {
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  GLOBAL_STATE_WORKSPACE_SOURCE,
+  VARIABLES_FILE_NAME,
+} from '../../common/constants/constants';
 import type { PPConfig, PPPrompt, PPSettings } from '../../common/schemas';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';
@@ -82,6 +87,34 @@ function readPPSettings(folder: vscode.WorkspaceFolder): PPSettings | undefined 
   }
 }
 
+function readPPVariables(folder: vscode.WorkspaceFolder): Record<string, unknown> | null {
+  const variablesPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/${VARIABLES_FILE_NAME}`;
+  log.debug(`readPPVariables - variablesPath: ${variablesPath}`);
+  if (!fs.existsSync(variablesPath)) {
+    log.debug('readPPVariables - variables file not found');
+    return null;
+  }
+  try {
+    const variablesContent = fs.readFileSync(variablesPath, 'utf8');
+    const variables = JSON5.parse(variablesContent) as Record<string, unknown>;
+    log.info(`readPPVariables - loaded ${Object.keys(variables).length} variables`);
+    return variables;
+  } catch (err) {
+    log.error(`readPPVariables - error: ${err}`);
+    return null;
+  }
+}
+
+function replaceVariablePlaceholders(content: string, variables: Record<string, unknown>): string {
+  let result = content;
+  for (const [key, value] of Object.entries(variables)) {
+    const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+    const pattern = new RegExp(`\\{\\{${key}\\}\\}`, 'gi');
+    result = result.replace(pattern, stringValue);
+  }
+  return result;
+}
+
 export function createExecutePromptCommand() {
   return registerCommand(
     Command.ExecutePrompt,
@@ -98,6 +131,11 @@ export function createExecutePromptCommand() {
       let promptContent = fs.readFileSync(promptFilePath, 'utf8');
       const settings = readPPSettings(folder);
       log.info(`settings: ${JSON.stringify(settings)}`);
+
+      const variables = readPPVariables(folder);
+      if (variables) {
+        promptContent = replaceVariablePlaceholders(promptContent, variables);
+      }
 
       if (promptConfig?.inputs && promptConfig.inputs.length > 0) {
         log.info(`inputs from promptConfig: ${JSON.stringify(promptConfig.inputs)}`);
