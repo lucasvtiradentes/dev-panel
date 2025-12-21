@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { BRANCH_CONTEXT_FILE_NAME } from '../../common/constants';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { BranchContextField, BranchContextFieldItem, BranchHeaderItem } from './items';
 import { generateBranchContextMarkdown } from './markdown-generator';
@@ -102,7 +103,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     if (!workspace) return;
 
     this.markdownWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, '.branch-context.md'),
+      new vscode.RelativePattern(workspace, BRANCH_CONTEXT_FILE_NAME),
     );
 
     this.markdownWatcher.onDidChange(() => this.handleMarkdownChange());

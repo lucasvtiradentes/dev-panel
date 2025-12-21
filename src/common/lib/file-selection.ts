@@ -1,5 +1,6 @@
 import * as path from 'node:path';
 import * as vscode from 'vscode';
+import { DEFAULT_EXCLUDES } from '../constants';
 import { SelectionStyle } from '../schemas';
 import { createLogger } from './logger';
 
@@ -26,8 +27,6 @@ function createItem(label: string, description: string, tag: ItemTag): TaggedQui
 function hasTag(item: TaggedQuickPickItem | undefined, tag: ItemTag): boolean {
   return item?.tag === tag;
 }
-
-const DEFAULT_EXCLUDES = ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/out/**'];
 
 export interface FileSelectionOptions {
   label: string;

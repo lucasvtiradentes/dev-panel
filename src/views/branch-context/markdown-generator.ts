@@ -1,10 +1,9 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
+import { BRANCH_CONTEXT_FILE_NAME } from '../../common/constants';
 import type { BranchContext } from '../../common/schemas/types';
 import { isGitRepository } from '../replacements/git-utils';
-
-const BRANCH_CONTEXT_FILE = '.branch-context.md';
 
 function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
@@ -30,7 +29,7 @@ export async function generateBranchContextMarkdown(branchName: string, context:
   const workspace = getWorkspacePath();
   if (!workspace) return;
 
-  const mdPath = path.join(workspace, BRANCH_CONTEXT_FILE);
+  const mdPath = path.join(workspace, BRANCH_CONTEXT_FILE_NAME);
 
   const lines: string[] = [
     `# ${branchName}`,
@@ -55,6 +54,6 @@ export async function generateBranchContextMarkdown(branchName: string, context:
   fs.writeFileSync(mdPath, lines.join('\n'));
 
   if (await isGitRepository(workspace)) {
-    addToGitExclude(workspace, BRANCH_CONTEXT_FILE);
+    addToGitExclude(workspace, BRANCH_CONTEXT_FILE_NAME);
   }
 }

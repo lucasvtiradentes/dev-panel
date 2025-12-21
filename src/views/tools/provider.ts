@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId } from '../../common';
-import { CONFIG_DIR_KEY, CONFIG_DIR_NAME, NO_GROUP_NAME } from '../../common/constants';
+import { CONFIG_DIR_KEY, CONFIG_DIR_NAME, CONFIG_FILE_NAME, NO_GROUP_NAME } from '../../common/constants';
 import { toolsState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas/types';
 import { BaseTreeDataProvider, type ProviderConfig } from '../common';
@@ -85,7 +85,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   }
 
   private readPPTools(folder: vscode.WorkspaceFolder): NonNullable<PPConfig['tools']> {
-    const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/config.jsonc`;
+    const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`;
     if (!fs.existsSync(configPath)) return [];
     const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
     return config.tools ?? [];

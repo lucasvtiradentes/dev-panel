@@ -5,7 +5,10 @@ export const EXTENSION_DISPLAY_NAME = 'Project Panel';
 export const CONFIG_DIR_NAME = '.pp';
 export const CONFIG_DIR_KEY = 'pp'; // Key used in workspace state objects (without the dot)
 export const DISPLAY_PREFIX = 'Project Panel:';
+export const CONFIG_FILE_NAME = 'config.jsonc';
 export const VARIABLES_FILE_NAME = 'variables.json';
+export const BRANCH_CONTEXT_FILE_NAME = '.branch-context.md';
+export const DEFAULT_EXCLUDES = ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/out/**'];
 
 export const CONTEXT_PREFIX = 'projectPanel';
 export const VIEW_ID_TASKS = 'projectPanelTasks';

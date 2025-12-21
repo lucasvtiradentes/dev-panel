@@ -1,9 +1,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
+import { BRANCH_CONTEXT_FILE_NAME } from '../../common/constants';
 import type { BranchContext } from '../../common/schemas/types';
-
-const BRANCH_CONTEXT_FILE = '.branch-context.md';
 
 function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
@@ -40,7 +39,7 @@ export function parseBranchContextMarkdown(): { branchName: string; context: Bra
   const workspace = getWorkspacePath();
   if (!workspace) return null;
 
-  const mdPath = path.join(workspace, BRANCH_CONTEXT_FILE);
+  const mdPath = path.join(workspace, BRANCH_CONTEXT_FILE_NAME);
   if (!fs.existsSync(mdPath)) return null;
 
   const content = fs.readFileSync(mdPath, 'utf-8');
@@ -64,14 +63,14 @@ export function parseBranchContextMarkdown(): { branchName: string; context: Bra
 export function getBranchContextFilePath(): string | null {
   const workspace = getWorkspacePath();
   if (!workspace) return null;
-  return path.join(workspace, BRANCH_CONTEXT_FILE);
+  return path.join(workspace, BRANCH_CONTEXT_FILE_NAME);
 }
 
 export function getFieldLineNumber(fieldName: string): number {
   const workspace = getWorkspacePath();
   if (!workspace) return 0;
 
-  const mdPath = path.join(workspace, BRANCH_CONTEXT_FILE);
+  const mdPath = path.join(workspace, BRANCH_CONTEXT_FILE_NAME);
   if (!fs.existsSync(mdPath)) return 0;
 
   const content = fs.readFileSync(mdPath, 'utf-8');

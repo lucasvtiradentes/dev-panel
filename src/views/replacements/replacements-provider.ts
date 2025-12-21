@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import json5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
-import { CONFIG_DIR_NAME, DISPLAY_PREFIX, NO_GROUP_NAME } from '../../common/constants';
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, DISPLAY_PREFIX, NO_GROUP_NAME } from '../../common/constants';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
 import { getReplacementKeybinding } from './keybindings-local';
@@ -93,7 +93,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     if (!workspace) return;
 
     this.configWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, `${CONFIG_DIR_NAME}/config.jsonc`),
+      new vscode.RelativePattern(workspace, `${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`),
     );
 
     this.configWatcher.onDidChange(() => this.refresh());
@@ -227,7 +227,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     const workspace = getWorkspacePath();
     if (!workspace) return null;
 
-    const configPath = path.join(workspace, CONFIG_DIR_NAME, 'config.jsonc');
+    const configPath = path.join(workspace, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
     if (!fs.existsSync(configPath)) return null;
 
     const content = fs.readFileSync(configPath, 'utf-8');

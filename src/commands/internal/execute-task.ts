@@ -14,7 +14,7 @@ import {
   registerCommand,
   replaceInputPlaceholders,
 } from '../../common';
-import { CONFIG_DIR_NAME, GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
 import type { PPConfig, PPPrompt, PPSettings } from '../../common/schemas';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';
@@ -64,7 +64,7 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
 }
 
 function readPPSettings(folder: vscode.WorkspaceFolder): PPSettings | undefined {
-  const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/config.jsonc`;
+  const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`;
   log.debug(`readPPSettings - configPath: ${configPath}`);
   if (!fs.existsSync(configPath)) {
     log.debug('readPPSettings - config file not found');
@@ -109,7 +109,7 @@ export function createExecutePromptCommand() {
       const provider = getProvider(settings?.aiProvider);
       if (!provider) {
         void vscode.window.showErrorMessage(
-          `AI provider not configured. Set "settings.aiProvider" in ${CONFIG_DIR_NAME}/config.jsonc (claude, gemini, or cursor-agent)`,
+          `AI provider not configured. Set "settings.aiProvider" in ${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME} (claude, gemini, or cursor-agent)`,
         );
         return;
       }

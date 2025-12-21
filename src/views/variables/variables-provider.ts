@@ -5,7 +5,14 @@ import { promisify } from 'node:util';
 import json5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
-import { CONFIG_DIR_NAME, DISPLAY_PREFIX, NO_GROUP_NAME, VARIABLES_FILE_NAME } from '../../common/constants';
+import {
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  DEFAULT_EXCLUDES,
+  DISPLAY_PREFIX,
+  NO_GROUP_NAME,
+  VARIABLES_FILE_NAME,
+} from '../../common/constants';
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/lib/file-selection';
 import { type PPSettings, SelectionStyle } from '../../common/schemas';
 import { getVariableKeybinding } from './keybindings-local';
@@ -141,7 +148,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     if (!workspace) return;
 
     this.fileWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, `${CONFIG_DIR_NAME}/{config.jsonc,${VARIABLES_FILE_NAME}}`),
+      new vscode.RelativePattern(workspace, `${CONFIG_DIR_NAME}/{${CONFIG_FILE_NAME},${VARIABLES_FILE_NAME}}`),
     );
 
     this.fileWatcher.onDidChange(() => this.refresh());
@@ -196,7 +203,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     const workspace = getWorkspacePath();
     if (!workspace) return null;
 
-    const configPath = path.join(workspace, CONFIG_DIR_NAME, 'config.jsonc');
+    const configPath = path.join(workspace, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
     if (!fs.existsSync(configPath)) return null;
 
     const content = fs.readFileSync(configPath, 'utf-8');
@@ -207,7 +214,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     const workspace = getWorkspacePath();
     if (!workspace) return undefined;
 
-    const configPath = path.join(workspace, CONFIG_DIR_NAME, 'config.jsonc');
+    const configPath = path.join(workspace, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
     if (!fs.existsSync(configPath)) return undefined;
 
     const content = fs.readFileSync(configPath, 'utf-8');
@@ -304,7 +311,7 @@ export async function selectVariableOption(variable: VariableItem): Promise<void
 
       const settings = providerInstance?.loadSettings();
       const style = variable.selectionStyle ?? settings?.promptSelection?.fileStyle ?? SelectionStyle.Flat;
-      const excludes = variable.excludes ?? settings?.promptSelection?.excludes ?? ['**/node_modules/**', '**/.git/**'];
+      const excludes = variable.excludes ?? settings?.promptSelection?.excludes ?? DEFAULT_EXCLUDES;
 
       const options: FileSelectionOptions = {
         label: variable.description || `Select file for ${variable.name}`,
@@ -325,7 +332,7 @@ export async function selectVariableOption(variable: VariableItem): Promise<void
 
       const settings = providerInstance?.loadSettings();
       const style = variable.selectionStyle ?? settings?.promptSelection?.folderStyle ?? SelectionStyle.Flat;
-      const excludes = variable.excludes ?? settings?.promptSelection?.excludes ?? ['**/node_modules/**', '**/.git/**'];
+      const excludes = variable.excludes ?? settings?.promptSelection?.excludes ?? DEFAULT_EXCLUDES;
 
       const options: FileSelectionOptions = {
         label: variable.description || `Select folder for ${variable.name}`,

@@ -1,7 +1,6 @@
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
-import { getCommandId } from '../../common/constants/constants';
-import { logger } from '../../common/lib/logger';
+import { BRANCH_CONTEXT_FILE_NAME, getCommandId } from '../../common/constants/constants';
 import { Command } from '../../common/lib/vscode-utils';
 import { getBranchContextFilePath } from '../branch-context/markdown-parser';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
@@ -153,7 +152,7 @@ export class TodosProvider implements vscode.TreeDataProvider<TodoItem> {
     if (!workspace) return;
 
     this.markdownWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, '.branch-context.md'),
+      new vscode.RelativePattern(workspace, BRANCH_CONTEXT_FILE_NAME),
     );
 
     this.markdownWatcher.onDidChange(() => this.refresh());
@@ -186,10 +185,8 @@ export class TodosProvider implements vscode.TreeDataProvider<TodoItem> {
 
   private loadTodos(): void {
     const filePath = getBranchContextFilePath();
-    logger.debug(`[todos-provider] loadTodos - filePath: ${filePath}`);
 
     if (!filePath || !fs.existsSync(filePath)) {
-      logger.debug('[todos-provider] loadTodos - file not found');
       this.cachedNodes = [];
       return;
     }
@@ -208,12 +205,7 @@ export class TodosProvider implements vscode.TreeDataProvider<TodoItem> {
       .slice(todoIndex + 1, endIndex)
       .join('\n')
       .trim();
-
-    logger.debug(`[todos-provider] loadTodos - todoIndex: ${todoIndex}`);
-    logger.debug(`[todos-provider] loadTodos - todosContent: ${todosContent}`);
-
     const { nodes } = parseTodosAsTree(todosContent);
-    logger.debug(`[todos-provider] loadTodos - nodes count: ${nodes.length}`);
     this.cachedNodes = nodes;
   }
 

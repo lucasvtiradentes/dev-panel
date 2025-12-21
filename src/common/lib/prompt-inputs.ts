@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { DEFAULT_EXCLUDES } from '../constants';
 import { type PPPromptInput, type PPSettings, PromptInputType, SelectionStyle } from '../schemas';
 import { type FileSelectionOptions, selectFiles, selectFolders } from './file-selection';
 import { createLogger } from './logger';
@@ -47,8 +48,6 @@ async function collectSingleInput(
       return undefined;
   }
 }
-
-const DEFAULT_EXCLUDES = ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/out/**'];
 
 function getSelectionStyle(
   input: PPPromptInput,
