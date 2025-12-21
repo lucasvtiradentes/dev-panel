@@ -123,11 +123,6 @@
         "icon": "$(discard)"
       },
       {
-        "command": "projectPanel.refreshConfigs",
-        "title": "Refresh Configs",
-        "icon": "$(extensions-refresh)"
-      },
-      {
         "command": "projectPanel.toggleConfigsGroupMode",
         "title": "Toggle Configs Group Mode",
         "icon": "$(list-flat)"
@@ -145,11 +140,6 @@
         "command": "projectPanel.revertAllReplacements",
         "title": "Revert All Replacements",
         "icon": "$(discard)"
-      },
-      {
-        "command": "projectPanel.refreshReplacements",
-        "title": "Refresh Replacements",
-        "icon": "$(extensions-refresh)"
       },
       {
         "command": "projectPanel.toggleReplacementsGroupMode",
@@ -252,11 +242,6 @@
         "title": "Tab Command Line"
       },
       {
-        "command": "projectPanel.refreshTools",
-        "title": "Refresh Tools",
-        "icon": "$(extensions-refresh)"
-      },
-      {
         "command": "projectPanel.toggleToolsGroupMode",
         "title": "Toggle Tools Group Mode",
         "icon": "$(list-flat)"
@@ -311,11 +296,6 @@
         "icon": "$(go-to-file)"
       },
       {
-        "command": "projectPanel.refreshPrompts",
-        "title": "Refresh Prompts",
-        "icon": "$(extensions-refresh)"
-      },
-      {
         "command": "projectPanel.togglePromptsGroupMode",
         "title": "Toggle Prompts Group Mode",
         "icon": "$(list-flat)"
@@ -368,11 +348,6 @@
         "command": "projectPanel.goToPromptFile",
         "title": "Go to Prompt File",
         "icon": "$(go-to-file)"
-      },
-      {
-        "command": "projectPanel.refreshBranchContext",
-        "title": "Refresh Branch Context",
-        "icon": "$(extensions-refresh)"
       },
       {
         "command": "projectPanel.openBranchContextFile",
@@ -506,11 +481,6 @@
           "group": "navigation@1"
         },
         {
-          "command": "projectPanel.refreshConfigs",
-          "when": "view == projectPanelConfigs",
-          "group": "navigation@2"
-        },
-        {
           "command": "projectPanel.openVariablesKeybindings",
           "when": "view == projectPanelConfigs",
           "group": "navigation@3"
@@ -529,11 +499,6 @@
           "command": "projectPanel.revertAllReplacements",
           "when": "view == projectPanelReplacements",
           "group": "navigation@2"
-        },
-        {
-          "command": "projectPanel.refreshReplacements",
-          "when": "view == projectPanelReplacements",
-          "group": "navigation@3"
         },
         {
           "command": "projectPanel.openReplacementsKeybindings",
@@ -631,11 +596,6 @@
           "group": "navigation@3"
         },
         {
-          "command": "projectPanel.refreshTools",
-          "when": "view == projectPanelTools",
-          "group": "navigation@4"
-        },
-        {
           "command": "projectPanel.openToolsKeybindings",
           "when": "view == projectPanelTools",
           "group": "navigation@5"
@@ -671,11 +631,6 @@
           "group": "navigation@3"
         },
         {
-          "command": "projectPanel.refreshPrompts",
-          "when": "view == projectPanelPrompts",
-          "group": "navigation@4"
-        },
-        {
           "command": "projectPanel.openPromptsKeybindings",
           "when": "view == projectPanelPrompts",
           "group": "navigation@5"
@@ -684,11 +639,6 @@
           "command": "projectPanel.openBranchContextFile",
           "when": "view == projectPanelBranchContext",
           "group": "navigation@1"
-        },
-        {
-          "command": "projectPanel.refreshBranchContext",
-          "when": "view == projectPanelBranchContext",
-          "group": "navigation@2"
         },
         {
           "command": "projectPanel.editBranchTodos",

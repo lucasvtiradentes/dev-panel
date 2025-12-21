@@ -24,7 +24,7 @@ import { createResetConfigOptionCommand, createSelectConfigOptionCommand } from 
 import { createToggleReplacementCommand } from './internal/toggle-replacement';
 import { createGoToTaskCommand } from './public/go-to-task';
 import { createOpenTasksConfigCommand } from './public/open-tasks-config';
-import { createRefreshCommand, createRefreshPromptsCommand, createRefreshToolsCommand } from './public/refresh';
+import { createRefreshCommand } from './public/refresh';
 import { createOpenPromptsKeybindingsCommand, createSetPromptKeybindingCommand } from './public/set-prompt-keybinding';
 import {
   createOpenReplacementsKeybindingsCommand,
@@ -70,15 +70,12 @@ export function registerAllCommands(
     createTabCmdlineCommand(taskTreeDataProvider),
     createSelectConfigOptionCommand(),
     createResetConfigOptionCommand(),
-    registerCommand(Command.RefreshConfigs, () => variablesProvider.refresh()),
     registerCommand(Command.ToggleConfigsGroupMode, () => variablesProvider.toggleGroupMode()),
     registerCommand(Command.ToggleConfigsGroupModeGrouped, () => variablesProvider.toggleGroupMode()),
     createToggleReplacementCommand(),
     createRevertAllReplacementsCommand(),
-    registerCommand(Command.RefreshReplacements, () => replacementsProvider.refresh()),
     registerCommand(Command.ToggleReplacementsGroupMode, () => replacementsProvider.toggleGroupMode()),
     registerCommand(Command.ToggleReplacementsGroupModeGrouped, () => replacementsProvider.toggleGroupMode()),
-    createRefreshToolsCommand(toolTreeDataProvider),
     registerCommand(Command.ToggleToolsGroupMode, () => toolTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.ToggleToolsGroupModeGrouped, () => toolTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.ToggleToolFavorite, (item) => toolTreeDataProvider.toggleFavorite(item)),
@@ -95,7 +92,6 @@ export function registerAllCommands(
         await vscode.window.showTextDocument(uri);
       }
     }),
-    createRefreshPromptsCommand(promptTreeDataProvider),
     registerCommand(Command.TogglePromptsGroupMode, () => promptTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.TogglePromptsGroupModeGrouped, () => promptTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.TogglePromptFavorite, (item) => promptTreeDataProvider.toggleFavorite(item)),
@@ -114,7 +110,6 @@ export function registerAllCommands(
         await vscode.window.showTextDocument(uri);
       }
     }),
-    registerCommand(Command.RefreshBranchContext, () => branchContextProvider.refresh()),
     registerCommand(Command.EditBranchPrLink, (branchName: string, value?: string) =>
       branchContextProvider.editField(branchName, BranchContextField.PrLink, value),
     ),
