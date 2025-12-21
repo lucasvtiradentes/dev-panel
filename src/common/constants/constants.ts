@@ -29,6 +29,7 @@ export {
   TOOL_COMMAND_SUFFIX,
   TOOL_TASK_TYPE,
   VARIABLE_COMMAND_SUFFIX,
+  VARIABLES_FILE_NAME,
 } from './scripts-constants';
 
 declare const __IS_DEV_BUILD__: boolean;

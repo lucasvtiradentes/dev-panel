@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { CONFIG_DIR_NAME } from '../../common/constants';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { BranchContextField, BranchContextFieldItem, BranchHeaderItem } from './items';
 import { generateBranchContextMarkdown } from './markdown-generator';
@@ -38,7 +37,6 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private disposables: vscode.Disposable[] = [];
-  private stateWatcher: vscode.FileSystemWatcher | null = null;
   private markdownWatcher: vscode.FileSystemWatcher | null = null;
   private pollInterval: ReturnType<typeof setInterval> | null = null;
   private currentBranch = '';
@@ -46,7 +44,6 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
   constructor() {
     this.setupGitWatcher();
-    this.setupStateWatcher();
     this.setupMarkdownWatcher();
     this.setupHeadFileWatcher();
     this.setupPolling();
@@ -98,17 +95,6 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     this.pollInterval = setInterval(() => {
       this.handleBranchChange();
     }, 2000);
-  }
-
-  private setupStateWatcher(): void {
-    const workspace = getWorkspacePath();
-    if (!workspace) return;
-
-    this.stateWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, `${CONFIG_DIR_NAME}/state.json`),
-    );
-
-    this.stateWatcher.onDidChange(() => this.refresh());
   }
 
   private setupMarkdownWatcher(): void {
@@ -248,7 +234,6 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     for (const d of this.disposables) {
       d.dispose();
     }
-    this.stateWatcher?.dispose();
     this.markdownWatcher?.dispose();
   }
 }

@@ -5,7 +5,7 @@ import { promisify } from 'node:util';
 import json5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
-import { CONFIG_DIR_NAME, DISPLAY_PREFIX, NO_GROUP_NAME } from '../../common/constants';
+import { CONFIG_DIR_NAME, DISPLAY_PREFIX, NO_GROUP_NAME, VARIABLES_FILE_NAME } from '../../common/constants';
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/lib/file-selection';
 import { type PPSettings, SelectionStyle } from '../../common/schemas';
 import { getVariableKeybinding } from './keybindings-local';
@@ -51,7 +51,7 @@ function getWorkspacePath(): string | null {
 function getStatePath(): string | null {
   const workspace = getWorkspacePath();
   if (!workspace) return null;
-  return path.join(workspace, CONFIG_DIR_NAME, 'state.json');
+  return path.join(workspace, CONFIG_DIR_NAME, VARIABLES_FILE_NAME);
 }
 
 function loadState(): PpState {
@@ -141,7 +141,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     if (!workspace) return;
 
     this.fileWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, `${CONFIG_DIR_NAME}/{config.jsonc,state.json}`),
+      new vscode.RelativePattern(workspace, `${CONFIG_DIR_NAME}/{config.jsonc,${VARIABLES_FILE_NAME}}`),
     );
 
     this.fileWatcher.onDidChange(() => this.refresh());
