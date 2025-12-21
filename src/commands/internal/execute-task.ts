@@ -26,17 +26,83 @@ import { getCurrentBranch } from '../../views/replacements/git-utils';
 
 const log = createLogger('execute-task');
 
+function readPPVariablesAsEnv(workspacePath: string): Record<string, string> {
+  const variablesPath = `${workspacePath}/${CONFIG_DIR_NAME}/${VARIABLES_FILE_NAME}`;
+  if (!fs.existsSync(variablesPath)) return {};
+  try {
+    const variablesContent = fs.readFileSync(variablesPath, 'utf8');
+    const variables = JSON5.parse(variablesContent) as Record<string, unknown>;
+    const env: Record<string, string> = {};
+    for (const [key, value] of Object.entries(variables)) {
+      const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+      env[key.toUpperCase()] = stringValue;
+    }
+    return env;
+  } catch {
+    return {};
+  }
+}
+
+function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscode.Task {
+  const execution = task.execution;
+  if (!execution) return task;
+
+  let newExecution: vscode.ShellExecution | vscode.ProcessExecution | vscode.CustomExecution;
+
+  if (execution instanceof vscode.ShellExecution) {
+    const mergedEnv = { ...execution.options?.env, ...env };
+    const commandLine = execution.commandLine;
+    const command = execution.command;
+
+    if (commandLine) {
+      newExecution = new vscode.ShellExecution(commandLine, { ...execution.options, env: mergedEnv });
+    } else if (command) {
+      newExecution = new vscode.ShellExecution(command, execution.args || [], { ...execution.options, env: mergedEnv });
+    } else {
+      return task;
+    }
+  } else if (execution instanceof vscode.ProcessExecution) {
+    const mergedEnv = { ...execution.options?.env, ...env };
+    newExecution = new vscode.ProcessExecution(execution.process, execution.args, {
+      ...execution.options,
+      env: mergedEnv,
+    });
+  } else {
+    return task;
+  }
+
+  return new vscode.Task(
+    task.definition,
+    task.scope || vscode.TaskScope.Workspace,
+    task.name,
+    task.source,
+    newExecution,
+    task.problemMatchers,
+  );
+}
+
 export function createExecuteTaskCommand(context: vscode.ExtensionContext) {
   return registerCommand(
     Command.ExecuteTask,
     async (task: vscode.Task, scope: vscode.TaskScope | vscode.WorkspaceFolder | undefined) => {
+      let modifiedTask = task;
+
+      if (scope && typeof scope !== 'number' && 'uri' in scope) {
+        const folder = scope as vscode.WorkspaceFolder;
+        const env = readPPVariablesAsEnv(folder.uri.fsPath);
+
+        if (Object.keys(env).length > 0) {
+          modifiedTask = cloneTaskWithEnv(task, env);
+        }
+      }
+
       if (isMultiRootWorkspace()) {
         if (scope != null && (scope as vscode.WorkspaceFolder).name != null) {
           await context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, (scope as vscode.WorkspaceFolder).name);
         }
       }
 
-      void vscode.tasks.executeTask(task).then((execution) => {
+      void vscode.tasks.executeTask(modifiedTask).then((execution) => {
         vscode.tasks.onDidEndTask((e) => {
           if (e.execution === execution) {
             void context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, null);
@@ -51,13 +117,24 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
   return registerCommand(
     Command.ExecuteTool,
     async (task: vscode.Task, scope: vscode.TaskScope | vscode.WorkspaceFolder | undefined) => {
+      let modifiedTask = task;
+
+      if (scope && typeof scope !== 'number' && 'uri' in scope) {
+        const folder = scope as vscode.WorkspaceFolder;
+        const env = readPPVariablesAsEnv(folder.uri.fsPath);
+
+        if (Object.keys(env).length > 0) {
+          modifiedTask = cloneTaskWithEnv(task, env);
+        }
+      }
+
       if (isMultiRootWorkspace()) {
         if (scope != null && (scope as vscode.WorkspaceFolder).name != null) {
           await context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, (scope as vscode.WorkspaceFolder).name);
         }
       }
 
-      void vscode.tasks.executeTask(task).then((execution) => {
+      void vscode.tasks.executeTask(modifiedTask).then((execution) => {
         vscode.tasks.onDidEndTask((e) => {
           if (e.execution === execution) {
             void context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, null);
@@ -109,7 +186,8 @@ function replaceVariablePlaceholders(content: string, variables: Record<string, 
   let result = content;
   for (const [key, value] of Object.entries(variables)) {
     const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
-    const pattern = new RegExp(`\\{\\{${key}\\}\\}`, 'gi');
+    const upperKey = key.toUpperCase();
+    const pattern = new RegExp(`\\{\\{${upperKey}\\}\\}`, 'g');
     result = result.replace(pattern, stringValue);
   }
   return result;

@@ -2,11 +2,34 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, getCommandId } from '../../common';
-import { CONFIG_DIR_KEY, CONFIG_DIR_NAME, CONFIG_FILE_NAME, NO_GROUP_NAME } from '../../common/constants';
+import {
+  CONFIG_DIR_KEY,
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  NO_GROUP_NAME,
+  VARIABLES_FILE_NAME,
+} from '../../common/constants';
 import { type PPConfig, TaskSource } from '../../common/schemas/types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { getTaskKeybinding } from './keybindings-local';
 import { isFavorite, isHidden } from './state';
+
+function readPPVariablesAsEnv(folder: vscode.WorkspaceFolder): Record<string, string> {
+  const variablesPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/${VARIABLES_FILE_NAME}`;
+  if (!fs.existsSync(variablesPath)) return {};
+  try {
+    const variablesContent = fs.readFileSync(variablesPath, 'utf8');
+    const variables = JSON5.parse(variablesContent) as Record<string, unknown>;
+    const env: Record<string, string> = {};
+    for (const [key, value] of Object.entries(variables)) {
+      const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+      env[key.toUpperCase()] = stringValue;
+    }
+    return env;
+  } catch {
+    return {};
+  }
+}
 
 export function hasPPGroups(): boolean {
   const folders = vscode.workspace.workspaceFolders ?? [];
@@ -79,7 +102,8 @@ function createPPTask(
   if (hidden && !showHidden) return null;
   if (showOnlyFavorites && !favorite) return null;
 
-  const shellExec = new vscode.ShellExecution(task.command);
+  const env = readPPVariablesAsEnv(folder);
+  const shellExec = new vscode.ShellExecution(task.command, { env });
   const vsTask = new vscode.Task({ type: CONFIG_DIR_KEY }, folder, task.name, CONFIG_DIR_KEY, shellExec);
 
   const treeTask = new TreeTask(

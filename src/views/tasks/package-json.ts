@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, getCommandId } from '../../common';
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, NO_GROUP_NAME } from '../../common/constants';
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, NO_GROUP_NAME, VARIABLES_FILE_NAME } from '../../common/constants';
 import { type PPConfig, TaskSource } from '../../common/schemas/types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
@@ -20,6 +20,23 @@ type PackageLocation = {
 };
 
 const DEFAULT_EXCLUDED_DIRS = ['node_modules', 'dist', '.git'];
+
+function readPPVariablesAsEnv(workspacePath: string): Record<string, string> {
+  const variablesPath = path.join(workspacePath, CONFIG_DIR_NAME, VARIABLES_FILE_NAME);
+  if (!fs.existsSync(variablesPath)) return {};
+  try {
+    const variablesContent = fs.readFileSync(variablesPath, 'utf8');
+    const variables = JSON5.parse(variablesContent) as Record<string, unknown>;
+    const env: Record<string, string> = {};
+    for (const [key, value] of Object.entries(variables)) {
+      const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+      env[key.toUpperCase()] = stringValue;
+    }
+    return env;
+  } catch {
+    return {};
+  }
+}
 
 export function getExcludedDirs(workspacePath: string): Set<string> {
   const configPath = path.join(workspacePath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
@@ -233,7 +250,8 @@ function createNpmTask(
   if (hidden && !showHidden) return null;
   if (showOnlyFavorites && !favorite) return null;
 
-  const shellExec = new vscode.ShellExecution(`npm run ${name}`, { cwd });
+  const env = readPPVariablesAsEnv(folder.uri.fsPath);
+  const shellExec = new vscode.ShellExecution(`npm run ${name}`, { cwd, env });
   const task = new vscode.Task({ type: 'npm' }, folder, name, 'npm', shellExec);
   const displayName = useDisplayName && name.includes(':') ? name.split(':').slice(1).join(':') : name;
 
