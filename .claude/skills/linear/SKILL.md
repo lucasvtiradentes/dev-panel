@@ -1,6 +1,21 @@
-# Description
+---
+name: linear
+description: Linear CLI - A GitHub CLI-like tool for Linear
+allowed-tools: Bash(linear:*)
+---
+
+# Linear CLI
 
 Linear CLI - A GitHub CLI-like tool for Linear
+
+## How to execute
+
+IMPORTANT: Use Bash tool to run linear commands directly. DO NOT use Skill tool.
+
+Example:
+```bash
+linear issue show ISSUE-123
+```
 
 # How to execute
 

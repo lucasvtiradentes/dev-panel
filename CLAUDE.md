@@ -26,82 +26,17 @@ aqui estao os logs da versao dev:
 /tmp/better-project-tools-dev.log
 ```
 
-<project_tools>
-  <tool id="linear">
-    <name>linear</name>
-    <description>CLI to interact with linear from the terminal</description>
-    <cmd>linear</cmd>
-    <example>
-      ## check all the commands
-      linear --help
-      
-      ## se issue details
-      linear issue show https://linear.app/team/issue/ISSUE-123
-      
-      ## create an issue
-      linear issue create --title "New feature" --description "Description" --assignee user@example.com --label bug --priority 2 
-    </example>
-    <when>
-      checking for issue details
-      checking for project details
-      checking for document details
-      create structure projects
-    </when>
-  </tool>
+# PROJECT TOOLS
 
-  <tool id="github-cli">
-    <name>github-cli</name>
-    <description>CLI to interact with GitHub from the terminal</description>
-    <cmd>gh</cmd>
-    <example>
-      ## check all the commands
-      gh --help
-      
-      ## view PR details
-      gh pr view 123 --json number,title,url,state
-      
-      ## check GitHub Actions status
-      gh run list
-      
-      ## create a PR
-      gh pr create --title "New feature" --body "Description" --base main --head feature-branch
-      
-      ## view issue details
-      gh issue view 456
-    </example>
-    <when>
-      checking PR details
-      checking GitHub Actions status
-      viewing issue details
-      creating and managing PRs
-      viewing repository information
-    </when>
-  </tool>
+<available_tools>
+  Custom CLI tools installed (execute via Bash tool):
+  - linear: Linear CLI - A GitHub CLI-like tool for Linear
+  - github-cli: Work seamlessly with GitHub from the command line
+  - chrome-cmd: Control Chrome from the command line - List tabs, execute JavaScript, and more
 
-  <tool id="chrome-cmd">
-    <name>chrome-cmd</name>
-    <description>Interact with the same chrome browser used by the user</description>
-    <cmd>chrome-cmd</cmd>
-    <example>
-      ## Example command
-      chrome-cmd
-    </example>
-    <when>
-      Use case 1
-      Use case 2
-    </when>
-    <rules>
-      Rule 1
-      Rule 2
-    </rules>
-    <notes>
-      Note 1
-      Note 2
-    </notes>
-    <troubleshooting>
-      Issue 1: Solution 1
-      Issue 2: Solution 2
-    </troubleshooting>
-  </tool>
-
-</project_tools>
+  CRITICAL: When ANY of these tools are mentioned or needed, you MUST:
+  1. FIRST use Skill tool to read the documentation (e.g., Skill with skill: "chrome-cmd")
+  2. ONLY THEN execute commands via Bash tool
+  
+  Skills location: .claude/skills/{tool-name}/SKILL.md
+</available_tools>

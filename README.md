@@ -34,7 +34,7 @@
   - prompts
   - tools
   - scripts 
-- [ ] botao de sincronizar as tools no CLAUDE.md etc
-- [ ] ver oq podermos fazer para ter views dinamuicas
 - [ ] salvar as coisas em uma pasta branch la no ".pp" ao inves de salvar no state.json
-- [ ] ter como usar state.variables nos prompts, scripts, etc -> ${{environment}}
+- [ ] adicionar status bar
+
+

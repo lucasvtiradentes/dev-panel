@@ -6,7 +6,7 @@ import { Command, registerCommand } from '../../common';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../../common/constants';
 import type { PPConfig } from '../../common/schemas/types';
 
-interface ToolInstruction {
+type ToolInstruction = {
   id: string;
   name: string;
   description?: string;
@@ -16,7 +16,7 @@ interface ToolInstruction {
   rules?: string;
   notes?: string;
   troubleshooting?: string;
-}
+};
 
 function parseInstructionsMd(content: string, toolName: string): ToolInstruction {
   const lines = content.split('\n');
@@ -122,17 +122,18 @@ function parseInstructionsMd(content: string, toolName: string): ToolInstruction
 function generateToolsXml(workspaceFolder: vscode.WorkspaceFolder): string {
   const configPath = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
   if (!fs.existsSync(configPath)) {
-    return '<project_tools>\n  <!-- No tools configured -->\n</project_tools>';
+    return '<available_tools>\n  No custom CLI tools configured.\n</available_tools>';
   }
 
   const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
   const tools = config.tools ?? [];
 
   if (tools.length === 0) {
-    return '<project_tools>\n  <!-- No tools configured -->\n</project_tools>';
+    return '<available_tools>\n  No custom CLI tools configured.\n</available_tools>';
   }
 
-  const toolsXml: string[] = ['<project_tools>'];
+  const toolsXml: string[] = ['<available_tools>'];
+  toolsXml.push('  Custom CLI tools installed (execute via Bash tool):');
 
   for (const tool of tools) {
     const instructionsPath = path.join(
@@ -143,85 +144,123 @@ function generateToolsXml(workspaceFolder: vscode.WorkspaceFolder): string {
       'instructions.md',
     );
 
-    let instruction: ToolInstruction;
+    let description = '';
     if (fs.existsSync(instructionsPath)) {
       const content = fs.readFileSync(instructionsPath, 'utf8');
-      instruction = parseInstructionsMd(content, tool.name);
-    } else {
-      instruction = {
-        id: tool.name,
-        name: tool.name,
-        cmd: tool.command,
-      };
+      const instruction = parseInstructionsMd(content, tool.name);
+      description = instruction.description ?? '';
     }
 
-    if (!instruction.cmd) {
-      instruction.cmd = tool.command;
-    }
-
-    toolsXml.push(`  <tool id="${instruction.id}">`);
-    toolsXml.push(`    <name>${instruction.name}</name>`);
-
-    if (instruction.description) {
-      toolsXml.push(`    <description>${instruction.description}</description>`);
-    }
-
-    toolsXml.push(`    <cmd>${instruction.cmd}</cmd>`);
-
-    if (instruction.example) {
-      toolsXml.push('    <example>');
-      const exampleLines = instruction.example.split('\n');
-      for (const line of exampleLines) {
-        toolsXml.push(`      ${line}`);
-      }
-      toolsXml.push('    </example>');
-    }
-
-    if (instruction.when) {
-      toolsXml.push('    <when>');
-      const whenLines = instruction.when.split('\n');
-      for (const line of whenLines) {
-        toolsXml.push(`      - ${line}`);
-      }
-      toolsXml.push('    </when>');
-    }
-
-    if (instruction.rules) {
-      toolsXml.push('    <rules>');
-      const rulesLines = instruction.rules.split('\n');
-      for (const line of rulesLines) {
-        toolsXml.push(`      - ${line}`);
-      }
-      toolsXml.push('    </rules>');
-    }
-
-    if (instruction.notes) {
-      toolsXml.push('    <notes>');
-      const notesLines = instruction.notes.split('\n');
-      for (const line of notesLines) {
-        toolsXml.push(`      - ${line}`);
-      }
-      toolsXml.push('    </notes>');
-    }
-
-    if (instruction.troubleshooting) {
-      toolsXml.push('    <troubleshooting>');
-      const troubleshootingLines = instruction.troubleshooting.split('\n');
-      for (const line of troubleshootingLines) {
-        toolsXml.push(`      - ${line}`);
-      }
-      toolsXml.push('    </troubleshooting>');
-    }
-
-    toolsXml.push('  </tool>');
-    toolsXml.push('');
+    toolsXml.push(`  - ${tool.name}: ${description}`);
   }
 
-  toolsXml.push('</project_tools>');
+  toolsXml.push('');
+  toolsXml.push('  CRITICAL: When ANY of these tools are mentioned or needed, you MUST:');
+  toolsXml.push('  1. FIRST use Skill tool to read the documentation (e.g., Skill with skill: "chrome-cmd")');
+  toolsXml.push('  2. ONLY THEN execute commands via Bash tool');
+  toolsXml.push('  ');
+  toolsXml.push('  Skills location: .claude/skills/{tool-name}/SKILL.md');
+  toolsXml.push('</available_tools>');
+
   return toolsXml.join('\n');
 }
 
-async function syncToAiSpecs(xml: string, workspaceFolder: vscode.WorkspaceFolder): Promise<void> {
+function generateSkillMd(instructionsContent: string, toolName: string, toolCommand: string): string {
+  const lines = instructionsContent.split('\n');
+  const contentLines: string[] = [];
+  let skipNextSection = false;
+  let inCodeBlock = false;
+
+  for (const line of lines) {
+    if (line.startsWith('```')) {
+      inCodeBlock = !inCodeBlock;
+      contentLines.push(line);
+      continue;
+    }
+
+    if (!inCodeBlock && line.startsWith('# ')) {
+      const section = line.slice(2).toLowerCase().trim();
+      if (section === 'description') {
+        skipNextSection = true;
+        continue;
+      }
+      skipNextSection = false;
+    }
+
+    if (!skipNextSection) {
+      contentLines.push(line);
+    }
+  }
+
+  const descriptionMatch = instructionsContent.match(/# Description\n\n(.+?)(?=\n\n#|$)/s);
+  const description = descriptionMatch?.[1]?.trim() ?? `${toolName} CLI tool`;
+
+  const skillContent = `---
+name: ${toolName}
+description: ${description}
+allowed-tools: Bash(${toolName}:*)
+---
+
+# ${toolName.charAt(0).toUpperCase() + toolName.slice(1)} CLI
+
+${description}
+
+## How to execute
+
+IMPORTANT: Use Bash tool to run ${toolName} commands directly. DO NOT use Skill tool.
+
+Example:
+\`\`\`bash
+${toolCommand}
+\`\`\`
+
+${contentLines.join('\n').trim()}
+`;
+
+  return skillContent;
+}
+
+async function syncToSkills(workspaceFolder: vscode.WorkspaceFolder): Promise<number> {
+  const configPath = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
+  if (!fs.existsSync(configPath)) {
+    return 0;
+  }
+
+  const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
+  const tools = config.tools ?? [];
+  let syncedCount = 0;
+
+  for (const tool of tools) {
+    const instructionsPath = path.join(
+      workspaceFolder.uri.fsPath,
+      CONFIG_DIR_NAME,
+      'tools',
+      tool.name,
+      'instructions.md',
+    );
+
+    if (!fs.existsSync(instructionsPath)) {
+      continue;
+    }
+
+    const instructionsContent = fs.readFileSync(instructionsPath, 'utf8');
+    const exampleCommand = instructionsContent.match(/```bash\n(.+?)\n/)?.[1] ?? tool.command;
+    const skillContent = generateSkillMd(instructionsContent, tool.name, exampleCommand);
+
+    const skillDir = path.join(workspaceFolder.uri.fsPath, '.claude', 'skills', tool.name);
+    if (!fs.existsSync(skillDir)) {
+      fs.mkdirSync(skillDir, { recursive: true });
+    }
+
+    const skillPath = path.join(skillDir, 'SKILL.md');
+    fs.writeFileSync(skillPath, skillContent, 'utf8');
+    syncedCount++;
+  }
+
+  return syncedCount;
+}
+
+function syncToAiSpecs(xml: string, workspaceFolder: vscode.WorkspaceFolder): void {
   const specFiles = ['CLAUDE.md', 'AGENTS.md'];
   const foundFiles: string[] = [];
 
@@ -241,8 +280,12 @@ async function syncToAiSpecs(xml: string, workspaceFolder: vscode.WorkspaceFolde
     let content = fs.readFileSync(filePath, 'utf8');
 
     const projectToolsRegex = /<project_tools>[\s\S]*?<\/project_tools>/;
+    const availableToolsRegex = /<available_tools>[\s\S]*?<\/available_tools>/;
+
     if (projectToolsRegex.test(content)) {
       content = content.replace(projectToolsRegex, xml);
+    } else if (availableToolsRegex.test(content)) {
+      content = content.replace(availableToolsRegex, xml);
     } else {
       content = `${content.trimEnd()}\n\n${xml}\n`;
     }
@@ -262,23 +305,12 @@ async function handleGenerateToolsDocs(): Promise<void> {
     return;
   }
 
+  const skillsCount = await syncToSkills(workspaceFolder);
   const xml = generateToolsXml(workspaceFolder);
+  syncToAiSpecs(xml, workspaceFolder);
 
-  const choice = await vscode.window.showQuickPick(
-    [
-      { label: 'Copy to clipboard', value: 'copy' },
-      { label: 'Sync to AI specifications', value: 'sync' },
-    ],
-    { placeHolder: 'What would you like to do with the tools documentation?' },
-  );
-
-  if (!choice) return;
-
-  if (choice.value === 'copy') {
-    await vscode.env.clipboard.writeText(xml);
-    vscode.window.showInformationMessage('Tools documentation copied to clipboard');
-  } else if (choice.value === 'sync') {
-    await syncToAiSpecs(xml, workspaceFolder);
+  if (skillsCount > 0) {
+    vscode.window.showInformationMessage(`Synced ${skillsCount} tool(s) to .claude/skills/`);
   }
 }
 

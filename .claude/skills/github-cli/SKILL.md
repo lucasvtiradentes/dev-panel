@@ -1,6 +1,21 @@
-# Description
+---
+name: github-cli
+description: Work seamlessly with GitHub from the command line
+allowed-tools: Bash(github-cli:*)
+---
+
+# Github-cli CLI
 
 Work seamlessly with GitHub from the command line
+
+## How to execute
+
+IMPORTANT: Use Bash tool to run github-cli commands directly. DO NOT use Skill tool.
+
+Example:
+```bash
+gh pr list
+```
 
 # How to execute
 

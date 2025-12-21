@@ -298,7 +298,7 @@
       {
         "command": "projectPanel.generateToolsDocs",
         "title": "Generate Tools Documentation",
-        "icon": "$(file-code)"
+        "icon": "$(sync)"
       },
       {
         "command": "projectPanel.addTool",

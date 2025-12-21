@@ -1,6 +1,21 @@
-# Description
+---
+name: chrome-cmd
+description: Control Chrome from the command line - List tabs, execute JavaScript, and more
+allowed-tools: Bash(chrome-cmd:*)
+---
+
+# Chrome-cmd CLI
 
 Control Chrome from the command line - List tabs, execute JavaScript, and more
+
+## How to execute
+
+IMPORTANT: Use Bash tool to run chrome-cmd commands directly. DO NOT use Skill tool.
+
+Example:
+```bash
+chrome-cmd tab list
+```
 
 # How to execute
 
