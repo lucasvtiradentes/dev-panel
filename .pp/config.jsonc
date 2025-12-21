@@ -108,18 +108,19 @@
     }
   ],
 
-  "tools": [
-    {
+  "tools": [{
       "name": "linear",
       "command": "linear",
-      "description": "Interact with linear",
       "group": "Quality"
     },
     {
       "name": "github-cli",
       "command": "gh",
-      "description": "Interact with github",
       "group": "Quality"
+    },
+    {
+        "name": "chrome-cmd",
+        "command": "chrome-cmd"
     }
   ],
 

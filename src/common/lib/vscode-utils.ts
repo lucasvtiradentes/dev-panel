@@ -42,6 +42,8 @@ export enum Command {
   ToggleToolsShowOnlyFavoritesActive = 'toggleToolsShowOnlyFavoritesActive',
   ExecuteTool = 'executeTool',
   GoToToolFile = 'goToToolFile',
+  GenerateToolsDocs = 'generateToolsDocs',
+  AddTool = 'addTool',
   TogglePromptsGroupMode = 'togglePromptsGroupMode',
   TogglePromptsGroupModeGrouped = 'togglePromptsGroupModeGrouped',
   TogglePromptFavorite = 'togglePromptFavorite',

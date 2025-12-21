@@ -1,4 +1,4 @@
-# What is it?
+# Description
 
 CLI to interact with GitHub from the terminal
 

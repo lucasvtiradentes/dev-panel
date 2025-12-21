@@ -272,10 +272,6 @@
           "group": {
             "description": "Group name for organizing tools",
             "type": "string"
-          },
-          "description": {
-            "description": "Human-readable description shown as tooltip",
-            "type": "string"
           }
         },
         "required": [

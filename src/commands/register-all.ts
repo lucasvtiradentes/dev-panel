@@ -22,6 +22,8 @@ import {
 import { createRevertAllReplacementsCommand } from './internal/revert-all-replacements';
 import { createResetConfigOptionCommand, createSelectConfigOptionCommand } from './internal/select-config-option';
 import { createToggleReplacementCommand } from './internal/toggle-replacement';
+import { createAddToolCommand } from './public/add-tool';
+import { createGenerateToolsDocsCommand } from './public/generate-tools-docs';
 import { createGoToTaskCommand } from './public/go-to-task';
 import { createOpenTasksConfigCommand } from './public/open-tasks-config';
 import { createRefreshCommand } from './public/refresh';
@@ -95,6 +97,8 @@ export function registerAllCommands(
         }
       }
     }),
+    createGenerateToolsDocsCommand(),
+    createAddToolCommand(),
     registerCommand(Command.TogglePromptsGroupMode, () => promptTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.TogglePromptsGroupModeGrouped, () => promptTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.TogglePromptFavorite, (item) => promptTreeDataProvider.toggleFavorite(item)),

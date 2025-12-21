@@ -36,7 +36,6 @@ const PPToolSchema = z
     name: z.string().describe('Unique identifier for the tool'),
     command: z.string().describe('Shell command to execute'),
     group: z.string().optional().describe('Group name for organizing tools'),
-    description: z.string().optional().describe('Human-readable description shown as tooltip'),
   })
   .describe('A tool that can be executed from the Tools view');
 

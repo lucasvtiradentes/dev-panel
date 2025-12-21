@@ -296,6 +296,16 @@
         "icon": "$(go-to-file)"
       },
       {
+        "command": "projectPanel.generateToolsDocs",
+        "title": "Generate Tools Documentation",
+        "icon": "$(file-code)"
+      },
+      {
+        "command": "projectPanel.addTool",
+        "title": "Add Tool",
+        "icon": "$(add)"
+      },
+      {
         "command": "projectPanel.togglePromptsGroupMode",
         "title": "Toggle Prompts Group Mode",
         "icon": "$(list-flat)"
@@ -582,7 +592,12 @@
           "group": "navigation@3"
         },
         {
-          "command": "projectPanel.openToolsKeybindings",
+          "command": "projectPanel.generateToolsDocs",
+          "when": "view == projectPanelTools",
+          "group": "navigation@4"
+        },
+        {
+          "command": "projectPanel.addTool",
           "when": "view == projectPanelTools",
           "group": "navigation@5"
         },

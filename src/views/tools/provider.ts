@@ -95,6 +95,35 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     return match ? match[1] : null;
   }
 
+  private readToolDescription(toolName: string, folderPath: string): string | null {
+    const instructionsPath = `${folderPath}/${CONFIG_DIR_NAME}/tools/${toolName}/instructions.md`;
+    if (!fs.existsSync(instructionsPath)) return null;
+
+    const content = fs.readFileSync(instructionsPath, 'utf8');
+    const lines = content.split('\n');
+    const descriptionBuffer: string[] = [];
+    let inDescriptionSection = false;
+
+    for (const line of lines) {
+      if (line.startsWith('# ')) {
+        const section = line.slice(2).toLowerCase().trim();
+        inDescriptionSection = section === 'description';
+        continue;
+      }
+
+      if (inDescriptionSection) {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith('#')) {
+          descriptionBuffer.push(trimmed);
+        } else if (trimmed.startsWith('#')) {
+          break;
+        }
+      }
+    }
+
+    return descriptionBuffer.length > 0 ? descriptionBuffer.join(' ') : null;
+  }
+
   private createPPTool(tool: NonNullable<PPConfig['tools']>[number], folder: vscode.WorkspaceFolder): TreeTool | null {
     const hidden = isHidden(tool.name);
     const favorite = isFavorite(tool.name);
@@ -119,8 +148,9 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
       arguments: [task, folder],
     });
 
-    if (tool.description) {
-      treeTool.tooltip = tool.description;
+    const description = this.readToolDescription(tool.name, folder.uri.fsPath);
+    if (description) {
+      treeTool.tooltip = description;
     }
 
     if (hidden) {
