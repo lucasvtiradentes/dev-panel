@@ -17,7 +17,6 @@ import {
 } from './scripts-constants';
 
 export {
-  BRANCH_CONTEXT_FILE_NAME,
   CONFIG_DIR_KEY,
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,

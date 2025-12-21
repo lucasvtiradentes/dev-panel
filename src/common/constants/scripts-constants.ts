@@ -1,3 +1,5 @@
+import * as path from 'node:path';
+
 export const EXTENSION_PUBLISHER = 'lucasvtiradentes';
 export const EXTENSION_NAME = 'project-panel';
 export const EXTENSION_DISPLAY_NAME = 'Project Panel';
@@ -7,7 +9,9 @@ export const CONFIG_DIR_KEY = 'pp'; // Key used in workspace state objects (with
 export const DISPLAY_PREFIX = 'Project Panel:';
 export const CONFIG_FILE_NAME = 'config.jsonc';
 export const VARIABLES_FILE_NAME = 'variables.json';
-export const BRANCH_CONTEXT_FILE_NAME = '.branch-context.md';
+export const BRANCHES_DIR_NAME = 'branches';
+export const BRANCH_CONTEXT_FILENAME = 'branch-context.md';
+export const BRANCH_CONTEXT_GLOB_PATTERN = `${CONFIG_DIR_NAME}/${BRANCHES_DIR_NAME}/*/${BRANCH_CONTEXT_FILENAME}`;
 export const DEFAULT_EXCLUDES = ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/out/**'];
 
 export const CONTEXT_PREFIX = 'projectPanel';
@@ -43,4 +47,17 @@ export function buildExtensionId(isDev: boolean): string {
 
 export function buildLogFilename(isDev: boolean): string {
   return isDev ? `${LOG_BASENAME}-${DEV_SUFFIX}.log` : `${LOG_BASENAME}.log`;
+}
+
+export function sanitizeBranchName(branchName: string): string {
+  return branchName.replace(/[\/\\:*?"<>|]/g, '_');
+}
+
+export function getBranchDirectory(workspace: string, branchName: string): string {
+  const sanitized = sanitizeBranchName(branchName);
+  return path.join(workspace, CONFIG_DIR_NAME, BRANCHES_DIR_NAME, sanitized);
+}
+
+export function getBranchContextFilePath(workspace: string, branchName: string): string {
+  return path.join(getBranchDirectory(workspace, branchName), BRANCH_CONTEXT_FILENAME);
 }

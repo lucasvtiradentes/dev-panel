@@ -35,6 +35,7 @@ import { TodosProvider } from './views/todos';
 import { ToolTreeDataProvider } from './views/tools';
 import { reloadToolKeybindings } from './views/tools/keybindings-local';
 import { VariablesProvider } from './views/variables';
+import { createBranchWatcher } from './watchers/branch-watcher';
 import { createConfigWatcher } from './watchers/config-watcher';
 import { createKeybindingsWatcher } from './watchers/keybindings-watcher';
 
@@ -235,6 +236,14 @@ export function activate(context: vscode.ExtensionContext): object {
     taskTreeDataProvider.refresh();
   });
   context.subscriptions.push(keybindingsWatcher);
+
+  const branchWatcher = createBranchWatcher((newBranch) => {
+    logger.info(`Branch changed to: ${newBranch}`);
+    void branchContextProvider.setBranch(newBranch);
+    todosProvider.setBranch(newBranch);
+    void replacementsProvider.handleBranchChange(newBranch);
+  });
+  context.subscriptions.push(branchWatcher);
 
   const commandDisposables = registerAllCommands(
     context,

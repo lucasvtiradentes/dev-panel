@@ -1,29 +1,12 @@
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
-import { BRANCH_CONTEXT_FILE_NAME, getCommandId } from '../../common/constants/constants';
+import { getCommandId } from '../../common/constants/constants';
+import { BRANCH_CONTEXT_GLOB_PATTERN } from '../../common/constants/scripts-constants';
 import { Command } from '../../common/lib/vscode-utils';
 import { getBranchContextFilePath } from '../branch-context/markdown-parser';
-import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 
 function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
-}
-
-type GitAPI = {
-  repositories: GitRepository[];
-  onDidOpenRepository: vscode.Event<GitRepository>;
-};
-
-type GitRepository = {
-  state: { HEAD?: { name?: string } };
-  onDidCheckout: vscode.Event<void>;
-};
-
-async function getGitAPI(): Promise<GitAPI | null> {
-  const gitExtension = vscode.extensions.getExtension('vscode.git');
-  if (!gitExtension) return null;
-  if (!gitExtension.isActive) await gitExtension.activate();
-  return gitExtension.exports.getAPI(1);
 }
 
 type TodoNode = {
@@ -115,36 +98,12 @@ export class TodosProvider implements vscode.TreeDataProvider<TodoItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<TodoItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
-  private disposables: vscode.Disposable[] = [];
   private markdownWatcher: vscode.FileSystemWatcher | null = null;
   private currentBranch = '';
   private cachedNodes: TodoNode[] = [];
 
   constructor() {
-    this.setupGitWatcher();
     this.setupMarkdownWatcher();
-    this.initializeBranch();
-  }
-
-  private async setupGitWatcher(): Promise<void> {
-    const gitAPI = await getGitAPI();
-    if (!gitAPI) return;
-
-    for (const repo of gitAPI.repositories) {
-      this.attachRepoListeners(repo);
-    }
-
-    this.disposables.push(gitAPI.onDidOpenRepository((repo) => this.attachRepoListeners(repo)));
-  }
-
-  private attachRepoListeners(repo: GitRepository): void {
-    this.disposables.push(repo.onDidCheckout(() => this.handleBranchChange()));
-
-    const branchName = repo.state.HEAD?.name;
-    if (branchName && !this.currentBranch) {
-      this.currentBranch = branchName;
-      this.refresh();
-    }
   }
 
   private setupMarkdownWatcher(): void {
@@ -152,39 +111,21 @@ export class TodosProvider implements vscode.TreeDataProvider<TodoItem> {
     if (!workspace) return;
 
     this.markdownWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, BRANCH_CONTEXT_FILE_NAME),
+      new vscode.RelativePattern(workspace, BRANCH_CONTEXT_GLOB_PATTERN),
     );
 
     this.markdownWatcher.onDidChange(() => this.refresh());
   }
 
-  private async initializeBranch(): Promise<void> {
-    const workspace = getWorkspacePath();
-    if (!workspace) return;
-
-    if (await isGitRepository(workspace)) {
-      this.currentBranch = await getCurrentBranch(workspace);
+  setBranch(branchName: string): void {
+    if (branchName !== this.currentBranch) {
+      this.currentBranch = branchName;
       this.refresh();
     }
   }
 
-  private async handleBranchChange(): Promise<void> {
-    const workspace = getWorkspacePath();
-    if (!workspace) return;
-
-    try {
-      const newBranch = await getCurrentBranch(workspace);
-      if (newBranch !== this.currentBranch) {
-        this.currentBranch = newBranch;
-        this.refresh();
-      }
-    } catch {
-      // Ignore
-    }
-  }
-
   private loadTodos(): void {
-    const filePath = getBranchContextFilePath();
+    const filePath = getBranchContextFilePath(this.currentBranch);
 
     if (!filePath || !fs.existsSync(filePath)) {
       this.cachedNodes = [];
@@ -223,14 +164,10 @@ export class TodosProvider implements vscode.TreeDataProvider<TodoItem> {
       return element.node.children.map((child) => new TodoItem(child, child.children.length > 0));
     }
 
-    const workspace = getWorkspacePath();
-    if (!workspace) return [];
-
-    if (!(await isGitRepository(workspace))) return [];
+    this.loadTodos();
 
     if (!this.currentBranch) {
-      this.currentBranch = await getCurrentBranch(workspace);
-      this.loadTodos();
+      return [];
     }
 
     if (this.cachedNodes.length === 0) {
@@ -246,7 +183,7 @@ export class TodosProvider implements vscode.TreeDataProvider<TodoItem> {
   }
 
   toggleTodo(lineIndex: number): void {
-    const filePath = getBranchContextFilePath();
+    const filePath = getBranchContextFilePath(this.currentBranch);
     if (!filePath || !fs.existsSync(filePath)) return;
 
     const content = fs.readFileSync(filePath, 'utf-8');
@@ -270,9 +207,6 @@ export class TodosProvider implements vscode.TreeDataProvider<TodoItem> {
   }
 
   dispose(): void {
-    for (const d of this.disposables) {
-      d.dispose();
-    }
     this.markdownWatcher?.dispose();
   }
 }

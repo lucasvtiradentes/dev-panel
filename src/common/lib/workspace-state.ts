@@ -1,8 +1,6 @@
 import type * as vscode from 'vscode';
 import { CONFIG_DIR_KEY } from '../constants/constants';
 import {
-  type BranchContext,
-  type BranchesState,
   DEFAULT_PROMPTS_STATE,
   DEFAULT_REPLACEMENTS_STATE,
   DEFAULT_SOURCE_STATE,
@@ -385,33 +383,5 @@ export const replacementsState = {
     const replacements = this.load();
     replacements.lastBranch = branch;
     this.save(replacements);
-  },
-};
-
-export const branchesState = {
-  load(): BranchesState {
-    return getState().branches ?? {};
-  },
-  save(branchesState: BranchesState): void {
-    const state = getState();
-    state.branches = branchesState;
-    saveState(state);
-  },
-  getBranch(branchName: string): BranchContext {
-    return this.load()[branchName] ?? {};
-  },
-  saveBranch(branchName: string, context: BranchContext): void {
-    const branches = this.load();
-    branches[branchName] = context;
-    this.save(branches);
-  },
-  updateField(branchName: string, field: keyof BranchContext, value: string | undefined): void {
-    const branch = this.getBranch(branchName);
-    if (value === undefined || value === '') {
-      delete branch[field];
-    } else {
-      branch[field] = value;
-    }
-    this.saveBranch(branchName, branch);
   },
 };

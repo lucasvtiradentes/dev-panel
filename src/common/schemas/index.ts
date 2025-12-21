@@ -12,8 +12,6 @@ export {
 
 // VSCode workspace schema exports (for VSCode workspace state)
 export {
-  type BranchContext,
-  type BranchesState,
   type VariablesState,
   type PromptsState,
   type ReplacementsState,

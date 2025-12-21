@@ -1,8 +1,6 @@
 export {
   type PPConfig,
   type PPPrompt,
-  type BranchContext,
-  type BranchesState,
   type VariablesState,
   type PromptsState,
   type ReplacementsState,
@@ -18,6 +16,14 @@ export {
   DEFAULT_TOOLS_STATE,
   DEFAULT_WORKSPACE_UI_STATE,
 } from './index';
+
+export type BranchContext = {
+  prLink?: string;
+  linearLink?: string;
+  objective?: string;
+  notes?: string;
+  todos?: string;
+};
 
 export enum TaskSource {
   VSCode = 'vscode',

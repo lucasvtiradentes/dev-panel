@@ -1,8 +1,6 @@
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 import * as vscode from 'vscode';
-import { BRANCH_CONTEXT_FILE_NAME } from '../../common/constants';
-import type { BranchContext } from '../../common/schemas/types';
+import { getBranchContextFilePath as getBranchContextFilePathUtil } from '../../common/constants/scripts-constants';
 
 function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
@@ -35,42 +33,17 @@ function extractSection(content: string, sectionName: string): string | undefine
   return normalizeValue(sectionContent);
 }
 
-export function parseBranchContextMarkdown(): { branchName: string; context: BranchContext } | null {
+export function getBranchContextFilePath(branchName: string): string | null {
   const workspace = getWorkspacePath();
   if (!workspace) return null;
-
-  const mdPath = path.join(workspace, BRANCH_CONTEXT_FILE_NAME);
-  if (!fs.existsSync(mdPath)) return null;
-
-  const content = fs.readFileSync(mdPath, 'utf-8');
-
-  const branchMatch = content.match(/^#\s+(.+)$/m);
-  if (!branchMatch) return null;
-
-  const branchName = branchMatch[1].trim();
-
-  const context: BranchContext = {
-    prLink: extractField(content, 'PR LINK'),
-    linearLink: extractField(content, 'LINEAR LINK'),
-    objective: extractSection(content, 'OBJECTIVE'),
-    notes: extractSection(content, 'NOTES'),
-    todos: extractSection(content, 'TODO'),
-  };
-
-  return { branchName, context };
+  return getBranchContextFilePathUtil(workspace, branchName);
 }
 
-export function getBranchContextFilePath(): string | null {
-  const workspace = getWorkspacePath();
-  if (!workspace) return null;
-  return path.join(workspace, BRANCH_CONTEXT_FILE_NAME);
-}
-
-export function getFieldLineNumber(fieldName: string): number {
+export function getFieldLineNumber(branchName: string, fieldName: string): number {
   const workspace = getWorkspacePath();
   if (!workspace) return 0;
 
-  const mdPath = path.join(workspace, BRANCH_CONTEXT_FILE_NAME);
+  const mdPath = getBranchContextFilePathUtil(workspace, branchName);
   if (!fs.existsSync(mdPath)) return 0;
 
   const content = fs.readFileSync(mdPath, 'utf-8');

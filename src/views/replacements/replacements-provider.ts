@@ -73,7 +73,6 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     this._grouped = getIsGrouped();
     this.updateContextKeys();
     this.setupFileWatcher();
-    this.setupBranchWatcher();
     this.handleStartup();
   }
 
@@ -99,15 +98,6 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     this.configWatcher.onDidChange(() => this.refresh());
     this.configWatcher.onDidCreate(() => this.refresh());
     this.configWatcher.onDidDelete(() => this.refresh());
-  }
-
-  private setupBranchWatcher(): void {
-    const workspace = getWorkspacePath();
-    if (!workspace) return;
-
-    this.gitHeadWatcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(workspace, '.git/HEAD'));
-
-    this.gitHeadWatcher.onDidChange(() => this.handleBranchChange());
   }
 
   private async handleStartup(): Promise<void> {
@@ -136,13 +126,12 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     setActiveReplacements(activeReplacements);
   }
 
-  private async handleBranchChange(): Promise<void> {
+  async handleBranchChange(currentBranch: string): Promise<void> {
     const workspace = getWorkspacePath();
     if (!workspace) return;
 
     const lastBranch = getLastBranch();
     const activeReplacements = getActiveReplacements();
-    const currentBranch = await getCurrentBranch(workspace);
 
     if (lastBranch && lastBranch !== currentBranch && activeReplacements.length > 0) {
       const config = this.loadConfig();
