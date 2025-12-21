@@ -1,6 +1,9 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import * as vscode from 'vscode';
 import {
   BRANCH_CONTEXT_GLOB_PATTERN,
+  ROOT_BRANCH_CONTEXT_FILE_NAME,
   getBranchContextFilePath as getBranchContextFilePathUtil,
 } from '../../common/constants/scripts-constants';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
@@ -19,11 +22,14 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private markdownWatcher: vscode.FileSystemWatcher | null = null;
+  private rootMarkdownWatcher: vscode.FileSystemWatcher | null = null;
   private currentBranch = '';
   private isWritingMarkdown = false;
+  private isSyncing = false;
 
   constructor() {
     this.setupMarkdownWatcher();
+    this.setupRootMarkdownWatcher();
     this.initializeBranch();
   }
 
@@ -39,8 +45,20 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     this.markdownWatcher.onDidCreate((uri) => this.handleMarkdownChange(uri));
   }
 
+  private setupRootMarkdownWatcher(): void {
+    const workspace = getWorkspacePath();
+    if (!workspace) return;
+
+    this.rootMarkdownWatcher = vscode.workspace.createFileSystemWatcher(
+      new vscode.RelativePattern(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME),
+    );
+
+    this.rootMarkdownWatcher.onDidChange(() => this.handleRootMarkdownChange());
+    this.rootMarkdownWatcher.onDidCreate(() => this.handleRootMarkdownChange());
+  }
+
   private handleMarkdownChange(uri?: vscode.Uri): void {
-    if (this.isWritingMarkdown) return;
+    if (this.isWritingMarkdown || this.isSyncing) return;
 
     const workspace = getWorkspacePath();
     if (!workspace || !uri) return;
@@ -51,6 +69,14 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       return;
     }
 
+    this.syncBranchToRoot();
+    this.refresh();
+  }
+
+  private handleRootMarkdownChange(): void {
+    if (this.isWritingMarkdown || this.isSyncing) return;
+
+    this.syncRootToBranch();
     this.refresh();
   }
 
@@ -59,9 +85,28 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     if (!workspace) return;
 
     if (await isGitRepository(workspace)) {
+      this.addToGitExclude(workspace);
       this.currentBranch = await getCurrentBranch(workspace);
       await this.regenerateMarkdown();
       this.refresh();
+    }
+  }
+
+  private addToGitExclude(workspace: string): void {
+    const excludePath = path.join(workspace, '.git', 'info', 'exclude');
+    if (!fs.existsSync(excludePath)) return;
+
+    try {
+      const content = fs.readFileSync(excludePath, 'utf-8');
+
+      if (content.includes(ROOT_BRANCH_CONTEXT_FILE_NAME)) return;
+
+      const newContent = content.endsWith('\n')
+        ? `${content}${ROOT_BRANCH_CONTEXT_FILE_NAME}\n`
+        : `${content}\n${ROOT_BRANCH_CONTEXT_FILE_NAME}\n`;
+      fs.writeFileSync(excludePath, newContent);
+    } catch (error) {
+      console.error('Failed to update .git/info/exclude:', error);
     }
   }
 
@@ -84,9 +129,54 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     try {
       ensureBranchDirectory(workspace, this.currentBranch);
       await generateBranchContextMarkdown(this.currentBranch, context);
+      this.syncBranchToRoot();
     } finally {
       setTimeout(() => {
         this.isWritingMarkdown = false;
+      }, 100);
+    }
+  }
+
+  private syncRootToBranch(): void {
+    if (!this.currentBranch) return;
+
+    const workspace = getWorkspacePath();
+    if (!workspace) return;
+
+    const rootPath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
+    const branchPath = getBranchContextFilePathUtil(workspace, this.currentBranch);
+
+    if (!fs.existsSync(rootPath)) return;
+
+    this.isSyncing = true;
+    try {
+      const content = fs.readFileSync(rootPath, 'utf-8');
+      fs.writeFileSync(branchPath, content, 'utf-8');
+    } finally {
+      setTimeout(() => {
+        this.isSyncing = false;
+      }, 100);
+    }
+  }
+
+  private syncBranchToRoot(): void {
+    if (!this.currentBranch) return;
+
+    const workspace = getWorkspacePath();
+    if (!workspace) return;
+
+    const rootPath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
+    const branchPath = getBranchContextFilePathUtil(workspace, this.currentBranch);
+
+    if (!fs.existsSync(branchPath)) return;
+
+    this.isSyncing = true;
+    try {
+      const content = fs.readFileSync(branchPath, 'utf-8');
+      fs.writeFileSync(rootPath, content, 'utf-8');
+    } finally {
+      setTimeout(() => {
+        this.isSyncing = false;
       }, 100);
     }
   }
@@ -160,5 +250,6 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
   dispose(): void {
     this.markdownWatcher?.dispose();
+    this.rootMarkdownWatcher?.dispose();
   }
 }

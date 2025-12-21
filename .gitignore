@@ -9,3 +9,5 @@ out
 
 *.vsix
 .pp/variables.json
+.pp/branches/
+
