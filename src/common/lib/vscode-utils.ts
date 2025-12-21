@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getCommandId } from '../constants/constants';
+import { getCommandId } from '../constants/functions';
 import { CONTEXT_PREFIX } from '../constants/scripts-constants';
 
 export enum Command {

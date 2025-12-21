@@ -24,6 +24,12 @@ import {
   buildExtensionId,
   buildLogFilename,
 } from '../../src/common/constants/scripts-constants';
+import {
+  LICENSE_FILE,
+  PACKAGE_JSON,
+  README_FILE,
+  VSCODE_EXTENSIONS_FILE,
+} from '../../src/common/constants/vscode-constants';
 
 const logger = console;
 
@@ -88,23 +94,23 @@ async function patchExtensionCode() {
 
 async function writePackageJson() {
   const targetDir = getLocalDistDirectory();
-  const packageJsonPath = join(ROOT_DIR, 'package.json');
+  const packageJsonPath = join(ROOT_DIR, PACKAGE_JSON);
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   const modifiedPackageJson = applyDevTransformations(packageJson);
-  writeFileSync(join(targetDir, 'package.json'), JSON.stringify(modifiedPackageJson, null, 2));
+  writeFileSync(join(targetDir, PACKAGE_JSON), JSON.stringify(modifiedPackageJson, null, 2));
 }
 
 async function copyMetaFiles() {
   const targetDir = getLocalDistDirectory();
 
-  const licensePath = join(ROOT_DIR, 'LICENSE');
+  const licensePath = join(ROOT_DIR, LICENSE_FILE);
   if (existsSync(licensePath)) {
-    copyFileSync(licensePath, join(targetDir, 'LICENSE'));
+    copyFileSync(licensePath, join(targetDir, LICENSE_FILE));
   }
 
-  const readmePath = join(ROOT_DIR, 'README.md');
+  const readmePath = join(ROOT_DIR, README_FILE);
   if (existsSync(readmePath)) {
-    copyFileSync(readmePath, join(targetDir, 'README.md'));
+    copyFileSync(readmePath, join(targetDir, README_FILE));
   }
 }
 
@@ -134,7 +140,7 @@ async function copyToVSCodeExtensions() {
 
 async function registerExtensionInEditors() {
   const targetDir = getLocalDistDirectory();
-  const packageJsonPath = join(targetDir, 'package.json');
+  const packageJsonPath = join(targetDir, PACKAGE_JSON);
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   const version = packageJson.version as string;
 
@@ -142,7 +148,7 @@ async function registerExtensionInEditors() {
     const extensionsPath = getEditorExtensionsPath(editor);
     if (!existsSync(extensionsPath)) continue;
 
-    const extensionsJsonPath = join(extensionsPath, 'extensions.json');
+    const extensionsJsonPath = join(extensionsPath, VSCODE_EXTENSIONS_FILE);
     if (!existsSync(extensionsJsonPath)) continue;
 
     try {

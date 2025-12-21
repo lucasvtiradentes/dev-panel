@@ -2,7 +2,14 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId } from '../../common';
-import { CONFIG_DIR_KEY, CONFIG_DIR_NAME, CONFIG_FILE_NAME, NO_GROUP_NAME } from '../../common/constants';
+import {
+  CONFIG_DIR_KEY,
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  CONTEXT_VALUES,
+  NO_GROUP_NAME,
+  TOOL_INSTRUCTIONS_FILE,
+} from '../../common/constants';
 import { toolsState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas/types';
 import { BaseTreeDataProvider, type ProviderConfig } from '../common';
@@ -96,7 +103,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   }
 
   private readToolDescription(toolName: string, folderPath: string): string | null {
-    const instructionsPath = `${folderPath}/${CONFIG_DIR_NAME}/tools/${toolName}/instructions.md`;
+    const instructionsPath = `${folderPath}/${CONFIG_DIR_NAME}/tools/${toolName}/${TOOL_INSTRUCTIONS_FILE}`;
     if (!fs.existsSync(instructionsPath)) return null;
 
     const content = fs.readFileSync(instructionsPath, 'utf8');
@@ -155,10 +162,10 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
 
     if (hidden) {
       treeTool.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
-      treeTool.contextValue = 'tool-hidden';
+      treeTool.contextValue = CONTEXT_VALUES.TOOL_HIDDEN;
     } else if (favorite) {
       treeTool.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
-      treeTool.contextValue = 'tool-favorite';
+      treeTool.contextValue = CONTEXT_VALUES.TOOL_FAVORITE;
     }
 
     return treeTool;

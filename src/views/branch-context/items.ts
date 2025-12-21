@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getCommandId } from '../../common/constants/constants';
+import { BRANCH_FIELD_DESCRIPTION_MAX_LENGTH, CONTEXT_VALUES, getCommandId } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
 
 export class BranchHeaderItem extends vscode.TreeItem {
@@ -7,7 +7,7 @@ export class BranchHeaderItem extends vscode.TreeItem {
     super('Branch', vscode.TreeItemCollapsibleState.None);
     this.description = branchName;
     this.iconPath = new vscode.ThemeIcon('git-branch');
-    this.contextValue = 'branchHeader';
+    this.contextValue = CONTEXT_VALUES.BRANCH_HEADER;
     this.tooltip = 'Click to switch branch';
     this.command = {
       command: 'git.checkout',
@@ -39,9 +39,9 @@ export class BranchContextFieldItem extends vscode.TreeItem {
     const config = FIELD_CONFIG[fieldKey];
     super(config.label, vscode.TreeItemCollapsibleState.None);
 
-    this.description = value ? truncate(value, 50) : '(not set)';
+    this.description = value ? truncate(value, BRANCH_FIELD_DESCRIPTION_MAX_LENGTH) : '(not set)';
     this.tooltip = value ?? `Click to set ${config.label.toLowerCase()}`;
-    this.contextValue = 'branchContextField';
+    this.contextValue = CONTEXT_VALUES.BRANCH_CONTEXT_FIELD;
     this.iconPath = new vscode.ThemeIcon(config.icon);
 
     this.command = {

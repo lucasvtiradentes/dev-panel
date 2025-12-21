@@ -6,6 +6,7 @@ import {
   CONFIG_DIR_KEY,
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
+  CONTEXT_VALUES,
   NO_GROUP_NAME,
   VARIABLES_FILE_NAME,
 } from '../../common/constants';
@@ -129,10 +130,10 @@ function createPPTask(
 
   if (hidden) {
     treeTask.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
-    treeTask.contextValue = 'task-hidden';
+    treeTask.contextValue = CONTEXT_VALUES.TASK_HIDDEN;
   } else if (favorite) {
     treeTask.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
-    treeTask.contextValue = 'task-favorite';
+    treeTask.contextValue = CONTEXT_VALUES.TASK_FAVORITE;
   }
 
   return treeTask;

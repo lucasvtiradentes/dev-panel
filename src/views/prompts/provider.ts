@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, createLogger, getCommandId } from '../../common';
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, NO_GROUP_NAME } from '../../common/constants';
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, CONTEXT_VALUES, NO_GROUP_NAME } from '../../common/constants';
 import { promptsState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas/types';
 import { BaseTreeDataProvider, type ProviderConfig } from '../common';
@@ -135,10 +135,10 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
 
     if (hidden) {
       treePrompt.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
-      treePrompt.contextValue = 'prompt-hidden';
+      treePrompt.contextValue = CONTEXT_VALUES.PROMPT_HIDDEN;
     } else if (favorite) {
       treePrompt.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
-      treePrompt.contextValue = 'prompt-favorite';
+      treePrompt.contextValue = CONTEXT_VALUES.PROMPT_FAVORITE;
     }
 
     return treePrompt;

@@ -2,7 +2,14 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { Command, registerCommand } from '../../common';
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../../common/constants';
+import {
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  PACKAGE_JSON,
+  VSCODE_DIR,
+  VSCODE_TASKS_FILE,
+  VSCODE_TASKS_PATH,
+} from '../../common/constants';
 import { TaskSource } from '../../common/schemas/types';
 import { getExcludedDirs } from '../../views/tasks/package-json';
 import { getCurrentSource } from '../../views/tasks/state';
@@ -21,7 +28,7 @@ async function findAllPackageJsons(folder: vscode.WorkspaceFolder): Promise<stri
 
       if (entry.isDirectory()) {
         await scan(fullPath);
-      } else if (entry.name === 'package.json') {
+      } else if (entry.name === PACKAGE_JSON) {
         packageJsons.push(fullPath);
       }
     }
@@ -60,12 +67,12 @@ export function createOpenTasksConfigCommand() {
 
     switch (source) {
       case TaskSource.VSCode: {
-        const tasksJsonPath = path.join(workspacePath, '.vscode', 'tasks.json');
+        const tasksJsonPath = path.join(workspacePath, VSCODE_DIR, VSCODE_TASKS_FILE);
         if (fs.existsSync(tasksJsonPath)) {
           const uri = vscode.Uri.file(tasksJsonPath);
           await vscode.window.showTextDocument(uri);
         } else {
-          void vscode.window.showErrorMessage('.vscode/tasks.json not found');
+          void vscode.window.showErrorMessage(`${VSCODE_TASKS_PATH} not found`);
         }
         break;
       }
@@ -99,7 +106,7 @@ export function createOpenTasksConfigCommand() {
         const packageJsons = await findAllPackageJsons(workspace);
 
         if (packageJsons.length === 0) {
-          void vscode.window.showErrorMessage('No package.json found');
+          void vscode.window.showErrorMessage(`No ${PACKAGE_JSON} found`);
         } else if (packageJsons.length === 1) {
           await openPackageJsonAtScripts(packageJsons[0]);
         } else {
@@ -109,7 +116,7 @@ export function createOpenTasksConfigCommand() {
           }));
 
           const selected = await vscode.window.showQuickPick(items, {
-            placeHolder: 'Select package.json to open',
+            placeHolder: `Select ${PACKAGE_JSON} to open`,
           });
 
           if (selected) {

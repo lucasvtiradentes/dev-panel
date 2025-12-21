@@ -8,6 +8,7 @@ import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
+  CONTEXT_VALUES,
   DEFAULT_EXCLUDES,
   DISPLAY_PREFIX,
   NO_GROUP_NAME,
@@ -91,7 +92,7 @@ class GroupTreeItem extends vscode.TreeItem {
     public readonly variables: VariableItem[],
   ) {
     super(groupName, vscode.TreeItemCollapsibleState.Expanded);
-    this.contextValue = 'groupItem';
+    this.contextValue = CONTEXT_VALUES.GROUP_ITEM;
   }
 }
 
@@ -101,7 +102,7 @@ export class VariableTreeItem extends vscode.TreeItem {
     currentValue?: string | boolean | string[],
   ) {
     super(variable.name, vscode.TreeItemCollapsibleState.None);
-    this.contextValue = 'variableItem';
+    this.contextValue = CONTEXT_VALUES.VARIABLE_ITEM;
     const keybinding = getVariableKeybinding(variable.name);
     const value = formatValue(currentValue, variable);
     this.description = keybinding ? `${value} • ${keybinding}` : value;

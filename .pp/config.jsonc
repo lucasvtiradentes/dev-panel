@@ -125,58 +125,7 @@
       "name": "Review Constants",
       "file": "prompts/review-constants.md",
       "description": "Review constants and suggest centralizing hardcoded values",
-      "group": "Analysis",
-      "saveOutput": true
-    },
-    {
-      "name": "Review Code",
-      "file": "prompts/review-code.md",
-      "description": "Review files for issues and improvements",
-      "group": "Analysis",
-      "saveOutput": true,
-      "inputs": [
-        { "name": "files", "type": "file", "multiSelect": true, "label": "Select files to review" },
-        {
-          "name": "focus",
-          "type": "multichoice",
-          "label": "Review focus areas",
-          "options": ["bugs", "performance", "security", "code-quality", "architecture"]
-        }
-      ]
-    },
-    {
-      "name": "Explain Code",
-      "file": "prompts/explain-code.md",
-      "description": "Explain code in detail",
-      "group": "Analysis",
-      "saveOutput": true,
-      "inputs": [
-        { "name": "target", "type": "folder", "label": "Select folder to explain" },
-        {
-          "name": "depth",
-          "type": "choice",
-          "label": "Explanation depth",
-          "options": ["overview", "detailed", "comprehensive"]
-        }
-      ]
-    },
-    {
-      "name": "Add Tests",
-      "file": "prompts/add-tests.md",
-      "description": "Generate tests for file(s)",
-      "group": "Generate",
-      "saveOutput": true,
-      "inputs": [
-        { "name": "file", "type": "file", "label": "Select file to test" },
-        { "name": "testCount", "type": "number", "label": "Number of test cases", "placeholder": "5" },
-        { "name": "includeEdgeCases", "type": "confirm", "label": "Include edge cases?" },
-        {
-          "name": "testStyle",
-          "type": "choice",
-          "label": "Test style",
-          "options": ["unit", "integration", "e2e"]
-        }
-      ]
+      "group": "Analysis"
     },
     {
       "name": "Explain Flow",

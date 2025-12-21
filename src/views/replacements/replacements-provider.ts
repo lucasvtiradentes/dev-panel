@@ -3,7 +3,13 @@ import * as path from 'node:path';
 import json5 from 'json5';
 import * as vscode from 'vscode';
 import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, DISPLAY_PREFIX, NO_GROUP_NAME } from '../../common/constants';
+import {
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  CONTEXT_VALUES,
+  DISPLAY_PREFIX,
+  NO_GROUP_NAME,
+} from '../../common/constants';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
 import { getReplacementKeybinding } from './keybindings-local';
@@ -29,7 +35,7 @@ class ReplacementGroupTreeItem extends vscode.TreeItem {
     public readonly replacements: Replacement[],
   ) {
     super(groupName, vscode.TreeItemCollapsibleState.Expanded);
-    this.contextValue = 'replacementGroup';
+    this.contextValue = CONTEXT_VALUES.REPLACEMENT_GROUP;
   }
 }
 
@@ -44,7 +50,7 @@ class ReplacementTreeItem extends vscode.TreeItem {
     const status = isActive ? 'ON' : 'OFF';
     this.description = keybinding ? keybinding : '';
     this.tooltip = replacement.description || replacement.name;
-    this.contextValue = 'replacementItem';
+    this.contextValue = CONTEXT_VALUES.REPLACEMENT_ITEM;
 
     if (isActive) {
       this.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));

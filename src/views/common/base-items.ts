@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { CONTEXT_VALUES } from '../../common/constants';
 import type { GroupTreeItem as IGroupTreeItem, NamedTreeItem } from './types';
 
 export abstract class BaseNamedTreeItem extends vscode.TreeItem implements NamedTreeItem {
@@ -15,7 +16,7 @@ export class BaseGroupTreeItem<T extends NamedTreeItem> extends vscode.TreeItem 
 
   constructor(groupName: string) {
     super(groupName, vscode.TreeItemCollapsibleState.Expanded);
-    this.contextValue = 'group';
+    this.contextValue = CONTEXT_VALUES.GROUP;
   }
 
   getName(): string {

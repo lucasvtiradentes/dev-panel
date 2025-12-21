@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { getWorkspaceId } from '../common';
-import { CONTEXT_PREFIX } from '../common/constants';
+import { CONTEXT_PREFIX, KEYBINDINGS_FILE } from '../common/constants';
 import { getVSCodeKeybindingsPath } from '../lib/vscode-keybindings-utils';
 
 type KeybindingEntry = { key: string; command: string; when?: string };
@@ -59,7 +59,7 @@ export function createKeybindingsWatcher(onKeybindingsChange: () => void): vscod
   }
 
   const watcher = vscode.workspace.createFileSystemWatcher(
-    new vscode.RelativePattern(path.dirname(keybindingsPath), 'keybindings.json'),
+    new vscode.RelativePattern(path.dirname(keybindingsPath), KEYBINDINGS_FILE),
   );
 
   const handleChange = () => {

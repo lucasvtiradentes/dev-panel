@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
-import { getCommandId } from '../../common/constants/constants';
+import { CONTEXT_VALUES, getCommandId } from '../../common/constants';
 import { BRANCH_CONTEXT_GLOB_PATTERN } from '../../common/constants/scripts-constants';
 import { Command } from '../../common/lib/vscode-utils';
 import { getBranchContextFilePath } from '../branch-context/markdown-parser';
@@ -24,7 +24,7 @@ export class TodoItem extends vscode.TreeItem {
   ) {
     const label = node.isHeading ? node.text : hasChildren ? ` ${node.text}` : node.text;
     super(label, hasChildren ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
-    this.contextValue = 'todoItem';
+    this.contextValue = CONTEXT_VALUES.TODO_ITEM;
 
     if (hasChildren) {
       this.iconPath = undefined;

@@ -1,4 +1,4 @@
-export * from './constants/constants';
+export * from './constants';
 export * from './lib/extension-config';
 export * from './lib/logger';
 export * from './lib/prompt-inputs';

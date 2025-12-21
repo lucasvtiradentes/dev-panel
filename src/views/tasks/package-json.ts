@@ -6,8 +6,10 @@ import { Command, getCommandId } from '../../common';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
+  CONTEXT_VALUES,
   DEFAULT_EXCLUDED_DIRS,
   NO_GROUP_NAME,
+  PACKAGE_JSON,
   VARIABLES_FILE_NAME,
 } from '../../common/constants';
 import { type PPConfig, TaskSource } from '../../common/schemas/types';
@@ -175,7 +177,7 @@ function findPackageJsonsRecursive(dir: string, excludedDirs: Set<string>, maxDe
     const entries = fs.readdirSync(dir, { withFileTypes: true });
 
     for (const entry of entries) {
-      if (entry.name === 'package.json' && entry.isFile()) {
+      if (entry.name === PACKAGE_JSON && entry.isFile()) {
         results.push(path.join(dir, entry.name));
       } else if (entry.isDirectory() && !excludedDirs.has(entry.name) && !entry.name.startsWith('dist-')) {
         results.push(
@@ -290,10 +292,10 @@ function createNpmTask(
 
   if (hidden) {
     treeTask.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
-    treeTask.contextValue = 'task-hidden';
+    treeTask.contextValue = CONTEXT_VALUES.TASK_HIDDEN;
   } else if (favorite) {
     treeTask.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
-    treeTask.contextValue = 'task-favorite';
+    treeTask.contextValue = CONTEXT_VALUES.TASK_FAVORITE;
   }
 
   return treeTask;

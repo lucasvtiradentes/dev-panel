@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { isMultiRootWorkspace } from '../../common';
-import { NO_GROUP_NAME } from '../../common/constants';
+import { CONTEXT_VALUES, NO_GROUP_NAME, VSCODE_TASKS_PATH } from '../../common/constants';
 import type { CodeWorkspaceFile, TaskDefinition, TasksJson } from '../../common/schemas/types';
 import { BaseGroupTreeItem } from '../common';
 
@@ -50,7 +50,7 @@ export class TreeTask extends vscode.TreeItem {
     this.label = `${this.label as string}`;
     this.group = group;
     this.taskName = label;
-    this.contextValue = 'task';
+    this.contextValue = CONTEXT_VALUES.TASK;
 
     if (typeof workspace === 'object' && workspace !== null) {
       this.workspace = workspace.name;
@@ -89,7 +89,7 @@ export class TreeTask extends vscode.TreeItem {
   private loadTasksJson(workspaceFolder: vscode.WorkspaceFolder, multiRoot: boolean): TasksJson | null {
     const basePath = workspaceFolder.uri.fsPath;
     const codeWorkspacePath = `${basePath}/${workspaceFolder.name}.code-workspace`;
-    const tasksJsonPath = `${basePath}/.vscode/tasks.json`;
+    const tasksJsonPath = `${basePath}/${VSCODE_TASKS_PATH}`;
 
     if (multiRoot && fs.existsSync(codeWorkspacePath)) {
       const codeWorkspace = JSON5.parse(fs.readFileSync(codeWorkspacePath, 'utf8')) as CodeWorkspaceFile;
