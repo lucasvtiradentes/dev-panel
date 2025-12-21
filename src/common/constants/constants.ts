@@ -42,3 +42,14 @@ export const BRANCH_FIELD_DESCRIPTION_MAX_LENGTH = 50;
 export const CLAUDE_DIR = '.claude';
 export const SKILLS_DIR = 'skills';
 export const TOOLS_DIR = 'tools';
+
+export const BRANCH_CONTEXT_SECTION_OBJECTIVE = '# OBJECTIVE';
+export const BRANCH_CONTEXT_SECTION_NOTES = '# NOTES';
+export const BRANCH_CONTEXT_SECTION_TODO = '# TODO';
+
+export const BRANCH_CONTEXT_FIELD_PR_LINK = 'PR LINK:';
+export const BRANCH_CONTEXT_FIELD_LINEAR_LINK = 'LINEAR LINK:';
+
+export const TODO_CHECKBOX_UNCHECKED = '[ ]';
+export const TODO_CHECKBOX_CHECKED_LOWER = '[x]';
+export const TODO_CHECKBOX_CHECKED_UPPER = '[X]';

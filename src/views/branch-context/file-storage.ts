@@ -1,5 +1,13 @@
 import * as fs from 'node:fs';
-import { BRANCH_CONTEXT_DEFAULT_TODOS, BRANCH_CONTEXT_NA } from '../../common/constants';
+import {
+  BRANCH_CONTEXT_DEFAULT_TODOS,
+  BRANCH_CONTEXT_FIELD_LINEAR_LINK,
+  BRANCH_CONTEXT_FIELD_PR_LINK,
+  BRANCH_CONTEXT_NA,
+  BRANCH_CONTEXT_SECTION_NOTES,
+  BRANCH_CONTEXT_SECTION_OBJECTIVE,
+  BRANCH_CONTEXT_SECTION_TODO,
+} from '../../common/constants';
 import { getBranchContextFilePath, getBranchDirectory } from '../../common/constants/scripts-constants';
 import type { BranchContext } from '../../common/schemas/types';
 
@@ -37,18 +45,18 @@ function generateMarkdown(branchName: string, context: BranchContext): string {
   const lines = [
     `# ${branchName}`,
     '',
-    `PR LINK: ${context.prLink || BRANCH_CONTEXT_NA}`,
-    `LINEAR LINK: ${context.linearLink || BRANCH_CONTEXT_NA}`,
+    `${BRANCH_CONTEXT_FIELD_PR_LINK} ${context.prLink || BRANCH_CONTEXT_NA}`,
+    `${BRANCH_CONTEXT_FIELD_LINEAR_LINK} ${context.linearLink || BRANCH_CONTEXT_NA}`,
     '',
-    '# OBJECTIVE',
+    BRANCH_CONTEXT_SECTION_OBJECTIVE,
     '',
     context.objective || BRANCH_CONTEXT_NA,
     '',
-    '# NOTES',
+    BRANCH_CONTEXT_SECTION_NOTES,
     '',
     context.notes || BRANCH_CONTEXT_NA,
     '',
-    '# TODO',
+    BRANCH_CONTEXT_SECTION_TODO,
     '',
     context.todos || BRANCH_CONTEXT_DEFAULT_TODOS,
     '',
@@ -84,8 +92,8 @@ function extractSection(content: string, sectionName: string): string | undefine
 
 function parseBranchContext(content: string): BranchContext {
   const context: BranchContext = {
-    prLink: extractField(content, 'PR LINK'),
-    linearLink: extractField(content, 'LINEAR LINK'),
+    prLink: extractField(content, BRANCH_CONTEXT_FIELD_PR_LINK.replace(':', '')),
+    linearLink: extractField(content, BRANCH_CONTEXT_FIELD_LINEAR_LINK.replace(':', '')),
     objective: extractSection(content, 'OBJECTIVE'),
     notes: extractSection(content, 'NOTES'),
     todos: extractSection(content, 'TODO'),

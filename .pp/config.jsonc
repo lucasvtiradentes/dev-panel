@@ -125,7 +125,8 @@
       "name": "Review Constants",
       "file": "prompts/review-constants.md",
       "description": "Review constants and suggest centralizing hardcoded values",
-      "group": "Analysis"
+      "group": "Analysis",
+      "saveOutput": true
     },
     {
       "name": "Explain Flow",

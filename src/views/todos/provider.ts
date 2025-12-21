@@ -1,6 +1,12 @@
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
-import { CONTEXT_VALUES, getCommandId } from '../../common/constants';
+import {
+  CONTEXT_VALUES,
+  TODO_CHECKBOX_CHECKED_LOWER,
+  TODO_CHECKBOX_CHECKED_UPPER,
+  TODO_CHECKBOX_UNCHECKED,
+  getCommandId,
+} from '../../common/constants';
 import { BRANCH_CONTEXT_GLOB_PATTERN } from '../../common/constants/scripts-constants';
 import { Command } from '../../common/lib/vscode-utils';
 import { getBranchContextFilePath } from '../branch-context/markdown-parser';
@@ -196,10 +202,10 @@ export class TodosProvider implements vscode.TreeDataProvider<TodoItem> {
     if (actualLineIndex >= lines.length) return;
 
     const line = lines[actualLineIndex];
-    if (line.includes('[ ]')) {
-      lines[actualLineIndex] = line.replace('[ ]', '[x]');
-    } else if (line.includes('[x]') || line.includes('[X]')) {
-      lines[actualLineIndex] = line.replace(/\[[xX]\]/, '[ ]');
+    if (line.includes(TODO_CHECKBOX_UNCHECKED)) {
+      lines[actualLineIndex] = line.replace(TODO_CHECKBOX_UNCHECKED, TODO_CHECKBOX_CHECKED_LOWER);
+    } else if (line.includes(TODO_CHECKBOX_CHECKED_LOWER) || line.includes(TODO_CHECKBOX_CHECKED_UPPER)) {
+      lines[actualLineIndex] = line.replace(/\[[xX]\]/, TODO_CHECKBOX_UNCHECKED);
     }
 
     fs.writeFileSync(filePath, lines.join('\n'));
