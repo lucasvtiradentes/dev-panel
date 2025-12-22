@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
-import { NO_GROUP_NAME } from '../../common/constants';
+import { DND_MIME_TYPE_TASKS, NO_GROUP_NAME } from '../../common/constants';
 import { ExtensionConfigKey, getExtensionConfig } from '../../common/lib/extension-config';
 import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
+import { tasksState } from '../../common/lib/workspace-state';
 import { TASK_SOURCES, TaskSource } from '../../common/schemas/types';
-import { TaskDragAndDropController } from './dnd-controller';
+import { createSourcedDragAndDropController } from '../common';
 import { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
 import { getPackageScripts, hasPackageGroups } from './package-json';
 import { getPPTasks, hasPPGroups } from './pp-tasks';
@@ -145,12 +146,14 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     return this._source;
   }
 
-  get dragAndDropController(): TaskDragAndDropController {
-    return new TaskDragAndDropController(
-      () => this._source,
-      () => this._grouped,
-      () => this.refresh(),
-    );
+  get dragAndDropController() {
+    return createSourcedDragAndDropController<TreeTask, TaskSource>({
+      mimeType: DND_MIME_TYPE_TASKS,
+      stateManager: tasksState,
+      getIsGrouped: () => this._grouped,
+      getSource: () => this._source,
+      onReorder: () => this.refresh(),
+    });
   }
 
   private sortElements(

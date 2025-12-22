@@ -6,6 +6,7 @@ import {
   CONFIG_DIR_KEY,
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
+  DND_MIME_TYPE_TOOLS,
   GLOBAL_ITEM_PREFIX,
   NO_GROUP_NAME,
   SHELL_SCRIPT_PATTERN,
@@ -20,8 +21,7 @@ import { globalToolsState } from '../../common/lib/global-state';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas';
-import { BaseTreeDataProvider, type ProviderConfig } from '../common';
-import { ToolDragAndDropController } from './dnd-controller';
+import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../common';
 import { ToolGroupTreeItem, TreeTool } from './items';
 import { isFavorite, isHidden } from './state';
 
@@ -39,7 +39,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   private _treeView: vscode.TreeView<TreeTool | ToolGroupTreeItem> | null = null;
 
   constructor() {
-    super(toolsState, TOOLS_CONFIG, null);
+    super(toolsState, TOOLS_CONFIG, null, globalToolsState);
   }
 
   setTreeView(treeView: vscode.TreeView<TreeTool | ToolGroupTreeItem>): void {
@@ -51,8 +51,10 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     super.refresh();
   }
 
-  get dragAndDropController(): ToolDragAndDropController {
-    return new ToolDragAndDropController(
+  get dragAndDropController() {
+    return createDragAndDropController<TreeTool>(
+      DND_MIME_TYPE_TOOLS,
+      toolsState,
       () => this._grouped,
       () => this.refresh(),
     );
@@ -68,46 +70,6 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     const workspaceFavorites = this.stateManager.getFavoriteItems();
     const globalFavorites = globalToolsState.getSourceState().favorites.map((name) => `${GLOBAL_ITEM_PREFIX}${name}`);
     return [...workspaceFavorites, ...globalFavorites];
-  }
-
-  toggleFavorite(item: TreeTool): void {
-    const name = item.getName();
-    if (!name) return;
-
-    if (name.startsWith(GLOBAL_ITEM_PREFIX)) {
-      globalToolsState.toggleFavorite(name.substring(GLOBAL_ITEM_PREFIX.length));
-    } else {
-      toolsState.toggleFavorite(name);
-    }
-
-    const favoriteItems = this.getFavoriteItems();
-    if (this._showOnlyFavorites && favoriteItems.length === 0) {
-      this._showOnlyFavorites = false;
-      toolsState.saveShowOnlyFavorites(this._showOnlyFavorites);
-    }
-
-    this.updateContextKeys();
-    this._onDidChangeTreeData.fire(null);
-  }
-
-  toggleHide(item: TreeTool): void {
-    const name = item.getName();
-    if (!name) return;
-
-    if (name.startsWith(GLOBAL_ITEM_PREFIX)) {
-      globalToolsState.toggleHidden(name.substring(GLOBAL_ITEM_PREFIX.length));
-    } else {
-      toolsState.toggleHidden(name);
-    }
-
-    const hiddenItems = this.getHiddenItems();
-    if (this._showHidden && hiddenItems.length === 0) {
-      this._showHidden = false;
-      toolsState.saveShowHidden(this._showHidden);
-    }
-
-    this.updateContextKeys();
-    this._onDidChangeTreeData.fire(null);
   }
 
   public async getChildren(item?: TreeTool | ToolGroupTreeItem): Promise<Array<TreeTool | ToolGroupTreeItem>> {

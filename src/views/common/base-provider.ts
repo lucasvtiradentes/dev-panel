@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { NO_GROUP_NAME } from '../../common/constants';
+import { GLOBAL_ITEM_PREFIX, NO_GROUP_NAME } from '../../common/constants';
 import { type ContextKey, setContextKey } from '../../common/lib/vscode-utils';
-import type { GroupTreeItem, NamedTreeItem, SimpleStateManager, StateManager } from './types';
+import type { GlobalStateManager, GroupTreeItem, NamedTreeItem, SimpleStateManager, StateManager } from './types';
 
 export type ProviderConfig<TSource = void> = {
   contextKeys: {
@@ -30,6 +30,7 @@ export abstract class BaseTreeDataProvider<
     protected readonly stateManager: StateManager<TSource> | SimpleStateManager,
     protected readonly config: ProviderConfig<TSource>,
     protected readonly getSource: (() => TSource) | null,
+    protected readonly globalStateManager?: GlobalStateManager,
   ) {
     this._onDidChangeTreeData = new vscode.EventEmitter<TItem | TGroup | null>();
     this.onDidChangeTreeData = this._onDidChangeTreeData.event;
@@ -119,50 +120,54 @@ export abstract class BaseTreeDataProvider<
 
   toggleFavorite(item: TItem): void {
     const name = item.getName();
-    if (name) {
-      if (this.isSimpleStateManager(this.stateManager)) {
-        this.stateManager.toggleFavorite(name);
-      } else if (this.getSource) {
-        this.stateManager.toggleFavorite(this.getSource(), name);
-      }
+    if (!name) return;
 
-      const favoriteItems = this.getFavoriteItems();
-      if (this._showOnlyFavorites && favoriteItems.length === 0) {
-        this._showOnlyFavorites = false;
-        if (this.isSimpleStateManager(this.stateManager)) {
-          this.stateManager.saveShowOnlyFavorites(this._showOnlyFavorites);
-        } else if (this.getSource) {
-          this.stateManager.saveShowOnlyFavorites(this.getSource(), this._showOnlyFavorites);
-        }
-      }
-
-      this.updateContextKeys();
-      this._onDidChangeTreeData.fire(null);
+    if (name.startsWith(GLOBAL_ITEM_PREFIX) && this.globalStateManager) {
+      this.globalStateManager.toggleFavorite(name.substring(GLOBAL_ITEM_PREFIX.length));
+    } else if (this.isSimpleStateManager(this.stateManager)) {
+      this.stateManager.toggleFavorite(name);
+    } else if (this.getSource) {
+      this.stateManager.toggleFavorite(this.getSource(), name);
     }
+
+    const favoriteItems = this.getFavoriteItems();
+    if (this._showOnlyFavorites && favoriteItems.length === 0) {
+      this._showOnlyFavorites = false;
+      if (this.isSimpleStateManager(this.stateManager)) {
+        this.stateManager.saveShowOnlyFavorites(this._showOnlyFavorites);
+      } else if (this.getSource) {
+        this.stateManager.saveShowOnlyFavorites(this.getSource(), this._showOnlyFavorites);
+      }
+    }
+
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire(null);
   }
 
   toggleHide(item: TItem): void {
     const name = item.getName();
-    if (name) {
-      if (this.isSimpleStateManager(this.stateManager)) {
-        this.stateManager.toggleHidden(name);
-      } else if (this.getSource) {
-        this.stateManager.toggleHidden(this.getSource(), name);
-      }
+    if (!name) return;
 
-      const hiddenItems = this.getHiddenItems();
-      if (this._showHidden && hiddenItems.length === 0) {
-        this._showHidden = false;
-        if (this.isSimpleStateManager(this.stateManager)) {
-          this.stateManager.saveShowHidden(this._showHidden);
-        } else if (this.getSource) {
-          this.stateManager.saveShowHidden(this.getSource(), this._showHidden);
-        }
-      }
-
-      this.updateContextKeys();
-      this._onDidChangeTreeData.fire(null);
+    if (name.startsWith(GLOBAL_ITEM_PREFIX) && this.globalStateManager) {
+      this.globalStateManager.toggleHidden(name.substring(GLOBAL_ITEM_PREFIX.length));
+    } else if (this.isSimpleStateManager(this.stateManager)) {
+      this.stateManager.toggleHidden(name);
+    } else if (this.getSource) {
+      this.stateManager.toggleHidden(this.getSource(), name);
     }
+
+    const hiddenItems = this.getHiddenItems();
+    if (this._showHidden && hiddenItems.length === 0) {
+      this._showHidden = false;
+      if (this.isSimpleStateManager(this.stateManager)) {
+        this.stateManager.saveShowHidden(this._showHidden);
+      } else if (this.getSource) {
+        this.stateManager.saveShowHidden(this.getSource(), this._showHidden);
+      }
+    }
+
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire(null);
   }
 
   refresh(): void {

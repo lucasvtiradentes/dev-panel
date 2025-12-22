@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
+  DND_MIME_TYPE_PROMPTS,
   GLOBAL_ITEM_PREFIX,
   NO_GROUP_NAME,
   getCommandId,
@@ -16,8 +17,7 @@ import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { promptsState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas';
-import { BaseTreeDataProvider, type ProviderConfig } from '../common';
-import { PromptDragAndDropController } from './dnd-controller';
+import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../common';
 import { PromptGroupTreeItem, TreePrompt } from './items';
 import { getPromptKeybinding } from './keybindings-local';
 import { isFavorite, isHidden } from './state';
@@ -38,7 +38,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
   private _treeView: vscode.TreeView<TreePrompt | PromptGroupTreeItem> | null = null;
 
   constructor() {
-    super(promptsState, PROMPTS_CONFIG, null);
+    super(promptsState, PROMPTS_CONFIG, null, globalPromptsState);
   }
 
   setTreeView(treeView: vscode.TreeView<TreePrompt | PromptGroupTreeItem>): void {
@@ -51,8 +51,10 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     super.refresh();
   }
 
-  get dragAndDropController(): PromptDragAndDropController {
-    return new PromptDragAndDropController(
+  get dragAndDropController() {
+    return createDragAndDropController<TreePrompt>(
+      DND_MIME_TYPE_PROMPTS,
+      promptsState,
       () => this._grouped,
       () => this.refresh(),
     );
@@ -68,46 +70,6 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     const workspaceFavorites = this.stateManager.getFavoriteItems();
     const globalFavorites = globalPromptsState.getSourceState().favorites.map((name) => `${GLOBAL_ITEM_PREFIX}${name}`);
     return [...workspaceFavorites, ...globalFavorites];
-  }
-
-  toggleFavorite(item: TreePrompt): void {
-    const name = item.getName();
-    if (!name) return;
-
-    if (name.startsWith(GLOBAL_ITEM_PREFIX)) {
-      globalPromptsState.toggleFavorite(name.substring(GLOBAL_ITEM_PREFIX.length));
-    } else {
-      promptsState.toggleFavorite(name);
-    }
-
-    const favoriteItems = this.getFavoriteItems();
-    if (this._showOnlyFavorites && favoriteItems.length === 0) {
-      this._showOnlyFavorites = false;
-      promptsState.saveShowOnlyFavorites(this._showOnlyFavorites);
-    }
-
-    this.updateContextKeys();
-    this._onDidChangeTreeData.fire(null);
-  }
-
-  toggleHide(item: TreePrompt): void {
-    const name = item.getName();
-    if (!name) return;
-
-    if (name.startsWith(GLOBAL_ITEM_PREFIX)) {
-      globalPromptsState.toggleHidden(name.substring(GLOBAL_ITEM_PREFIX.length));
-    } else {
-      promptsState.toggleHidden(name);
-    }
-
-    const hiddenItems = this.getHiddenItems();
-    if (this._showHidden && hiddenItems.length === 0) {
-      this._showHidden = false;
-      promptsState.saveShowHidden(this._showHidden);
-    }
-
-    this.updateContextKeys();
-    this._onDidChangeTreeData.fire(null);
   }
 
   public async getChildren(item?: TreePrompt | PromptGroupTreeItem): Promise<Array<TreePrompt | PromptGroupTreeItem>> {

@@ -46,6 +46,17 @@ export type SimpleStateManager = {
   getFavoriteItems(): string[];
 };
 
+export type GlobalStateManager = {
+  toggleFavorite(name: string): boolean;
+  toggleHidden(name: string): boolean;
+  isFavorite(name: string): boolean;
+  isHidden(name: string): boolean;
+  getSourceState(): {
+    hidden: string[];
+    favorites: string[];
+  };
+};
+
 export type KeybindingConfig = {
   commandPrefix: string;
   getCommandId: (name: string) => string;

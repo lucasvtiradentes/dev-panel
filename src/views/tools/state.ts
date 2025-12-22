@@ -1,31 +1,10 @@
-import { GLOBAL_ITEM_PREFIX } from '../../common/constants';
 import { globalToolsState } from '../../common/lib/global-state';
+import { createStateHelpers } from '../../common/lib/state-helpers';
 import { toolsState } from '../../common/lib/workspace-state';
 
-export function isFavorite(name: string): boolean {
-  if (name.startsWith(GLOBAL_ITEM_PREFIX)) {
-    return globalToolsState.isFavorite(name.substring(GLOBAL_ITEM_PREFIX.length));
-  }
-  return toolsState.isFavorite(name);
-}
+const helpers = createStateHelpers(globalToolsState, toolsState);
 
-export function isHidden(name: string): boolean {
-  if (name.startsWith(GLOBAL_ITEM_PREFIX)) {
-    return globalToolsState.isHidden(name.substring(GLOBAL_ITEM_PREFIX.length));
-  }
-  return toolsState.isHidden(name);
-}
-
-export function toggleHidden(name: string): boolean {
-  if (name.startsWith(GLOBAL_ITEM_PREFIX)) {
-    return globalToolsState.toggleHidden(name.substring(GLOBAL_ITEM_PREFIX.length));
-  }
-  return toolsState.toggleHidden(name);
-}
-
-export function toggleFavorite(name: string): boolean {
-  if (name.startsWith(GLOBAL_ITEM_PREFIX)) {
-    return globalToolsState.toggleFavorite(name.substring(GLOBAL_ITEM_PREFIX.length));
-  }
-  return toolsState.toggleFavorite(name);
-}
+export const isFavorite = helpers.isFavorite;
+export const isHidden = helpers.isHidden;
+export const toggleHidden = helpers.toggleHidden;
+export const toggleFavorite = helpers.toggleFavorite;
