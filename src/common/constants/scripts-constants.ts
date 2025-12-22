@@ -1,5 +1,6 @@
 import { homedir } from 'node:os';
 import * as path from 'node:path';
+import { TOOLS_DIR } from './constants';
 
 export const EXTENSION_PUBLISHER = 'lucasvtiradentes';
 export const EXTENSION_NAME = 'project-panel';
@@ -119,7 +120,7 @@ export function getGlobalConfigPath(): string {
 }
 
 export function getGlobalToolsDir(): string {
-  return path.join(getGlobalConfigDir(), 'tools');
+  return path.join(getGlobalConfigDir(), TOOLS_DIR);
 }
 
 export function getGlobalPromptsDir(): string {

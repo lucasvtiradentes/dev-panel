@@ -5,6 +5,7 @@ import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
+  GLOBAL_ITEM_PREFIX,
   NO_GROUP_NAME,
   getCommandId,
   getGlobalConfigDir,
@@ -54,6 +55,58 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
       () => this._grouped,
       () => this.refresh(),
     );
+  }
+
+  protected getHiddenItems(): string[] {
+    const workspaceHidden = this.stateManager.getHiddenItems();
+    const globalHidden = globalPromptsState.getSourceState().hidden.map((name) => `${GLOBAL_ITEM_PREFIX}${name}`);
+    return [...workspaceHidden, ...globalHidden];
+  }
+
+  protected getFavoriteItems(): string[] {
+    const workspaceFavorites = this.stateManager.getFavoriteItems();
+    const globalFavorites = globalPromptsState.getSourceState().favorites.map((name) => `${GLOBAL_ITEM_PREFIX}${name}`);
+    return [...workspaceFavorites, ...globalFavorites];
+  }
+
+  toggleFavorite(item: TreePrompt): void {
+    const name = item.getName();
+    if (!name) return;
+
+    if (name.startsWith(GLOBAL_ITEM_PREFIX)) {
+      globalPromptsState.toggleFavorite(name.substring(GLOBAL_ITEM_PREFIX.length));
+    } else {
+      promptsState.toggleFavorite(name);
+    }
+
+    const favoriteItems = this.getFavoriteItems();
+    if (this._showOnlyFavorites && favoriteItems.length === 0) {
+      this._showOnlyFavorites = false;
+      promptsState.saveShowOnlyFavorites(this._showOnlyFavorites);
+    }
+
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire(null);
+  }
+
+  toggleHide(item: TreePrompt): void {
+    const name = item.getName();
+    if (!name) return;
+
+    if (name.startsWith(GLOBAL_ITEM_PREFIX)) {
+      globalPromptsState.toggleHidden(name.substring(GLOBAL_ITEM_PREFIX.length));
+    } else {
+      promptsState.toggleHidden(name);
+    }
+
+    const hiddenItems = this.getHiddenItems();
+    if (this._showHidden && hiddenItems.length === 0) {
+      this._showHidden = false;
+      promptsState.saveShowHidden(this._showHidden);
+    }
+
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire(null);
   }
 
   public async getChildren(item?: TreePrompt | PromptGroupTreeItem): Promise<Array<TreePrompt | PromptGroupTreeItem>> {
@@ -200,11 +253,16 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     const globalConfigDir = getGlobalConfigDir();
     const promptFilePath = `${globalConfigDir}/${prompt.file}`;
 
-    const treePrompt = new TreePrompt(`(G) ${prompt.name}`, promptFilePath, vscode.TreeItemCollapsibleState.None, {
-      command: getCommandId(Command.ExecutePrompt),
-      title: 'Execute',
-      arguments: [promptFilePath, null, prompt],
-    });
+    const treePrompt = new TreePrompt(
+      `${GLOBAL_ITEM_PREFIX}${prompt.name}`,
+      promptFilePath,
+      vscode.TreeItemCollapsibleState.None,
+      {
+        command: getCommandId(Command.ExecutePrompt),
+        title: 'Execute',
+        arguments: [promptFilePath, null, prompt],
+      },
+    );
 
     const keybinding = getPromptKeybinding(prompt.name);
     if (keybinding) {

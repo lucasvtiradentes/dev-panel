@@ -306,6 +306,26 @@
         "icon": "$(add)"
       },
       {
+        "command": "projectPanel.copyToolToGlobal",
+        "title": "Copy to Global",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "projectPanel.copyToolToWorkspace",
+        "title": "Copy to Workspace",
+        "icon": "$(file-directory)"
+      },
+      {
+        "command": "projectPanel.copyPromptToGlobal",
+        "title": "Copy to Global",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "projectPanel.copyPromptToWorkspace",
+        "title": "Copy to Workspace",
+        "icon": "$(file-directory)"
+      },
+      {
         "command": "projectPanel.togglePromptsGroupMode",
         "title": "Toggle Prompts Group Mode",
         "icon": "$(list-flat)"
@@ -706,6 +726,16 @@
           "when": "view == projectPanelTools"
         },
         {
+          "command": "projectPanel.copyToolToGlobal",
+          "when": "view == projectPanelTools && viewItem =~ /^tool/",
+          "group": "9_copy@1"
+        },
+        {
+          "command": "projectPanel.copyToolToWorkspace",
+          "when": "view == projectPanelTools && viewItem =~ /^tool/",
+          "group": "9_copy@2"
+        },
+        {
           "command": "projectPanel.togglePromptFavorite",
           "when": "view == projectPanelPrompts && viewItem == prompt",
           "group": "inline@1"
@@ -733,6 +763,16 @@
         {
           "command": "projectPanel.executePrompt",
           "when": "view == projectPanelPrompts"
+        },
+        {
+          "command": "projectPanel.copyPromptToGlobal",
+          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/",
+          "group": "9_copy@1"
+        },
+        {
+          "command": "projectPanel.copyPromptToWorkspace",
+          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/",
+          "group": "9_copy@2"
         },
         {
           "command": "projectPanel.setVariableKeybinding",

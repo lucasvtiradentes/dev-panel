@@ -1,4 +1,11 @@
 import * as vscode from 'vscode';
+import {
+  CONFIG_DIR_NAME,
+  GLOBAL_ITEM_PREFIX,
+  TOOLS_DIR,
+  TOOL_INSTRUCTIONS_FILE,
+  getGlobalConfigDir,
+} from '../common/constants';
 import { syncKeybindings } from '../common/lib/keybindings-sync';
 import { Command, registerCommand } from '../common/lib/vscode-utils';
 import { BranchContextField, type BranchContextProvider } from '../views/branch-context';
@@ -23,6 +30,10 @@ import { createRevertAllReplacementsCommand } from './internal/revert-all-replac
 import { createResetConfigOptionCommand, createSelectConfigOptionCommand } from './internal/select-config-option';
 import { createToggleReplacementCommand } from './internal/toggle-replacement';
 import { createAddToolCommand } from './public/add-tool';
+import { createCopyPromptToGlobalCommand } from './public/copy-prompt-to-global';
+import { createCopyPromptToWorkspaceCommand } from './public/copy-prompt-to-workspace';
+import { createCopyToolToGlobalCommand } from './public/copy-tool-to-global';
+import { createCopyToolToWorkspaceCommand } from './public/copy-tool-to-workspace';
 import { createGenerateToolsDocsCommand } from './public/generate-tools-docs';
 import { createGoToTaskCommand } from './public/go-to-task';
 import { createOpenTasksConfigCommand } from './public/open-tasks-config';
@@ -99,16 +110,28 @@ export function registerAllCommands(options: {
     createExecuteToolCommand(context),
     registerCommand(Command.GoToToolFile, async (item: TreeTool) => {
       if (item?.toolName) {
-        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-        if (workspaceFolder) {
-          const instructionsPath = `${workspaceFolder.uri.fsPath}/.pp/tools/${item.toolName}/instructions.md`;
-          const uri = vscode.Uri.file(instructionsPath);
-          await vscode.window.showTextDocument(uri);
+        const isGlobal = item.toolName.startsWith(GLOBAL_ITEM_PREFIX);
+        const toolName = isGlobal ? item.toolName.substring(GLOBAL_ITEM_PREFIX.length) : item.toolName;
+
+        let instructionsPath: string;
+        if (isGlobal) {
+          const globalConfigDir = getGlobalConfigDir();
+          instructionsPath = `${globalConfigDir}/${TOOLS_DIR}/${toolName}/${TOOL_INSTRUCTIONS_FILE}`;
+        } else {
+          const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+          if (!workspaceFolder) return;
+          instructionsPath = `${workspaceFolder.uri.fsPath}/${CONFIG_DIR_NAME}/${TOOLS_DIR}/${toolName}/${TOOL_INSTRUCTIONS_FILE}`;
         }
+
+        const uri = vscode.Uri.file(instructionsPath);
+        await vscode.window.showTextDocument(uri);
       }
     }),
     createGenerateToolsDocsCommand(),
     createAddToolCommand(),
+    createCopyToolToGlobalCommand(),
+    createCopyToolToWorkspaceCommand(),
+    registerCommand(Command.RefreshTools, () => toolTreeDataProvider.refresh()),
     registerCommand(Command.TogglePromptsGroupMode, () => promptTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.TogglePromptsGroupModeGrouped, () => promptTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.TogglePromptFavorite, (item) => promptTreeDataProvider.toggleFavorite(item)),
@@ -121,6 +144,9 @@ export function registerAllCommands(options: {
       promptTreeDataProvider.toggleShowOnlyFavorites(),
     ),
     createExecutePromptCommand(),
+    createCopyPromptToGlobalCommand(),
+    createCopyPromptToWorkspaceCommand(),
+    registerCommand(Command.RefreshPrompts, () => promptTreeDataProvider.refresh()),
     registerCommand(Command.GoToPromptFile, async (item: TreePrompt) => {
       if (item?.promptFile) {
         const uri = vscode.Uri.file(item.promptFile);

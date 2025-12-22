@@ -7,8 +7,10 @@ import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
+  GLOBAL_ITEM_PREFIX,
   NO_GROUP_NAME,
   SHELL_SCRIPT_PATTERN,
+  TOOLS_DIR,
   TOOL_INSTRUCTIONS_FILE,
   getCommandId,
   getGlobalConfigDir,
@@ -49,6 +51,58 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
       () => this._grouped,
       () => this.refresh(),
     );
+  }
+
+  protected getHiddenItems(): string[] {
+    const workspaceHidden = this.stateManager.getHiddenItems();
+    const globalHidden = globalToolsState.getSourceState().hidden.map((name) => `${GLOBAL_ITEM_PREFIX}${name}`);
+    return [...workspaceHidden, ...globalHidden];
+  }
+
+  protected getFavoriteItems(): string[] {
+    const workspaceFavorites = this.stateManager.getFavoriteItems();
+    const globalFavorites = globalToolsState.getSourceState().favorites.map((name) => `${GLOBAL_ITEM_PREFIX}${name}`);
+    return [...workspaceFavorites, ...globalFavorites];
+  }
+
+  toggleFavorite(item: TreeTool): void {
+    const name = item.getName();
+    if (!name) return;
+
+    if (name.startsWith(GLOBAL_ITEM_PREFIX)) {
+      globalToolsState.toggleFavorite(name.substring(GLOBAL_ITEM_PREFIX.length));
+    } else {
+      toolsState.toggleFavorite(name);
+    }
+
+    const favoriteItems = this.getFavoriteItems();
+    if (this._showOnlyFavorites && favoriteItems.length === 0) {
+      this._showOnlyFavorites = false;
+      toolsState.saveShowOnlyFavorites(this._showOnlyFavorites);
+    }
+
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire(null);
+  }
+
+  toggleHide(item: TreeTool): void {
+    const name = item.getName();
+    if (!name) return;
+
+    if (name.startsWith(GLOBAL_ITEM_PREFIX)) {
+      globalToolsState.toggleHidden(name.substring(GLOBAL_ITEM_PREFIX.length));
+    } else {
+      toolsState.toggleHidden(name);
+    }
+
+    const hiddenItems = this.getHiddenItems();
+    if (this._showHidden && hiddenItems.length === 0) {
+      this._showHidden = false;
+      toolsState.saveShowHidden(this._showHidden);
+    }
+
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire(null);
   }
 
   public async getChildren(item?: TreeTool | ToolGroupTreeItem): Promise<Array<TreeTool | ToolGroupTreeItem>> {
@@ -142,7 +196,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   }
 
   private readToolDescription(toolName: string, folderPath: string): string | null {
-    const instructionsPath = `${folderPath}/${CONFIG_DIR_NAME}/tools/${toolName}/${TOOL_INSTRUCTIONS_FILE}`;
+    const instructionsPath = `${folderPath}/${CONFIG_DIR_NAME}/${TOOLS_DIR}/${toolName}/${TOOL_INSTRUCTIONS_FILE}`;
     if (!fs.existsSync(instructionsPath)) return null;
 
     const content = fs.readFileSync(instructionsPath, 'utf8');
@@ -231,11 +285,16 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     const relativeFile = this.extractFileFromCommand(tool.command);
     const toolFilePath = relativeFile ? `${globalConfigDir}/${relativeFile}` : '';
 
-    const treeTool = new TreeTool(`(G) ${tool.name}`, toolFilePath, vscode.TreeItemCollapsibleState.None, {
-      command: getCommandId(Command.ExecuteTool),
-      title: 'Execute',
-      arguments: [task, null],
-    });
+    const treeTool = new TreeTool(
+      `${GLOBAL_ITEM_PREFIX}${tool.name}`,
+      toolFilePath,
+      vscode.TreeItemCollapsibleState.None,
+      {
+        command: getCommandId(Command.ExecuteTool),
+        title: 'Execute',
+        arguments: [task, null],
+      },
+    );
 
     const description = this.readToolDescription(tool.name, homedir());
     treeTool.tooltip = description ? `Global: ${description}` : 'Global tool from ~/.pp/config.jsonc';
