@@ -6,13 +6,13 @@ import JSON5 from 'json5';
 import * as vscode from 'vscode';
 
 const execAsync = promisify(exec);
+import { GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
-  GLOBAL_STATE_WORKSPACE_SOURCE,
   VARIABLES_FILE_NAME,
   getPromptOutputFilePath,
-} from '../../common/constants/constants';
+} from '../../common/constants/scripts-constants';
 import { createLogger } from '../../common/lib/logger';
 import { collectPromptInputs, replaceInputPlaceholders } from '../../common/lib/prompt-inputs';
 import { Command, isMultiRootWorkspace, registerCommand } from '../../common/lib/vscode-utils';
@@ -43,13 +43,12 @@ function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscod
   const execution = task.execution;
   if (!execution) return task;
 
-  let newExecution: vscode.ShellExecution | vscode.ProcessExecution | vscode.CustomExecution;
-
   if (execution instanceof vscode.ShellExecution) {
     const mergedEnv = { ...execution.options?.env, ...env };
     const commandLine = execution.commandLine;
     const command = execution.command;
 
+    let newExecution: vscode.ShellExecution;
     if (commandLine) {
       newExecution = new vscode.ShellExecution(commandLine, { ...execution.options, env: mergedEnv });
     } else if (command) {
@@ -57,24 +56,35 @@ function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscod
     } else {
       return task;
     }
-  } else if (execution instanceof vscode.ProcessExecution) {
+
+    return new vscode.Task(
+      task.definition,
+      task.scope ?? vscode.TaskScope.Workspace,
+      task.name,
+      task.source,
+      newExecution,
+      task.problemMatchers,
+    );
+  }
+
+  if (execution instanceof vscode.ProcessExecution) {
     const mergedEnv = { ...execution.options?.env, ...env };
-    newExecution = new vscode.ProcessExecution(execution.process, execution.args, {
+    const newExecution = new vscode.ProcessExecution(execution.process, execution.args, {
       ...execution.options,
       env: mergedEnv,
     });
-  } else {
-    return task;
+
+    return new vscode.Task(
+      task.definition,
+      task.scope ?? vscode.TaskScope.Workspace,
+      task.name,
+      task.source,
+      newExecution,
+      task.problemMatchers,
+    );
   }
 
-  return new vscode.Task(
-    task.definition,
-    task.scope ?? vscode.TaskScope.Workspace,
-    task.name,
-    task.source,
-    newExecution,
-    task.problemMatchers,
-  );
+  return task;
 }
 
 export function createExecuteTaskCommand(context: vscode.ExtensionContext) {
@@ -192,9 +202,10 @@ function replaceVariablePlaceholders(content: string, variables: Record<string, 
 export function createExecutePromptCommand() {
   return registerCommand(
     Command.ExecutePrompt,
-    async (promptFilePath: string, folder: vscode.WorkspaceFolder, promptConfig?: PPPrompt) => {
+    async (promptFilePath: string, folder: vscode.WorkspaceFolder | null, promptConfig?: PPPrompt) => {
       log.info('=== ExecutePrompt called ===');
       log.info(`promptFilePath: ${promptFilePath}`);
+      log.info(`folder: ${folder ? folder.name : 'null (global)'}`);
       log.info(`promptConfig (from tree): ${JSON.stringify(promptConfig)}`);
 
       if (!fs.existsSync(promptFilePath)) {
@@ -203,10 +214,12 @@ export function createExecutePromptCommand() {
       }
 
       let promptContent = fs.readFileSync(promptFilePath, 'utf8');
-      const settings = readPPSettings(folder);
+
+      const folderForSettings = folder ?? vscode.workspace.workspaceFolders?.[0];
+      const settings = folderForSettings ? readPPSettings(folderForSettings) : undefined;
       log.info(`settings: ${JSON.stringify(settings)}`);
 
-      const variables = readPPVariables(folder);
+      const variables = folder ? readPPVariables(folder) : null;
       if (variables) {
         promptContent = replaceVariablePlaceholders(promptContent, variables);
       }
@@ -227,23 +240,37 @@ export function createExecutePromptCommand() {
       }
 
       if (promptConfig?.saveOutput) {
-        await executePromptWithSave(promptContent, folder, promptConfig.name, provider, settings);
-      } else {
-        const terminal = vscode.window.createTerminal({ name: provider.name });
-        terminal.show();
-        provider.executeInteractive(terminal, promptContent);
+        const folderForOutput = folder ?? vscode.workspace.workspaceFolders?.[0];
+        if (!folderForOutput) {
+          void vscode.window.showErrorMessage('No workspace folder available to save prompt output');
+          return;
+        }
+
+        await executePromptWithSave({
+          promptContent,
+          folder: folderForOutput,
+          promptName: promptConfig.name,
+          provider,
+          settings,
+        });
+        return;
       }
+
+      const terminal = vscode.window.createTerminal({ name: provider.name });
+      terminal.show();
+      provider.executeInteractive(terminal, promptContent);
     },
   );
 }
 
-async function executePromptWithSave(
-  promptContent: string,
-  folder: vscode.WorkspaceFolder,
-  promptName: string,
-  provider: PromptProvider,
-  settings?: PPSettings,
-): Promise<void> {
+async function executePromptWithSave(options: {
+  promptContent: string;
+  folder: vscode.WorkspaceFolder;
+  promptName: string;
+  provider: PromptProvider;
+  settings?: PPSettings;
+}): Promise<void> {
+  const { promptContent, folder, promptName, provider, settings } = options;
   const workspacePath = folder.uri.fsPath;
   const branch = await getCurrentBranch(workspacePath).catch(() => 'unknown');
 

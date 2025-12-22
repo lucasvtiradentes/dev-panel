@@ -1,22 +1,3 @@
-export {
-  type PPConfig,
-  type PPPrompt,
-  type VariablesState,
-  type PromptsState,
-  type ReplacementsState,
-  type SourceState,
-  type TasksState,
-  type ToolsState,
-  type WorkspaceUIState,
-  DEFAULT_VARIABLES_STATE,
-  DEFAULT_PROMPTS_STATE,
-  DEFAULT_REPLACEMENTS_STATE,
-  DEFAULT_SOURCE_STATE,
-  DEFAULT_TASKS_STATE,
-  DEFAULT_TOOLS_STATE,
-  DEFAULT_WORKSPACE_UI_STATE,
-} from './index';
-
 export type BranchContext = {
   prLink?: string;
   linearLink?: string;
@@ -30,6 +11,18 @@ export enum TaskSource {
   Package = 'package',
   PP = 'pp',
 }
+
+export enum TaskSourceKey {
+  VSCode = 'vscode',
+  Package = 'packageJson',
+  PP = 'pp',
+}
+
+export const TASK_SOURCE_TO_KEY: Record<TaskSource, TaskSourceKey> = {
+  [TaskSource.VSCode]: TaskSourceKey.VSCode,
+  [TaskSource.Package]: TaskSourceKey.Package,
+  [TaskSource.PP]: TaskSourceKey.PP,
+};
 
 export type TaskSourceInfo = {
   id: TaskSource;

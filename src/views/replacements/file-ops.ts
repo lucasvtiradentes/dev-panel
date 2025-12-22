@@ -8,11 +8,8 @@ export function applyFileReplacement(workspace: string, source: string, target: 
   fs.copyFileSync(sourcePath, targetPath);
 }
 
-function normalizeSearchReplace(value: string | string[]): string {
-  if (Array.isArray(value)) {
-    return value.join('\n');
-  }
-  return value;
+function normalizeSearchReplace(value: string[]): string {
+  return value.join('\n');
 }
 
 export function applyPatches(workspace: string, target: string, patches: PatchItem[]): void {

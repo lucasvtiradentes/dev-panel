@@ -1,4 +1,6 @@
+import { homedir } from 'node:os';
 import * as path from 'node:path';
+import { TOOLS_DIR } from './constants';
 
 export const EXTENSION_PUBLISHER = 'lucasvtiradentes';
 export const EXTENSION_NAME = 'project-panel';
@@ -12,6 +14,9 @@ export const VARIABLES_FILE_NAME = 'variables.json';
 export const BRANCHES_DIR_NAME = 'branches';
 export const PROMPTS_DIR_NAME = 'prompts';
 export const BRANCH_CONTEXT_FILENAME = 'branch-context.md';
+export const CLAUDE_DIR_NAME = '.claude';
+export const SKILLS_DIR_NAME = 'skills';
+export const SKILL_FILE_NAME = 'SKILL.md';
 export const ROOT_BRANCH_CONTEXT_FILE_NAME = '.branch-context.md';
 export const BRANCH_CONTEXT_GLOB_PATTERN = `${CONFIG_DIR_NAME}/${BRANCHES_DIR_NAME}/*/${BRANCH_CONTEXT_FILENAME}`;
 export const DEFAULT_EXCLUDES = ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/out/**'];
@@ -107,4 +112,20 @@ export function getPromptOutputFilePath(
   }
 
   return path.join(promptsDir, `${safePromptName}.md`);
+}
+
+export function getGlobalConfigDir(): string {
+  return path.join(homedir(), CONFIG_DIR_NAME);
+}
+
+export function getGlobalConfigPath(): string {
+  return path.join(getGlobalConfigDir(), CONFIG_FILE_NAME);
+}
+
+export function getGlobalToolsDir(): string {
+  return path.join(getGlobalConfigDir(), TOOLS_DIR);
+}
+
+export function getGlobalPromptsDir(): string {
+  return path.join(getGlobalConfigDir(), PROMPTS_DIR_NAME);
 }

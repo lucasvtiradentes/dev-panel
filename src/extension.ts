@@ -21,11 +21,12 @@ import {
   getViewIdTodos,
   getViewIdTools,
 } from './common/constants';
+import { initGlobalState } from './common/lib/global-state';
 import { syncKeybindings } from './common/lib/keybindings-sync';
 import { logger } from './common/lib/logger';
 import { Command, ContextKey, generateWorkspaceId, setContextKey, setWorkspaceId } from './common/lib/vscode-utils';
 import { initWorkspaceState } from './common/lib/workspace-state';
-import type { PPConfig } from './common/schemas/types';
+import type { PPConfig } from './common/schemas';
 import { BranchContextProvider } from './views/branch-context';
 import { PromptTreeDataProvider } from './views/prompts';
 import { reloadPromptKeybindings } from './views/prompts/keybindings-local';
@@ -159,14 +160,13 @@ export function activate(context: vscode.ExtensionContext): object {
   logger.clear();
   logger.info('Better Project Tools extension activated');
   initWorkspaceState(context);
+  initGlobalState(context);
 
   const workspaceId = generateWorkspaceId();
   setWorkspaceId(workspaceId);
   void setContextKey(ContextKey.WorkspaceId, workspaceId);
   logger.info(`Workspace ID: ${workspaceId}`);
 
-  // Reload keybinding managers after workspaceId is set
-  console.log('[extension] Reloading keybinding managers after workspaceId initialization');
   reloadToolKeybindings();
   reloadPromptKeybindings();
   reloadTaskKeybindings();
@@ -222,14 +222,10 @@ export function activate(context: vscode.ExtensionContext): object {
   context.subscriptions.push(configWatcher);
 
   const keybindingsWatcher = createKeybindingsWatcher(() => {
-    console.log('[extension] Keybindings changed, reloading managers and refreshing providers');
-
-    // Reload keybinding managers first
     reloadToolKeybindings();
     reloadPromptKeybindings();
     reloadTaskKeybindings();
 
-    // Then refresh providers
     toolTreeDataProvider.refresh();
     promptTreeDataProvider.refresh();
     replacementsProvider.refresh();
@@ -246,7 +242,7 @@ export function activate(context: vscode.ExtensionContext): object {
   });
   context.subscriptions.push(branchWatcher);
 
-  const commandDisposables = registerAllCommands(
+  const commandDisposables = registerAllCommands({
     context,
     taskTreeDataProvider,
     toolTreeDataProvider,
@@ -255,7 +251,7 @@ export function activate(context: vscode.ExtensionContext): object {
     replacementsProvider,
     branchContextProvider,
     todosProvider,
-  );
+  });
   context.subscriptions.push(...commandDisposables);
 
   registerToolKeybindings(context);

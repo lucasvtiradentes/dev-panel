@@ -9,7 +9,10 @@ import {
   BRANCH_CONTEXT_SECTION_TODO,
 } from '../../common/constants';
 import { getBranchContextFilePath, getBranchDirectory } from '../../common/constants/scripts-constants';
+import { createLogger } from '../../common/lib/logger';
 import type { BranchContext } from '../../common/schemas/types';
+
+const logger = createLogger('BranchContext');
 
 export function ensureBranchDirectory(workspace: string, branchName: string): void {
   const dirPath = getBranchDirectory(workspace, branchName);
@@ -29,7 +32,7 @@ export function loadBranchContextFromFile(workspace: string, branchName: string)
     const content = fs.readFileSync(filePath, 'utf-8');
     return parseBranchContext(content);
   } catch (error) {
-    console.error(`Failed to load branch context for ${branchName}:`, error);
+    logger.error(`Failed to load branch context for ${branchName}: ${error}`);
     return {};
   }
 }

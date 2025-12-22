@@ -15,7 +15,7 @@ export class WorkspaceTreeItem extends vscode.TreeItem {
     super(label, vscode.TreeItemCollapsibleState.Expanded);
   }
 
-  public async addChildren(child: TreeTask): Promise<void> {
+  public addChildren(child: TreeTask): void {
     const groupName = child.group ?? NO_GROUP_NAME;
     if (this.childrenObject[groupName] === undefined) {
       const group = new GroupTreeItem(groupName);
@@ -73,8 +73,11 @@ export class TreeTask extends vscode.TreeItem {
 
   private loadTaskMetadata(): void {
     const multiRoot = isMultiRootWorkspace();
+    const workspaceFolders = vscode.workspace.workspaceFolders;
 
-    for (const workspaceFolder of vscode.workspace.workspaceFolders!) {
+    if (!workspaceFolders) return;
+
+    for (const workspaceFolder of workspaceFolders) {
       const tasksJson = this.loadTasksJson(workspaceFolder, multiRoot);
       if (!tasksJson) continue;
 

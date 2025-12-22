@@ -3,8 +3,11 @@ import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { CONTEXT_PREFIX, KEYBINDINGS_FILE } from '../common/constants';
+import { createLogger } from '../common/lib/logger';
 import { getVSCodeKeybindingsPath } from '../common/lib/vscode-keybindings-utils';
 import { getWorkspaceId } from '../common/lib/vscode-utils';
+
+const logger = createLogger('KeybindingsWatcher');
 
 type KeybindingEntry = { key: string; command: string; when?: string };
 
@@ -63,7 +66,7 @@ export function createKeybindingsWatcher(onKeybindingsChange: () => void): vscod
   );
 
   const handleChange = () => {
-    console.log('[keybindings-watcher] Keybindings file changed, updating and notifying');
+    logger.info('Keybindings file changed, updating and notifying');
     addWhenClauseToOurKeybindings();
     onKeybindingsChange();
   };

@@ -14,8 +14,8 @@ export function createExitCmdlineCommand(taskTreeDataProvider: TaskTreeDataProvi
 }
 
 export function createBackCmdlineCommand(taskTreeDataProvider: TaskTreeDataProvider) {
-  return registerCommand(Command.BackCmdline, async () => {
-    await taskTreeDataProvider.backTaskCmd();
+  return registerCommand(Command.BackCmdline, () => {
+    taskTreeDataProvider.backTaskCmd();
   });
 }
 

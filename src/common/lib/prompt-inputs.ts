@@ -10,7 +10,7 @@ type PromptInputValues = Record<string, string>;
 
 export async function collectPromptInputs(
   inputs: PPPromptInput[],
-  workspaceFolder: vscode.WorkspaceFolder,
+  workspaceFolder: vscode.WorkspaceFolder | null,
   settings?: PPSettings,
 ): Promise<PromptInputValues | null> {
   const values: PromptInputValues = {};
@@ -26,7 +26,7 @@ export async function collectPromptInputs(
 
 async function collectSingleInput(
   input: PPPromptInput,
-  workspaceFolder: vscode.WorkspaceFolder,
+  workspaceFolder: vscode.WorkspaceFolder | null,
   settings?: PPSettings,
 ): Promise<string | undefined> {
   switch (input.type) {
@@ -50,26 +50,38 @@ async function collectSingleInput(
 }
 
 function getExcludePatterns(input: PPPromptInput, settings: PPSettings | undefined): string[] {
+  const defaultExcludes = [...DEFAULT_EXCLUDES];
+
   if (input.excludes && input.excludes.length > 0) {
-    log.debug(`Using input.excludes: ${JSON.stringify(input.excludes)}`);
-    return input.excludes;
+    log.debug(`Using input.excludes merged with defaults: ${JSON.stringify([...defaultExcludes, ...input.excludes])}`);
+    return [...defaultExcludes, ...input.excludes];
   }
+
   if (settings?.exclude && settings.exclude.length > 0) {
-    log.debug(`Using settings.exclude: ${JSON.stringify(settings.exclude)}`);
-    return settings.exclude;
+    const merged = [...defaultExcludes, ...settings.exclude];
+    log.debug(`Using settings.exclude merged with defaults: ${JSON.stringify(merged)}`);
+    return merged;
   }
-  log.debug(`Using default excludes: ${JSON.stringify(DEFAULT_EXCLUDES)}`);
-  return DEFAULT_EXCLUDES;
+
+  log.debug(`Using default excludes: ${JSON.stringify(defaultExcludes)}`);
+  return defaultExcludes;
 }
 
 async function collectFileInput(
   input: PPPromptInput,
-  workspaceFolder: vscode.WorkspaceFolder,
+  workspaceFolder: vscode.WorkspaceFolder | null,
   multiple: boolean,
   settings?: PPSettings,
 ): Promise<string | undefined> {
   log.info(`collectFileInput called - multiple: ${multiple}`);
   log.debug(`input: ${JSON.stringify(input)}`);
+
+  const folder = workspaceFolder ?? vscode.workspace.workspaceFolders?.[0];
+  if (!folder) {
+    void vscode.window.showErrorMessage('File/folder input requires a workspace folder');
+    return undefined;
+  }
+
   const excludes = getExcludePatterns(input, settings);
   log.info(`Resolved excludes: ${excludes.length} patterns`);
 
@@ -79,15 +91,21 @@ async function collectFileInput(
     excludes,
   };
 
-  return selectFiles(workspaceFolder, options);
+  return selectFiles(folder, options);
 }
 
 async function collectFolderInput(
   input: PPPromptInput,
-  workspaceFolder: vscode.WorkspaceFolder,
+  workspaceFolder: vscode.WorkspaceFolder | null,
   multiple: boolean,
   settings?: PPSettings,
 ): Promise<string | undefined> {
+  const folder = workspaceFolder ?? vscode.workspace.workspaceFolders?.[0];
+  if (!folder) {
+    void vscode.window.showErrorMessage('File/folder input requires a workspace folder');
+    return undefined;
+  }
+
   const excludes = getExcludePatterns(input, settings);
 
   const options: FileSelectionOptions = {
@@ -96,7 +114,7 @@ async function collectFolderInput(
     excludes,
   };
 
-  return selectFolders(workspaceFolder, options);
+  return selectFolders(folder, options);
 }
 
 async function collectTextInput(input: PPPromptInput): Promise<string | undefined> {

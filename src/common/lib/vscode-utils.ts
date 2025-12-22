@@ -4,6 +4,8 @@ import { CONTEXT_PREFIX } from '../constants/scripts-constants';
 
 export enum Command {
   Refresh = 'refresh',
+  RefreshTools = 'refreshTools',
+  RefreshPrompts = 'refreshPrompts',
   SwitchTaskSource = 'switchTaskSource',
   SwitchTaskSourceFromPackage = 'switchTaskSourceFromPackage',
   SwitchTaskSourceFromPP = 'switchTaskSourceFromPP',
@@ -44,6 +46,9 @@ export enum Command {
   GoToToolFile = 'goToToolFile',
   GenerateToolsDocs = 'generateToolsDocs',
   AddTool = 'addTool',
+  CopyToolToGlobal = 'copyToolToGlobal',
+  CopyToolToWorkspace = 'copyToolToWorkspace',
+  DeleteTool = 'deleteTool',
   TogglePromptsGroupMode = 'togglePromptsGroupMode',
   TogglePromptsGroupModeGrouped = 'togglePromptsGroupModeGrouped',
   TogglePromptFavorite = 'togglePromptFavorite',
@@ -55,6 +60,9 @@ export enum Command {
   TogglePromptsShowOnlyFavoritesActive = 'togglePromptsShowOnlyFavoritesActive',
   ExecutePrompt = 'executePrompt',
   GoToPromptFile = 'goToPromptFile',
+  CopyPromptToGlobal = 'copyPromptToGlobal',
+  CopyPromptToWorkspace = 'copyPromptToWorkspace',
+  DeletePrompt = 'deletePrompt',
   EditBranchPrLink = 'editBranchPrLink',
   EditBranchLinearLink = 'editBranchLinearLink',
   EditBranchObjective = 'editBranchObjective',
@@ -78,6 +86,9 @@ export enum Command {
   SyncTaskKeybindings = 'syncTaskKeybindings',
   SetTaskKeybinding = 'setTaskKeybinding',
   OpenTasksKeybindings = 'openTasksKeybindings',
+  DeleteTask = 'deleteTask',
+  CopyTaskToGlobal = 'copyTaskToGlobal',
+  CopyTaskToWorkspace = 'copyTaskToWorkspace',
 }
 
 export function registerCommand(command: Command, callback: (...args: any[]) => any): vscode.Disposable {

@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { STATUS_BAR_COMMAND_PREFIX, STATUS_BAR_UNDEFINED_TASK, TASK_SOURCE_WORKSPACE } from '../common/constants';
 import { ContextKey, isMultiRootWorkspace, setContextKey } from '../common/lib/vscode-utils';
 
 export class StatusBarManager {
@@ -7,9 +8,9 @@ export class StatusBarManager {
   private registeredType: vscode.Disposable | null = null;
 
   public async enterCommandMode(): Promise<void> {
-    this.statusBarItem.text = '/';
+    this.statusBarItem.text = STATUS_BAR_COMMAND_PREFIX;
     this.statusBarItem.show();
-    this.statusBarBuffer.push('/');
+    this.statusBarBuffer.push(STATUS_BAR_COMMAND_PREFIX);
 
     await setContextKey(ContextKey.InCmdlineMode, true);
 
@@ -27,7 +28,7 @@ export class StatusBarManager {
           await this.exitCommandMode();
         } else {
           await this.exitCommandMode();
-          this.statusBarItem.text = '-- UNDEFINED TASK --';
+          this.statusBarItem.text = STATUS_BAR_UNDEFINED_TASK;
         }
       }
     });
@@ -40,7 +41,7 @@ export class StatusBarManager {
     this.statusBarItem.text = '';
   }
 
-  public async backspace(): Promise<void> {
+  public backspace(): void {
     if (this.statusBarBuffer.length > 1) {
       this.statusBarBuffer.pop();
       this.statusBarItem.text = this.statusBarBuffer.join('');
@@ -49,8 +50,8 @@ export class StatusBarManager {
 
   public async showTaskList(): Promise<void> {
     const tasks_ = await vscode.tasks.fetchTasks();
-    const tasks = tasks_.filter((t) => t.source === 'Workspace');
-    const _part = this.statusBarBuffer.join('').replace('/', '');
+    const tasks = tasks_.filter((t) => t.source === TASK_SOURCE_WORKSPACE);
+    const _part = this.statusBarBuffer.join('').replace(STATUS_BAR_COMMAND_PREFIX, '');
 
     let _match: string | null = null;
     const _matches: string[] = [];
@@ -67,8 +68,8 @@ export class StatusBarManager {
 
         if (isMultiRootWorkspace()) {
           let _workSpaceName = '';
-          const folders = vscode.workspace.workspaceFolders!;
-          if (typeof _task.scope === 'number') {
+          const folders = vscode.workspace.workspaceFolders;
+          if (folders && typeof _task.scope === 'number') {
             _workSpaceName = folders[_task.scope].name;
           } else if (typeof _task.scope !== 'string') {
             _workSpaceName = (_task.scope as vscode.WorkspaceFolder).name;
@@ -81,7 +82,7 @@ export class StatusBarManager {
     }
 
     if (_match != null && _matchCount === 1) {
-      this.statusBarBuffer = ['/', ..._match.split('')];
+      this.statusBarBuffer = [STATUS_BAR_COMMAND_PREFIX, ..._match.split('')];
       this.statusBarItem.text = this.statusBarBuffer.join('');
     } else if (_matchCount >= 2) {
       await setContextKey(ContextKey.InCmdlineMode, false);
@@ -97,17 +98,17 @@ export class StatusBarManager {
           _name = _pick;
         }
 
-        this.statusBarBuffer = ['/', ..._pick.split('')];
+        this.statusBarBuffer = [STATUS_BAR_COMMAND_PREFIX, ..._pick.split('')];
         this.statusBarItem.text = this.statusBarBuffer.join('');
 
-        const tasks = await vscode.tasks.fetchTasks();
+        const allTasks = await vscode.tasks.fetchTasks();
         this.statusBarBuffer.shift();
 
-        let _task: vscode.Task[] = [];
+        let selectedTask: vscode.Task[] = [];
         const folders = vscode.workspace.workspaceFolders;
 
         if (folders != null && folders.length > 1) {
-          _task = tasks.filter((t) => {
+          selectedTask = allTasks.filter((t) => {
             if (t.name !== this.statusBarBuffer.join('')) {
               return false;
             }
@@ -122,15 +123,15 @@ export class StatusBarManager {
             return false;
           });
         } else {
-          _task = tasks.filter((t) => t.name === this.statusBarBuffer.join(''));
+          selectedTask = allTasks.filter((t) => t.name === this.statusBarBuffer.join(''));
         }
 
-        if (_task.length > 0) {
-          void vscode.tasks.executeTask(_task[0]);
+        if (selectedTask.length > 0) {
+          void vscode.tasks.executeTask(selectedTask[0]);
           await this.exitCommandMode();
         } else {
           await this.exitCommandMode();
-          this.statusBarItem.text = '-- UNDEFINED TASK --';
+          this.statusBarItem.text = STATUS_BAR_UNDEFINED_TASK;
         }
       }
     }

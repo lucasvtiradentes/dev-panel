@@ -306,6 +306,48 @@
         "icon": "$(add)"
       },
       {
+        "command": "projectPanel.copyToolToGlobal",
+        "title": "Copy to Global",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "projectPanel.copyToolToWorkspace",
+        "title": "Copy to Workspace",
+        "icon": "$(file-directory)"
+      },
+      {
+        "command": "projectPanel.deleteTool",
+        "title": "Delete Tool"
+      },
+      {
+        "command": "projectPanel.copyPromptToGlobal",
+        "title": "Copy to Global",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "projectPanel.copyPromptToWorkspace",
+        "title": "Copy to Workspace",
+        "icon": "$(file-directory)"
+      },
+      {
+        "command": "projectPanel.deletePrompt",
+        "title": "Delete Prompt"
+      },
+      {
+        "command": "projectPanel.deleteTask",
+        "title": "Delete Task"
+      },
+      {
+        "command": "projectPanel.copyTaskToGlobal",
+        "title": "Copy to Global",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "projectPanel.copyTaskToWorkspace",
+        "title": "Copy to Workspace",
+        "icon": "$(file-directory)"
+      },
+      {
         "command": "projectPanel.togglePromptsGroupMode",
         "title": "Toggle Prompts Group Mode",
         "icon": "$(list-flat)"
@@ -677,6 +719,21 @@
           "when": "view == projectPanelTasks"
         },
         {
+          "command": "projectPanel.copyTaskToGlobal",
+          "when": "view == projectPanelTasks && viewItem =~ /^task-pp(-hidden|-favorite)?$/",
+          "group": "9_copy@1"
+        },
+        {
+          "command": "projectPanel.copyTaskToWorkspace",
+          "when": "view == projectPanelTasks && viewItem =~ /^task-pp-global/",
+          "group": "9_copy@2"
+        },
+        {
+          "command": "projectPanel.deleteTask",
+          "when": "view == projectPanelTasks && viewItem =~ /^task-pp/",
+          "group": "9_delete@1"
+        },
+        {
           "command": "projectPanel.setReplacementKeybinding",
           "when": "view == projectPanelReplacements && viewItem == replacementItem",
           "group": "inline@1"
@@ -706,6 +763,21 @@
           "when": "view == projectPanelTools"
         },
         {
+          "command": "projectPanel.copyToolToGlobal",
+          "when": "view == projectPanelTools && viewItem =~ /^tool(-hidden|-favorite)?$/",
+          "group": "9_copy@1"
+        },
+        {
+          "command": "projectPanel.copyToolToWorkspace",
+          "when": "view == projectPanelTools && viewItem =~ /^tool-global/",
+          "group": "9_copy@2"
+        },
+        {
+          "command": "projectPanel.deleteTool",
+          "when": "view == projectPanelTools && viewItem =~ /^tool/",
+          "group": "9_delete@1"
+        },
+        {
           "command": "projectPanel.togglePromptFavorite",
           "when": "view == projectPanelPrompts && viewItem == prompt",
           "group": "inline@1"
@@ -733,6 +805,21 @@
         {
           "command": "projectPanel.executePrompt",
           "when": "view == projectPanelPrompts"
+        },
+        {
+          "command": "projectPanel.copyPromptToGlobal",
+          "when": "view == projectPanelPrompts && viewItem =~ /^prompt(-hidden|-favorite)?$/",
+          "group": "9_copy@1"
+        },
+        {
+          "command": "projectPanel.copyPromptToWorkspace",
+          "when": "view == projectPanelPrompts && viewItem =~ /^prompt-global/",
+          "group": "9_copy@2"
+        },
+        {
+          "command": "projectPanel.deletePrompt",
+          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/",
+          "group": "9_delete@1"
         },
         {
           "command": "projectPanel.setVariableKeybinding",

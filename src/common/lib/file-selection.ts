@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { DEFAULT_EXCLUDES } from '../constants';
+import { DEFAULT_EXCLUDES, FILE_SEARCH_LIMIT, FOLDER_SEARCH_LIMIT, ROOT_FOLDER_LABEL } from '../constants';
 import { createLogger } from './logger';
 
 const log = createLogger('file-selection');
@@ -29,12 +29,15 @@ async function selectFilesFlat(
   multiSelect: boolean,
   excludes: string[],
 ): Promise<string | undefined> {
+  log.info(`selectFilesFlat - workspaceFolder.name: ${workspaceFolder.name}`);
+  log.info(`selectFilesFlat - workspaceFolder.uri.fsPath: ${workspaceFolder.uri.fsPath}`);
   const excludeGlob = buildExcludeGlob(excludes);
   const files = await vscode.workspace.findFiles(
     new vscode.RelativePattern(workspaceFolder, '**/*'),
     excludeGlob,
-    1000,
+    FILE_SEARCH_LIMIT,
   );
+  log.info(`selectFilesFlat - found ${files.length} files`);
 
   const items: vscode.QuickPickItem[] = files.map((uri) => ({
     label: vscode.workspace.asRelativePath(uri, false),
@@ -85,7 +88,7 @@ async function selectFoldersFlat(
   const files = await vscode.workspace.findFiles(
     new vscode.RelativePattern(workspaceFolder, '**/*'),
     excludeGlob,
-    2000,
+    FOLDER_SEARCH_LIMIT,
   );
 
   const folderSet = new Set<string>();
@@ -106,7 +109,7 @@ async function selectFoldersFlat(
   }));
 
   items.unshift({
-    label: '.',
+    label: ROOT_FOLDER_LABEL,
     description: workspaceFolder.uri.fsPath,
   });
 

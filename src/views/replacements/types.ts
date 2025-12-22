@@ -8,33 +8,33 @@ export enum ReplacementType {
   Patch = 'patch',
 }
 
-export interface PatchItem {
-  search: string | string[];
-  replace: string | string[];
-}
+export type PatchItem = {
+  search: string[];
+  replace: string[];
+};
 
-interface BaseReplacement {
+type BaseReplacement = {
   name: string;
   description?: string;
   group?: string;
   onBranchChange?: OnBranchChange;
-}
+};
 
-interface FileReplacement extends BaseReplacement {
+type FileReplacement = BaseReplacement & {
   type: ReplacementType.File;
   source: string;
   target: string;
-}
+};
 
-interface PatchReplacement extends BaseReplacement {
+type PatchReplacement = BaseReplacement & {
   type: ReplacementType.Patch;
   target: string;
   patches: PatchItem[];
-}
+};
 
 export type Replacement = FileReplacement | PatchReplacement;
 
-export interface PPConfig {
+export type PPConfig = {
   configs?: unknown[];
   replacements?: Replacement[];
-}
+};

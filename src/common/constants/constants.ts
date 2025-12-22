@@ -1,38 +1,9 @@
-export {
-  BRANCH_CONTEXT_DEFAULT_TODOS,
-  BRANCH_CONTEXT_NA,
-  CONFIG_DIR_KEY,
-  CONFIG_DIR_NAME,
-  CONFIG_FILE_NAME,
-  CONTEXT_PREFIX,
-  DEFAULT_EXCLUDES,
-  DEFAULT_EXCLUDED_DIRS,
-  DEV_SUFFIX,
-  DISPLAY_PREFIX,
-  DND_MIME_TYPE_PROMPTS,
-  DND_MIME_TYPE_TASKS,
-  DND_MIME_TYPE_TOOLS,
-  EDITOR_EXTENSIONS_PATHS,
-  LOCAL_DIST_DIR,
-  NO_GROUP_NAME,
-  PROMPTS_DIR_NAME,
-  PROMPT_COMMAND_SUFFIX,
-  REPLACEMENT_COMMAND_SUFFIX,
-  TASK_COMMAND_SUFFIX,
-  TOOL_COMMAND_SUFFIX,
-  TOOL_TASK_TYPE,
-  VARIABLE_COMMAND_SUFFIX,
-  VARIABLES_FILE_NAME,
-  VSCODE_STANDARD_CONTAINERS,
-  WORKSPACE_STATE_KEY,
-  getBranchPromptsDirectory,
-  getPromptOutputFilePath,
-} from './scripts-constants';
-
 declare const __IS_DEV_BUILD__: boolean;
 export const IS_DEV = typeof __IS_DEV_BUILD__ !== 'undefined' && __IS_DEV_BUILD__;
 
 export const GLOBAL_STATE_WORKSPACE_SOURCE = '______projectPanelWorkspaceSource______';
+export const GLOBAL_STATE_KEY = 'pp.globalUIState';
+export const GLOBAL_ITEM_PREFIX = '(G) ';
 
 export const LOG_CONTEXT_WIDTH = 20;
 export const LOG_TIMEZONE_OFFSET_HOURS = -3;
@@ -53,3 +24,15 @@ export const BRANCH_CONTEXT_FIELD_LINEAR_LINK = 'LINEAR LINK:';
 export const TODO_CHECKBOX_UNCHECKED = '[ ]';
 export const TODO_CHECKBOX_CHECKED_LOWER = '[x]';
 export const TODO_CHECKBOX_CHECKED_UPPER = '[X]';
+
+export const FILE_SEARCH_LIMIT = 1000;
+export const FOLDER_SEARCH_LIMIT = 2000;
+
+export const ROOT_FOLDER_LABEL = '.';
+
+export const JSON_INDENT_SPACES = 4;
+export const CONFIG_INDENT = '    ';
+
+export const STATUS_BAR_UNDEFINED_TASK = '-- UNDEFINED TASK --';
+export const STATUS_BAR_COMMAND_PREFIX = '/';
+export const TASK_SOURCE_WORKSPACE = 'Workspace';

@@ -163,8 +163,8 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     await this.statusBarManager.exitCommandMode();
   }
 
-  public async backTaskCmd(): Promise<void> {
-    await this.statusBarManager.backspace();
+  public backTaskCmd(): void {
+    this.statusBarManager.backspace();
   }
 
   public async tabTaskCmd(): Promise<void> {
@@ -205,7 +205,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     elements: Array<WorkspaceTreeItem | TreeTask | GroupTreeItem>,
   ): Promise<Array<WorkspaceTreeItem | TreeTask | GroupTreeItem>> {
     if (elements.length === 1 && !(elements[0] instanceof TreeTask)) {
-      return await this.getLowestLevel(elements[0].children);
+      return this.getLowestLevel(elements[0].children);
     }
     return elements;
   }
@@ -222,7 +222,13 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
 
     switch (this._source) {
       case TaskSource.VSCode:
-        return getVSCodeTasks(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn, getLowestLevelFn);
+        return getVSCodeTasks({
+          grouped: this._grouped,
+          showHidden: this._showHidden,
+          showOnlyFavorites: this._showOnlyFavorites,
+          sortFn,
+          getLowestLevel: getLowestLevelFn,
+        });
       case TaskSource.Package:
         return getPackageScripts(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn);
       case TaskSource.PP:

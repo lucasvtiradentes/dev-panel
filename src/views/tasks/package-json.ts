@@ -14,7 +14,8 @@ import {
   getCommandId,
 } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
-import { type PPConfig, TaskSource } from '../../common/schemas/types';
+import type { PPConfig } from '../../common/schemas';
+import { TaskSource } from '../../common/schemas/types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
@@ -126,7 +127,15 @@ export async function getPackageScripts(
     const pkg = allPackages[0];
     const taskElements: TreeTask[] = [];
     for (const [name, command] of Object.entries(pkg.scripts)) {
-      const task = createNpmTask(name, command, pkg.folder, pkg.absolutePath, false, showHidden, showOnlyFavorites);
+      const task = createNpmTask({
+        name,
+        command,
+        folder: pkg.folder,
+        cwd: pkg.absolutePath,
+        useDisplayName: false,
+        showHidden,
+        showOnlyFavorites,
+      });
       if (task) taskElements.push(task);
     }
     return sortFn(taskElements);
@@ -209,7 +218,15 @@ function getGroupedByLocation(
     const group = new GroupTreeItem(groupName);
 
     for (const [name, command] of Object.entries(pkg.scripts)) {
-      const task = createNpmTask(name, command, pkg.folder, pkg.absolutePath, false, showHidden, showOnlyFavorites);
+      const task = createNpmTask({
+        name,
+        command,
+        folder: pkg.folder,
+        cwd: pkg.absolutePath,
+        useDisplayName: false,
+        showHidden,
+        showOnlyFavorites,
+      });
       if (task) group.children.push(task);
     }
 
@@ -234,7 +251,15 @@ function getGroupedByScriptPrefix(
   const allScriptNames = Object.keys(pkg.scripts);
 
   for (const [name, command] of Object.entries(pkg.scripts)) {
-    const treeTask = createNpmTask(name, command, pkg.folder, pkg.absolutePath, true, showHidden, showOnlyFavorites);
+    const treeTask = createNpmTask({
+      name,
+      command,
+      folder: pkg.folder,
+      cwd: pkg.absolutePath,
+      useDisplayName: true,
+      showHidden,
+      showOnlyFavorites,
+    });
     if (!treeTask) continue;
 
     const groupName = extractGroupName(name, allScriptNames);
@@ -259,15 +284,16 @@ function readPackageScripts(packageJsonPath: string): Record<string, string> {
   }
 }
 
-function createNpmTask(
-  name: string,
-  command: string,
-  folder: vscode.WorkspaceFolder,
-  cwd: string,
-  useDisplayName: boolean,
-  showHidden: boolean,
-  showOnlyFavorites: boolean,
-): TreeTask | null {
+function createNpmTask(options: {
+  name: string;
+  command: string;
+  folder: vscode.WorkspaceFolder;
+  cwd: string;
+  useDisplayName: boolean;
+  showHidden: boolean;
+  showOnlyFavorites: boolean;
+}): TreeTask | null {
+  const { name, command, folder, cwd, useDisplayName, showHidden, showOnlyFavorites } = options;
   const hidden = isHidden(TaskSource.Package, name);
   const favorite = isFavorite(TaskSource.Package, name);
   if (hidden && !showHidden) return null;
