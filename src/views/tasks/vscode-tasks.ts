@@ -13,17 +13,18 @@ export async function hasVSCodeGroups(): Promise<boolean> {
   );
 }
 
-export async function getVSCodeTasks(
-  grouped: boolean,
-  showHidden: boolean,
-  showOnlyFavorites: boolean,
+export async function getVSCodeTasks(options: {
+  grouped: boolean;
+  showHidden: boolean;
+  showOnlyFavorites: boolean;
   sortFn: (
     elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
-  ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
+  ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>;
   getLowestLevel: (
     elements: Array<WorkspaceTreeItem | TreeTask | GroupTreeItem>,
-  ) => Promise<Array<WorkspaceTreeItem | TreeTask | GroupTreeItem>>,
-): Promise<Array<TreeTask | GroupTreeItem | WorkspaceTreeItem>> {
+  ) => Promise<Array<WorkspaceTreeItem | TreeTask | GroupTreeItem>>;
+}): Promise<Array<TreeTask | GroupTreeItem | WorkspaceTreeItem>> {
+  const { grouped, showHidden, showOnlyFavorites, sortFn, getLowestLevel } = options;
   let tasks: vscode.Task[] = await vscode.tasks.fetchTasks();
   tasks = tasks.filter((t) => t.source === 'Workspace');
 

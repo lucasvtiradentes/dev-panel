@@ -227,7 +227,13 @@ export function createExecutePromptCommand() {
       }
 
       if (promptConfig?.saveOutput) {
-        await executePromptWithSave(promptContent, folder, promptConfig.name, provider, settings);
+        await executePromptWithSave({
+          promptContent,
+          folder,
+          promptName: promptConfig.name,
+          provider,
+          settings,
+        });
       } else {
         const terminal = vscode.window.createTerminal({ name: provider.name });
         terminal.show();
@@ -237,13 +243,14 @@ export function createExecutePromptCommand() {
   );
 }
 
-async function executePromptWithSave(
-  promptContent: string,
-  folder: vscode.WorkspaceFolder,
-  promptName: string,
-  provider: PromptProvider,
-  settings?: PPSettings,
-): Promise<void> {
+async function executePromptWithSave(options: {
+  promptContent: string;
+  folder: vscode.WorkspaceFolder;
+  promptName: string;
+  provider: PromptProvider;
+  settings?: PPSettings;
+}): Promise<void> {
+  const { promptContent, folder, promptName, provider, settings } = options;
   const workspacePath = folder.uri.fsPath;
   const branch = await getCurrentBranch(workspacePath).catch(() => 'unknown');
 

@@ -240,7 +240,7 @@ export function activate(context: vscode.ExtensionContext): object {
   });
   context.subscriptions.push(branchWatcher);
 
-  const commandDisposables = registerAllCommands(
+  const commandDisposables = registerAllCommands({
     context,
     taskTreeDataProvider,
     toolTreeDataProvider,
@@ -249,7 +249,7 @@ export function activate(context: vscode.ExtensionContext): object {
     replacementsProvider,
     branchContextProvider,
     todosProvider,
-  );
+  });
   context.subscriptions.push(...commandDisposables);
 
   registerToolKeybindings(context);

@@ -91,12 +91,13 @@ export function createDragAndDropController<TItem extends NamedTreeItem>(
   return new BaseDragAndDropController<TItem, void>(mimeType, stateManager, getIsGrouped, null, onReorder);
 }
 
-export function createSourcedDragAndDropController<TItem extends NamedTreeItem, TSource>(
-  mimeType: string,
-  stateManager: StateManager<TSource>,
-  getIsGrouped: () => boolean,
-  getSource: () => TSource,
-  onReorder: () => void,
-): BaseDragAndDropController<TItem, TSource> {
+export function createSourcedDragAndDropController<TItem extends NamedTreeItem, TSource>(options: {
+  mimeType: string;
+  stateManager: StateManager<TSource>;
+  getIsGrouped: () => boolean;
+  getSource: () => TSource;
+  onReorder: () => void;
+}): BaseDragAndDropController<TItem, TSource> {
+  const { mimeType, stateManager, getIsGrouped, getSource, onReorder } = options;
   return new BaseDragAndDropController(mimeType, stateManager, getIsGrouped, getSource, onReorder);
 }

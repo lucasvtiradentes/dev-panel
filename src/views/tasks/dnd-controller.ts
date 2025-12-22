@@ -8,13 +8,13 @@ export class TaskDragAndDropController {
   private controller: ReturnType<typeof createSourcedDragAndDropController<TreeTask, TaskSource>>;
 
   constructor(getCurrentSource: () => TaskSource, getIsGrouped: () => boolean, onReorder: () => void) {
-    this.controller = createSourcedDragAndDropController<TreeTask, TaskSource>(
-      DND_MIME_TYPE_TASKS,
-      tasksState,
+    this.controller = createSourcedDragAndDropController<TreeTask, TaskSource>({
+      mimeType: DND_MIME_TYPE_TASKS,
+      stateManager: tasksState,
       getIsGrouped,
-      getCurrentSource,
+      getSource: getCurrentSource,
       onReorder,
-    );
+    });
   }
 
   get dropMimeTypes() {

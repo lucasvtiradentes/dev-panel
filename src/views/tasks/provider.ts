@@ -222,7 +222,13 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
 
     switch (this._source) {
       case TaskSource.VSCode:
-        return getVSCodeTasks(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn, getLowestLevelFn);
+        return getVSCodeTasks({
+          grouped: this._grouped,
+          showHidden: this._showHidden,
+          showOnlyFavorites: this._showOnlyFavorites,
+          sortFn,
+          getLowestLevel: getLowestLevelFn,
+        });
       case TaskSource.Package:
         return getPackageScripts(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn);
       case TaskSource.PP:

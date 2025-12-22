@@ -40,16 +40,26 @@ import {
 import { createShowLogsCommand } from './public/show-logs';
 import { createSwitchTaskSourceCommands } from './public/switch-task-source';
 
-export function registerAllCommands(
-  context: vscode.ExtensionContext,
-  taskTreeDataProvider: TaskTreeDataProvider,
-  toolTreeDataProvider: ToolTreeDataProvider,
-  promptTreeDataProvider: PromptTreeDataProvider,
-  variablesProvider: VariablesProvider,
-  replacementsProvider: ReplacementsProvider,
-  branchContextProvider: BranchContextProvider,
-  todosProvider: TodosProvider,
-): vscode.Disposable[] {
+export function registerAllCommands(options: {
+  context: vscode.ExtensionContext;
+  taskTreeDataProvider: TaskTreeDataProvider;
+  toolTreeDataProvider: ToolTreeDataProvider;
+  promptTreeDataProvider: PromptTreeDataProvider;
+  variablesProvider: VariablesProvider;
+  replacementsProvider: ReplacementsProvider;
+  branchContextProvider: BranchContextProvider;
+  todosProvider: TodosProvider;
+}): vscode.Disposable[] {
+  const {
+    context,
+    taskTreeDataProvider,
+    toolTreeDataProvider,
+    promptTreeDataProvider,
+    variablesProvider,
+    replacementsProvider,
+    branchContextProvider,
+    todosProvider,
+  } = options;
   return [
     createRefreshCommand(taskTreeDataProvider),
     ...createSwitchTaskSourceCommands(taskTreeDataProvider),
