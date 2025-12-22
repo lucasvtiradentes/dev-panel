@@ -36,6 +36,3 @@
   - scripts 
 - [ ] adicionar status bar
 
-- [x] salvar as coisas em uma pasta branch la no ".pp" ao inves de salvar no state.json
-
-

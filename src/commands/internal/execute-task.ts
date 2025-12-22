@@ -53,7 +53,7 @@ function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscod
     if (commandLine) {
       newExecution = new vscode.ShellExecution(commandLine, { ...execution.options, env: mergedEnv });
     } else if (command) {
-      newExecution = new vscode.ShellExecution(command, execution.args || [], { ...execution.options, env: mergedEnv });
+      newExecution = new vscode.ShellExecution(command, execution.args ?? [], { ...execution.options, env: mergedEnv });
     } else {
       return task;
     }
@@ -69,7 +69,7 @@ function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscod
 
   return new vscode.Task(
     task.definition,
-    task.scope || vscode.TaskScope.Workspace,
+    task.scope ?? vscode.TaskScope.Workspace,
     task.name,
     task.source,
     newExecution,
