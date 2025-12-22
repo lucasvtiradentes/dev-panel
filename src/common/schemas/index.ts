@@ -19,6 +19,7 @@ export {
   type TasksState,
   type ToolsState,
   type WorkspaceUIState,
+  type GlobalUIState,
   DEFAULT_VARIABLES_STATE,
   DEFAULT_PROMPTS_STATE,
   DEFAULT_REPLACEMENTS_STATE,

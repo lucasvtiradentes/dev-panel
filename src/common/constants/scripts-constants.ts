@@ -1,3 +1,4 @@
+import { homedir } from 'node:os';
 import * as path from 'node:path';
 
 export const EXTENSION_PUBLISHER = 'lucasvtiradentes';
@@ -107,4 +108,20 @@ export function getPromptOutputFilePath(
   }
 
   return path.join(promptsDir, `${safePromptName}.md`);
+}
+
+export function getGlobalConfigDir(): string {
+  return path.join(homedir(), CONFIG_DIR_NAME);
+}
+
+export function getGlobalConfigPath(): string {
+  return path.join(getGlobalConfigDir(), CONFIG_FILE_NAME);
+}
+
+export function getGlobalToolsDir(): string {
+  return path.join(getGlobalConfigDir(), 'tools');
+}
+
+export function getGlobalPromptsDir(): string {
+  return path.join(getGlobalConfigDir(), PROMPTS_DIR_NAME);
 }

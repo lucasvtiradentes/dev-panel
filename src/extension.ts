@@ -21,6 +21,7 @@ import {
   getViewIdTodos,
   getViewIdTools,
 } from './common/constants';
+import { initGlobalState } from './common/lib/global-state';
 import { syncKeybindings } from './common/lib/keybindings-sync';
 import { logger } from './common/lib/logger';
 import { Command, ContextKey, generateWorkspaceId, setContextKey, setWorkspaceId } from './common/lib/vscode-utils';
@@ -159,6 +160,7 @@ export function activate(context: vscode.ExtensionContext): object {
   logger.clear();
   logger.info('Better Project Tools extension activated');
   initWorkspaceState(context);
+  initGlobalState(context);
 
   const workspaceId = generateWorkspaceId();
   setWorkspaceId(workspaceId);

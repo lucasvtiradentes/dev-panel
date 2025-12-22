@@ -51,6 +51,11 @@ const WorkspaceUIStateSchema = z.object({
   replacements: ReplacementsStateSchema.optional(),
 });
 
+const GlobalUIStateSchema = z.object({
+  tools: ToolsStateSchema.optional(),
+  prompts: PromptsStateSchema.optional(),
+});
+
 export type SourceState = z.infer<typeof SourceStateSchema>;
 export type TasksState = z.infer<typeof TasksStateSchema>;
 export type ToolsState = z.infer<typeof ToolsStateSchema>;
@@ -58,6 +63,7 @@ export type PromptsState = z.infer<typeof PromptsStateSchema>;
 export type VariablesState = z.infer<typeof VariablesStateSchema>;
 export type ReplacementsState = z.infer<typeof ReplacementsStateSchema>;
 export type WorkspaceUIState = z.infer<typeof WorkspaceUIStateSchema>;
+export type GlobalUIState = z.infer<typeof GlobalUIStateSchema>;
 
 export const DEFAULT_SOURCE_STATE: SourceState = {
   flatOrder: [],

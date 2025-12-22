@@ -1,4 +1,5 @@
 import * as fs from 'node:fs';
+import { homedir } from 'node:os';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
@@ -10,7 +11,10 @@ import {
   SHELL_SCRIPT_PATTERN,
   TOOL_INSTRUCTIONS_FILE,
   getCommandId,
+  getGlobalConfigDir,
+  getGlobalConfigPath,
 } from '../../common/constants';
+import { globalToolsState } from '../../common/lib/global-state';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas';
@@ -60,6 +64,13 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
 
     if (!this._grouped) {
       const toolElements: TreeTool[] = [];
+
+      const globalTools = this.readGlobalTools();
+      for (const tool of globalTools) {
+        const treeTool = this.createGlobalTool(tool);
+        if (treeTool) toolElements.push(treeTool);
+      }
+
       for (const folder of folders) {
         const tools = this.readPPTools(folder);
         for (const tool of tools) {
@@ -72,6 +83,20 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
 
     const toolElements: Array<TreeTool | ToolGroupTreeItem> = [];
     const groups: Record<string, ToolGroupTreeItem> = {};
+
+    const globalTools = this.readGlobalTools();
+    for (const tool of globalTools) {
+      const treeTool = this.createGlobalTool(tool);
+      if (!treeTool) continue;
+
+      const groupName = tool.group ?? NO_GROUP_NAME;
+
+      if (!groups[groupName]) {
+        groups[groupName] = new ToolGroupTreeItem(groupName);
+        toolElements.push(groups[groupName]);
+      }
+      groups[groupName].children.push(treeTool);
+    }
 
     for (const folder of folders) {
       const tools = this.readPPTools(folder);
@@ -97,6 +122,18 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     if (!fs.existsSync(configPath)) return [];
     const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
     return config.tools ?? [];
+  }
+
+  private readGlobalTools(): NonNullable<PPConfig['tools']> {
+    const configPath = getGlobalConfigPath();
+    if (!fs.existsSync(configPath)) return [];
+    try {
+      const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
+      return config.tools ?? [];
+    } catch (error) {
+      console.error('Failed to read global tools config:', error);
+      return [];
+    }
   }
 
   private extractFileFromCommand(command: string): string | null {
@@ -161,6 +198,47 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     if (description) {
       treeTool.tooltip = description;
     }
+
+    if (hidden) {
+      treeTool.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+      treeTool.contextValue = CONTEXT_VALUES.TOOL_HIDDEN;
+    } else if (favorite) {
+      treeTool.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+      treeTool.contextValue = CONTEXT_VALUES.TOOL_FAVORITE;
+    }
+
+    return treeTool;
+  }
+
+  private createGlobalTool(tool: NonNullable<PPConfig['tools']>[number]): TreeTool | null {
+    const hidden = globalToolsState.isHidden(tool.name);
+    const favorite = globalToolsState.isFavorite(tool.name);
+
+    if (hidden && !this._showHidden) return null;
+    if (this._showOnlyFavorites && !favorite) return null;
+
+    const globalConfigDir = getGlobalConfigDir();
+    const shellExec = new vscode.ShellExecution(tool.command, { cwd: globalConfigDir });
+
+    const task = new vscode.Task(
+      { type: `${CONFIG_DIR_KEY}-tool-global` },
+      vscode.TaskScope.Global,
+      tool.name,
+      `${CONFIG_DIR_KEY}-tool-global`,
+      shellExec,
+    );
+
+    const relativeFile = this.extractFileFromCommand(tool.command);
+    const toolFilePath = relativeFile ? `${globalConfigDir}/${relativeFile}` : '';
+
+    const treeTool = new TreeTool(`(G) ${tool.name}`, toolFilePath, vscode.TreeItemCollapsibleState.None, {
+      command: getCommandId(Command.ExecuteTool),
+      title: 'Execute',
+      arguments: [task, null],
+    });
+
+    const description = this.readToolDescription(tool.name, homedir());
+    treeTool.tooltip = description ? `Global: ${description}` : 'Global tool from ~/.pp/config.jsonc';
 
     if (hidden) {
       treeTool.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));

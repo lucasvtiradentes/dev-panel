@@ -1,7 +1,16 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, CONTEXT_VALUES, NO_GROUP_NAME, getCommandId } from '../../common/constants';
+import {
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  CONTEXT_VALUES,
+  NO_GROUP_NAME,
+  getCommandId,
+  getGlobalConfigDir,
+  getGlobalConfigPath,
+} from '../../common/constants';
+import { globalPromptsState } from '../../common/lib/global-state';
 import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { promptsState } from '../../common/lib/workspace-state';
@@ -60,6 +69,13 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
 
     if (!this._grouped) {
       const promptElements: TreePrompt[] = [];
+
+      const globalPrompts = this.readGlobalPrompts();
+      for (const prompt of globalPrompts) {
+        const treePrompt = this.createGlobalPrompt(prompt);
+        if (treePrompt) promptElements.push(treePrompt);
+      }
+
       for (const folder of folders) {
         const prompts = this.readPPPrompts(folder);
         for (const prompt of prompts) {
@@ -72,6 +88,20 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
 
     const promptElements: Array<TreePrompt | PromptGroupTreeItem> = [];
     const groups: Record<string, PromptGroupTreeItem> = {};
+
+    const globalPrompts = this.readGlobalPrompts();
+    for (const prompt of globalPrompts) {
+      const treePrompt = this.createGlobalPrompt(prompt);
+      if (!treePrompt) continue;
+
+      const groupName = prompt.group ?? NO_GROUP_NAME;
+
+      if (!groups[groupName]) {
+        groups[groupName] = new PromptGroupTreeItem(groupName);
+        promptElements.push(groups[groupName]);
+      }
+      groups[groupName].children.push(treePrompt);
+    }
 
     for (const folder of folders) {
       const prompts = this.readPPPrompts(folder);
@@ -107,6 +137,21 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     return prompts;
   }
 
+  private readGlobalPrompts(): NonNullable<PPConfig['prompts']> {
+    const configPath = getGlobalConfigPath();
+    log.debug(`readGlobalPrompts - reading: ${configPath}`);
+    if (!fs.existsSync(configPath)) return [];
+    try {
+      const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
+      const prompts = config.prompts ?? [];
+      log.info(`readGlobalPrompts - found ${prompts.length} prompts`);
+      return prompts;
+    } catch (error) {
+      console.error('Failed to read global prompts config:', error);
+      return [];
+    }
+  }
+
   private createPPPrompt(
     prompt: NonNullable<PPConfig['prompts']>[number],
     folder: vscode.WorkspaceFolder,
@@ -132,6 +177,44 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
 
     if (prompt.description) {
       treePrompt.tooltip = prompt.description;
+    }
+
+    if (hidden) {
+      treePrompt.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+      treePrompt.contextValue = CONTEXT_VALUES.PROMPT_HIDDEN;
+    } else if (favorite) {
+      treePrompt.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+      treePrompt.contextValue = CONTEXT_VALUES.PROMPT_FAVORITE;
+    }
+
+    return treePrompt;
+  }
+
+  private createGlobalPrompt(prompt: NonNullable<PPConfig['prompts']>[number]): TreePrompt | null {
+    const hidden = globalPromptsState.isHidden(prompt.name);
+    const favorite = globalPromptsState.isFavorite(prompt.name);
+
+    if (hidden && !this._showHidden) return null;
+    if (this._showOnlyFavorites && !favorite) return null;
+
+    const globalConfigDir = getGlobalConfigDir();
+    const promptFilePath = `${globalConfigDir}/${prompt.file}`;
+
+    const treePrompt = new TreePrompt(`(G) ${prompt.name}`, promptFilePath, vscode.TreeItemCollapsibleState.None, {
+      command: getCommandId(Command.ExecutePrompt),
+      title: 'Execute',
+      arguments: [promptFilePath, null, prompt],
+    });
+
+    const keybinding = getPromptKeybinding(prompt.name);
+    if (keybinding) {
+      treePrompt.description = keybinding;
+    }
+
+    if (prompt.description) {
+      treePrompt.tooltip = `Global: ${prompt.description}`;
+    } else {
+      treePrompt.tooltip = 'Global prompt from ~/.pp/config.jsonc';
     }
 
     if (hidden) {

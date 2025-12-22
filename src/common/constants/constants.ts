@@ -2,6 +2,7 @@ declare const __IS_DEV_BUILD__: boolean;
 export const IS_DEV = typeof __IS_DEV_BUILD__ !== 'undefined' && __IS_DEV_BUILD__;
 
 export const GLOBAL_STATE_WORKSPACE_SOURCE = '______projectPanelWorkspaceSource______';
+export const GLOBAL_STATE_KEY = 'pp.globalUIState';
 
 export const LOG_CONTEXT_WIDTH = 20;
 export const LOG_TIMEZONE_OFFSET_HOURS = -3;
