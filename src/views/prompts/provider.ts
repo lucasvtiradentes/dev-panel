@@ -1,8 +1,10 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { Command, ContextKey, createLogger, getCommandId } from '../../common';
+import { getCommandId } from '../../common/constants';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, CONTEXT_VALUES, NO_GROUP_NAME } from '../../common/constants';
+import { createLogger } from '../../common/lib/logger';
+import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { promptsState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas/types';
 import { BaseTreeDataProvider, type ProviderConfig } from '../common';

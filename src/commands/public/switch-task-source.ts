@@ -1,5 +1,5 @@
 import type * as vscode from 'vscode';
-import { Command, registerCommand } from '../../common';
+import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { TaskTreeDataProvider } from '../../views/tasks';
 
 export function createSwitchTaskSourceCommands(taskTreeDataProvider: TaskTreeDataProvider): vscode.Disposable[] {

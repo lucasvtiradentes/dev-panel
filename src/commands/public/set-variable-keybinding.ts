@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { Command, getVariableCommandId, getVariableCommandPrefix, registerCommand } from '../../common';
+import { getVariableCommandId, getVariableCommandPrefix } from '../../common/constants';
+import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { VariableTreeItem } from '../../views/variables';
 
 async function handleKeybindingManagement(item: VariableTreeItem): Promise<void> {

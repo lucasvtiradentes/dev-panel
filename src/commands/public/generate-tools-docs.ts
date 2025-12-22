@@ -2,8 +2,8 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { Command, registerCommand } from '../../common';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../../common/constants';
+import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas/types';
 
 type ToolInstruction = {

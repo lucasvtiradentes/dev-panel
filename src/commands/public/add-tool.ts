@@ -2,8 +2,14 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { Command, registerCommand } from '../../common';
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../../common/constants';
+import {
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  CONFIG_TOOLS_ARRAY_PATTERN,
+  TOOL_NAME_PATTERN,
+  TOOL_NAME_VALIDATION_MESSAGE,
+} from '../../common/constants';
+import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas/types';
 
 async function handleAddTool(): Promise<void> {
@@ -18,7 +24,7 @@ async function handleAddTool(): Promise<void> {
     placeHolder: 'my-tool',
     validateInput: (value) => {
       if (!value) return 'Name is required';
-      if (!/^[a-z0-9-]+$/.test(value)) return 'Name must contain only lowercase letters, numbers, and hyphens';
+      if (!TOOL_NAME_PATTERN.test(value)) return TOOL_NAME_VALIDATION_MESSAGE;
       return null;
     },
   });
@@ -72,8 +78,7 @@ async function handleAddTool(): Promise<void> {
 
   config.tools.push(newTool);
 
-  const toolsStartRegex = /"tools":\s*\[/;
-  const toolsStartMatch = configContent.match(toolsStartRegex);
+  const toolsStartMatch = configContent.match(CONFIG_TOOLS_ARRAY_PATTERN);
 
   if (!toolsStartMatch) {
     vscode.window.showErrorMessage('Could not find "tools" array in config file');

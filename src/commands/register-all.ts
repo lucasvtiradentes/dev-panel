@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { Command, registerCommand } from '../common';
-import { syncKeybindings } from '../lib/keybindings-sync';
+import { syncKeybindings } from '../common/lib/keybindings-sync';
+import { Command, registerCommand } from '../common/lib/vscode-utils';
 import { BranchContextField, type BranchContextProvider } from '../views/branch-context';
 import type { PromptTreeDataProvider, TreePrompt } from '../views/prompts';
 import type { ReplacementsProvider } from '../views/replacements';

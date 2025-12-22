@@ -4,7 +4,7 @@ import * as path from 'node:path';
 import { promisify } from 'node:util';
 import json5 from 'json5';
 import * as vscode from 'vscode';
-import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
+import { getCommandId } from '../../common/constants';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
@@ -15,6 +15,7 @@ import {
   VARIABLES_FILE_NAME,
 } from '../../common/constants';
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/lib/file-selection';
+import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { PPSettings } from '../../common/schemas';
 import { getVariableKeybinding } from './keybindings-local';
 import { getIsGrouped, saveIsGrouped } from './state';

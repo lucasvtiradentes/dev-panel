@@ -1,18 +1,18 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
+import { getAllPromptKeybindings } from '../../views/prompts/keybindings-local';
+import { getAllReplacementKeybindings } from '../../views/replacements/keybindings-local';
+import { getAllTaskKeybindings } from '../../views/tasks/keybindings-local';
+import { getAllToolKeybindings } from '../../views/tools/keybindings-local';
+import { getAllVariableKeybindings } from '../../views/variables/keybindings-local';
 import {
   getPromptCommandId,
   getReplacementCommandId,
   getTaskCommandId,
   getToolCommandId,
   getVariableCommandId,
-} from '../common';
-import { getAllPromptKeybindings } from '../views/prompts/keybindings-local';
-import { getAllReplacementKeybindings } from '../views/replacements/keybindings-local';
-import { getAllTaskKeybindings } from '../views/tasks/keybindings-local';
-import { getAllToolKeybindings } from '../views/tools/keybindings-local';
-import { getAllVariableKeybindings } from '../views/variables/keybindings-local';
+} from '../constants/functions';
 import { getVSCodeKeybindingsPath } from './vscode-keybindings-utils';
 
 export function syncKeybindings(): void {
@@ -25,7 +25,7 @@ export function syncKeybindings(): void {
   for (const [toolName, keybinding] of Object.entries(toolKeybindings)) {
     keybindingsToAdd.push({
       command: getToolCommandId(toolName),
-      key: keybinding,
+      key: keybinding as string,
     });
   }
 
@@ -33,7 +33,7 @@ export function syncKeybindings(): void {
   for (const [promptName, keybinding] of Object.entries(promptKeybindings)) {
     keybindingsToAdd.push({
       command: getPromptCommandId(promptName),
-      key: keybinding,
+      key: keybinding as string,
     });
   }
 
@@ -41,7 +41,7 @@ export function syncKeybindings(): void {
   for (const [replacementName, keybinding] of Object.entries(replacementKeybindings)) {
     keybindingsToAdd.push({
       command: getReplacementCommandId(replacementName),
-      key: keybinding,
+      key: keybinding as string,
     });
   }
 
@@ -49,7 +49,7 @@ export function syncKeybindings(): void {
   for (const [variableName, keybinding] of Object.entries(variableKeybindings)) {
     keybindingsToAdd.push({
       command: getVariableCommandId(variableName),
-      key: keybinding,
+      key: keybinding as string,
     });
   }
 
@@ -57,7 +57,7 @@ export function syncKeybindings(): void {
   for (const [taskName, keybinding] of Object.entries(taskKeybindings)) {
     keybindingsToAdd.push({
       command: getTaskCommandId(taskName),
-      key: keybinding,
+      key: keybinding as string,
     });
   }
 

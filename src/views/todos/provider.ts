@@ -2,9 +2,13 @@ import * as fs from 'node:fs';
 import * as vscode from 'vscode';
 import {
   CONTEXT_VALUES,
+  MARKDOWN_SECTION_HEADER_PATTERN,
   TODO_CHECKBOX_CHECKED_LOWER,
   TODO_CHECKBOX_CHECKED_UPPER,
   TODO_CHECKBOX_UNCHECKED,
+  TODO_ITEM_PATTERN,
+  TODO_MILESTONE_PATTERN,
+  TODO_SECTION_HEADER_PATTERN,
   getCommandId,
 } from '../../common/constants';
 import { BRANCH_CONTEXT_GLOB_PATTERN } from '../../common/constants/scripts-constants';
@@ -56,7 +60,7 @@ function parseTodosAsTree(todosContent: string | undefined): { nodes: TodoNode[]
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    const milestoneMatch = line.match(/^##\s+(.+)$/);
+    const milestoneMatch = line.match(TODO_MILESTONE_PATTERN);
     if (milestoneMatch) {
       const milestoneNode: TodoNode = {
         text: milestoneMatch[1].trim(),
@@ -71,7 +75,7 @@ function parseTodosAsTree(todosContent: string | undefined): { nodes: TodoNode[]
       continue;
     }
 
-    const match = line.match(/^(\s*)-\s*\[([ xX])\]\s*(.*)$/);
+    const match = line.match(TODO_ITEM_PATTERN);
     if (!match) continue;
 
     const indent = Math.floor(match[1].length / 2);
@@ -140,13 +144,13 @@ export class TodosProvider implements vscode.TreeDataProvider<TodoItem> {
 
     const content = fs.readFileSync(filePath, 'utf-8');
     const lines = content.split('\n');
-    const todoIndex = lines.findIndex((l) => /^#\s+TODO\s*$/.test(l));
+    const todoIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
     if (todoIndex === -1) {
       this.cachedNodes = [];
       return;
     }
 
-    const nextSectionIndex = lines.findIndex((l, i) => i > todoIndex && /^#\s+/.test(l));
+    const nextSectionIndex = lines.findIndex((l, i) => i > todoIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
     const endIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
     const todosContent = lines
       .slice(todoIndex + 1, endIndex)
@@ -195,7 +199,7 @@ export class TodosProvider implements vscode.TreeDataProvider<TodoItem> {
     const content = fs.readFileSync(filePath, 'utf-8');
     const lines = content.split('\n');
 
-    const todoSectionIndex = lines.findIndex((l) => /^#\s+TODO\s*$/.test(l));
+    const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
     if (todoSectionIndex === -1) return;
 
     const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;

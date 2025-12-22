@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { type ContextKey, setContextKey } from '../../common';
 import { NO_GROUP_NAME } from '../../common/constants';
+import { type ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { GroupTreeItem, NamedTreeItem, SimpleStateManager, StateManager } from './types';
 
 export type ProviderConfig<TSource = void> = {

@@ -7,20 +7,15 @@ import * as vscode from 'vscode';
 
 const execAsync = promisify(exec);
 import {
-  Command,
-  collectPromptInputs,
-  createLogger,
-  isMultiRootWorkspace,
-  registerCommand,
-  replaceInputPlaceholders,
-} from '../../common';
-import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   GLOBAL_STATE_WORKSPACE_SOURCE,
   VARIABLES_FILE_NAME,
   getPromptOutputFilePath,
 } from '../../common/constants/constants';
+import { createLogger } from '../../common/lib/logger';
+import { collectPromptInputs, replaceInputPlaceholders } from '../../common/lib/prompt-inputs';
+import { Command, isMultiRootWorkspace, registerCommand } from '../../common/lib/vscode-utils';
 import { type PPConfig, type PPPrompt, type PPSettings, PromptExecutionMode } from '../../common/schemas';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';

@@ -2,16 +2,18 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { Command, getCommandId } from '../../common';
+import { getCommandId } from '../../common/constants';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
   DEFAULT_EXCLUDED_DIRS,
+  DIST_DIR_PREFIX,
   NO_GROUP_NAME,
   PACKAGE_JSON,
   VARIABLES_FILE_NAME,
 } from '../../common/constants';
+import { Command } from '../../common/lib/vscode-utils';
 import { type PPConfig, TaskSource } from '../../common/schemas/types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
@@ -179,7 +181,7 @@ function findPackageJsonsRecursive(dir: string, excludedDirs: Set<string>, maxDe
     for (const entry of entries) {
       if (entry.name === PACKAGE_JSON && entry.isFile()) {
         results.push(path.join(dir, entry.name));
-      } else if (entry.isDirectory() && !excludedDirs.has(entry.name) && !entry.name.startsWith('dist-')) {
+      } else if (entry.isDirectory() && !excludedDirs.has(entry.name) && !entry.name.startsWith(DIST_DIR_PREFIX)) {
         results.push(
           ...findPackageJsonsRecursive(path.join(dir, entry.name), excludedDirs, maxDepth, currentDepth + 1),
         );

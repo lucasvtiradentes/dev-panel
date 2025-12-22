@@ -1,15 +1,17 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { Command, ContextKey, getCommandId } from '../../common';
+import { getCommandId } from '../../common/constants';
 import {
   CONFIG_DIR_KEY,
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
   NO_GROUP_NAME,
+  SHELL_SCRIPT_PATTERN,
   TOOL_INSTRUCTIONS_FILE,
 } from '../../common/constants';
+import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas/types';
 import { BaseTreeDataProvider, type ProviderConfig } from '../common';
@@ -98,7 +100,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   }
 
   private extractFileFromCommand(command: string): string | null {
-    const match = command.match(/(?:bash\s+|sh\s+|\.\/)?(.+\.sh)$/);
+    const match = command.match(SHELL_SCRIPT_PATTERN);
     return match ? match[1] : null;
   }
 

@@ -1,4 +1,4 @@
-import { getToolCommandId, getToolCommandPrefix } from '../../common';
+import { getToolCommandId, getToolCommandPrefix } from '../../common/constants';
 import { KeybindingManager } from '../common';
 
 const manager = new KeybindingManager({

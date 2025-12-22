@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { Command, getReplacementCommandId, getReplacementCommandPrefix, registerCommand } from '../../common';
+import { getReplacementCommandId, getReplacementCommandPrefix } from '../../common/constants';
+import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { Replacement } from '../../views/replacements/types';
 
 async function handleKeybindingManagement(replacement: Replacement): Promise<void> {

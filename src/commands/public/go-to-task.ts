@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { VSCODE_TASKS_PATH } from '../../common/constants';
 import {
   Command,
   ToastKind,
@@ -7,8 +8,7 @@ import {
   openDocumentAtLine,
   registerCommand,
   showToastMessage,
-} from '../../common';
-import { VSCODE_TASKS_PATH } from '../../common/constants';
+} from '../../common/lib/vscode-utils';
 import type { TreeTask } from '../../views/tasks';
 
 export function createGoToTaskCommand() {

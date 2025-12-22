@@ -1,7 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
-import { Command, registerCommand } from '../../common';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
@@ -10,6 +9,7 @@ import {
   VSCODE_TASKS_FILE,
   VSCODE_TASKS_PATH,
 } from '../../common/constants';
+import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import { TaskSource } from '../../common/schemas/types';
 import { getExcludedDirs } from '../../views/tasks/package-json';
 import { getCurrentSource } from '../../views/tasks/state';

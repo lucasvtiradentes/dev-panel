@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { Command, getCommandId } from '../../common';
+import { getCommandId } from '../../common/constants';
 import {
   CONFIG_DIR_KEY,
   CONFIG_DIR_NAME,
@@ -10,6 +10,7 @@ import {
   NO_GROUP_NAME,
   VARIABLES_FILE_NAME,
 } from '../../common/constants';
+import { Command } from '../../common/lib/vscode-utils';
 import { type PPConfig, TaskSource } from '../../common/schemas/types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { getTaskKeybinding } from './keybindings-local';

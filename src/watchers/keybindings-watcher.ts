@@ -2,9 +2,9 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { getWorkspaceId } from '../common';
 import { CONTEXT_PREFIX, KEYBINDINGS_FILE } from '../common/constants';
-import { getVSCodeKeybindingsPath } from '../lib/vscode-keybindings-utils';
+import { getVSCodeKeybindingsPath } from '../common/lib/vscode-keybindings-utils';
+import { getWorkspaceId } from '../common/lib/vscode-utils';
 
 type KeybindingEntry = { key: string; command: string; when?: string };
 

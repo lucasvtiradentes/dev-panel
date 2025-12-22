@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
-import { ContextKey, ExtensionConfigKey, getExtensionConfig, setContextKey } from '../../common';
 import { NO_GROUP_NAME } from '../../common/constants';
+import { ExtensionConfigKey, getExtensionConfig } from '../../common/lib/extension-config';
+import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { TASK_SOURCES, TaskSource } from '../../common/schemas/types';
 import { StatusBarManager } from '../../status-bar/status-bar-manager';
 import { TaskDragAndDropController } from './dnd-controller';
