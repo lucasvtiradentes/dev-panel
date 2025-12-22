@@ -3,7 +3,6 @@ import { NO_GROUP_NAME } from '../../common/constants';
 import { ExtensionConfigKey, getExtensionConfig } from '../../common/lib/extension-config';
 import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { TASK_SOURCES, TaskSource } from '../../common/schemas/types';
-import { StatusBarManager } from '../../status-bar/status-bar-manager';
 import { TaskDragAndDropController } from './dnd-controller';
 import { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
 import { getPackageScripts, hasPackageGroups } from './package-json';
@@ -36,12 +35,10 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
   private _grouped: boolean;
   private _showHidden: boolean;
   private _showOnlyFavorites: boolean;
-  private readonly statusBarManager: StatusBarManager;
   private _treeView: vscode.TreeView<TreeTask | GroupTreeItem | WorkspaceTreeItem> | null = null;
 
   constructor(_context: vscode.ExtensionContext) {
     this.autoRefresh = getExtensionConfig(ExtensionConfigKey.AutoRefresh);
-    this.statusBarManager = new StatusBarManager();
     this._source = getCurrentSource();
     this._grouped = getIsGrouped();
     this._showHidden = getShowHidden(this._source);
@@ -155,22 +152,6 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     );
   }
 
-  public async putTaskCmd(): Promise<void> {
-    await this.statusBarManager.enterCommandMode();
-  }
-
-  public async exitTaskCmd(): Promise<void> {
-    await this.statusBarManager.exitCommandMode();
-  }
-
-  public backTaskCmd(): void {
-    this.statusBarManager.backspace();
-  }
-
-  public async tabTaskCmd(): Promise<void> {
-    await this.statusBarManager.showTaskList();
-  }
-
   private sortElements(
     elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
   ): Array<WorkspaceTreeItem | GroupTreeItem | TreeTask> {
@@ -240,7 +221,5 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     return task;
   }
 
-  dispose(): void {
-    this.statusBarManager.dispose();
-  }
+  dispose(): void {}
 }

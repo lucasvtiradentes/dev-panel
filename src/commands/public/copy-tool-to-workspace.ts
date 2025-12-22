@@ -3,7 +3,6 @@ import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
-  CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   GLOBAL_ITEM_PREFIX,
   TOOLS_DIR,
@@ -11,6 +10,7 @@ import {
   getGlobalConfigPath,
   getGlobalToolsDir,
 } from '../../common/constants';
+import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath, joinConfigPath } from '../../common/lib/config-manager';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 import type { TreeTool } from '../../views/tools/items';
@@ -59,8 +59,8 @@ async function handleCopyToolToWorkspace(treeTool: TreeTool): Promise<void> {
     return;
   }
 
-  const workspaceConfigPath = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
-  const workspaceConfigDir = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME);
+  const workspaceConfigPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
+  const workspaceConfigDir = getWorkspaceConfigDirPath(workspaceFolder);
 
   if (!fs.existsSync(workspaceConfigDir)) {
     fs.mkdirSync(workspaceConfigDir, { recursive: true });
@@ -99,10 +99,10 @@ async function handleCopyToolToWorkspace(treeTool: TreeTool): Promise<void> {
   fs.writeFileSync(workspaceConfigPath, JSON.stringify(workspaceConfig, null, 2), 'utf8');
 
   const globalToolsDir = path.join(getGlobalToolsDir(), tool.name);
-  const workspaceToolsDir = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, TOOLS_DIR, tool.name);
+  const workspaceToolsDir = joinConfigPath(workspaceFolder, TOOLS_DIR, tool.name);
 
   if (fs.existsSync(globalToolsDir)) {
-    const workspaceToolsParentDir = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, TOOLS_DIR);
+    const workspaceToolsParentDir = joinConfigPath(workspaceFolder, TOOLS_DIR);
     if (!fs.existsSync(workspaceToolsParentDir)) {
       fs.mkdirSync(workspaceToolsParentDir, { recursive: true });
     }

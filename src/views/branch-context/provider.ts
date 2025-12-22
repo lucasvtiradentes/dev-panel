@@ -1,11 +1,11 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
+import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-constants';
 import {
-  BRANCH_CONTEXT_GLOB_PATTERN,
-  ROOT_BRANCH_CONTEXT_FILE_NAME,
   getBranchContextFilePath as getBranchContextFilePathUtil,
-} from '../../common/constants/scripts-constants';
+  getBranchContextGlobPattern,
+} from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { ensureBranchDirectory } from './file-storage';
@@ -42,9 +42,8 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     const workspace = getWorkspacePath();
     if (!workspace) return;
 
-    this.markdownWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, BRANCH_CONTEXT_GLOB_PATTERN),
-    );
+    const globPattern = getBranchContextGlobPattern();
+    this.markdownWatcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(workspace, globPattern));
 
     this.markdownWatcher.onDidChange((uri) => this.handleMarkdownChange(uri));
     this.markdownWatcher.onDidCreate((uri) => this.handleMarkdownChange(uri));

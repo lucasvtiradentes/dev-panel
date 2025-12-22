@@ -1,11 +1,9 @@
 import { exec } from 'node:child_process';
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 import { promisify } from 'node:util';
 import json5 from 'json5';
 import * as vscode from 'vscode';
 import {
-  CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
   DEFAULT_EXCLUDES,
@@ -14,6 +12,11 @@ import {
   VARIABLES_FILE_NAME,
   getCommandId,
 } from '../../common/constants';
+import {
+  getConfigDirPathFromWorkspacePath,
+  getConfigDirPattern,
+  getConfigFilePathFromWorkspacePath,
+} from '../../common/lib/config-manager';
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/lib/file-selection';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { PPSettings } from '../../common/schemas';
@@ -59,7 +62,7 @@ function getWorkspacePath(): string | null {
 function getStatePath(): string | null {
   const workspace = getWorkspacePath();
   if (!workspace) return null;
-  return path.join(workspace, CONFIG_DIR_NAME, VARIABLES_FILE_NAME);
+  return getConfigFilePathFromWorkspacePath(workspace, VARIABLES_FILE_NAME);
 }
 
 function loadState(): PpState {
@@ -148,8 +151,9 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     const workspace = getWorkspacePath();
     if (!workspace) return;
 
+    const configDirPattern = getConfigDirPattern();
     this.fileWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, `${CONFIG_DIR_NAME}/{${CONFIG_FILE_NAME},${VARIABLES_FILE_NAME}}`),
+      new vscode.RelativePattern(workspace, `${configDirPattern}/{${CONFIG_FILE_NAME},${VARIABLES_FILE_NAME}}`),
     );
 
     this.fileWatcher.onDidChange(() => this.refresh());
@@ -209,7 +213,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     const workspace = getWorkspacePath();
     if (!workspace) return null;
 
-    const configPath = path.join(workspace, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
+    const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
     if (!fs.existsSync(configPath)) return null;
 
     const content = fs.readFileSync(configPath, 'utf-8');
@@ -220,7 +224,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     const workspace = getWorkspacePath();
     if (!workspace) return undefined;
 
-    const configPath = path.join(workspace, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
+    const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
     if (!fs.existsSync(configPath)) return undefined;
 
     const content = fs.readFileSync(configPath, 'utf-8');
@@ -237,11 +241,12 @@ async function runCommand(variable: VariableItem, value: unknown): Promise<void>
 
   const formattedValue = Array.isArray(value) ? value.join(',') : String(value);
   const command = `${variable.command} "${formattedValue}"`;
+  const configDirPath = getConfigDirPathFromWorkspacePath(workspace);
 
   if (variable.showTerminal) {
     const terminal = vscode.window.createTerminal(`${DISPLAY_PREFIX} ${variable.name}`);
     terminal.show();
-    terminal.sendText(`cd "${workspace}/${CONFIG_DIR_NAME}" && ${command}`);
+    terminal.sendText(`cd "${configDirPath}" && ${command}`);
   } else {
     await vscode.window.withProgress(
       {
@@ -251,7 +256,7 @@ async function runCommand(variable: VariableItem, value: unknown): Promise<void>
       },
       async () => {
         try {
-          await execAsync(command, { cwd: `${workspace}/${CONFIG_DIR_NAME}` });
+          await execAsync(command, { cwd: configDirPath });
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
           void vscode.window.showErrorMessage(`Variable command failed: ${errorMessage}`);

@@ -8,7 +8,7 @@ import {
   BRANCH_CONTEXT_SECTION_OBJECTIVE,
   BRANCH_CONTEXT_SECTION_TODO,
 } from '../../common/constants';
-import { getBranchContextFilePath, getBranchDirectory } from '../../common/constants/scripts-constants';
+import { getBranchContextFilePath, getBranchDirectory } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import type { BranchContext } from '../../common/schemas/types';
 

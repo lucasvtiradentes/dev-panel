@@ -1,10 +1,13 @@
 import * as vscode from 'vscode';
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../common/constants';
+import { CONFIG_FILE_NAME } from '../common/constants';
+import { getConfigDirPattern } from '../common/lib/config-manager';
+import { StoreKey, extensionStore } from '../common/lib/extension-store';
 
 type RefreshCallback = () => void;
 
 export function createConfigWatcher(onConfigChange: RefreshCallback): vscode.FileSystemWatcher {
-  const configWatcher = vscode.workspace.createFileSystemWatcher(`**/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`);
+  const configDirPattern = getConfigDirPattern();
+  const configWatcher = vscode.workspace.createFileSystemWatcher(`**/${configDirPattern}/${CONFIG_FILE_NAME}`);
 
   const handleConfigChange = (_uri: vscode.Uri) => {
     onConfigChange();
@@ -13,6 +16,10 @@ export function createConfigWatcher(onConfigChange: RefreshCallback): vscode.Fil
   configWatcher.onDidChange(handleConfigChange);
   configWatcher.onDidCreate(handleConfigChange);
   configWatcher.onDidDelete(handleConfigChange);
+
+  extensionStore.subscribe(StoreKey.ConfigDir, () => {
+    onConfigChange();
+  });
 
   return configWatcher;
 }

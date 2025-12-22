@@ -7,12 +7,8 @@ import * as vscode from 'vscode';
 
 const execAsync = promisify(exec);
 import { GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
-import {
-  CONFIG_DIR_NAME,
-  CONFIG_FILE_NAME,
-  VARIABLES_FILE_NAME,
-  getPromptOutputFilePath,
-} from '../../common/constants/scripts-constants';
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, VARIABLES_FILE_NAME } from '../../common/constants/scripts-constants';
+import { getPromptOutputFilePath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import { collectPromptInputs, replaceInputPlaceholders } from '../../common/lib/prompt-inputs';
 import { Command, isMultiRootWorkspace, registerCommand } from '../../common/lib/vscode-utils';
@@ -152,7 +148,7 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
 }
 
 function readPPSettings(folder: vscode.WorkspaceFolder): PPSettings | undefined {
-  const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`;
+  const configPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
   log.debug(`readPPSettings - configPath: ${configPath}`);
   if (!fs.existsSync(configPath)) {
     log.debug('readPPSettings - config file not found');
@@ -171,7 +167,7 @@ function readPPSettings(folder: vscode.WorkspaceFolder): PPSettings | undefined 
 }
 
 function readPPVariables(folder: vscode.WorkspaceFolder): Record<string, unknown> | null {
-  const variablesPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/${VARIABLES_FILE_NAME}`;
+  const variablesPath = getWorkspaceConfigFilePath(folder, VARIABLES_FILE_NAME);
   log.debug(`readPPVariables - variablesPath: ${variablesPath}`);
   if (!fs.existsSync(variablesPath)) {
     log.debug('readPPVariables - variables file not found');

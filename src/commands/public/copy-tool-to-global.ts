@@ -3,7 +3,6 @@ import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
-  CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   GLOBAL_ITEM_PREFIX,
   TOOLS_DIR,
@@ -12,6 +11,7 @@ import {
   getGlobalConfigPath,
   getGlobalToolsDir,
 } from '../../common/constants';
+import { getWorkspaceConfigFilePath, joinConfigPath } from '../../common/lib/config-manager';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 import type { TreeTool } from '../../views/tools/items';
@@ -33,7 +33,7 @@ async function handleCopyToolToGlobal(treeTool: TreeTool): Promise<void> {
     return;
   }
 
-  const workspaceConfigPath = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
+  const workspaceConfigPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
   if (!fs.existsSync(workspaceConfigPath)) {
     vscode.window.showErrorMessage('Workspace config not found');
     return;
@@ -86,7 +86,7 @@ async function handleCopyToolToGlobal(treeTool: TreeTool): Promise<void> {
 
   fs.writeFileSync(globalConfigPath, JSON.stringify(globalConfig, null, 2), 'utf8');
 
-  const workspaceToolsDir = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, TOOLS_DIR, tool.name);
+  const workspaceToolsDir = joinConfigPath(workspaceFolder, TOOLS_DIR, tool.name);
   const globalToolsDir = path.join(getGlobalToolsDir(), tool.name);
 
   if (fs.existsSync(workspaceToolsDir)) {

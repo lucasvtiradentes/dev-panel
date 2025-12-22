@@ -10,8 +10,6 @@ export const LOG_TIMEZONE_OFFSET_HOURS = -3;
 
 export const BRANCH_FIELD_DESCRIPTION_MAX_LENGTH = 50;
 
-export const CLAUDE_DIR = '.claude';
-export const SKILLS_DIR = 'skills';
 export const TOOLS_DIR = 'tools';
 
 export const BRANCH_CONTEXT_SECTION_OBJECTIVE = '# OBJECTIVE';
@@ -29,6 +27,10 @@ export const FILE_SEARCH_LIMIT = 1000;
 export const FOLDER_SEARCH_LIMIT = 2000;
 
 export const ROOT_FOLDER_LABEL = '.';
+
+export const QUICK_PICK_ACTION_SELECT = '__select__';
+export const QUICK_PICK_ACTION_PARENT = '__parent__';
+export const QUICK_PICK_ACTION_SEPARATOR = '__separator__';
 
 export const JSON_INDENT_SPACES = 4;
 export const CONFIG_INDENT = '    ';

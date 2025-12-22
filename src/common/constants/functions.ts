@@ -1,3 +1,4 @@
+import { IS_DEV } from './constants';
 import {
   CONTEXT_PREFIX,
   PROMPT_COMMAND_SUFFIX,
@@ -15,9 +16,6 @@ import {
   addDevSuffix,
   buildLogFilename,
 } from './scripts-constants';
-
-declare const __IS_DEV_BUILD__: boolean;
-const IS_DEV = typeof __IS_DEV_BUILD__ !== 'undefined' && __IS_DEV_BUILD__;
 
 export function getCommandId(command: string): string {
   const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;

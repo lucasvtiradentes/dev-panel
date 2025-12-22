@@ -230,16 +230,8 @@
         "icon": "$(heart-filled)"
       },
       {
-        "command": "projectPanel.execCmdline",
-        "title": "Execute Command Line"
-      },
-      {
-        "command": "projectPanel.exitCmdline",
-        "title": "Exit Command Line"
-      },
-      {
-        "command": "projectPanel.tabCmdline",
-        "title": "Tab Command Line"
+        "command": "projectPanel.openSettingsMenu",
+        "title": "Open Settings Menu"
       },
       {
         "command": "projectPanel.toggleToolsGroupMode",
@@ -484,28 +476,7 @@
         "icon": "$(keyboard)"
       }
     ],
-    "keybindings": [
-      {
-        "command": "projectPanel.execCmdline",
-        "key": "Ctrl+Shift+.",
-        "when": "!inCmdlineMode"
-      },
-      {
-        "command": "projectPanel.exitCmdline",
-        "key": "escape",
-        "when": "inCmdlineMode"
-      },
-      {
-        "command": "projectPanel.backCmdline",
-        "key": "backspace",
-        "when": "inCmdlineMode"
-      },
-      {
-        "command": "projectPanel.tabCmdline",
-        "key": "tab",
-        "when": "inCmdlineMode"
-      }
-    ],
+    "keybindings": [],
     "menus": {
       "view/title": [
         {

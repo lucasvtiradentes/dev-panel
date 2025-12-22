@@ -21,10 +21,6 @@ export enum Command {
   GoToTask = 'goToTask',
   ExecuteTask = 'executeTask',
   OpenTasksConfig = 'openTasksConfig',
-  ExecCmdline = 'execCmdline',
-  ExitCmdline = 'exitCmdline',
-  BackCmdline = 'backCmdline',
-  TabCmdline = 'tabCmdline',
   SelectConfigOption = 'selectConfigOption',
   ResetConfigOption = 'resetConfigOption',
   ToggleConfigsGroupMode = 'toggleConfigsGroupMode',
@@ -71,6 +67,7 @@ export enum Command {
   OpenBranchContextFile = 'openBranchContextFile',
   ToggleTodo = 'toggleTodo',
   ShowLogs = 'showLogs',
+  OpenSettingsMenu = 'openSettingsMenu',
   SyncToolKeybindings = 'syncToolKeybindings',
   SetToolKeybinding = 'setToolKeybinding',
   OpenToolsKeybindings = 'openToolsKeybindings',
@@ -128,7 +125,6 @@ export async function openDocumentAtLine(uri: vscode.Uri, line: number): Promise
 }
 
 export const ContextKey = {
-  InCmdlineMode: 'inCmdlineMode',
   TaskSourceVSCode: 'taskSourceVSCode',
   TaskSourcePackage: 'taskSourcePackage',
   TaskSourcePP: 'taskSourcePP',

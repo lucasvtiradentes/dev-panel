@@ -1,14 +1,8 @@
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import {
-  CONFIG_DIR_NAME,
-  CONFIG_FILE_NAME,
-  GLOBAL_ITEM_PREFIX,
-  getCommandId,
-  getGlobalConfigPath,
-} from '../../common/constants';
+import { CONFIG_FILE_NAME, GLOBAL_ITEM_PREFIX, getCommandId, getGlobalConfigPath } from '../../common/constants';
+import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 import type { TreeTask } from '../../views/tasks/items';
@@ -57,8 +51,8 @@ async function handleCopyTaskToWorkspace(treeTask: TreeTask): Promise<void> {
     return;
   }
 
-  const workspaceConfigPath = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
-  const workspaceConfigDir = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME);
+  const workspaceConfigPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
+  const workspaceConfigDir = getWorkspaceConfigDirPath(workspaceFolder);
 
   if (!fs.existsSync(workspaceConfigDir)) {
     fs.mkdirSync(workspaceConfigDir, { recursive: true });
