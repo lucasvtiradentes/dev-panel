@@ -26,6 +26,8 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   private currentBranch = '';
   private isWritingMarkdown = false;
   private isSyncing = false;
+  private syncDebounceTimer: NodeJS.Timeout | null = null;
+  private lastSyncDirection: 'root-to-branch' | 'branch-to-root' | null = null;
 
   constructor() {
     this.setupMarkdownWatcher();
@@ -58,7 +60,10 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   private handleMarkdownChange(uri?: vscode.Uri): void {
-    if (this.isWritingMarkdown || this.isSyncing) return;
+    if (this.isWritingMarkdown || this.isSyncing) {
+      console.log('[BranchContext] Skipping handleMarkdownChange - already syncing');
+      return;
+    }
 
     const workspace = getWorkspacePath();
     if (!workspace || !uri) return;
@@ -66,18 +71,22 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     const currentBranchPath = getBranchContextFilePathUtil(workspace, this.currentBranch);
 
     if (uri.fsPath !== currentBranchPath) {
+      console.log('[BranchContext] Ignoring change - not current branch file');
       return;
     }
 
-    this.syncBranchToRoot();
-    this.refresh();
+    console.log('[BranchContext] Branch file changed, syncing to root');
+    this.debouncedSync(() => this.syncBranchToRoot());
   }
 
   private handleRootMarkdownChange(): void {
-    if (this.isWritingMarkdown || this.isSyncing) return;
+    if (this.isWritingMarkdown || this.isSyncing) {
+      console.log('[BranchContext] Skipping handleRootMarkdownChange - already syncing');
+      return;
+    }
 
-    this.syncRootToBranch();
-    this.refresh();
+    console.log('[BranchContext] Root file changed, syncing to branch');
+    this.debouncedSync(() => this.syncRootToBranch());
   }
 
   private async initializeBranch(): Promise<void> {
@@ -137,8 +146,29 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
   }
 
+  private debouncedSync(syncFn: () => void): void {
+    if (this.syncDebounceTimer) {
+      clearTimeout(this.syncDebounceTimer);
+    }
+
+    this.syncDebounceTimer = setTimeout(() => {
+      syncFn();
+      this.refresh();
+      this.syncDebounceTimer = null;
+    }, 200);
+  }
+
   private syncRootToBranch(): void {
-    if (!this.currentBranch) return;
+    if (!this.currentBranch) {
+      console.log('[BranchContext] Cannot sync - no current branch');
+      return;
+    }
+
+    if (this.lastSyncDirection === 'root-to-branch') {
+      console.log('[BranchContext] Skipping root-to-branch sync - same direction as last sync');
+      this.lastSyncDirection = null;
+      return;
+    }
 
     const workspace = getWorkspacePath();
     if (!workspace) return;
@@ -146,21 +176,42 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     const rootPath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
     const branchPath = getBranchContextFilePathUtil(workspace, this.currentBranch);
 
-    if (!fs.existsSync(rootPath)) return;
+    if (!fs.existsSync(rootPath)) {
+      console.log('[BranchContext] Root file does not exist, skipping sync');
+      return;
+    }
 
     this.isSyncing = true;
+    this.lastSyncDirection = 'root-to-branch';
+
     try {
       const content = fs.readFileSync(rootPath, 'utf-8');
+      console.log(`[BranchContext] Syncing root → branch (${content.length} bytes)`);
       fs.writeFileSync(branchPath, content, 'utf-8');
+      console.log('[BranchContext] Root → branch sync complete');
+    } catch (error) {
+      console.error('[BranchContext] Error syncing root to branch:', error);
     } finally {
       setTimeout(() => {
         this.isSyncing = false;
-      }, 100);
+        setTimeout(() => {
+          this.lastSyncDirection = null;
+        }, 300);
+      }, 200);
     }
   }
 
   private syncBranchToRoot(): void {
-    if (!this.currentBranch) return;
+    if (!this.currentBranch) {
+      console.log('[BranchContext] Cannot sync - no current branch');
+      return;
+    }
+
+    if (this.lastSyncDirection === 'branch-to-root') {
+      console.log('[BranchContext] Skipping branch-to-root sync - same direction as last sync');
+      this.lastSyncDirection = null;
+      return;
+    }
 
     const workspace = getWorkspacePath();
     if (!workspace) return;
@@ -168,16 +219,28 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     const rootPath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
     const branchPath = getBranchContextFilePathUtil(workspace, this.currentBranch);
 
-    if (!fs.existsSync(branchPath)) return;
+    if (!fs.existsSync(branchPath)) {
+      console.log('[BranchContext] Branch file does not exist, skipping sync');
+      return;
+    }
 
     this.isSyncing = true;
+    this.lastSyncDirection = 'branch-to-root';
+
     try {
       const content = fs.readFileSync(branchPath, 'utf-8');
+      console.log(`[BranchContext] Syncing branch → root (${content.length} bytes)`);
       fs.writeFileSync(rootPath, content, 'utf-8');
+      console.log('[BranchContext] Branch → root sync complete');
+    } catch (error) {
+      console.error('[BranchContext] Error syncing branch to root:', error);
     } finally {
       setTimeout(() => {
         this.isSyncing = false;
-      }, 100);
+        setTimeout(() => {
+          this.lastSyncDirection = null;
+        }, 300);
+      }, 200);
     }
   }
 
@@ -249,6 +312,10 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   dispose(): void {
+    if (this.syncDebounceTimer) {
+      clearTimeout(this.syncDebounceTimer);
+      this.syncDebounceTimer = null;
+    }
     this.markdownWatcher?.dispose();
     this.rootMarkdownWatcher?.dispose();
   }
