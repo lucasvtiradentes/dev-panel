@@ -18,7 +18,6 @@ export const CLAUDE_DIR_NAME = '.claude';
 export const SKILLS_DIR_NAME = 'skills';
 export const SKILL_FILE_NAME = 'SKILL.md';
 export const ROOT_BRANCH_CONTEXT_FILE_NAME = '.branch-context.md';
-export const BRANCH_CONTEXT_GLOB_PATTERN = `${CONFIG_DIR_NAME}/${BRANCHES_DIR_NAME}/*/${BRANCH_CONTEXT_FILENAME}`;
 export const DEFAULT_EXCLUDES = ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/out/**'];
 export const DEFAULT_EXCLUDED_DIRS = ['node_modules', 'dist', '.git'];
 
@@ -82,36 +81,6 @@ export function buildLogFilename(isDev: boolean): string {
 
 export function sanitizeBranchName(branchName: string): string {
   return branchName.replace(/[\/\\:*?"<>|]/g, '_');
-}
-
-export function getBranchDirectory(workspace: string, branchName: string): string {
-  const sanitized = sanitizeBranchName(branchName);
-  return path.join(workspace, CONFIG_DIR_NAME, BRANCHES_DIR_NAME, sanitized);
-}
-
-export function getBranchContextFilePath(workspace: string, branchName: string): string {
-  return path.join(getBranchDirectory(workspace, branchName), BRANCH_CONTEXT_FILENAME);
-}
-
-export function getBranchPromptsDirectory(workspace: string, branchName: string): string {
-  return path.join(getBranchDirectory(workspace, branchName), PROMPTS_DIR_NAME);
-}
-
-export function getPromptOutputFilePath(
-  workspace: string,
-  branchName: string,
-  promptName: string,
-  timestamped: boolean,
-): string {
-  const promptsDir = getBranchPromptsDirectory(workspace, branchName);
-  const safePromptName = promptName.replace(/[/\\:*?"<>|]/g, '_');
-
-  if (timestamped) {
-    const datetime = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-    return path.join(promptsDir, `${safePromptName}-${datetime}.md`);
-  }
-
-  return path.join(promptsDir, `${safePromptName}.md`);
 }
 
 export function getGlobalConfigDir(): string {

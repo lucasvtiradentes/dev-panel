@@ -11,7 +11,7 @@ import {
   TODO_SECTION_HEADER_PATTERN,
   getCommandId,
 } from '../../common/constants';
-import { BRANCH_CONTEXT_GLOB_PATTERN } from '../../common/constants/scripts-constants';
+import { getBranchContextGlobPattern } from '../../common/lib/config-manager';
 import { Command } from '../../common/lib/vscode-utils';
 import { getBranchContextFilePath } from '../branch-context/markdown-parser';
 
@@ -127,9 +127,8 @@ export class TodosProvider implements vscode.TreeDataProvider<TodoItem> {
     const workspace = getWorkspacePath();
     if (!workspace) return;
 
-    this.markdownWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, BRANCH_CONTEXT_GLOB_PATTERN),
-    );
+    const globPattern = getBranchContextGlobPattern();
+    this.markdownWatcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(workspace, globPattern));
 
     this.markdownWatcher.onDidChange(() => this.refresh());
   }

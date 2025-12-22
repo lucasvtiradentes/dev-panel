@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
 import { BRANCH_CONTEXT_NA } from '../../common/constants';
-import { getBranchContextFilePath as getBranchContextFilePathUtil } from '../../common/constants/scripts-constants';
+import { getBranchContextFilePath as getBranchContextFilePathUtil } from '../../common/lib/config-manager';
 
 function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;

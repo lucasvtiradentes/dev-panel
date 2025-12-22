@@ -3,7 +3,6 @@ import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
   CONFIG_DIR_KEY,
-  CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
   GLOBAL_ITEM_PREFIX,
@@ -13,6 +12,7 @@ import {
   getGlobalConfigDir,
   getGlobalConfigPath,
 } from '../../common/constants';
+import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
 import { globalTasksState } from '../../common/lib/global-state';
 import { Command } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
@@ -113,7 +113,7 @@ export async function getPPTasks(
 }
 
 function readPPTasks(folder: vscode.WorkspaceFolder): NonNullable<PPConfig['tasks']> {
-  const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`;
+  const configPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
   if (!fs.existsSync(configPath)) return [];
   const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
   return config.tasks ?? [];
@@ -125,8 +125,7 @@ function readGlobalTasks(): NonNullable<PPConfig['tasks']> {
   try {
     const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
     return config.tasks ?? [];
-  } catch (error) {
-    console.error('Failed to read global tasks config:', error);
+  } catch {
     return [];
   }
 }
@@ -142,7 +141,8 @@ function createPPTask(
   if (hidden && !showHidden) return null;
   if (showOnlyFavorites && !favorite) return null;
 
-  const env = readPPVariablesAsEnv(`${folder.uri.fsPath}/${CONFIG_DIR_NAME}`);
+  const configDirPath = getWorkspaceConfigDirPath(folder);
+  const env = readPPVariablesAsEnv(configDirPath);
   const shellExec = new vscode.ShellExecution(task.command, { env });
   const vsTask = new vscode.Task({ type: CONFIG_DIR_KEY }, folder, task.name, CONFIG_DIR_KEY, shellExec);
 

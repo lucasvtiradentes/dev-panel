@@ -8,6 +8,7 @@
 - [ ] ter uma view de custom commands
 - [ ] ter um view de flags de calude code
 - [ ] uma vez por semana analisar o projeto, sugerir PR, etc
+- [ ] parsear a sessao -> pedir para ia agrupar chats do mesmo assunto -> sumarizar so oq eu tenho interesse ou mostrar a conversa por topicos
 
 ## AUTO CLAUDE
 

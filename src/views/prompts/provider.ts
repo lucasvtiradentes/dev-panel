@@ -2,7 +2,6 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
-  CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
   GLOBAL_ITEM_PREFIX,
@@ -11,6 +10,7 @@ import {
   getGlobalConfigDir,
   getGlobalConfigPath,
 } from '../../common/constants';
+import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
 import { globalPromptsState } from '../../common/lib/global-state';
 import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
@@ -176,7 +176,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
   }
 
   private readPPPrompts(folder: vscode.WorkspaceFolder): NonNullable<PPConfig['prompts']> {
-    const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`;
+    const configPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
     log.debug(`readPPPrompts - reading: ${configPath}`);
     if (!fs.existsSync(configPath)) return [];
     const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
@@ -199,8 +199,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
       const prompts = config.prompts ?? [];
       log.info(`readGlobalPrompts - found ${prompts.length} prompts`);
       return prompts;
-    } catch (error) {
-      console.error('Failed to read global prompts config:', error);
+    } catch {
       return [];
     }
   }
@@ -214,7 +213,8 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     if (hidden && !this._showHidden) return null;
     if (this._showOnlyFavorites && !favorite) return null;
 
-    const promptFilePath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/${prompt.file}`;
+    const configDirPath = getWorkspaceConfigDirPath(folder);
+    const promptFilePath = `${configDirPath}/${prompt.file}`;
 
     const treePrompt = new TreePrompt(prompt.name, promptFilePath, vscode.TreeItemCollapsibleState.None, {
       command: getCommandId(Command.ExecutePrompt),

@@ -4,7 +4,6 @@ import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
   CONFIG_DIR_KEY,
-  CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
   GLOBAL_ITEM_PREFIX,
@@ -16,6 +15,7 @@ import {
   getGlobalConfigDir,
   getGlobalConfigPath,
 } from '../../common/constants';
+import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
 import { globalToolsState } from '../../common/lib/global-state';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
@@ -172,7 +172,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   }
 
   private readPPTools(folder: vscode.WorkspaceFolder): NonNullable<PPConfig['tools']> {
-    const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`;
+    const configPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
     if (!fs.existsSync(configPath)) return [];
     const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
     return config.tools ?? [];
@@ -184,8 +184,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     try {
       const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
       return config.tools ?? [];
-    } catch (error) {
-      console.error('Failed to read global tools config:', error);
+    } catch {
       return [];
     }
   }
@@ -195,8 +194,8 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     return match ? match[1] : null;
   }
 
-  private readToolDescription(toolName: string, folderPath: string): string | null {
-    const instructionsPath = `${folderPath}/${CONFIG_DIR_NAME}/${TOOLS_DIR}/${toolName}/${TOOL_INSTRUCTIONS_FILE}`;
+  private readToolDescription(toolName: string, configDirPath: string): string | null {
+    const instructionsPath = `${configDirPath}/${TOOLS_DIR}/${toolName}/${TOOL_INSTRUCTIONS_FILE}`;
     if (!fs.existsSync(instructionsPath)) return null;
 
     const content = fs.readFileSync(instructionsPath, 'utf8');
@@ -230,7 +229,8 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     if (hidden && !this._showHidden) return null;
     if (this._showOnlyFavorites && !favorite) return null;
 
-    const shellExec = new vscode.ShellExecution(tool.command, { cwd: `${folder.uri.fsPath}/${CONFIG_DIR_NAME}` });
+    const configDirPath = getWorkspaceConfigDirPath(folder);
+    const shellExec = new vscode.ShellExecution(tool.command, { cwd: configDirPath });
     const task = new vscode.Task(
       { type: `${CONFIG_DIR_KEY}-tool` },
       folder,
@@ -240,7 +240,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     );
 
     const relativeFile = this.extractFileFromCommand(tool.command);
-    const toolFilePath = relativeFile ? `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/${relativeFile}` : '';
+    const toolFilePath = relativeFile ? `${configDirPath}/${relativeFile}` : '';
 
     const treeTool = new TreeTool(tool.name, toolFilePath, vscode.TreeItemCollapsibleState.None, {
       command: getCommandId(Command.ExecuteTool),
@@ -248,7 +248,8 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
       arguments: [task, folder],
     });
 
-    const description = this.readToolDescription(tool.name, folder.uri.fsPath);
+    const configDirPath2 = getWorkspaceConfigDirPath(folder);
+    const description = this.readToolDescription(tool.name, configDirPath2);
     if (description) {
       treeTool.tooltip = description;
     }

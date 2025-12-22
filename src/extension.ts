@@ -4,7 +4,6 @@ import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import {
   CONFIG_DIR_KEY,
-  CONFIG_DIR_NAME,
   GLOBAL_STATE_WORKSPACE_SOURCE,
   TOOL_TASK_TYPE,
   getCommandId,
@@ -21,12 +20,15 @@ import {
   getViewIdTodos,
   getViewIdTools,
 } from './common/constants';
+import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from './common/lib/config-manager';
+import { extensionStore } from './common/lib/extension-store';
 import { initGlobalState } from './common/lib/global-state';
 import { syncKeybindings } from './common/lib/keybindings-sync';
 import { logger } from './common/lib/logger';
 import { Command, ContextKey, generateWorkspaceId, setContextKey, setWorkspaceId } from './common/lib/vscode-utils';
 import { initWorkspaceState } from './common/lib/workspace-state';
 import type { PPConfig } from './common/schemas';
+import { StatusBarManager } from './status-bar/status-bar-manager';
 import { BranchContextProvider } from './views/branch-context';
 import { PromptTreeDataProvider } from './views/prompts';
 import { reloadPromptKeybindings } from './views/prompts/keybindings-local';
@@ -46,7 +48,7 @@ function registerToolKeybindings(context: vscode.ExtensionContext): void {
   if (!folders || folders.length === 0) return;
 
   for (const folder of folders) {
-    const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/config.jsonc`;
+    const configPath = getWorkspaceConfigFilePath(folder, 'config.jsonc');
     if (!fs.existsSync(configPath)) continue;
 
     const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
@@ -55,7 +57,8 @@ function registerToolKeybindings(context: vscode.ExtensionContext): void {
     for (const tool of tools) {
       const commandId = getToolCommandId(tool.name);
       const disposable = vscode.commands.registerCommand(commandId, () => {
-        const shellExec = new vscode.ShellExecution(tool.command, { cwd: `${folder.uri.fsPath}/${CONFIG_DIR_NAME}` });
+        const configDirPath = getWorkspaceConfigDirPath(folder);
+        const shellExec = new vscode.ShellExecution(tool.command, { cwd: configDirPath });
         const task = new vscode.Task({ type: TOOL_TASK_TYPE }, folder, tool.name, TOOL_TASK_TYPE, shellExec);
         void vscode.tasks.executeTask(task);
       });
@@ -70,7 +73,7 @@ function registerPromptKeybindings(context: vscode.ExtensionContext): void {
   if (!folders || folders.length === 0) return;
 
   for (const folder of folders) {
-    const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/config.jsonc`;
+    const configPath = getWorkspaceConfigFilePath(folder, 'config.jsonc');
     if (!fs.existsSync(configPath)) continue;
 
     const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
@@ -78,7 +81,8 @@ function registerPromptKeybindings(context: vscode.ExtensionContext): void {
 
     for (const prompt of prompts) {
       const commandId = getPromptCommandId(prompt.name);
-      const promptFilePath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/${prompt.file}`;
+      const configDirPath = getWorkspaceConfigDirPath(folder);
+      const promptFilePath = `${configDirPath}/${prompt.file}`;
       const disposable = vscode.commands.registerCommand(commandId, () => {
         void vscode.commands.executeCommand(getCommandId(Command.ExecutePrompt), promptFilePath, folder, prompt);
       });
@@ -93,7 +97,7 @@ function registerReplacementKeybindings(context: vscode.ExtensionContext): void 
   if (!folders || folders.length === 0) return;
 
   for (const folder of folders) {
-    const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/config.jsonc`;
+    const configPath = getWorkspaceConfigFilePath(folder, 'config.jsonc');
     if (!fs.existsSync(configPath)) continue;
 
     const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
@@ -115,7 +119,7 @@ function registerVariableKeybindings(context: vscode.ExtensionContext): void {
   if (!folders || folders.length === 0) return;
 
   for (const folder of folders) {
-    const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/config.jsonc`;
+    const configPath = getWorkspaceConfigFilePath(folder, 'config.jsonc');
     if (!fs.existsSync(configPath)) continue;
 
     const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
@@ -137,7 +141,7 @@ function registerTaskKeybindings(context: vscode.ExtensionContext): void {
   if (!folders || folders.length === 0) return;
 
   for (const folder of folders) {
-    const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/config.jsonc`;
+    const configPath = getWorkspaceConfigFilePath(folder, 'config.jsonc');
     if (!fs.existsSync(configPath)) continue;
 
     const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
@@ -161,6 +165,7 @@ export function activate(context: vscode.ExtensionContext): object {
   logger.info('Better Project Tools extension activated');
   initWorkspaceState(context);
   initGlobalState(context);
+  extensionStore.initialize(context);
 
   const workspaceId = generateWorkspaceId();
   setWorkspaceId(workspaceId);
@@ -171,6 +176,7 @@ export function activate(context: vscode.ExtensionContext): object {
   reloadPromptKeybindings();
   reloadTaskKeybindings();
 
+  const statusBarManager = new StatusBarManager();
   const taskTreeDataProvider = new TaskTreeDataProvider(context);
   const variablesProvider = new VariablesProvider();
   const replacementsProvider = new ReplacementsProvider();
@@ -204,6 +210,8 @@ export function activate(context: vscode.ExtensionContext): object {
   vscode.window.registerTreeDataProvider(getViewIdBranchContext(), branchContextProvider);
   vscode.window.registerTreeDataProvider(getViewIdTodos(), todosProvider);
 
+  context.subscriptions.push({ dispose: () => statusBarManager.dispose() });
+  context.subscriptions.push({ dispose: () => taskTreeDataProvider.dispose() });
   context.subscriptions.push({ dispose: () => variablesProvider.dispose() });
   context.subscriptions.push({ dispose: () => replacementsProvider.dispose() });
   context.subscriptions.push({ dispose: () => toolTreeDataProvider.dispose() });

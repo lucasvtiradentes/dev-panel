@@ -1,15 +1,8 @@
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 import json5 from 'json5';
 import * as vscode from 'vscode';
-import {
-  CONFIG_DIR_NAME,
-  CONFIG_FILE_NAME,
-  CONTEXT_VALUES,
-  DISPLAY_PREFIX,
-  NO_GROUP_NAME,
-  getCommandId,
-} from '../../common/constants';
+import { CONFIG_FILE_NAME, CONTEXT_VALUES, DISPLAY_PREFIX, NO_GROUP_NAME, getCommandId } from '../../common/constants';
+import { getConfigDirPattern, getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
@@ -111,8 +104,9 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     const workspace = getWorkspacePath();
     if (!workspace) return;
 
+    const configDirPattern = getConfigDirPattern();
     this.configWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, `${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`),
+      new vscode.RelativePattern(workspace, `${configDirPattern}/${CONFIG_FILE_NAME}`),
     );
 
     this.configWatcher.onDidChange(() => this.refresh());
@@ -241,7 +235,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     const workspace = getWorkspacePath();
     if (!workspace) return null;
 
-    const configPath = path.join(workspace, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
+    const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
     if (!fs.existsSync(configPath)) return null;
 
     const content = fs.readFileSync(configPath, 'utf-8');

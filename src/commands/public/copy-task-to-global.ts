@@ -1,15 +1,14 @@
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
-  CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   GLOBAL_ITEM_PREFIX,
   getCommandId,
   getGlobalConfigDir,
   getGlobalConfigPath,
 } from '../../common/constants';
+import { getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 import type { TreeTask } from '../../views/tasks/items';
@@ -31,7 +30,7 @@ async function handleCopyTaskToGlobal(treeTask: TreeTask): Promise<void> {
     return;
   }
 
-  const workspaceConfigPath = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
+  const workspaceConfigPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
   if (!fs.existsSync(workspaceConfigPath)) {
     vscode.window.showErrorMessage('Workspace config not found');
     return;

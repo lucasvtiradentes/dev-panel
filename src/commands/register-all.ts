@@ -1,13 +1,9 @@
 import * as vscode from 'vscode';
-import {
-  CONFIG_DIR_NAME,
-  GLOBAL_ITEM_PREFIX,
-  TOOLS_DIR,
-  TOOL_INSTRUCTIONS_FILE,
-  getGlobalConfigDir,
-} from '../common/constants';
+import { GLOBAL_ITEM_PREFIX, TOOLS_DIR, TOOL_INSTRUCTIONS_FILE, getGlobalConfigDir } from '../common/constants';
+import { joinConfigPath } from '../common/lib/config-manager';
 import { syncKeybindings } from '../common/lib/keybindings-sync';
 import { Command, registerCommand } from '../common/lib/vscode-utils';
+import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
 import { BranchContextField, type BranchContextProvider } from '../views/branch-context';
 import type { PromptTreeDataProvider, TreePrompt } from '../views/prompts';
 import type { ReplacementsProvider } from '../views/replacements';
@@ -15,12 +11,6 @@ import type { TaskTreeDataProvider } from '../views/tasks';
 import type { TodosProvider } from '../views/todos';
 import type { ToolTreeDataProvider, TreeTool } from '../views/tools';
 import type { VariablesProvider } from '../views/variables';
-import {
-  createBackCmdlineCommand,
-  createExecCmdlineCommand,
-  createExitCmdlineCommand,
-  createTabCmdlineCommand,
-} from './internal/cmdline';
 import {
   createExecutePromptCommand,
   createExecuteTaskCommand,
@@ -94,10 +84,7 @@ export function registerAllCommands(options: {
     createCopyTaskToGlobalCommand(),
     createCopyTaskToWorkspaceCommand(),
     createExecuteTaskCommand(context),
-    createExecCmdlineCommand(taskTreeDataProvider),
-    createExitCmdlineCommand(taskTreeDataProvider),
-    createBackCmdlineCommand(taskTreeDataProvider),
-    createTabCmdlineCommand(taskTreeDataProvider),
+    createOpenSettingsMenuCommand(),
     createSelectConfigOptionCommand(),
     createResetConfigOptionCommand(),
     registerCommand(Command.ToggleConfigsGroupMode, () => variablesProvider.toggleGroupMode()),
@@ -128,7 +115,7 @@ export function registerAllCommands(options: {
         } else {
           const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
           if (!workspaceFolder) return;
-          instructionsPath = `${workspaceFolder.uri.fsPath}/${CONFIG_DIR_NAME}/${TOOLS_DIR}/${toolName}/${TOOL_INSTRUCTIONS_FILE}`;
+          instructionsPath = joinConfigPath(workspaceFolder, TOOLS_DIR, toolName, TOOL_INSTRUCTIONS_FILE);
         }
 
         const uri = vscode.Uri.file(instructionsPath);
