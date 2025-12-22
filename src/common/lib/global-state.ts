@@ -19,6 +19,46 @@ export function initGlobalState(context: vscode.ExtensionContext): void {
   _context = context;
 }
 
+export function resetGlobalState(): void {
+  if (!_context) return;
+  const cleanState: GlobalUIState = {
+    tasks: { ...DEFAULT_TASKS_GLOBAL_STATE },
+    tools: { ...DEFAULT_TOOLS_STATE },
+    prompts: { ...DEFAULT_PROMPTS_STATE },
+  };
+  void _context.globalState.update(GLOBAL_STATE_KEY, cleanState);
+}
+
+export function migrateGlobalState(): void {
+  if (!_context) return;
+  const state = getState();
+  let needsMigration = false;
+
+  if (state.prompts?.pp?.favorites && state.prompts.pp.favorites.length > 0) {
+    state.prompts.pp.favorites = [];
+    needsMigration = true;
+  }
+
+  if (state.prompts?.pp?.hidden && state.prompts.pp.hidden.length > 0) {
+    state.prompts.pp.hidden = [];
+    needsMigration = true;
+  }
+
+  if (state.tools?.pp?.favorites && state.tools.pp.favorites.length > 0) {
+    state.tools.pp.favorites = [];
+    needsMigration = true;
+  }
+
+  if (state.tools?.pp?.hidden && state.tools.pp.hidden.length > 0) {
+    state.tools.pp.hidden = [];
+    needsMigration = true;
+  }
+
+  if (needsMigration) {
+    saveState(state);
+  }
+}
+
 function getState(): GlobalUIState {
   if (!_context)
     return {

@@ -36,4 +36,8 @@
   - tools
   - scripts 
 - [ ] adicionar status bar
-
+- [ ] nas docs devemos ter requirements
+- [ ] devemos ter um botao na branch context para ao clicar ele atualizar a lista de arquivos alterados na branch atual (tree)
+- [ ] mudar o nome de "TODOS" para "BRANCH TASKS"
+  - [ ] la no .md mudar para TASKS
+  

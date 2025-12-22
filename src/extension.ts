@@ -22,7 +22,7 @@ import {
 } from './common/constants';
 import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from './common/lib/config-manager';
 import { extensionStore } from './common/lib/extension-store';
-import { initGlobalState } from './common/lib/global-state';
+import { initGlobalState, migrateGlobalState } from './common/lib/global-state';
 import { syncKeybindings } from './common/lib/keybindings-sync';
 import { logger } from './common/lib/logger';
 import { Command, ContextKey, generateWorkspaceId, setContextKey, setWorkspaceId } from './common/lib/vscode-utils';
@@ -165,6 +165,7 @@ export function activate(context: vscode.ExtensionContext): object {
   logger.info('Better Project Tools extension activated');
   initWorkspaceState(context);
   initGlobalState(context);
+  migrateGlobalState();
   extensionStore.initialize(context);
 
   const workspaceId = generateWorkspaceId();

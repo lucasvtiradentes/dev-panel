@@ -59,10 +59,12 @@ export abstract class BaseTreeDataProvider<
     const hiddenItems = this.getHiddenItems();
     const favoriteItems = this.getFavoriteItems();
 
+    const hasFavorites = favoriteItems.length > 0;
+
     void setContextKey(this.config.contextKeys.grouped, this._grouped);
     void setContextKey(this.config.contextKeys.hasHidden, hiddenItems.length > 0);
     void setContextKey(this.config.contextKeys.showHidden, this._showHidden);
-    void setContextKey(this.config.contextKeys.hasFavorites, favoriteItems.length > 0);
+    void setContextKey(this.config.contextKeys.hasFavorites, hasFavorites);
     void setContextKey(this.config.contextKeys.showOnlyFavorites, this._showOnlyFavorites);
   }
 

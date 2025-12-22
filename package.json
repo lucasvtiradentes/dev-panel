@@ -711,12 +711,12 @@
         },
         {
           "command": "projectPanel.toggleToolFavorite",
-          "when": "view == projectPanelTools && viewItem == tool",
+          "when": "view == projectPanelTools && (viewItem == tool || viewItem == tool-global)",
           "group": "inline@1"
         },
         {
           "command": "projectPanel.toggleToolUnfavorite",
-          "when": "view == projectPanelTools && viewItem == tool-favorite",
+          "when": "view == projectPanelTools && (viewItem == tool-favorite || viewItem == tool-global-favorite)",
           "group": "inline@1"
         },
         {
@@ -750,12 +750,12 @@
         },
         {
           "command": "projectPanel.togglePromptFavorite",
-          "when": "view == projectPanelPrompts && viewItem == prompt",
+          "when": "view == projectPanelPrompts && (viewItem == prompt || viewItem == prompt-global)",
           "group": "inline@1"
         },
         {
           "command": "projectPanel.togglePromptUnfavorite",
-          "when": "view == projectPanelPrompts && viewItem == prompt-favorite",
+          "when": "view == projectPanelPrompts && (viewItem == prompt-favorite || viewItem == prompt-global-favorite)",
           "group": "inline@1"
         },
         {

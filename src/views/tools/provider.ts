@@ -46,6 +46,11 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     this._treeView = treeView;
   }
 
+  refresh(): void {
+    this.updateContextKeys();
+    super.refresh();
+  }
+
   get dragAndDropController(): ToolDragAndDropController {
     return new ToolDragAndDropController(
       () => this._grouped,

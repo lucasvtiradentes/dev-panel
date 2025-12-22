@@ -47,6 +47,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
 
   refresh(): void {
     log.info('refresh() called - tree will re-read config');
+    this.updateContextKeys();
     super.refresh();
   }
 
