@@ -7,6 +7,7 @@ import {
   CONFIG_FILE_NAME,
   GLOBAL_ITEM_PREFIX,
   TOOLS_DIR,
+  getCommandId,
   getGlobalConfigPath,
   getGlobalToolsDir,
 } from '../../common/constants';
@@ -112,7 +113,7 @@ async function handleCopyToolToWorkspace(treeTool: TreeTool): Promise<void> {
   }
 
   vscode.window.showInformationMessage(`✓ Tool "${tool.name}" copied to workspace`);
-  void vscode.commands.executeCommand(Command.RefreshTools);
+  void vscode.commands.executeCommand(getCommandId(Command.RefreshTools));
 }
 
 export function createCopyToolToWorkspaceCommand() {

@@ -7,6 +7,7 @@ import {
   CONFIG_FILE_NAME,
   GLOBAL_ITEM_PREFIX,
   TOOLS_DIR,
+  getCommandId,
   getGlobalConfigDir,
   getGlobalConfigPath,
   getGlobalToolsDir,
@@ -99,7 +100,7 @@ async function handleCopyToolToGlobal(treeTool: TreeTool): Promise<void> {
   }
 
   vscode.window.showInformationMessage(`✓ Tool "${tool.name}" copied to global config`);
-  void vscode.commands.executeCommand(Command.RefreshTools);
+  void vscode.commands.executeCommand(getCommandId(Command.RefreshTools));
 }
 
 export function createCopyToolToGlobalCommand() {

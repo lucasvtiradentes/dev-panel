@@ -301,10 +301,12 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
 
     if (hidden) {
       treeTool.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
-      treeTool.contextValue = CONTEXT_VALUES.TOOL_HIDDEN;
+      treeTool.contextValue = CONTEXT_VALUES.TOOL_GLOBAL_HIDDEN;
     } else if (favorite) {
       treeTool.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
-      treeTool.contextValue = CONTEXT_VALUES.TOOL_FAVORITE;
+      treeTool.contextValue = CONTEXT_VALUES.TOOL_GLOBAL_FAVORITE;
+    } else {
+      treeTool.contextValue = CONTEXT_VALUES.TOOL_GLOBAL;
     }
 
     return treeTool;

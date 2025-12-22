@@ -277,10 +277,12 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
 
     if (hidden) {
       treePrompt.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
-      treePrompt.contextValue = CONTEXT_VALUES.PROMPT_HIDDEN;
+      treePrompt.contextValue = CONTEXT_VALUES.PROMPT_GLOBAL_HIDDEN;
     } else if (favorite) {
       treePrompt.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
-      treePrompt.contextValue = CONTEXT_VALUES.PROMPT_FAVORITE;
+      treePrompt.contextValue = CONTEXT_VALUES.PROMPT_GLOBAL_FAVORITE;
+    } else {
+      treePrompt.contextValue = CONTEXT_VALUES.PROMPT_GLOBAL;
     }
 
     return treePrompt;

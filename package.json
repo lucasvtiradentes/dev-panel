@@ -727,12 +727,12 @@
         },
         {
           "command": "projectPanel.copyToolToGlobal",
-          "when": "view == projectPanelTools && viewItem =~ /^tool/",
+          "when": "view == projectPanelTools && viewItem =~ /^tool(-hidden|-favorite)?$/",
           "group": "9_copy@1"
         },
         {
           "command": "projectPanel.copyToolToWorkspace",
-          "when": "view == projectPanelTools && viewItem =~ /^tool/",
+          "when": "view == projectPanelTools && viewItem =~ /^tool-global/",
           "group": "9_copy@2"
         },
         {
@@ -766,12 +766,12 @@
         },
         {
           "command": "projectPanel.copyPromptToGlobal",
-          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/",
+          "when": "view == projectPanelPrompts && viewItem =~ /^prompt(-hidden|-favorite)?$/",
           "group": "9_copy@1"
         },
         {
           "command": "projectPanel.copyPromptToWorkspace",
-          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/",
+          "when": "view == projectPanelPrompts && viewItem =~ /^prompt-global/",
           "group": "9_copy@2"
         },
         {

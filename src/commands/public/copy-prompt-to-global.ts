@@ -6,6 +6,7 @@ import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   GLOBAL_ITEM_PREFIX,
+  getCommandId,
   getGlobalConfigDir,
   getGlobalConfigPath,
 } from '../../common/constants';
@@ -95,7 +96,7 @@ async function handleCopyPromptToGlobal(treePrompt: TreePrompt): Promise<void> {
   }
 
   vscode.window.showInformationMessage(`✓ Prompt "${prompt.name}" copied to global config`);
-  void vscode.commands.executeCommand(Command.RefreshPrompts);
+  void vscode.commands.executeCommand(getCommandId(Command.RefreshPrompts));
 }
 
 export function createCopyPromptToGlobalCommand() {

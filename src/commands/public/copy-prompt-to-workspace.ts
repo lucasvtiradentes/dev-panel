@@ -6,6 +6,7 @@ import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   GLOBAL_ITEM_PREFIX,
+  getCommandId,
   getGlobalConfigPath,
   getGlobalPromptsDir,
 } from '../../common/constants';
@@ -108,7 +109,7 @@ async function handleCopyPromptToWorkspace(treePrompt: TreePrompt): Promise<void
   }
 
   vscode.window.showInformationMessage(`✓ Prompt "${prompt.name}" copied to workspace`);
-  void vscode.commands.executeCommand(Command.RefreshPrompts);
+  void vscode.commands.executeCommand(getCommandId(Command.RefreshPrompts));
 }
 
 export function createCopyPromptToWorkspaceCommand() {
