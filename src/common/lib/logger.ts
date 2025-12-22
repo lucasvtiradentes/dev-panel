@@ -33,13 +33,13 @@ function formatContext(context: string): string {
   return context.padEnd(LOG_CONTEXT_WIDTH, ' ');
 }
 
-interface ILogger {
+type ILogger = {
   info(message: string): void;
   error(message: string): void;
   warn(message: string): void;
   debug(message: string): void;
   clear(): void;
-}
+};
 
 class Logger implements ILogger {
   private context: string;

@@ -31,7 +31,7 @@ enum VariableKind {
   Folder = 'folder',
 }
 
-interface VariableItem {
+type VariableItem = {
   name: string;
   kind: VariableKind;
   options?: string[];
@@ -42,15 +42,15 @@ interface VariableItem {
   showTerminal?: boolean;
   multiSelect?: boolean;
   excludes?: string[];
-}
+};
 
-interface PpVariables {
+type PpVariables = {
   variables: VariableItem[];
-}
+};
 
-interface PpState {
+type PpState = {
   [key: string]: string | boolean | string[];
-}
+};
 
 function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
