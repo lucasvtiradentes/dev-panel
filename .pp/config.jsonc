@@ -136,20 +136,6 @@
       "description": "Review constants and suggest centralizing hardcoded values",
       "group": "Analysis",
       "saveOutput": true
-    },
-    {
-      "name": "Explain Flow",
-      "file": "prompts/explain-flow.md",
-      "description": "Explain execution flow with ASCII diagrams",
-      "group": "Analysis",
-      "saveOutput": true,
-      "inputs": [
-        {
-          "name": "target",
-          "type": "file",
-          "label": "Target to analyze (file path, folder, function name, etc)"
-        }
-      ]
     }
   ]
 }

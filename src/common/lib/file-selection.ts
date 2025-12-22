@@ -29,12 +29,15 @@ async function selectFilesFlat(
   multiSelect: boolean,
   excludes: string[],
 ): Promise<string | undefined> {
+  log.info(`selectFilesFlat - workspaceFolder.name: ${workspaceFolder.name}`);
+  log.info(`selectFilesFlat - workspaceFolder.uri.fsPath: ${workspaceFolder.uri.fsPath}`);
   const excludeGlob = buildExcludeGlob(excludes);
   const files = await vscode.workspace.findFiles(
     new vscode.RelativePattern(workspaceFolder, '**/*'),
     excludeGlob,
     1000,
   );
+  log.info(`selectFilesFlat - found ${files.length} files`);
 
   const items: vscode.QuickPickItem[] = files.map((uri) => ({
     label: vscode.workspace.asRelativePath(uri, false),

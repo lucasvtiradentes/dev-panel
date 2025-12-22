@@ -202,9 +202,10 @@ function replaceVariablePlaceholders(content: string, variables: Record<string, 
 export function createExecutePromptCommand() {
   return registerCommand(
     Command.ExecutePrompt,
-    async (promptFilePath: string, folder: vscode.WorkspaceFolder, promptConfig?: PPPrompt) => {
+    async (promptFilePath: string, folder: vscode.WorkspaceFolder | null, promptConfig?: PPPrompt) => {
       log.info('=== ExecutePrompt called ===');
       log.info(`promptFilePath: ${promptFilePath}`);
+      log.info(`folder: ${folder ? folder.name : 'null (global)'}`);
       log.info(`promptConfig (from tree): ${JSON.stringify(promptConfig)}`);
 
       if (!fs.existsSync(promptFilePath)) {
@@ -213,10 +214,12 @@ export function createExecutePromptCommand() {
       }
 
       let promptContent = fs.readFileSync(promptFilePath, 'utf8');
-      const settings = readPPSettings(folder);
+
+      const folderForSettings = folder ?? vscode.workspace.workspaceFolders?.[0];
+      const settings = folderForSettings ? readPPSettings(folderForSettings) : undefined;
       log.info(`settings: ${JSON.stringify(settings)}`);
 
-      const variables = readPPVariables(folder);
+      const variables = folder ? readPPVariables(folder) : null;
       if (variables) {
         promptContent = replaceVariablePlaceholders(promptContent, variables);
       }
@@ -237,18 +240,25 @@ export function createExecutePromptCommand() {
       }
 
       if (promptConfig?.saveOutput) {
+        const folderForOutput = folder ?? vscode.workspace.workspaceFolders?.[0];
+        if (!folderForOutput) {
+          void vscode.window.showErrorMessage('No workspace folder available to save prompt output');
+          return;
+        }
+
         await executePromptWithSave({
           promptContent,
-          folder,
+          folder: folderForOutput,
           promptName: promptConfig.name,
           provider,
           settings,
         });
-      } else {
-        const terminal = vscode.window.createTerminal({ name: provider.name });
-        terminal.show();
-        provider.executeInteractive(terminal, promptContent);
+        return;
       }
+
+      const terminal = vscode.window.createTerminal({ name: provider.name });
+      terminal.show();
+      provider.executeInteractive(terminal, promptContent);
     },
   );
 }
