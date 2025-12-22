@@ -2,14 +2,29 @@
   "$schema": "../resources/schema.json",
   "settings": {
     "aiProvider": "claude",
-    "exclude": ["**/.pp/**", "**/.changeset/**", "**/.ignore/**", "**/.github/**", "**/.husky/**", "**/dist-dev/**", "**/.tscanner/**", "**/.vscode/**", "**/out/**"]
+    "exclude": [
+      "**/.pp/**",
+      "**/.changeset/**",
+      "**/.ignore/**",
+      "**/.github/**",
+      "**/.husky/**",
+      "**/dist-dev/**",
+      "**/.tscanner/**",
+      "**/.vscode/**",
+      "**/out/**"
+    ]
   },
   "variables": [
-    // Environment group
     {
       "name": "environment",
       "kind": "choose",
-      "options": ["local", "local-staging", "local-prod", "staging", "prod"],
+      "options": [
+        "local",
+        "local-staging",
+        "local-prod",
+        "staging",
+        "prod"
+      ],
       "command": "bash scripts/environment-select.sh",
       "description": "Select the target environment",
       "default": "local",
@@ -23,8 +38,6 @@
       "default": false,
       "group": "Environment"
     },
-
-    // API group
     {
       "name": "api-url",
       "kind": "input",
@@ -35,14 +48,19 @@
     {
       "name": "features",
       "kind": "multi-select",
-      "options": ["auth", "analytics", "notifications", "dark-mode"],
+      "options": [
+        "auth",
+        "analytics",
+        "notifications",
+        "dark-mode"
+      ],
       "command": "bash scripts/set-features.sh",
       "description": "Enable feature flags",
-      "default": ["auth"],
+      "default": [
+        "auth"
+      ],
       "group": "API"
     },
-
-    // Paths (ungrouped)
     {
       "name": "config-file",
       "kind": "file",
@@ -66,9 +84,7 @@
       "description": "Select multiple folders"
     }
   ],
-
   "replacements": [
-    // Example: patch replacement (multiline)
     {
       "name": "enable-debug-logs",
       "type": "patch",
@@ -84,7 +100,6 @@
       "group": "Debug"
     }
   ],
-
   "tasks": [
     {
       "name": "hello",
@@ -102,7 +117,6 @@
       "group": "Utils"
     }
   ],
-
   "tools": [
     {
       "name": "linear",
@@ -113,13 +127,8 @@
       "name": "github-cli",
       "command": "gh",
       "group": "Quality"
-    },
-    {
-        "name": "chrome-cmd",
-        "command": "chrome-cmd"
     }
   ],
-
   "prompts": [
     {
       "name": "Review Constants",
@@ -135,7 +144,11 @@
       "group": "Analysis",
       "saveOutput": true,
       "inputs": [
-        { "name": "target", "type": "file", "label": "Target to analyze (file path, folder, function name, etc)" }
+        {
+          "name": "target",
+          "type": "file",
+          "label": "Target to analyze (file path, folder, function name, etc)"
+        }
       ]
     }
   ]

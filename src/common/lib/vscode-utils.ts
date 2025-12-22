@@ -48,6 +48,7 @@ export enum Command {
   AddTool = 'addTool',
   CopyToolToGlobal = 'copyToolToGlobal',
   CopyToolToWorkspace = 'copyToolToWorkspace',
+  DeleteTool = 'deleteTool',
   TogglePromptsGroupMode = 'togglePromptsGroupMode',
   TogglePromptsGroupModeGrouped = 'togglePromptsGroupModeGrouped',
   TogglePromptFavorite = 'togglePromptFavorite',
@@ -61,6 +62,7 @@ export enum Command {
   GoToPromptFile = 'goToPromptFile',
   CopyPromptToGlobal = 'copyPromptToGlobal',
   CopyPromptToWorkspace = 'copyPromptToWorkspace',
+  DeletePrompt = 'deletePrompt',
   EditBranchPrLink = 'editBranchPrLink',
   EditBranchLinearLink = 'editBranchLinearLink',
   EditBranchObjective = 'editBranchObjective',
@@ -84,6 +86,7 @@ export enum Command {
   SyncTaskKeybindings = 'syncTaskKeybindings',
   SetTaskKeybinding = 'setTaskKeybinding',
   OpenTasksKeybindings = 'openTasksKeybindings',
+  DeleteTask = 'deleteTask',
 }
 
 export function registerCommand(command: Command, callback: (...args: any[]) => any): vscode.Disposable {

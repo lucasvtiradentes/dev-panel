@@ -2,7 +2,15 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../../common/constants';
+import {
+  CLAUDE_DIR_NAME,
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  SKILLS_DIR_NAME,
+  SKILL_FILE_NAME,
+  getGlobalConfigPath,
+  getGlobalToolsDir,
+} from '../../common/constants';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 
@@ -119,23 +127,39 @@ function parseInstructionsMd(content: string, toolName: string): ToolInstruction
   return instruction;
 }
 
+function getGlobalTools(): NonNullable<PPConfig['tools']> {
+  const globalConfigPath = getGlobalConfigPath();
+  if (!fs.existsSync(globalConfigPath)) {
+    return [];
+  }
+  try {
+    const config = JSON5.parse(fs.readFileSync(globalConfigPath, 'utf8')) as PPConfig;
+    return config.tools ?? [];
+  } catch {
+    return [];
+  }
+}
+
 function generateToolsXml(workspaceFolder: vscode.WorkspaceFolder): string {
   const configPath = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
-  if (!fs.existsSync(configPath)) {
-    return '<available_tools>\n  No custom CLI tools configured.\n</available_tools>';
+  let localTools: NonNullable<PPConfig['tools']> = [];
+
+  if (fs.existsSync(configPath)) {
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
+    localTools = config.tools ?? [];
   }
 
-  const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
-  const tools = config.tools ?? [];
+  const globalTools = getGlobalTools();
+  const allTools = [...localTools, ...globalTools];
 
-  if (tools.length === 0) {
+  if (allTools.length === 0) {
     return '<available_tools>\n  No custom CLI tools configured.\n</available_tools>';
   }
 
   const toolsXml: string[] = ['<available_tools>'];
   toolsXml.push('  Custom CLI tools installed (execute via Bash tool):');
 
-  for (const tool of tools) {
+  for (const tool of localTools) {
     const instructionsPath = path.join(
       workspaceFolder.uri.fsPath,
       CONFIG_DIR_NAME,
@@ -154,12 +178,25 @@ function generateToolsXml(workspaceFolder: vscode.WorkspaceFolder): string {
     toolsXml.push(`  - ${tool.name}: ${description}`);
   }
 
+  for (const tool of globalTools) {
+    const instructionsPath = path.join(getGlobalToolsDir(), tool.name, 'instructions.md');
+
+    let description = '';
+    if (fs.existsSync(instructionsPath)) {
+      const content = fs.readFileSync(instructionsPath, 'utf8');
+      const instruction = parseInstructionsMd(content, tool.name);
+      description = instruction.description ?? '';
+    }
+
+    toolsXml.push(`  - ${tool.name}: ${description} (global)`);
+  }
+
   toolsXml.push('');
   toolsXml.push('  CRITICAL: When ANY of these tools are mentioned or needed, you MUST:');
   toolsXml.push('  1. FIRST use Skill tool to read the documentation (e.g., Skill with skill: "chrome-cmd")');
   toolsXml.push('  2. ONLY THEN execute commands via Bash tool');
   toolsXml.push('  ');
-  toolsXml.push('  Skills location: .claude/skills/{tool-name}/SKILL.md');
+  toolsXml.push(`  Skills location: ${CLAUDE_DIR_NAME}/${SKILLS_DIR_NAME}/{tool-name}/${SKILL_FILE_NAME}`);
   toolsXml.push('</available_tools>');
 
   return toolsXml.join('\n');
@@ -222,15 +259,17 @@ ${contentLines.join('\n').trim()}
 
 async function syncToSkills(workspaceFolder: vscode.WorkspaceFolder): Promise<number> {
   const configPath = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
-  if (!fs.existsSync(configPath)) {
-    return 0;
+  let localTools: NonNullable<PPConfig['tools']> = [];
+
+  if (fs.existsSync(configPath)) {
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
+    localTools = config.tools ?? [];
   }
 
-  const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
-  const tools = config.tools ?? [];
+  const globalTools = getGlobalTools();
   let syncedCount = 0;
 
-  for (const tool of tools) {
+  for (const tool of localTools) {
     const instructionsPath = path.join(
       workspaceFolder.uri.fsPath,
       CONFIG_DIR_NAME,
@@ -247,12 +286,33 @@ async function syncToSkills(workspaceFolder: vscode.WorkspaceFolder): Promise<nu
     const exampleCommand = instructionsContent.match(/```bash\n(.+?)\n/)?.[1] ?? tool.command;
     const skillContent = generateSkillMd(instructionsContent, tool.name, exampleCommand);
 
-    const skillDir = path.join(workspaceFolder.uri.fsPath, '.claude', 'skills', tool.name);
+    const skillDir = path.join(workspaceFolder.uri.fsPath, CLAUDE_DIR_NAME, SKILLS_DIR_NAME, tool.name);
     if (!fs.existsSync(skillDir)) {
       fs.mkdirSync(skillDir, { recursive: true });
     }
 
-    const skillPath = path.join(skillDir, 'SKILL.md');
+    const skillPath = path.join(skillDir, SKILL_FILE_NAME);
+    fs.writeFileSync(skillPath, skillContent, 'utf8');
+    syncedCount++;
+  }
+
+  for (const tool of globalTools) {
+    const instructionsPath = path.join(getGlobalToolsDir(), tool.name, 'instructions.md');
+
+    if (!fs.existsSync(instructionsPath)) {
+      continue;
+    }
+
+    const instructionsContent = fs.readFileSync(instructionsPath, 'utf8');
+    const exampleCommand = instructionsContent.match(/```bash\n(.+?)\n/)?.[1] ?? tool.command;
+    const skillContent = generateSkillMd(instructionsContent, tool.name, exampleCommand);
+
+    const skillDir = path.join(workspaceFolder.uri.fsPath, CLAUDE_DIR_NAME, SKILLS_DIR_NAME, tool.name);
+    if (!fs.existsSync(skillDir)) {
+      fs.mkdirSync(skillDir, { recursive: true });
+    }
+
+    const skillPath = path.join(skillDir, SKILL_FILE_NAME);
     fs.writeFileSync(skillPath, skillContent, 'utf8');
     syncedCount++;
   }
@@ -310,7 +370,7 @@ async function handleGenerateToolsDocs(): Promise<void> {
   syncToAiSpecs(xml, workspaceFolder);
 
   if (skillsCount > 0) {
-    vscode.window.showInformationMessage(`Synced ${skillsCount} tool(s) to .claude/skills/`);
+    vscode.window.showInformationMessage(`Synced ${skillsCount} tool(s) to ${CLAUDE_DIR_NAME}/${SKILLS_DIR_NAME}/`);
   }
 }
 

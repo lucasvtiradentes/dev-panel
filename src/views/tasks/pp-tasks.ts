@@ -132,10 +132,12 @@ function createPPTask(
 
   if (hidden) {
     treeTask.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
-    treeTask.contextValue = CONTEXT_VALUES.TASK_HIDDEN;
+    treeTask.contextValue = CONTEXT_VALUES.TASK_PP_HIDDEN;
   } else if (favorite) {
     treeTask.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
-    treeTask.contextValue = CONTEXT_VALUES.TASK_FAVORITE;
+    treeTask.contextValue = CONTEXT_VALUES.TASK_PP_FAVORITE;
+  } else {
+    treeTask.contextValue = CONTEXT_VALUES.TASK_PP;
   }
 
   return treeTask;

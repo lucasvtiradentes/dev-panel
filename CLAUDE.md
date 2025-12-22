@@ -42,7 +42,7 @@ aqui estao os logs da versao dev:
   Custom CLI tools installed (execute via Bash tool):
   - linear: Linear CLI - A GitHub CLI-like tool for Linear
   - github-cli: Work seamlessly with GitHub from the command line
-  - chrome-cmd: Control Chrome from the command line - List tabs, execute JavaScript, and more
+  - chrome-cmd: Control Chrome from the command line - List tabs, execute JavaScript, and more (global)
 
   CRITICAL: When ANY of these tools are mentioned or needed, you MUST:
   1. FIRST use Skill tool to read the documentation (e.g., Skill with skill: "chrome-cmd")

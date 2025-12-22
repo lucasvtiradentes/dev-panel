@@ -34,6 +34,9 @@ import { createCopyPromptToGlobalCommand } from './public/copy-prompt-to-global'
 import { createCopyPromptToWorkspaceCommand } from './public/copy-prompt-to-workspace';
 import { createCopyToolToGlobalCommand } from './public/copy-tool-to-global';
 import { createCopyToolToWorkspaceCommand } from './public/copy-tool-to-workspace';
+import { createDeletePromptCommand } from './public/delete-prompt';
+import { createDeleteTaskCommand } from './public/delete-task';
+import { createDeleteToolCommand } from './public/delete-tool';
 import { createGenerateToolsDocsCommand } from './public/generate-tools-docs';
 import { createGoToTaskCommand } from './public/go-to-task';
 import { createOpenTasksConfigCommand } from './public/open-tasks-config';
@@ -85,6 +88,7 @@ export function registerAllCommands(options: {
     registerCommand(Command.ToggleTasksShowOnlyFavoritesActive, () => taskTreeDataProvider.toggleShowOnlyFavorites()),
     createGoToTaskCommand(),
     createOpenTasksConfigCommand(),
+    createDeleteTaskCommand(),
     createExecuteTaskCommand(context),
     createExecCmdlineCommand(taskTreeDataProvider),
     createExitCmdlineCommand(taskTreeDataProvider),
@@ -131,6 +135,7 @@ export function registerAllCommands(options: {
     createAddToolCommand(),
     createCopyToolToGlobalCommand(),
     createCopyToolToWorkspaceCommand(),
+    createDeleteToolCommand(),
     registerCommand(Command.RefreshTools, () => toolTreeDataProvider.refresh()),
     registerCommand(Command.TogglePromptsGroupMode, () => promptTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.TogglePromptsGroupModeGrouped, () => promptTreeDataProvider.toggleGroupMode()),
@@ -146,6 +151,7 @@ export function registerAllCommands(options: {
     createExecutePromptCommand(),
     createCopyPromptToGlobalCommand(),
     createCopyPromptToWorkspaceCommand(),
+    createDeletePromptCommand(),
     registerCommand(Command.RefreshPrompts, () => promptTreeDataProvider.refresh()),
     registerCommand(Command.GoToPromptFile, async (item: TreePrompt) => {
       if (item?.promptFile) {

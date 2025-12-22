@@ -316,6 +316,10 @@
         "icon": "$(file-directory)"
       },
       {
+        "command": "projectPanel.deleteTool",
+        "title": "Delete Tool"
+      },
+      {
         "command": "projectPanel.copyPromptToGlobal",
         "title": "Copy to Global",
         "icon": "$(globe)"
@@ -324,6 +328,14 @@
         "command": "projectPanel.copyPromptToWorkspace",
         "title": "Copy to Workspace",
         "icon": "$(file-directory)"
+      },
+      {
+        "command": "projectPanel.deletePrompt",
+        "title": "Delete Prompt"
+      },
+      {
+        "command": "projectPanel.deleteTask",
+        "title": "Delete Task"
       },
       {
         "command": "projectPanel.togglePromptsGroupMode",
@@ -697,6 +709,11 @@
           "when": "view == projectPanelTasks"
         },
         {
+          "command": "projectPanel.deleteTask",
+          "when": "view == projectPanelTasks && viewItem =~ /^task-pp/",
+          "group": "9_delete@1"
+        },
+        {
           "command": "projectPanel.setReplacementKeybinding",
           "when": "view == projectPanelReplacements && viewItem == replacementItem",
           "group": "inline@1"
@@ -736,6 +753,11 @@
           "group": "9_copy@2"
         },
         {
+          "command": "projectPanel.deleteTool",
+          "when": "view == projectPanelTools && viewItem =~ /^tool/",
+          "group": "9_delete@1"
+        },
+        {
           "command": "projectPanel.togglePromptFavorite",
           "when": "view == projectPanelPrompts && viewItem == prompt",
           "group": "inline@1"
@@ -773,6 +795,11 @@
           "command": "projectPanel.copyPromptToWorkspace",
           "when": "view == projectPanelPrompts && viewItem =~ /^prompt-global/",
           "group": "9_copy@2"
+        },
+        {
+          "command": "projectPanel.deletePrompt",
+          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/",
+          "group": "9_delete@1"
         },
         {
           "command": "projectPanel.setVariableKeybinding",
