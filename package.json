@@ -663,12 +663,12 @@
       "view/item/context": [
         {
           "command": "projectPanel.toggleFavorite",
-          "when": "view == projectPanelTasks && viewItem == task",
+          "when": "view == projectPanelTasks && (viewItem == task || viewItem == task-pp || viewItem == task-pp-global)",
           "group": "inline@1"
         },
         {
           "command": "projectPanel.toggleUnfavorite",
-          "when": "view == projectPanelTasks && viewItem == task-favorite",
+          "when": "view == projectPanelTasks && (viewItem == task-favorite || viewItem == task-pp-favorite || viewItem == task-pp-global-favorite)",
           "group": "inline@1"
         },
         {

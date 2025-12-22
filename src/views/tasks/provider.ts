@@ -52,6 +52,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
   }
 
   refresh(): void {
+    this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
   }
 
