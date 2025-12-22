@@ -165,8 +165,6 @@ export function activate(context: vscode.ExtensionContext): object {
   void setContextKey(ContextKey.WorkspaceId, workspaceId);
   logger.info(`Workspace ID: ${workspaceId}`);
 
-  // Reload keybinding managers after workspaceId is set
-  console.log('[extension] Reloading keybinding managers after workspaceId initialization');
   reloadToolKeybindings();
   reloadPromptKeybindings();
   reloadTaskKeybindings();
@@ -222,14 +220,10 @@ export function activate(context: vscode.ExtensionContext): object {
   context.subscriptions.push(configWatcher);
 
   const keybindingsWatcher = createKeybindingsWatcher(() => {
-    console.log('[extension] Keybindings changed, reloading managers and refreshing providers');
-
-    // Reload keybinding managers first
     reloadToolKeybindings();
     reloadPromptKeybindings();
     reloadTaskKeybindings();
 
-    // Then refresh providers
     toolTreeDataProvider.refresh();
     promptTreeDataProvider.refresh();
     replacementsProvider.refresh();

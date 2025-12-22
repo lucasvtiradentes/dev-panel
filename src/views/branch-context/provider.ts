@@ -6,12 +6,15 @@ import {
   ROOT_BRANCH_CONTEXT_FILE_NAME,
   getBranchContextFilePath as getBranchContextFilePathUtil,
 } from '../../common/constants/scripts-constants';
+import { createLogger } from '../../common/lib/logger';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { ensureBranchDirectory } from './file-storage';
 import { BranchContextField, BranchContextFieldItem, BranchHeaderItem } from './items';
 import { generateBranchContextMarkdown } from './markdown-generator';
 import { getBranchContextFilePath, getFieldLineNumber } from './markdown-parser';
 import { loadBranchContext } from './state';
+
+const logger = createLogger('BranchContext');
 
 function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
@@ -61,7 +64,6 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
   private handleMarkdownChange(uri?: vscode.Uri): void {
     if (this.isWritingMarkdown || this.isSyncing) {
-      console.log('[BranchContext] Skipping handleMarkdownChange - already syncing');
       return;
     }
 
@@ -71,21 +73,17 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     const currentBranchPath = getBranchContextFilePathUtil(workspace, this.currentBranch);
 
     if (uri.fsPath !== currentBranchPath) {
-      console.log('[BranchContext] Ignoring change - not current branch file');
       return;
     }
 
-    console.log('[BranchContext] Branch file changed, syncing to root');
     this.debouncedSync(() => this.syncBranchToRoot());
   }
 
   private handleRootMarkdownChange(): void {
     if (this.isWritingMarkdown || this.isSyncing) {
-      console.log('[BranchContext] Skipping handleRootMarkdownChange - already syncing');
       return;
     }
 
-    console.log('[BranchContext] Root file changed, syncing to branch');
     this.debouncedSync(() => this.syncRootToBranch());
   }
 
@@ -115,7 +113,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
         : `${content}\n${ROOT_BRANCH_CONTEXT_FILE_NAME}\n`;
       fs.writeFileSync(excludePath, newContent);
     } catch (error) {
-      console.error('Failed to update .git/info/exclude:', error);
+      logger.error(`Failed to update .git/info/exclude: ${error}`);
     }
   }
 
@@ -160,12 +158,10 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
   private syncRootToBranch(): void {
     if (!this.currentBranch) {
-      console.log('[BranchContext] Cannot sync - no current branch');
       return;
     }
 
     if (this.lastSyncDirection === 'root-to-branch') {
-      console.log('[BranchContext] Skipping root-to-branch sync - same direction as last sync');
       this.lastSyncDirection = null;
       return;
     }
@@ -177,7 +173,6 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     const branchPath = getBranchContextFilePathUtil(workspace, this.currentBranch);
 
     if (!fs.existsSync(rootPath)) {
-      console.log('[BranchContext] Root file does not exist, skipping sync');
       return;
     }
 
@@ -186,11 +181,9 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
     try {
       const content = fs.readFileSync(rootPath, 'utf-8');
-      console.log(`[BranchContext] Syncing root → branch (${content.length} bytes)`);
       fs.writeFileSync(branchPath, content, 'utf-8');
-      console.log('[BranchContext] Root → branch sync complete');
     } catch (error) {
-      console.error('[BranchContext] Error syncing root to branch:', error);
+      logger.error(`Error syncing root to branch: ${error}`);
     } finally {
       setTimeout(() => {
         this.isSyncing = false;
@@ -203,12 +196,10 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
   private syncBranchToRoot(): void {
     if (!this.currentBranch) {
-      console.log('[BranchContext] Cannot sync - no current branch');
       return;
     }
 
     if (this.lastSyncDirection === 'branch-to-root') {
-      console.log('[BranchContext] Skipping branch-to-root sync - same direction as last sync');
       this.lastSyncDirection = null;
       return;
     }
@@ -220,7 +211,6 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     const branchPath = getBranchContextFilePathUtil(workspace, this.currentBranch);
 
     if (!fs.existsSync(branchPath)) {
-      console.log('[BranchContext] Branch file does not exist, skipping sync');
       return;
     }
 
@@ -229,11 +219,9 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
     try {
       const content = fs.readFileSync(branchPath, 'utf-8');
-      console.log(`[BranchContext] Syncing branch → root (${content.length} bytes)`);
       fs.writeFileSync(rootPath, content, 'utf-8');
-      console.log('[BranchContext] Branch → root sync complete');
     } catch (error) {
-      console.error('[BranchContext] Error syncing branch to root:', error);
+      logger.error(`Error syncing branch to root: ${error}`);
     } finally {
       setTimeout(() => {
         this.isSyncing = false;
