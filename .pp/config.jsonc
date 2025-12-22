@@ -102,11 +102,6 @@
   ],
   "tasks": [
     {
-      "name": "hello",
-      "command": "echo 'Hello from PP!' && echo $DEBUG",
-      "description": "Test task - prints hello"
-    },
-    {
       "name": "list-files",
       "command": "ls -la",
       "group": "Utils"

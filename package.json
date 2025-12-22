@@ -338,6 +338,16 @@
         "title": "Delete Task"
       },
       {
+        "command": "projectPanel.copyTaskToGlobal",
+        "title": "Copy to Global",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "projectPanel.copyTaskToWorkspace",
+        "title": "Copy to Workspace",
+        "icon": "$(file-directory)"
+      },
+      {
         "command": "projectPanel.togglePromptsGroupMode",
         "title": "Toggle Prompts Group Mode",
         "icon": "$(list-flat)"
@@ -707,6 +717,16 @@
         {
           "command": "projectPanel.goToTask",
           "when": "view == projectPanelTasks"
+        },
+        {
+          "command": "projectPanel.copyTaskToGlobal",
+          "when": "view == projectPanelTasks && viewItem =~ /^task-pp(-hidden|-favorite)?$/",
+          "group": "9_copy@1"
+        },
+        {
+          "command": "projectPanel.copyTaskToWorkspace",
+          "when": "view == projectPanelTasks && viewItem =~ /^task-pp-global/",
+          "group": "9_copy@2"
         },
         {
           "command": "projectPanel.deleteTask",

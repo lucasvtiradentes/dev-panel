@@ -87,6 +87,8 @@ export enum Command {
   SetTaskKeybinding = 'setTaskKeybinding',
   OpenTasksKeybindings = 'openTasksKeybindings',
   DeleteTask = 'deleteTask',
+  CopyTaskToGlobal = 'copyTaskToGlobal',
+  CopyTaskToWorkspace = 'copyTaskToWorkspace',
 }
 
 export function registerCommand(command: Command, callback: (...args: any[]) => any): vscode.Disposable {

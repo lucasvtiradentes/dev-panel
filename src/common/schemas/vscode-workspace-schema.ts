@@ -51,13 +51,22 @@ const WorkspaceUIStateSchema = z.object({
   replacements: ReplacementsStateSchema.optional(),
 });
 
+const TasksGlobalStateSchema = z.object({
+  isGrouped: z.boolean(),
+  showHidden: z.boolean().optional(),
+  showOnlyFavorites: z.boolean().optional(),
+  pp: SourceStateSchema,
+});
+
 const GlobalUIStateSchema = z.object({
+  tasks: TasksGlobalStateSchema.optional(),
   tools: ToolsStateSchema.optional(),
   prompts: PromptsStateSchema.optional(),
 });
 
 export type SourceState = z.infer<typeof SourceStateSchema>;
 export type TasksState = z.infer<typeof TasksStateSchema>;
+export type TasksGlobalState = z.infer<typeof TasksGlobalStateSchema>;
 export type ToolsState = z.infer<typeof ToolsStateSchema>;
 export type PromptsState = z.infer<typeof PromptsStateSchema>;
 export type VariablesState = z.infer<typeof VariablesStateSchema>;
@@ -77,6 +86,11 @@ export const DEFAULT_TASKS_STATE: TasksState = {
   isGrouped: false,
   vscode: { ...DEFAULT_SOURCE_STATE },
   packageJson: { ...DEFAULT_SOURCE_STATE },
+  pp: { ...DEFAULT_SOURCE_STATE },
+};
+
+export const DEFAULT_TASKS_GLOBAL_STATE: TasksGlobalState = {
+  isGrouped: false,
   pp: { ...DEFAULT_SOURCE_STATE },
 };
 

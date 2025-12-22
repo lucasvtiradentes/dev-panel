@@ -32,6 +32,8 @@ import { createToggleReplacementCommand } from './internal/toggle-replacement';
 import { createAddToolCommand } from './public/add-tool';
 import { createCopyPromptToGlobalCommand } from './public/copy-prompt-to-global';
 import { createCopyPromptToWorkspaceCommand } from './public/copy-prompt-to-workspace';
+import { createCopyTaskToGlobalCommand } from './public/copy-task-to-global';
+import { createCopyTaskToWorkspaceCommand } from './public/copy-task-to-workspace';
 import { createCopyToolToGlobalCommand } from './public/copy-tool-to-global';
 import { createCopyToolToWorkspaceCommand } from './public/copy-tool-to-workspace';
 import { createDeletePromptCommand } from './public/delete-prompt';
@@ -89,6 +91,8 @@ export function registerAllCommands(options: {
     createGoToTaskCommand(),
     createOpenTasksConfigCommand(),
     createDeleteTaskCommand(),
+    createCopyTaskToGlobalCommand(),
+    createCopyTaskToWorkspaceCommand(),
     createExecuteTaskCommand(context),
     createExecCmdlineCommand(taskTreeDataProvider),
     createExitCmdlineCommand(taskTreeDataProvider),
