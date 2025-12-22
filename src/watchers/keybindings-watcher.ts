@@ -6,60 +6,69 @@ import { CONTEXT_PREFIX, KEYBINDINGS_FILE } from '../common/constants';
 import { createLogger } from '../common/lib/logger';
 import { getVSCodeKeybindingsPath } from '../common/lib/vscode-keybindings-utils';
 import { getWorkspaceId } from '../common/lib/vscode-utils';
+import type { KeybindingEntry, RefreshCallback } from './types';
+import { WATCHER_CONSTANTS, attachFileWatcherHandlers } from './utils';
 
 const logger = createLogger('KeybindingsWatcher');
 
-type KeybindingEntry = { key: string; command: string; when?: string };
+function createKeybindingsUpdater() {
+  let isUpdating = false;
 
-let isUpdating = false;
+  return {
+    updateKeybindings(): void {
+      if (isUpdating) return;
 
-function addWhenClauseToOurKeybindings(): void {
-  if (isUpdating) return;
+      const workspaceId = getWorkspaceId();
+      if (!workspaceId) return;
 
-  const workspaceId = getWorkspaceId();
-  if (!workspaceId) return;
+      const keybindingsPath = getVSCodeKeybindingsPath();
+      if (!fs.existsSync(keybindingsPath)) return;
 
-  const keybindingsPath = getVSCodeKeybindingsPath();
-  if (!fs.existsSync(keybindingsPath)) return;
+      let keybindings: KeybindingEntry[];
+      try {
+        const content = fs.readFileSync(keybindingsPath, 'utf8');
+        keybindings = content.trim() ? JSON5.parse(content) : [];
+      } catch (error) {
+        logger.error(`Failed to read keybindings file: ${String(error)}`);
+        return;
+      }
 
-  let keybindings: KeybindingEntry[];
-  try {
-    const content = fs.readFileSync(keybindingsPath, 'utf8');
-    keybindings = content.trim() ? JSON5.parse(content) : [];
-  } catch {
-    return;
-  }
+      const expectedWhen = `${CONTEXT_PREFIX}.workspaceId == '${workspaceId}'`;
+      let modified = false;
 
-  const expectedWhen = `${CONTEXT_PREFIX}.workspaceId == '${workspaceId}'`;
-  let modified = false;
+      for (const kb of keybindings) {
+        if (!kb.command.startsWith(CONTEXT_PREFIX)) continue;
+        if (kb.when === expectedWhen) continue;
+        if (kb.when?.includes(`${CONTEXT_PREFIX}.workspaceId`)) continue;
 
-  for (const kb of keybindings) {
-    if (!kb.command.startsWith(CONTEXT_PREFIX)) continue;
-    if (kb.when === expectedWhen) continue;
-    if (kb.when?.includes(`${CONTEXT_PREFIX}.workspaceId`)) continue;
+        kb.when = expectedWhen;
+        modified = true;
+      }
 
-    kb.when = expectedWhen;
-    modified = true;
-  }
-
-  if (modified) {
-    isUpdating = true;
-    try {
-      fs.writeFileSync(keybindingsPath, JSON.stringify(keybindings, null, 2), 'utf8');
-    } finally {
-      setTimeout(() => {
-        isUpdating = false;
-      }, 100);
-    }
-  }
+      if (modified) {
+        isUpdating = true;
+        try {
+          fs.writeFileSync(keybindingsPath, JSON.stringify(keybindings, null, 2), 'utf8');
+        } catch (error) {
+          logger.error(`Failed to write keybindings file: ${String(error)}`);
+        } finally {
+          setTimeout(() => {
+            isUpdating = false;
+          }, WATCHER_CONSTANTS.KEYBINDING_UPDATE_DEBOUNCE_MS);
+        }
+      }
+    },
+  };
 }
 
-export function createKeybindingsWatcher(onKeybindingsChange: () => void): vscode.Disposable {
+export function createKeybindingsWatcher(onKeybindingsChange: RefreshCallback): vscode.Disposable {
   const keybindingsPath = getVSCodeKeybindingsPath();
 
   if (!fs.existsSync(keybindingsPath)) {
-    return { dispose: () => {} };
+    return { dispose: () => undefined };
   }
+
+  const updater = createKeybindingsUpdater();
 
   const watcher = vscode.workspace.createFileSystemWatcher(
     new vscode.RelativePattern(path.dirname(keybindingsPath), KEYBINDINGS_FILE),
@@ -67,13 +76,15 @@ export function createKeybindingsWatcher(onKeybindingsChange: () => void): vscod
 
   const handleChange = () => {
     logger.info('Keybindings file changed, updating and notifying');
-    addWhenClauseToOurKeybindings();
+    updater.updateKeybindings();
     onKeybindingsChange();
   };
 
-  watcher.onDidChange(handleChange);
-  watcher.onDidCreate(handleChange);
-  watcher.onDidDelete(() => onKeybindingsChange());
+  attachFileWatcherHandlers(watcher, {
+    onChange: handleChange,
+    onCreate: handleChange,
+    onDelete: () => onKeybindingsChange(),
+  });
 
   return watcher;
 }

@@ -2,10 +2,10 @@ import * as vscode from 'vscode';
 import { CONFIG_FILE_NAME } from '../common/constants';
 import { getConfigDirPattern } from '../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../common/lib/extension-store';
+import type { RefreshCallback } from './types';
+import { attachFileWatcherHandlers } from './utils';
 
-type RefreshCallback = () => void;
-
-export function createConfigWatcher(onConfigChange: RefreshCallback): vscode.FileSystemWatcher {
+export function createConfigWatcher(onConfigChange: RefreshCallback): vscode.Disposable {
   const configDirPattern = getConfigDirPattern();
   const configWatcher = vscode.workspace.createFileSystemWatcher(`**/${configDirPattern}/${CONFIG_FILE_NAME}`);
 
@@ -13,13 +13,20 @@ export function createConfigWatcher(onConfigChange: RefreshCallback): vscode.Fil
     onConfigChange();
   };
 
-  configWatcher.onDidChange(handleConfigChange);
-  configWatcher.onDidCreate(handleConfigChange);
-  configWatcher.onDidDelete(handleConfigChange);
+  attachFileWatcherHandlers(configWatcher, {
+    onChange: handleConfigChange,
+    onCreate: handleConfigChange,
+    onDelete: handleConfigChange,
+  });
 
-  extensionStore.subscribe(StoreKey.ConfigDir, () => {
+  const storeUnsubscribe = extensionStore.subscribe(StoreKey.ConfigDir, () => {
     onConfigChange();
   });
 
-  return configWatcher;
+  return {
+    dispose: () => {
+      configWatcher.dispose();
+      storeUnsubscribe();
+    },
+  };
 }

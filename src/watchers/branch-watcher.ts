@@ -1,17 +1,10 @@
 import * as vscode from 'vscode';
+import { createLogger } from '../common/lib/logger';
 import { getCurrentBranch, isGitRepository } from '../views/replacements/git-utils';
+import type { BranchChangeCallback, GitAPI, GitRepository } from './types';
+import { WATCHER_CONSTANTS, getWorkspacePath } from './utils';
 
-type GitAPI = {
-  repositories: GitRepository[];
-  onDidOpenRepository: vscode.Event<GitRepository>;
-};
-
-type GitRepository = {
-  state: {
-    HEAD?: { name?: string };
-  };
-  onDidCheckout: vscode.Event<void>;
-};
+const logger = createLogger('BranchWatcher');
 
 async function getGitAPI(): Promise<GitAPI | null> {
   const gitExtension = vscode.extensions.getExtension('vscode.git');
@@ -23,12 +16,6 @@ async function getGitAPI(): Promise<GitAPI | null> {
   }
   return gitExtension.exports.getAPI(1);
 }
-
-function getWorkspacePath(): string | null {
-  return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
-}
-
-type BranchChangeCallback = (newBranch: string) => void;
 
 export function createBranchWatcher(onBranchChange: BranchChangeCallback): vscode.Disposable {
   const disposables: vscode.Disposable[] = [];
@@ -46,8 +33,8 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): vscod
         currentBranch = newBranch;
         onBranchChange(newBranch);
       }
-    } catch {
-      // Ignore
+    } catch (error) {
+      logger.error(`Failed to get current branch: ${String(error)}`);
     }
   };
 
@@ -89,7 +76,7 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): vscod
   const setupPolling = () => {
     pollInterval = setInterval(() => {
       void handleBranchChange();
-    }, 2000);
+    }, WATCHER_CONSTANTS.BRANCH_POLL_INTERVAL_MS);
   };
 
   const initializeBranch = async () => {
