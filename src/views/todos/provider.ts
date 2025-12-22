@@ -32,7 +32,14 @@ export class TodoItem extends vscode.TreeItem {
     public readonly node: TodoNode,
     hasChildren: boolean,
   ) {
-    const label = node.isHeading ? node.text : hasChildren ? ` ${node.text}` : node.text;
+    let label: string;
+    if (node.isHeading) {
+      label = node.text;
+    } else if (hasChildren) {
+      label = ` ${node.text}`;
+    } else {
+      label = node.text;
+    }
     super(label, hasChildren ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
     this.contextValue = CONTEXT_VALUES.TODO_ITEM;
 

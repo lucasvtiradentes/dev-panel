@@ -9,8 +9,8 @@ export enum ReplacementType {
 }
 
 export type PatchItem = {
-  search: string | string[];
-  replace: string | string[];
+  search: string[];
+  replace: string[];
 };
 
 type BaseReplacement = {

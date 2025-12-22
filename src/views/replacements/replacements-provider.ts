@@ -24,7 +24,20 @@ import {
   setActiveReplacements,
   setLastBranch,
 } from './state';
-import { OnBranchChange, type PPConfig, type Replacement, ReplacementType } from './types';
+import { OnBranchChange, type PPConfig, type PatchItem, type Replacement, ReplacementType } from './types';
+
+function normalizePatchItem(item: { search: unknown; replace: unknown }): PatchItem {
+  const normalizeValue = (value: unknown): string[] => {
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string') return [value];
+    return [];
+  };
+
+  return {
+    search: normalizeValue(item.search),
+    replace: normalizeValue(item.replace),
+  };
+}
 
 function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
@@ -232,7 +245,17 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     if (!fs.existsSync(configPath)) return null;
 
     const content = fs.readFileSync(configPath, 'utf-8');
-    return json5.parse(content);
+    const config = json5.parse(content) as PPConfig;
+
+    if (config.replacements) {
+      for (const replacement of config.replacements) {
+        if (replacement.type === ReplacementType.Patch) {
+          replacement.patches = replacement.patches.map(normalizePatchItem);
+        }
+      }
+    }
+
+    return config;
   }
 
   async toggleReplacement(replacement: Replacement): Promise<void> {

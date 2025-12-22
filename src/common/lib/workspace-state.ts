@@ -1,5 +1,5 @@
 import type * as vscode from 'vscode';
-import { CONFIG_DIR_KEY, WORKSPACE_STATE_KEY } from '../constants/scripts-constants';
+import { WORKSPACE_STATE_KEY } from '../constants/scripts-constants';
 import {
   DEFAULT_PROMPTS_STATE,
   DEFAULT_REPLACEMENTS_STATE,
@@ -16,7 +16,7 @@ import {
   type VariablesState,
   type WorkspaceUIState,
 } from '../schemas';
-import { TaskSource } from '../schemas/types';
+import { TASK_SOURCE_TO_KEY, TaskSource, TaskSourceKey } from '../schemas/types';
 
 let _context: vscode.ExtensionContext | null = null;
 
@@ -32,6 +32,10 @@ function getState(): WorkspaceUIState {
 function saveState(state: WorkspaceUIState): void {
   if (!_context) return;
   void _context.workspaceState.update(WORKSPACE_STATE_KEY, state);
+}
+
+function getTaskSourceKey(source: TaskSource): TaskSourceKey {
+  return TASK_SOURCE_TO_KEY[source];
 }
 
 export const tasksState = {
@@ -62,14 +66,12 @@ export const tasksState = {
   },
   getSourceState(source: TaskSource): SourceState {
     const tasks = this.load();
-    const key =
-      source === TaskSource.VSCode ? 'vscode' : source === TaskSource.Package ? 'packageJson' : CONFIG_DIR_KEY;
+    const key = getTaskSourceKey(source);
     return tasks[key] ?? { ...DEFAULT_SOURCE_STATE };
   },
   saveSourceState(source: TaskSource, sourceState: SourceState): void {
     const tasks = this.load();
-    const key =
-      source === TaskSource.VSCode ? 'vscode' : source === TaskSource.Package ? 'packageJson' : CONFIG_DIR_KEY;
+    const key = getTaskSourceKey(source);
     tasks[key] = sourceState;
     this.save(tasks);
   },
@@ -178,11 +180,11 @@ export const toolsState = {
     return this.getSourceState().favorites;
   },
   getSourceState(): SourceState {
-    return this.load()[CONFIG_DIR_KEY] ?? { ...DEFAULT_SOURCE_STATE };
+    return this.load()[TaskSourceKey.PP] ?? { ...DEFAULT_SOURCE_STATE };
   },
   saveSourceState(sourceState: SourceState): void {
     const tools = this.load();
-    tools[CONFIG_DIR_KEY] = sourceState;
+    tools[TaskSourceKey.PP] = sourceState;
     this.save(tools);
   },
   getOrder(isGrouped: boolean): string[] {
@@ -268,11 +270,11 @@ export const promptsState = {
     return this.getSourceState().favorites;
   },
   getSourceState(): SourceState {
-    return this.load()[CONFIG_DIR_KEY] ?? { ...DEFAULT_SOURCE_STATE };
+    return this.load()[TaskSourceKey.PP] ?? { ...DEFAULT_SOURCE_STATE };
   },
   saveSourceState(sourceState: SourceState): void {
     const prompts = this.load();
-    prompts[CONFIG_DIR_KEY] = sourceState;
+    prompts[TaskSourceKey.PP] = sourceState;
     this.save(prompts);
   },
   getOrder(isGrouped: boolean): string[] {

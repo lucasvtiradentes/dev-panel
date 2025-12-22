@@ -12,6 +12,18 @@ export enum TaskSource {
   PP = 'pp',
 }
 
+export enum TaskSourceKey {
+  VSCode = 'vscode',
+  Package = 'packageJson',
+  PP = 'pp',
+}
+
+export const TASK_SOURCE_TO_KEY: Record<TaskSource, TaskSourceKey> = {
+  [TaskSource.VSCode]: TaskSourceKey.VSCode,
+  [TaskSource.Package]: TaskSourceKey.Package,
+  [TaskSource.PP]: TaskSourceKey.PP,
+};
+
 export type TaskSourceInfo = {
   id: TaskSource;
   label: string;

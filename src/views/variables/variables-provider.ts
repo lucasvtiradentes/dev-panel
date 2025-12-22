@@ -37,7 +37,7 @@ type VariableItem = {
   options?: string[];
   command?: string;
   description?: string;
-  default?: string | boolean | string[];
+  default?: unknown;
   group?: string;
   showTerminal?: boolean;
   multiSelect?: boolean;
@@ -49,7 +49,7 @@ type PpVariables = {
 };
 
 type PpState = {
-  [key: string]: string | boolean | string[];
+  [key: string]: unknown;
 };
 
 function getWorkspacePath(): string | null {
@@ -75,7 +75,7 @@ function saveState(state: PpState): void {
   fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
 }
 
-function formatValue(value: string | boolean | string[] | undefined, variable: VariableItem): string {
+function formatValue(value: unknown, variable: VariableItem): string {
   if (value === undefined) {
     if (variable.default !== undefined) {
       return formatValue(variable.default, variable);
@@ -84,7 +84,7 @@ function formatValue(value: string | boolean | string[] | undefined, variable: V
   }
   if (typeof value === 'boolean') return value ? 'ON' : 'OFF';
   if (Array.isArray(value)) return value.length > 0 ? value.join(', ') : '(none)';
-  return value;
+  return String(value);
 }
 
 class GroupTreeItem extends vscode.TreeItem {
@@ -100,7 +100,7 @@ class GroupTreeItem extends vscode.TreeItem {
 export class VariableTreeItem extends vscode.TreeItem {
   constructor(
     public readonly variable: VariableItem,
-    currentValue?: string | boolean | string[],
+    currentValue?: unknown,
   ) {
     super(variable.name, vscode.TreeItemCollapsibleState.None);
     this.contextValue = CONTEXT_VALUES.VARIABLE_ITEM;
@@ -229,7 +229,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
   }
 }
 
-async function runCommand(variable: VariableItem, value: string | boolean | string[]): Promise<void> {
+async function runCommand(variable: VariableItem, value: unknown): Promise<void> {
   if (!variable.command) return;
 
   const workspace = getWorkspacePath();
@@ -263,7 +263,7 @@ async function runCommand(variable: VariableItem, value: string | boolean | stri
 
 export async function selectVariableOption(variable: VariableItem): Promise<void> {
   const state = loadState();
-  let newValue: string | boolean | string[] | undefined;
+  let newValue: unknown;
 
   switch (variable.kind) {
     case VariableKind.Choose: {
