@@ -4,7 +4,10 @@ import * as vscode from 'vscode';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
+  CONFIG_TASKS_ARRAY_PATTERN,
+  DIST_DIR_PREFIX,
   PACKAGE_JSON,
+  PACKAGE_JSON_SCRIPTS_PATTERN,
   VSCODE_DIR,
   VSCODE_TASKS_FILE,
   VSCODE_TASKS_PATH,
@@ -22,7 +25,7 @@ async function findAllPackageJsons(folder: vscode.WorkspaceFolder): Promise<stri
     const entries = fs.readdirSync(dir, { withFileTypes: true });
 
     for (const entry of entries) {
-      if (excludedDirs.has(entry.name) || entry.name.startsWith('dist-')) continue;
+      if (excludedDirs.has(entry.name) || entry.name.startsWith(DIST_DIR_PREFIX)) continue;
 
       const fullPath = path.join(dir, entry.name);
 
@@ -44,7 +47,7 @@ async function openPackageJsonAtScripts(packageJsonPath: string): Promise<void> 
   let scriptsLine = 0;
 
   for (let i = 0; i < lines.length; i++) {
-    if (lines[i].match(/"scripts"\s*:\s*\{/)) {
+    if (lines[i].match(PACKAGE_JSON_SCRIPTS_PATTERN)) {
       scriptsLine = i;
       break;
     }
@@ -85,7 +88,7 @@ export function createOpenTasksConfigCommand() {
           let tasksLine = 0;
 
           for (let i = 0; i < lines.length; i++) {
-            if (lines[i].match(/"tasks"\s*:\s*\[/)) {
+            if (lines[i].match(CONFIG_TASKS_ARRAY_PATTERN)) {
               tasksLine = i;
               break;
             }

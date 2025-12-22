@@ -8,6 +8,8 @@ export const TODO_SECTION_HEADER_PATTERN = /^#\s+TODO\s*$/;
 export const MARKDOWN_SECTION_HEADER_PATTERN = /^#\s+/;
 
 export const CONFIG_TOOLS_ARRAY_PATTERN = /"tools":\s*\[/;
+export const CONFIG_TASKS_ARRAY_PATTERN = /"tasks"\s*:\s*\[/;
+export const PACKAGE_JSON_SCRIPTS_PATTERN = /"scripts"\s*:\s*\{/;
 
 export const SHELL_SCRIPT_PATTERN = /(?:bash\s+|sh\s+|\.\/)?(.+\.sh)$/;
 

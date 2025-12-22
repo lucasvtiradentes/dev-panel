@@ -3,13 +3,13 @@ import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
-  CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   GLOBAL_ITEM_PREFIX,
   getCommandId,
   getGlobalConfigPath,
   getGlobalPromptsDir,
 } from '../../common/constants';
+import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 import type { TreePrompt } from '../../views/prompts/items';
@@ -58,8 +58,8 @@ async function handleCopyPromptToWorkspace(treePrompt: TreePrompt): Promise<void
     return;
   }
 
-  const workspaceConfigPath = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
-  const workspaceConfigDir = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME);
+  const workspaceConfigPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
+  const workspaceConfigDir = getWorkspaceConfigDirPath(workspaceFolder);
 
   if (!fs.existsSync(workspaceConfigDir)) {
     fs.mkdirSync(workspaceConfigDir, { recursive: true });
@@ -98,7 +98,7 @@ async function handleCopyPromptToWorkspace(treePrompt: TreePrompt): Promise<void
   fs.writeFileSync(workspaceConfigPath, JSON.stringify(workspaceConfig, null, 2), 'utf8');
 
   const globalPromptFile = path.join(getGlobalPromptsDir(), prompt.file);
-  const workspacePromptFile = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, prompt.file);
+  const workspacePromptFile = path.join(workspaceConfigDir, prompt.file);
 
   if (fs.existsSync(globalPromptFile)) {
     const workspacePromptDir = path.dirname(workspacePromptFile);

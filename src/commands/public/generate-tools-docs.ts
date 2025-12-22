@@ -3,14 +3,17 @@ import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
+  AI_SPEC_FILES,
   CLAUDE_DIR_NAME,
-  CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   SKILLS_DIR_NAME,
   SKILL_FILE_NAME,
+  TOOLS_DIR,
+  TOOL_INSTRUCTIONS_FILE,
   getGlobalConfigPath,
   getGlobalToolsDir,
 } from '../../common/constants';
+import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 
@@ -141,7 +144,7 @@ function getGlobalTools(): NonNullable<PPConfig['tools']> {
 }
 
 function generateToolsXml(workspaceFolder: vscode.WorkspaceFolder): string {
-  const configPath = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
+  const configPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
   let localTools: NonNullable<PPConfig['tools']> = [];
 
   if (fs.existsSync(configPath)) {
@@ -159,14 +162,9 @@ function generateToolsXml(workspaceFolder: vscode.WorkspaceFolder): string {
   const toolsXml: string[] = ['<available_tools>'];
   toolsXml.push('  Custom CLI tools installed (execute via Bash tool):');
 
+  const workspaceConfigDir = getWorkspaceConfigDirPath(workspaceFolder);
   for (const tool of localTools) {
-    const instructionsPath = path.join(
-      workspaceFolder.uri.fsPath,
-      CONFIG_DIR_NAME,
-      'tools',
-      tool.name,
-      'instructions.md',
-    );
+    const instructionsPath = path.join(workspaceConfigDir, TOOLS_DIR, tool.name, TOOL_INSTRUCTIONS_FILE);
 
     let description = '';
     if (fs.existsSync(instructionsPath)) {
@@ -179,7 +177,7 @@ function generateToolsXml(workspaceFolder: vscode.WorkspaceFolder): string {
   }
 
   for (const tool of globalTools) {
-    const instructionsPath = path.join(getGlobalToolsDir(), tool.name, 'instructions.md');
+    const instructionsPath = path.join(getGlobalToolsDir(), tool.name, TOOL_INSTRUCTIONS_FILE);
 
     let description = '';
     if (fs.existsSync(instructionsPath)) {
@@ -258,7 +256,7 @@ ${contentLines.join('\n').trim()}
 }
 
 async function syncToSkills(workspaceFolder: vscode.WorkspaceFolder): Promise<number> {
-  const configPath = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
+  const configPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
   let localTools: NonNullable<PPConfig['tools']> = [];
 
   if (fs.existsSync(configPath)) {
@@ -269,14 +267,9 @@ async function syncToSkills(workspaceFolder: vscode.WorkspaceFolder): Promise<nu
   const globalTools = getGlobalTools();
   let syncedCount = 0;
 
+  const workspaceConfigDir = getWorkspaceConfigDirPath(workspaceFolder);
   for (const tool of localTools) {
-    const instructionsPath = path.join(
-      workspaceFolder.uri.fsPath,
-      CONFIG_DIR_NAME,
-      'tools',
-      tool.name,
-      'instructions.md',
-    );
+    const instructionsPath = path.join(workspaceConfigDir, TOOLS_DIR, tool.name, TOOL_INSTRUCTIONS_FILE);
 
     if (!fs.existsSync(instructionsPath)) {
       continue;
@@ -297,7 +290,7 @@ async function syncToSkills(workspaceFolder: vscode.WorkspaceFolder): Promise<nu
   }
 
   for (const tool of globalTools) {
-    const instructionsPath = path.join(getGlobalToolsDir(), tool.name, 'instructions.md');
+    const instructionsPath = path.join(getGlobalToolsDir(), tool.name, TOOL_INSTRUCTIONS_FILE);
 
     if (!fs.existsSync(instructionsPath)) {
       continue;
@@ -321,10 +314,9 @@ async function syncToSkills(workspaceFolder: vscode.WorkspaceFolder): Promise<nu
 }
 
 function syncToAiSpecs(xml: string, workspaceFolder: vscode.WorkspaceFolder): void {
-  const specFiles = ['CLAUDE.md', 'AGENTS.md'];
   const foundFiles: string[] = [];
 
-  for (const specFile of specFiles) {
+  for (const specFile of AI_SPEC_FILES) {
     const specPath = path.join(workspaceFolder.uri.fsPath, specFile);
     if (fs.existsSync(specPath)) {
       foundFiles.push(specPath);
@@ -332,7 +324,7 @@ function syncToAiSpecs(xml: string, workspaceFolder: vscode.WorkspaceFolder): vo
   }
 
   if (foundFiles.length === 0) {
-    vscode.window.showWarningMessage(`No AI specification files found (${specFiles.join(', ')})`);
+    vscode.window.showWarningMessage(`No AI specification files found (${AI_SPEC_FILES.join(', ')})`);
     return;
   }
 

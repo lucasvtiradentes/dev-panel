@@ -3,13 +3,13 @@ import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
-  CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   GLOBAL_ITEM_PREFIX,
   getCommandId,
   getGlobalConfigDir,
   getGlobalConfigPath,
 } from '../../common/constants';
+import { getWorkspaceConfigFilePath, joinConfigPath } from '../../common/lib/config-manager';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 import type { TreePrompt } from '../../views/prompts/items';
@@ -70,7 +70,7 @@ async function handleDeletePrompt(treePrompt: TreePrompt): Promise<void> {
     return;
   }
 
-  const workspaceConfigPath = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
+  const workspaceConfigPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
   if (!fs.existsSync(workspaceConfigPath)) {
     vscode.window.showErrorMessage('Workspace config not found');
     return;
@@ -92,7 +92,7 @@ async function handleDeletePrompt(treePrompt: TreePrompt): Promise<void> {
   workspaceConfig.prompts.splice(promptIndex, 1);
   fs.writeFileSync(workspaceConfigPath, JSON.stringify(workspaceConfig, null, 2), 'utf8');
 
-  const workspacePromptFile = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, prompt.file);
+  const workspacePromptFile = joinConfigPath(workspaceFolder, prompt.file);
   if (fs.existsSync(workspacePromptFile)) {
     fs.rmSync(workspacePromptFile);
   }

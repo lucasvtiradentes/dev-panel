@@ -3,7 +3,6 @@ import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
-  CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   CONFIG_INDENT,
   CONFIG_TOOLS_ARRAY_PATTERN,
@@ -13,6 +12,7 @@ import {
   TOOL_NAME_PATTERN,
   TOOL_NAME_VALIDATION_MESSAGE,
 } from '../../common/constants';
+import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 
@@ -52,7 +52,7 @@ async function handleAddTool(): Promise<void> {
     placeHolder: 'Development',
   });
 
-  const configPath = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
+  const configPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
   if (!fs.existsSync(configPath)) {
     vscode.window.showErrorMessage(`Config file not found: ${configPath}`);
     return;
@@ -117,7 +117,8 @@ async function handleAddTool(): Promise<void> {
 
   fs.writeFileSync(configPath, updatedContent, 'utf8');
 
-  const toolDir = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, TOOLS_DIR, name);
+  const workspaceConfigDir = getWorkspaceConfigDirPath(workspaceFolder);
+  const toolDir = path.join(workspaceConfigDir, TOOLS_DIR, name);
   if (!fs.existsSync(toolDir)) {
     fs.mkdirSync(toolDir, { recursive: true });
   }
