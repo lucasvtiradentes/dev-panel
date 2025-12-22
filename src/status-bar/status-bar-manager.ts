@@ -40,7 +40,7 @@ export class StatusBarManager {
     this.statusBarItem.text = '';
   }
 
-  public async backspace(): Promise<void> {
+  public backspace(): void {
     if (this.statusBarBuffer.length > 1) {
       this.statusBarBuffer.pop();
       this.statusBarItem.text = this.statusBarBuffer.join('');

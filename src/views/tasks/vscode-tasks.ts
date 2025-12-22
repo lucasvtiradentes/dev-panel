@@ -75,7 +75,7 @@ export async function getVSCodeTasks(options: {
           taskFolders[_task.workspace] = ws;
           taskElements.push(ws);
         }
-        await taskFolders[_task.workspace].addChildren(_task);
+        taskFolders[_task.workspace].addChildren(_task);
       } else {
         taskElements.push(_task);
       }

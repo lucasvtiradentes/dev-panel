@@ -94,7 +94,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     if (await isGitRepository(workspace)) {
       this.addToGitExclude(workspace);
       this.currentBranch = await getCurrentBranch(workspace);
-      await this.regenerateMarkdown();
+      this.regenerateMarkdown();
       this.refresh();
     }
   }
@@ -117,15 +117,15 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
   }
 
-  async setBranch(branchName: string): Promise<void> {
+  setBranch(branchName: string): void {
     if (branchName !== this.currentBranch) {
       this.currentBranch = branchName;
-      await this.regenerateMarkdown();
+      this.regenerateMarkdown();
       this.refresh();
     }
   }
 
-  private async regenerateMarkdown(): Promise<void> {
+  private regenerateMarkdown(): void {
     if (!this.currentBranch) return;
 
     const workspace = getWorkspacePath();
@@ -135,7 +135,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     this.isWritingMarkdown = true;
     try {
       ensureBranchDirectory(workspace, this.currentBranch);
-      await generateBranchContextMarkdown(this.currentBranch, context);
+      generateBranchContextMarkdown(this.currentBranch, context);
       this.syncBranchToRoot();
     } finally {
       setTimeout(() => {

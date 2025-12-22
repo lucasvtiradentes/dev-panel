@@ -37,25 +37,23 @@ const SCRIPT_DIR = __dirname;
 const ROOT_DIR = join(SCRIPT_DIR, '..', '..');
 const EXTENSION_ID_DEV = buildExtensionId(true);
 
-async function main() {
+function main() {
   if (process.env.CI || process.env.GITHUB_ACTIONS) {
     logger.log('Skipping local extension installation in CI environment');
     process.exit(0);
   }
 
-  await setupLocalDistDirectory();
-  await copyExtensionFiles();
-  await patchExtensionCode();
-  await writePackageJson();
-  await copyMetaFiles();
-  await copyToVSCodeExtensions();
-  await registerExtensionInEditors();
-  await printSuccessMessage();
+  setupLocalDistDirectory();
+  copyExtensionFiles();
+  patchExtensionCode();
+  writePackageJson();
+  copyMetaFiles();
+  copyToVSCodeExtensions();
+  registerExtensionInEditors();
+  printSuccessMessage();
 }
 
-main();
-
-async function setupLocalDistDirectory() {
+function setupLocalDistDirectory() {
   const targetDir = getLocalDistDirectory();
   if (existsSync(targetDir)) {
     rmSync(targetDir, { recursive: true });
@@ -63,13 +61,13 @@ async function setupLocalDistDirectory() {
   mkdirSync(targetDir, { recursive: true });
 }
 
-async function copyExtensionFiles() {
+function copyExtensionFiles() {
   const targetDir = getLocalDistDirectory();
   copyRecursive(join(ROOT_DIR, 'out'), join(targetDir, 'out'));
   copyRecursive(join(ROOT_DIR, 'resources'), join(targetDir, 'resources'));
 }
 
-async function patchExtensionCode() {
+function patchExtensionCode() {
   const targetDir = getLocalDistDirectory();
   const extensionJsPath = join(targetDir, 'out', 'extension.js');
 
@@ -92,7 +90,7 @@ async function patchExtensionCode() {
   writeFileSync(extensionJsPath, patchedExtensionJs);
 }
 
-async function writePackageJson() {
+function writePackageJson() {
   const targetDir = getLocalDistDirectory();
   const packageJsonPath = join(ROOT_DIR, PACKAGE_JSON);
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
@@ -100,7 +98,7 @@ async function writePackageJson() {
   writeFileSync(join(targetDir, PACKAGE_JSON), JSON.stringify(modifiedPackageJson, null, 2));
 }
 
-async function copyMetaFiles() {
+function copyMetaFiles() {
   const targetDir = getLocalDistDirectory();
 
   const licensePath = join(ROOT_DIR, LICENSE_FILE);
@@ -114,7 +112,7 @@ async function copyMetaFiles() {
   }
 }
 
-async function copyToVSCodeExtensions() {
+function copyToVSCodeExtensions() {
   const sourceDir = getLocalDistDirectory();
   const installedEditors: string[] = [];
 
@@ -138,7 +136,7 @@ async function copyToVSCodeExtensions() {
   }
 }
 
-async function registerExtensionInEditors() {
+function registerExtensionInEditors() {
   const targetDir = getLocalDistDirectory();
   const packageJsonPath = join(targetDir, PACKAGE_JSON);
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
@@ -188,7 +186,7 @@ type ExtensionEntry = {
   relativeLocation?: string;
 };
 
-async function printSuccessMessage() {
+function printSuccessMessage() {
   logger.log(`[VSCode] ✅ ID: ${EXTENSION_ID_DEV} - Reload editor to activate`);
 }
 
@@ -372,3 +370,5 @@ function applyDevTransformations(pkg: Record<string, unknown>): Record<string, u
 
   return transformed;
 }
+
+main();

@@ -16,7 +16,7 @@ function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
 }
 
-export async function generateBranchContextMarkdown(branchName: string, context: BranchContext): Promise<void> {
+export function generateBranchContextMarkdown(branchName: string, context: BranchContext): void {
   const workspace = getWorkspacePath();
   if (!workspace) return;
 

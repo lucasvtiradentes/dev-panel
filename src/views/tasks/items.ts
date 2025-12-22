@@ -15,7 +15,7 @@ export class WorkspaceTreeItem extends vscode.TreeItem {
     super(label, vscode.TreeItemCollapsibleState.Expanded);
   }
 
-  public async addChildren(child: TreeTask): Promise<void> {
+  public addChildren(child: TreeTask): void {
     const groupName = child.group ?? NO_GROUP_NAME;
     if (this.childrenObject[groupName] === undefined) {
       const group = new GroupTreeItem(groupName);

@@ -163,8 +163,8 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     await this.statusBarManager.exitCommandMode();
   }
 
-  public async backTaskCmd(): Promise<void> {
-    await this.statusBarManager.backspace();
+  public backTaskCmd(): void {
+    this.statusBarManager.backspace();
   }
 
   public async tabTaskCmd(): Promise<void> {
