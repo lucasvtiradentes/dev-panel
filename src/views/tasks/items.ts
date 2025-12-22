@@ -73,8 +73,11 @@ export class TreeTask extends vscode.TreeItem {
 
   private loadTaskMetadata(): void {
     const multiRoot = isMultiRootWorkspace();
+    const workspaceFolders = vscode.workspace.workspaceFolders;
 
-    for (const workspaceFolder of vscode.workspace.workspaceFolders!) {
+    if (!workspaceFolders) return;
+
+    for (const workspaceFolder of workspaceFolders) {
       const tasksJson = this.loadTasksJson(workspaceFolder, multiRoot);
       if (!tasksJson) continue;
 

@@ -42,9 +42,9 @@ export const tasksState = {
   load(): TasksState {
     return getState().tasks ?? { ...DEFAULT_TASKS_STATE };
   },
-  save(tasksState: TasksState): void {
+  save(newTasksState: TasksState): void {
     const state = getState();
-    state.tasks = tasksState;
+    state.tasks = newTasksState;
     saveState(state);
   },
   getCurrentSource(): TaskSource {
@@ -144,9 +144,9 @@ export const toolsState = {
   load(): ToolsState {
     return getState().tools ?? { ...DEFAULT_TOOLS_STATE };
   },
-  save(toolsState: ToolsState): void {
+  save(newToolsState: ToolsState): void {
     const state = getState();
-    state.tools = toolsState;
+    state.tools = newToolsState;
     saveState(state);
   },
   getIsGrouped(): boolean {
@@ -234,9 +234,9 @@ export const promptsState = {
   load(): PromptsState {
     return getState().prompts ?? { ...DEFAULT_PROMPTS_STATE };
   },
-  save(promptsState: PromptsState): void {
+  save(newPromptsState: PromptsState): void {
     const state = getState();
-    state.prompts = promptsState;
+    state.prompts = newPromptsState;
     saveState(state);
   },
   getIsGrouped(): boolean {
@@ -324,9 +324,9 @@ export const variablesState = {
   load(): VariablesState {
     return getState().variables ?? { ...DEFAULT_VARIABLES_STATE };
   },
-  save(variablesState: VariablesState): void {
+  save(newVariablesState: VariablesState): void {
     const state = getState();
-    state.variables = variablesState;
+    state.variables = newVariablesState;
     saveState(state);
   },
   getIsGrouped(): boolean {
@@ -343,9 +343,9 @@ export const replacementsState = {
   load(): ReplacementsState {
     return getState().replacements ?? { ...DEFAULT_REPLACEMENTS_STATE };
   },
-  save(replacementsState: ReplacementsState): void {
+  save(newReplacementsState: ReplacementsState): void {
     const state = getState();
-    state.replacements = replacementsState;
+    state.replacements = newReplacementsState;
     saveState(state);
   },
   getIsGrouped(): boolean {

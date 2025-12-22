@@ -67,8 +67,8 @@ export class StatusBarManager {
 
         if (isMultiRootWorkspace()) {
           let _workSpaceName = '';
-          const folders = vscode.workspace.workspaceFolders!;
-          if (typeof _task.scope === 'number') {
+          const folders = vscode.workspace.workspaceFolders;
+          if (folders && typeof _task.scope === 'number') {
             _workSpaceName = folders[_task.scope].name;
           } else if (typeof _task.scope !== 'string') {
             _workSpaceName = (_task.scope as vscode.WorkspaceFolder).name;
@@ -100,14 +100,14 @@ export class StatusBarManager {
         this.statusBarBuffer = ['/', ..._pick.split('')];
         this.statusBarItem.text = this.statusBarBuffer.join('');
 
-        const tasks = await vscode.tasks.fetchTasks();
+        const allTasks = await vscode.tasks.fetchTasks();
         this.statusBarBuffer.shift();
 
-        let _task: vscode.Task[] = [];
+        let selectedTask: vscode.Task[] = [];
         const folders = vscode.workspace.workspaceFolders;
 
         if (folders != null && folders.length > 1) {
-          _task = tasks.filter((t) => {
+          selectedTask = allTasks.filter((t) => {
             if (t.name !== this.statusBarBuffer.join('')) {
               return false;
             }
@@ -122,11 +122,11 @@ export class StatusBarManager {
             return false;
           });
         } else {
-          _task = tasks.filter((t) => t.name === this.statusBarBuffer.join(''));
+          selectedTask = allTasks.filter((t) => t.name === this.statusBarBuffer.join(''));
         }
 
-        if (_task.length > 0) {
-          void vscode.tasks.executeTask(_task[0]);
+        if (selectedTask.length > 0) {
+          void vscode.tasks.executeTask(selectedTask[0]);
           await this.exitCommandMode();
         } else {
           await this.exitCommandMode();

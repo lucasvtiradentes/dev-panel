@@ -43,13 +43,12 @@ function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscod
   const execution = task.execution;
   if (!execution) return task;
 
-  let newExecution: vscode.ShellExecution | vscode.ProcessExecution | vscode.CustomExecution;
-
   if (execution instanceof vscode.ShellExecution) {
     const mergedEnv = { ...execution.options?.env, ...env };
     const commandLine = execution.commandLine;
     const command = execution.command;
 
+    let newExecution: vscode.ShellExecution;
     if (commandLine) {
       newExecution = new vscode.ShellExecution(commandLine, { ...execution.options, env: mergedEnv });
     } else if (command) {
@@ -57,24 +56,35 @@ function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscod
     } else {
       return task;
     }
-  } else if (execution instanceof vscode.ProcessExecution) {
+
+    return new vscode.Task(
+      task.definition,
+      task.scope ?? vscode.TaskScope.Workspace,
+      task.name,
+      task.source,
+      newExecution,
+      task.problemMatchers,
+    );
+  }
+
+  if (execution instanceof vscode.ProcessExecution) {
     const mergedEnv = { ...execution.options?.env, ...env };
-    newExecution = new vscode.ProcessExecution(execution.process, execution.args, {
+    const newExecution = new vscode.ProcessExecution(execution.process, execution.args, {
       ...execution.options,
       env: mergedEnv,
     });
-  } else {
-    return task;
+
+    return new vscode.Task(
+      task.definition,
+      task.scope ?? vscode.TaskScope.Workspace,
+      task.name,
+      task.source,
+      newExecution,
+      task.problemMatchers,
+    );
   }
 
-  return new vscode.Task(
-    task.definition,
-    task.scope ?? vscode.TaskScope.Workspace,
-    task.name,
-    task.source,
-    newExecution,
-    task.problemMatchers,
-  );
+  return task;
 }
 
 export function createExecuteTaskCommand(context: vscode.ExtensionContext) {

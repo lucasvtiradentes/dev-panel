@@ -60,8 +60,8 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): vscod
     }
 
     disposables.push(
-      gitAPI.onDidOpenRepository((repo) => {
-        attachRepoListeners(repo);
+      gitAPI.onDidOpenRepository((newRepo) => {
+        attachRepoListeners(newRepo);
       }),
     );
   };
