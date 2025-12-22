@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { CONFIG_DIR_NAME, EXTENSION_DISPLAY_NAME } from '../constants/scripts-constants';
+import {
+  BRANCHES_DIR_NAME,
+  CONFIG_DIR_NAME,
+  EXTENSION_DISPLAY_NAME,
+  PROMPTS_DIR_NAME,
+} from '../constants/scripts-constants';
 
 export enum PromptInputType {
   File = 'file',
@@ -57,14 +62,16 @@ const PPPromptInputSchema = z
 const PPPromptSchema = z
   .object({
     name: z.string().describe('Unique identifier for the prompt'),
-    file: z.string().describe(`Path to prompt file relative to ${CONFIG_DIR_NAME}/prompts/`),
+    file: z.string().describe(`Path to prompt file relative to ${CONFIG_DIR_NAME}/${PROMPTS_DIR_NAME}/`),
     group: z.string().optional().describe('Group name for organizing prompts'),
     description: z.string().optional().describe('Human-readable description shown as tooltip'),
     inputs: z.array(PPPromptInputSchema).optional().describe('Inputs to collect before running the prompt'),
     saveOutput: z
       .boolean()
       .optional()
-      .describe('If true, save response to .pp/branches/{{branch}}/prompts/{{promptname}}.md'),
+      .describe(
+        `If true, save response to ${CONFIG_DIR_NAME}/${BRANCHES_DIR_NAME}/{{branch}}/${PROMPTS_DIR_NAME}/{{promptname}}.md`,
+      ),
   })
   .describe('A prompt that can be executed in Claude Code');
 

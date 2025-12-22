@@ -663,7 +663,7 @@
       "view/item/context": [
         {
           "command": "projectPanel.toggleFavorite",
-          "when": "view == projectPanelTasks && (viewItem == task || viewItem == task-pp || viewItem == task-pp-global)",
+          "when": "view == projectPanelTasks && (viewItem == task || viewItem == task-pp || viewItem == task-pp-global || viewItem == task-hidden || viewItem == task-pp-hidden || viewItem == task-pp-global-hidden)",
           "group": "inline@1"
         },
         {
@@ -711,7 +711,7 @@
         },
         {
           "command": "projectPanel.toggleToolFavorite",
-          "when": "view == projectPanelTools && (viewItem == tool || viewItem == tool-global)",
+          "when": "view == projectPanelTools && (viewItem == tool || viewItem == tool-global || viewItem == tool-hidden || viewItem == tool-global-hidden)",
           "group": "inline@1"
         },
         {
@@ -750,7 +750,7 @@
         },
         {
           "command": "projectPanel.togglePromptFavorite",
-          "when": "view == projectPanelPrompts && (viewItem == prompt || viewItem == prompt-global)",
+          "when": "view == projectPanelPrompts && (viewItem == prompt || viewItem == prompt-global || viewItem == prompt-hidden || viewItem == prompt-global-hidden)",
           "group": "inline@1"
         },
         {

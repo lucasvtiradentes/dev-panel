@@ -20,7 +20,7 @@ export function createOpenSettingsMenuCommand() {
       {
         id: SettingsMenuOption.ManageConfigLocation,
         label: '$(folder) Change Config Location',
-        detail: 'Select where .pp config should be located',
+        detail: `Select where ${EXTENSION_DISPLAY_NAME} config should be located`,
       },
       {
         id: SettingsMenuOption.Registry,
