@@ -187,8 +187,13 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
 
     for (const v of config.variables) {
       const groupName = v.group ?? NO_GROUP_NAME;
-      if (!grouped.has(groupName)) grouped.set(groupName, []);
-      grouped.get(groupName)!.push(v);
+      if (!grouped.has(groupName)) {
+        grouped.set(groupName, []);
+      }
+      const group = grouped.get(groupName);
+      if (group) {
+        group.push(v);
+      }
     }
 
     const items: vscode.TreeItem[] = [];

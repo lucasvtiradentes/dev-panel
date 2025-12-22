@@ -80,12 +80,12 @@ async function handleAddTool(): Promise<void> {
 
   const toolsStartMatch = configContent.match(CONFIG_TOOLS_ARRAY_PATTERN);
 
-  if (!toolsStartMatch) {
+  if (!toolsStartMatch || toolsStartMatch.index === undefined) {
     vscode.window.showErrorMessage('Could not find "tools" array in config file');
     return;
   }
 
-  const startIndex = toolsStartMatch.index! + toolsStartMatch[0].length;
+  const startIndex = toolsStartMatch.index + toolsStartMatch[0].length;
   let bracketCount = 1;
   let endIndex = startIndex;
 

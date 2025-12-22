@@ -51,7 +51,10 @@ async function selectFilesFlat(
       matchOnDescription: true,
     });
     if (!result || result.length === 0) return undefined;
-    return result.map((item) => item.description!).join('\n');
+    return result
+      .filter((item) => item.description)
+      .map((item) => item.description as string)
+      .join('\n');
   }
 
   const result = await vscode.window.showQuickPick(items, {
@@ -115,7 +118,10 @@ async function selectFoldersFlat(
       matchOnDescription: true,
     });
     if (!result || result.length === 0) return undefined;
-    return result.map((item) => item.description!).join('\n');
+    return result
+      .filter((item) => item.description)
+      .map((item) => item.description as string)
+      .join('\n');
   }
 
   const result = await vscode.window.showQuickPick(items, {

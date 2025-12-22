@@ -206,8 +206,13 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
 
     for (const r of config.replacements) {
       const groupName = r.group ?? NO_GROUP_NAME;
-      if (!grouped.has(groupName)) grouped.set(groupName, []);
-      grouped.get(groupName)!.push(r);
+      if (!grouped.has(groupName)) {
+        grouped.set(groupName, []);
+      }
+      const group = grouped.get(groupName);
+      if (group) {
+        group.push(r);
+      }
     }
 
     const items: vscode.TreeItem[] = [];

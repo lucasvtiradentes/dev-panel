@@ -39,10 +39,13 @@ export abstract class BaseTreeDataProvider<
     if (this.isSimpleStateManager(stateManager)) {
       this._showHidden = stateManager.getShowHidden();
       this._showOnlyFavorites = stateManager.getShowOnlyFavorites();
-    } else {
-      const source = this.getSource!();
+    } else if (this.getSource) {
+      const source = this.getSource();
       this._showHidden = stateManager.getShowHidden(source);
       this._showOnlyFavorites = stateManager.getShowOnlyFavorites(source);
+    } else {
+      this._showHidden = false;
+      this._showOnlyFavorites = false;
     }
 
     this.updateContextKeys();
@@ -67,14 +70,20 @@ export abstract class BaseTreeDataProvider<
     if (this.isSimpleStateManager(this.stateManager)) {
       return this.stateManager.getHiddenItems();
     }
-    return this.stateManager.getHiddenItems(this.getSource!());
+    if (this.getSource) {
+      return this.stateManager.getHiddenItems(this.getSource());
+    }
+    return [];
   }
 
   protected getFavoriteItems(): string[] {
     if (this.isSimpleStateManager(this.stateManager)) {
       return this.stateManager.getFavoriteItems();
     }
-    return this.stateManager.getFavoriteItems(this.getSource!());
+    if (this.getSource) {
+      return this.stateManager.getFavoriteItems(this.getSource());
+    }
+    return [];
   }
 
   toggleGroupMode(): void {
@@ -88,8 +97,8 @@ export abstract class BaseTreeDataProvider<
     this._showHidden = !this._showHidden;
     if (this.isSimpleStateManager(this.stateManager)) {
       this.stateManager.saveShowHidden(this._showHidden);
-    } else {
-      this.stateManager.saveShowHidden(this.getSource!(), this._showHidden);
+    } else if (this.getSource) {
+      this.stateManager.saveShowHidden(this.getSource(), this._showHidden);
     }
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
@@ -99,8 +108,8 @@ export abstract class BaseTreeDataProvider<
     this._showOnlyFavorites = !this._showOnlyFavorites;
     if (this.isSimpleStateManager(this.stateManager)) {
       this.stateManager.saveShowOnlyFavorites(this._showOnlyFavorites);
-    } else {
-      this.stateManager.saveShowOnlyFavorites(this.getSource!(), this._showOnlyFavorites);
+    } else if (this.getSource) {
+      this.stateManager.saveShowOnlyFavorites(this.getSource(), this._showOnlyFavorites);
     }
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
@@ -111,8 +120,8 @@ export abstract class BaseTreeDataProvider<
     if (name) {
       if (this.isSimpleStateManager(this.stateManager)) {
         this.stateManager.toggleFavorite(name);
-      } else {
-        this.stateManager.toggleFavorite(this.getSource!(), name);
+      } else if (this.getSource) {
+        this.stateManager.toggleFavorite(this.getSource(), name);
       }
 
       const favoriteItems = this.getFavoriteItems();
@@ -120,8 +129,8 @@ export abstract class BaseTreeDataProvider<
         this._showOnlyFavorites = false;
         if (this.isSimpleStateManager(this.stateManager)) {
           this.stateManager.saveShowOnlyFavorites(this._showOnlyFavorites);
-        } else {
-          this.stateManager.saveShowOnlyFavorites(this.getSource!(), this._showOnlyFavorites);
+        } else if (this.getSource) {
+          this.stateManager.saveShowOnlyFavorites(this.getSource(), this._showOnlyFavorites);
         }
       }
 
@@ -135,8 +144,8 @@ export abstract class BaseTreeDataProvider<
     if (name) {
       if (this.isSimpleStateManager(this.stateManager)) {
         this.stateManager.toggleHidden(name);
-      } else {
-        this.stateManager.toggleHidden(this.getSource!(), name);
+      } else if (this.getSource) {
+        this.stateManager.toggleHidden(this.getSource(), name);
       }
 
       const hiddenItems = this.getHiddenItems();
@@ -144,8 +153,8 @@ export abstract class BaseTreeDataProvider<
         this._showHidden = false;
         if (this.isSimpleStateManager(this.stateManager)) {
           this.stateManager.saveShowHidden(this._showHidden);
-        } else {
-          this.stateManager.saveShowHidden(this.getSource!(), this._showHidden);
+        } else if (this.getSource) {
+          this.stateManager.saveShowHidden(this.getSource(), this._showHidden);
         }
       }
 
@@ -185,7 +194,10 @@ export abstract class BaseTreeDataProvider<
     if (this.isSimpleStateManager(this.stateManager)) {
       return this.stateManager.getOrder(this._grouped);
     }
-    return this.stateManager.getOrder(this.getSource!(), this._grouped);
+    if (this.getSource) {
+      return this.stateManager.getOrder(this.getSource(), this._grouped);
+    }
+    return [];
   }
 
   protected getItemLabel(item: TItem | TGroup): string {

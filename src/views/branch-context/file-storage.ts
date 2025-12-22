@@ -77,13 +77,13 @@ function extractField(content: string, fieldName: string): string | undefined {
 function extractSection(content: string, sectionName: string): string | undefined {
   const headerRegex = new RegExp(`^#\\s+${sectionName}\\s*$`, 'im');
   const headerMatch = content.match(headerRegex);
-  if (!headerMatch) return undefined;
+  if (!headerMatch || headerMatch.index === undefined) return undefined;
 
-  const startIndex = headerMatch.index! + headerMatch[0].length;
+  const startIndex = headerMatch.index + headerMatch[0].length;
   const afterHeader = content.slice(startIndex);
   const nextHeaderRegex = /^#\s+/m;
   const nextHeaderMatch = afterHeader.match(nextHeaderRegex);
-  const endIndex = nextHeaderMatch ? nextHeaderMatch.index! : afterHeader.length;
+  const endIndex = nextHeaderMatch && nextHeaderMatch.index !== undefined ? nextHeaderMatch.index : afterHeader.length;
   const sectionContent = afterHeader.slice(0, endIndex).trim();
 
   if (sectionContent === BRANCH_CONTEXT_NA || sectionContent === '') return undefined;
