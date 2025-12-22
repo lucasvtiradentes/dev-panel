@@ -1,3 +1,4 @@
+import { EXTENSION_DISPLAY_NAME } from 'src/common/constants';
 import * as vscode from 'vscode';
 import { logger } from '../../common/lib/logger';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
@@ -29,12 +30,12 @@ export function createOpenSettingsMenuCommand() {
       {
         id: SettingsMenuOption.Init,
         label: '$(file-add) Init',
-        detail: 'Initialize Project Panel in current workspace',
+        detail: `Initialize ${EXTENSION_DISPLAY_NAME} in current workspace`,
       },
     ];
 
     const selected = await vscode.window.showQuickPick(mainMenuItems, {
-      placeHolder: 'Project Panel Settings',
+      placeHolder: `${EXTENSION_DISPLAY_NAME} Settings`,
       ignoreFocusOut: false,
     });
 

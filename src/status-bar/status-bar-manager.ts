@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getCommandId } from '../common/constants';
+import { EXTENSION_DISPLAY_NAME, getCommandId } from '../common/constants';
 import { Command } from '../common/lib/vscode-utils';
 
 export class StatusBarManager {
@@ -14,13 +14,13 @@ export class StatusBarManager {
 
   private updateDisplay(): void {
     const icon = '$(settings-gear)';
-    const text = 'Project Panel';
+    const text = EXTENSION_DISPLAY_NAME;
     this.statusBarItem.text = `${icon} ${text}`;
-    this.statusBarItem.tooltip = this.buildTooltip();
+    // this.statusBarItem.tooltip = this.buildTooltip();
   }
 
   private buildTooltip(): string {
-    const lines = ['Project Panel Settings', '', 'Click to open settings menu'];
+    const lines = [`${EXTENSION_DISPLAY_NAME} Settings`, '', 'Click to open settings menu'];
     return lines.join('\n');
   }
 

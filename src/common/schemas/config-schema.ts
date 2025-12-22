@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CONFIG_DIR_NAME } from '../constants/scripts-constants';
+import { CONFIG_DIR_NAME, EXTENSION_DISPLAY_NAME } from '../constants/scripts-constants';
 
 export enum PromptInputType {
   File = 'file',
@@ -124,7 +124,7 @@ const PPSettingsSchema = z
         `Glob patterns to exclude globally (package.json search, prompt file/folder selection, variable file/folder selection). Always excluded (hardcoded): node_modules, dist, .git. Add custom exclusions as needed (e.g. ["**/.pp/**", "**/.changeset/**", "**/out/**", "**/*.log"])`,
       ),
   })
-  .describe('Global settings for Project Panel behavior');
+  .describe(`Global settings for ${EXTENSION_DISPLAY_NAME} behavior`);
 
 export const PPConfigSchema = z
   .object({
@@ -136,7 +136,7 @@ export const PPConfigSchema = z
     tools: z.array(PPToolSchema).optional().describe('Executable tools'),
     prompts: z.array(PPPromptSchema).optional().describe('Claude Code prompts'),
   })
-  .describe('Project Panel configuration file');
+  .describe(`${EXTENSION_DISPLAY_NAME} configuration file`);
 
 export type PPPromptInput = z.infer<typeof PPPromptInputSchema>;
 export type PPPrompt = z.infer<typeof PPPromptSchema>;
