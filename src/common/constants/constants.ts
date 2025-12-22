@@ -24,3 +24,15 @@ export const BRANCH_CONTEXT_FIELD_LINEAR_LINK = 'LINEAR LINK:';
 export const TODO_CHECKBOX_UNCHECKED = '[ ]';
 export const TODO_CHECKBOX_CHECKED_LOWER = '[x]';
 export const TODO_CHECKBOX_CHECKED_UPPER = '[X]';
+
+export const FILE_SEARCH_LIMIT = 1000;
+export const FOLDER_SEARCH_LIMIT = 2000;
+
+export const ROOT_FOLDER_LABEL = '.';
+
+export const JSON_INDENT_SPACES = 4;
+export const CONFIG_INDENT = '    ';
+
+export const STATUS_BAR_UNDEFINED_TASK = '-- UNDEFINED TASK --';
+export const STATUS_BAR_COMMAND_PREFIX = '/';
+export const TASK_SOURCE_WORKSPACE = 'Workspace';

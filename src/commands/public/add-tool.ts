@@ -5,7 +5,11 @@ import * as vscode from 'vscode';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
+  CONFIG_INDENT,
   CONFIG_TOOLS_ARRAY_PATTERN,
+  JSON_INDENT_SPACES,
+  TOOLS_DIR,
+  TOOL_INSTRUCTIONS_FILE,
   TOOL_NAME_PATTERN,
   TOOL_NAME_VALIDATION_MESSAGE,
 } from '../../common/constants';
@@ -98,11 +102,11 @@ async function handleAddTool(): Promise<void> {
     }
   }
 
-  const toolJson = JSON.stringify(newTool, null, 4)
+  const toolJson = JSON.stringify(newTool, null, JSON_INDENT_SPACES)
     .split('\n')
     .map((line, idx) => {
-      if (idx === 0) return `\n    ${line}`;
-      return `    ${line}`;
+      if (idx === 0) return `\n${CONFIG_INDENT}${line}`;
+      return `${CONFIG_INDENT}${line}`;
     })
     .join('\n');
 
@@ -113,12 +117,12 @@ async function handleAddTool(): Promise<void> {
 
   fs.writeFileSync(configPath, updatedContent, 'utf8');
 
-  const toolDir = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, 'tools', name);
+  const toolDir = path.join(workspaceFolder.uri.fsPath, CONFIG_DIR_NAME, TOOLS_DIR, name);
   if (!fs.existsSync(toolDir)) {
     fs.mkdirSync(toolDir, { recursive: true });
   }
 
-  const instructionsPath = path.join(toolDir, 'instructions.md');
+  const instructionsPath = path.join(toolDir, TOOL_INSTRUCTIONS_FILE);
   const instructionsContent = `# Description
 
 ${description || `Tool: ${name}`}
@@ -162,8 +166,8 @@ ${command}
 
   const openFile = await vscode.window.showQuickPick(
     [
-      { label: 'Open instructions.md', value: 'instructions' },
-      { label: 'Open config.jsonc', value: 'config' },
+      { label: `Open ${TOOL_INSTRUCTIONS_FILE}`, value: 'instructions' },
+      { label: `Open ${CONFIG_FILE_NAME}`, value: 'config' },
       { label: 'Done', value: 'done' },
     ],
     { placeHolder: 'What would you like to open?' },
