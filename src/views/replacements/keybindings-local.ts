@@ -1,7 +1,6 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
-import { CONTEXT_PREFIX } from '../../common/constants';
-import { getReplacementCommandId, getReplacementCommandPrefix } from '../../common/constants';
+import { CONTEXT_PREFIX, getReplacementCommandId, getReplacementCommandPrefix } from '../../common/constants';
 import { getVSCodeKeybindingsPath } from '../../common/lib/vscode-keybindings-utils';
 import { getWorkspaceId } from '../../common/lib/vscode-utils';
 

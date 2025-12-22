@@ -4,7 +4,6 @@ import * as path from 'node:path';
 import { promisify } from 'node:util';
 import json5 from 'json5';
 import * as vscode from 'vscode';
-import { getCommandId } from '../../common/constants';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
@@ -13,6 +12,7 @@ import {
   DISPLAY_PREFIX,
   NO_GROUP_NAME,
   VARIABLES_FILE_NAME,
+  getCommandId,
 } from '../../common/constants';
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/lib/file-selection';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';

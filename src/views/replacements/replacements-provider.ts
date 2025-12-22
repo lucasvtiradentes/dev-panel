@@ -2,13 +2,13 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import json5 from 'json5';
 import * as vscode from 'vscode';
-import { getCommandId } from '../../common/constants';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
   DISPLAY_PREFIX,
   NO_GROUP_NAME,
+  getCommandId,
 } from '../../common/constants';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';

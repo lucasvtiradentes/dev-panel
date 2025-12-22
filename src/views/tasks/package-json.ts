@@ -2,7 +2,6 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { getCommandId } from '../../common/constants';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
@@ -12,6 +11,7 @@ import {
   NO_GROUP_NAME,
   PACKAGE_JSON,
   VARIABLES_FILE_NAME,
+  getCommandId,
 } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
 import { type PPConfig, TaskSource } from '../../common/schemas/types';

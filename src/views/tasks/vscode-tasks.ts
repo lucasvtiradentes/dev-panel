@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
-import { getCommandId } from '../../common/constants';
-import { CONTEXT_VALUES } from '../../common/constants';
+import { CONTEXT_VALUES, getCommandId } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
 import { TaskSource } from '../../common/schemas/types';
 import { type GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';

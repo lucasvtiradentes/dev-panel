@@ -4,11 +4,11 @@ import { createLogger } from './logger';
 
 const log = createLogger('file-selection');
 
-export interface FileSelectionOptions {
+export type FileSelectionOptions = {
   label: string;
   multiSelect?: boolean;
   excludes?: string[];
-}
+};
 
 function buildExcludeGlob(excludes: string[]): string {
   return `{${excludes.join(',')}}`;

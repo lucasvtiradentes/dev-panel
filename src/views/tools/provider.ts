@@ -1,7 +1,6 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { getCommandId } from '../../common/constants';
 import {
   CONFIG_DIR_KEY,
   CONFIG_DIR_NAME,
@@ -10,6 +9,7 @@ import {
   NO_GROUP_NAME,
   SHELL_SCRIPT_PATTERN,
   TOOL_INSTRUCTIONS_FILE,
+  getCommandId,
 } from '../../common/constants';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
