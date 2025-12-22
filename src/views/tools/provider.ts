@@ -13,7 +13,7 @@ import {
 } from '../../common/constants';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
-import type { PPConfig } from '../../common/schemas/types';
+import type { PPConfig } from '../../common/schemas';
 import { BaseTreeDataProvider, type ProviderConfig } from '../common';
 import { ToolDragAndDropController } from './dnd-controller';
 import { ToolGroupTreeItem, TreeTool } from './items';

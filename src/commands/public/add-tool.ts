@@ -10,7 +10,7 @@ import {
   TOOL_NAME_VALIDATION_MESSAGE,
 } from '../../common/constants';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
-import type { PPConfig } from '../../common/schemas/types';
+import type { PPConfig } from '../../common/schemas';
 
 async function handleAddTool(): Promise<void> {
   const workspaceFolder = vscode.workspace.workspaceFolders?.[0];

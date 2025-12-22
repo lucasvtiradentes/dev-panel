@@ -1,5 +1,5 @@
 import type * as vscode from 'vscode';
-import { CONFIG_DIR_KEY, WORKSPACE_STATE_KEY } from '../constants/constants';
+import { CONFIG_DIR_KEY, WORKSPACE_STATE_KEY } from '../constants/scripts-constants';
 import {
   DEFAULT_PROMPTS_STATE,
   DEFAULT_REPLACEMENTS_STATE,
@@ -11,12 +11,12 @@ import {
   type PromptsState,
   type ReplacementsState,
   type SourceState,
-  TaskSource,
   type TasksState,
   type ToolsState,
   type VariablesState,
   type WorkspaceUIState,
-} from '../schemas/types';
+} from '../schemas';
+import { TaskSource } from '../schemas/types';
 
 let _context: vscode.ExtensionContext | null = null;
 

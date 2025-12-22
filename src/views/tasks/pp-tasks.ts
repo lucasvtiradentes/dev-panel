@@ -11,7 +11,8 @@ import {
   getCommandId,
 } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
-import { type PPConfig, TaskSource } from '../../common/schemas/types';
+import type { PPConfig } from '../../common/schemas';
+import { TaskSource } from '../../common/schemas/types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { getTaskKeybinding } from './keybindings-local';
 import { isFavorite, isHidden } from './state';

@@ -4,7 +4,7 @@ import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../../common/constants';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
-import type { PPConfig } from '../../common/schemas/types';
+import type { PPConfig } from '../../common/schemas';
 
 type ToolInstruction = {
   id: string;

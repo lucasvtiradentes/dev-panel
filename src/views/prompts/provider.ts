@@ -5,7 +5,7 @@ import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, CONTEXT_VALUES, NO_GROUP_NAME, getCo
 import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { promptsState } from '../../common/lib/workspace-state';
-import type { PPConfig } from '../../common/schemas/types';
+import type { PPConfig } from '../../common/schemas';
 import { BaseTreeDataProvider, type ProviderConfig } from '../common';
 import { PromptDragAndDropController } from './dnd-controller';
 import { PromptGroupTreeItem, TreePrompt } from './items';

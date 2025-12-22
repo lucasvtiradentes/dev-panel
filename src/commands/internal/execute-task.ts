@@ -6,13 +6,13 @@ import JSON5 from 'json5';
 import * as vscode from 'vscode';
 
 const execAsync = promisify(exec);
+import { GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
-  GLOBAL_STATE_WORKSPACE_SOURCE,
   VARIABLES_FILE_NAME,
   getPromptOutputFilePath,
-} from '../../common/constants/constants';
+} from '../../common/constants/scripts-constants';
 import { createLogger } from '../../common/lib/logger';
 import { collectPromptInputs, replaceInputPlaceholders } from '../../common/lib/prompt-inputs';
 import { Command, isMultiRootWorkspace, registerCommand } from '../../common/lib/vscode-utils';

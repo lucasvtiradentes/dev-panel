@@ -1,8 +1,9 @@
 import { appendFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { CONFIG_DIR_KEY, LOG_CONTEXT_WIDTH, LOG_TIMEZONE_OFFSET_HOURS } from '../constants/constants';
+import { LOG_CONTEXT_WIDTH, LOG_TIMEZONE_OFFSET_HOURS } from '../constants/constants';
 import { getLogFilename } from '../constants/functions';
+import { CONFIG_DIR_KEY } from '../constants/scripts-constants';
 
 export const LOG_FILE_PATH = join(tmpdir(), getLogFilename());
 

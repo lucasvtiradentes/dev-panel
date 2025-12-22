@@ -25,7 +25,7 @@ import { syncKeybindings } from './common/lib/keybindings-sync';
 import { logger } from './common/lib/logger';
 import { Command, ContextKey, generateWorkspaceId, setContextKey, setWorkspaceId } from './common/lib/vscode-utils';
 import { initWorkspaceState } from './common/lib/workspace-state';
-import type { PPConfig } from './common/schemas/types';
+import type { PPConfig } from './common/schemas';
 import { BranchContextProvider } from './views/branch-context';
 import { PromptTreeDataProvider } from './views/prompts';
 import { reloadPromptKeybindings } from './views/prompts/keybindings-local';

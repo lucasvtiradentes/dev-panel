@@ -205,7 +205,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     elements: Array<WorkspaceTreeItem | TreeTask | GroupTreeItem>,
   ): Promise<Array<WorkspaceTreeItem | TreeTask | GroupTreeItem>> {
     if (elements.length === 1 && !(elements[0] instanceof TreeTask)) {
-      return await this.getLowestLevel(elements[0].children);
+      return this.getLowestLevel(elements[0].children);
     }
     return elements;
   }

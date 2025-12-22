@@ -1,22 +1,3 @@
-export {
-  type PPConfig,
-  type PPPrompt,
-  type VariablesState,
-  type PromptsState,
-  type ReplacementsState,
-  type SourceState,
-  type TasksState,
-  type ToolsState,
-  type WorkspaceUIState,
-  DEFAULT_VARIABLES_STATE,
-  DEFAULT_PROMPTS_STATE,
-  DEFAULT_REPLACEMENTS_STATE,
-  DEFAULT_SOURCE_STATE,
-  DEFAULT_TASKS_STATE,
-  DEFAULT_TOOLS_STATE,
-  DEFAULT_WORKSPACE_UI_STATE,
-} from './index';
-
 export type BranchContext = {
   prLink?: string;
   linearLink?: string;
