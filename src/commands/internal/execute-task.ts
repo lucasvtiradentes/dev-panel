@@ -7,31 +7,98 @@ import * as vscode from 'vscode';
 
 const execAsync = promisify(exec);
 import {
-  Command,
-  collectPromptInputs,
-  createLogger,
-  isMultiRootWorkspace,
-  registerCommand,
-  replaceInputPlaceholders,
-} from '../../common';
-import { CONFIG_DIR_NAME, GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
-import type { PPConfig, PPPrompt, PPSettings } from '../../common/schemas';
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  GLOBAL_STATE_WORKSPACE_SOURCE,
+  VARIABLES_FILE_NAME,
+  getPromptOutputFilePath,
+} from '../../common/constants/constants';
+import { createLogger } from '../../common/lib/logger';
+import { collectPromptInputs, replaceInputPlaceholders } from '../../common/lib/prompt-inputs';
+import { Command, isMultiRootWorkspace, registerCommand } from '../../common/lib/vscode-utils';
+import { type PPConfig, type PPPrompt, type PPSettings, PromptExecutionMode } from '../../common/schemas';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';
 
 const log = createLogger('execute-task');
 
+function readPPVariablesAsEnv(workspacePath: string): Record<string, string> {
+  const variablesPath = `${workspacePath}/${CONFIG_DIR_NAME}/${VARIABLES_FILE_NAME}`;
+  if (!fs.existsSync(variablesPath)) return {};
+  try {
+    const variablesContent = fs.readFileSync(variablesPath, 'utf8');
+    const variables = JSON5.parse(variablesContent) as Record<string, unknown>;
+    const env: Record<string, string> = {};
+    for (const [key, value] of Object.entries(variables)) {
+      const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+      env[key.toUpperCase()] = stringValue;
+    }
+    return env;
+  } catch {
+    return {};
+  }
+}
+
+function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscode.Task {
+  const execution = task.execution;
+  if (!execution) return task;
+
+  let newExecution: vscode.ShellExecution | vscode.ProcessExecution | vscode.CustomExecution;
+
+  if (execution instanceof vscode.ShellExecution) {
+    const mergedEnv = { ...execution.options?.env, ...env };
+    const commandLine = execution.commandLine;
+    const command = execution.command;
+
+    if (commandLine) {
+      newExecution = new vscode.ShellExecution(commandLine, { ...execution.options, env: mergedEnv });
+    } else if (command) {
+      newExecution = new vscode.ShellExecution(command, execution.args ?? [], { ...execution.options, env: mergedEnv });
+    } else {
+      return task;
+    }
+  } else if (execution instanceof vscode.ProcessExecution) {
+    const mergedEnv = { ...execution.options?.env, ...env };
+    newExecution = new vscode.ProcessExecution(execution.process, execution.args, {
+      ...execution.options,
+      env: mergedEnv,
+    });
+  } else {
+    return task;
+  }
+
+  return new vscode.Task(
+    task.definition,
+    task.scope ?? vscode.TaskScope.Workspace,
+    task.name,
+    task.source,
+    newExecution,
+    task.problemMatchers,
+  );
+}
+
 export function createExecuteTaskCommand(context: vscode.ExtensionContext) {
   return registerCommand(
     Command.ExecuteTask,
     async (task: vscode.Task, scope: vscode.TaskScope | vscode.WorkspaceFolder | undefined) => {
+      let modifiedTask = task;
+
+      if (scope && typeof scope !== 'number' && 'uri' in scope) {
+        const folder = scope as vscode.WorkspaceFolder;
+        const env = readPPVariablesAsEnv(folder.uri.fsPath);
+
+        if (Object.keys(env).length > 0) {
+          modifiedTask = cloneTaskWithEnv(task, env);
+        }
+      }
+
       if (isMultiRootWorkspace()) {
         if (scope != null && (scope as vscode.WorkspaceFolder).name != null) {
           await context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, (scope as vscode.WorkspaceFolder).name);
         }
       }
 
-      void vscode.tasks.executeTask(task).then((execution) => {
+      void vscode.tasks.executeTask(modifiedTask).then((execution) => {
         vscode.tasks.onDidEndTask((e) => {
           if (e.execution === execution) {
             void context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, null);
@@ -46,13 +113,24 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
   return registerCommand(
     Command.ExecuteTool,
     async (task: vscode.Task, scope: vscode.TaskScope | vscode.WorkspaceFolder | undefined) => {
+      let modifiedTask = task;
+
+      if (scope && typeof scope !== 'number' && 'uri' in scope) {
+        const folder = scope as vscode.WorkspaceFolder;
+        const env = readPPVariablesAsEnv(folder.uri.fsPath);
+
+        if (Object.keys(env).length > 0) {
+          modifiedTask = cloneTaskWithEnv(task, env);
+        }
+      }
+
       if (isMultiRootWorkspace()) {
         if (scope != null && (scope as vscode.WorkspaceFolder).name != null) {
           await context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, (scope as vscode.WorkspaceFolder).name);
         }
       }
 
-      void vscode.tasks.executeTask(task).then((execution) => {
+      void vscode.tasks.executeTask(modifiedTask).then((execution) => {
         vscode.tasks.onDidEndTask((e) => {
           if (e.execution === execution) {
             void context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, null);
@@ -64,7 +142,7 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
 }
 
 function readPPSettings(folder: vscode.WorkspaceFolder): PPSettings | undefined {
-  const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/config.jsonc`;
+  const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`;
   log.debug(`readPPSettings - configPath: ${configPath}`);
   if (!fs.existsSync(configPath)) {
     log.debug('readPPSettings - config file not found');
@@ -80,6 +158,35 @@ function readPPSettings(folder: vscode.WorkspaceFolder): PPSettings | undefined 
     log.error(`readPPSettings - error: ${err}`);
     return undefined;
   }
+}
+
+function readPPVariables(folder: vscode.WorkspaceFolder): Record<string, unknown> | null {
+  const variablesPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/${VARIABLES_FILE_NAME}`;
+  log.debug(`readPPVariables - variablesPath: ${variablesPath}`);
+  if (!fs.existsSync(variablesPath)) {
+    log.debug('readPPVariables - variables file not found');
+    return null;
+  }
+  try {
+    const variablesContent = fs.readFileSync(variablesPath, 'utf8');
+    const variables = JSON5.parse(variablesContent) as Record<string, unknown>;
+    log.info(`readPPVariables - loaded ${Object.keys(variables).length} variables`);
+    return variables;
+  } catch (err) {
+    log.error(`readPPVariables - error: ${err}`);
+    return null;
+  }
+}
+
+function replaceVariablePlaceholders(content: string, variables: Record<string, unknown>): string {
+  let result = content;
+  for (const [key, value] of Object.entries(variables)) {
+    const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+    const upperKey = key.toUpperCase();
+    const pattern = new RegExp(`\\{\\{${upperKey}\\}\\}`, 'g');
+    result = result.replace(pattern, stringValue);
+  }
+  return result;
 }
 
 export function createExecutePromptCommand() {
@@ -99,6 +206,11 @@ export function createExecutePromptCommand() {
       const settings = readPPSettings(folder);
       log.info(`settings: ${JSON.stringify(settings)}`);
 
+      const variables = readPPVariables(folder);
+      if (variables) {
+        promptContent = replaceVariablePlaceholders(promptContent, variables);
+      }
+
       if (promptConfig?.inputs && promptConfig.inputs.length > 0) {
         log.info(`inputs from promptConfig: ${JSON.stringify(promptConfig.inputs)}`);
         const inputValues = await collectPromptInputs(promptConfig.inputs, folder, settings);
@@ -109,13 +221,13 @@ export function createExecutePromptCommand() {
       const provider = getProvider(settings?.aiProvider);
       if (!provider) {
         void vscode.window.showErrorMessage(
-          `AI provider not configured. Set "settings.aiProvider" in ${CONFIG_DIR_NAME}/config.jsonc (claude, gemini, or cursor-agent)`,
+          `AI provider not configured. Set "settings.aiProvider" in ${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME} (claude, gemini, or cursor-agent)`,
         );
         return;
       }
 
       if (promptConfig?.saveOutput) {
-        await executePromptWithSave(promptContent, folder, promptConfig.name, provider);
+        await executePromptWithSave(promptContent, folder, promptConfig.name, provider, settings);
       } else {
         const terminal = vscode.window.createTerminal({ name: provider.name });
         terminal.show();
@@ -130,15 +242,14 @@ async function executePromptWithSave(
   folder: vscode.WorkspaceFolder,
   promptName: string,
   provider: PromptProvider,
+  settings?: PPSettings,
 ): Promise<void> {
   const workspacePath = folder.uri.fsPath;
   const branch = await getCurrentBranch(workspacePath).catch(() => 'unknown');
-  const safeBranch = branch.replace(/[/\\:*?"<>|]/g, '_');
-  const datetime = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-  const safePromptName = promptName.replace(/[/\\:*?"<>|]/g, '_');
 
-  const outputDir = path.join(workspacePath, '.ignore', safeBranch);
-  const outputFile = path.join(outputDir, `${datetime}-${safePromptName}.md`);
+  const timestamped = settings?.promptExecution !== PromptExecutionMode.Overwrite;
+  const outputFile = getPromptOutputFilePath(workspacePath, branch, promptName, timestamped);
+  const outputDir = path.dirname(outputFile);
   const tempFile = path.join(outputDir, '.prompt-temp.txt');
 
   if (!fs.existsSync(outputDir)) {

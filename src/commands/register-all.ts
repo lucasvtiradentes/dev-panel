@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { Command, registerCommand } from '../common';
-import { syncKeybindings } from '../lib/keybindings-sync';
+import { syncKeybindings } from '../common/lib/keybindings-sync';
+import { Command, registerCommand } from '../common/lib/vscode-utils';
 import { BranchContextField, type BranchContextProvider } from '../views/branch-context';
 import type { PromptTreeDataProvider, TreePrompt } from '../views/prompts';
 import type { ReplacementsProvider } from '../views/replacements';
@@ -22,6 +22,8 @@ import {
 import { createRevertAllReplacementsCommand } from './internal/revert-all-replacements';
 import { createResetConfigOptionCommand, createSelectConfigOptionCommand } from './internal/select-config-option';
 import { createToggleReplacementCommand } from './internal/toggle-replacement';
+import { createAddToolCommand } from './public/add-tool';
+import { createGenerateToolsDocsCommand } from './public/generate-tools-docs';
 import { createGoToTaskCommand } from './public/go-to-task';
 import { createOpenTasksConfigCommand } from './public/open-tasks-config';
 import { createRefreshCommand } from './public/refresh';
@@ -31,7 +33,6 @@ import {
   createSetReplacementKeybindingCommand,
 } from './public/set-replacement-keybinding';
 import { createOpenTasksKeybindingsCommand, createSetTaskKeybindingCommand } from './public/set-task-keybinding';
-import { createOpenToolsKeybindingsCommand, createSetToolKeybindingCommand } from './public/set-tool-keybinding';
 import {
   createOpenVariablesKeybindingsCommand,
   createSetVariableKeybindingCommand,
@@ -87,11 +88,17 @@ export function registerAllCommands(
     registerCommand(Command.ToggleToolsShowOnlyFavoritesActive, () => toolTreeDataProvider.toggleShowOnlyFavorites()),
     createExecuteToolCommand(context),
     registerCommand(Command.GoToToolFile, async (item: TreeTool) => {
-      if (item?.toolFile) {
-        const uri = vscode.Uri.file(item.toolFile);
-        await vscode.window.showTextDocument(uri);
+      if (item?.toolName) {
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        if (workspaceFolder) {
+          const instructionsPath = `${workspaceFolder.uri.fsPath}/.pp/tools/${item.toolName}/instructions.md`;
+          const uri = vscode.Uri.file(instructionsPath);
+          await vscode.window.showTextDocument(uri);
+        }
       }
     }),
+    createGenerateToolsDocsCommand(),
+    createAddToolCommand(),
     registerCommand(Command.TogglePromptsGroupMode, () => promptTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.TogglePromptsGroupModeGrouped, () => promptTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.TogglePromptFavorite, (item) => promptTreeDataProvider.toggleFavorite(item)),
@@ -126,9 +133,6 @@ export function registerAllCommands(
     registerCommand(Command.OpenBranchContextFile, () => branchContextProvider.openMarkdownFile()),
     registerCommand(Command.ToggleTodo, (lineIndex: number) => todosProvider.toggleTodo(lineIndex)),
     createShowLogsCommand(),
-    registerCommand(Command.SyncToolKeybindings, () => syncKeybindings()),
-    createSetToolKeybindingCommand(),
-    createOpenToolsKeybindingsCommand(),
     registerCommand(Command.SyncPromptKeybindings, () => syncKeybindings()),
     createSetPromptKeybindingCommand(),
     createOpenPromptsKeybindingsCommand(),

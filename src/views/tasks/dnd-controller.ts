@@ -1,16 +1,15 @@
+import { DND_MIME_TYPE_TASKS } from '../../common/constants';
 import { tasksState } from '../../common/lib/workspace-state';
 import type { TaskSource } from '../../common/schemas/types';
 import { createSourcedDragAndDropController } from '../common';
 import type { TreeTask } from './items';
-
-const MIME_TYPE = 'application/vnd.code.tree.projectpaneltasks';
 
 export class TaskDragAndDropController {
   private controller: ReturnType<typeof createSourcedDragAndDropController<TreeTask, TaskSource>>;
 
   constructor(getCurrentSource: () => TaskSource, getIsGrouped: () => boolean, onReorder: () => void) {
     this.controller = createSourcedDragAndDropController<TreeTask, TaskSource>(
-      MIME_TYPE,
+      DND_MIME_TYPE_TASKS,
       tasksState,
       getIsGrouped,
       getCurrentSource,

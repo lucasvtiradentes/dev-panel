@@ -8,4 +8,6 @@ out
 # FILES ========================================================================
 
 *.vsix
-.pp/state.json
+.pp/variables.json
+.pp/branches/
+

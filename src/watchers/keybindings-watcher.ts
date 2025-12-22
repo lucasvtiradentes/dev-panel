@@ -2,9 +2,9 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { getWorkspaceId } from '../common';
-import { CONTEXT_PREFIX } from '../common/constants';
-import { getVSCodeKeybindingsPath } from '../lib/vscode-keybindings-utils';
+import { CONTEXT_PREFIX, KEYBINDINGS_FILE } from '../common/constants';
+import { getVSCodeKeybindingsPath } from '../common/lib/vscode-keybindings-utils';
+import { getWorkspaceId } from '../common/lib/vscode-utils';
 
 type KeybindingEntry = { key: string; command: string; when?: string };
 
@@ -27,13 +27,13 @@ function addWhenClauseToOurKeybindings(): void {
     return;
   }
 
-  const expectedWhen = `projectPanel.workspaceId == '${workspaceId}'`;
+  const expectedWhen = `${CONTEXT_PREFIX}.workspaceId == '${workspaceId}'`;
   let modified = false;
 
   for (const kb of keybindings) {
     if (!kb.command.startsWith(CONTEXT_PREFIX)) continue;
     if (kb.when === expectedWhen) continue;
-    if (kb.when?.includes('projectPanel.workspaceId')) continue;
+    if (kb.when?.includes(`${CONTEXT_PREFIX}.workspaceId`)) continue;
 
     kb.when = expectedWhen;
     modified = true;
@@ -59,7 +59,7 @@ export function createKeybindingsWatcher(onKeybindingsChange: () => void): vscod
   }
 
   const watcher = vscode.workspace.createFileSystemWatcher(
-    new vscode.RelativePattern(path.dirname(keybindingsPath), 'keybindings.json'),
+    new vscode.RelativePattern(path.dirname(keybindingsPath), KEYBINDINGS_FILE),
   );
 
   const handleChange = () => {

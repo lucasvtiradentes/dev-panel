@@ -1,4 +1,4 @@
-import { getPromptCommandId, getPromptCommandPrefix } from '../../common';
+import { getPromptCommandId, getPromptCommandPrefix } from '../../common/constants';
 import { KeybindingManager } from '../common';
 
 const manager = new KeybindingManager({

@@ -3,19 +3,12 @@ import { CONFIG_DIR_NAME } from '../constants/scripts-constants';
 
 export enum PromptInputType {
   File = 'file',
-  Files = 'files',
   Folder = 'folder',
-  Folders = 'folders',
   Text = 'text',
   Number = 'number',
   Confirm = 'confirm',
   Choice = 'choice',
   Multichoice = 'multichoice',
-}
-
-export enum SelectionStyle {
-  Flat = 'flat',
-  Interactive = 'interactive',
 }
 
 export enum AIProvider {
@@ -24,11 +17,15 @@ export enum AIProvider {
   CursorAgent = 'cursor-agent',
 }
 
+export enum PromptExecutionMode {
+  Timestamped = 'timestamped',
+  Overwrite = 'overwrite',
+}
+
 const PPTaskSchema = z
   .object({
     name: z.string().describe('Unique identifier for the task'),
     command: z.string().describe('Shell command to execute'),
-    icon: z.string().optional().describe('VSCode ThemeIcon id (e.g. "terminal", "play")'),
     group: z.string().optional().describe('Group name for organizing tasks'),
     description: z.string().optional().describe('Human-readable description shown as tooltip'),
   })
@@ -38,9 +35,7 @@ const PPToolSchema = z
   .object({
     name: z.string().describe('Unique identifier for the tool'),
     command: z.string().describe('Shell command to execute'),
-    icon: z.string().optional().describe('VSCode ThemeIcon id (e.g. "tools", "gear")'),
     group: z.string().optional().describe('Group name for organizing tools'),
-    description: z.string().optional().describe('Human-readable description shown as tooltip'),
   })
   .describe('A tool that can be executed from the Tools view');
 
@@ -51,10 +46,7 @@ const PPPromptInputSchema = z
     label: z.string().describe('Label shown in the input dialog'),
     placeholder: z.string().optional().describe('Placeholder text for text/number inputs'),
     options: z.array(z.string()).optional().describe('Available options for choice/multichoice types'),
-    selectionStyle: z
-      .nativeEnum(SelectionStyle)
-      .optional()
-      .describe('Selection style for file/folder inputs. Overrides global setting'),
+    multiSelect: z.boolean().optional().describe('Enable multi-selection for file/folder types'),
     excludes: z
       .array(z.string())
       .optional()
@@ -66,14 +58,13 @@ const PPPromptSchema = z
   .object({
     name: z.string().describe('Unique identifier for the prompt'),
     file: z.string().describe(`Path to prompt file relative to ${CONFIG_DIR_NAME}/prompts/`),
-    icon: z.string().optional().describe('VSCode ThemeIcon id (e.g. "comment", "sparkle")'),
     group: z.string().optional().describe('Group name for organizing prompts'),
     description: z.string().optional().describe('Human-readable description shown as tooltip'),
     inputs: z.array(PPPromptInputSchema).optional().describe('Inputs to collect before running the prompt'),
     saveOutput: z
       .boolean()
       .optional()
-      .describe('If true, save response to .ignore/{{branch}}/{{datetime}}-{{promptname}}.md'),
+      .describe('If true, save response to .pp/branches/{{branch}}/prompts/{{promptname}}.md'),
   })
   .describe('A prompt that can be executed in Claude Code');
 
@@ -83,13 +74,17 @@ const PPVariableSchema = z
     kind: z.enum(['choose', 'toggle', 'input', 'multi-select', 'file', 'folder']).describe('Type of variable input'),
     options: z.array(z.string()).optional().describe('Available options for choose/multi-select kinds'),
     command: z.string().optional().describe('Shell command to execute when value changes'),
-    icon: z.string().optional().describe('VSCode ThemeIcon id'),
     description: z.string().optional().describe('Human-readable description'),
     default: z
       .union([z.string(), z.boolean(), z.array(z.string())])
       .optional()
       .describe('Default value'),
     group: z.string().optional().describe('Group name for organizing variables'),
+    multiSelect: z.boolean().optional().describe('Enable multi-selection for file/folder kinds'),
+    excludes: z
+      .array(z.string())
+      .optional()
+      .describe('Glob patterns to exclude for file/folder kinds. Overrides global excludes'),
   })
   .describe('A configuration variable shown in the Variables view');
 
@@ -110,36 +105,23 @@ const PPReplacementSchema = z
   })
   .describe('A file replacement/patch shown in the Replacements view');
 
-const PPPromptSelectionSchema = z
-  .object({
-    fileStyle: z
-      .nativeEnum(SelectionStyle)
-      .optional()
-      .describe('Selection style for file inputs: flat (all files listed) or interactive (navigate step by step)'),
-    folderStyle: z
-      .nativeEnum(SelectionStyle)
-      .optional()
-      .describe('Selection style for folder inputs: flat (all folders listed) or interactive (navigate step by step)'),
-    includes: z.array(z.string()).optional().describe('Glob patterns to include (e.g. ["src/**/*", "**/*.ts"])'),
-    excludes: z
-      .array(z.string())
-      .optional()
-      .describe('Glob patterns to exclude (e.g. ["**/node_modules/**", "**/.git/**"])'),
-  })
-  .describe('Settings for file/folder selection in prompts');
-
 const PPSettingsSchema = z
   .object({
-    promptSelection: PPPromptSelectionSchema.optional().describe('File/folder selection settings for prompts'),
     aiProvider: z
       .nativeEnum(AIProvider)
       .optional()
       .describe('AI provider to use for prompts: claude, gemini, or cursor-agent'),
-    excludedDirs: z
+    promptExecution: z
+      .nativeEnum(PromptExecutionMode)
+      .optional()
+      .describe(
+        'Execution mode for prompts with saveOutput: "timestamped" creates new file each time with timestamp, "overwrite" replaces previous file',
+      ),
+    exclude: z
       .array(z.string())
       .optional()
       .describe(
-        `Additional directories to exclude when searching for package.json files. Always excluded (hardcoded): node_modules, dist, .git. Add custom exclusions as needed (e.g. ["dist-dev", "out", "${CONFIG_DIR_NAME}", "temp"])`,
+        `Glob patterns to exclude globally (package.json search, prompt file/folder selection, variable file/folder selection). Always excluded (hardcoded): node_modules, dist, .git. Add custom exclusions as needed (e.g. ["**/.pp/**", "**/.changeset/**", "**/out/**", "**/*.log"])`,
       ),
   })
   .describe('Global settings for Project Panel behavior');

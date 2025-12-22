@@ -1,4 +1,4 @@
-import { getTaskCommandId, getTaskCommandPrefix } from '../../common';
+import { getTaskCommandId, getTaskCommandPrefix } from '../../common/constants';
 import { KeybindingManager } from '../common';
 
 const manager = new KeybindingManager({

@@ -2,12 +2,12 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
-import { Command, ContextKey, generateWorkspaceId, getCommandId, setContextKey, setWorkspaceId } from './common';
 import {
   CONFIG_DIR_KEY,
   CONFIG_DIR_NAME,
   GLOBAL_STATE_WORKSPACE_SOURCE,
   TOOL_TASK_TYPE,
+  getCommandId,
   getPromptCommandId,
   getReplacementCommandId,
   getTaskCommandId,
@@ -21,10 +21,11 @@ import {
   getViewIdTodos,
   getViewIdTools,
 } from './common/constants';
+import { syncKeybindings } from './common/lib/keybindings-sync';
 import { logger } from './common/lib/logger';
+import { Command, ContextKey, generateWorkspaceId, setContextKey, setWorkspaceId } from './common/lib/vscode-utils';
 import { initWorkspaceState } from './common/lib/workspace-state';
 import type { PPConfig } from './common/schemas/types';
-import { syncKeybindings } from './lib/keybindings-sync';
 import { BranchContextProvider } from './views/branch-context';
 import { PromptTreeDataProvider } from './views/prompts';
 import { reloadPromptKeybindings } from './views/prompts/keybindings-local';
@@ -35,6 +36,7 @@ import { TodosProvider } from './views/todos';
 import { ToolTreeDataProvider } from './views/tools';
 import { reloadToolKeybindings } from './views/tools/keybindings-local';
 import { VariablesProvider } from './views/variables';
+import { createBranchWatcher } from './watchers/branch-watcher';
 import { createConfigWatcher } from './watchers/config-watcher';
 import { createKeybindingsWatcher } from './watchers/keybindings-watcher';
 
@@ -235,6 +237,14 @@ export function activate(context: vscode.ExtensionContext): object {
     taskTreeDataProvider.refresh();
   });
   context.subscriptions.push(keybindingsWatcher);
+
+  const branchWatcher = createBranchWatcher((newBranch) => {
+    logger.info(`Branch changed to: ${newBranch}`);
+    void branchContextProvider.setBranch(newBranch);
+    todosProvider.setBranch(newBranch);
+    void replacementsProvider.handleBranchChange(newBranch);
+  });
+  context.subscriptions.push(branchWatcher);
 
   const commandDisposables = registerAllCommands(
     context,

@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
-import { ContextKey, ExtensionConfigKey, getExtensionConfig, setContextKey } from '../../common';
+import { NO_GROUP_NAME } from '../../common/constants';
+import { ExtensionConfigKey, getExtensionConfig } from '../../common/lib/extension-config';
+import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { TASK_SOURCES, TaskSource } from '../../common/schemas/types';
 import { StatusBarManager } from '../../status-bar/status-bar-manager';
 import { TaskDragAndDropController } from './dnd-controller';
@@ -190,10 +192,8 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
       if (aIndex !== -1) return -1;
       if (bIndex !== -1) return 1;
 
-      if (aLabel === 'no-group' && bLabel !== 'no-group') return 1;
-      if (bLabel === 'no-group' && aLabel !== 'no-group') return -1;
-      if (aLabel === 'other-tasks' && bLabel !== 'other-tasks') return 1;
-      if (bLabel === 'other-tasks' && aLabel !== 'other-tasks') return -1;
+      if (aLabel === NO_GROUP_NAME && bLabel !== NO_GROUP_NAME) return 1;
+      if (bLabel === NO_GROUP_NAME && aLabel !== NO_GROUP_NAME) return -1;
 
       return aLabel.localeCompare(bLabel);
     });

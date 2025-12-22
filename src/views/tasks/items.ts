@@ -1,7 +1,8 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { isMultiRootWorkspace } from '../../common';
+import { CONTEXT_VALUES, NO_GROUP_NAME, VSCODE_TASKS_PATH } from '../../common/constants';
+import { isMultiRootWorkspace } from '../../common/lib/vscode-utils';
 import type { CodeWorkspaceFile, TaskDefinition, TasksJson } from '../../common/schemas/types';
 import { BaseGroupTreeItem } from '../common';
 
@@ -9,26 +10,18 @@ export class GroupTreeItem extends BaseGroupTreeItem<TreeTask> {}
 
 export class WorkspaceTreeItem extends vscode.TreeItem {
   public childrenObject: { [key: string]: GroupTreeItem } = {};
-  private static readonly otherGroups = 'other-tasks';
 
   constructor(label: string) {
     super(label, vscode.TreeItemCollapsibleState.Expanded);
   }
 
   public async addChildren(child: TreeTask): Promise<void> {
-    if (child.group !== null && child.group !== undefined) {
-      if (this.childrenObject[child.group] === undefined) {
-        const group = new GroupTreeItem(child.group);
-        this.childrenObject[child.group] = group;
-      }
-      this.childrenObject[child.group].children.push(child);
-    } else {
-      if (this.childrenObject[WorkspaceTreeItem.otherGroups] === undefined) {
-        const group = new GroupTreeItem(WorkspaceTreeItem.otherGroups);
-        this.childrenObject[WorkspaceTreeItem.otherGroups] = group;
-      }
-      this.childrenObject[WorkspaceTreeItem.otherGroups].children.push(child);
+    const groupName = child.group ?? NO_GROUP_NAME;
+    if (this.childrenObject[groupName] === undefined) {
+      const group = new GroupTreeItem(groupName);
+      this.childrenObject[groupName] = group;
     }
+    this.childrenObject[groupName].children.push(child);
   }
 
   public get children(): Array<TreeTask | GroupTreeItem> {
@@ -57,7 +50,7 @@ export class TreeTask extends vscode.TreeItem {
     this.label = `${this.label as string}`;
     this.group = group;
     this.taskName = label;
-    this.contextValue = 'task';
+    this.contextValue = CONTEXT_VALUES.TASK;
 
     if (typeof workspace === 'object' && workspace !== null) {
       this.workspace = workspace.name;
@@ -96,7 +89,7 @@ export class TreeTask extends vscode.TreeItem {
   private loadTasksJson(workspaceFolder: vscode.WorkspaceFolder, multiRoot: boolean): TasksJson | null {
     const basePath = workspaceFolder.uri.fsPath;
     const codeWorkspacePath = `${basePath}/${workspaceFolder.name}.code-workspace`;
-    const tasksJsonPath = `${basePath}/.vscode/tasks.json`;
+    const tasksJsonPath = `${basePath}/${VSCODE_TASKS_PATH}`;
 
     if (multiRoot && fs.existsSync(codeWorkspacePath)) {
       const codeWorkspace = JSON5.parse(fs.readFileSync(codeWorkspacePath, 'utf8')) as CodeWorkspaceFile;

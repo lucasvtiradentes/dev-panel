@@ -1,60 +1,51 @@
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 import * as vscode from 'vscode';
+import {
+  BRANCH_CONTEXT_DEFAULT_TODOS,
+  BRANCH_CONTEXT_FIELD_LINEAR_LINK,
+  BRANCH_CONTEXT_FIELD_PR_LINK,
+  BRANCH_CONTEXT_NA,
+  BRANCH_CONTEXT_SECTION_NOTES,
+  BRANCH_CONTEXT_SECTION_OBJECTIVE,
+  BRANCH_CONTEXT_SECTION_TODO,
+} from '../../common/constants';
+import { getBranchContextFilePath, getBranchDirectory } from '../../common/constants/scripts-constants';
 import type { BranchContext } from '../../common/schemas/types';
-import { isGitRepository } from '../replacements/git-utils';
-
-const BRANCH_CONTEXT_FILE = '.branch-context.md';
 
 function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
 }
 
-function addToGitExclude(workspace: string, pattern: string): void {
-  const excludePath = path.join(workspace, '.git', 'info', 'exclude');
-  if (!fs.existsSync(excludePath)) return;
-
-  const content = fs.readFileSync(excludePath, 'utf-8');
-  if (content.includes(pattern)) return;
-
-  const newContent = content.endsWith('\n') ? `${content}${pattern}\n` : `${content}\n${pattern}\n`;
-  fs.writeFileSync(excludePath, newContent);
-}
-
-const DEFAULT_TODOS = `- [ ] task1
-- [ ] task2`;
-
-const NA = 'N/A';
-
 export async function generateBranchContextMarkdown(branchName: string, context: BranchContext): Promise<void> {
   const workspace = getWorkspacePath();
   if (!workspace) return;
 
-  const mdPath = path.join(workspace, BRANCH_CONTEXT_FILE);
+  const dirPath = getBranchDirectory(workspace, branchName);
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+
+  const mdPath = getBranchContextFilePath(workspace, branchName);
 
   const lines: string[] = [
     `# ${branchName}`,
     '',
-    `PR LINK: ${context.prLink || NA}`,
-    `LINEAR LINK: ${context.linearLink || NA}`,
+    `${BRANCH_CONTEXT_FIELD_PR_LINK} ${context.prLink || BRANCH_CONTEXT_NA}`,
+    `${BRANCH_CONTEXT_FIELD_LINEAR_LINK} ${context.linearLink || BRANCH_CONTEXT_NA}`,
     '',
-    '# OBJECTIVE',
+    BRANCH_CONTEXT_SECTION_OBJECTIVE,
     '',
-    context.objective || NA,
+    context.objective || BRANCH_CONTEXT_NA,
     '',
-    '# NOTES',
+    BRANCH_CONTEXT_SECTION_NOTES,
     '',
-    context.notes || NA,
+    context.notes || BRANCH_CONTEXT_NA,
     '',
-    '# TODO',
+    BRANCH_CONTEXT_SECTION_TODO,
     '',
-    context.todos || DEFAULT_TODOS,
+    context.todos || BRANCH_CONTEXT_DEFAULT_TODOS,
     '',
   ];
 
   fs.writeFileSync(mdPath, lines.join('\n'));
-
-  if (await isGitRepository(workspace)) {
-    addToGitExclude(workspace, BRANCH_CONTEXT_FILE);
-  }
 }

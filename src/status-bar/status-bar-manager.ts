@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ContextKey, isMultiRootWorkspace, setContextKey } from '../common';
+import { ContextKey, isMultiRootWorkspace, setContextKey } from '../common/lib/vscode-utils';
 
 export class StatusBarManager {
   private readonly statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);

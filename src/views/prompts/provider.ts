@@ -1,8 +1,9 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { Command, ContextKey, createLogger, getCommandId } from '../../common';
-import { CONFIG_DIR_NAME } from '../../common/constants';
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, CONTEXT_VALUES, NO_GROUP_NAME, getCommandId } from '../../common/constants';
+import { createLogger } from '../../common/lib/logger';
+import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { promptsState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas/types';
 import { BaseTreeDataProvider, type ProviderConfig } from '../common';
@@ -78,7 +79,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
         const treePrompt = this.createPPPrompt(prompt, folder);
         if (!treePrompt) continue;
 
-        const groupName = prompt.group ?? 'no-group';
+        const groupName = prompt.group ?? NO_GROUP_NAME;
 
         if (!groups[groupName]) {
           groups[groupName] = new PromptGroupTreeItem(groupName);
@@ -92,7 +93,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
   }
 
   private readPPPrompts(folder: vscode.WorkspaceFolder): NonNullable<PPConfig['prompts']> {
-    const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/config.jsonc`;
+    const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`;
     log.debug(`readPPPrompts - reading: ${configPath}`);
     if (!fs.existsSync(configPath)) return [];
     const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
@@ -135,10 +136,10 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
 
     if (hidden) {
       treePrompt.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
-      treePrompt.contextValue = 'prompt-hidden';
+      treePrompt.contextValue = CONTEXT_VALUES.PROMPT_HIDDEN;
     } else if (favorite) {
       treePrompt.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
-      treePrompt.contextValue = 'prompt-favorite';
+      treePrompt.contextValue = CONTEXT_VALUES.PROMPT_FAVORITE;
     }
 
     return treePrompt;

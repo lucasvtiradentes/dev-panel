@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { CONTEXT_VALUES } from '../../common/constants';
 import { BaseGroupTreeItem, BaseNamedTreeItem } from '../common';
 
 export class PromptGroupTreeItem extends BaseGroupTreeItem<TreePrompt> {}
@@ -19,7 +20,7 @@ export class TreePrompt extends BaseNamedTreeItem {
     this.group = group;
     this.promptName = label;
     this.promptFile = file;
-    this.contextValue = 'prompt';
+    this.contextValue = CONTEXT_VALUES.PROMPT;
   }
 
   getName(): string {

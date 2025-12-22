@@ -1,8 +1,6 @@
 import type * as vscode from 'vscode';
-import { CONFIG_DIR_KEY } from '../constants/constants';
+import { CONFIG_DIR_KEY, WORKSPACE_STATE_KEY } from '../constants/constants';
 import {
-  type BranchContext,
-  type BranchesState,
   DEFAULT_PROMPTS_STATE,
   DEFAULT_REPLACEMENTS_STATE,
   DEFAULT_SOURCE_STATE,
@@ -19,8 +17,6 @@ import {
   type VariablesState,
   type WorkspaceUIState,
 } from '../schemas/types';
-
-const WORKSPACE_STATE_KEY = 'pp.uiState';
 
 let _context: vscode.ExtensionContext | null = null;
 
@@ -358,32 +354,32 @@ export const replacementsState = {
     replacements.isGrouped = isGrouped;
     this.save(replacements);
   },
-};
-
-export const branchesState = {
-  load(): BranchesState {
-    return getState().branches ?? {};
+  getActiveReplacements(): string[] {
+    return this.load().activeReplacements ?? [];
   },
-  save(branchesState: BranchesState): void {
-    const state = getState();
-    state.branches = branchesState;
-    saveState(state);
+  setActiveReplacements(active: string[]): void {
+    const replacements = this.load();
+    replacements.activeReplacements = active;
+    this.save(replacements);
   },
-  getBranch(branchName: string): BranchContext {
-    return this.load()[branchName] ?? {};
-  },
-  saveBranch(branchName: string, context: BranchContext): void {
-    const branches = this.load();
-    branches[branchName] = context;
-    this.save(branches);
-  },
-  updateField(branchName: string, field: keyof BranchContext, value: string | undefined): void {
-    const branch = this.getBranch(branchName);
-    if (value === undefined || value === '') {
-      delete branch[field];
-    } else {
-      branch[field] = value;
+  addActiveReplacement(name: string): void {
+    const replacements = this.load();
+    if (!replacements.activeReplacements.includes(name)) {
+      replacements.activeReplacements.push(name);
+      this.save(replacements);
     }
-    this.saveBranch(branchName, branch);
+  },
+  removeActiveReplacement(name: string): void {
+    const replacements = this.load();
+    replacements.activeReplacements = replacements.activeReplacements.filter((n) => n !== name);
+    this.save(replacements);
+  },
+  getLastBranch(): string {
+    return this.load().lastBranch ?? '';
+  },
+  setLastBranch(branch: string): void {
+    const replacements = this.load();
+    replacements.lastBranch = branch;
+    this.save(replacements);
   },
 };

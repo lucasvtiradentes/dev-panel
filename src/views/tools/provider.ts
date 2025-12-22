@@ -1,14 +1,22 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { Command, ContextKey, getCommandId } from '../../common';
-import { CONFIG_DIR_KEY, CONFIG_DIR_NAME } from '../../common/constants';
+import {
+  CONFIG_DIR_KEY,
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  CONTEXT_VALUES,
+  NO_GROUP_NAME,
+  SHELL_SCRIPT_PATTERN,
+  TOOL_INSTRUCTIONS_FILE,
+  getCommandId,
+} from '../../common/constants';
+import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas/types';
 import { BaseTreeDataProvider, type ProviderConfig } from '../common';
 import { ToolDragAndDropController } from './dnd-controller';
 import { ToolGroupTreeItem, TreeTool } from './items';
-import { getToolKeybinding } from './keybindings-local';
 import { isFavorite, isHidden } from './state';
 
 const TOOLS_CONFIG: ProviderConfig = {
@@ -71,7 +79,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
         const treeTool = this.createPPTool(tool, folder);
         if (!treeTool) continue;
 
-        const groupName = tool.group ?? 'no-group';
+        const groupName = tool.group ?? NO_GROUP_NAME;
 
         if (!groups[groupName]) {
           groups[groupName] = new ToolGroupTreeItem(groupName);
@@ -85,15 +93,44 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   }
 
   private readPPTools(folder: vscode.WorkspaceFolder): NonNullable<PPConfig['tools']> {
-    const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/config.jsonc`;
+    const configPath = `${folder.uri.fsPath}/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`;
     if (!fs.existsSync(configPath)) return [];
     const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
     return config.tools ?? [];
   }
 
   private extractFileFromCommand(command: string): string | null {
-    const match = command.match(/(?:bash\s+|sh\s+|\.\/)?(.+\.sh)$/);
+    const match = command.match(SHELL_SCRIPT_PATTERN);
     return match ? match[1] : null;
+  }
+
+  private readToolDescription(toolName: string, folderPath: string): string | null {
+    const instructionsPath = `${folderPath}/${CONFIG_DIR_NAME}/tools/${toolName}/${TOOL_INSTRUCTIONS_FILE}`;
+    if (!fs.existsSync(instructionsPath)) return null;
+
+    const content = fs.readFileSync(instructionsPath, 'utf8');
+    const lines = content.split('\n');
+    const descriptionBuffer: string[] = [];
+    let inDescriptionSection = false;
+
+    for (const line of lines) {
+      if (line.startsWith('# ')) {
+        const section = line.slice(2).toLowerCase().trim();
+        inDescriptionSection = section === 'description';
+        continue;
+      }
+
+      if (inDescriptionSection) {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith('#')) {
+          descriptionBuffer.push(trimmed);
+        } else if (trimmed.startsWith('#')) {
+          break;
+        }
+      }
+    }
+
+    return descriptionBuffer.length > 0 ? descriptionBuffer.join(' ') : null;
   }
 
   private createPPTool(tool: NonNullable<PPConfig['tools']>[number], folder: vscode.WorkspaceFolder): TreeTool | null {
@@ -120,24 +157,17 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
       arguments: [task, folder],
     });
 
-    console.log(`[ToolTreeDataProvider] Creating tool "${tool.name}"`);
-    const keybinding = getToolKeybinding(tool.name);
-    console.log(`[ToolTreeDataProvider] Tool "${tool.name}" keybinding: ${keybinding ?? 'none'}`);
-
-    if (keybinding) {
-      treeTool.description = keybinding;
-    }
-
-    if (tool.description) {
-      treeTool.tooltip = tool.description;
+    const description = this.readToolDescription(tool.name, folder.uri.fsPath);
+    if (description) {
+      treeTool.tooltip = description;
     }
 
     if (hidden) {
       treeTool.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
-      treeTool.contextValue = 'tool-hidden';
+      treeTool.contextValue = CONTEXT_VALUES.TOOL_HIDDEN;
     } else if (favorite) {
       treeTool.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
-      treeTool.contextValue = 'tool-favorite';
+      treeTool.contextValue = CONTEXT_VALUES.TOOL_FAVORITE;
     }
 
     return treeTool;

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { Command, getPromptCommandId, getPromptCommandPrefix, registerCommand } from '../../common';
+import { getPromptCommandId, getPromptCommandPrefix } from '../../common/constants';
+import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { TreePrompt } from '../../views/prompts';
 
 async function handleKeybindingManagement(item: TreePrompt): Promise<void> {

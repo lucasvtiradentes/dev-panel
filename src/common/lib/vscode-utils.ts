@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { getCommandId } from '../constants/constants';
+import { getCommandId } from '../constants/functions';
+import { CONTEXT_PREFIX } from '../constants/scripts-constants';
 
 export enum Command {
   Refresh = 'refresh',
@@ -41,6 +42,8 @@ export enum Command {
   ToggleToolsShowOnlyFavoritesActive = 'toggleToolsShowOnlyFavoritesActive',
   ExecuteTool = 'executeTool',
   GoToToolFile = 'goToToolFile',
+  GenerateToolsDocs = 'generateToolsDocs',
+  AddTool = 'addTool',
   TogglePromptsGroupMode = 'togglePromptsGroupMode',
   TogglePromptsGroupModeGrouped = 'togglePromptsGroupModeGrouped',
   TogglePromptFavorite = 'togglePromptFavorite',
@@ -113,31 +116,33 @@ export async function openDocumentAtLine(uri: vscode.Uri, line: number): Promise
   });
 }
 
-export enum ContextKey {
-  InCmdlineMode = 'inCmdlineMode',
-  TaskSourceVSCode = 'taskSourceVSCode',
-  TaskSourcePackage = 'taskSourcePackage',
-  TaskSourcePP = 'taskSourcePP',
-  TasksGrouped = 'tasksGrouped',
-  TasksHasGroups = 'tasksHasGroups',
-  TasksHasHidden = 'tasksHasHidden',
-  TasksShowHidden = 'tasksShowHidden',
-  TasksHasFavorites = 'tasksHasFavorites',
-  TasksShowOnlyFavorites = 'tasksShowOnlyFavorites',
-  ToolsGrouped = 'toolsGrouped',
-  ToolsHasHidden = 'toolsHasHidden',
-  ToolsShowHidden = 'toolsShowHidden',
-  ToolsHasFavorites = 'toolsHasFavorites',
-  ToolsShowOnlyFavorites = 'toolsShowOnlyFavorites',
-  PromptsGrouped = 'promptsGrouped',
-  PromptsHasHidden = 'promptsHasHidden',
-  PromptsShowHidden = 'promptsShowHidden',
-  PromptsHasFavorites = 'promptsHasFavorites',
-  PromptsShowOnlyFavorites = 'promptsShowOnlyFavorites',
-  ReplacementsGrouped = 'replacementsGrouped',
-  ConfigsGrouped = 'configsGrouped',
-  WorkspaceId = 'projectPanel.workspaceId',
-}
+export const ContextKey = {
+  InCmdlineMode: 'inCmdlineMode',
+  TaskSourceVSCode: 'taskSourceVSCode',
+  TaskSourcePackage: 'taskSourcePackage',
+  TaskSourcePP: 'taskSourcePP',
+  TasksGrouped: 'tasksGrouped',
+  TasksHasGroups: 'tasksHasGroups',
+  TasksHasHidden: 'tasksHasHidden',
+  TasksShowHidden: 'tasksShowHidden',
+  TasksHasFavorites: 'tasksHasFavorites',
+  TasksShowOnlyFavorites: 'tasksShowOnlyFavorites',
+  ToolsGrouped: 'toolsGrouped',
+  ToolsHasHidden: 'toolsHasHidden',
+  ToolsShowHidden: 'toolsShowHidden',
+  ToolsHasFavorites: 'toolsHasFavorites',
+  ToolsShowOnlyFavorites: 'toolsShowOnlyFavorites',
+  PromptsGrouped: 'promptsGrouped',
+  PromptsHasHidden: 'promptsHasHidden',
+  PromptsShowHidden: 'promptsShowHidden',
+  PromptsHasFavorites: 'promptsHasFavorites',
+  PromptsShowOnlyFavorites: 'promptsShowOnlyFavorites',
+  ReplacementsGrouped: 'replacementsGrouped',
+  ConfigsGrouped: 'configsGrouped',
+  WorkspaceId: `${CONTEXT_PREFIX}.workspaceId`,
+} as const;
+
+export type ContextKey = (typeof ContextKey)[keyof typeof ContextKey];
 
 export function setContextKey(key: ContextKey, value: boolean | string): Thenable<unknown> {
   return vscode.commands.executeCommand('setContext', key, value);

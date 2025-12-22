@@ -2,8 +2,18 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { Command, getCommandId } from '../../common';
-import { CONFIG_DIR_NAME } from '../../common/constants';
+import {
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  CONTEXT_VALUES,
+  DEFAULT_EXCLUDED_DIRS,
+  DIST_DIR_PREFIX,
+  NO_GROUP_NAME,
+  PACKAGE_JSON,
+  VARIABLES_FILE_NAME,
+  getCommandId,
+} from '../../common/constants';
+import { Command } from '../../common/lib/vscode-utils';
 import { type PPConfig, TaskSource } from '../../common/schemas/types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
@@ -19,17 +29,47 @@ type PackageLocation = {
   folder: vscode.WorkspaceFolder;
 };
 
-const DEFAULT_EXCLUDED_DIRS = ['node_modules', 'dist', '.git'];
+function readPPVariablesAsEnv(workspacePath: string): Record<string, string> {
+  const variablesPath = path.join(workspacePath, CONFIG_DIR_NAME, VARIABLES_FILE_NAME);
+  if (!fs.existsSync(variablesPath)) return {};
+  try {
+    const variablesContent = fs.readFileSync(variablesPath, 'utf8');
+    const variables = JSON5.parse(variablesContent) as Record<string, unknown>;
+    const env: Record<string, string> = {};
+    for (const [key, value] of Object.entries(variables)) {
+      const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+      env[key.toUpperCase()] = stringValue;
+    }
+    return env;
+  } catch {
+    return {};
+  }
+}
+
+function extractDirNamesFromGlobs(patterns: string[]): string[] {
+  const dirs: string[] = [];
+  for (const pattern of patterns) {
+    const cleaned = pattern
+      .replace(/\*\*\//g, '')
+      .replace(/\/\*\*/g, '')
+      .replace(/\*/g, '');
+    if (cleaned && !cleaned.includes('/')) {
+      dirs.push(cleaned);
+    }
+  }
+  return dirs;
+}
 
 export function getExcludedDirs(workspacePath: string): Set<string> {
-  const configPath = path.join(workspacePath, CONFIG_DIR_NAME, 'config.jsonc');
+  const configPath = path.join(workspacePath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
   const excluded = new Set(DEFAULT_EXCLUDED_DIRS);
 
   if (fs.existsSync(configPath)) {
     try {
       const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8')) as PPConfig;
-      const customExcluded = config.settings?.excludedDirs ?? [];
-      for (const dir of customExcluded) {
+      const customExcludePatterns = config.settings?.exclude ?? [];
+      const customDirs = extractDirNamesFromGlobs(customExcludePatterns);
+      for (const dir of customDirs) {
         excluded.add(dir);
       }
     } catch {
@@ -139,9 +179,9 @@ function findPackageJsonsRecursive(dir: string, excludedDirs: Set<string>, maxDe
     const entries = fs.readdirSync(dir, { withFileTypes: true });
 
     for (const entry of entries) {
-      if (entry.name === 'package.json' && entry.isFile()) {
+      if (entry.name === PACKAGE_JSON && entry.isFile()) {
         results.push(path.join(dir, entry.name));
-      } else if (entry.isDirectory() && !excludedDirs.has(entry.name) && !entry.name.startsWith('dist-')) {
+      } else if (entry.isDirectory() && !excludedDirs.has(entry.name) && !entry.name.startsWith(DIST_DIR_PREFIX)) {
         results.push(
           ...findPackageJsonsRecursive(path.join(dir, entry.name), excludedDirs, maxDepth, currentDepth + 1),
         );
@@ -233,7 +273,8 @@ function createNpmTask(
   if (hidden && !showHidden) return null;
   if (showOnlyFavorites && !favorite) return null;
 
-  const shellExec = new vscode.ShellExecution(`npm run ${name}`, { cwd });
+  const env = readPPVariablesAsEnv(folder.uri.fsPath);
+  const shellExec = new vscode.ShellExecution(`npm run ${name}`, { cwd, env });
   const task = new vscode.Task({ type: 'npm' }, folder, name, 'npm', shellExec);
   const displayName = useDisplayName && name.includes(':') ? name.split(':').slice(1).join(':') : name;
 
@@ -253,10 +294,10 @@ function createNpmTask(
 
   if (hidden) {
     treeTask.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
-    treeTask.contextValue = 'task-hidden';
+    treeTask.contextValue = CONTEXT_VALUES.TASK_HIDDEN;
   } else if (favorite) {
     treeTask.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
-    treeTask.contextValue = 'task-favorite';
+    treeTask.contextValue = CONTEXT_VALUES.TASK_FAVORITE;
   }
 
   return treeTask;
@@ -272,5 +313,5 @@ function extractGroupName(scriptName: string, allScriptNames: string[]): string 
     return scriptName;
   }
 
-  return 'no-group';
+  return NO_GROUP_NAME;
 }

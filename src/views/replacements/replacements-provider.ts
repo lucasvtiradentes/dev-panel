@@ -2,50 +2,32 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import json5 from 'json5';
 import * as vscode from 'vscode';
-import { Command, ContextKey, getCommandId, setContextKey } from '../../common';
-import { CONFIG_DIR_NAME, DISPLAY_PREFIX } from '../../common/constants';
+import {
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  CONTEXT_VALUES,
+  DISPLAY_PREFIX,
+  NO_GROUP_NAME,
+  getCommandId,
+} from '../../common/constants';
+import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
 import { getReplacementKeybinding } from './keybindings-local';
-import { getIsGrouped, saveIsGrouped } from './state';
-import { OnBranchChange, type PPConfig, type Replacement, type ReplacementState, ReplacementType } from './types';
+import {
+  addActiveReplacement,
+  getActiveReplacements,
+  getIsGrouped,
+  getLastBranch,
+  removeActiveReplacement,
+  saveIsGrouped,
+  setActiveReplacements,
+  setLastBranch,
+} from './state';
+import { OnBranchChange, type PPConfig, type Replacement, ReplacementType } from './types';
 
 function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
-}
-
-function getStatePath(): string | null {
-  const workspace = getWorkspacePath();
-  if (!workspace) return null;
-  return path.join(workspace, CONFIG_DIR_NAME, 'state.json');
-}
-
-function loadFullState(): Record<string, unknown> {
-  const statePath = getStatePath();
-  if (!statePath || !fs.existsSync(statePath)) return {};
-  const content = fs.readFileSync(statePath, 'utf-8');
-  return JSON.parse(content);
-}
-
-function saveFullState(state: Record<string, unknown>): void {
-  const statePath = getStatePath();
-  if (!statePath) return;
-  fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
-}
-
-function loadReplacementState(): ReplacementState {
-  const state = loadFullState();
-  return {
-    activeReplacements: (state.activeReplacements as string[]) || [],
-    lastBranch: (state.lastBranch as string) || '',
-  };
-}
-
-function saveReplacementState(repState: ReplacementState): void {
-  const state = loadFullState();
-  state.activeReplacements = repState.activeReplacements;
-  state.lastBranch = repState.lastBranch;
-  saveFullState(state);
 }
 
 class ReplacementGroupTreeItem extends vscode.TreeItem {
@@ -54,7 +36,7 @@ class ReplacementGroupTreeItem extends vscode.TreeItem {
     public readonly replacements: Replacement[],
   ) {
     super(groupName, vscode.TreeItemCollapsibleState.Expanded);
-    this.contextValue = 'replacementGroup';
+    this.contextValue = CONTEXT_VALUES.REPLACEMENT_GROUP;
   }
 }
 
@@ -69,7 +51,7 @@ class ReplacementTreeItem extends vscode.TreeItem {
     const status = isActive ? 'ON' : 'OFF';
     this.description = keybinding ? keybinding : '';
     this.tooltip = replacement.description || replacement.name;
-    this.contextValue = 'replacementItem';
+    this.contextValue = CONTEXT_VALUES.REPLACEMENT_ITEM;
 
     if (isActive) {
       this.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
@@ -98,7 +80,6 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     this._grouped = getIsGrouped();
     this.updateContextKeys();
     this.setupFileWatcher();
-    this.setupBranchWatcher();
     this.handleStartup();
   }
 
@@ -118,7 +99,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     if (!workspace) return;
 
     this.configWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, `${CONFIG_DIR_NAME}/config.jsonc`),
+      new vscode.RelativePattern(workspace, `${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`),
     );
 
     this.configWatcher.onDidChange(() => this.refresh());
@@ -126,22 +107,11 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     this.configWatcher.onDidDelete(() => this.refresh());
   }
 
-  private setupBranchWatcher(): void {
-    const workspace = getWorkspacePath();
-    if (!workspace) return;
-
-    this.gitHeadWatcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(workspace, '.git/HEAD'));
-
-    this.gitHeadWatcher.onDidChange(() => this.handleBranchChange());
-  }
-
   private async handleStartup(): Promise<void> {
     const workspace = getWorkspacePath();
     if (workspace && (await isGitRepository(workspace))) {
       const currentBranch = await getCurrentBranch(workspace);
-      const newState = loadReplacementState();
-      newState.lastBranch = currentBranch;
-      saveReplacementState(newState);
+      setLastBranch(currentBranch);
     }
     this.syncReplacementState();
   }
@@ -160,25 +130,23 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       }
     }
 
-    const state = loadReplacementState();
-    state.activeReplacements = activeReplacements;
-    saveReplacementState(state);
+    setActiveReplacements(activeReplacements);
   }
 
-  private async handleBranchChange(): Promise<void> {
+  async handleBranchChange(currentBranch: string): Promise<void> {
     const workspace = getWorkspacePath();
     if (!workspace) return;
 
-    const state = loadReplacementState();
-    const currentBranch = await getCurrentBranch(workspace);
+    const lastBranch = getLastBranch();
+    const activeReplacements = getActiveReplacements();
 
-    if (state.lastBranch && state.lastBranch !== currentBranch && state.activeReplacements.length > 0) {
+    if (lastBranch && lastBranch !== currentBranch && activeReplacements.length > 0) {
       const config = this.loadConfig();
       if (!config?.replacements) return;
 
       const replacementMap = new Map(config.replacements.map((r) => [r.name, r]));
 
-      for (const name of [...state.activeReplacements]) {
+      for (const name of [...activeReplacements]) {
         const replacement = replacementMap.get(name);
         if (!replacement) continue;
 
@@ -196,8 +164,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       vscode.window.showInformationMessage(`${DISPLAY_PREFIX} Branch changed to ${currentBranch}`);
     }
 
-    state.lastBranch = currentBranch;
-    saveReplacementState(state);
+    setLastBranch(currentBranch);
     this.syncReplacementState();
   }
 
@@ -221,29 +188,30 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       return Promise.resolve([]);
     }
 
-    const state = loadReplacementState();
+    const activeReplacements = getActiveReplacements();
 
     if (element instanceof ReplacementGroupTreeItem) {
       return Promise.resolve(
-        element.replacements.map((r) => new ReplacementTreeItem(r, state.activeReplacements.includes(r.name))),
+        element.replacements.map((r) => new ReplacementTreeItem(r, activeReplacements.includes(r.name))),
       );
     }
 
     if (!this._grouped) {
       return Promise.resolve(
-        config.replacements.map((r) => new ReplacementTreeItem(r, state.activeReplacements.includes(r.name))),
+        config.replacements.map((r) => new ReplacementTreeItem(r, activeReplacements.includes(r.name))),
       );
     }
 
     const grouped = new Map<string, Replacement[]>();
-    const ungrouped: Replacement[] = [];
 
     for (const r of config.replacements) {
-      if (r.group) {
-        if (!grouped.has(r.group)) grouped.set(r.group, []);
-        grouped.get(r.group)!.push(r);
-      } else {
-        ungrouped.push(r);
+      const groupName = r.group ?? NO_GROUP_NAME;
+      if (!grouped.has(groupName)) {
+        grouped.set(groupName, []);
+      }
+      const group = grouped.get(groupName);
+      if (group) {
+        group.push(r);
       }
     }
 
@@ -253,10 +221,6 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       items.push(new ReplacementGroupTreeItem(groupName, replacements));
     }
 
-    for (const r of ungrouped) {
-      items.push(new ReplacementTreeItem(r, state.activeReplacements.includes(r.name)));
-    }
-
     return Promise.resolve(items);
   }
 
@@ -264,7 +228,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     const workspace = getWorkspacePath();
     if (!workspace) return null;
 
-    const configPath = path.join(workspace, CONFIG_DIR_NAME, 'config.jsonc');
+    const configPath = path.join(workspace, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
     if (!fs.existsSync(configPath)) return null;
 
     const content = fs.readFileSync(configPath, 'utf-8');
@@ -272,8 +236,8 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
   }
 
   async toggleReplacement(replacement: Replacement): Promise<void> {
-    const state = loadReplacementState();
-    const isActive = state.activeReplacements.includes(replacement.name);
+    const activeReplacements = getActiveReplacements();
+    const isActive = activeReplacements.includes(replacement.name);
 
     if (isActive) {
       await this.deactivateReplacement(replacement);
@@ -311,9 +275,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       applyPatches(workspace, replacement.target, replacement.patches);
     }
 
-    const state = loadReplacementState();
-    state.activeReplacements.push(replacement.name);
-    saveReplacementState(state);
+    addActiveReplacement(replacement.name);
   }
 
   private async deactivateReplacement(replacement: Replacement): Promise<void> {
@@ -325,19 +287,17 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       await restoreFileFromGit(workspace, replacement.target);
     }
 
-    const state = loadReplacementState();
-    state.activeReplacements = state.activeReplacements.filter((n) => n !== replacement.name);
-    saveReplacementState(state);
+    removeActiveReplacement(replacement.name);
   }
 
   async revertAllReplacements(): Promise<void> {
     const config = this.loadConfig();
     if (!config?.replacements) return;
 
-    const state = loadReplacementState();
+    const activeReplacements = getActiveReplacements();
     const replacementMap = new Map(config.replacements.map((r) => [r.name, r]));
 
-    for (const name of [...state.activeReplacements]) {
+    for (const name of [...activeReplacements]) {
       const replacement = replacementMap.get(name);
       if (replacement) {
         await this.deactivateReplacement(replacement);

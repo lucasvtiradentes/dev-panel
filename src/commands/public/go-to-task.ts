@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { VSCODE_TASKS_PATH } from '../../common/constants';
 import {
   Command,
   ToastKind,
@@ -7,7 +8,7 @@ import {
   openDocumentAtLine,
   registerCommand,
   showToastMessage,
-} from '../../common';
+} from '../../common/lib/vscode-utils';
 import type { TreeTask } from '../../views/tasks';
 
 export function createGoToTaskCommand() {
@@ -23,7 +24,7 @@ export function createGoToTaskCommand() {
       return;
     }
 
-    const tasksFileUri = vscode.Uri.parse(`${folders[0].uri.fsPath}/.vscode/tasks.json`);
+    const tasksFileUri = vscode.Uri.parse(`${folders[0].uri.fsPath}/${VSCODE_TASKS_PATH}`);
     const tasksFileContent = await vscode.workspace.fs.readFile(tasksFileUri);
     const lines = Buffer.from(tasksFileContent).toString('utf-8').split('\n');
 

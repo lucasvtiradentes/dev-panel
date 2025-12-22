@@ -1,30 +1,22 @@
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
-import { getCommandId } from '../../common/constants/constants';
-import { logger } from '../../common/lib/logger';
+import {
+  CONTEXT_VALUES,
+  MARKDOWN_SECTION_HEADER_PATTERN,
+  TODO_CHECKBOX_CHECKED_LOWER,
+  TODO_CHECKBOX_CHECKED_UPPER,
+  TODO_CHECKBOX_UNCHECKED,
+  TODO_ITEM_PATTERN,
+  TODO_MILESTONE_PATTERN,
+  TODO_SECTION_HEADER_PATTERN,
+  getCommandId,
+} from '../../common/constants';
+import { BRANCH_CONTEXT_GLOB_PATTERN } from '../../common/constants/scripts-constants';
 import { Command } from '../../common/lib/vscode-utils';
 import { getBranchContextFilePath } from '../branch-context/markdown-parser';
-import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 
 function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
-}
-
-type GitAPI = {
-  repositories: GitRepository[];
-  onDidOpenRepository: vscode.Event<GitRepository>;
-};
-
-type GitRepository = {
-  state: { HEAD?: { name?: string } };
-  onDidCheckout: vscode.Event<void>;
-};
-
-async function getGitAPI(): Promise<GitAPI | null> {
-  const gitExtension = vscode.extensions.getExtension('vscode.git');
-  if (!gitExtension) return null;
-  if (!gitExtension.isActive) await gitExtension.activate();
-  return gitExtension.exports.getAPI(1);
 }
 
 type TodoNode = {
@@ -42,7 +34,7 @@ export class TodoItem extends vscode.TreeItem {
   ) {
     const label = node.isHeading ? node.text : hasChildren ? ` ${node.text}` : node.text;
     super(label, hasChildren ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
-    this.contextValue = 'todoItem';
+    this.contextValue = CONTEXT_VALUES.TODO_ITEM;
 
     if (hasChildren) {
       this.iconPath = undefined;
@@ -68,7 +60,7 @@ function parseTodosAsTree(todosContent: string | undefined): { nodes: TodoNode[]
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    const milestoneMatch = line.match(/^##\s+(.+)$/);
+    const milestoneMatch = line.match(TODO_MILESTONE_PATTERN);
     if (milestoneMatch) {
       const milestoneNode: TodoNode = {
         text: milestoneMatch[1].trim(),
@@ -83,7 +75,7 @@ function parseTodosAsTree(todosContent: string | undefined): { nodes: TodoNode[]
       continue;
     }
 
-    const match = line.match(/^(\s*)-\s*\[([ xX])\]\s*(.*)$/);
+    const match = line.match(TODO_ITEM_PATTERN);
     if (!match) continue;
 
     const indent = Math.floor(match[1].length / 2);
@@ -116,36 +108,12 @@ export class TodosProvider implements vscode.TreeDataProvider<TodoItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<TodoItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
-  private disposables: vscode.Disposable[] = [];
   private markdownWatcher: vscode.FileSystemWatcher | null = null;
   private currentBranch = '';
   private cachedNodes: TodoNode[] = [];
 
   constructor() {
-    this.setupGitWatcher();
     this.setupMarkdownWatcher();
-    this.initializeBranch();
-  }
-
-  private async setupGitWatcher(): Promise<void> {
-    const gitAPI = await getGitAPI();
-    if (!gitAPI) return;
-
-    for (const repo of gitAPI.repositories) {
-      this.attachRepoListeners(repo);
-    }
-
-    this.disposables.push(gitAPI.onDidOpenRepository((repo) => this.attachRepoListeners(repo)));
-  }
-
-  private attachRepoListeners(repo: GitRepository): void {
-    this.disposables.push(repo.onDidCheckout(() => this.handleBranchChange()));
-
-    const branchName = repo.state.HEAD?.name;
-    if (branchName && !this.currentBranch) {
-      this.currentBranch = branchName;
-      this.refresh();
-    }
   }
 
   private setupMarkdownWatcher(): void {
@@ -153,67 +121,42 @@ export class TodosProvider implements vscode.TreeDataProvider<TodoItem> {
     if (!workspace) return;
 
     this.markdownWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, '.branch-context.md'),
+      new vscode.RelativePattern(workspace, BRANCH_CONTEXT_GLOB_PATTERN),
     );
 
     this.markdownWatcher.onDidChange(() => this.refresh());
   }
 
-  private async initializeBranch(): Promise<void> {
-    const workspace = getWorkspacePath();
-    if (!workspace) return;
-
-    if (await isGitRepository(workspace)) {
-      this.currentBranch = await getCurrentBranch(workspace);
+  setBranch(branchName: string): void {
+    if (branchName !== this.currentBranch) {
+      this.currentBranch = branchName;
       this.refresh();
     }
   }
 
-  private async handleBranchChange(): Promise<void> {
-    const workspace = getWorkspacePath();
-    if (!workspace) return;
-
-    try {
-      const newBranch = await getCurrentBranch(workspace);
-      if (newBranch !== this.currentBranch) {
-        this.currentBranch = newBranch;
-        this.refresh();
-      }
-    } catch {
-      // Ignore
-    }
-  }
-
   private loadTodos(): void {
-    const filePath = getBranchContextFilePath();
-    logger.debug(`[todos-provider] loadTodos - filePath: ${filePath}`);
+    const filePath = getBranchContextFilePath(this.currentBranch);
 
     if (!filePath || !fs.existsSync(filePath)) {
-      logger.debug('[todos-provider] loadTodos - file not found');
       this.cachedNodes = [];
       return;
     }
 
     const content = fs.readFileSync(filePath, 'utf-8');
     const lines = content.split('\n');
-    const todoIndex = lines.findIndex((l) => /^#\s+TODO\s*$/.test(l));
+    const todoIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
     if (todoIndex === -1) {
       this.cachedNodes = [];
       return;
     }
 
-    const nextSectionIndex = lines.findIndex((l, i) => i > todoIndex && /^#\s+/.test(l));
+    const nextSectionIndex = lines.findIndex((l, i) => i > todoIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
     const endIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
     const todosContent = lines
       .slice(todoIndex + 1, endIndex)
       .join('\n')
       .trim();
-
-    logger.debug(`[todos-provider] loadTodos - todoIndex: ${todoIndex}`);
-    logger.debug(`[todos-provider] loadTodos - todosContent: ${todosContent}`);
-
     const { nodes } = parseTodosAsTree(todosContent);
-    logger.debug(`[todos-provider] loadTodos - nodes count: ${nodes.length}`);
     this.cachedNodes = nodes;
   }
 
@@ -231,14 +174,10 @@ export class TodosProvider implements vscode.TreeDataProvider<TodoItem> {
       return element.node.children.map((child) => new TodoItem(child, child.children.length > 0));
     }
 
-    const workspace = getWorkspacePath();
-    if (!workspace) return [];
-
-    if (!(await isGitRepository(workspace))) return [];
+    this.loadTodos();
 
     if (!this.currentBranch) {
-      this.currentBranch = await getCurrentBranch(workspace);
-      this.loadTodos();
+      return [];
     }
 
     if (this.cachedNodes.length === 0) {
@@ -254,23 +193,23 @@ export class TodosProvider implements vscode.TreeDataProvider<TodoItem> {
   }
 
   toggleTodo(lineIndex: number): void {
-    const filePath = getBranchContextFilePath();
+    const filePath = getBranchContextFilePath(this.currentBranch);
     if (!filePath || !fs.existsSync(filePath)) return;
 
     const content = fs.readFileSync(filePath, 'utf-8');
     const lines = content.split('\n');
 
-    const todoSectionIndex = lines.findIndex((l) => /^#\s+TODO\s*$/.test(l));
+    const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
     if (todoSectionIndex === -1) return;
 
     const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
     if (actualLineIndex >= lines.length) return;
 
     const line = lines[actualLineIndex];
-    if (line.includes('[ ]')) {
-      lines[actualLineIndex] = line.replace('[ ]', '[x]');
-    } else if (line.includes('[x]') || line.includes('[X]')) {
-      lines[actualLineIndex] = line.replace(/\[[xX]\]/, '[ ]');
+    if (line.includes(TODO_CHECKBOX_UNCHECKED)) {
+      lines[actualLineIndex] = line.replace(TODO_CHECKBOX_UNCHECKED, TODO_CHECKBOX_CHECKED_LOWER);
+    } else if (line.includes(TODO_CHECKBOX_CHECKED_LOWER) || line.includes(TODO_CHECKBOX_CHECKED_UPPER)) {
+      lines[actualLineIndex] = line.replace(/\[[xX]\]/, TODO_CHECKBOX_UNCHECKED);
     }
 
     fs.writeFileSync(filePath, lines.join('\n'));
@@ -278,9 +217,6 @@ export class TodosProvider implements vscode.TreeDataProvider<TodoItem> {
   }
 
   dispose(): void {
-    for (const d of this.disposables) {
-      d.dispose();
-    }
     this.markdownWatcher?.dispose();
   }
 }

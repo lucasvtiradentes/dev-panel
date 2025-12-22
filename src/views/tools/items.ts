@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { CONTEXT_VALUES } from '../../common/constants';
 import { BaseGroupTreeItem, BaseNamedTreeItem } from '../common';
 
 export class ToolGroupTreeItem extends BaseGroupTreeItem<TreeTool> {}
@@ -19,7 +20,7 @@ export class TreeTool extends BaseNamedTreeItem {
     this.group = group;
     this.toolName = label;
     this.toolFile = file;
-    this.contextValue = 'tool';
+    this.contextValue = CONTEXT_VALUES.TOOL;
   }
 
   getName(): string {

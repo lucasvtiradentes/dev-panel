@@ -13,14 +13,23 @@ import { join } from 'node:path';
 import {
   CONTEXT_PREFIX,
   DEV_SUFFIX,
+  EDITOR_EXTENSIONS_PATHS,
   EXTENSION_DISPLAY_NAME,
   EXTENSION_NAME,
+  LOCAL_DIST_DIR,
   VIEW_ID_TASKS,
+  VSCODE_STANDARD_CONTAINERS,
   addDevLabel,
   addDevSuffix,
   buildExtensionId,
   buildLogFilename,
 } from '../../src/common/constants/scripts-constants';
+import {
+  LICENSE_FILE,
+  PACKAGE_JSON,
+  README_FILE,
+  VSCODE_EXTENSIONS_FILE,
+} from '../../src/common/constants/vscode-constants';
 
 const logger = console;
 
@@ -85,23 +94,23 @@ async function patchExtensionCode() {
 
 async function writePackageJson() {
   const targetDir = getLocalDistDirectory();
-  const packageJsonPath = join(ROOT_DIR, 'package.json');
+  const packageJsonPath = join(ROOT_DIR, PACKAGE_JSON);
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   const modifiedPackageJson = applyDevTransformations(packageJson);
-  writeFileSync(join(targetDir, 'package.json'), JSON.stringify(modifiedPackageJson, null, 2));
+  writeFileSync(join(targetDir, PACKAGE_JSON), JSON.stringify(modifiedPackageJson, null, 2));
 }
 
 async function copyMetaFiles() {
   const targetDir = getLocalDistDirectory();
 
-  const licensePath = join(ROOT_DIR, 'LICENSE');
+  const licensePath = join(ROOT_DIR, LICENSE_FILE);
   if (existsSync(licensePath)) {
-    copyFileSync(licensePath, join(targetDir, 'LICENSE'));
+    copyFileSync(licensePath, join(targetDir, LICENSE_FILE));
   }
 
-  const readmePath = join(ROOT_DIR, 'README.md');
+  const readmePath = join(ROOT_DIR, README_FILE);
   if (existsSync(readmePath)) {
-    copyFileSync(readmePath, join(targetDir, 'README.md'));
+    copyFileSync(readmePath, join(targetDir, README_FILE));
   }
 }
 
@@ -131,7 +140,7 @@ async function copyToVSCodeExtensions() {
 
 async function registerExtensionInEditors() {
   const targetDir = getLocalDistDirectory();
-  const packageJsonPath = join(targetDir, 'package.json');
+  const packageJsonPath = join(targetDir, PACKAGE_JSON);
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   const version = packageJson.version as string;
 
@@ -139,7 +148,7 @@ async function registerExtensionInEditors() {
     const extensionsPath = getEditorExtensionsPath(editor);
     if (!existsSync(extensionsPath)) continue;
 
-    const extensionsJsonPath = join(extensionsPath, 'extensions.json');
+    const extensionsJsonPath = join(extensionsPath, VSCODE_EXTENSIONS_FILE);
     if (!existsSync(extensionsJsonPath)) continue;
 
     try {
@@ -184,7 +193,7 @@ async function printSuccessMessage() {
 }
 
 function getLocalDistDirectory(): string {
-  return join(ROOT_DIR, 'dist-dev');
+  return join(ROOT_DIR, LOCAL_DIST_DIR);
 }
 
 enum Editor {
@@ -203,13 +212,13 @@ const EDITOR_DISPLAY_NAMES: Record<Editor, string> = {
 
 function getEditorExtensionsPath(editor: Editor): string {
   const paths: Record<Editor, string> = {
-    [Editor.VSCode]: join(homedir(), '.vscode', 'extensions'),
-    [Editor.Cursor]: join(homedir(), '.cursor', 'extensions'),
-    [Editor.Windsurf]: join(homedir(), '.windsurf', 'extensions'),
+    [Editor.VSCode]: join(homedir(), EDITOR_EXTENSIONS_PATHS.vscode),
+    [Editor.Cursor]: join(homedir(), EDITOR_EXTENSIONS_PATHS.cursor),
+    [Editor.Windsurf]: join(homedir(), EDITOR_EXTENSIONS_PATHS.windsurf),
     [Editor.VSCodium]:
       process.platform === 'darwin'
-        ? join(homedir(), '.vscode-oss', 'extensions')
-        : join(homedir(), '.config', 'VSCodium', 'extensions'),
+        ? join(homedir(), EDITOR_EXTENSIONS_PATHS.vscodium.darwin)
+        : join(homedir(), EDITOR_EXTENSIONS_PATHS.vscodium.linux),
   };
   return paths[editor];
 }
@@ -281,12 +290,11 @@ function applyDevTransformations(pkg: Record<string, unknown>): Record<string, u
     const views = contributes.views as Record<string, Array<{ id: string; name?: string }>>;
     const newViews: Record<string, unknown> = {};
 
-    // Standard VS Code containers that should not be transformed
-    const standardContainers = ['explorer', 'scm', 'debug', 'test', 'remote'];
-
     for (const [containerKey, viewList] of Object.entries(views)) {
       // Only transform custom containers, not standard ones
-      const newContainerKey = standardContainers.includes(containerKey) ? containerKey : addDevSuffix(containerKey);
+      const newContainerKey = VSCODE_STANDARD_CONTAINERS.includes(containerKey)
+        ? containerKey
+        : addDevSuffix(containerKey);
       newViews[newContainerKey] = viewList.map((view) => ({
         ...view,
         id: addDevSuffix(view.id),

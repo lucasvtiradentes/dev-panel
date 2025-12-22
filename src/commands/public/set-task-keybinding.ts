@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { Command, getTaskCommandId, getTaskCommandPrefix, registerCommand } from '../../common';
+import { getTaskCommandId, getTaskCommandPrefix } from '../../common/constants';
+import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { TreeTask } from '../../views/tasks/items';
 
 async function handleKeybindingManagement(item: TreeTask): Promise<void> {

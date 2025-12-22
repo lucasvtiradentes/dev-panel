@@ -1,13 +1,8 @@
 {
   "$schema": "../resources/schema.json",
   "settings": {
-    "aiProvider": "gemini",
-    "promptSelection": {
-      "fileStyle": "flat",
-      "folderStyle": "interactive",
-      "excludes": ["**/node_modules/**", "**/.git/**", "**/dist/**", "**/out/**", "**/.pp/**"]
-    },
-    "excludedDirs": []
+    "aiProvider": "claude",
+    "exclude": ["**/.pp/**", "**/.changeset/**", "**/.ignore/**", "**/.github/**", "**/.husky/**", "**/dist-dev/**", "**/.tscanner/**", "**/.vscode/**", "**/out/**"]
   },
   "variables": [
     // Environment group
@@ -16,7 +11,6 @@
       "kind": "choose",
       "options": ["local", "local-staging", "local-prod", "staging", "prod"],
       "command": "bash scripts/environment-select.sh",
-      "icon": "server",
       "description": "Select the target environment",
       "default": "local",
       "group": "Environment"
@@ -25,7 +19,6 @@
       "name": "debug",
       "kind": "toggle",
       "command": "bash scripts/toggle-debug.sh",
-      "icon": "bug",
       "description": "Enable or disable debug mode",
       "default": false,
       "group": "Environment"
@@ -36,7 +29,6 @@
       "name": "api-url",
       "kind": "input",
       "command": "bash scripts/set-api-url.sh",
-      "icon": "globe",
       "description": "Set the API base URL",
       "group": "API"
     },
@@ -45,7 +37,6 @@
       "kind": "multi-select",
       "options": ["auth", "analytics", "notifications", "dark-mode"],
       "command": "bash scripts/set-features.sh",
-      "icon": "extensions",
       "description": "Enable feature flags",
       "default": ["auth"],
       "group": "API"
@@ -55,14 +46,24 @@
     {
       "name": "config-file",
       "kind": "file",
-      "description": "Select a configuration file",
-      "icon": "file-code"
+      "description": "Select a configuration file"
     },
     {
       "name": "output-dir",
       "kind": "folder",
-      "description": "Select output directory",
-      "icon": "folder-opened"
+      "description": "Select output directory"
+    },
+    {
+      "name": "multiple-files",
+      "kind": "file",
+      "multiSelect": true,
+      "description": "Select multiple files"
+    },
+    {
+      "name": "multiple-folders",
+      "kind": "folder",
+      "multiSelect": true,
+      "description": "Select multiple folders"
     }
   ],
 
@@ -87,7 +88,7 @@
   "tasks": [
     {
       "name": "hello",
-      "command": "echo 'Hello from PP!'",
+      "command": "echo 'Hello from PP!' && echo $DEBUG",
       "description": "Test task - prints hello"
     },
     {
@@ -104,86 +105,37 @@
 
   "tools": [
     {
-      "name": "check-types",
-      "command": "bash tools/check-types.sh",
-      "description": "Run TypeScript type checking",
-      "icon": "symbol-type-parameter",
+      "name": "linear",
+      "command": "linear",
       "group": "Quality"
     },
     {
-      "name": "check-lint",
-      "command": "bash tools/check-lint.sh",
-      "description": "Run linting checks",
-      "icon": "checklist",
+      "name": "github-cli",
+      "command": "gh",
       "group": "Quality"
     },
     {
-      "name": "check-all",
-      "command": "bash tools/check-all.sh",
-      "description": "Run all quality checks (types + lint)",
-      "icon": "pass-filled",
-      "group": "Quality"
-    },
-    {
-      "name": "show-stats",
-      "command": "bash tools/show-stats.sh",
-      "description": "Show project stats (files, lines, etc)",
-      "icon": "graph",
-      "group": "Info"
+        "name": "chrome-cmd",
+        "command": "chrome-cmd"
     }
   ],
 
   "prompts": [
     {
-      "name": "Review Code",
-      "file": "prompts/review-code.md",
-      "description": "Review files for issues and improvements",
-      "icon": "eye",
+      "name": "Review Constants",
+      "file": "prompts/review-constants.md",
+      "description": "Review constants and suggest centralizing hardcoded values",
       "group": "Analysis",
-      "saveOutput": true,
-      "inputs": [
-        { "name": "files", "type": "files", "label": "Select files to review" },
-        {
-          "name": "focus",
-          "type": "multichoice",
-          "label": "Review focus areas",
-          "options": ["bugs", "performance", "security", "code-quality", "architecture"]
-        }
-      ]
-    },
-    {
-      "name": "Explain Code",
-      "file": "prompts/explain-code.md",
-      "description": "Explain code in detail",
-      "icon": "book",
-      "group": "Analysis",
-      "inputs": [
-        { "name": "target", "type": "folder", "label": "Select folder to explain" },
-        {
-          "name": "depth",
-          "type": "choice",
-          "label": "Explanation depth",
-          "options": ["overview", "detailed", "comprehensive"]
-        }
-      ],
       "saveOutput": true
     },
     {
-      "name": "Add Tests",
-      "file": "prompts/add-tests.md",
-      "description": "Generate tests for file(s)",
-      "icon": "beaker",
-      "group": "Generate",
+      "name": "Explain Flow",
+      "file": "prompts/explain-flow.md",
+      "description": "Explain execution flow with ASCII diagrams",
+      "group": "Analysis",
+      "saveOutput": true,
       "inputs": [
-        { "name": "file", "type": "file", "label": "Select file to test" },
-        { "name": "testCount", "type": "number", "label": "Number of test cases", "placeholder": "5" },
-        { "name": "includeEdgeCases", "type": "confirm", "label": "Include edge cases?" },
-        {
-          "name": "testStyle",
-          "type": "choice",
-          "label": "Test style",
-          "options": ["unit", "integration", "e2e"]
-        }
+        { "name": "target", "type": "file", "label": "Target to analyze (file path, folder, function name, etc)" }
       ]
     }
   ]

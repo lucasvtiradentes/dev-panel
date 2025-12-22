@@ -6,14 +6,12 @@ export {
   type PPSettings,
   PPConfigSchema,
   AIProvider,
+  PromptExecutionMode,
   PromptInputType,
-  SelectionStyle,
 } from './config-schema';
 
 // VSCode workspace schema exports (for VSCode workspace state)
 export {
-  type BranchContext,
-  type BranchesState,
   type VariablesState,
   type PromptsState,
   type ReplacementsState,
