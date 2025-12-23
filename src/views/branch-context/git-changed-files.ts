@@ -95,13 +95,15 @@ async function getChangedFilesListFormat(workspacePath: string): Promise<string>
 
     const sortedFiles = Array.from(statusMap.keys()).sort();
 
+    const maxFileLength = Math.max(...sortedFiles.map((f) => f.length));
+
     const lines: string[] = [];
     for (const file of sortedFiles) {
       const status = statusMap.get(file);
       if (!status) continue;
       const stats = statsMap.get(file) || { added: '0', deleted: '0' };
       const statusSymbol = status.charAt(0);
-      const padding = ' '.repeat(Math.max(0, 50 - file.length));
+      const padding = ' '.repeat(Math.max(0, maxFileLength - file.length + 1));
       lines.push(`${statusSymbol}  ${file}${padding}(+${stats.added} -${stats.deleted})`);
     }
 
