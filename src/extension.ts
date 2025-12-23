@@ -227,6 +227,7 @@ export function activate(context: vscode.ExtensionContext): object {
     toolTreeDataProvider.refresh();
     promptTreeDataProvider.refresh();
     taskTreeDataProvider.refresh();
+    branchTasksProvider.refresh();
   });
   context.subscriptions.push(configWatcher);
 
