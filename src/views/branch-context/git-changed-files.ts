@@ -1,13 +1,12 @@
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
+import { BASE_BRANCH } from '../../common/constants';
 
 const execAsync = promisify(exec);
 
 export async function getChangedFilesTree(workspacePath: string): Promise<string> {
   try {
-    const { stdout: stagedFiles } = await execAsync('git diff --cached --name-only', { cwd: workspacePath });
-    const { stdout: unstagedFiles } = await execAsync('git diff --name-only', { cwd: workspacePath });
-    const { stdout: untrackedFiles } = await execAsync('git ls-files --others --exclude-standard', {
+    const { stdout: changedFiles } = await execAsync(`git diff ${BASE_BRANCH}...HEAD --name-only`, {
       cwd: workspacePath,
     });
 
@@ -21,9 +20,7 @@ export async function getChangedFilesTree(workspacePath: string): Promise<string
         .forEach((f) => allFiles.add(f));
     };
 
-    addFiles(stagedFiles);
-    addFiles(unstagedFiles);
-    addFiles(untrackedFiles);
+    addFiles(changedFiles);
 
     if (allFiles.size === 0) {
       return 'No changes';
