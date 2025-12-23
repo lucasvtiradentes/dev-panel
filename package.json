@@ -859,6 +859,32 @@
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "projectPanelConfigs",
+        "contents": "No variables configured.\n\nAdd variables in your config file."
+      },
+      {
+        "view": "projectPanelReplacements",
+        "contents": "No replacements configured.\n\nAdd replacements in your config file."
+      },
+      {
+        "view": "projectPanelTools",
+        "contents": "No tools configured.\n\nAdd tools in your config file."
+      },
+      {
+        "view": "projectPanelPrompts",
+        "contents": "No prompts configured.\n\nAdd prompts in your config file."
+      },
+      {
+        "view": "projectPanelTodos",
+        "contents": "No tasks in current branch.\n\nTasks are defined in the branch context file."
+      },
+      {
+        "view": "projectPanelTasks",
+        "contents": "No tasks available.\n\nAdd tasks in your config file or package.json."
+      }
+    ],
     "taskDefinitions": [
       {
         "type": "util"
