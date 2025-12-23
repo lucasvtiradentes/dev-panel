@@ -12,6 +12,7 @@ import {
   getCommandId,
 } from '../../common/constants';
 import { getBranchContextGlobPattern } from '../../common/lib/config-manager';
+import { logger } from '../../common/lib/logger';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { getBranchContextFilePath } from '../branch-context/markdown-parser';
 
@@ -183,16 +184,24 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
 
   private setupMarkdownWatcher(): void {
     const workspace = getWorkspacePath();
-    if (!workspace) return;
+    if (!workspace) {
+      logger.warn('[BranchTasksProvider] No workspace found, watcher not setup');
+      return;
+    }
 
     const globPattern = getBranchContextGlobPattern();
+    logger.info(`[BranchTasksProvider] Setting up watcher with pattern: ${globPattern}`);
     this.markdownWatcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(workspace, globPattern));
 
-    this.markdownWatcher.onDidChange(() => this.refresh());
+    this.markdownWatcher.onDidChange((uri) => {
+      logger.info(`[BranchTasksProvider] File changed: ${uri.fsPath}, currentBranch: ${this.currentBranch}`);
+      this.refresh();
+    });
   }
 
   setBranch(branchName: string): void {
     if (branchName !== this.currentBranch) {
+      logger.info(`[BranchTasksProvider] Branch changed from '${this.currentBranch}' to '${branchName}'`);
       this.currentBranch = branchName;
       this.refresh();
     }
@@ -225,6 +234,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
   }
 
   refresh(): void {
+    logger.info(`[BranchTasksProvider] Refreshing tasks for branch: ${this.currentBranch}`);
     this.loadBranchTasks();
     this._onDidChangeTreeData.fire(undefined);
   }
