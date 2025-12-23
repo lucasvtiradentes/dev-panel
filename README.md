@@ -32,6 +32,5 @@
 - [ ] ter um registry ou algo assim para adicionar tools nos projetos facilmente
   - prompts
   - tools
-  - scripts 
-- [ ] remover limitacao do chose files and folders
-  
+  - scripts
+- [x] remover limitacao do chose files and folders
