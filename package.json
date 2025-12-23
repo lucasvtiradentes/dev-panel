@@ -394,6 +394,11 @@
         "icon": "$(go-to-file)"
       },
       {
+        "command": "projectPanel.goToReplacementTargetFile",
+        "title": "Go to Replacement Target File",
+        "icon": "$(go-to-file)"
+      },
+      {
         "command": "projectPanel.addPrompt",
         "title": "Add Prompt",
         "icon": "$(add)"
@@ -760,9 +765,14 @@
           "group": "9_delete@1"
         },
         {
-          "command": "projectPanel.setReplacementKeybinding",
+          "command": "projectPanel.goToReplacementTargetFile",
           "when": "view == projectPanelReplacements && viewItem == replacementItem",
           "group": "inline@1"
+        },
+        {
+          "command": "projectPanel.setReplacementKeybinding",
+          "when": "view == projectPanelReplacements && viewItem == replacementItem",
+          "group": "inline@2"
         },
         {
           "command": "projectPanel.toggleToolFavorite",

@@ -40,6 +40,7 @@ export enum Command {
   ToggleToolsShowOnlyFavoritesActive = 'toggleToolsShowOnlyFavoritesActive',
   ExecuteTool = 'executeTool',
   GoToToolFile = 'goToToolFile',
+  GoToReplacementTargetFile = 'goToReplacementTargetFile',
   GenerateToolsDocs = 'generateToolsDocs',
   AddTool = 'addTool',
   CopyToolToGlobal = 'copyToolToGlobal',

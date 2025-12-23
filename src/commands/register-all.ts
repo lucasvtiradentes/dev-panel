@@ -1,8 +1,10 @@
+import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { GLOBAL_ITEM_PREFIX, TOOLS_DIR, TOOL_INSTRUCTIONS_FILE, getGlobalConfigDir } from '../common/constants';
 import { joinConfigPath } from '../common/lib/config-manager';
 import { syncKeybindings } from '../common/lib/keybindings-sync';
 import { Command, registerCommand } from '../common/lib/vscode-utils';
+import type { PPReplacement } from '../common/schemas/config-schema';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
 import { BranchContextField, type BranchContextProvider } from '../views/branch-context';
 import type { BranchTasksProvider } from '../views/branch-tasks';
@@ -97,6 +99,15 @@ export function registerAllCommands(options: {
     createRevertAllReplacementsCommand(),
     registerCommand(Command.ToggleReplacementsGroupMode, () => replacementsProvider.toggleGroupMode()),
     registerCommand(Command.ToggleReplacementsGroupModeGrouped, () => replacementsProvider.toggleGroupMode()),
+    registerCommand(Command.GoToReplacementTargetFile, async (item: { replacement?: PPReplacement }) => {
+      if (item?.replacement?.target) {
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        if (!workspaceFolder) return;
+        const targetPath = path.join(workspaceFolder.uri.fsPath, item.replacement.target);
+        const uri = vscode.Uri.file(targetPath);
+        await vscode.window.showTextDocument(uri);
+      }
+    }),
     registerCommand(Command.ToggleToolsGroupMode, () => toolTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.ToggleToolsGroupModeGrouped, () => toolTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.ToggleToolFavorite, (item) => toolTreeDataProvider.toggleFavorite(item)),
