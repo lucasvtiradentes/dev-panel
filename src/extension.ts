@@ -163,6 +163,8 @@ function registerTaskKeybindings(context: vscode.ExtensionContext): void {
 export function activate(context: vscode.ExtensionContext): object {
   logger.clear();
   logger.info('Better Project Tools extension activated');
+  void setContextKey(ContextKey.ExtensionInitializing, true);
+
   initWorkspaceState(context);
   initGlobalState(context);
   migrateGlobalState();
@@ -271,6 +273,9 @@ export function activate(context: vscode.ExtensionContext): object {
   registerReplacementKeybindings(context);
   registerVariableKeybindings(context);
   registerTaskKeybindings(context);
+
+  void setContextKey(ContextKey.ExtensionInitializing, false);
+  logger.info('Extension initialization complete');
 
   return {
     taskSource() {

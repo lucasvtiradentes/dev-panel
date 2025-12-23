@@ -132,6 +132,7 @@ export async function openDocumentAtLine(uri: vscode.Uri, line: number): Promise
 }
 
 export const ContextKey = {
+  ExtensionInitializing: 'extensionInitializing',
   TaskSourceVSCode: 'taskSourceVSCode',
   TaskSourcePackage: 'taskSourcePackage',
   TaskSourcePP: 'taskSourcePP',

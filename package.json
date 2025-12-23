@@ -862,27 +862,63 @@
     "viewsWelcome": [
       {
         "view": "projectPanelConfigs",
-        "contents": "No variables configured.\n\nAdd variables in your config file."
+        "contents": "Loading variables...",
+        "when": "extensionInitializing"
+      },
+      {
+        "view": "projectPanelConfigs",
+        "contents": "No variables configured.\n\nAdd variables in your config file.",
+        "when": "!extensionInitializing"
       },
       {
         "view": "projectPanelReplacements",
-        "contents": "No replacements configured.\n\nAdd replacements in your config file."
+        "contents": "Loading replacements...",
+        "when": "extensionInitializing"
+      },
+      {
+        "view": "projectPanelReplacements",
+        "contents": "No replacements configured.\n\nAdd replacements in your config file.",
+        "when": "!extensionInitializing"
       },
       {
         "view": "projectPanelTools",
-        "contents": "No tools configured.\n\nAdd tools in your config file."
+        "contents": "Loading tools...",
+        "when": "extensionInitializing"
+      },
+      {
+        "view": "projectPanelTools",
+        "contents": "No tools configured.\n\nAdd tools in your config file.",
+        "when": "!extensionInitializing"
       },
       {
         "view": "projectPanelPrompts",
-        "contents": "No prompts configured.\n\nAdd prompts in your config file."
+        "contents": "Loading prompts...",
+        "when": "extensionInitializing"
+      },
+      {
+        "view": "projectPanelPrompts",
+        "contents": "No prompts configured.\n\nAdd prompts in your config file.",
+        "when": "!extensionInitializing"
       },
       {
         "view": "projectPanelTodos",
-        "contents": "No tasks in current branch.\n\nTasks are defined in the branch context file."
+        "contents": "Loading branch tasks...",
+        "when": "extensionInitializing"
+      },
+      {
+        "view": "projectPanelTodos",
+        "contents": "No tasks in current branch.\n\nTasks are defined in the branch context file.",
+        "when": "!extensionInitializing"
       },
       {
         "view": "projectPanelTasks",
-        "contents": "No tasks available.\n\nAdd tasks in your config file or package.json."
+        "contents": "Loading tasks...",
+        "when": "extensionInitializing"
+      },
+      {
+        "view": "projectPanelTasks",
+        "contents": "No tasks available.\n\nAdd tasks in your config file or package.json.",
+        "when": "!extensionInitializing"
       }
     ],
     "taskDefinitions": [
