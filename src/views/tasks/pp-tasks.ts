@@ -144,7 +144,21 @@ function createPPTask(
   const configDirPath = getWorkspaceConfigDirPath(folder);
   const env = readPPVariablesAsEnv(configDirPath);
   const shellExec = new vscode.ShellExecution(task.command, { env, cwd: configDirPath });
-  const vsTask = new vscode.Task({ type: CONFIG_DIR_KEY }, folder, task.name, CONFIG_DIR_KEY, shellExec);
+  const vsTask = new vscode.Task(
+    { type: CONFIG_DIR_KEY, task: task.name },
+    folder,
+    task.name,
+    CONFIG_DIR_KEY,
+    shellExec,
+  );
+
+  vsTask.presentationOptions = {
+    reveal: vscode.TaskRevealKind.Always,
+    panel: vscode.TaskPanelKind.New,
+    clear: false,
+    focus: false,
+    showReuseMessage: false,
+  };
 
   const treeTask = new TreeTask(
     CONFIG_DIR_KEY,
@@ -196,12 +210,20 @@ function createGlobalTask(
   const shellExec = new vscode.ShellExecution(task.command, { env, cwd: globalConfigDir });
 
   const vsTask = new vscode.Task(
-    { type: `${CONFIG_DIR_KEY}-global` },
+    { type: `${CONFIG_DIR_KEY}-global`, task: task.name },
     vscode.TaskScope.Global,
     task.name,
     `${CONFIG_DIR_KEY}-global`,
     shellExec,
   );
+
+  vsTask.presentationOptions = {
+    reveal: vscode.TaskRevealKind.Always,
+    panel: vscode.TaskPanelKind.New,
+    clear: false,
+    focus: false,
+    showReuseMessage: false,
+  };
 
   const treeTask = new TreeTask(
     `${CONFIG_DIR_KEY}-global`,

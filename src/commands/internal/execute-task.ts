@@ -39,6 +39,8 @@ function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscod
   const execution = task.execution;
   if (!execution) return task;
 
+  let newTask: vscode.Task;
+
   if (execution instanceof vscode.ShellExecution) {
     const mergedEnv = { ...execution.options?.env, ...env };
     const commandLine = execution.commandLine;
@@ -53,7 +55,7 @@ function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscod
       return task;
     }
 
-    return new vscode.Task(
+    newTask = new vscode.Task(
       task.definition,
       task.scope ?? vscode.TaskScope.Workspace,
       task.name,
@@ -61,16 +63,14 @@ function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscod
       newExecution,
       task.problemMatchers,
     );
-  }
-
-  if (execution instanceof vscode.ProcessExecution) {
+  } else if (execution instanceof vscode.ProcessExecution) {
     const mergedEnv = { ...execution.options?.env, ...env };
     const newExecution = new vscode.ProcessExecution(execution.process, execution.args, {
       ...execution.options,
       env: mergedEnv,
     });
 
-    return new vscode.Task(
+    newTask = new vscode.Task(
       task.definition,
       task.scope ?? vscode.TaskScope.Workspace,
       task.name,
@@ -78,9 +78,12 @@ function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscod
       newExecution,
       task.problemMatchers,
     );
+  } else {
+    return task;
   }
 
-  return task;
+  newTask.presentationOptions = task.presentationOptions;
+  return newTask;
 }
 
 export function createExecuteTaskCommand(context: vscode.ExtensionContext) {
@@ -133,9 +136,14 @@ export function createExecuteTaskCommand(context: vscode.ExtensionContext) {
         }
       }
 
+      log.info(`Executing task: ${modifiedTask.name}`);
+      log.info(`Final presentation: ${JSON.stringify(modifiedTask.presentationOptions)}`);
+
       void vscode.tasks.executeTask(modifiedTask).then((execution) => {
+        log.info(`Task started successfully: ${modifiedTask.name}`);
         vscode.tasks.onDidEndTask((e) => {
           if (e.execution === execution) {
+            log.info(`Task ended: ${modifiedTask.name}`);
             void context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, null);
           }
         });
