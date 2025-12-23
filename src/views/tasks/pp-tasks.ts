@@ -143,7 +143,7 @@ function createPPTask(
 
   const configDirPath = getWorkspaceConfigDirPath(folder);
   const env = readPPVariablesAsEnv(configDirPath);
-  const shellExec = new vscode.ShellExecution(task.command, { env });
+  const shellExec = new vscode.ShellExecution(task.command, { env, cwd: configDirPath });
   const vsTask = new vscode.Task({ type: CONFIG_DIR_KEY }, folder, task.name, CONFIG_DIR_KEY, shellExec);
 
   const treeTask = new TreeTask(
