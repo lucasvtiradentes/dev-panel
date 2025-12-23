@@ -143,7 +143,8 @@ function createPPTask(
 
   const configDirPath = getWorkspaceConfigDirPath(folder);
   const env = readPPVariablesAsEnv(configDirPath);
-  const shellExec = new vscode.ShellExecution(task.command, { env, cwd: configDirPath });
+  const cwd = task.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
+  const shellExec = new vscode.ShellExecution(task.command, { env, cwd });
   const vsTask = new vscode.Task(
     { type: CONFIG_DIR_KEY, task: task.name },
     folder,
@@ -207,7 +208,8 @@ function createGlobalTask(
 
   const globalConfigDir = getGlobalConfigDir();
   const env = readPPVariablesAsEnv(globalConfigDir);
-  const shellExec = new vscode.ShellExecution(task.command, { env, cwd: globalConfigDir });
+  const cwd = globalConfigDir;
+  const shellExec = new vscode.ShellExecution(task.command, { env, cwd });
 
   const vsTask = new vscode.Task(
     { type: `${CONFIG_DIR_KEY}-global`, task: task.name },

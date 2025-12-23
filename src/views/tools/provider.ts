@@ -197,7 +197,8 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     if (this._showOnlyFavorites && !favorite) return null;
 
     const configDirPath = getWorkspaceConfigDirPath(folder);
-    const shellExec = new vscode.ShellExecution(tool.command, { cwd: configDirPath });
+    const cwd = tool.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
+    const shellExec = new vscode.ShellExecution(tool.command, { cwd });
     const task = new vscode.Task(
       { type: `${CONFIG_DIR_KEY}-tool` },
       folder,

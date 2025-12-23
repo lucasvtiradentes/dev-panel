@@ -240,13 +240,20 @@ export function createExecutePromptCommand() {
       log.info(`promptFilePath: ${promptFilePath}`);
       log.info(`folder: ${folder ? folder.name : 'null (global)'}`);
       log.info(`promptConfig (from tree): ${JSON.stringify(promptConfig)}`);
+      log.info(`useWorkspaceRoot: ${promptConfig?.useWorkspaceRoot}`);
 
-      if (!fs.existsSync(promptFilePath)) {
-        void vscode.window.showErrorMessage(`Prompt file not found: ${promptFilePath}`);
+      let resolvedPromptFilePath = promptFilePath;
+      if (promptConfig?.useWorkspaceRoot && folder) {
+        resolvedPromptFilePath = path.join(folder.uri.fsPath, promptConfig.file);
+        log.info(`Resolved prompt path from workspace root: ${resolvedPromptFilePath}`);
+      }
+
+      if (!fs.existsSync(resolvedPromptFilePath)) {
+        void vscode.window.showErrorMessage(`Prompt file not found: ${resolvedPromptFilePath}`);
         return;
       }
 
-      let promptContent = fs.readFileSync(promptFilePath, 'utf8');
+      let promptContent = fs.readFileSync(resolvedPromptFilePath, 'utf8');
 
       const folderForSettings = folder ?? vscode.workspace.workspaceFolders?.[0];
       const settings = folderForSettings ? readPPSettings(folderForSettings) : undefined;

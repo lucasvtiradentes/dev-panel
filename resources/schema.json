@@ -298,6 +298,10 @@
               ],
               "additionalProperties": false
             }
+          },
+          "useWorkspaceRoot": {
+            "description": "If true, run command from workspace root instead of .pp directory",
+            "type": "boolean"
           }
         },
         "required": [
@@ -325,6 +329,10 @@
           "group": {
             "description": "Group name for organizing tools",
             "type": "string"
+          },
+          "useWorkspaceRoot": {
+            "description": "If true, run command from workspace root instead of .pp directory",
+            "type": "boolean"
           }
         },
         "required": [
@@ -418,6 +426,10 @@
           },
           "saveOutput": {
             "description": "If true, save response to .pp/branches/{{branch}}/prompts/{{promptname}}.md",
+            "type": "boolean"
+          },
+          "useWorkspaceRoot": {
+            "description": "If true, resolve file path from workspace root instead of .pp directory",
             "type": "boolean"
           }
         },

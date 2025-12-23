@@ -49,6 +49,10 @@ const PPTaskSchema = z
     group: z.string().optional().describe('Group name for organizing tasks'),
     description: z.string().optional().describe('Human-readable description shown as tooltip'),
     inputs: z.array(PPInputSchema).optional().describe('Inputs to collect before running the task'),
+    useWorkspaceRoot: z
+      .boolean()
+      .optional()
+      .describe('If true, run command from workspace root instead of .pp directory'),
   })
   .describe('A task that can be executed from the Tasks view');
 
@@ -57,6 +61,10 @@ const PPToolSchema = z
     name: z.string().describe('Unique identifier for the tool'),
     command: z.string().describe('Shell command to execute'),
     group: z.string().optional().describe('Group name for organizing tools'),
+    useWorkspaceRoot: z
+      .boolean()
+      .optional()
+      .describe('If true, run command from workspace root instead of .pp directory'),
   })
   .describe('A tool that can be executed from the Tools view');
 
@@ -73,6 +81,10 @@ const PPPromptSchema = z
       .describe(
         `If true, save response to ${CONFIG_DIR_NAME}/${BRANCHES_DIR_NAME}/{{branch}}/${PROMPTS_DIR_NAME}/{{promptname}}.md`,
       ),
+    useWorkspaceRoot: z
+      .boolean()
+      .optional()
+      .describe('If true, resolve file path from workspace root instead of .pp directory'),
   })
   .describe('A prompt that can be executed in Claude Code');
 
