@@ -1,10 +1,17 @@
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
-import { BASE_BRANCH } from '../../common/constants';
+import { BASE_BRANCH, ChangedFilesStyle } from '../../common/constants';
 
 const execAsync = promisify(exec);
 
-export async function getChangedFilesTree(workspacePath: string): Promise<string> {
+export async function getChangedFilesTree(workspacePath: string, style: ChangedFilesStyle): Promise<string> {
+  if (style === ChangedFilesStyle.Tree) {
+    return getChangedFilesTreeFormat(workspacePath);
+  }
+  return getChangedFilesListFormat(workspacePath);
+}
+
+async function getChangedFilesTreeFormat(workspacePath: string): Promise<string> {
   try {
     const { stdout: changedFiles } = await execAsync(`git diff ${BASE_BRANCH}...HEAD --name-only`, {
       cwd: workspacePath,
@@ -28,6 +35,53 @@ export async function getChangedFilesTree(workspacePath: string): Promise<string
 
     const tree = buildFileTree(Array.from(allFiles));
     return tree;
+  } catch {
+    return 'Not a git repository';
+  }
+}
+
+async function getChangedFilesListFormat(workspacePath: string): Promise<string> {
+  try {
+    const { stdout: nameStatus } = await execAsync(`git diff ${BASE_BRANCH}...HEAD --name-status`, {
+      cwd: workspacePath,
+    });
+    const { stdout: numStat } = await execAsync(`git diff ${BASE_BRANCH}...HEAD --numstat`, {
+      cwd: workspacePath,
+    });
+
+    if (!nameStatus.trim()) {
+      return 'No changes';
+    }
+
+    const statusMap = new Map<string, string>();
+    nameStatus
+      .trim()
+      .split('\n')
+      .forEach((line) => {
+        const [status, ...fileParts] = line.split('\t');
+        const file = fileParts.join('\t');
+        statusMap.set(file, status);
+      });
+
+    const statsMap = new Map<string, { added: string; deleted: string }>();
+    numStat
+      .trim()
+      .split('\n')
+      .forEach((line) => {
+        const [added, deleted, ...fileParts] = line.split('\t');
+        const file = fileParts.join('\t');
+        statsMap.set(file, { added, deleted });
+      });
+
+    const lines: string[] = [];
+    for (const [file, status] of statusMap.entries()) {
+      const stats = statsMap.get(file) || { added: '0', deleted: '0' };
+      const statusSymbol = status.charAt(0);
+      const padding = ' '.repeat(Math.max(0, 50 - file.length));
+      lines.push(`${statusSymbol}  ${file}${padding}(+${stats.added} -${stats.deleted})`);
+    }
+
+    return lines.join('\n');
   } catch {
     return 'Not a git repository';
   }

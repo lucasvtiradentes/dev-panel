@@ -10,6 +10,7 @@ import {
   BRANCH_CONTEXT_SECTION_OBJECTIVE,
   BRANCH_CONTEXT_SECTION_REQUIREMENTS,
   BRANCH_CONTEXT_SECTION_TODO,
+  ChangedFilesStyle,
 } from '../../common/constants';
 import { getBranchContextFilePath, getBranchDirectory } from '../../common/lib/config-manager';
 import type { BranchContext } from '../../common/schemas/types';
@@ -30,7 +31,7 @@ export async function generateBranchContextMarkdown(branchName: string, context:
 
   const mdPath = getBranchContextFilePath(workspace, branchName);
 
-  const changedFilesTree = context.changedFiles || (await getChangedFilesTree(workspace));
+  const changedFilesTree = context.changedFiles || (await getChangedFilesTree(workspace, ChangedFilesStyle.List));
 
   const lines: string[] = [
     `# ${branchName}`,

@@ -42,3 +42,8 @@ export const STATUS_BAR_COMMAND_PREFIX = '/';
 export const TASK_SOURCE_WORKSPACE = 'Workspace';
 
 export const BASE_BRANCH = 'origin/main';
+
+export enum ChangedFilesStyle {
+  Tree = 'tree',
+  List = 'list',
+}
