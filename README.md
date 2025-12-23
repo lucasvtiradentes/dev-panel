@@ -32,6 +32,5 @@
 - [ ] ter um registry ou algo assim para adicionar tools nos projetos facilmente
   - prompts
   - tools
-  - scripts 
-- [ ] devemos ter um botao na branch context para ao clicar ele atualizar a lista de arquivos alterados na branch atual (tree)
-  
+  - scripts
+- [x] remover limitacao do chose files and folders

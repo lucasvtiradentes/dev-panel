@@ -4,6 +4,7 @@ import {
   BRANCH_CONTEXT_FIELD_LINEAR_LINK,
   BRANCH_CONTEXT_FIELD_PR_LINK,
   BRANCH_CONTEXT_NA,
+  BRANCH_CONTEXT_SECTION_CHANGED_FILES,
   BRANCH_CONTEXT_SECTION_NOTES,
   BRANCH_CONTEXT_SECTION_OBJECTIVE,
   BRANCH_CONTEXT_SECTION_REQUIREMENTS,
@@ -68,6 +69,12 @@ function generateMarkdown(branchName: string, context: BranchContext): string {
     '',
     context.todos || BRANCH_CONTEXT_DEFAULT_TODOS,
     '',
+    BRANCH_CONTEXT_SECTION_CHANGED_FILES,
+    '',
+    '```',
+    context.changedFiles || 'No changes',
+    '```',
+    '',
   ];
   return lines.join('\n');
 }
@@ -98,6 +105,22 @@ function extractSection(content: string, sectionName: string): string | undefine
   return sectionContent;
 }
 
+function extractCodeBlockSection(content: string, sectionName: string): string | undefined {
+  const headerRegex = new RegExp(`^#\\s+${sectionName}\\s*$`, 'im');
+  const headerMatch = content.match(headerRegex);
+  if (!headerMatch || headerMatch.index === undefined) return undefined;
+
+  const startIndex = headerMatch.index + headerMatch[0].length;
+  const afterHeader = content.slice(startIndex);
+
+  const codeBlockMatch = afterHeader.match(/^```\s*\n([\s\S]*?)\n```/m);
+  if (!codeBlockMatch) return undefined;
+
+  const codeContent = codeBlockMatch[1].trim();
+  if (codeContent === '' || codeContent === 'No changes') return undefined;
+  return codeContent;
+}
+
 function parseBranchContext(content: string): BranchContext {
   const context: BranchContext = {
     prLink: extractField(content, BRANCH_CONTEXT_FIELD_PR_LINK.replace(':', '')),
@@ -106,6 +129,7 @@ function parseBranchContext(content: string): BranchContext {
     requirements: extractSection(content, 'REQUIREMENTS'),
     notes: extractSection(content, 'NOTES'),
     todos: extractSection(content, 'TASKS'),
+    changedFiles: extractCodeBlockSection(content, 'CHANGED FILES'),
   };
 
   return context;

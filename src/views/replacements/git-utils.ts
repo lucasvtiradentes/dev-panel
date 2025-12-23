@@ -30,3 +30,12 @@ export async function isGitRepository(workspace: string): Promise<boolean> {
 export async function restoreFileFromGit(workspace: string, filePath: string): Promise<void> {
   await execGitCommand(workspace, ['checkout', '--', filePath]);
 }
+
+export async function fileExistsInGit(workspace: string, filePath: string): Promise<boolean> {
+  try {
+    await execGitCommand(workspace, ['ls-files', '--error-unmatch', filePath]);
+    return true;
+  } catch {
+    return false;
+  }
+}

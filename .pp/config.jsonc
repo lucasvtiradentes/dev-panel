@@ -1,0 +1,129 @@
+{
+  "$schema": "../resources/schema.json",
+  "settings": {
+    "aiProvider": "claude",
+    "exclude": [
+      "**/.pp/**",
+      "**/.changeset/**",
+      "**/.ignore/**",
+      "**/.github/**",
+      "**/.husky/**",
+      "**/dist-dev/**",
+      "**/.tscanner/**",
+      "**/.vscode/**",
+      "**/out/**"
+    ]
+  },
+  "variables": [
+    {
+      "name": "environment",
+      "kind": "choose",
+      "options": [
+        "local",
+        "local-staging",
+        "local-prod",
+        "staging",
+        "prod"
+      ],
+      "command": "bash scripts/environment-select.sh",
+      "description": "Select the target environment",
+      "default": "local",
+      "group": "Environment"
+    },
+    {
+      "name": "debug",
+      "kind": "toggle",
+      "command": "bash scripts/toggle-debug.sh",
+      "description": "Enable or disable debug mode",
+      "default": false,
+      "group": "Environment"
+    },
+    {
+      "name": "api-url",
+      "kind": "input",
+      "command": "bash scripts/set-api-url.sh",
+      "description": "Set the API base URL",
+      "group": "API"
+    },
+    {
+      "name": "features",
+      "kind": "multi-select",
+      "options": [
+        "auth",
+        "analytics",
+        "notifications",
+        "dark-mode"
+      ],
+      "command": "bash scripts/set-features.sh",
+      "description": "Enable feature flags",
+      "default": [
+        "auth"
+      ],
+      "group": "API"
+    },
+    {
+      "name": "config-file",
+      "kind": "file",
+      "description": "Select a configuration file"
+    },
+    {
+      "name": "output-dir",
+      "kind": "folder",
+      "description": "Select output directory"
+    },
+    {
+      "name": "multiple-files",
+      "kind": "file",
+      "multiSelect": true,
+      "description": "Select multiple files"
+    },
+    {
+      "name": "multiple-folders",
+      "kind": "folder",
+      "multiSelect": true,
+      "description": "Select multiple folders"
+    }
+  ],
+  "replacements": [
+    {
+      "name": "enable-debug-logs",
+      "type": "patch",
+      "description": "Enable debug logging in hello1 view",
+      "target": "src/extension.ts",
+      "patches": [
+        {
+          "search": "void vscode.tasks.fetchTasks();",
+          "replace": "// DEBUG ENABLED\n  void vscode.tasks.fetchTasks();"
+        }
+      ],
+      "group": "Debug"
+    }
+  ],
+  "tasks": [
+    {
+      "name": "list-files",
+      "command": "ls -la",
+      "group": "Utils"
+    },
+    {
+      "name": "show-date",
+      "command": "date",
+      "group": "Utils"
+    }
+  ],
+  "tools": [],
+  "prompts": [
+    {
+      "name": "Review Constants",
+      "file": "prompts/review-constants.md",
+      "description": "Review constants and suggest centralizing hardcoded values",
+      "group": "Analysis",
+      "saveOutput": true
+    },
+    {
+      "name": "test-01",
+      "file": "prompts/test-02.md",
+      "description": "vai servir para um monte de coisa"
+    }
+  ]
+}

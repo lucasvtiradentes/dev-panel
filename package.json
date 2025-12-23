@@ -137,9 +137,14 @@
         "title": "Toggle Replacement"
       },
       {
-        "command": "projectPanel.revertAllReplacements",
-        "title": "Revert All Replacements",
-        "icon": "$(discard)"
+        "command": "projectPanel.toggleAllReplacementsActivate",
+        "title": "Activate All Replacements",
+        "icon": "$(circle-outline)"
+      },
+      {
+        "command": "projectPanel.toggleAllReplacementsDeactivate",
+        "title": "Deactivate All Replacements",
+        "icon": "$(circle-filled)"
       },
       {
         "command": "projectPanel.toggleReplacementsGroupMode",
@@ -394,6 +399,11 @@
         "icon": "$(go-to-file)"
       },
       {
+        "command": "projectPanel.goToReplacementTargetFile",
+        "title": "Go to Replacement Target File",
+        "icon": "$(go-to-file)"
+      },
+      {
         "command": "projectPanel.addPrompt",
         "title": "Add Prompt",
         "icon": "$(add)"
@@ -402,6 +412,11 @@
         "command": "projectPanel.openBranchContextFile",
         "title": "Open Branch Context File",
         "icon": "$(go-to-file)"
+      },
+      {
+        "command": "projectPanel.refreshChangedFiles",
+        "title": "Refresh Changed Files",
+        "icon": "$(sync)"
       },
       {
         "command": "projectPanel.editBranchObjective",
@@ -421,6 +436,26 @@
         "icon": "$(go-to-file)"
       },
       {
+        "command": "projectPanel.toggleBranchTasksShowOnlyTodo",
+        "title": "Show Only Pending Tasks",
+        "icon": "$(filter)"
+      },
+      {
+        "command": "projectPanel.toggleBranchTasksShowOnlyTodoActive",
+        "title": "Show All Tasks",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "projectPanel.toggleBranchTasksGroupMode",
+        "title": "Toggle Branch Tasks Group Mode",
+        "icon": "$(list-flat)"
+      },
+      {
+        "command": "projectPanel.toggleBranchTasksGroupModeGrouped",
+        "title": "Toggle Branch Tasks Group Mode",
+        "icon": "$(list-tree)"
+      },
+      {
         "command": "projectPanel.showLogs",
         "title": "Project Panel: Show Logs"
       },
@@ -436,20 +471,6 @@
       {
         "command": "projectPanel.openPromptsKeybindings",
         "title": "Open Prompts Keybindings",
-        "icon": "$(keyboard)"
-      },
-      {
-        "command": "projectPanel.syncReplacementKeybindings",
-        "title": "Project Panel: Sync Replacement Keybindings"
-      },
-      {
-        "command": "projectPanel.setReplacementKeybinding",
-        "title": "Set Keybinding",
-        "icon": "$(keyboard)"
-      },
-      {
-        "command": "projectPanel.openReplacementsKeybindings",
-        "title": "Open Replacements Keybindings",
         "icon": "$(keyboard)"
       },
       {
@@ -510,14 +531,14 @@
           "group": "navigation@1"
         },
         {
-          "command": "projectPanel.revertAllReplacements",
-          "when": "view == projectPanelReplacements",
+          "command": "projectPanel.toggleAllReplacementsActivate",
+          "when": "view == projectPanelReplacements && !replacementsAllActive",
           "group": "navigation@2"
         },
         {
-          "command": "projectPanel.openReplacementsKeybindings",
-          "when": "view == projectPanelReplacements",
-          "group": "navigation@4"
+          "command": "projectPanel.toggleAllReplacementsDeactivate",
+          "when": "view == projectPanelReplacements && replacementsAllActive",
+          "group": "navigation@2"
         },
         {
           "command": "projectPanel.toggleGroupMode",
@@ -660,9 +681,34 @@
           "group": "navigation@1"
         },
         {
+          "command": "projectPanel.refreshChangedFiles",
+          "when": "view == projectPanelBranchContext",
+          "group": "navigation@2"
+        },
+        {
+          "command": "projectPanel.toggleBranchTasksGroupMode",
+          "when": "view == projectPanelTodos && !branchTasksGrouped",
+          "group": "navigation@1"
+        },
+        {
+          "command": "projectPanel.toggleBranchTasksGroupModeGrouped",
+          "when": "view == projectPanelTodos && branchTasksGrouped",
+          "group": "navigation@1"
+        },
+        {
+          "command": "projectPanel.toggleBranchTasksShowOnlyTodo",
+          "when": "view == projectPanelTodos && !branchTasksShowOnlyTodo",
+          "group": "navigation@2"
+        },
+        {
+          "command": "projectPanel.toggleBranchTasksShowOnlyTodoActive",
+          "when": "view == projectPanelTodos && branchTasksShowOnlyTodo",
+          "group": "navigation@2"
+        },
+        {
           "command": "projectPanel.editBranchTodos",
           "when": "view == projectPanelTodos",
-          "group": "navigation"
+          "group": "navigation@3"
         }
       ],
       "view/item/context": [
@@ -710,7 +756,7 @@
           "group": "9_delete@1"
         },
         {
-          "command": "projectPanel.setReplacementKeybinding",
+          "command": "projectPanel.goToReplacementTargetFile",
           "when": "view == projectPanelReplacements && viewItem == replacementItem",
           "group": "inline@1"
         },
@@ -809,6 +855,68 @@
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "projectPanelConfigs",
+        "contents": "Loading variables...",
+        "when": "extensionInitializing"
+      },
+      {
+        "view": "projectPanelConfigs",
+        "contents": "No variables configured.\n\nAdd variables in your config file.",
+        "when": "!extensionInitializing"
+      },
+      {
+        "view": "projectPanelReplacements",
+        "contents": "Loading replacements...",
+        "when": "extensionInitializing"
+      },
+      {
+        "view": "projectPanelReplacements",
+        "contents": "No replacements configured.\n\nAdd replacements in your config file.",
+        "when": "!extensionInitializing"
+      },
+      {
+        "view": "projectPanelTools",
+        "contents": "Loading tools...",
+        "when": "extensionInitializing"
+      },
+      {
+        "view": "projectPanelTools",
+        "contents": "No tools configured.\n\nAdd tools in your config file.",
+        "when": "!extensionInitializing"
+      },
+      {
+        "view": "projectPanelPrompts",
+        "contents": "Loading prompts...",
+        "when": "extensionInitializing"
+      },
+      {
+        "view": "projectPanelPrompts",
+        "contents": "No prompts configured.\n\nAdd prompts in your config file.",
+        "when": "!extensionInitializing"
+      },
+      {
+        "view": "projectPanelTodos",
+        "contents": "Loading branch tasks...",
+        "when": "extensionInitializing"
+      },
+      {
+        "view": "projectPanelTodos",
+        "contents": "No tasks in current branch.\n\nTasks are defined in the branch context file.",
+        "when": "!extensionInitializing"
+      },
+      {
+        "view": "projectPanelTasks",
+        "contents": "Loading tasks...",
+        "when": "extensionInitializing"
+      },
+      {
+        "view": "projectPanelTasks",
+        "contents": "No tasks available.\n\nAdd tasks in your config file or package.json.",
+        "when": "!extensionInitializing"
+      }
+    ],
     "taskDefinitions": [
       {
         "type": "util"

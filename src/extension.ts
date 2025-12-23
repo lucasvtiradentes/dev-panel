@@ -30,12 +30,12 @@ import { initWorkspaceState } from './common/lib/workspace-state';
 import type { PPConfig } from './common/schemas';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import { BranchContextProvider } from './views/branch-context';
+import { BranchTasksProvider } from './views/branch-tasks';
 import { PromptTreeDataProvider } from './views/prompts';
 import { reloadPromptKeybindings } from './views/prompts/keybindings-local';
 import { ReplacementsProvider } from './views/replacements';
 import { TaskTreeDataProvider } from './views/tasks';
 import { reloadTaskKeybindings } from './views/tasks/keybindings-local';
-import { TodosProvider } from './views/todos';
 import { ToolTreeDataProvider } from './views/tools';
 import { reloadToolKeybindings } from './views/tools/keybindings-local';
 import { VariablesProvider } from './views/variables';
@@ -163,6 +163,8 @@ function registerTaskKeybindings(context: vscode.ExtensionContext): void {
 export function activate(context: vscode.ExtensionContext): object {
   logger.clear();
   logger.info('Better Project Tools extension activated');
+  void setContextKey(ContextKey.ExtensionInitializing, true);
+
   initWorkspaceState(context);
   initGlobalState(context);
   migrateGlobalState();
@@ -184,8 +186,9 @@ export function activate(context: vscode.ExtensionContext): object {
   const toolTreeDataProvider = new ToolTreeDataProvider();
   const promptTreeDataProvider = new PromptTreeDataProvider();
   const branchContextProvider = new BranchContextProvider();
-  const todosProvider = new TodosProvider();
+  const branchTasksProvider = new BranchTasksProvider();
 
+  void branchContextProvider.initialize();
   void vscode.tasks.fetchTasks();
 
   const tasksTreeView = vscode.window.createTreeView(getViewIdTasks(), {
@@ -209,7 +212,7 @@ export function activate(context: vscode.ExtensionContext): object {
   vscode.window.registerTreeDataProvider(getViewIdConfigs(), variablesProvider);
   vscode.window.registerTreeDataProvider(getViewIdReplacements(), replacementsProvider);
   vscode.window.registerTreeDataProvider(getViewIdBranchContext(), branchContextProvider);
-  vscode.window.registerTreeDataProvider(getViewIdTodos(), todosProvider);
+  vscode.window.registerTreeDataProvider(getViewIdTodos(), branchTasksProvider);
 
   context.subscriptions.push({ dispose: () => statusBarManager.dispose() });
   context.subscriptions.push({ dispose: () => taskTreeDataProvider.dispose() });
@@ -218,7 +221,7 @@ export function activate(context: vscode.ExtensionContext): object {
   context.subscriptions.push({ dispose: () => toolTreeDataProvider.dispose() });
   context.subscriptions.push({ dispose: () => promptTreeDataProvider.dispose() });
   context.subscriptions.push({ dispose: () => branchContextProvider.dispose() });
-  context.subscriptions.push({ dispose: () => todosProvider.dispose() });
+  context.subscriptions.push({ dispose: () => branchTasksProvider.dispose() });
 
   const configWatcher = createConfigWatcher(() => {
     logger.info('Config changed, refreshing views');
@@ -227,6 +230,7 @@ export function activate(context: vscode.ExtensionContext): object {
     toolTreeDataProvider.refresh();
     promptTreeDataProvider.refresh();
     taskTreeDataProvider.refresh();
+    branchTasksProvider.refresh();
   });
   context.subscriptions.push(configWatcher);
 
@@ -245,9 +249,10 @@ export function activate(context: vscode.ExtensionContext): object {
 
   const branchWatcher = createBranchWatcher((newBranch) => {
     logger.info(`Branch changed to: ${newBranch}`);
-    void branchContextProvider.setBranch(newBranch);
-    todosProvider.setBranch(newBranch);
+    branchContextProvider.setBranch(newBranch);
+    branchTasksProvider.setBranch(newBranch);
     void replacementsProvider.handleBranchChange(newBranch);
+    void branchContextProvider.refreshChangedFiles();
   });
   context.subscriptions.push(branchWatcher);
 
@@ -259,7 +264,7 @@ export function activate(context: vscode.ExtensionContext): object {
     variablesProvider,
     replacementsProvider,
     branchContextProvider,
-    todosProvider,
+    branchTasksProvider,
   });
   context.subscriptions.push(...commandDisposables);
 
@@ -268,6 +273,9 @@ export function activate(context: vscode.ExtensionContext): object {
   registerReplacementKeybindings(context);
   registerVariableKeybindings(context);
   registerTaskKeybindings(context);
+
+  void setContextKey(ContextKey.ExtensionInitializing, false);
+  logger.info('Extension initialization complete');
 
   return {
     taskSource() {

@@ -121,69 +121,100 @@
       "type": "array",
       "items": {
         "description": "A file replacement/patch shown in the Replacements view",
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "Unique identifier for the replacement",
-            "type": "string"
-          },
-          "type": {
-            "description": "Type of replacement",
-            "type": "string",
-            "enum": [
-              "patch"
-            ]
-          },
-          "description": {
-            "description": "Human-readable description",
-            "type": "string"
-          },
-          "target": {
-            "description": "Target file path relative to workspace",
-            "type": "string"
-          },
-          "onBranchChange": {
-            "description": "What to do when git branch changes",
-            "type": "string",
-            "enum": [
-              "revert",
-              "keep"
-            ]
-          },
-          "patches": {
-            "description": "List of search/replace patches",
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "search": {
-                  "description": "Text or pattern to search for",
-                  "type": "string"
-                },
-                "replace": {
-                  "description": "Replacement text",
-                  "type": "string"
-                }
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "Unique identifier for the replacement",
+                "type": "string"
               },
-              "required": [
-                "search",
-                "replace"
-              ],
-              "additionalProperties": false
-            }
+              "description": {
+                "description": "Human-readable description",
+                "type": "string"
+              },
+              "group": {
+                "description": "Group name for organizing replacements",
+                "type": "string"
+              },
+              "type": {
+                "description": "Replace entire file content",
+                "type": "string",
+                "const": "file"
+              },
+              "source": {
+                "description": "Source file path relative to workspace",
+                "type": "string"
+              },
+              "target": {
+                "description": "Target file path relative to workspace",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "type",
+              "source",
+              "target"
+            ],
+            "additionalProperties": false
           },
-          "group": {
-            "description": "Group name for organizing replacements",
-            "type": "string"
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "Unique identifier for the replacement",
+                "type": "string"
+              },
+              "description": {
+                "description": "Human-readable description",
+                "type": "string"
+              },
+              "group": {
+                "description": "Group name for organizing replacements",
+                "type": "string"
+              },
+              "type": {
+                "description": "Apply patches to file",
+                "type": "string",
+                "const": "patch"
+              },
+              "target": {
+                "description": "Target file path relative to workspace",
+                "type": "string"
+              },
+              "patches": {
+                "description": "List of search/replace patches",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "search": {
+                      "description": "Text or pattern to search for",
+                      "type": "string"
+                    },
+                    "replace": {
+                      "description": "Replacement text",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "search",
+                    "replace"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "name",
+              "type",
+              "target",
+              "patches"
+            ],
+            "additionalProperties": false
           }
-        },
-        "required": [
-          "name",
-          "type",
-          "target",
-          "patches"
-        ],
-        "additionalProperties": false
+        ]
       }
     },
     "tasks": {

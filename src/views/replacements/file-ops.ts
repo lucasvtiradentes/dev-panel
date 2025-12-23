@@ -1,6 +1,11 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import type { PatchItem, Replacement, ReplacementType } from './types';
+import type { PPReplacement } from '../../common/schemas/config-schema';
+
+type PatchItem = {
+  search: string[];
+  replace: string[];
+};
 
 export function applyFileReplacement(workspace: string, source: string, target: string): void {
   const sourcePath = path.join(workspace, source);
@@ -29,7 +34,7 @@ export function fileExists(workspace: string, filePath: string): boolean {
   return fs.existsSync(path.join(workspace, filePath));
 }
 
-export function isReplacementActive(workspace: string, replacement: Replacement): boolean {
+export function isReplacementActive(workspace: string, replacement: PPReplacement): boolean {
   const targetPath = path.join(workspace, replacement.target);
 
   if (!fs.existsSync(targetPath)) {
@@ -38,16 +43,16 @@ export function isReplacementActive(workspace: string, replacement: Replacement)
 
   const targetContent = fs.readFileSync(targetPath, 'utf-8');
 
-  if (replacement.type === ('patch' as ReplacementType)) {
-    const patches = (replacement as { patches: PatchItem[] }).patches;
+  if (replacement.type === 'patch') {
+    const patches = replacement.patches as unknown as PatchItem[];
     if (!patches || patches.length === 0) return false;
 
     const firstReplace = normalizeSearchReplace(patches[0].replace);
     return targetContent.includes(firstReplace);
   }
 
-  if (replacement.type === ('file' as ReplacementType)) {
-    const sourcePath = path.join(workspace, (replacement as { source: string }).source);
+  if (replacement.type === 'file') {
+    const sourcePath = path.join(workspace, replacement.source);
     if (!fs.existsSync(sourcePath)) return false;
 
     const sourceContent = fs.readFileSync(sourcePath, 'utf-8');
