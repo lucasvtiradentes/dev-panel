@@ -11,41 +11,44 @@ import type { ReplacementsProvider } from '../views/replacements';
 import type { TaskTreeDataProvider } from '../views/tasks';
 import type { ToolTreeDataProvider, TreeTool } from '../views/tools';
 import type { VariablesProvider } from '../views/variables';
+import { createAddPromptCommand } from './internal/add-prompt';
+import { createAddToolCommand } from './internal/add-tool';
+import { createCopyPromptToGlobalCommand } from './internal/copy-prompt-to-global';
+import { createCopyPromptToWorkspaceCommand } from './internal/copy-prompt-to-workspace';
+import { createCopyTaskToGlobalCommand } from './internal/copy-task-to-global';
+import { createCopyTaskToWorkspaceCommand } from './internal/copy-task-to-workspace';
+import { createCopyToolToGlobalCommand } from './internal/copy-tool-to-global';
+import { createCopyToolToWorkspaceCommand } from './internal/copy-tool-to-workspace';
+import { createDeletePromptCommand } from './internal/delete-prompt';
+import { createDeleteTaskCommand } from './internal/delete-task';
+import { createDeleteToolCommand } from './internal/delete-tool';
 import {
   createExecutePromptCommand,
   createExecuteTaskCommand,
   createExecuteToolCommand,
 } from './internal/execute-task';
+import { createGenerateToolsDocsCommand } from './internal/generate-tools-docs';
+import { createGoToTaskCommand } from './internal/go-to-task';
+import { createOpenTasksConfigCommand } from './internal/open-tasks-config';
+import { createRefreshCommand } from './internal/refresh';
 import { createRevertAllReplacementsCommand } from './internal/revert-all-replacements';
 import { createResetConfigOptionCommand, createSelectConfigOptionCommand } from './internal/select-config-option';
-import { createToggleReplacementCommand } from './internal/toggle-replacement';
-import { createAddPromptCommand } from './public/add-prompt';
-import { createAddToolCommand } from './public/add-tool';
-import { createCopyPromptToGlobalCommand } from './public/copy-prompt-to-global';
-import { createCopyPromptToWorkspaceCommand } from './public/copy-prompt-to-workspace';
-import { createCopyTaskToGlobalCommand } from './public/copy-task-to-global';
-import { createCopyTaskToWorkspaceCommand } from './public/copy-task-to-workspace';
-import { createCopyToolToGlobalCommand } from './public/copy-tool-to-global';
-import { createCopyToolToWorkspaceCommand } from './public/copy-tool-to-workspace';
-import { createDeletePromptCommand } from './public/delete-prompt';
-import { createDeleteTaskCommand } from './public/delete-task';
-import { createDeleteToolCommand } from './public/delete-tool';
-import { createGenerateToolsDocsCommand } from './public/generate-tools-docs';
-import { createGoToTaskCommand } from './public/go-to-task';
-import { createOpenTasksConfigCommand } from './public/open-tasks-config';
-import { createRefreshCommand } from './public/refresh';
-import { createOpenPromptsKeybindingsCommand, createSetPromptKeybindingCommand } from './public/set-prompt-keybinding';
+import {
+  createOpenPromptsKeybindingsCommand,
+  createSetPromptKeybindingCommand,
+} from './internal/set-prompt-keybinding';
 import {
   createOpenReplacementsKeybindingsCommand,
   createSetReplacementKeybindingCommand,
-} from './public/set-replacement-keybinding';
-import { createOpenTasksKeybindingsCommand, createSetTaskKeybindingCommand } from './public/set-task-keybinding';
+} from './internal/set-replacement-keybinding';
+import { createOpenTasksKeybindingsCommand, createSetTaskKeybindingCommand } from './internal/set-task-keybinding';
 import {
   createOpenVariablesKeybindingsCommand,
   createSetVariableKeybindingCommand,
-} from './public/set-variable-keybinding';
+} from './internal/set-variable-keybinding';
+import { createSwitchTaskSourceCommands } from './internal/switch-task-source';
+import { createToggleReplacementCommand } from './internal/toggle-replacement';
 import { createShowLogsCommand } from './public/show-logs';
-import { createSwitchTaskSourceCommands } from './public/switch-task-source';
 
 export function registerAllCommands(options: {
   context: vscode.ExtensionContext;
