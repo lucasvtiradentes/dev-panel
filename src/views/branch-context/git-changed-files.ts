@@ -13,9 +13,15 @@ export async function getChangedFilesTree(workspacePath: string, style: ChangedF
 
 async function getChangedFilesTreeFormat(workspacePath: string): Promise<string> {
   try {
-    const { stdout: changedFiles } = await execAsync(`git diff ${BASE_BRANCH}...HEAD --name-only`, {
-      cwd: workspacePath,
-    });
+    const commands = [
+      `git diff ${BASE_BRANCH}...HEAD --name-only`,
+      'git diff --cached --name-only',
+      'git diff --name-only',
+    ];
+
+    const results = await Promise.all(
+      commands.map((cmd) => execAsync(cmd, { cwd: workspacePath }).then((r) => r.stdout)),
+    );
 
     const allFiles = new Set<string>();
 
@@ -27,7 +33,7 @@ async function getChangedFilesTreeFormat(workspacePath: string): Promise<string>
         .forEach((f) => allFiles.add(f));
     };
 
-    addFiles(changedFiles);
+    results.forEach(addFiles);
 
     if (allFiles.size === 0) {
       return 'No changes';
@@ -42,39 +48,57 @@ async function getChangedFilesTreeFormat(workspacePath: string): Promise<string>
 
 async function getChangedFilesListFormat(workspacePath: string): Promise<string> {
   try {
-    const { stdout: nameStatus } = await execAsync(`git diff ${BASE_BRANCH}...HEAD --name-status`, {
-      cwd: workspacePath,
-    });
-    const { stdout: numStat } = await execAsync(`git diff ${BASE_BRANCH}...HEAD --numstat`, {
-      cwd: workspacePath,
+    const commands = [
+      { status: `git diff ${BASE_BRANCH}...HEAD --name-status`, num: `git diff ${BASE_BRANCH}...HEAD --numstat` },
+      { status: 'git diff --cached --name-status', num: 'git diff --cached --numstat' },
+      { status: 'git diff --name-status', num: 'git diff --numstat' },
+    ];
+
+    const results = await Promise.all(
+      commands.map(async ({ status, num }) => {
+        const [statusRes, numRes] = await Promise.all([
+          execAsync(status, { cwd: workspacePath }),
+          execAsync(num, { cwd: workspacePath }),
+        ]);
+        return { status: statusRes.stdout, num: numRes.stdout };
+      }),
+    );
+
+    const statusMap = new Map<string, string>();
+    const statsMap = new Map<string, { added: string; deleted: string }>();
+
+    results.forEach(({ status, num }) => {
+      status
+        .trim()
+        .split('\n')
+        .filter((line) => line)
+        .forEach((line) => {
+          const [st, ...fileParts] = line.split('\t');
+          const file = fileParts.join('\t');
+          statusMap.set(file, st);
+        });
+
+      num
+        .trim()
+        .split('\n')
+        .filter((line) => line)
+        .forEach((line) => {
+          const [added, deleted, ...fileParts] = line.split('\t');
+          const file = fileParts.join('\t');
+          statsMap.set(file, { added, deleted });
+        });
     });
 
-    if (!nameStatus.trim()) {
+    if (statusMap.size === 0) {
       return 'No changes';
     }
 
-    const statusMap = new Map<string, string>();
-    nameStatus
-      .trim()
-      .split('\n')
-      .forEach((line) => {
-        const [status, ...fileParts] = line.split('\t');
-        const file = fileParts.join('\t');
-        statusMap.set(file, status);
-      });
-
-    const statsMap = new Map<string, { added: string; deleted: string }>();
-    numStat
-      .trim()
-      .split('\n')
-      .forEach((line) => {
-        const [added, deleted, ...fileParts] = line.split('\t');
-        const file = fileParts.join('\t');
-        statsMap.set(file, { added, deleted });
-      });
+    const sortedFiles = Array.from(statusMap.keys()).sort();
 
     const lines: string[] = [];
-    for (const [file, status] of statusMap.entries()) {
+    for (const file of sortedFiles) {
+      const status = statusMap.get(file);
+      if (!status) continue;
       const stats = statsMap.get(file) || { added: '0', deleted: '0' };
       const statusSymbol = status.charAt(0);
       const padding = ' '.repeat(Math.max(0, 50 - file.length));

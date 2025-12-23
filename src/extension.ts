@@ -248,6 +248,7 @@ export function activate(context: vscode.ExtensionContext): object {
     void branchContextProvider.setBranch(newBranch);
     branchTasksProvider.setBranch(newBranch);
     void replacementsProvider.handleBranchChange(newBranch);
+    void branchContextProvider.refreshChangedFiles();
   });
   context.subscriptions.push(branchWatcher);
 

@@ -301,10 +301,14 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   async refreshChangedFiles(): Promise<void> {
-    if (!this.currentBranch) return;
+    if (!this.currentBranch) {
+      return;
+    }
 
     const workspace = getWorkspacePath();
-    if (!workspace) return;
+    if (!workspace) {
+      return;
+    }
 
     const context = loadBranchContext(this.currentBranch);
     this.isWritingMarkdown = true;
