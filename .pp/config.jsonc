@@ -47,7 +47,8 @@
     },
     {
       "name": "features",
-      "kind": "multi-select",
+      "kind": "choose",
+      "multiSelect": true,
       "options": [
         "auth",
         "analytics",

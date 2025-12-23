@@ -43,77 +43,374 @@
       "type": "array",
       "items": {
         "description": "A configuration variable shown in the Variables view",
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "Unique identifier for the variable",
-            "type": "string"
-          },
-          "kind": {
-            "description": "Type of variable input",
-            "type": "string",
-            "enum": [
-              "choose",
-              "toggle",
-              "input",
-              "multi-select",
-              "file",
-              "folder"
-            ]
-          },
-          "options": {
-            "description": "Available options for choose/multi-select kinds",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "command": {
-            "description": "Shell command to execute when value changes",
-            "type": "string"
-          },
-          "description": {
-            "description": "Human-readable description",
-            "type": "string"
-          },
-          "default": {
-            "description": "Default value",
-            "anyOf": [
-              {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "Unique identifier for the variable",
                 "type": "string"
               },
-              {
-                "type": "boolean"
+              "command": {
+                "description": "Shell command to execute when value changes",
+                "type": "string"
               },
-              {
+              "description": {
+                "description": "Human-readable description",
+                "type": "string"
+              },
+              "group": {
+                "description": "Group name for organizing variables",
+                "type": "string"
+              },
+              "kind": {
+                "description": "Choose from a list of options",
+                "type": "string",
+                "const": "choose"
+              },
+              "options": {
+                "description": "Available options",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "multiSelect": {
+                "description": "Single selection",
+                "type": "boolean",
+                "const": false
+              },
+              "default": {
+                "description": "Default value",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "kind",
+              "options"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "Unique identifier for the variable",
+                "type": "string"
+              },
+              "command": {
+                "description": "Shell command to execute when value changes",
+                "type": "string"
+              },
+              "description": {
+                "description": "Human-readable description",
+                "type": "string"
+              },
+              "group": {
+                "description": "Group name for organizing variables",
+                "type": "string"
+              },
+              "kind": {
+                "description": "Choose from a list of options (multi-select)",
+                "type": "string",
+                "const": "choose"
+              },
+              "options": {
+                "description": "Available options",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "multiSelect": {
+                "description": "Multi-selection enabled",
+                "type": "boolean",
+                "const": true
+              },
+              "default": {
+                "description": "Default values",
                 "type": "array",
                 "items": {
                   "type": "string"
                 }
               }
-            ]
+            },
+            "required": [
+              "name",
+              "kind",
+              "options",
+              "multiSelect"
+            ],
+            "additionalProperties": false
           },
-          "group": {
-            "description": "Group name for organizing variables",
-            "type": "string"
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "Unique identifier for the variable",
+                "type": "string"
+              },
+              "command": {
+                "description": "Shell command to execute when value changes",
+                "type": "string"
+              },
+              "description": {
+                "description": "Human-readable description",
+                "type": "string"
+              },
+              "group": {
+                "description": "Group name for organizing variables",
+                "type": "string"
+              },
+              "kind": {
+                "description": "Toggle between ON/OFF",
+                "type": "string",
+                "const": "toggle"
+              },
+              "default": {
+                "description": "Default value",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "name",
+              "kind"
+            ],
+            "additionalProperties": false
           },
-          "multiSelect": {
-            "description": "Enable multi-selection for file/folder kinds",
-            "type": "boolean"
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "Unique identifier for the variable",
+                "type": "string"
+              },
+              "command": {
+                "description": "Shell command to execute when value changes",
+                "type": "string"
+              },
+              "description": {
+                "description": "Human-readable description",
+                "type": "string"
+              },
+              "group": {
+                "description": "Group name for organizing variables",
+                "type": "string"
+              },
+              "kind": {
+                "description": "Free text input",
+                "type": "string",
+                "const": "input"
+              },
+              "default": {
+                "description": "Default value",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "kind"
+            ],
+            "additionalProperties": false
           },
-          "excludes": {
-            "description": "Glob patterns to exclude for file/folder kinds. Overrides global excludes",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "Unique identifier for the variable",
+                "type": "string"
+              },
+              "command": {
+                "description": "Shell command to execute when value changes",
+                "type": "string"
+              },
+              "description": {
+                "description": "Human-readable description",
+                "type": "string"
+              },
+              "group": {
+                "description": "Group name for organizing variables",
+                "type": "string"
+              },
+              "kind": {
+                "description": "File selection",
+                "type": "string",
+                "const": "file"
+              },
+              "multiSelect": {
+                "description": "Single selection",
+                "type": "boolean",
+                "const": false
+              },
+              "excludes": {
+                "description": "Glob patterns to exclude. Overrides global excludes",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "default": {
+                "description": "Default value",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "kind"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "Unique identifier for the variable",
+                "type": "string"
+              },
+              "command": {
+                "description": "Shell command to execute when value changes",
+                "type": "string"
+              },
+              "description": {
+                "description": "Human-readable description",
+                "type": "string"
+              },
+              "group": {
+                "description": "Group name for organizing variables",
+                "type": "string"
+              },
+              "kind": {
+                "description": "File selection (multi-select)",
+                "type": "string",
+                "const": "file"
+              },
+              "multiSelect": {
+                "description": "Multi-selection enabled",
+                "type": "boolean",
+                "const": true
+              },
+              "excludes": {
+                "description": "Glob patterns to exclude. Overrides global excludes",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "default": {
+                "description": "Default values",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "name",
+              "kind",
+              "multiSelect"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "Unique identifier for the variable",
+                "type": "string"
+              },
+              "command": {
+                "description": "Shell command to execute when value changes",
+                "type": "string"
+              },
+              "description": {
+                "description": "Human-readable description",
+                "type": "string"
+              },
+              "group": {
+                "description": "Group name for organizing variables",
+                "type": "string"
+              },
+              "kind": {
+                "description": "Folder selection",
+                "type": "string",
+                "const": "folder"
+              },
+              "multiSelect": {
+                "description": "Single selection",
+                "type": "boolean",
+                "const": false
+              },
+              "excludes": {
+                "description": "Glob patterns to exclude. Overrides global excludes",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "default": {
+                "description": "Default value",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "kind"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "Unique identifier for the variable",
+                "type": "string"
+              },
+              "command": {
+                "description": "Shell command to execute when value changes",
+                "type": "string"
+              },
+              "description": {
+                "description": "Human-readable description",
+                "type": "string"
+              },
+              "group": {
+                "description": "Group name for organizing variables",
+                "type": "string"
+              },
+              "kind": {
+                "description": "Folder selection (multi-select)",
+                "type": "string",
+                "const": "folder"
+              },
+              "multiSelect": {
+                "description": "Multi-selection enabled",
+                "type": "boolean",
+                "const": true
+              },
+              "excludes": {
+                "description": "Glob patterns to exclude. Overrides global excludes",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "default": {
+                "description": "Default values",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "name",
+              "kind",
+              "multiSelect"
+            ],
+            "additionalProperties": false
           }
-        },
-        "required": [
-          "name",
-          "kind"
-        ],
-        "additionalProperties": false
+        ]
       }
     },
     "replacements": {

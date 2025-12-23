@@ -29,7 +29,6 @@ enum VariableKind {
   Choose = 'choose',
   Input = 'input',
   Toggle = 'toggle',
-  MultiSelect = 'multi-select',
   File = 'file',
   Folder = 'folder',
 }
@@ -272,11 +271,25 @@ export async function selectVariableOption(variable: VariableItem): Promise<void
 
   switch (variable.kind) {
     case VariableKind.Choose: {
-      const selected = await vscode.window.showQuickPick(variable.options || [], {
-        placeHolder: `Select ${variable.name}`,
-      });
-      if (!selected) return;
-      newValue = selected;
+      if (variable.multiSelect) {
+        const currentValue = (state[variable.name] as string[] | undefined) || [];
+        const items = (variable.options || []).map((opt) => ({
+          label: opt,
+          picked: currentValue.includes(opt),
+        }));
+        const selected = await vscode.window.showQuickPick(items, {
+          canPickMany: true,
+          placeHolder: `Select ${variable.name}`,
+        });
+        if (!selected) return;
+        newValue = selected.map((s) => s.label);
+      } else {
+        const selected = await vscode.window.showQuickPick(variable.options || [], {
+          placeHolder: `Select ${variable.name}`,
+        });
+        if (!selected) return;
+        newValue = selected;
+      }
       break;
     }
 
@@ -298,21 +311,6 @@ export async function selectVariableOption(variable: VariableItem): Promise<void
       const defaultValue = variable.default as boolean | undefined;
       const current = currentValue ?? defaultValue ?? false;
       newValue = !current;
-      break;
-    }
-
-    case VariableKind.MultiSelect: {
-      const currentValue = (state[variable.name] as string[] | undefined) || [];
-      const items = (variable.options || []).map((opt) => ({
-        label: opt,
-        picked: currentValue.includes(opt),
-      }));
-      const selected = await vscode.window.showQuickPick(items, {
-        canPickMany: true,
-        placeHolder: `Select ${variable.name}`,
-      });
-      if (!selected) return;
-      newValue = selected.map((s) => s.label);
       break;
     }
 

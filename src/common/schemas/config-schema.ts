@@ -88,24 +88,82 @@ const PPPromptSchema = z
   })
   .describe('A prompt that can be executed in Claude Code');
 
+const PPVariableBaseSchema = z.object({
+  name: z.string().describe('Unique identifier for the variable'),
+  command: z.string().optional().describe('Shell command to execute when value changes'),
+  description: z.string().optional().describe('Human-readable description'),
+  group: z.string().optional().describe('Group name for organizing variables'),
+});
+
+const PPVariableChooseSingleSchema = PPVariableBaseSchema.extend({
+  kind: z.literal('choose').describe('Choose from a list of options'),
+  options: z.array(z.string()).describe('Available options'),
+  multiSelect: z.literal(false).optional().describe('Single selection'),
+  default: z.string().optional().describe('Default value'),
+});
+
+const PPVariableChooseMultiSchema = PPVariableBaseSchema.extend({
+  kind: z.literal('choose').describe('Choose from a list of options (multi-select)'),
+  options: z.array(z.string()).describe('Available options'),
+  multiSelect: z.literal(true).describe('Multi-selection enabled'),
+  default: z.array(z.string()).optional().describe('Default values'),
+});
+
+const PPVariableChooseSchema = z.union([PPVariableChooseSingleSchema, PPVariableChooseMultiSchema]);
+
+const PPVariableToggleSchema = PPVariableBaseSchema.extend({
+  kind: z.literal('toggle').describe('Toggle between ON/OFF'),
+  default: z.boolean().optional().describe('Default value'),
+});
+
+const PPVariableInputSchema = PPVariableBaseSchema.extend({
+  kind: z.literal('input').describe('Free text input'),
+  default: z.string().optional().describe('Default value'),
+});
+
+const PPVariableFileSingleSchema = PPVariableBaseSchema.extend({
+  kind: z.literal('file').describe('File selection'),
+  multiSelect: z.literal(false).optional().describe('Single selection'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Overrides global excludes'),
+  default: z.string().optional().describe('Default value'),
+});
+
+const PPVariableFileMultiSchema = PPVariableBaseSchema.extend({
+  kind: z.literal('file').describe('File selection (multi-select)'),
+  multiSelect: z.literal(true).describe('Multi-selection enabled'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Overrides global excludes'),
+  default: z.array(z.string()).optional().describe('Default values'),
+});
+
+const PPVariableFileSchema = z.union([PPVariableFileSingleSchema, PPVariableFileMultiSchema]);
+
+const PPVariableFolderSingleSchema = PPVariableBaseSchema.extend({
+  kind: z.literal('folder').describe('Folder selection'),
+  multiSelect: z.literal(false).optional().describe('Single selection'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Overrides global excludes'),
+  default: z.string().optional().describe('Default value'),
+});
+
+const PPVariableFolderMultiSchema = PPVariableBaseSchema.extend({
+  kind: z.literal('folder').describe('Folder selection (multi-select)'),
+  multiSelect: z.literal(true).describe('Multi-selection enabled'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Overrides global excludes'),
+  default: z.array(z.string()).optional().describe('Default values'),
+});
+
+const PPVariableFolderSchema = z.union([PPVariableFolderSingleSchema, PPVariableFolderMultiSchema]);
+
 const PPVariableSchema = z
-  .object({
-    name: z.string().describe('Unique identifier for the variable'),
-    kind: z.enum(['choose', 'toggle', 'input', 'multi-select', 'file', 'folder']).describe('Type of variable input'),
-    options: z.array(z.string()).optional().describe('Available options for choose/multi-select kinds'),
-    command: z.string().optional().describe('Shell command to execute when value changes'),
-    description: z.string().optional().describe('Human-readable description'),
-    default: z
-      .union([z.string(), z.boolean(), z.array(z.string())])
-      .optional()
-      .describe('Default value'),
-    group: z.string().optional().describe('Group name for organizing variables'),
-    multiSelect: z.boolean().optional().describe('Enable multi-selection for file/folder kinds'),
-    excludes: z
-      .array(z.string())
-      .optional()
-      .describe('Glob patterns to exclude for file/folder kinds. Overrides global excludes'),
-  })
+  .union([
+    PPVariableChooseSingleSchema,
+    PPVariableChooseMultiSchema,
+    PPVariableToggleSchema,
+    PPVariableInputSchema,
+    PPVariableFileSingleSchema,
+    PPVariableFileMultiSchema,
+    PPVariableFolderSingleSchema,
+    PPVariableFolderMultiSchema,
+  ])
   .describe('A configuration variable shown in the Variables view');
 
 const PPReplacementPatchSchema = z.object({
