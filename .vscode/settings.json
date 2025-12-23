@@ -1,36 +1,41 @@
-
-// Place your settings in this file to overwrite default and user settings.
 {
-    "eslint.validate": [ "typescript" ],
-    "files.exclude": {
-        "out": false // set this to true to hide the "out" folder with the compiled JS files
-    },
-    "search.exclude": {
-        "out": true // set this to false to include "out" folder in search results
-    },
-    // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
-    "typescript.tsc.autoDetect": "off",
-    "editor.tabSize": 4,
-    "editor.insertSpaces": true,
-    "editor.detectIndentation": false,
-    "[typescript]": {
-        "editor.formatOnSave": false,
-        "editor.codeActionsOnSave": {
-            "source.fixAll": "explicit"
-        }
-    },
-    "[javascript]": {
-        "editor.formatOnSave": true
-    },
-    "[json]": {
-        "editor.formatOnSave": true,
-    },
-    "[yaml]": {
-        "editor.formatOnSave": true,
-    },
-    "typescript.format.insertSpaceAfterConstructor": true,
-    "typescript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": true,
-    "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
-    "typescript.format.semicolons": "insert",
-    "files.insertFinalNewline": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+  "editor.defaultFormatter": "biomejs.biome",
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "files.exclude": {
+    // FOLDERS
+    ".changeset": true,
+    ".claude": true,
+    ".github": true,
+    ".husky": true,
+    ".ignore": true,
+    // ".pp": true,
+    ".tscanner": true,
+    // ".vscode": true,
+    "dist-dev": true,
+    "node_modules": true,
+    "out": true,
+    // "resources": true,
+    // "scripts": true,
+    // "src": true,
+
+    // FILES
+    // ".branch-context.md": true,
+    ".editorconfig": true,
+    ".gitignore": true,
+    ".lintstagedrc.json": true,
+    ".vscodeignore": true,
+    "biome.json": true,
+    // "CLAUDE.md": true,
+    "esbuild.config.ts": true,
+    "knip.jsonc": true,
+    "LICENSE": true,
+    "package.json": true,
+    "pnpm-lock.yaml": true,
+    // "README.md": true,
+    "tsconfig.json": true,
+  }
 }
