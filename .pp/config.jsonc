@@ -119,11 +119,6 @@
       "description": "Review constants and suggest centralizing hardcoded values",
       "group": "Analysis",
       "saveOutput": true
-    },
-    {
-      "name": "test-01",
-      "file": "prompts/test-02.md",
-      "description": "vai servir para um monte de coisa"
     }
   ]
 }
