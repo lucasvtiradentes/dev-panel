@@ -100,16 +100,26 @@ const PPReplacementPatchSchema = z.object({
   replace: z.string().describe('Replacement text'),
 });
 
+const PPReplacementBaseSchema = z.object({
+  name: z.string().describe('Unique identifier for the replacement'),
+  description: z.string().optional().describe('Human-readable description'),
+  group: z.string().optional().describe('Group name for organizing replacements'),
+});
+
+const PPReplacementFileSchema = PPReplacementBaseSchema.extend({
+  type: z.literal('file').describe('Replace entire file content'),
+  source: z.string().describe('Source file path relative to workspace'),
+  target: z.string().describe('Target file path relative to workspace'),
+});
+
+const PPReplacementPatchTypeSchema = PPReplacementBaseSchema.extend({
+  type: z.literal('patch').describe('Apply patches to file'),
+  target: z.string().describe('Target file path relative to workspace'),
+  patches: z.array(PPReplacementPatchSchema).describe('List of search/replace patches'),
+});
+
 const PPReplacementSchema = z
-  .object({
-    name: z.string().describe('Unique identifier for the replacement'),
-    type: z.enum(['patch']).describe('Type of replacement'),
-    description: z.string().optional().describe('Human-readable description'),
-    target: z.string().describe('Target file path relative to workspace'),
-    onBranchChange: z.enum(['revert', 'keep']).optional().describe('What to do when git branch changes'),
-    patches: z.array(PPReplacementPatchSchema).describe('List of search/replace patches'),
-    group: z.string().optional().describe('Group name for organizing replacements'),
-  })
+  .discriminatedUnion('type', [PPReplacementFileSchema, PPReplacementPatchTypeSchema])
   .describe('A file replacement/patch shown in the Replacements view');
 
 const PPSettingsSchema = z
@@ -149,3 +159,8 @@ export type PPPromptInput = z.infer<typeof PPPromptInputSchema>;
 export type PPPrompt = z.infer<typeof PPPromptSchema>;
 export type PPSettings = z.infer<typeof PPSettingsSchema>;
 export type PPConfig = z.infer<typeof PPConfigSchema>;
+export type PPTask = z.infer<typeof PPTaskSchema>;
+export type PPTool = z.infer<typeof PPToolSchema>;
+export type PPVariable = z.infer<typeof PPVariableSchema>;
+export type PPReplacement = z.infer<typeof PPReplacementSchema>;
+export type PPReplacementPatch = z.infer<typeof PPReplacementPatchSchema>;

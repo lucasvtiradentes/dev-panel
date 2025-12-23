@@ -90,7 +90,6 @@
       "type": "patch",
       "description": "Enable debug logging in hello1 view",
       "target": "src/extension.ts",
-      "onBranchChange": "revert",
       "patches": [
         {
           "search": "void vscode.tasks.fetchTasks();",

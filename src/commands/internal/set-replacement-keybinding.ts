@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 import { getReplacementCommandId, getReplacementCommandPrefix } from '../../common/constants';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
-import type { Replacement } from '../../views/replacements/types';
+import type { PPReplacement } from '../../common/schemas/config-schema';
 
-async function handleKeybindingManagement(replacement: Replacement): Promise<void> {
+async function handleKeybindingManagement(replacement: PPReplacement): Promise<void> {
   if (!replacement?.name) return;
 
   const commandId = getReplacementCommandId(replacement.name);
@@ -15,7 +15,7 @@ async function openReplacementsKeybindings(): Promise<void> {
 }
 
 export function createSetReplacementKeybindingCommand(): vscode.Disposable {
-  return registerCommand(Command.SetReplacementKeybinding, async (replacement: Replacement) => {
+  return registerCommand(Command.SetReplacementKeybinding, async (replacement: PPReplacement) => {
     await handleKeybindingManagement(replacement);
   });
 }

@@ -28,7 +28,6 @@ const INIT_CONFIG_CONTENT = `{
       "type": "patch",
       "description": "Enable debug mode",
       "target": "src/index.ts",
-      "onBranchChange": "revert",
       "patches": [
         {
           "search": "const DEBUG = false;",
