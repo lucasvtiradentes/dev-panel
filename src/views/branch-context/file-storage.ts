@@ -6,6 +6,7 @@ import {
   BRANCH_CONTEXT_NA,
   BRANCH_CONTEXT_SECTION_NOTES,
   BRANCH_CONTEXT_SECTION_OBJECTIVE,
+  BRANCH_CONTEXT_SECTION_REQUIREMENTS,
   BRANCH_CONTEXT_SECTION_TODO,
 } from '../../common/constants';
 import { getBranchContextFilePath, getBranchDirectory } from '../../common/lib/config-manager';
@@ -55,6 +56,10 @@ function generateMarkdown(branchName: string, context: BranchContext): string {
     '',
     context.objective || BRANCH_CONTEXT_NA,
     '',
+    BRANCH_CONTEXT_SECTION_REQUIREMENTS,
+    '',
+    context.requirements || BRANCH_CONTEXT_NA,
+    '',
     BRANCH_CONTEXT_SECTION_NOTES,
     '',
     context.notes || BRANCH_CONTEXT_NA,
@@ -98,8 +103,9 @@ function parseBranchContext(content: string): BranchContext {
     prLink: extractField(content, BRANCH_CONTEXT_FIELD_PR_LINK.replace(':', '')),
     linearLink: extractField(content, BRANCH_CONTEXT_FIELD_LINEAR_LINK.replace(':', '')),
     objective: extractSection(content, 'OBJECTIVE'),
+    requirements: extractSection(content, 'REQUIREMENTS'),
     notes: extractSection(content, 'NOTES'),
-    todos: extractSection(content, 'TODO'),
+    todos: extractSection(content, 'TASKS'),
   };
 
   return context;

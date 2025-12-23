@@ -2,6 +2,7 @@ export type BranchContext = {
   prLink?: string;
   linearLink?: string;
   objective?: string;
+  requirements?: string;
   notes?: string;
   todos?: string;
 };

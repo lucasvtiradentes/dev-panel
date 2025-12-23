@@ -20,6 +20,7 @@ export enum BranchContextField {
   PrLink = 'prLink',
   LinearLink = 'linearLink',
   Objective = 'objective',
+  Requirements = 'requirements',
   Notes = 'notes',
 }
 
@@ -27,6 +28,11 @@ const FIELD_CONFIG: Record<BranchContextField, { label: string; icon: string; co
   [BranchContextField.PrLink]: { label: 'PR Link', icon: 'git-pull-request', command: Command.EditBranchPrLink },
   [BranchContextField.LinearLink]: { label: 'Linear Link', icon: 'link', command: Command.EditBranchLinearLink },
   [BranchContextField.Objective]: { label: 'Objective', icon: 'target', command: Command.EditBranchObjective },
+  [BranchContextField.Requirements]: {
+    label: 'Requirements',
+    icon: 'checklist',
+    command: Command.EditBranchRequirements,
+  },
   [BranchContextField.Notes]: { label: 'Notes', icon: 'note', command: Command.EditBranchNotes },
 };
 

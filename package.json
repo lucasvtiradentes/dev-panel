@@ -101,7 +101,7 @@
         },
         {
           "id": "projectPanelTodos",
-          "name": "Branch Todos"
+          "name": "Branch Tasks"
         }
       ],
       "explorer": [
@@ -394,6 +394,11 @@
         "icon": "$(go-to-file)"
       },
       {
+        "command": "projectPanel.addPrompt",
+        "title": "Add Prompt",
+        "icon": "$(add)"
+      },
+      {
         "command": "projectPanel.openBranchContextFile",
         "title": "Open Branch Context File",
         "icon": "$(go-to-file)"
@@ -565,14 +570,9 @@
           "group": "navigation@5"
         },
         {
-          "command": "projectPanel.refresh",
-          "when": "view == projectPanelTasks",
-          "group": "navigation@6"
-        },
-        {
           "command": "projectPanel.openTasksKeybindings",
           "when": "view == projectPanelTasks && taskSourcePP",
-          "group": "navigation@7"
+          "group": "navigation@6"
         },
         {
           "command": "projectPanel.toggleToolsGroupMode",
@@ -643,6 +643,11 @@
           "command": "projectPanel.togglePromptsShowHiddenActive",
           "when": "view == projectPanelPrompts && promptsHasHidden && promptsShowHidden",
           "group": "navigation@3"
+        },
+        {
+          "command": "projectPanel.addPrompt",
+          "when": "view == projectPanelPrompts",
+          "group": "navigation@4"
         },
         {
           "command": "projectPanel.openPromptsKeybindings",

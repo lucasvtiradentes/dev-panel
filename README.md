@@ -29,15 +29,9 @@
 - [ ] adicionar integracao com linear cmd e mostrar as coisas para serem feitas no projeto/branch
   - por milestone 
   - por pessoa 
-- [ ] adicionar uma pasta global onde posso colocar prompts / tools / scripts globais 
-  - ter um botao em cada script para mudar para o global talvez
 - [ ] ter um registry ou algo assim para adicionar tools nos projetos facilmente
   - prompts
   - tools
   - scripts 
-- [ ] adicionar status bar
-- [ ] nas docs devemos ter requirements
 - [ ] devemos ter um botao na branch context para ao clicar ele atualizar a lista de arquivos alterados na branch atual (tree)
-- [ ] mudar o nome de "TODOS" para "BRANCH TASKS"
-  - [ ] la no .md mudar para TASKS
   

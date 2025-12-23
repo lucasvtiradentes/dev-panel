@@ -19,6 +19,7 @@ import {
 import { createRevertAllReplacementsCommand } from './internal/revert-all-replacements';
 import { createResetConfigOptionCommand, createSelectConfigOptionCommand } from './internal/select-config-option';
 import { createToggleReplacementCommand } from './internal/toggle-replacement';
+import { createAddPromptCommand } from './public/add-prompt';
 import { createAddToolCommand } from './public/add-tool';
 import { createCopyPromptToGlobalCommand } from './public/copy-prompt-to-global';
 import { createCopyPromptToWorkspaceCommand } from './public/copy-prompt-to-workspace';
@@ -140,6 +141,7 @@ export function registerAllCommands(options: {
       promptTreeDataProvider.toggleShowOnlyFavorites(),
     ),
     createExecutePromptCommand(),
+    createAddPromptCommand(),
     createCopyPromptToGlobalCommand(),
     createCopyPromptToWorkspaceCommand(),
     createDeletePromptCommand(),
@@ -159,10 +161,13 @@ export function registerAllCommands(options: {
     registerCommand(Command.EditBranchObjective, (branchName: string, value?: string) =>
       branchContextProvider.editField(branchName, BranchContextField.Objective, value),
     ),
+    registerCommand(Command.EditBranchRequirements, (branchName: string, value?: string) =>
+      branchContextProvider.editField(branchName, BranchContextField.Requirements, value),
+    ),
     registerCommand(Command.EditBranchNotes, (branchName: string, value?: string) =>
       branchContextProvider.editField(branchName, BranchContextField.Notes, value),
     ),
-    registerCommand(Command.EditBranchTodos, () => branchContextProvider.openMarkdownFileAtLine('TODO')),
+    registerCommand(Command.EditBranchTodos, () => branchContextProvider.openMarkdownFileAtLine('TASKS')),
     registerCommand(Command.OpenBranchContextFile, () => branchContextProvider.openMarkdownFile()),
     registerCommand(Command.ToggleTodo, (lineIndex: number) => todosProvider.toggleTodo(lineIndex)),
     createShowLogsCommand(),

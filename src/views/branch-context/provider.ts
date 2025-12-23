@@ -260,6 +260,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       new BranchContextFieldItem(BranchContextField.PrLink, context.prLink, this.currentBranch),
       new BranchContextFieldItem(BranchContextField.LinearLink, context.linearLink, this.currentBranch),
       new BranchContextFieldItem(BranchContextField.Objective, context.objective, this.currentBranch),
+      new BranchContextFieldItem(BranchContextField.Requirements, context.requirements, this.currentBranch),
       new BranchContextFieldItem(BranchContextField.Notes, context.notes, this.currentBranch),
     ];
   }
@@ -269,6 +270,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       [BranchContextField.PrLink]: 'PR LINK',
       [BranchContextField.LinearLink]: 'LINEAR LINK',
       [BranchContextField.Objective]: 'OBJECTIVE',
+      [BranchContextField.Requirements]: 'REQUIREMENTS',
       [BranchContextField.Notes]: 'NOTES',
     };
 
