@@ -33,22 +33,21 @@ import { createGenerateToolsDocsCommand } from './internal/generate-tools-docs';
 import { createGoToTaskCommand } from './internal/go-to-task';
 import { createOpenTasksConfigCommand } from './internal/open-tasks-config';
 import { createRefreshCommand } from './internal/refresh';
-import { createRevertAllReplacementsCommand } from './internal/revert-all-replacements';
 import { createResetConfigOptionCommand, createSelectConfigOptionCommand } from './internal/select-config-option';
 import {
   createOpenPromptsKeybindingsCommand,
   createSetPromptKeybindingCommand,
 } from './internal/set-prompt-keybinding';
-import {
-  createOpenReplacementsKeybindingsCommand,
-  createSetReplacementKeybindingCommand,
-} from './internal/set-replacement-keybinding';
 import { createOpenTasksKeybindingsCommand, createSetTaskKeybindingCommand } from './internal/set-task-keybinding';
 import {
   createOpenVariablesKeybindingsCommand,
   createSetVariableKeybindingCommand,
 } from './internal/set-variable-keybinding';
 import { createSwitchTaskSourceCommands } from './internal/switch-task-source';
+import {
+  createToggleAllReplacementsActivateCommand,
+  createToggleAllReplacementsDeactivateCommand,
+} from './internal/toggle-all-replacements';
 import { createToggleReplacementCommand } from './internal/toggle-replacement';
 import { createShowLogsCommand } from './public/show-logs';
 
@@ -96,7 +95,8 @@ export function registerAllCommands(options: {
     registerCommand(Command.ToggleConfigsGroupMode, () => variablesProvider.toggleGroupMode()),
     registerCommand(Command.ToggleConfigsGroupModeGrouped, () => variablesProvider.toggleGroupMode()),
     createToggleReplacementCommand(),
-    createRevertAllReplacementsCommand(),
+    createToggleAllReplacementsActivateCommand(),
+    createToggleAllReplacementsDeactivateCommand(),
     registerCommand(Command.ToggleReplacementsGroupMode, () => replacementsProvider.toggleGroupMode()),
     registerCommand(Command.ToggleReplacementsGroupModeGrouped, () => replacementsProvider.toggleGroupMode()),
     registerCommand(Command.GoToReplacementTargetFile, async (item: { replacement?: PPReplacement }) => {
@@ -193,9 +193,6 @@ export function registerAllCommands(options: {
     registerCommand(Command.SyncPromptKeybindings, () => syncKeybindings()),
     createSetPromptKeybindingCommand(),
     createOpenPromptsKeybindingsCommand(),
-    registerCommand(Command.SyncReplacementKeybindings, () => syncKeybindings()),
-    createSetReplacementKeybindingCommand(),
-    createOpenReplacementsKeybindingsCommand(),
     registerCommand(Command.SyncVariableKeybindings, () => syncKeybindings()),
     createSetVariableKeybindingCommand(),
     createOpenVariablesKeybindingsCommand(),

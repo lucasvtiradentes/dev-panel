@@ -2,13 +2,12 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import json5 from 'json5';
 import * as vscode from 'vscode';
-import { CONFIG_FILE_NAME, CONTEXT_VALUES, DISPLAY_PREFIX, NO_GROUP_NAME, getCommandId } from '../../common/constants';
+import { CONFIG_FILE_NAME, CONTEXT_VALUES, NO_GROUP_NAME, getCommandId } from '../../common/constants';
 import { getConfigDirPattern, getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { PPConfig, PPReplacement } from '../../common/schemas/config-schema';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { fileExistsInGit, getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
-import { getReplacementKeybinding } from './keybindings-local';
 import {
   addActiveReplacement,
   getActiveReplacements,
@@ -58,9 +57,7 @@ class ReplacementTreeItem extends vscode.TreeItem {
   ) {
     super(replacement.name, vscode.TreeItemCollapsibleState.None);
 
-    const keybinding = getReplacementKeybinding(replacement.name);
-    const status = isActive ? 'ON' : 'OFF';
-    this.description = keybinding ? keybinding : '';
+    this.description = '';
     this.tooltip = replacement.description || replacement.name;
     this.contextValue = CONTEXT_VALUES.REPLACEMENT_ITEM;
 
@@ -96,6 +93,19 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
 
   private updateContextKeys(): void {
     void setContextKey(ContextKey.ReplacementsGrouped, this._grouped);
+    this.updateAllActiveContext();
+  }
+
+  private updateAllActiveContext(): void {
+    const config = this.loadConfig();
+    if (!config?.replacements || config.replacements.length === 0) {
+      void setContextKey(ContextKey.ReplacementsAllActive, false);
+      return;
+    }
+
+    const activeReplacements = getActiveReplacements();
+    const allActive = config.replacements.every((r) => activeReplacements.includes(r.name));
+    void setContextKey(ContextKey.ReplacementsAllActive, allActive);
   }
 
   toggleGroupMode(): void {
@@ -157,6 +167,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
 
   refresh(): void {
     this.syncReplacementState();
+    this.updateAllActiveContext();
     this._onDidChangeTreeData.fire(undefined);
   }
 
@@ -294,17 +305,22 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     removeActiveReplacement(replacement.name);
   }
 
-  async revertAllReplacements(): Promise<void> {
+  async toggleAllReplacements(): Promise<void> {
     const config = this.loadConfig();
     if (!config?.replacements) return;
 
     const activeReplacements = getActiveReplacements();
-    const replacementMap = new Map(config.replacements.map((r) => [r.name, r]));
+    const allActive = config.replacements.every((r) => activeReplacements.includes(r.name));
 
-    for (const name of [...activeReplacements]) {
-      const replacement = replacementMap.get(name);
-      if (replacement) {
+    if (allActive) {
+      for (const replacement of config.replacements) {
         await this.deactivateReplacement(replacement);
+      }
+    } else {
+      for (const replacement of config.replacements) {
+        if (!activeReplacements.includes(replacement.name)) {
+          await this.activateReplacement(replacement);
+        }
       }
     }
 
@@ -316,7 +332,6 @@ export async function toggleReplacement(replacement: PPReplacement): Promise<voi
   await providerInstance?.toggleReplacement(replacement);
 }
 
-export async function revertAllReplacements(): Promise<void> {
-  await providerInstance?.revertAllReplacements();
-  vscode.window.showInformationMessage(`${DISPLAY_PREFIX} Reverted all replacements`);
+export async function toggleAllReplacements(): Promise<void> {
+  await providerInstance?.toggleAllReplacements();
 }

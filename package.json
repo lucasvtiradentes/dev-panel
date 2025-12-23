@@ -137,9 +137,14 @@
         "title": "Toggle Replacement"
       },
       {
-        "command": "projectPanel.revertAllReplacements",
-        "title": "Revert All Replacements",
-        "icon": "$(discard)"
+        "command": "projectPanel.toggleAllReplacementsActivate",
+        "title": "Activate All Replacements",
+        "icon": "$(circle-outline)"
+      },
+      {
+        "command": "projectPanel.toggleAllReplacementsDeactivate",
+        "title": "Deactivate All Replacements",
+        "icon": "$(circle-filled)"
       },
       {
         "command": "projectPanel.toggleReplacementsGroupMode",
@@ -469,20 +474,6 @@
         "icon": "$(keyboard)"
       },
       {
-        "command": "projectPanel.syncReplacementKeybindings",
-        "title": "Project Panel: Sync Replacement Keybindings"
-      },
-      {
-        "command": "projectPanel.setReplacementKeybinding",
-        "title": "Set Keybinding",
-        "icon": "$(keyboard)"
-      },
-      {
-        "command": "projectPanel.openReplacementsKeybindings",
-        "title": "Open Replacements Keybindings",
-        "icon": "$(keyboard)"
-      },
-      {
         "command": "projectPanel.syncVariableKeybindings",
         "title": "Project Panel: Sync Variable Keybindings"
       },
@@ -540,14 +531,14 @@
           "group": "navigation@1"
         },
         {
-          "command": "projectPanel.revertAllReplacements",
-          "when": "view == projectPanelReplacements",
+          "command": "projectPanel.toggleAllReplacementsActivate",
+          "when": "view == projectPanelReplacements && !replacementsAllActive",
           "group": "navigation@2"
         },
         {
-          "command": "projectPanel.openReplacementsKeybindings",
-          "when": "view == projectPanelReplacements",
-          "group": "navigation@4"
+          "command": "projectPanel.toggleAllReplacementsDeactivate",
+          "when": "view == projectPanelReplacements && replacementsAllActive",
+          "group": "navigation@2"
         },
         {
           "command": "projectPanel.toggleGroupMode",
@@ -768,11 +759,6 @@
           "command": "projectPanel.goToReplacementTargetFile",
           "when": "view == projectPanelReplacements && viewItem == replacementItem",
           "group": "inline@1"
-        },
-        {
-          "command": "projectPanel.setReplacementKeybinding",
-          "when": "view == projectPanelReplacements && viewItem == replacementItem",
-          "group": "inline@2"
         },
         {
           "command": "projectPanel.toggleToolFavorite",

@@ -1,1 +1,1 @@
-export { ReplacementsProvider, revertAllReplacements, toggleReplacement } from './replacements-provider';
+export { ReplacementsProvider, toggleAllReplacements, toggleReplacement } from './replacements-provider';
