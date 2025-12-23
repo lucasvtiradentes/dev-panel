@@ -404,6 +404,11 @@
         "icon": "$(go-to-file)"
       },
       {
+        "command": "projectPanel.refreshChangedFiles",
+        "title": "Refresh Changed Files",
+        "icon": "$(sync)"
+      },
+      {
         "command": "projectPanel.editBranchObjective",
         "title": "Edit Branch Objective"
       },
@@ -668,6 +673,11 @@
           "command": "projectPanel.openBranchContextFile",
           "when": "view == projectPanelBranchContext",
           "group": "navigation@1"
+        },
+        {
+          "command": "projectPanel.refreshChangedFiles",
+          "when": "view == projectPanelBranchContext",
+          "group": "navigation@2"
         },
         {
           "command": "projectPanel.toggleBranchTasksShowOnlyTodo",

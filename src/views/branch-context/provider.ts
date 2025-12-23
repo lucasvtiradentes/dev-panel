@@ -93,7 +93,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     if (await isGitRepository(workspace)) {
       this.addToGitExclude(workspace);
       this.currentBranch = await getCurrentBranch(workspace);
-      this.regenerateMarkdown();
+      void this.regenerateMarkdown();
       this.refresh();
     }
   }
@@ -119,12 +119,12 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   setBranch(branchName: string): void {
     if (branchName !== this.currentBranch) {
       this.currentBranch = branchName;
-      this.regenerateMarkdown();
+      void this.regenerateMarkdown();
       this.refresh();
     }
   }
 
-  private regenerateMarkdown(): void {
+  private async regenerateMarkdown(): Promise<void> {
     if (!this.currentBranch) return;
 
     const workspace = getWorkspacePath();
@@ -134,7 +134,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     this.isWritingMarkdown = true;
     try {
       ensureBranchDirectory(workspace, this.currentBranch);
-      generateBranchContextMarkdown(this.currentBranch, context);
+      await generateBranchContextMarkdown(this.currentBranch, context);
       this.syncBranchToRoot();
     } finally {
       setTimeout(() => {
@@ -298,6 +298,25 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     await vscode.window.showTextDocument(doc, {
       selection: new vscode.Range(lineNumber, 0, lineNumber, 0),
     });
+  }
+
+  async refreshChangedFiles(): Promise<void> {
+    if (!this.currentBranch) return;
+
+    const workspace = getWorkspacePath();
+    if (!workspace) return;
+
+    const context = loadBranchContext(this.currentBranch);
+    this.isWritingMarkdown = true;
+
+    try {
+      await generateBranchContextMarkdown(this.currentBranch, { ...context, changedFiles: undefined });
+      this.syncBranchToRoot();
+    } finally {
+      setTimeout(() => {
+        this.isWritingMarkdown = false;
+      }, 100);
+    }
   }
 
   dispose(): void {

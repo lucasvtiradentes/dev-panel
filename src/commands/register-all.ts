@@ -169,6 +169,7 @@ export function registerAllCommands(options: {
     ),
     registerCommand(Command.EditBranchTodos, () => branchContextProvider.openMarkdownFileAtLine('TASKS')),
     registerCommand(Command.OpenBranchContextFile, () => branchContextProvider.openMarkdownFile()),
+    registerCommand(Command.RefreshChangedFiles, () => branchContextProvider.refreshChangedFiles()),
     registerCommand(Command.ToggleTodo, (lineIndex: number) => branchTasksProvider.toggleTodo(lineIndex)),
     registerCommand(Command.ToggleBranchTasksShowOnlyTodo, () => branchTasksProvider.toggleShowOnlyTodo()),
     registerCommand(Command.ToggleBranchTasksShowOnlyTodoActive, () => branchTasksProvider.toggleShowOnlyTodo()),

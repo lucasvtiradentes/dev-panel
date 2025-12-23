@@ -5,6 +5,7 @@ import {
   BRANCH_CONTEXT_FIELD_LINEAR_LINK,
   BRANCH_CONTEXT_FIELD_PR_LINK,
   BRANCH_CONTEXT_NA,
+  BRANCH_CONTEXT_SECTION_CHANGED_FILES,
   BRANCH_CONTEXT_SECTION_NOTES,
   BRANCH_CONTEXT_SECTION_OBJECTIVE,
   BRANCH_CONTEXT_SECTION_REQUIREMENTS,
@@ -12,12 +13,13 @@ import {
 } from '../../common/constants';
 import { getBranchContextFilePath, getBranchDirectory } from '../../common/lib/config-manager';
 import type { BranchContext } from '../../common/schemas/types';
+import { getChangedFilesTree } from './git-changed-files';
 
 function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
 }
 
-export function generateBranchContextMarkdown(branchName: string, context: BranchContext): void {
+export async function generateBranchContextMarkdown(branchName: string, context: BranchContext): Promise<void> {
   const workspace = getWorkspacePath();
   if (!workspace) return;
 
@@ -27,6 +29,8 @@ export function generateBranchContextMarkdown(branchName: string, context: Branc
   }
 
   const mdPath = getBranchContextFilePath(workspace, branchName);
+
+  const changedFilesTree = context.changedFiles || (await getChangedFilesTree(workspace));
 
   const lines: string[] = [
     `# ${branchName}`,
@@ -49,6 +53,12 @@ export function generateBranchContextMarkdown(branchName: string, context: Branc
     BRANCH_CONTEXT_SECTION_TODO,
     '',
     context.todos || BRANCH_CONTEXT_DEFAULT_TODOS,
+    '',
+    BRANCH_CONTEXT_SECTION_CHANGED_FILES,
+    '',
+    '```',
+    changedFilesTree,
+    '```',
     '',
   ];
 

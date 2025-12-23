@@ -5,6 +5,7 @@ export type BranchContext = {
   requirements?: string;
   notes?: string;
   todos?: string;
+  changedFiles?: string;
 };
 
 export enum TaskSource {
