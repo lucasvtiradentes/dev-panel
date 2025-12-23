@@ -68,6 +68,8 @@ export enum Command {
   EditBranchTodos = 'editBranchTodos',
   OpenBranchContextFile = 'openBranchContextFile',
   ToggleTodo = 'toggleTodo',
+  ToggleBranchTasksShowOnlyTodo = 'toggleBranchTasksShowOnlyTodo',
+  ToggleBranchTasksShowOnlyTodoActive = 'toggleBranchTasksShowOnlyTodoActive',
   ShowLogs = 'showLogs',
   OpenSettingsMenu = 'openSettingsMenu',
   SyncToolKeybindings = 'syncToolKeybindings',
@@ -148,6 +150,7 @@ export const ContextKey = {
   PromptsShowOnlyFavorites: 'promptsShowOnlyFavorites',
   ReplacementsGrouped: 'replacementsGrouped',
   ConfigsGrouped: 'configsGrouped',
+  BranchTasksShowOnlyTodo: 'branchTasksShowOnlyTodo',
   WorkspaceId: `${CONTEXT_PREFIX}.workspaceId`,
 } as const;
 

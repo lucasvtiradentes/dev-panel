@@ -5,10 +5,10 @@ import { syncKeybindings } from '../common/lib/keybindings-sync';
 import { Command, registerCommand } from '../common/lib/vscode-utils';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
 import { BranchContextField, type BranchContextProvider } from '../views/branch-context';
+import type { BranchTasksProvider } from '../views/branch-tasks';
 import type { PromptTreeDataProvider, TreePrompt } from '../views/prompts';
 import type { ReplacementsProvider } from '../views/replacements';
 import type { TaskTreeDataProvider } from '../views/tasks';
-import type { TodosProvider } from '../views/todos';
 import type { ToolTreeDataProvider, TreeTool } from '../views/tools';
 import type { VariablesProvider } from '../views/variables';
 import {
@@ -55,7 +55,7 @@ export function registerAllCommands(options: {
   variablesProvider: VariablesProvider;
   replacementsProvider: ReplacementsProvider;
   branchContextProvider: BranchContextProvider;
-  todosProvider: TodosProvider;
+  branchTasksProvider: BranchTasksProvider;
 }): vscode.Disposable[] {
   const {
     context,
@@ -65,7 +65,7 @@ export function registerAllCommands(options: {
     variablesProvider,
     replacementsProvider,
     branchContextProvider,
-    todosProvider,
+    branchTasksProvider,
   } = options;
   return [
     createRefreshCommand(taskTreeDataProvider),
@@ -169,7 +169,9 @@ export function registerAllCommands(options: {
     ),
     registerCommand(Command.EditBranchTodos, () => branchContextProvider.openMarkdownFileAtLine('TASKS')),
     registerCommand(Command.OpenBranchContextFile, () => branchContextProvider.openMarkdownFile()),
-    registerCommand(Command.ToggleTodo, (lineIndex: number) => todosProvider.toggleTodo(lineIndex)),
+    registerCommand(Command.ToggleTodo, (lineIndex: number) => branchTasksProvider.toggleTodo(lineIndex)),
+    registerCommand(Command.ToggleBranchTasksShowOnlyTodo, () => branchTasksProvider.toggleShowOnlyTodo()),
+    registerCommand(Command.ToggleBranchTasksShowOnlyTodoActive, () => branchTasksProvider.toggleShowOnlyTodo()),
     createShowLogsCommand(),
     registerCommand(Command.SyncPromptKeybindings, () => syncKeybindings()),
     createSetPromptKeybindingCommand(),

@@ -7,6 +7,7 @@ import {
   BRANCH_CONTEXT_NA,
   BRANCH_CONTEXT_SECTION_NOTES,
   BRANCH_CONTEXT_SECTION_OBJECTIVE,
+  BRANCH_CONTEXT_SECTION_REQUIREMENTS,
   BRANCH_CONTEXT_SECTION_TODO,
 } from '../../common/constants';
 import { getBranchContextFilePath, getBranchDirectory } from '../../common/lib/config-manager';
@@ -36,6 +37,10 @@ export function generateBranchContextMarkdown(branchName: string, context: Branc
     BRANCH_CONTEXT_SECTION_OBJECTIVE,
     '',
     context.objective || BRANCH_CONTEXT_NA,
+    '',
+    BRANCH_CONTEXT_SECTION_REQUIREMENTS,
+    '',
+    context.requirements || BRANCH_CONTEXT_NA,
     '',
     BRANCH_CONTEXT_SECTION_NOTES,
     '',

@@ -421,6 +421,16 @@
         "icon": "$(go-to-file)"
       },
       {
+        "command": "projectPanel.toggleBranchTasksShowOnlyTodo",
+        "title": "Show Only Pending Tasks",
+        "icon": "$(checklist)"
+      },
+      {
+        "command": "projectPanel.toggleBranchTasksShowOnlyTodoActive",
+        "title": "Show All Tasks",
+        "icon": "$(list-flat)"
+      },
+      {
         "command": "projectPanel.showLogs",
         "title": "Project Panel: Show Logs"
       },
@@ -660,9 +670,19 @@
           "group": "navigation@1"
         },
         {
+          "command": "projectPanel.toggleBranchTasksShowOnlyTodo",
+          "when": "view == projectPanelTodos && !branchTasksShowOnlyTodo",
+          "group": "navigation@1"
+        },
+        {
+          "command": "projectPanel.toggleBranchTasksShowOnlyTodoActive",
+          "when": "view == projectPanelTodos && branchTasksShowOnlyTodo",
+          "group": "navigation@1"
+        },
+        {
           "command": "projectPanel.editBranchTodos",
           "when": "view == projectPanelTodos",
-          "group": "navigation"
+          "group": "navigation@2"
         }
       ],
       "view/item/context": [
