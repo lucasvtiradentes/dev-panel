@@ -239,6 +239,65 @@
           "description": {
             "description": "Human-readable description shown as tooltip",
             "type": "string"
+          },
+          "inputs": {
+            "description": "Inputs to collect before running the task",
+            "type": "array",
+            "items": {
+              "description": "An input required before execution (used by prompts and tasks)",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "description": "Variable name used in template as {{name}}",
+                  "type": "string"
+                },
+                "type": {
+                  "description": "Input type",
+                  "type": "string",
+                  "enum": [
+                    "file",
+                    "folder",
+                    "text",
+                    "number",
+                    "confirm",
+                    "choice",
+                    "multichoice"
+                  ]
+                },
+                "label": {
+                  "description": "Label shown in the input dialog",
+                  "type": "string"
+                },
+                "placeholder": {
+                  "description": "Placeholder text for text/number inputs",
+                  "type": "string"
+                },
+                "options": {
+                  "description": "Available options for choice/multichoice types",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "multiSelect": {
+                  "description": "Enable multi-selection for file/folder types",
+                  "type": "boolean"
+                },
+                "excludes": {
+                  "description": "Glob patterns to exclude for this input. Overrides global excludes",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "type",
+                "label"
+              ],
+              "additionalProperties": false
+            }
           }
         },
         "required": [
@@ -302,11 +361,11 @@
             "description": "Inputs to collect before running the prompt",
             "type": "array",
             "items": {
-              "description": "An input required before running the prompt",
+              "description": "An input required before execution (used by prompts and tasks)",
               "type": "object",
               "properties": {
                 "name": {
-                  "description": "Variable name used in prompt template as {{name}}",
+                  "description": "Variable name used in template as {{name}}",
                   "type": "string"
                 },
                 "type": {

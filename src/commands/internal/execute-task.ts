@@ -9,8 +9,8 @@ const execAsync = promisify(exec);
 import { GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, VARIABLES_FILE_NAME } from '../../common/constants/scripts-constants';
 import { getPromptOutputFilePath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
+import { collectInputs, replaceInputPlaceholders } from '../../common/lib/inputs';
 import { createLogger } from '../../common/lib/logger';
-import { collectPromptInputs, replaceInputPlaceholders } from '../../common/lib/prompt-inputs';
 import { Command, isMultiRootWorkspace, registerCommand } from '../../common/lib/vscode-utils';
 import { type PPConfig, type PPPrompt, type PPSettings, PromptExecutionMode } from '../../common/schemas';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
@@ -86,15 +86,44 @@ function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscod
 export function createExecuteTaskCommand(context: vscode.ExtensionContext) {
   return registerCommand(
     Command.ExecuteTask,
-    async (task: vscode.Task, scope: vscode.TaskScope | vscode.WorkspaceFolder | undefined) => {
+    async (
+      task: vscode.Task,
+      scope: vscode.TaskScope | vscode.WorkspaceFolder | undefined,
+      taskConfig?: NonNullable<PPConfig['tasks']>[number],
+    ) => {
       let modifiedTask = task;
+
+      if (taskConfig?.inputs && taskConfig.inputs.length > 0) {
+        const folder = scope && typeof scope !== 'number' && 'uri' in scope ? (scope as vscode.WorkspaceFolder) : null;
+        const folderForSettings = folder ?? vscode.workspace.workspaceFolders?.[0];
+        const settings = folderForSettings ? readPPSettings(folderForSettings) : undefined;
+
+        const inputValues = await collectInputs(taskConfig.inputs, folder, settings);
+        if (inputValues === null) return;
+
+        const execution = task.execution;
+        if (execution instanceof vscode.ShellExecution) {
+          let commandToReplace = execution.commandLine ?? String(execution.command);
+          commandToReplace = replaceInputPlaceholders(commandToReplace, inputValues);
+
+          const newExecution = new vscode.ShellExecution(commandToReplace, execution.options);
+          modifiedTask = new vscode.Task(
+            task.definition,
+            task.scope ?? vscode.TaskScope.Workspace,
+            task.name,
+            task.source,
+            newExecution,
+            task.problemMatchers,
+          );
+        }
+      }
 
       if (scope && typeof scope !== 'number' && 'uri' in scope) {
         const folder = scope as vscode.WorkspaceFolder;
         const env = readPPVariablesAsEnv(folder.uri.fsPath);
 
         if (Object.keys(env).length > 0) {
-          modifiedTask = cloneTaskWithEnv(task, env);
+          modifiedTask = cloneTaskWithEnv(modifiedTask, env);
         }
       }
 
@@ -222,7 +251,7 @@ export function createExecutePromptCommand() {
 
       if (promptConfig?.inputs && promptConfig.inputs.length > 0) {
         log.info(`inputs from promptConfig: ${JSON.stringify(promptConfig.inputs)}`);
-        const inputValues = await collectPromptInputs(promptConfig.inputs, folder, settings);
+        const inputValues = await collectInputs(promptConfig.inputs, folder, settings);
         if (inputValues === null) return;
         promptContent = replaceInputPlaceholders(promptContent, inputValues);
       }

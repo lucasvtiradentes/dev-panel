@@ -99,6 +99,7 @@
       "group": "Debug"
     }
   ],
+  "tools": [],
   "tasks": [
     {
       "name": "list-files",
@@ -111,13 +112,13 @@
       "group": "Utils"
     }
   ],
-  "tools": [],
   "prompts": [
     {
       "name": "Review Constants",
       "file": "prompts/review-constants.md",
       "description": "Review constants and suggest centralizing hardcoded values",
       "group": "Analysis",
+      "inputs": [],
       "saveOutput": true
     }
   ]

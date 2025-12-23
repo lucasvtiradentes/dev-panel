@@ -27,12 +27,28 @@ export enum PromptExecutionMode {
   Overwrite = 'overwrite',
 }
 
+const PPInputSchema = z
+  .object({
+    name: z.string().describe('Variable name used in template as {{name}}'),
+    type: z.nativeEnum(PromptInputType).describe('Input type'),
+    label: z.string().describe('Label shown in the input dialog'),
+    placeholder: z.string().optional().describe('Placeholder text for text/number inputs'),
+    options: z.array(z.string()).optional().describe('Available options for choice/multichoice types'),
+    multiSelect: z.boolean().optional().describe('Enable multi-selection for file/folder types'),
+    excludes: z
+      .array(z.string())
+      .optional()
+      .describe('Glob patterns to exclude for this input. Overrides global excludes'),
+  })
+  .describe('An input required before execution (used by prompts and tasks)');
+
 const PPTaskSchema = z
   .object({
     name: z.string().describe('Unique identifier for the task'),
     command: z.string().describe('Shell command to execute'),
     group: z.string().optional().describe('Group name for organizing tasks'),
     description: z.string().optional().describe('Human-readable description shown as tooltip'),
+    inputs: z.array(PPInputSchema).optional().describe('Inputs to collect before running the task'),
   })
   .describe('A task that can be executed from the Tasks view');
 
@@ -44,28 +60,13 @@ const PPToolSchema = z
   })
   .describe('A tool that can be executed from the Tools view');
 
-const PPPromptInputSchema = z
-  .object({
-    name: z.string().describe('Variable name used in prompt template as {{name}}'),
-    type: z.nativeEnum(PromptInputType).describe('Input type'),
-    label: z.string().describe('Label shown in the input dialog'),
-    placeholder: z.string().optional().describe('Placeholder text for text/number inputs'),
-    options: z.array(z.string()).optional().describe('Available options for choice/multichoice types'),
-    multiSelect: z.boolean().optional().describe('Enable multi-selection for file/folder types'),
-    excludes: z
-      .array(z.string())
-      .optional()
-      .describe('Glob patterns to exclude for this input. Overrides global excludes'),
-  })
-  .describe('An input required before running the prompt');
-
 const PPPromptSchema = z
   .object({
     name: z.string().describe('Unique identifier for the prompt'),
     file: z.string().describe(`Path to prompt file relative to ${CONFIG_DIR_NAME}/${PROMPTS_DIR_NAME}/`),
     group: z.string().optional().describe('Group name for organizing prompts'),
     description: z.string().optional().describe('Human-readable description shown as tooltip'),
-    inputs: z.array(PPPromptInputSchema).optional().describe('Inputs to collect before running the prompt'),
+    inputs: z.array(PPInputSchema).optional().describe('Inputs to collect before running the prompt'),
     saveOutput: z
       .boolean()
       .optional()
@@ -155,7 +156,8 @@ export const PPConfigSchema = z
   })
   .describe(`${EXTENSION_DISPLAY_NAME} configuration file`);
 
-export type PPPromptInput = z.infer<typeof PPPromptInputSchema>;
+export type PPInput = z.infer<typeof PPInputSchema>;
+export type PPPromptInput = PPInput;
 export type PPPrompt = z.infer<typeof PPPromptSchema>;
 export type PPSettings = z.infer<typeof PPSettingsSchema>;
 export type PPConfig = z.infer<typeof PPConfigSchema>;

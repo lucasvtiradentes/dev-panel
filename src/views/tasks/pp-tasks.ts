@@ -153,7 +153,7 @@ function createPPTask(
     {
       command: getCommandId(Command.ExecuteTask),
       title: 'Execute',
-      arguments: [vsTask, folder],
+      arguments: [vsTask, folder, task],
     },
     folder,
   );
@@ -210,7 +210,7 @@ function createGlobalTask(
     {
       command: getCommandId(Command.ExecuteTask),
       title: 'Execute',
-      arguments: [vsTask, null],
+      arguments: [vsTask, null, task],
     },
   );
 

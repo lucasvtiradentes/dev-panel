@@ -1,19 +1,19 @@
 import * as vscode from 'vscode';
 import { DEFAULT_EXCLUDES } from '../constants';
-import { type PPPromptInput, type PPSettings, PromptInputType } from '../schemas';
+import { type PPInput, type PPSettings, PromptInputType } from '../schemas';
 import { type FileSelectionOptions, selectFiles, selectFolders } from './file-selection';
 import { createLogger } from './logger';
 
-const log = createLogger('prompt-inputs');
+const log = createLogger('inputs');
 
-type PromptInputValues = Record<string, string>;
+type InputValues = Record<string, string>;
 
-export async function collectPromptInputs(
-  inputs: PPPromptInput[],
+export async function collectInputs(
+  inputs: PPInput[],
   workspaceFolder: vscode.WorkspaceFolder | null,
   settings?: PPSettings,
-): Promise<PromptInputValues | null> {
-  const values: PromptInputValues = {};
+): Promise<InputValues | null> {
+  const values: InputValues = {};
 
   for (const input of inputs) {
     const value = await collectSingleInput(input, workspaceFolder, settings);
@@ -25,7 +25,7 @@ export async function collectPromptInputs(
 }
 
 async function collectSingleInput(
-  input: PPPromptInput,
+  input: PPInput,
   workspaceFolder: vscode.WorkspaceFolder | null,
   settings?: PPSettings,
 ): Promise<string | undefined> {
@@ -49,7 +49,7 @@ async function collectSingleInput(
   }
 }
 
-function getExcludePatterns(input: PPPromptInput, settings: PPSettings | undefined): string[] {
+function getExcludePatterns(input: PPInput, settings: PPSettings | undefined): string[] {
   const defaultExcludes = [...DEFAULT_EXCLUDES];
 
   if (input.excludes && input.excludes.length > 0) {
@@ -68,7 +68,7 @@ function getExcludePatterns(input: PPPromptInput, settings: PPSettings | undefin
 }
 
 async function collectFileInput(
-  input: PPPromptInput,
+  input: PPInput,
   workspaceFolder: vscode.WorkspaceFolder | null,
   multiple: boolean,
   settings?: PPSettings,
@@ -95,7 +95,7 @@ async function collectFileInput(
 }
 
 async function collectFolderInput(
-  input: PPPromptInput,
+  input: PPInput,
   workspaceFolder: vscode.WorkspaceFolder | null,
   multiple: boolean,
   settings?: PPSettings,
@@ -117,7 +117,7 @@ async function collectFolderInput(
   return selectFolders(folder, options);
 }
 
-async function collectTextInput(input: PPPromptInput): Promise<string | undefined> {
+async function collectTextInput(input: PPInput): Promise<string | undefined> {
   return vscode.window.showInputBox({
     prompt: input.label,
     placeHolder: input.placeholder,
@@ -125,7 +125,7 @@ async function collectTextInput(input: PPPromptInput): Promise<string | undefine
   });
 }
 
-async function collectNumberInput(input: PPPromptInput): Promise<string | undefined> {
+async function collectNumberInput(input: PPInput): Promise<string | undefined> {
   return vscode.window.showInputBox({
     prompt: input.label,
     placeHolder: input.placeholder,
@@ -139,7 +139,7 @@ async function collectNumberInput(input: PPPromptInput): Promise<string | undefi
   });
 }
 
-async function collectConfirmInput(input: PPPromptInput): Promise<string | undefined> {
+async function collectConfirmInput(input: PPInput): Promise<string | undefined> {
   const result = await vscode.window.showQuickPick(['Yes', 'No'], {
     placeHolder: input.label,
     ignoreFocusOut: true,
@@ -148,7 +148,7 @@ async function collectConfirmInput(input: PPPromptInput): Promise<string | undef
   return result === 'Yes' ? 'true' : 'false';
 }
 
-async function collectChoiceInput(input: PPPromptInput, multiple: boolean): Promise<string | undefined> {
+async function collectChoiceInput(input: PPInput, multiple: boolean): Promise<string | undefined> {
   if (!input.options || input.options.length === 0) return undefined;
 
   if (multiple) {
@@ -168,7 +168,7 @@ async function collectChoiceInput(input: PPPromptInput, multiple: boolean): Prom
   });
 }
 
-export function replaceInputPlaceholders(content: string, values: PromptInputValues): string {
+export function replaceInputPlaceholders(content: string, values: InputValues): string {
   let result = content;
   for (const [name, value] of Object.entries(values)) {
     result = result.replace(new RegExp(`\\{\\{${name}\\}\\}`, 'g'), value);
