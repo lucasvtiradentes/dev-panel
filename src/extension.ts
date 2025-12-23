@@ -186,6 +186,7 @@ export function activate(context: vscode.ExtensionContext): object {
   const branchContextProvider = new BranchContextProvider();
   const branchTasksProvider = new BranchTasksProvider();
 
+  void branchContextProvider.initialize();
   void vscode.tasks.fetchTasks();
 
   const tasksTreeView = vscode.window.createTreeView(getViewIdTasks(), {
@@ -246,7 +247,7 @@ export function activate(context: vscode.ExtensionContext): object {
 
   const branchWatcher = createBranchWatcher((newBranch) => {
     logger.info(`Branch changed to: ${newBranch}`);
-    void branchContextProvider.setBranch(newBranch);
+    branchContextProvider.setBranch(newBranch);
     branchTasksProvider.setBranch(newBranch);
     void replacementsProvider.handleBranchChange(newBranch);
     void branchContextProvider.refreshChangedFiles();

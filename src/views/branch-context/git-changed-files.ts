@@ -1,10 +1,14 @@
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
 import { BASE_BRANCH, ChangedFilesStyle } from '../../common/constants';
+import { createLogger } from '../../common/lib/logger';
 
 const execAsync = promisify(exec);
+const logger = createLogger('GitChangedFiles');
 
 export async function getChangedFilesTree(workspacePath: string, style: ChangedFilesStyle): Promise<string> {
+  logger.info(`[getChangedFilesTree] Called with workspace: ${workspacePath}, style: ${style}`);
+
   if (style === ChangedFilesStyle.Tree) {
     return getChangedFilesTreeFormat(workspacePath);
   }
@@ -47,12 +51,16 @@ async function getChangedFilesTreeFormat(workspacePath: string): Promise<string>
 }
 
 async function getChangedFilesListFormat(workspacePath: string): Promise<string> {
+  logger.info(`[getChangedFilesListFormat] Starting git commands for workspace: ${workspacePath}`);
+
   try {
     const commands = [
       { status: `git diff ${BASE_BRANCH}...HEAD --name-status`, num: `git diff ${BASE_BRANCH}...HEAD --numstat` },
       { status: 'git diff --cached --name-status', num: 'git diff --cached --numstat' },
       { status: 'git diff --name-status', num: 'git diff --numstat' },
     ];
+
+    logger.info(`[getChangedFilesListFormat] Executing ${commands.length} git command pairs`);
 
     const results = await Promise.all(
       commands.map(async ({ status, num }) => {
@@ -63,6 +71,8 @@ async function getChangedFilesListFormat(workspacePath: string): Promise<string>
         return { status: statusRes.stdout, num: numRes.stdout };
       }),
     );
+
+    logger.info('[getChangedFilesListFormat] Git commands completed successfully');
 
     const statusMap = new Map<string, string>();
     const statsMap = new Map<string, { added: string; deleted: string }>();
@@ -90,10 +100,12 @@ async function getChangedFilesListFormat(workspacePath: string): Promise<string>
     });
 
     if (statusMap.size === 0) {
+      logger.info('[getChangedFilesListFormat] No changes detected');
       return 'No changes';
     }
 
     const sortedFiles = Array.from(statusMap.keys()).sort();
+    logger.info(`[getChangedFilesListFormat] Found ${sortedFiles.length} changed files`);
 
     const maxFileLength = Math.max(...sortedFiles.map((f) => f.length));
 
@@ -108,7 +120,8 @@ async function getChangedFilesListFormat(workspacePath: string): Promise<string>
     }
 
     return lines.join('\n');
-  } catch {
+  } catch (error) {
+    logger.error(`[getChangedFilesListFormat] Error executing git commands: ${error}`);
     return 'Not a git repository';
   }
 }
