@@ -173,6 +173,8 @@ export function registerAllCommands(options: {
     registerCommand(Command.ToggleTodo, (lineIndex: number) => branchTasksProvider.toggleTodo(lineIndex)),
     registerCommand(Command.ToggleBranchTasksShowOnlyTodo, () => branchTasksProvider.toggleShowOnlyTodo()),
     registerCommand(Command.ToggleBranchTasksShowOnlyTodoActive, () => branchTasksProvider.toggleShowOnlyTodo()),
+    registerCommand(Command.ToggleBranchTasksGroupMode, () => branchTasksProvider.toggleGroupMode()),
+    registerCommand(Command.ToggleBranchTasksGroupModeGrouped, () => branchTasksProvider.toggleGroupMode()),
     createShowLogsCommand(),
     registerCommand(Command.SyncPromptKeybindings, () => syncKeybindings()),
     createSetPromptKeybindingCommand(),

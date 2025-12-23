@@ -428,12 +428,22 @@
       {
         "command": "projectPanel.toggleBranchTasksShowOnlyTodo",
         "title": "Show Only Pending Tasks",
-        "icon": "$(checklist)"
+        "icon": "$(filter)"
       },
       {
         "command": "projectPanel.toggleBranchTasksShowOnlyTodoActive",
         "title": "Show All Tasks",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "projectPanel.toggleBranchTasksGroupMode",
+        "title": "Toggle Branch Tasks Group Mode",
         "icon": "$(list-flat)"
+      },
+      {
+        "command": "projectPanel.toggleBranchTasksGroupModeGrouped",
+        "title": "Toggle Branch Tasks Group Mode",
+        "icon": "$(list-tree)"
       },
       {
         "command": "projectPanel.showLogs",
@@ -680,19 +690,29 @@
           "group": "navigation@2"
         },
         {
+          "command": "projectPanel.toggleBranchTasksGroupMode",
+          "when": "view == projectPanelTodos && !branchTasksGrouped",
+          "group": "navigation@1"
+        },
+        {
+          "command": "projectPanel.toggleBranchTasksGroupModeGrouped",
+          "when": "view == projectPanelTodos && branchTasksGrouped",
+          "group": "navigation@1"
+        },
+        {
           "command": "projectPanel.toggleBranchTasksShowOnlyTodo",
           "when": "view == projectPanelTodos && !branchTasksShowOnlyTodo",
-          "group": "navigation@1"
+          "group": "navigation@2"
         },
         {
           "command": "projectPanel.toggleBranchTasksShowOnlyTodoActive",
           "when": "view == projectPanelTodos && branchTasksShowOnlyTodo",
-          "group": "navigation@1"
+          "group": "navigation@2"
         },
         {
           "command": "projectPanel.editBranchTodos",
           "when": "view == projectPanelTodos",
-          "group": "navigation@2"
+          "group": "navigation@3"
         }
       ],
       "view/item/context": [

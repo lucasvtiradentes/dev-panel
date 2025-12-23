@@ -33,5 +33,5 @@
   - prompts
   - tools
   - scripts 
-- [ ] devemos ter um botao na branch context para ao clicar ele atualizar a lista de arquivos alterados na branch atual (tree)
+- [ ] remover limitacao do chose files and folders
   

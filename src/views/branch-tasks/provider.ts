@@ -119,6 +119,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
   private currentBranch = '';
   private cachedNodes: BranchTaskNode[] = [];
   private showOnlyTodo = false;
+  private grouped = true;
 
   constructor() {
     this.setupMarkdownWatcher();
@@ -127,6 +128,12 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
   toggleShowOnlyTodo(): void {
     this.showOnlyTodo = !this.showOnlyTodo;
     void setContextKey(ContextKey.BranchTasksShowOnlyTodo, this.showOnlyTodo);
+    this.refresh();
+  }
+
+  toggleGroupMode(): void {
+    this.grouped = !this.grouped;
+    void setContextKey(ContextKey.BranchTasksGrouped, this.grouped);
     this.refresh();
   }
 
@@ -154,6 +161,24 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
         return null;
       })
       .filter((node): node is BranchTaskNode => node !== null);
+  }
+
+  private flattenNodes(nodes: BranchTaskNode[]): BranchTaskNode[] {
+    const result: BranchTaskNode[] = [];
+
+    for (const node of nodes) {
+      if (node.isHeading) {
+        result.push(...this.flattenNodes(node.children));
+      } else {
+        if (node.children.length > 0) {
+          result.push(...this.flattenNodes(node.children));
+        } else {
+          result.push({ ...node, children: [] });
+        }
+      }
+    }
+
+    return result;
   }
 
   private setupMarkdownWatcher(): void {
@@ -219,9 +244,13 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
       return [];
     }
 
-    const filteredNodes = this.filterTodoNodes(this.cachedNodes);
+    let processedNodes = this.filterTodoNodes(this.cachedNodes);
 
-    if (filteredNodes.length === 0) {
+    if (!this.grouped) {
+      processedNodes = this.flattenNodes(processedNodes);
+    }
+
+    if (processedNodes.length === 0) {
       const message = this.showOnlyTodo ? 'No pending tasks' : 'Click to add tasks';
       const openFileItem = new vscode.TreeItem(message);
       openFileItem.command = {
@@ -231,7 +260,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
       return [openFileItem as unknown as BranchTaskItem];
     }
 
-    return filteredNodes.map((node) => new BranchTaskItem(node, node.children.length > 0));
+    return processedNodes.map((node) => new BranchTaskItem(node, node.children.length > 0));
   }
 
   toggleTodo(lineIndex: number): void {

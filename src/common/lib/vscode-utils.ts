@@ -71,6 +71,8 @@ export enum Command {
   ToggleTodo = 'toggleTodo',
   ToggleBranchTasksShowOnlyTodo = 'toggleBranchTasksShowOnlyTodo',
   ToggleBranchTasksShowOnlyTodoActive = 'toggleBranchTasksShowOnlyTodoActive',
+  ToggleBranchTasksGroupMode = 'toggleBranchTasksGroupMode',
+  ToggleBranchTasksGroupModeGrouped = 'toggleBranchTasksGroupModeGrouped',
   ShowLogs = 'showLogs',
   OpenSettingsMenu = 'openSettingsMenu',
   SyncToolKeybindings = 'syncToolKeybindings',
@@ -152,6 +154,7 @@ export const ContextKey = {
   ReplacementsGrouped: 'replacementsGrouped',
   ConfigsGrouped: 'configsGrouped',
   BranchTasksShowOnlyTodo: 'branchTasksShowOnlyTodo',
+  BranchTasksGrouped: 'branchTasksGrouped',
   WorkspaceId: `${CONTEXT_PREFIX}.workspaceId`,
 } as const;
 
