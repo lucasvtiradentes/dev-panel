@@ -414,8 +414,8 @@
         "icon": "$(go-to-file)"
       },
       {
-        "command": "projectPanel.refreshChangedFiles",
-        "title": "Refresh Changed Files",
+        "command": "projectPanel.syncBranchContext",
+        "title": "Sync Branch Context",
         "icon": "$(sync)"
       },
       {
@@ -691,7 +691,7 @@
           "group": "navigation@1"
         },
         {
-          "command": "projectPanel.refreshChangedFiles",
+          "command": "projectPanel.syncBranchContext",
           "when": "view == projectPanelBranchContext",
           "group": "navigation@2"
         },

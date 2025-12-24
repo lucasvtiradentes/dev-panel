@@ -11,6 +11,7 @@ import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { BranchContextField, BranchContextFieldItem } from './items';
 import { generateBranchContextMarkdown } from './markdown-generator';
 import { getBranchContextFilePath, getFieldLineNumber } from './markdown-parser';
+import { type SyncContext, createChangedFilesProvider } from './providers';
 import { loadBranchContext } from './state';
 
 const logger = createLogger('BranchContext');
@@ -285,28 +286,43 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     });
   }
 
-  async refreshChangedFiles(): Promise<void> {
-    logger.info(`[refreshChangedFiles] Called for branch: ${this.currentBranch}`);
+  async syncBranchContext(): Promise<void> {
+    logger.info(`[syncBranchContext] Called for branch: ${this.currentBranch}`);
 
     if (!this.currentBranch) {
-      logger.warn('[refreshChangedFiles] No current branch, skipping');
+      logger.warn('[syncBranchContext] No current branch, skipping');
       return;
     }
 
     const workspace = getWorkspacePath();
     if (!workspace) {
-      logger.warn('[refreshChangedFiles] No workspace, skipping');
+      logger.warn('[syncBranchContext] No workspace, skipping');
       return;
     }
 
-    logger.info(`[refreshChangedFiles] Loading context for branch: ${this.currentBranch}`);
+    logger.info(`[syncBranchContext] Loading context for branch: ${this.currentBranch}`);
     const context = loadBranchContext(this.currentBranch);
     this.isWritingMarkdown = true;
 
     try {
-      logger.info('[refreshChangedFiles] Generating markdown with fresh git data');
-      await generateBranchContextMarkdown(this.currentBranch, { ...context, changedFiles: undefined });
-      logger.info('[refreshChangedFiles] Syncing branch to root');
+      logger.info('[syncBranchContext] Syncing auto sections with fresh data');
+
+      const changedFilesProvider = createChangedFilesProvider(true);
+      const syncContext: SyncContext = {
+        branchName: this.currentBranch,
+        workspacePath: workspace,
+        markdownPath: getBranchContextFilePathUtil(workspace, this.currentBranch),
+        branchContext: context,
+      };
+
+      const changedFiles = await changedFilesProvider.fetch(syncContext);
+
+      await generateBranchContextMarkdown(this.currentBranch, {
+        ...context,
+        changedFiles,
+      });
+
+      logger.info('[syncBranchContext] Syncing branch to root');
       this.syncBranchToRoot();
     } finally {
       setTimeout(() => {
