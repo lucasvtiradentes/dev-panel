@@ -24,6 +24,14 @@ export enum AIProvider {
   CursorAgent = 'cursor-agent',
 }
 
+export function getAIProvidersList(): string[] {
+  return Object.values(AIProvider);
+}
+
+export function getAIProvidersListFormatted(): string {
+  return getAIProvidersList().join(', ');
+}
+
 export enum PromptExecutionMode {
   Overwrite = 'overwrite',
 }

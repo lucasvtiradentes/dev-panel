@@ -12,7 +12,13 @@ import { getPromptOutputFilePath, getWorkspaceConfigFilePath } from '../../commo
 import { collectInputs, replaceInputPlaceholders } from '../../common/lib/inputs';
 import { createLogger } from '../../common/lib/logger';
 import { Command, isMultiRootWorkspace, registerCommand } from '../../common/lib/vscode-utils';
-import { type PPConfig, type PPPrompt, type PPSettings, PromptExecutionMode } from '../../common/schemas';
+import {
+  type PPConfig,
+  type PPPrompt,
+  type PPSettings,
+  PromptExecutionMode,
+  getAIProvidersListFormatted,
+} from '../../common/schemas';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';
 
@@ -279,7 +285,7 @@ export function createExecutePromptCommand() {
       const provider = getProvider(settings?.aiProvider);
       if (!provider) {
         void vscode.window.showErrorMessage(
-          `AI provider not configured. Set "settings.aiProvider" in ${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME} (claude, gemini, or cursor-agent)`,
+          `AI provider not configured. Set "settings.aiProvider" in ${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME} (${getAIProvidersListFormatted()})`,
         );
         return;
       }

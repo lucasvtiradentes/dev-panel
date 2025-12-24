@@ -101,3 +101,6 @@ export function getGlobalToolsDir(): string {
 export function getGlobalPromptsDir(): string {
   return path.join(getGlobalConfigDir(), PROMPTS_DIR_NAME);
 }
+
+export const AI_SPEC_PROJECT_TOOLS_REGEX = /<project_tools>[\s\S]*?<\/project_tools>/;
+export const AI_SPEC_AVAILABLE_TOOLS_REGEX = /<available_tools>[\s\S]*?<\/available_tools>/;
