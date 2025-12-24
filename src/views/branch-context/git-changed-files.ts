@@ -273,7 +273,11 @@ async function getChangedFilesListFormatWithSummary(workspacePath: string): Prom
     });
 
     if (statusMap.size === 0) {
-      return { content: BRANCH_CONTEXT_NO_CHANGES, summary: BRANCH_CONTEXT_NO_CHANGES };
+      return {
+        content: BRANCH_CONTEXT_NO_CHANGES,
+        summary: BRANCH_CONTEXT_NO_CHANGES,
+        sectionMetadata: { filesCount: 0, added: 0, modified: 0, deleted: 0, isEmpty: true, description: 'No changes' },
+      };
     }
 
     const summary = computeSummaryFromStatusMap(statusMap);

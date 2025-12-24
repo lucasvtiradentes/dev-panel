@@ -50,7 +50,6 @@
 - [ ] remover atalhos individuais dos tree items
 - [ ] ajustar o linear-plugin para ter o fetch project tambem caso o link seja de projeto
 - [ ] adicionar um plugin para gerir tarefas no lineear 
-- [ ] ajustar o "Change files" para ocultar no "no changes" 
 - [ ] corrigir o extension para nao auto-criar as coisas, fazer isso so se o cara rodar o init 
 - [ ] corrigir o init para criar o branch-context-template
 
