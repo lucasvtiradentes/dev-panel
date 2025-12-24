@@ -124,7 +124,7 @@ export class SectionRegistry {
         this.register({
           name: SECTION_NAME_CHANGED_FILES,
           label: SECTION_LABEL_CHANGED_FILES,
-          type: 'field',
+          type: 'auto',
           icon: 'diff',
           isBuiltin: true,
         });
