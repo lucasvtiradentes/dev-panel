@@ -5,6 +5,7 @@ export type SyncContext = {
   workspacePath: string;
   markdownPath: string;
   branchContext: BranchContext;
+  sectionOptions?: Record<string, unknown>;
 };
 
 export type TaskNode = {

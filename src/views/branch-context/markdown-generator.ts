@@ -54,6 +54,16 @@ export async function generateBranchContextMarkdown(branchName: string, context:
     CHANGED_FILES: changedFilesTree,
   };
 
+  for (const [key, value] of Object.entries(context)) {
+    if (typeof value === 'string' && !(key in replacements)) {
+      const placeholderKey = key.toUpperCase().replace(/\s+/g, '_');
+      replacements[placeholderKey] = value;
+      logger.info(`[generateBranchContextMarkdown] Added custom replacement: ${placeholderKey}`);
+    }
+  }
+
+  logger.info(`[generateBranchContextMarkdown] All replacements: ${Object.keys(replacements).join(', ')}`);
+
   let output = template;
   for (const [placeholder, value] of Object.entries(replacements)) {
     const regex = new RegExp(`\\{\\{${placeholder}\\}\\}`, 'g');

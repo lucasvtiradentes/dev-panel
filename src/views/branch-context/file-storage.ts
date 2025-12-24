@@ -124,6 +124,23 @@ function extractCodeBlockSection(content: string, sectionName: string): string |
   return codeContent;
 }
 
+function extractAllCodeBlockSections(content: string): Record<string, string> {
+  const sections: Record<string, string> = {};
+  const sectionRegex = /^#\s+([A-Z][A-Z\s]+)\s*\n+```\s*\n([\s\S]*?)\n```/gm;
+
+  const matches = content.matchAll(sectionRegex);
+  for (const match of matches) {
+    const sectionName = match[1].trim();
+    const sectionContent = match[2].trim();
+
+    if (sectionContent && sectionContent !== 'No changes') {
+      sections[sectionName] = sectionContent;
+    }
+  }
+
+  return sections;
+}
+
 function parseBranchContext(content: string): BranchContext {
   const context: BranchContext = {
     branchName: extractField(content, BRANCH_CONTEXT_FIELD_BRANCH.replace(':', '')),
@@ -135,6 +152,16 @@ function parseBranchContext(content: string): BranchContext {
     todos: extractSection(content, 'TASKS'),
     changedFiles: extractCodeBlockSection(content, 'CHANGED FILES'),
   };
+
+  const codeBlockSections = extractAllCodeBlockSections(content);
+  logger.info(`[parseBranchContext] Found code block sections: ${Object.keys(codeBlockSections).join(', ')}`);
+
+  for (const [name, value] of Object.entries(codeBlockSections)) {
+    if (name !== 'CHANGED FILES') {
+      logger.info(`[parseBranchContext] Adding custom section: ${name}`);
+      (context as Record<string, unknown>)[name] = value;
+    }
+  }
 
   return context;
 }

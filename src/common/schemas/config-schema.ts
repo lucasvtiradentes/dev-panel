@@ -237,6 +237,10 @@ const BranchContextSectionSchema = z.object({
     .describe('Section type: field = inline value, text = multi-line, auto = auto-populated'),
   provider: z.string().optional().describe('Provider path for auto sections (e.g., "./plugins/github-pr.js")'),
   icon: z.string().optional().describe('VSCode icon name (optional, defaults to symbol-field)'),
+  options: z
+    .record(z.string(), z.any())
+    .optional()
+    .describe('Custom options passed to the provider (e.g., { includeReviewComments: true })'),
 });
 
 const BranchContextConfigSchema = z.object({

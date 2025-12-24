@@ -1,12 +1,17 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { getConfigDirPathFromWorkspacePath } from '../../../common/lib/config-manager';
+import { createLogger } from '../../../common/lib/logger';
 import type { AutoSectionProvider, TaskSyncProvider } from './interfaces';
+
+const logger = createLogger('PluginLoader');
 
 export function loadAutoProvider(workspace: string, providerPath: string): AutoSectionProvider {
   const resolvedPath = resolveProviderPath(workspace, providerPath);
+  logger.info(`[loadAutoProvider] Loading provider from: ${resolvedPath}`);
 
   if (!fs.existsSync(resolvedPath)) {
+    logger.error(`[loadAutoProvider] Provider not found: ${resolvedPath}`);
     throw new Error(`Provider not found: ${resolvedPath}`);
   }
 
@@ -18,9 +23,11 @@ export function loadAutoProvider(workspace: string, providerPath: string): AutoS
     const exported = provider.default ?? provider;
 
     validateAutoProvider(exported);
+    logger.info(`[loadAutoProvider] Successfully loaded provider from: ${providerPath}`);
 
     return exported as AutoSectionProvider;
   } catch (error) {
+    logger.error(`[loadAutoProvider] Failed to load provider: ${error}`);
     throw new Error(`Failed to load provider from ${providerPath}: ${error}`);
   }
 }

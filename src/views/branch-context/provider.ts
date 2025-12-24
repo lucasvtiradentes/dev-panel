@@ -378,20 +378,36 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
       const customAutoData: Record<string, string> = {};
       if (config?.branchContext?.sections) {
+        logger.info(`[syncBranchContext] Found ${config.branchContext.sections.length} custom sections in config`);
         const registry = new SectionRegistry(workspace, config.branchContext);
-        for (const section of registry.getAutoSections()) {
+        const autoSections = registry.getAutoSections();
+        logger.info(`[syncBranchContext] Found ${autoSections.length} auto sections to fetch`);
+
+        for (const section of autoSections) {
           if (section.provider) {
             logger.info(`[syncBranchContext] Fetching auto section: ${section.name}`);
             try {
-              const data = await section.provider.fetch(syncContext);
+              const sectionContext: SyncContext = {
+                ...syncContext,
+                sectionOptions: section.options,
+              };
+              const data = await section.provider.fetch(sectionContext);
+              logger.info(`[syncBranchContext] Got data for ${section.name}: ${data.substring(0, 100)}...`);
               customAutoData[section.name] = data;
             } catch (error) {
               logger.error(`[syncBranchContext] Failed to fetch ${section.name}: ${error}`);
               customAutoData[section.name] = `Error: ${error}`;
             }
+          } else {
+            logger.warn(`[syncBranchContext] Auto section ${section.name} has no provider`);
           }
         }
+      } else {
+        logger.info('[syncBranchContext] No custom sections configured');
       }
+
+      logger.info(`[syncBranchContext] customAutoData keys: ${Object.keys(customAutoData).join(', ')}`);
+      logger.info('[syncBranchContext] Calling generateBranchContextMarkdown with customAutoData');
 
       await generateBranchContextMarkdown(this.currentBranch, {
         ...context,

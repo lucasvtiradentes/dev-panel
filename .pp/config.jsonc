@@ -22,7 +22,11 @@
         "name": "GITHUB PR COMMENTS",
         "type": "auto",
         "provider": "./plugins/github-pr-comments.js",
-        "icon": "github"
+        "icon": "github",
+        "options": {
+          "includeRegularComments": false,
+          "includeReviewComments": true
+        }
       },
       {
         "name": "LINEAR ISSUE",

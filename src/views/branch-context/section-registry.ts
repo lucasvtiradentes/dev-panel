@@ -7,9 +7,12 @@ import {
   BRANCH_CONTEXT_SECTION_OBJECTIVE,
   BRANCH_CONTEXT_SECTION_REQUIREMENTS,
 } from '../../common/constants';
+import { createLogger } from '../../common/lib/logger';
 import type { BranchContextConfig } from '../../common/schemas/config-schema';
 import type { AutoSectionProvider } from './providers/interfaces';
 import { loadAutoProvider } from './providers/plugin-loader';
+
+const logger = createLogger('SectionRegistry');
 
 export type SectionType = 'field' | 'text' | 'auto' | 'special';
 
@@ -19,6 +22,7 @@ export type SectionDefinition = {
   icon: string;
   isBuiltin: boolean;
   provider?: AutoSectionProvider;
+  options?: Record<string, unknown>;
 };
 
 export class SectionRegistry {
@@ -74,11 +78,22 @@ export class SectionRegistry {
   }
 
   private registerCustom(workspace: string, config: BranchContextConfig): void {
-    if (!config.sections) return;
+    if (!config.sections) {
+      logger.info('[registerCustom] No custom sections in config');
+      return;
+    }
+
+    logger.info(`[registerCustom] Registering ${config.sections.length} custom sections`);
 
     for (const section of config.sections) {
-      const provider =
-        section.type === 'auto' && section.provider ? loadAutoProvider(workspace, section.provider) : undefined;
+      logger.info(`[registerCustom] Processing section: ${section.name}, type: ${section.type}`);
+
+      let provider: AutoSectionProvider | undefined;
+      if (section.type === 'auto' && section.provider) {
+        logger.info(`[registerCustom] Loading provider for ${section.name}: ${section.provider}`);
+        provider = loadAutoProvider(workspace, section.provider);
+        logger.info(`[registerCustom] Provider loaded successfully for ${section.name}`);
+      }
 
       this.register({
         name: section.name,
@@ -86,7 +101,10 @@ export class SectionRegistry {
         icon: section.icon ?? BRANCH_CONTEXT_DEFAULT_ICON,
         isBuiltin: false,
         provider,
+        options: section.options,
       });
+
+      logger.info(`[registerCustom] Registered section: ${section.name}`);
     }
   }
 
