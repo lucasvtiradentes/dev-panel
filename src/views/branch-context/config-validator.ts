@@ -30,8 +30,13 @@ export function validateBranchContext(workspace: string, config: BranchContextCo
       continue;
     }
 
-    const templateType = templateSection.type === 'code' ? 'auto' : templateSection.type;
-    if (configSection.type !== templateType) {
+    const isAutoCompatible =
+      configSection.type === 'auto' && (templateSection.type === 'code' || templateSection.type === 'text');
+    const isExactMatch = configSection.type === templateSection.type;
+    const isCodeToAuto = templateSection.type === 'code' && configSection.type === 'auto';
+
+    if (!isAutoCompatible && !isExactMatch && !isCodeToAuto) {
+      const templateType = templateSection.type === 'code' ? 'auto' : templateSection.type;
       issues.push({
         type: 'type-mismatch',
         section: configSection.name,
