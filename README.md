@@ -32,17 +32,28 @@
 - [x] remover a necessidade de ter config.tools.command -> ninguem usa esse comando -> mas pensar bem pq pode ser util para todar ali do sidebar e ver se ta tudo certo
 - [x] poder habilitar/desabilitar as tools -> adicionar icone para isso ou deixar o padroa ao clicar em cima delas e add icone para rodar a tool
 
+## TOOLS 
+
+- [ ] modificar a db-query para todas as queries serem salvas em um .md com query e response para a gente ter um tracking disso e poder marcar
+
 ## TODO
 
 - [ ] adicionar uma description nas views de "replacements" e "tools" -> 3/6 (3 actives de 6 totais)
-- [ ] modificar a db-query para todas as queries serem salvas em um .md com query e response para a gente ter um tracking disso e poder marcar
 - [ ] ao mudar de branch mostrar algo que vai ser: [ ] feature / [ ] bugfix / [ ] other
-- [ ] adicionar integracao com linear cmd e mostrar as coisas para serem feitas no projeto/branch
-  - por milestone 
-  - por pessoa 
 - [ ] ter um registry ou algo assim para adicionar tools nos projetos facilmente
   - prompts
   - tools
   - scripts
 - [ ] nao ta dando para atribuir atalho em global prompts/tools/tasks
-- [ ] implementar o registry
+- [ ] ajeitar o branch tasks para ter status: to do / doing / done 
+- [ ] falta adicionar as secoes tasks e notes no branch context menu
+- [ ] ver com claude code como pedir para ele me perguntar me dando opcoes igual acontece no plan mode
+
+## NAME 
+
+wharehouse
+repo center
+project center
+project lab
+project hub
+

@@ -1,6 +1,8 @@
 import type * as vscode from 'vscode';
 import { WORKSPACE_STATE_KEY } from '../constants/scripts-constants';
 import {
+  type BranchContextState,
+  DEFAULT_BRANCH_CONTEXT_STATE,
   DEFAULT_PROMPTS_STATE,
   DEFAULT_REPLACEMENTS_STATE,
   DEFAULT_SOURCE_STATE,
@@ -408,5 +410,24 @@ export const replacementsState = {
     const replacements = this.load();
     replacements.lastBranch = branch;
     this.save(replacements);
+  },
+};
+
+export const branchContextState = {
+  load(): BranchContextState {
+    return getState().branchContext ?? { ...DEFAULT_BRANCH_CONTEXT_STATE };
+  },
+  save(newBranchContextState: BranchContextState): void {
+    const state = getState();
+    state.branchContext = newBranchContextState;
+    saveState(state);
+  },
+  getHideEmptySections(): boolean {
+    return this.load().hideEmptySections ?? false;
+  },
+  saveHideEmptySections(hideEmptySections: boolean): void {
+    const branchContext = this.load();
+    branchContext.hideEmptySections = hideEmptySections;
+    this.save(branchContext);
   },
 };

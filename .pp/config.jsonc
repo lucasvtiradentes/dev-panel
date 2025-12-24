@@ -15,7 +15,6 @@
     ]
   },
   "branchContext": {
-    "hideEmptySections": true,
     "builtinSections": {
       "changedFiles": true,
       "tasks": true

@@ -26,6 +26,8 @@ import {
   getConfigFilePathFromWorkspacePath,
 } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
+import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
+import { branchContextState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas/config-schema';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { validateBranchContext } from './config-validator';
@@ -317,6 +319,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   refresh(): void {
+    void setContextKey(ContextKey.BranchContextHideEmptySections, branchContextState.getHideEmptySections());
     this._onDidChangeTreeData.fire(undefined);
   }
 
@@ -340,7 +343,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
     const context = loadBranchContext(this.currentBranch);
     const config = this.loadConfig(workspace);
-    const hideEmpty = config?.branchContext?.hideEmptySections ?? false;
+    const hideEmpty = branchContextState.getHideEmptySections();
     const showChangedFiles = config?.branchContext?.builtinSections?.changedFiles !== false;
 
     const registry = new SectionRegistry(workspace, config?.branchContext, showChangedFiles);

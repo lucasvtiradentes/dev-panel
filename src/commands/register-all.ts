@@ -22,7 +22,8 @@ import {
   joinConfigPath,
 } from '../common/lib/config-manager';
 import { syncKeybindings } from '../common/lib/keybindings-sync';
-import { Command, registerCommand } from '../common/lib/vscode-utils';
+import { Command, ContextKey, registerCommand, setContextKey } from '../common/lib/vscode-utils';
+import { branchContextState } from '../common/lib/workspace-state';
 import type { PPConfig, PPReplacement } from '../common/schemas/config-schema';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
 import type { BranchContextProvider } from '../views/branch-context';
@@ -212,6 +213,16 @@ export function registerAllCommands(options: {
       branchContextProvider.openMarkdownFileAtLine(sectionName),
     ),
     registerCommand(Command.SyncBranchContext, () => branchContextProvider.syncBranchContext()),
+    registerCommand(Command.ToggleBranchContextHideEmptySections, () => {
+      branchContextState.saveHideEmptySections(true);
+      void setContextKey(ContextKey.BranchContextHideEmptySections, true);
+      branchContextProvider.refresh();
+    }),
+    registerCommand(Command.ToggleBranchContextHideEmptySectionsActive, () => {
+      branchContextState.saveHideEmptySections(false);
+      void setContextKey(ContextKey.BranchContextHideEmptySections, false);
+      branchContextProvider.refresh();
+    }),
     registerCommand(Command.ToggleTodo, (lineIndex: number) => branchTasksProvider.toggleTodo(lineIndex)),
     registerCommand(Command.ToggleBranchTasksShowOnlyTodo, () => branchTasksProvider.toggleShowOnlyTodo()),
     registerCommand(Command.ToggleBranchTasksShowOnlyTodoActive, () => branchTasksProvider.toggleShowOnlyTodo()),

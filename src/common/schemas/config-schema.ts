@@ -286,7 +286,6 @@ const BranchContextConfigSchema = z.object({
     .min(0)
     .optional()
     .describe('Auto-sync interval in seconds. 0 = disabled (default), any positive number enables periodic sync'),
-  hideEmptySections: z.boolean().optional().describe('Hide sections that have no value set (N/A or empty)'),
 });
 
 export const PPConfigSchema = z

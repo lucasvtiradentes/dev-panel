@@ -44,12 +44,17 @@ const ReplacementsStateSchema = z.object({
   lastBranch: z.string().optional(),
 });
 
+const BranchContextStateSchema = z.object({
+  hideEmptySections: z.boolean().optional(),
+});
+
 const WorkspaceUIStateSchema = z.object({
   tasks: TasksStateSchema.optional(),
   tools: ToolsStateSchema.optional(),
   prompts: PromptsStateSchema.optional(),
   variables: VariablesStateSchema.optional(),
   replacements: ReplacementsStateSchema.optional(),
+  branchContext: BranchContextStateSchema.optional(),
 });
 
 const TasksGlobalStateSchema = z.object({
@@ -72,6 +77,7 @@ export type ToolsState = z.infer<typeof ToolsStateSchema>;
 export type PromptsState = z.infer<typeof PromptsStateSchema>;
 export type VariablesState = z.infer<typeof VariablesStateSchema>;
 export type ReplacementsState = z.infer<typeof ReplacementsStateSchema>;
+export type BranchContextState = z.infer<typeof BranchContextStateSchema>;
 export type WorkspaceUIState = z.infer<typeof WorkspaceUIStateSchema>;
 export type GlobalUIState = z.infer<typeof GlobalUIStateSchema>;
 
@@ -115,10 +121,15 @@ export const DEFAULT_REPLACEMENTS_STATE: ReplacementsState = {
   activeReplacements: [],
 };
 
+export const DEFAULT_BRANCH_CONTEXT_STATE: BranchContextState = {
+  hideEmptySections: false,
+};
+
 export const DEFAULT_WORKSPACE_UI_STATE: WorkspaceUIState = {
   tasks: DEFAULT_TASKS_STATE,
   tools: DEFAULT_TOOLS_STATE,
   prompts: DEFAULT_PROMPTS_STATE,
   variables: DEFAULT_VARIABLES_STATE,
   replacements: DEFAULT_REPLACEMENTS_STATE,
+  branchContext: DEFAULT_BRANCH_CONTEXT_STATE,
 };

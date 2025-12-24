@@ -419,6 +419,16 @@
         "icon": "$(sync)"
       },
       {
+        "command": "projectPanel.toggleBranchContextHideEmptySections",
+        "title": "Hide Empty Sections",
+        "icon": "$(eye-closed)"
+      },
+      {
+        "command": "projectPanel.toggleBranchContextHideEmptySectionsActive",
+        "title": "Show Empty Sections",
+        "icon": "$(eye)"
+      },
+      {
         "command": "projectPanel.editBranchObjective",
         "title": "Edit Branch Objective"
       },
@@ -694,6 +704,16 @@
           "command": "projectPanel.syncBranchContext",
           "when": "view == projectPanelBranchContext",
           "group": "navigation@2"
+        },
+        {
+          "command": "projectPanel.toggleBranchContextHideEmptySections",
+          "when": "view == projectPanelBranchContext && !branchContextHideEmptySections",
+          "group": "navigation@3"
+        },
+        {
+          "command": "projectPanel.toggleBranchContextHideEmptySectionsActive",
+          "when": "view == projectPanelBranchContext && branchContextHideEmptySections",
+          "group": "navigation@3"
         },
         {
           "command": "projectPanel.toggleBranchTasksGroupMode",
