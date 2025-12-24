@@ -7,6 +7,7 @@ import {
   CONTEXT_VALUES,
   DND_MIME_TYPE_TOOLS,
   GLOBAL_ITEM_PREFIX,
+  GLOBAL_TOOL_TOOLTIP,
   NO_GROUP_NAME,
   SHELL_SCRIPT_PATTERN,
   TOOLS_DIR,
@@ -296,7 +297,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     const treeTool = new TreeTool(globalToolName, fullToolFilePath, vscode.TreeItemCollapsibleState.None);
 
     const description = this.readToolDescription(tool.name, homedir());
-    treeTool.tooltip = description ? `Global: ${description}` : 'Global tool from ~/.pp/config.jsonc';
+    treeTool.tooltip = description ? `Global: ${description}` : GLOBAL_TOOL_TOOLTIP;
 
     if (hidden) {
       treeTool.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));

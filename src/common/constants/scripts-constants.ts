@@ -112,6 +112,22 @@ export const WORKSPACE_STATE_CONFIG_DIR_KEY = 'pp.configDir';
 export const ERROR_MSG_WORKSPACE_REQUIRED = 'File/folder input requires a workspace folder';
 export const ERROR_MSG_INVALID_NUMBER = 'Please enter a valid number';
 
-export const CONFIRM_OPTIONS = ['Yes', 'No'] as const;
 export const CONFIRM_YES = 'Yes';
 export const CONFIRM_NO = 'No';
+export const CONFIRM_OPTIONS = [CONFIRM_YES, CONFIRM_NO] as const;
+
+export const GLOBAL_ITEM_TOOLTIP_SUFFIX = 'from ~/.pp/config.jsonc';
+export const GLOBAL_PROMPT_TOOLTIP = `Global prompt ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
+export const GLOBAL_TASK_TOOLTIP = `Global task ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
+export const GLOBAL_TOOL_TOOLTIP = `Global tool ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
+
+export const NOT_GIT_REPO_MESSAGE = 'Not a git repository';
+export const EMPTY_TASKS_MESSAGE = 'Click to add tasks';
+export const NO_PENDING_TASKS_MESSAGE = 'No pending tasks';
+
+export const ERROR_REPLACEMENTS_REQUIRE_GIT = 'Replacements require a git repository';
+export const ERROR_TARGET_FILE_NOT_FOUND = 'Target file not found';
+export const ERROR_SOURCE_FILE_NOT_FOUND = 'Source file not found';
+export const ERROR_VARIABLE_COMMAND_FAILED = 'Variable command failed';
+
+export const NPM_RUN_COMMAND = 'npm run';

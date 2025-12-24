@@ -6,8 +6,8 @@ import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
   GLOBAL_ITEM_PREFIX,
+  GLOBAL_TASK_TOOLTIP,
   NO_GROUP_NAME,
-  VARIABLES_FILE_NAME,
   getCommandId,
   getGlobalConfigDir,
   getGlobalConfigPath,
@@ -17,26 +17,10 @@ import { globalTasksState } from '../../common/lib/global-state';
 import { Command } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
+import { readPPVariablesAsEnv } from '../../common/utils/variables-env';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { getTaskKeybinding } from './keybindings-local';
 import { isFavorite, isHidden } from './state';
-
-function readPPVariablesAsEnv(folderPath: string): Record<string, string> {
-  const variablesPath = `${folderPath}/${VARIABLES_FILE_NAME}`;
-  if (!fs.existsSync(variablesPath)) return {};
-  try {
-    const variablesContent = fs.readFileSync(variablesPath, 'utf8');
-    const variables = JSON5.parse(variablesContent) as Record<string, unknown>;
-    const env: Record<string, string> = {};
-    for (const [key, value] of Object.entries(variables)) {
-      const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
-      env[key] = stringValue;
-    }
-    return env;
-  } catch {
-    return {};
-  }
-}
 
 export function hasPPGroups(): boolean {
   const folders = vscode.workspace.workspaceFolders ?? [];
@@ -246,7 +230,7 @@ function createGlobalTask(
   if (task.description) {
     treeTask.tooltip = `Global: ${task.description}`;
   } else {
-    treeTask.tooltip = 'Global task from ~/.pp/config.jsonc';
+    treeTask.tooltip = GLOBAL_TASK_TOOLTIP;
   }
 
   if (hidden) {

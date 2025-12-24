@@ -2,7 +2,15 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import json5 from 'json5';
 import * as vscode from 'vscode';
-import { CONFIG_FILE_NAME, CONTEXT_VALUES, NO_GROUP_NAME, getCommandId } from '../../common/constants';
+import {
+  CONFIG_FILE_NAME,
+  CONTEXT_VALUES,
+  ERROR_REPLACEMENTS_REQUIRE_GIT,
+  ERROR_SOURCE_FILE_NOT_FOUND,
+  ERROR_TARGET_FILE_NOT_FOUND,
+  NO_GROUP_NAME,
+  getCommandId,
+} from '../../common/constants';
 import { getConfigDirPattern, getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { PPConfig, PPReplacement } from '../../common/schemas/config-schema';
@@ -256,17 +264,17 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     if (!workspace) return;
 
     if (!(await isGitRepository(workspace))) {
-      vscode.window.showErrorMessage('Replacements require a git repository');
+      vscode.window.showErrorMessage(ERROR_REPLACEMENTS_REQUIRE_GIT);
       return;
     }
 
     if (replacement.type === 'patch' && !fileExists(workspace, replacement.target)) {
-      vscode.window.showErrorMessage(`Target file not found: ${replacement.target}`);
+      vscode.window.showErrorMessage(`${ERROR_TARGET_FILE_NOT_FOUND}: ${replacement.target}`);
       return;
     }
 
     if (replacement.type === 'file' && !fileExists(workspace, replacement.source)) {
-      vscode.window.showErrorMessage(`Source file not found: ${replacement.source}`);
+      vscode.window.showErrorMessage(`${ERROR_SOURCE_FILE_NOT_FOUND}: ${replacement.source}`);
       return;
     }
 

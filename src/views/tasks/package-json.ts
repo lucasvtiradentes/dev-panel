@@ -9,13 +9,14 @@ import {
   DEFAULT_EXCLUDED_DIRS,
   DIST_DIR_PREFIX,
   NO_GROUP_NAME,
+  NPM_RUN_COMMAND,
   PACKAGE_JSON,
-  VARIABLES_FILE_NAME,
   getCommandId,
 } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
+import { readPPVariablesAsEnv } from '../../common/utils/variables-env';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
@@ -29,23 +30,6 @@ type PackageLocation = {
   scripts: Record<string, string>;
   folder: vscode.WorkspaceFolder;
 };
-
-function readPPVariablesAsEnv(workspacePath: string): Record<string, string> {
-  const variablesPath = path.join(workspacePath, CONFIG_DIR_NAME, VARIABLES_FILE_NAME);
-  if (!fs.existsSync(variablesPath)) return {};
-  try {
-    const variablesContent = fs.readFileSync(variablesPath, 'utf8');
-    const variables = JSON5.parse(variablesContent) as Record<string, unknown>;
-    const env: Record<string, string> = {};
-    for (const [key, value] of Object.entries(variables)) {
-      const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
-      env[key] = stringValue;
-    }
-    return env;
-  } catch {
-    return {};
-  }
-}
 
 function extractDirNamesFromGlobs(patterns: string[]): string[] {
   const dirs: string[] = [];
@@ -299,8 +283,9 @@ function createNpmTask(options: {
   if (hidden && !showHidden) return null;
   if (showOnlyFavorites && !favorite) return null;
 
-  const env = readPPVariablesAsEnv(folder.uri.fsPath);
-  const shellExec = new vscode.ShellExecution(`npm run ${name}`, { cwd, env });
+  const configDirPath = path.join(folder.uri.fsPath, CONFIG_DIR_NAME);
+  const env = readPPVariablesAsEnv(configDirPath);
+  const shellExec = new vscode.ShellExecution(`${NPM_RUN_COMMAND} ${name}`, { cwd, env });
   const task = new vscode.Task({ type: 'npm' }, folder, name, 'npm', shellExec);
   const displayName = useDisplayName && name.includes(':') ? name.split(':').slice(1).join(':') : name;
 

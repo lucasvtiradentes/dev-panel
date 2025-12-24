@@ -4,6 +4,7 @@ import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
   ChangedFilesStyle,
+  NOT_GIT_REPO_MESSAGE,
   SECTION_NAME_BRANCH,
   SECTION_NAME_BRANCH_INFO,
   SECTION_NAME_CHANGED_FILES,
@@ -336,7 +337,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     if (!workspace) return [];
 
     if (!(await isGitRepository(workspace))) {
-      return [new vscode.TreeItem('Not a git repository')];
+      return [new vscode.TreeItem(NOT_GIT_REPO_MESSAGE)];
     }
 
     if (!this.currentBranch) {

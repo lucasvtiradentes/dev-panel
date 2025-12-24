@@ -1,7 +1,13 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { CONFIG_FILE_NAME, CONTEXT_VALUES, getCommandId } from '../../common/constants';
+import {
+  CONFIG_FILE_NAME,
+  CONTEXT_VALUES,
+  EMPTY_TASKS_MESSAGE,
+  NO_PENDING_TASKS_MESSAGE,
+  getCommandId,
+} from '../../common/constants';
 import { getBranchContextGlobPattern, getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
@@ -211,7 +217,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
     }
 
     if (processedNodes.length === 0) {
-      const message = this.showOnlyTodo ? 'No pending tasks' : 'Click to add tasks';
+      const message = this.showOnlyTodo ? NO_PENDING_TASKS_MESSAGE : EMPTY_TASKS_MESSAGE;
       const openFileItem = new vscode.TreeItem(message);
       openFileItem.command = {
         command: getCommandId(Command.OpenBranchContextFile),

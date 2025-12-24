@@ -6,6 +6,7 @@ import {
   CONTEXT_VALUES,
   DND_MIME_TYPE_PROMPTS,
   GLOBAL_ITEM_PREFIX,
+  GLOBAL_PROMPT_TOOLTIP,
   NO_GROUP_NAME,
   getCommandId,
   getGlobalConfigDir,
@@ -235,7 +236,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     if (prompt.description) {
       treePrompt.tooltip = `Global: ${prompt.description}`;
     } else {
-      treePrompt.tooltip = 'Global prompt from ~/.pp/config.jsonc';
+      treePrompt.tooltip = GLOBAL_PROMPT_TOOLTIP;
     }
 
     if (hidden) {
