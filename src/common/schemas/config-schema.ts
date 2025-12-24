@@ -232,6 +232,10 @@ const PPSettingsSchema = z
 
 const BranchContextSectionSchema = z.object({
   name: z.string().describe('Section heading name exactly as it appears in template (e.g., "TESTS SCENARIOS")'),
+  label: z
+    .string()
+    .optional()
+    .describe('Display label in the view (e.g., "Tests scenarios"). Defaults to name if not set'),
   type: z
     .enum(['field', 'text', 'auto'])
     .describe('Section type: field = inline value, text = multi-line, auto = auto-populated'),

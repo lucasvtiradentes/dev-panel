@@ -104,6 +104,10 @@
                 "description": "Section heading name exactly as it appears in template (e.g., \"TESTS SCENARIOS\")",
                 "type": "string"
               },
+              "label": {
+                "description": "Display label in the view (e.g., \"Tests scenarios\"). Defaults to name if not set",
+                "type": "string"
+              },
               "type": {
                 "description": "Section type: field = inline value, text = multi-line, auto = auto-populated",
                 "type": "string",

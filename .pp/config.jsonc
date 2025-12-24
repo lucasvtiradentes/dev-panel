@@ -20,6 +20,7 @@
     "sections": [
       {
         "name": "GITHUB PR COMMENTS",
+        "label": "Github PR comments",
         "type": "auto",
         "provider": "node ./plugins/github-pr-comments.js",
         "icon": "github",
@@ -30,6 +31,7 @@
       },
       {
         "name": "LINEAR ISSUE",
+        "label": "Linear issue",
         "type": "auto",
         "provider": "node ./plugins/linear-issue.js",
         "icon": "link-external"

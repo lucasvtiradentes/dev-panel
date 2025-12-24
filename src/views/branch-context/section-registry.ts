@@ -1,13 +1,20 @@
 import {
   BRANCH_CONTEXT_DEFAULT_ICON,
-  BRANCH_CONTEXT_FIELD_BRANCH,
-  BRANCH_CONTEXT_FIELD_LINEAR_LINK,
-  BRANCH_CONTEXT_FIELD_PR_LINK,
-  BRANCH_CONTEXT_SECTION_NOTES,
-  BRANCH_CONTEXT_SECTION_OBJECTIVE,
-  BRANCH_CONTEXT_SECTION_REQUIREMENTS,
+  SECTION_LABEL_BRANCH,
+  SECTION_LABEL_LINEAR_LINK,
+  SECTION_LABEL_NOTES,
+  SECTION_LABEL_OBJECTIVE,
+  SECTION_LABEL_PR_LINK,
+  SECTION_LABEL_REQUIREMENTS,
+  SECTION_NAME_BRANCH,
+  SECTION_NAME_LINEAR_LINK,
+  SECTION_NAME_NOTES,
+  SECTION_NAME_OBJECTIVE,
+  SECTION_NAME_PR_LINK,
+  SECTION_NAME_REQUIREMENTS,
 } from '../../common/constants';
 import { createLogger } from '../../common/lib/logger';
+import { Command } from '../../common/lib/vscode-utils';
 import type { BranchContextConfig } from '../../common/schemas/config-schema';
 import type { AutoSectionProvider } from './providers/interfaces';
 import { loadAutoProvider } from './providers/plugin-loader';
@@ -18,9 +25,11 @@ export type SectionType = 'field' | 'text' | 'auto' | 'special';
 
 export type SectionDefinition = {
   name: string;
+  label: string;
   type: SectionType;
   icon: string;
   isBuiltin: boolean;
+  command?: Command;
   provider?: AutoSectionProvider;
   options?: Record<string, unknown>;
 };
@@ -28,56 +37,70 @@ export type SectionDefinition = {
 export class SectionRegistry {
   private sections: Map<string, SectionDefinition> = new Map();
 
-  constructor(workspace: string, config: BranchContextConfig) {
+  constructor(workspace: string, config?: Partial<BranchContextConfig>) {
     this.registerBuiltins();
-    this.registerCustom(workspace, config);
+    if (config) {
+      this.registerCustom(workspace, config);
+    }
   }
 
   private registerBuiltins(): void {
     this.register({
-      name: BRANCH_CONTEXT_FIELD_BRANCH.replace(':', '').trim(),
+      name: SECTION_NAME_BRANCH,
+      label: SECTION_LABEL_BRANCH,
       type: 'field',
       icon: 'git-branch',
       isBuiltin: true,
+      command: Command.EditBranchName,
     });
 
     this.register({
-      name: BRANCH_CONTEXT_FIELD_PR_LINK.replace(':', '').trim(),
+      name: SECTION_NAME_PR_LINK,
+      label: SECTION_LABEL_PR_LINK,
       type: 'field',
       icon: 'git-pull-request',
       isBuiltin: true,
+      command: Command.EditBranchPrLink,
     });
 
     this.register({
-      name: BRANCH_CONTEXT_FIELD_LINEAR_LINK.replace(':', '').trim(),
+      name: SECTION_NAME_LINEAR_LINK,
+      label: SECTION_LABEL_LINEAR_LINK,
       type: 'field',
       icon: 'link',
       isBuiltin: true,
+      command: Command.EditBranchLinearLink,
     });
 
     this.register({
-      name: BRANCH_CONTEXT_SECTION_OBJECTIVE.replace('#', '').trim(),
+      name: SECTION_NAME_OBJECTIVE,
+      label: SECTION_LABEL_OBJECTIVE,
       type: 'text',
       icon: 'target',
       isBuiltin: true,
+      command: Command.EditBranchObjective,
     });
 
     this.register({
-      name: BRANCH_CONTEXT_SECTION_REQUIREMENTS.replace('#', '').trim(),
+      name: SECTION_NAME_REQUIREMENTS,
+      label: SECTION_LABEL_REQUIREMENTS,
       type: 'text',
       icon: 'checklist',
       isBuiltin: true,
+      command: Command.EditBranchRequirements,
     });
 
     this.register({
-      name: BRANCH_CONTEXT_SECTION_NOTES.replace('#', '').trim(),
+      name: SECTION_NAME_NOTES,
+      label: SECTION_LABEL_NOTES,
       type: 'text',
       icon: 'note',
       isBuiltin: true,
+      command: Command.EditBranchNotes,
     });
   }
 
-  private registerCustom(workspace: string, config: BranchContextConfig): void {
+  private registerCustom(workspace: string, config: Partial<BranchContextConfig>): void {
     if (!config.sections) {
       logger.info('[registerCustom] No custom sections in config');
       return;
@@ -97,6 +120,7 @@ export class SectionRegistry {
 
       this.register({
         name: section.name,
+        label: section.label ?? section.name,
         type: section.type,
         icon: section.icon ?? BRANCH_CONTEXT_DEFAULT_ICON,
         isBuiltin: false,

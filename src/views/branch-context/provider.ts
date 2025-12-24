@@ -2,6 +2,15 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
+import {
+  SECTION_NAME_BRANCH,
+  SECTION_NAME_BRANCH_INFO,
+  SECTION_NAME_LINEAR_LINK,
+  SECTION_NAME_NOTES,
+  SECTION_NAME_OBJECTIVE,
+  SECTION_NAME_PR_LINK,
+  SECTION_NAME_REQUIREMENTS,
+} from '../../common/constants';
 import { CONFIG_FILE_NAME, ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-constants';
 import {
   getBranchContextFilePath as getBranchContextFilePathUtil,
@@ -12,7 +21,7 @@ import { createLogger } from '../../common/lib/logger';
 import type { PPConfig } from '../../common/schemas/config-schema';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { validateBranchContext } from './config-validator';
-import { BranchContextField, BranchContextFieldItem, CustomSectionItem } from './items';
+import { SectionItem } from './items';
 import { generateBranchContextMarkdown } from './markdown-generator';
 import { getBranchContextFilePath, getFieldLineNumber } from './markdown-parser';
 import { type SyncContext, createChangedFilesProvider } from './providers';
@@ -265,27 +274,37 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
     const context = loadBranchContext(this.currentBranch);
     const config = this.loadConfig(workspace);
+    const registry = new SectionRegistry(workspace, config?.branchContext);
 
-    const items: vscode.TreeItem[] = [
-      new BranchContextFieldItem(BranchContextField.Branch, this.currentBranch, this.currentBranch),
-      new BranchContextFieldItem(BranchContextField.PrLink, context.prLink, this.currentBranch),
-      new BranchContextFieldItem(BranchContextField.LinearLink, context.linearLink, this.currentBranch),
-      new BranchContextFieldItem(BranchContextField.Objective, context.objective, this.currentBranch),
-      new BranchContextFieldItem(BranchContextField.Requirements, context.requirements, this.currentBranch),
-      new BranchContextFieldItem(BranchContextField.Notes, context.notes, this.currentBranch),
-    ];
-
-    if (config?.branchContext?.sections) {
-      const registry = new SectionRegistry(workspace, config.branchContext);
-      for (const section of registry.getAllSections()) {
-        if (!section.isBuiltin) {
-          const value = this.getCustomSectionValue(context, section.name);
-          items.push(new CustomSectionItem(section, value, this.currentBranch));
-        }
-      }
+    const items: vscode.TreeItem[] = [];
+    for (const section of registry.getAllSections()) {
+      const value = this.getSectionValue(context, section.name, this.currentBranch);
+      items.push(new SectionItem(section, value, this.currentBranch));
     }
 
     return items;
+  }
+
+  private getSectionValue(
+    context: Record<string, unknown>,
+    sectionName: string,
+    currentBranch: string,
+  ): string | undefined {
+    const valueMap: Record<string, string | undefined> = {
+      [SECTION_NAME_BRANCH]: currentBranch,
+      [SECTION_NAME_PR_LINK]: context.prLink as string | undefined,
+      [SECTION_NAME_LINEAR_LINK]: context.linearLink as string | undefined,
+      [SECTION_NAME_OBJECTIVE]: context.objective as string | undefined,
+      [SECTION_NAME_REQUIREMENTS]: context.requirements as string | undefined,
+      [SECTION_NAME_NOTES]: context.notes as string | undefined,
+    };
+
+    if (sectionName in valueMap) {
+      return valueMap[sectionName];
+    }
+
+    const value = context[sectionName];
+    return typeof value === 'string' ? value : undefined;
   }
 
   private loadConfig(workspace: string): PPConfig | null {
@@ -299,26 +318,18 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
   }
 
-  private getCustomSectionValue(context: Record<string, unknown>, sectionName: string): string | undefined {
-    const value = context[sectionName];
-    if (typeof value === 'string') return value;
-    return undefined;
-  }
-
-  async editField(_branchName: string, field: BranchContextField, _currentValue: string | undefined): Promise<void> {
-    const fieldLineMap: Record<BranchContextField, string | null> = {
-      [BranchContextField.Branch]: 'BRANCH INFO',
-      [BranchContextField.PrLink]: 'BRANCH INFO',
-      [BranchContextField.LinearLink]: 'BRANCH INFO',
-      [BranchContextField.Objective]: 'OBJECTIVE',
-      [BranchContextField.Requirements]: 'REQUIREMENTS',
-      [BranchContextField.Notes]: 'NOTES',
+  async editField(_branchName: string, sectionName: string, _currentValue: string | undefined): Promise<void> {
+    const lineKeyMap: Record<string, string> = {
+      [SECTION_NAME_BRANCH]: SECTION_NAME_BRANCH_INFO,
+      [SECTION_NAME_PR_LINK]: SECTION_NAME_BRANCH_INFO,
+      [SECTION_NAME_LINEAR_LINK]: SECTION_NAME_BRANCH_INFO,
+      [SECTION_NAME_OBJECTIVE]: SECTION_NAME_OBJECTIVE,
+      [SECTION_NAME_REQUIREMENTS]: SECTION_NAME_REQUIREMENTS,
+      [SECTION_NAME_NOTES]: SECTION_NAME_NOTES,
     };
 
-    const lineKey = fieldLineMap[field];
-    if (lineKey) {
-      await this.openMarkdownFileAtLine(lineKey);
-    }
+    const lineKey = lineKeyMap[sectionName] ?? sectionName;
+    await this.openMarkdownFileAtLine(lineKey);
   }
 
   async openMarkdownFile(): Promise<void> {

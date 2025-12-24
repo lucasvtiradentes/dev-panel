@@ -3,78 +3,43 @@ import { BRANCH_FIELD_DESCRIPTION_MAX_LENGTH, CONTEXT_VALUES, getCommandId } fro
 import { Command } from '../../common/lib/vscode-utils';
 import type { SectionDefinition } from './section-registry';
 
-export enum BranchContextField {
-  Branch = 'branch',
-  PrLink = 'prLink',
-  LinearLink = 'linearLink',
-  Objective = 'objective',
-  Requirements = 'requirements',
-  Notes = 'notes',
-}
-
-const FIELD_CONFIG: Record<BranchContextField, { label: string; icon: string; command: Command }> = {
-  [BranchContextField.Branch]: { label: 'Branch', icon: 'git-branch', command: Command.EditBranchName },
-  [BranchContextField.PrLink]: { label: 'PR Link', icon: 'git-pull-request', command: Command.EditBranchPrLink },
-  [BranchContextField.LinearLink]: { label: 'Linear Link', icon: 'link', command: Command.EditBranchLinearLink },
-  [BranchContextField.Objective]: { label: 'Objective', icon: 'target', command: Command.EditBranchObjective },
-  [BranchContextField.Requirements]: {
-    label: 'Requirements',
-    icon: 'checklist',
-    command: Command.EditBranchRequirements,
-  },
-  [BranchContextField.Notes]: { label: 'Notes', icon: 'note', command: Command.EditBranchNotes },
-};
-
-export class BranchContextFieldItem extends vscode.TreeItem {
-  constructor(
-    public readonly fieldKey: BranchContextField,
-    public readonly value: string | undefined,
-    private readonly branchName: string,
-  ) {
-    const config = FIELD_CONFIG[fieldKey];
-    super(config.label, vscode.TreeItemCollapsibleState.None);
-
-    this.description = value ? truncate(value, BRANCH_FIELD_DESCRIPTION_MAX_LENGTH) : '(not set)';
-    this.tooltip = value ?? `Click to set ${config.label.toLowerCase()}`;
-    this.contextValue = CONTEXT_VALUES.BRANCH_CONTEXT_FIELD;
-    this.iconPath = new vscode.ThemeIcon(config.icon);
-
-    this.command = {
-      command: getCommandId(config.command),
-      title: `Edit ${config.label}`,
-      arguments: [branchName, value],
-    };
-  }
-}
-
 function truncate(str: string, maxLen: number): string {
   const firstLine = str.split('\n')[0];
   if (firstLine.length <= maxLen) return firstLine;
   return `${firstLine.slice(0, maxLen - 3)}...`;
 }
 
-export class CustomSectionItem extends vscode.TreeItem {
+export class SectionItem extends vscode.TreeItem {
   constructor(
     public readonly section: SectionDefinition,
     public readonly value: string | undefined,
     private readonly branchName: string,
   ) {
-    super(section.name, vscode.TreeItemCollapsibleState.None);
+    super(section.label, vscode.TreeItemCollapsibleState.None);
 
     this.iconPath = new vscode.ThemeIcon(section.icon);
     this.contextValue = CONTEXT_VALUES.BRANCH_CONTEXT_FIELD;
 
-    if (section.type === 'field' || section.type === 'text') {
-      this.description = value ? truncate(value, BRANCH_FIELD_DESCRIPTION_MAX_LENGTH) : '(not set)';
-      this.tooltip = value ?? `Click to set ${section.name.toLowerCase()}`;
-      this.command = {
-        command: getCommandId(Command.OpenBranchContextFileAtLine),
-        title: `Edit ${section.name}`,
-        arguments: [branchName, section.name],
-      };
-    } else if (section.type === 'auto') {
+    if (section.type === 'auto') {
       this.description = value ? truncate(value, BRANCH_FIELD_DESCRIPTION_MAX_LENGTH) : '(not synced)';
       this.tooltip = 'Auto-populated section. Click "Sync" to refresh.';
+    } else {
+      this.description = value ? truncate(value, BRANCH_FIELD_DESCRIPTION_MAX_LENGTH) : '(not set)';
+      this.tooltip = value ?? `Click to set ${section.label.toLowerCase()}`;
+
+      if (section.command) {
+        this.command = {
+          command: getCommandId(section.command),
+          title: `Edit ${section.label}`,
+          arguments: [branchName, value],
+        };
+      } else {
+        this.command = {
+          command: getCommandId(Command.OpenBranchContextFileAtLine),
+          title: `Edit ${section.label}`,
+          arguments: [branchName, section.name],
+        };
+      }
     }
   }
 }

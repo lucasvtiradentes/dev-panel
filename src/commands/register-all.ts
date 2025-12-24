@@ -5,6 +5,13 @@ import * as vscode from 'vscode';
 import {
   CONFIG_FILE_NAME,
   GLOBAL_ITEM_PREFIX,
+  SECTION_NAME_BRANCH,
+  SECTION_NAME_LINEAR_LINK,
+  SECTION_NAME_NOTES,
+  SECTION_NAME_OBJECTIVE,
+  SECTION_NAME_PR_LINK,
+  SECTION_NAME_REQUIREMENTS,
+  SECTION_NAME_TASKS,
   TOOLS_DIR,
   TOOL_INSTRUCTIONS_FILE,
   getGlobalConfigDir,
@@ -18,7 +25,7 @@ import { syncKeybindings } from '../common/lib/keybindings-sync';
 import { Command, registerCommand } from '../common/lib/vscode-utils';
 import type { PPConfig, PPReplacement } from '../common/schemas/config-schema';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
-import { BranchContextField, type BranchContextProvider } from '../views/branch-context';
+import type { BranchContextProvider } from '../views/branch-context';
 import { validateBranchContext } from '../views/branch-context/config-validator';
 import type { BranchTasksProvider } from '../views/branch-tasks';
 import type { PromptTreeDataProvider, TreePrompt } from '../views/prompts';
@@ -182,24 +189,24 @@ export function registerAllCommands(options: {
       }
     }),
     registerCommand(Command.EditBranchName, (branchName: string, value?: string) =>
-      branchContextProvider.editField(branchName, BranchContextField.Branch, value),
+      branchContextProvider.editField(branchName, SECTION_NAME_BRANCH, value),
     ),
     registerCommand(Command.EditBranchPrLink, (branchName: string, value?: string) =>
-      branchContextProvider.editField(branchName, BranchContextField.PrLink, value),
+      branchContextProvider.editField(branchName, SECTION_NAME_PR_LINK, value),
     ),
     registerCommand(Command.EditBranchLinearLink, (branchName: string, value?: string) =>
-      branchContextProvider.editField(branchName, BranchContextField.LinearLink, value),
+      branchContextProvider.editField(branchName, SECTION_NAME_LINEAR_LINK, value),
     ),
     registerCommand(Command.EditBranchObjective, (branchName: string, value?: string) =>
-      branchContextProvider.editField(branchName, BranchContextField.Objective, value),
+      branchContextProvider.editField(branchName, SECTION_NAME_OBJECTIVE, value),
     ),
     registerCommand(Command.EditBranchRequirements, (branchName: string, value?: string) =>
-      branchContextProvider.editField(branchName, BranchContextField.Requirements, value),
+      branchContextProvider.editField(branchName, SECTION_NAME_REQUIREMENTS, value),
     ),
     registerCommand(Command.EditBranchNotes, (branchName: string, value?: string) =>
-      branchContextProvider.editField(branchName, BranchContextField.Notes, value),
+      branchContextProvider.editField(branchName, SECTION_NAME_NOTES, value),
     ),
-    registerCommand(Command.EditBranchTodos, () => branchContextProvider.openMarkdownFileAtLine('TASKS')),
+    registerCommand(Command.EditBranchTodos, () => branchContextProvider.openMarkdownFileAtLine(SECTION_NAME_TASKS)),
     registerCommand(Command.OpenBranchContextFile, () => branchContextProvider.openMarkdownFile()),
     registerCommand(Command.OpenBranchContextFileAtLine, (_branchName: string, sectionName: string) =>
       branchContextProvider.openMarkdownFileAtLine(sectionName),
