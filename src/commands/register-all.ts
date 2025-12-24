@@ -1,38 +1,19 @@
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import {
-  CONFIG_FILE_NAME,
-  GLOBAL_ITEM_PREFIX,
-  SECTION_NAME_BRANCH,
-  SECTION_NAME_LINEAR_LINK,
-  SECTION_NAME_NOTES,
-  SECTION_NAME_OBJECTIVE,
-  SECTION_NAME_PR_LINK,
-  SECTION_NAME_REQUIREMENTS,
-  SECTION_NAME_TASKS,
-  TOOLS_DIR,
-  TOOL_INSTRUCTIONS_FILE,
-  getGlobalConfigDir,
-} from '../common/constants';
-import {
-  getBranchContextTemplatePath,
-  getConfigFilePathFromWorkspacePath,
-  joinConfigPath,
-} from '../common/lib/config-manager';
+import { CONFIG_FILE_NAME } from '../common/constants';
+import { getBranchContextTemplatePath, getConfigFilePathFromWorkspacePath } from '../common/lib/config-manager';
 import { syncKeybindings } from '../common/lib/keybindings-sync';
-import { Command, ContextKey, registerCommand, setContextKey } from '../common/lib/vscode-utils';
-import { branchContextState } from '../common/lib/workspace-state';
-import type { PPConfig, PPReplacement } from '../common/schemas/config-schema';
+import { Command, registerCommand } from '../common/lib/vscode-utils';
+import type { PPConfig } from '../common/schemas/config-schema';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
 import type { BranchContextProvider } from '../views/branch-context';
 import { validateBranchContext } from '../views/branch-context/config-validator';
 import type { BranchTasksProvider } from '../views/branch-tasks';
-import type { PromptTreeDataProvider, TreePrompt } from '../views/prompts';
+import type { PromptTreeDataProvider } from '../views/prompts';
 import type { ReplacementsProvider } from '../views/replacements';
 import type { TaskTreeDataProvider } from '../views/tasks';
-import { type ToolTreeDataProvider, type TreeTool, toggleTool } from '../views/tools';
+import type { ToolTreeDataProvider } from '../views/tools';
 import type { VariablesProvider } from '../views/variables';
 import { createAddPromptCommand } from './internal/add-prompt';
 import { createAddToolCommand } from './internal/add-tool';
@@ -45,13 +26,18 @@ import { createCopyToolToWorkspaceCommand } from './internal/copy-tool-to-worksp
 import { createDeletePromptCommand } from './internal/delete-prompt';
 import { createDeleteTaskCommand } from './internal/delete-task';
 import { createDeleteToolCommand } from './internal/delete-tool';
+import { createEditBranchFieldsCommands } from './internal/edit-branch-fields';
 import {
   createExecutePromptCommand,
   createExecuteTaskCommand,
   createExecuteToolCommand,
 } from './internal/execute-task';
 import { createGenerateToolsDocsCommand } from './internal/generate-tools-docs';
+import { createGoToPromptFileCommand } from './internal/go-to-prompt-file';
+import { createGoToReplacementTargetFileCommand } from './internal/go-to-replacement-target-file';
 import { createGoToTaskCommand } from './internal/go-to-task';
+import { createGoToToolFileCommand } from './internal/go-to-tool-file';
+import { createOpenBranchContextFileCommand } from './internal/open-branch-context-file';
 import { createOpenTasksConfigCommand } from './internal/open-tasks-config';
 import { createOpenVariablesConfigCommand } from './internal/open-variables-config';
 import { createRefreshCommand } from './internal/refresh';
@@ -66,11 +52,19 @@ import {
   createSetVariableKeybindingCommand,
 } from './internal/set-variable-keybinding';
 import { createSwitchTaskSourceCommands } from './internal/switch-task-source';
+import { createSyncBranchContextCommand } from './internal/sync-branch-context';
 import {
   createToggleAllReplacementsActivateCommand,
   createToggleAllReplacementsDeactivateCommand,
 } from './internal/toggle-all-replacements';
+import { createToggleBranchContextHideEmptySectionsCommand } from './internal/toggle-branch-context-hide-empty-sections';
+import { createToggleBranchTasksCommands } from './internal/toggle-branch-tasks';
+import { createTogglePromptsViewCommands } from './internal/toggle-prompts-view';
 import { createToggleReplacementCommand } from './internal/toggle-replacement';
+import { createToggleReplacementsViewCommands } from './internal/toggle-replacements-view';
+import { createToggleTasksViewCommands } from './internal/toggle-tasks-view';
+import { createToggleToolsViewCommands } from './internal/toggle-tools-view';
+import { createToggleVariablesViewCommands } from './internal/toggle-variables-view';
 import { createShowLogsCommand } from './public/show-logs';
 
 export function registerAllCommands(options: {
@@ -96,15 +90,7 @@ export function registerAllCommands(options: {
   return [
     createRefreshCommand(taskTreeDataProvider),
     ...createSwitchTaskSourceCommands(taskTreeDataProvider),
-    registerCommand(Command.ToggleGroupMode, () => taskTreeDataProvider.toggleGroupMode()),
-    registerCommand(Command.ToggleGroupModeGrouped, () => taskTreeDataProvider.toggleGroupMode()),
-    registerCommand(Command.ToggleFavorite, (item) => taskTreeDataProvider.toggleFavorite(item)),
-    registerCommand(Command.ToggleHide, (item) => taskTreeDataProvider.toggleHide(item)),
-    registerCommand(Command.ToggleUnfavorite, (item) => taskTreeDataProvider.toggleFavorite(item)),
-    registerCommand(Command.ToggleTasksShowHidden, () => taskTreeDataProvider.toggleShowHidden()),
-    registerCommand(Command.ToggleTasksShowHiddenActive, () => taskTreeDataProvider.toggleShowHidden()),
-    registerCommand(Command.ToggleTasksShowOnlyFavorites, () => taskTreeDataProvider.toggleShowOnlyFavorites()),
-    registerCommand(Command.ToggleTasksShowOnlyFavoritesActive, () => taskTreeDataProvider.toggleShowOnlyFavorites()),
+    ...createToggleTasksViewCommands(taskTreeDataProvider),
     createGoToTaskCommand(),
     createOpenTasksConfigCommand(),
     createDeleteTaskCommand(),
@@ -114,120 +100,32 @@ export function registerAllCommands(options: {
     createOpenSettingsMenuCommand(),
     createSelectConfigOptionCommand(),
     createResetConfigOptionCommand(),
-    registerCommand(Command.ToggleConfigsGroupMode, () => variablesProvider.toggleGroupMode()),
-    registerCommand(Command.ToggleConfigsGroupModeGrouped, () => variablesProvider.toggleGroupMode()),
+    ...createToggleVariablesViewCommands(variablesProvider),
     createToggleReplacementCommand(),
     createToggleAllReplacementsActivateCommand(),
     createToggleAllReplacementsDeactivateCommand(),
-    registerCommand(Command.ToggleReplacementsGroupMode, () => replacementsProvider.toggleGroupMode()),
-    registerCommand(Command.ToggleReplacementsGroupModeGrouped, () => replacementsProvider.toggleGroupMode()),
-    registerCommand(Command.GoToReplacementTargetFile, async (item: { replacement?: PPReplacement }) => {
-      if (item?.replacement?.target) {
-        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-        if (!workspaceFolder) return;
-        const targetPath = path.join(workspaceFolder.uri.fsPath, item.replacement.target);
-        const uri = vscode.Uri.file(targetPath);
-        await vscode.window.showTextDocument(uri);
-      }
-    }),
-    registerCommand(Command.ToggleToolsGroupMode, () => toolTreeDataProvider.toggleGroupMode()),
-    registerCommand(Command.ToggleToolsGroupModeGrouped, () => toolTreeDataProvider.toggleGroupMode()),
-    registerCommand(Command.ToggleToolFavorite, (item) => toolTreeDataProvider.toggleFavorite(item)),
-    registerCommand(Command.ToggleToolUnfavorite, (item) => toolTreeDataProvider.toggleFavorite(item)),
-    registerCommand(Command.ToggleToolHide, (item) => toolTreeDataProvider.toggleHide(item)),
-    registerCommand(Command.ToggleToolsShowHidden, () => toolTreeDataProvider.toggleShowHidden()),
-    registerCommand(Command.ToggleToolsShowHiddenActive, () => toolTreeDataProvider.toggleShowHidden()),
-    registerCommand(Command.ToggleToolsShowOnlyFavorites, () => toolTreeDataProvider.toggleShowOnlyFavorites()),
-    registerCommand(Command.ToggleToolsShowOnlyFavoritesActive, () => toolTreeDataProvider.toggleShowOnlyFavorites()),
-    registerCommand(Command.ToggleTool, (item: TreeTool) => toggleTool(item)),
+    ...createToggleReplacementsViewCommands(replacementsProvider),
+    createGoToReplacementTargetFileCommand(),
+    ...createToggleToolsViewCommands(toolTreeDataProvider),
     createExecuteToolCommand(context),
-    registerCommand(Command.GoToToolFile, async (item: TreeTool) => {
-      if (item?.toolName) {
-        const isGlobal = item.toolName.startsWith(GLOBAL_ITEM_PREFIX);
-        const toolName = isGlobal ? item.toolName.substring(GLOBAL_ITEM_PREFIX.length) : item.toolName;
-
-        let instructionsPath: string;
-        if (isGlobal) {
-          const globalConfigDir = getGlobalConfigDir();
-          instructionsPath = `${globalConfigDir}/${TOOLS_DIR}/${toolName}/${TOOL_INSTRUCTIONS_FILE}`;
-        } else {
-          const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-          if (!workspaceFolder) return;
-          instructionsPath = joinConfigPath(workspaceFolder, TOOLS_DIR, toolName, TOOL_INSTRUCTIONS_FILE);
-        }
-
-        const uri = vscode.Uri.file(instructionsPath);
-        await vscode.window.showTextDocument(uri);
-      }
-    }),
+    createGoToToolFileCommand(),
     createGenerateToolsDocsCommand(),
     createAddToolCommand(),
     createCopyToolToGlobalCommand(),
     createCopyToolToWorkspaceCommand(),
     createDeleteToolCommand(),
-    registerCommand(Command.RefreshTools, () => toolTreeDataProvider.refresh()),
-    registerCommand(Command.TogglePromptsGroupMode, () => promptTreeDataProvider.toggleGroupMode()),
-    registerCommand(Command.TogglePromptsGroupModeGrouped, () => promptTreeDataProvider.toggleGroupMode()),
-    registerCommand(Command.TogglePromptFavorite, (item) => promptTreeDataProvider.toggleFavorite(item)),
-    registerCommand(Command.TogglePromptUnfavorite, (item) => promptTreeDataProvider.toggleFavorite(item)),
-    registerCommand(Command.TogglePromptHide, (item) => promptTreeDataProvider.toggleHide(item)),
-    registerCommand(Command.TogglePromptsShowHidden, () => promptTreeDataProvider.toggleShowHidden()),
-    registerCommand(Command.TogglePromptsShowHiddenActive, () => promptTreeDataProvider.toggleShowHidden()),
-    registerCommand(Command.TogglePromptsShowOnlyFavorites, () => promptTreeDataProvider.toggleShowOnlyFavorites()),
-    registerCommand(Command.TogglePromptsShowOnlyFavoritesActive, () =>
-      promptTreeDataProvider.toggleShowOnlyFavorites(),
-    ),
+    ...createTogglePromptsViewCommands(promptTreeDataProvider),
     createExecutePromptCommand(),
     createAddPromptCommand(),
     createCopyPromptToGlobalCommand(),
     createCopyPromptToWorkspaceCommand(),
     createDeletePromptCommand(),
-    registerCommand(Command.RefreshPrompts, () => promptTreeDataProvider.refresh()),
-    registerCommand(Command.GoToPromptFile, async (item: TreePrompt) => {
-      if (item?.promptFile) {
-        const uri = vscode.Uri.file(item.promptFile);
-        await vscode.window.showTextDocument(uri);
-      }
-    }),
-    registerCommand(Command.EditBranchName, (branchName: string, value?: string) =>
-      branchContextProvider.editField(branchName, SECTION_NAME_BRANCH, value),
-    ),
-    registerCommand(Command.EditBranchPrLink, (branchName: string, value?: string) =>
-      branchContextProvider.editField(branchName, SECTION_NAME_PR_LINK, value),
-    ),
-    registerCommand(Command.EditBranchLinearLink, (branchName: string, value?: string) =>
-      branchContextProvider.editField(branchName, SECTION_NAME_LINEAR_LINK, value),
-    ),
-    registerCommand(Command.EditBranchObjective, (branchName: string, value?: string) =>
-      branchContextProvider.editField(branchName, SECTION_NAME_OBJECTIVE, value),
-    ),
-    registerCommand(Command.EditBranchRequirements, (branchName: string, value?: string) =>
-      branchContextProvider.editField(branchName, SECTION_NAME_REQUIREMENTS, value),
-    ),
-    registerCommand(Command.EditBranchNotes, (branchName: string, value?: string) =>
-      branchContextProvider.editField(branchName, SECTION_NAME_NOTES, value),
-    ),
-    registerCommand(Command.EditBranchTodos, () => branchContextProvider.openMarkdownFileAtLine(SECTION_NAME_TASKS)),
-    registerCommand(Command.OpenBranchContextFile, () => branchContextProvider.openMarkdownFile()),
-    registerCommand(Command.OpenBranchContextFileAtLine, (_branchName: string, sectionName: string) =>
-      branchContextProvider.openMarkdownFileAtLine(sectionName),
-    ),
-    registerCommand(Command.SyncBranchContext, () => branchContextProvider.syncBranchContext()),
-    registerCommand(Command.ToggleBranchContextHideEmptySections, () => {
-      branchContextState.saveHideEmptySections(true);
-      void setContextKey(ContextKey.BranchContextHideEmptySections, true);
-      branchContextProvider.refresh();
-    }),
-    registerCommand(Command.ToggleBranchContextHideEmptySectionsActive, () => {
-      branchContextState.saveHideEmptySections(false);
-      void setContextKey(ContextKey.BranchContextHideEmptySections, false);
-      branchContextProvider.refresh();
-    }),
-    registerCommand(Command.ToggleTodo, (lineIndex: number) => branchTasksProvider.toggleTodo(lineIndex)),
-    registerCommand(Command.ToggleBranchTasksShowOnlyTodo, () => branchTasksProvider.toggleShowOnlyTodo()),
-    registerCommand(Command.ToggleBranchTasksShowOnlyTodoActive, () => branchTasksProvider.toggleShowOnlyTodo()),
-    registerCommand(Command.ToggleBranchTasksGroupMode, () => branchTasksProvider.toggleGroupMode()),
-    registerCommand(Command.ToggleBranchTasksGroupModeGrouped, () => branchTasksProvider.toggleGroupMode()),
+    createGoToPromptFileCommand(),
+    ...createEditBranchFieldsCommands(branchContextProvider),
+    createOpenBranchContextFileCommand(branchContextProvider),
+    createSyncBranchContextCommand(branchContextProvider),
+    ...createToggleBranchContextHideEmptySectionsCommand(branchContextProvider),
+    ...createToggleBranchTasksCommands(branchTasksProvider),
     createShowLogsCommand(),
     registerCommand(Command.SyncPromptKeybindings, () => syncKeybindings()),
     createSetPromptKeybindingCommand(),
