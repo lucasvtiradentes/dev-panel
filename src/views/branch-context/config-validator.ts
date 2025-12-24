@@ -9,7 +9,7 @@ export type ValidationIssue = {
 };
 
 export function validateBranchContext(workspace: string, config: BranchContextConfig | undefined): ValidationIssue[] {
-  if (!config || !config.sections || config.sections.length === 0) {
+  if (!config || !config.customSections || config.customSections.length === 0) {
     return [];
   }
 
@@ -17,7 +17,7 @@ export function validateBranchContext(workspace: string, config: BranchContextCo
   const template = loadTemplate(workspace);
   const templateSections = parseTemplate(template);
 
-  for (const configSection of config.sections) {
+  for (const configSection of config.customSections) {
     const templateSection = templateSections.find((t) => t.name === configSection.name);
 
     if (!templateSection) {
@@ -30,8 +30,13 @@ export function validateBranchContext(workspace: string, config: BranchContextCo
       continue;
     }
 
-    const templateType = templateSection.type === 'code' ? 'auto' : templateSection.type;
-    if (configSection.type !== templateType) {
+    const isAutoCompatible =
+      configSection.type === 'auto' && (templateSection.type === 'code' || templateSection.type === 'text');
+    const isExactMatch = configSection.type === templateSection.type;
+    const isCodeToAuto = templateSection.type === 'code' && configSection.type === 'auto';
+
+    if (!isAutoCompatible && !isExactMatch && !isCodeToAuto) {
+      const templateType = templateSection.type === 'code' ? 'auto' : templateSection.type;
       issues.push({
         type: 'type-mismatch',
         section: configSection.name,

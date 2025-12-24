@@ -11,14 +11,20 @@ try {
 
   if (!changedFiles) {
     console.log('No changed files');
+    console.log('<!-- SECTION_METADATA: {"filesCount": 0} -->');
     process.exit(0);
   }
 
   const files = changedFiles.split('\n').filter(Boolean);
+  const filesCount = files.length;
   const dirs = [...new Set(files.map((f) => f.split('/').slice(0, -1).join('/')).filter(Boolean))];
+  const dirsCount = dirs.length;
+
+  const metadata = { filesCount, dirsCount };
 
   if (dirs.length === 0) {
     console.log(files.join('\n'));
+    console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
     process.exit(0);
   }
 
@@ -30,6 +36,7 @@ try {
   });
 
   console.log(result.trim());
+  console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
 } catch (error) {
   console.log(`Error: ${error.message}`);
 }

@@ -31,6 +31,16 @@ export const SECTION_NAME_REQUIREMENTS = BRANCH_CONTEXT_SECTION_REQUIREMENTS.rep
 export const SECTION_NAME_NOTES = BRANCH_CONTEXT_SECTION_NOTES.replace('#', '').trim();
 export const SECTION_NAME_TASKS = BRANCH_CONTEXT_SECTION_TODO.replace('#', '').trim();
 export const SECTION_NAME_BRANCH_INFO = BRANCH_CONTEXT_SECTION_BRANCH_INFO.replace('#', '').trim();
+export const SECTION_NAME_CHANGED_FILES = BRANCH_CONTEXT_SECTION_CHANGED_FILES.replace('#', '').trim();
+
+export const BUILTIN_SECTION_NAMES = [
+  SECTION_NAME_BRANCH_INFO,
+  SECTION_NAME_OBJECTIVE,
+  SECTION_NAME_REQUIREMENTS,
+  SECTION_NAME_NOTES,
+  SECTION_NAME_TASKS,
+  SECTION_NAME_CHANGED_FILES,
+];
 
 export const SECTION_LABEL_BRANCH = 'Branch';
 export const SECTION_LABEL_PR_LINK = 'PR link';
@@ -38,6 +48,7 @@ export const SECTION_LABEL_LINEAR_LINK = 'Linear link';
 export const SECTION_LABEL_OBJECTIVE = 'Objective';
 export const SECTION_LABEL_REQUIREMENTS = 'Requirements';
 export const SECTION_LABEL_NOTES = 'Notes';
+export const SECTION_LABEL_CHANGED_FILES = 'Changed files';
 
 export const TODO_CHECKBOX_UNCHECKED = '[ ]';
 export const TODO_CHECKBOX_CHECKED_LOWER = '[x]';
@@ -59,6 +70,9 @@ export const TASK_SOURCE_WORKSPACE = 'Workspace';
 export const BASE_BRANCH = 'origin/main';
 
 export const BRANCH_CONTEXT_DEFAULT_ICON = 'symbol-field';
+
+export const DESCRIPTION_NOT_SET = '(not set)';
+export const DESCRIPTION_NOT_SYNCED = '(not synced)';
 
 export enum ChangedFilesStyle {
   Tree = 'tree',

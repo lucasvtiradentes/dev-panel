@@ -41,8 +41,9 @@ try {
   }
   if (data.description) lines.push(`\nDescription:\n${data.description}`);
 
-  if (data.comments?.length) {
-    lines.push(`\n--- Comments (${data.comments.length}) ---`);
+  const commentsCount = data.comments?.length || 0;
+  if (commentsCount > 0) {
+    lines.push(`\nComments (${commentsCount}):`);
     for (const comment of data.comments) {
       const author = comment.user?.name || comment.user?.email || 'unknown';
       const date = comment.createdAt ? new Date(comment.createdAt).toLocaleDateString() : '';
@@ -51,7 +52,14 @@ try {
     }
   }
 
+  const metadata = {
+    state: data.state?.name || 'unknown',
+    priority: data.priority || 'none',
+    commentsCount,
+  };
+
   console.log(lines.join('\n') || 'No issue details available');
+  console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
 } catch (error) {
   if (error.message?.includes('not found')) {
     console.log('Issue not found or not accessible');

@@ -245,6 +245,13 @@ const BranchContextSectionSchema = z.object({
     .record(z.string(), z.any())
     .optional()
     .describe('Custom options passed to the provider (e.g., { includeReviewComments: true })'),
+  emptyValue: z.string().optional().describe('Value that indicates the section is empty (used with hideEmptySections)'),
+  descriptionTemplate: z
+    .string()
+    .optional()
+    .describe(
+      'Template for description shown in view. Use {{key}} to interpolate metadata values (e.g., "{{prCommentsCount}} PR / {{reviewCommentsCount}} Review")',
+    ),
 });
 
 const BranchContextProviderSchema = z.object({
@@ -253,7 +260,7 @@ const BranchContextProviderSchema = z.object({
     .describe('Command to execute (e.g., "node ./plugins/my-provider.js", "bash ./scripts/fetch.sh")'),
 });
 
-const BranchContextConfigSchema = z.object({
+const BuiltinSectionsSchema = z.object({
   changedFiles: z
     .union([z.boolean(), BranchContextProviderSchema])
     .optional()
@@ -264,11 +271,22 @@ const BranchContextConfigSchema = z.object({
     .optional()
     .describe('Tasks section: false = hide, true = default provider, { provider: string } = custom provider')
     .default(true),
-  sections: z
+});
+
+const BranchContextConfigSchema = z.object({
+  builtinSections: BuiltinSectionsSchema.optional().describe('Configuration for built-in sections'),
+  customSections: z
     .array(BranchContextSectionSchema)
     .optional()
     .describe('Custom sections to include in branch context')
     .default([]),
+  autoSyncInterval: z
+    .number()
+    .int()
+    .min(0)
+    .optional()
+    .describe('Auto-sync interval in seconds. 0 = disabled (default), any positive number enables periodic sync'),
+  hideEmptySections: z.boolean().optional().describe('Hide sections that have no value set (N/A or empty)'),
 });
 
 export const PPConfigSchema = z
@@ -297,3 +315,4 @@ export type PPReplacementPatch = z.infer<typeof PPReplacementPatchSchema>;
 export type BranchContextConfig = z.infer<typeof BranchContextConfigSchema>;
 export type BranchContextSection = z.infer<typeof BranchContextSectionSchema>;
 export type BranchContextProviderConfig = z.infer<typeof BranchContextProviderSchema>;
+export type BuiltinSections = z.infer<typeof BuiltinSectionsSchema>;

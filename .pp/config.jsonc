@@ -15,18 +15,22 @@
     ]
   },
   "branchContext": {
-    // "changedFiles": { "provider": "node ./plugins/tree-changed-files.js" },
-    "changedFiles": true,
-    "tasks": true,
-    "sections": [
+    "hideEmptySections": true,
+    "builtinSections": {
+      "changedFiles": true,
+      "tasks": true
+    },
+    "customSections": [
       {
         "name": "GITHUB PR COMMENTS",
         "label": "Github PR comments",
         "type": "auto",
         "provider": "node ./plugins/github-pr-comments.js",
         "icon": "github",
+        "emptyValue": "No PR link set",
+        "descriptionTemplate": "{{prCommentsCount}} PR / {{reviewCommentsCount}} Review",
         "options": {
-          "includeRegularComments": false,
+          "includeRegularComments": true,
           "includeReviewComments": true
         }
       },
@@ -35,7 +39,9 @@
         "label": "Linear issue",
         "type": "auto",
         "provider": "node ./plugins/linear-issue.js",
-        "icon": "link-external"
+        "icon": "link-external",
+        "emptyValue": "No Linear link set",
+        "descriptionTemplate": "{{state}} · {{commentsCount}} comments"
       }
     ]
   },

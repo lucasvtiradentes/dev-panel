@@ -49,51 +49,62 @@
       "description": "Branch context configuration",
       "type": "object",
       "properties": {
-        "changedFiles": {
-          "default": true,
-          "description": "Changed files section: false = hide, true = default provider, { provider: string } = custom provider",
-          "anyOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "object",
-              "properties": {
-                "provider": {
-                  "description": "Command to execute (e.g., \"node ./plugins/my-provider.js\", \"bash ./scripts/fetch.sh\")",
-                  "type": "string"
+        "builtinSections": {
+          "description": "Configuration for built-in sections",
+          "type": "object",
+          "properties": {
+            "changedFiles": {
+              "default": true,
+              "description": "Changed files section: false = hide, true = default provider, { provider: string } = custom provider",
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "provider": {
+                      "description": "Command to execute (e.g., \"node ./plugins/my-provider.js\", \"bash ./scripts/fetch.sh\")",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "provider"
+                  ],
+                  "additionalProperties": false
                 }
-              },
-              "required": [
-                "provider"
-              ],
-              "additionalProperties": false
-            }
-          ]
-        },
-        "tasks": {
-          "default": true,
-          "description": "Tasks section: false = hide, true = default provider, { provider: string } = custom provider",
-          "anyOf": [
-            {
-              "type": "boolean"
+              ]
             },
-            {
-              "type": "object",
-              "properties": {
-                "provider": {
-                  "description": "Command to execute (e.g., \"node ./plugins/my-provider.js\", \"bash ./scripts/fetch.sh\")",
-                  "type": "string"
+            "tasks": {
+              "default": true,
+              "description": "Tasks section: false = hide, true = default provider, { provider: string } = custom provider",
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "provider": {
+                      "description": "Command to execute (e.g., \"node ./plugins/my-provider.js\", \"bash ./scripts/fetch.sh\")",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "provider"
+                  ],
+                  "additionalProperties": false
                 }
-              },
-              "required": [
-                "provider"
-              ],
-              "additionalProperties": false
+              ]
             }
-          ]
+          },
+          "required": [
+            "changedFiles",
+            "tasks"
+          ],
+          "additionalProperties": false
         },
-        "sections": {
+        "customSections": {
           "default": [],
           "description": "Custom sections to include in branch context",
           "type": "array",
@@ -132,6 +143,14 @@
                   "type": "string"
                 },
                 "additionalProperties": {}
+              },
+              "emptyValue": {
+                "description": "Value that indicates the section is empty (used with hideEmptySections)",
+                "type": "string"
+              },
+              "descriptionTemplate": {
+                "description": "Template for description shown in view. Use {{key}} to interpolate metadata values (e.g., \"{{prCommentsCount}} PR / {{reviewCommentsCount}} Review\")",
+                "type": "string"
               }
             },
             "required": [
@@ -140,12 +159,20 @@
             ],
             "additionalProperties": false
           }
+        },
+        "autoSyncInterval": {
+          "description": "Auto-sync interval in seconds. 0 = disabled (default), any positive number enables periodic sync",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "hideEmptySections": {
+          "description": "Hide sections that have no value set (N/A or empty)",
+          "type": "boolean"
         }
       },
       "required": [
-        "changedFiles",
-        "tasks",
-        "sections"
+        "customSections"
       ],
       "additionalProperties": false
     },
