@@ -46,13 +46,13 @@ export class SectionItem extends vscode.TreeItem {
       this.command = {
         command: getCommandId(section.command),
         title: `Edit ${section.label}`,
-        arguments: [branchName, value],
+        arguments: [{ branchName, value }],
       };
     } else {
       this.command = {
         command: getCommandId(Command.OpenBranchContextFileAtLine),
         title: `View ${section.label}`,
-        arguments: [branchName, section.name],
+        arguments: [{ branchName, sectionName: section.name }],
       };
     }
   }

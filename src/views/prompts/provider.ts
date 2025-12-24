@@ -183,7 +183,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     const treePrompt = new TreePrompt(prompt.name, promptFilePath, vscode.TreeItemCollapsibleState.None, {
       command: getCommandId(Command.ExecutePrompt),
       title: 'Execute',
-      arguments: [promptFilePath, folder, prompt],
+      arguments: [{ promptFilePath, folder, promptConfig: prompt }],
     });
 
     const keybinding = getPromptKeybinding(prompt.name);
@@ -224,7 +224,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
       {
         command: getCommandId(Command.ExecutePrompt),
         title: 'Execute',
-        arguments: [promptFilePath, null, prompt],
+        arguments: [{ promptFilePath, folder: null, promptConfig: prompt }],
       },
     );
 
