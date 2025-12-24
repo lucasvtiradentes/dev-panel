@@ -8,10 +8,10 @@
   "files.exclude": {
     // FOLDERS
     ".changeset": true,
-    ".claude": true,
+    // ".claude": true,
     ".github": true,
     ".husky": true,
-    ".ignore": true,
+    // ".ignore": true,
     // ".pp": true,
     ".tscanner": true,
     // ".vscode": true,
@@ -25,7 +25,7 @@
     // FILES
     // ".branch-context.md": true,
     ".editorconfig": true,
-    ".gitignore": true,
+    // ".gitignore": true,
     ".lintstagedrc.json": true,
     ".vscodeignore": true,
     "biome.json": true,
