@@ -1,9 +1,9 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { CONFIG_FILE_NAME, getCommandId } from '../../common/constants';
+import { CONFIG_FILE_NAME } from '../../common/constants';
 import { getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
-import { Command, registerCommand } from '../../common/lib/vscode-utils';
+import { Command, executeCommand, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 import type { TreeTask } from '../../views/tasks/items';
 
@@ -51,7 +51,7 @@ async function handleDeleteTask(treeTask: TreeTask): Promise<void> {
   fs.writeFileSync(workspaceConfigPath, JSON.stringify(workspaceConfig, null, 2), 'utf8');
 
   vscode.window.showInformationMessage(`✓ Task "${taskName}" deleted`);
-  void vscode.commands.executeCommand(getCommandId(Command.Refresh));
+  void executeCommand(Command.Refresh);
 }
 
 export function createDeleteTaskCommand() {

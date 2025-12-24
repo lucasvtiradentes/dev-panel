@@ -1,9 +1,9 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { CONFIG_FILE_NAME, GLOBAL_ITEM_PREFIX, getCommandId, getGlobalConfigPath } from '../../common/constants';
+import { CONFIG_FILE_NAME, GLOBAL_ITEM_PREFIX, getGlobalConfigPath } from '../../common/constants';
 import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
-import { Command, registerCommand } from '../../common/lib/vscode-utils';
+import { Command, executeCommand, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 import type { TreeTask } from '../../views/tasks/items';
 
@@ -91,7 +91,7 @@ async function handleCopyTaskToWorkspace(treeTask: TreeTask): Promise<void> {
   fs.writeFileSync(workspaceConfigPath, JSON.stringify(workspaceConfig, null, 2), 'utf8');
 
   vscode.window.showInformationMessage(`✓ Task "${task.name}" copied to workspace`);
-  void vscode.commands.executeCommand(getCommandId(Command.Refresh));
+  void executeCommand(Command.Refresh);
 }
 
 export function createCopyTaskToWorkspaceCommand() {

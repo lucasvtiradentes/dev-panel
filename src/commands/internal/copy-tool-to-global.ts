@@ -6,13 +6,12 @@ import {
   CONFIG_FILE_NAME,
   GLOBAL_ITEM_PREFIX,
   TOOLS_DIR,
-  getCommandId,
   getGlobalConfigDir,
   getGlobalConfigPath,
   getGlobalToolsDir,
 } from '../../common/constants';
 import { getWorkspaceConfigFilePath, joinConfigPath } from '../../common/lib/config-manager';
-import { Command, registerCommand } from '../../common/lib/vscode-utils';
+import { Command, executeCommand, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 import type { TreeTool } from '../../views/tools/items';
 
@@ -100,7 +99,7 @@ async function handleCopyToolToGlobal(treeTool: TreeTool): Promise<void> {
   }
 
   vscode.window.showInformationMessage(`✓ Tool "${tool.name}" copied to global config`);
-  void vscode.commands.executeCommand(getCommandId(Command.RefreshTools));
+  void executeCommand(Command.RefreshTools);
 }
 
 export function createCopyToolToGlobalCommand() {

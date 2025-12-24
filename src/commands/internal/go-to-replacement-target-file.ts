@@ -3,8 +3,10 @@ import * as vscode from 'vscode';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPReplacement } from '../../common/schemas/config-schema';
 
+export type GoToReplacementTargetFileParams = { replacement?: PPReplacement };
+
 export function createGoToReplacementTargetFileCommand(): vscode.Disposable {
-  return registerCommand(Command.GoToReplacementTargetFile, async (item: { replacement?: PPReplacement }) => {
+  return registerCommand(Command.GoToReplacementTargetFile, async (item: GoToReplacementTargetFileParams) => {
     if (item?.replacement?.target) {
       const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
       if (!workspaceFolder) return;

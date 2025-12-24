@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { getCommandId } from '../constants/functions';
 import { CONTEXT_PREFIX } from '../constants/scripts-constants';
+import type { CommandParams } from './command-params';
 
 export enum Command {
   Refresh = 'refresh',
@@ -103,6 +104,13 @@ export enum Command {
 
 export function registerCommand(command: Command, callback: (...args: any[]) => any): vscode.Disposable {
   return vscode.commands.registerCommand(getCommandId(command), callback);
+}
+
+export function executeCommand<T extends Command>(
+  command: T,
+  ...args: T extends keyof CommandParams ? [CommandParams[T]] : []
+): Thenable<unknown> {
+  return vscode.commands.executeCommand(getCommandId(command), ...args);
 }
 
 export enum ToastKind {

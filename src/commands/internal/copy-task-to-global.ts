@@ -1,15 +1,9 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import {
-  CONFIG_FILE_NAME,
-  GLOBAL_ITEM_PREFIX,
-  getCommandId,
-  getGlobalConfigDir,
-  getGlobalConfigPath,
-} from '../../common/constants';
+import { CONFIG_FILE_NAME, GLOBAL_ITEM_PREFIX, getGlobalConfigDir, getGlobalConfigPath } from '../../common/constants';
 import { getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
-import { Command, registerCommand } from '../../common/lib/vscode-utils';
+import { Command, executeCommand, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 import type { TreeTask } from '../../views/tasks/items';
 
@@ -84,7 +78,7 @@ async function handleCopyTaskToGlobal(treeTask: TreeTask): Promise<void> {
   fs.writeFileSync(globalConfigPath, JSON.stringify(globalConfig, null, 2), 'utf8');
 
   vscode.window.showInformationMessage(`✓ Task "${task.name}" copied to global config`);
-  void vscode.commands.executeCommand(getCommandId(Command.Refresh));
+  void executeCommand(Command.Refresh);
 }
 
 export function createCopyTaskToGlobalCommand() {

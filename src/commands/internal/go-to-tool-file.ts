@@ -4,8 +4,10 @@ import { joinConfigPath } from '../../common/lib/config-manager';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { TreeTool } from '../../views/tools';
 
+export type GoToToolFileParams = TreeTool;
+
 export function createGoToToolFileCommand(): vscode.Disposable {
-  return registerCommand(Command.GoToToolFile, async (item: TreeTool) => {
+  return registerCommand(Command.GoToToolFile, async (item: GoToToolFileParams) => {
     if (item?.toolName) {
       const isGlobal = item.toolName.startsWith(GLOBAL_ITEM_PREFIX);
       const toolName = isGlobal ? item.toolName.substring(GLOBAL_ITEM_PREFIX.length) : item.toolName;
