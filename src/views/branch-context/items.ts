@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { BRANCH_FIELD_DESCRIPTION_MAX_LENGTH, CONTEXT_VALUES, getCommandId } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
+import type { SectionDefinition } from './section-registry';
 
 export enum BranchContextField {
   Branch = 'branch',
@@ -50,4 +51,30 @@ function truncate(str: string, maxLen: number): string {
   const firstLine = str.split('\n')[0];
   if (firstLine.length <= maxLen) return firstLine;
   return `${firstLine.slice(0, maxLen - 3)}...`;
+}
+
+export class CustomSectionItem extends vscode.TreeItem {
+  constructor(
+    public readonly section: SectionDefinition,
+    public readonly value: string | undefined,
+    private readonly branchName: string,
+  ) {
+    super(section.name, vscode.TreeItemCollapsibleState.None);
+
+    this.iconPath = new vscode.ThemeIcon(section.icon);
+    this.contextValue = CONTEXT_VALUES.BRANCH_CONTEXT_FIELD;
+
+    if (section.type === 'field' || section.type === 'text') {
+      this.description = value ? truncate(value, BRANCH_FIELD_DESCRIPTION_MAX_LENGTH) : '(not set)';
+      this.tooltip = value ?? `Click to set ${section.name.toLowerCase()}`;
+      this.command = {
+        command: getCommandId(Command.OpenBranchContextFileAtLine),
+        title: `Edit ${section.name}`,
+        arguments: [branchName, section.name],
+      };
+    } else if (section.type === 'auto') {
+      this.description = value ? truncate(value, BRANCH_FIELD_DESCRIPTION_MAX_LENGTH) : '(not synced)';
+      this.tooltip = 'Auto-populated section. Click "Sync" to refresh.';
+    }
+  }
 }

@@ -42,6 +42,8 @@ export const TASK_SOURCE_WORKSPACE = 'Workspace';
 
 export const BASE_BRANCH = 'origin/main';
 
+export const BRANCH_CONTEXT_DEFAULT_ICON = 'symbol-field';
+
 export enum ChangedFilesStyle {
   Tree = 'tree',
   List = 'list',

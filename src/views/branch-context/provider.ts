@@ -12,10 +12,11 @@ import { createLogger } from '../../common/lib/logger';
 import type { PPConfig } from '../../common/schemas/config-schema';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { validateBranchContext } from './config-validator';
-import { BranchContextField, BranchContextFieldItem } from './items';
+import { BranchContextField, BranchContextFieldItem, CustomSectionItem } from './items';
 import { generateBranchContextMarkdown } from './markdown-generator';
 import { getBranchContextFilePath, getFieldLineNumber } from './markdown-parser';
 import { type SyncContext, createChangedFilesProvider } from './providers';
+import { SectionRegistry } from './section-registry';
 import { loadBranchContext } from './state';
 import { ValidationIndicator } from './validation-indicator';
 
@@ -263,8 +264,9 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
 
     const context = loadBranchContext(this.currentBranch);
+    const config = this.loadConfig(workspace);
 
-    return [
+    const items: vscode.TreeItem[] = [
       new BranchContextFieldItem(BranchContextField.Branch, this.currentBranch, this.currentBranch),
       new BranchContextFieldItem(BranchContextField.PrLink, context.prLink, this.currentBranch),
       new BranchContextFieldItem(BranchContextField.LinearLink, context.linearLink, this.currentBranch),
@@ -272,6 +274,35 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       new BranchContextFieldItem(BranchContextField.Requirements, context.requirements, this.currentBranch),
       new BranchContextFieldItem(BranchContextField.Notes, context.notes, this.currentBranch),
     ];
+
+    if (config?.branchContext?.sections) {
+      const registry = new SectionRegistry(workspace, config.branchContext);
+      for (const section of registry.getAllSections()) {
+        if (!section.isBuiltin) {
+          const value = this.getCustomSectionValue(context, section.name);
+          items.push(new CustomSectionItem(section, value, this.currentBranch));
+        }
+      }
+    }
+
+    return items;
+  }
+
+  private loadConfig(workspace: string): PPConfig | null {
+    const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
+    if (!fs.existsSync(configPath)) return null;
+    try {
+      const content = fs.readFileSync(configPath, 'utf-8');
+      return JSON5.parse(content) as PPConfig;
+    } catch {
+      return null;
+    }
+  }
+
+  private getCustomSectionValue(context: Record<string, unknown>, sectionName: string): string | undefined {
+    const value = context[sectionName];
+    if (typeof value === 'string') return value;
+    return undefined;
   }
 
   async editField(_branchName: string, field: BranchContextField, _currentValue: string | undefined): Promise<void> {
@@ -326,12 +357,12 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
     logger.info(`[syncBranchContext] Loading context for branch: ${this.currentBranch}`);
     const context = loadBranchContext(this.currentBranch);
+    const config = this.loadConfig(workspace);
     this.isWritingMarkdown = true;
 
     try {
       logger.info('[syncBranchContext] Syncing auto sections with fresh data');
 
-      const changedFilesProvider = createChangedFilesProvider(true);
       const syncContext: SyncContext = {
         branchName: this.currentBranch,
         workspacePath: workspace,
@@ -339,11 +370,33 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
         branchContext: context,
       };
 
-      const changedFiles = await changedFilesProvider.fetch(syncContext);
+      let changedFiles: string | undefined;
+      if (config?.branchContext?.changedFiles !== false) {
+        const changedFilesProvider = createChangedFilesProvider(config?.branchContext?.changedFiles, workspace);
+        changedFiles = await changedFilesProvider.fetch(syncContext);
+      }
+
+      const customAutoData: Record<string, string> = {};
+      if (config?.branchContext?.sections) {
+        const registry = new SectionRegistry(workspace, config.branchContext);
+        for (const section of registry.getAutoSections()) {
+          if (section.provider) {
+            logger.info(`[syncBranchContext] Fetching auto section: ${section.name}`);
+            try {
+              const data = await section.provider.fetch(syncContext);
+              customAutoData[section.name] = data;
+            } catch (error) {
+              logger.error(`[syncBranchContext] Failed to fetch ${section.name}: ${error}`);
+              customAutoData[section.name] = `Error: ${error}`;
+            }
+          }
+        }
+      }
 
       await generateBranchContextMarkdown(this.currentBranch, {
         ...context,
         changedFiles,
+        ...customAutoData,
       });
 
       logger.info('[syncBranchContext] Syncing branch to root');
