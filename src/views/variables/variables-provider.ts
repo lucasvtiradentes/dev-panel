@@ -7,6 +7,7 @@ import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
   DEFAULT_EXCLUDES,
+  DEFAULT_INCLUDES,
   DISPLAY_PREFIX,
   NO_GROUP_NAME,
   VARIABLES_FILE_NAME,
@@ -43,6 +44,7 @@ type VariableItem = {
   group?: string;
   showTerminal?: boolean;
   multiSelect?: boolean;
+  includes?: string[];
   excludes?: string[];
 };
 
@@ -319,12 +321,27 @@ export async function selectVariableOption(variable: VariableItem): Promise<void
       if (!workspaceFolder) return;
 
       const settings = providerInstance?.loadSettings();
+
+      const defaultIncludes = [...DEFAULT_INCLUDES];
+      const includes =
+        variable.includes && variable.includes.length > 0
+          ? [...defaultIncludes, ...variable.includes]
+          : settings?.include && settings.include.length > 0
+            ? [...defaultIncludes, ...settings.include]
+            : defaultIncludes;
+
+      const defaultExcludes = [...DEFAULT_EXCLUDES];
       const excludes =
-        variable.excludes ?? (settings?.exclude && settings.exclude.length > 0 ? settings.exclude : DEFAULT_EXCLUDES);
+        variable.excludes && variable.excludes.length > 0
+          ? [...defaultExcludes, ...variable.excludes]
+          : settings?.exclude && settings.exclude.length > 0
+            ? [...defaultExcludes, ...settings.exclude]
+            : defaultExcludes;
 
       const options: FileSelectionOptions = {
         label: variable.description || `Select file for ${variable.name}`,
         multiSelect: variable.multiSelect ?? false,
+        includes,
         excludes,
       };
 
@@ -339,12 +356,27 @@ export async function selectVariableOption(variable: VariableItem): Promise<void
       if (!workspaceFolder) return;
 
       const settings = providerInstance?.loadSettings();
+
+      const defaultIncludes = [...DEFAULT_INCLUDES];
+      const includes =
+        variable.includes && variable.includes.length > 0
+          ? [...defaultIncludes, ...variable.includes]
+          : settings?.include && settings.include.length > 0
+            ? [...defaultIncludes, ...settings.include]
+            : defaultIncludes;
+
+      const defaultExcludes = [...DEFAULT_EXCLUDES];
       const excludes =
-        variable.excludes ?? (settings?.exclude && settings.exclude.length > 0 ? settings.exclude : DEFAULT_EXCLUDES);
+        variable.excludes && variable.excludes.length > 0
+          ? [...defaultExcludes, ...variable.excludes]
+          : settings?.exclude && settings.exclude.length > 0
+            ? [...defaultExcludes, ...settings.exclude]
+            : defaultExcludes;
 
       const options: FileSelectionOptions = {
         label: variable.description || `Select folder for ${variable.name}`,
         multiSelect: variable.multiSelect ?? false,
+        includes,
         excludes,
       };
 

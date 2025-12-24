@@ -2,6 +2,8 @@ import { z } from 'zod';
 import {
   BRANCHES_DIR_NAME,
   CONFIG_DIR_NAME,
+  DEFAULT_EXCLUDES,
+  DEFAULT_INCLUDES,
   EXTENSION_DISPLAY_NAME,
   PROMPTS_DIR_NAME,
 } from '../constants/scripts-constants';
@@ -35,10 +37,14 @@ const PPInputSchema = z
     placeholder: z.string().optional().describe('Placeholder text for text/number inputs'),
     options: z.array(z.string()).optional().describe('Available options for choice/multichoice types'),
     multiSelect: z.boolean().optional().describe('Enable multi-selection for file/folder types'),
+    includes: z
+      .array(z.string())
+      .optional()
+      .describe('Glob patterns to include for this input. Extends global includes'),
     excludes: z
       .array(z.string())
       .optional()
-      .describe('Glob patterns to exclude for this input. Overrides global excludes'),
+      .describe('Glob patterns to exclude for this input. Extends global excludes'),
   })
   .describe('An input required before execution (used by prompts and tasks)');
 
@@ -124,14 +130,16 @@ const PPVariableInputSchema = PPVariableBaseSchema.extend({
 const PPVariableFileSingleSchema = PPVariableBaseSchema.extend({
   kind: z.literal('file').describe('File selection'),
   multiSelect: z.literal(false).optional().describe('Single selection'),
-  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Overrides global excludes'),
+  includes: z.array(z.string()).optional().describe('Glob patterns to include. Extends global includes'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Extends global excludes'),
   default: z.string().optional().describe('Default value'),
 });
 
 const PPVariableFileMultiSchema = PPVariableBaseSchema.extend({
   kind: z.literal('file').describe('File selection (multi-select)'),
   multiSelect: z.literal(true).describe('Multi-selection enabled'),
-  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Overrides global excludes'),
+  includes: z.array(z.string()).optional().describe('Glob patterns to include. Extends global includes'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Extends global excludes'),
   default: z.array(z.string()).optional().describe('Default values'),
 });
 
@@ -140,14 +148,16 @@ const PPVariableFileSchema = z.union([PPVariableFileSingleSchema, PPVariableFile
 const PPVariableFolderSingleSchema = PPVariableBaseSchema.extend({
   kind: z.literal('folder').describe('Folder selection'),
   multiSelect: z.literal(false).optional().describe('Single selection'),
-  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Overrides global excludes'),
+  includes: z.array(z.string()).optional().describe('Glob patterns to include. Extends global includes'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Extends global excludes'),
   default: z.string().optional().describe('Default value'),
 });
 
 const PPVariableFolderMultiSchema = PPVariableBaseSchema.extend({
   kind: z.literal('folder').describe('Folder selection (multi-select)'),
   multiSelect: z.literal(true).describe('Multi-selection enabled'),
-  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Overrides global excludes'),
+  includes: z.array(z.string()).optional().describe('Glob patterns to include. Extends global includes'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Extends global excludes'),
   default: z.array(z.string()).optional().describe('Default values'),
 });
 
@@ -205,11 +215,17 @@ const PPSettingsSchema = z
       .describe(
         'Execution mode for prompts with saveOutput: "timestamped" creates new file each time with timestamp, "overwrite" replaces previous file',
       ),
+    include: z
+      .array(z.string())
+      .optional()
+      .describe(
+        `Glob patterns to include globally (package.json search, prompt file/folder selection, variable file/folder selection). Extends defaults: ${DEFAULT_INCLUDES.join(', ')}. Add custom inclusions as needed (e.g. ["**/*.ts", "**/*.json"])`,
+      ),
     exclude: z
       .array(z.string())
       .optional()
       .describe(
-        `Glob patterns to exclude globally (package.json search, prompt file/folder selection, variable file/folder selection). Always excluded (hardcoded): node_modules, dist, .git. Add custom exclusions as needed (e.g. ["**/.pp/**", "**/.changeset/**", "**/out/**", "**/*.log"])`,
+        `Glob patterns to exclude globally (package.json search, prompt file/folder selection, variable file/folder selection). Extends defaults: ${DEFAULT_EXCLUDES.join(', ')}. Add custom exclusions as needed (e.g. ["**/.pp/**", "**/.changeset/**", "**/out/**", "**/*.log"])`,
       ),
   })
   .describe(`Global settings for ${EXTENSION_DISPLAY_NAME} behavior`);
