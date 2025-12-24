@@ -2,21 +2,8 @@ import * as vscode from 'vscode';
 import { BRANCH_FIELD_DESCRIPTION_MAX_LENGTH, CONTEXT_VALUES, getCommandId } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
 
-export class BranchHeaderItem extends vscode.TreeItem {
-  constructor(branchName: string) {
-    super('Branch', vscode.TreeItemCollapsibleState.None);
-    this.description = branchName;
-    this.iconPath = new vscode.ThemeIcon('git-branch');
-    this.contextValue = CONTEXT_VALUES.BRANCH_HEADER;
-    this.tooltip = 'Click to switch branch';
-    this.command = {
-      command: 'git.checkout',
-      title: 'Switch Branch',
-    };
-  }
-}
-
 export enum BranchContextField {
+  Branch = 'branch',
   PrLink = 'prLink',
   LinearLink = 'linearLink',
   Objective = 'objective',
@@ -25,6 +12,7 @@ export enum BranchContextField {
 }
 
 const FIELD_CONFIG: Record<BranchContextField, { label: string; icon: string; command: Command }> = {
+  [BranchContextField.Branch]: { label: 'Branch', icon: 'git-branch', command: Command.EditBranchName },
   [BranchContextField.PrLink]: { label: 'PR Link', icon: 'git-pull-request', command: Command.EditBranchPrLink },
   [BranchContextField.LinearLink]: { label: 'Linear Link', icon: 'link', command: Command.EditBranchLinearLink },
   [BranchContextField.Objective]: { label: 'Objective', icon: 'target', command: Command.EditBranchObjective },

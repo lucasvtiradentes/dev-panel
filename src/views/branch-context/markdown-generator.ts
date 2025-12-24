@@ -2,9 +2,11 @@ import * as fs from 'node:fs';
 import * as vscode from 'vscode';
 import {
   BRANCH_CONTEXT_DEFAULT_TODOS,
+  BRANCH_CONTEXT_FIELD_BRANCH,
   BRANCH_CONTEXT_FIELD_LINEAR_LINK,
   BRANCH_CONTEXT_FIELD_PR_LINK,
   BRANCH_CONTEXT_NA,
+  BRANCH_CONTEXT_SECTION_BRANCH_INFO,
   BRANCH_CONTEXT_SECTION_CHANGED_FILES,
   BRANCH_CONTEXT_SECTION_NOTES,
   BRANCH_CONTEXT_SECTION_OBJECTIVE,
@@ -52,8 +54,9 @@ export async function generateBranchContextMarkdown(branchName: string, context:
   );
 
   const lines: string[] = [
-    `# ${branchName}`,
+    BRANCH_CONTEXT_SECTION_BRANCH_INFO,
     '',
+    `${BRANCH_CONTEXT_FIELD_BRANCH} ${branchName}`,
     `${BRANCH_CONTEXT_FIELD_PR_LINK} ${context.prLink || BRANCH_CONTEXT_NA}`,
     `${BRANCH_CONTEXT_FIELD_LINEAR_LINK} ${context.linearLink || BRANCH_CONTEXT_NA}`,
     '',

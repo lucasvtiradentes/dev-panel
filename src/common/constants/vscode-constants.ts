@@ -1,5 +1,4 @@
 export const CONTEXT_VALUES = {
-  BRANCH_HEADER: 'branchHeader',
   BRANCH_CONTEXT_FIELD: 'branchContextField',
   GROUP: 'group',
   TOOL: 'tool',

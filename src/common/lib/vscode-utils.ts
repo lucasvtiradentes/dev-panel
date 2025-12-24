@@ -63,6 +63,7 @@ export enum Command {
   CopyPromptToGlobal = 'copyPromptToGlobal',
   CopyPromptToWorkspace = 'copyPromptToWorkspace',
   DeletePrompt = 'deletePrompt',
+  EditBranchName = 'editBranchName',
   EditBranchPrLink = 'editBranchPrLink',
   EditBranchLinearLink = 'editBranchLinearLink',
   EditBranchObjective = 'editBranchObjective',

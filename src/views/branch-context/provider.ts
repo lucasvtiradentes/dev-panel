@@ -8,7 +8,7 @@ import {
 } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
-import { BranchContextField, BranchContextFieldItem, BranchHeaderItem } from './items';
+import { BranchContextField, BranchContextFieldItem } from './items';
 import { generateBranchContextMarkdown } from './markdown-generator';
 import { getBranchContextFilePath, getFieldLineNumber } from './markdown-parser';
 import { loadBranchContext } from './state';
@@ -240,7 +240,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     const context = loadBranchContext(this.currentBranch);
 
     return [
-      new BranchHeaderItem(this.currentBranch),
+      new BranchContextFieldItem(BranchContextField.Branch, this.currentBranch, this.currentBranch),
       new BranchContextFieldItem(BranchContextField.PrLink, context.prLink, this.currentBranch),
       new BranchContextFieldItem(BranchContextField.LinearLink, context.linearLink, this.currentBranch),
       new BranchContextFieldItem(BranchContextField.Objective, context.objective, this.currentBranch),
@@ -251,8 +251,9 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
   async editField(_branchName: string, field: BranchContextField, _currentValue: string | undefined): Promise<void> {
     const fieldLineMap: Record<BranchContextField, string | null> = {
-      [BranchContextField.PrLink]: 'PR LINK',
-      [BranchContextField.LinearLink]: 'LINEAR LINK',
+      [BranchContextField.Branch]: 'BRANCH INFO',
+      [BranchContextField.PrLink]: 'BRANCH INFO',
+      [BranchContextField.LinearLink]: 'BRANCH INFO',
       [BranchContextField.Objective]: 'OBJECTIVE',
       [BranchContextField.Requirements]: 'REQUIREMENTS',
       [BranchContextField.Notes]: 'NOTES',

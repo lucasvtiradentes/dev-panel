@@ -168,6 +168,9 @@ export function registerAllCommands(options: {
         await vscode.window.showTextDocument(uri);
       }
     }),
+    registerCommand(Command.EditBranchName, (branchName: string, value?: string) =>
+      branchContextProvider.editField(branchName, BranchContextField.Branch, value),
+    ),
     registerCommand(Command.EditBranchPrLink, (branchName: string, value?: string) =>
       branchContextProvider.editField(branchName, BranchContextField.PrLink, value),
     ),

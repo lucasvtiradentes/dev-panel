@@ -1,4 +1,5 @@
 export type BranchContext = {
+  branchName?: string;
   prLink?: string;
   linearLink?: string;
   objective?: string;
