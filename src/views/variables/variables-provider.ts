@@ -8,6 +8,7 @@ import {
   CONTEXT_VALUES,
   DEFAULT_EXCLUDES,
   DEFAULT_INCLUDES,
+  DESCRIPTION_NOT_SET,
   DISPLAY_PREFIX,
   NO_GROUP_NAME,
   VARIABLES_FILE_NAME,
@@ -84,7 +85,7 @@ function formatValue(value: unknown, variable: VariableItem): string {
     if (variable.default !== undefined) {
       return formatValue(variable.default, variable);
     }
-    return '(not set)';
+    return DESCRIPTION_NOT_SET;
   }
   if (typeof value === 'boolean') return value ? 'ON' : 'OFF';
   if (Array.isArray(value)) return value.length > 0 ? value.join(', ') : '(none)';

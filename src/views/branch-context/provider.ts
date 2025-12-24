@@ -354,7 +354,8 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
         continue;
       }
 
-      items.push(new SectionItem(section, value, this.currentBranch));
+      const sectionMetadata = context.metadata?.sections?.[section.name];
+      items.push(new SectionItem(section, value, this.currentBranch, sectionMetadata));
     }
 
     return items;

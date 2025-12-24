@@ -62,6 +62,9 @@ export const BASE_BRANCH = 'origin/main';
 
 export const BRANCH_CONTEXT_DEFAULT_ICON = 'symbol-field';
 
+export const DESCRIPTION_NOT_SET = '(not set)';
+export const DESCRIPTION_NOT_SYNCED = '(not synced)';
+
 export enum ChangedFilesStyle {
   Tree = 'tree',
   List = 'list',

@@ -43,7 +43,7 @@ try {
 
   const commentsCount = data.comments?.length || 0;
   if (commentsCount > 0) {
-    lines.push(`\n--- Comments (${commentsCount}) ---`);
+    lines.push(`\nComments (${commentsCount}):`);
     for (const comment of data.comments) {
       const author = comment.user?.name || comment.user?.email || 'unknown';
       const date = comment.createdAt ? new Date(comment.createdAt).toLocaleDateString() : '';

@@ -36,6 +36,7 @@ export type SectionDefinition = {
   provider?: AutoSectionProvider;
   options?: Record<string, unknown>;
   emptyValue?: string;
+  descriptionTemplate?: string;
 };
 
 export class SectionRegistry {
@@ -142,6 +143,7 @@ export class SectionRegistry {
         provider,
         options: section.options,
         emptyValue: section.emptyValue,
+        descriptionTemplate: section.descriptionTemplate,
       });
 
       logger.info(`[registerCustom] Registered section: ${section.name}`);

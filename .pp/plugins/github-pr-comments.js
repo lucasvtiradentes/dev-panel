@@ -34,7 +34,7 @@ if (includeRegularComments) {
     prCommentsCount = comments.length;
 
     if (comments.length > 0) {
-      output.push(`--- PR Comments (${comments.length}) ---\n`);
+      output.push(`PR Comments (${comments.length}):\n`);
       for (const c of comments) {
         const date = new Date(c.createdAt).toLocaleDateString();
         const author = c.author?.login || 'unknown';
@@ -58,7 +58,7 @@ if (includeReviewComments) {
     reviewCommentsCount = reviewComments.length;
 
     if (reviewComments.length > 0) {
-      output.push(`\n--- Code Review Comments (${reviewComments.length}) ---\n`);
+      output.push(`\nCode Review Comments (${reviewComments.length}):\n`);
       for (const c of reviewComments) {
         const date = new Date(c.created_at).toLocaleDateString();
         const author = c.user?.login || 'unknown';
