@@ -36,22 +36,38 @@
 
 - [ ] modificar a db-query para todas as queries serem salvas em um .md com query e response para a gente ter um tracking disso e poder marcar
 
-## TODO
+## INIT 
+
+- [ ] corrigir o extension para nao auto-criar as coisas, fazer isso so se o cara rodar o init 
+- [ ] corrigir o init para criar o branch-context-template
+
+## PLUGINS
+
+- [ ] adicionar um plugin para gerir tarefas no lineear 
+- [ ] plugin para pedir para ia analiser e resumir oq cada commit fez -> se nao tem novo commit nao analisa
+- [ ] ajustar o linear-plugin para ter o fetch project tambem caso o link seja de projeto
+
+## REGISTRY 
 
 - [ ] ter um registry ou algo assim para adicionar tools nos projetos facilmente
   - prompts
   - tools
   - scripts
-- [ ] nao ta dando para atribuir atalho em global prompts/tools/tasks
-- [ ] ajeitar o branch tasks para ter status: to do / doing / done 
-- [ ] falta adicionar as secoes tasks no branch context menu
-- [ ] plugin para pedir para ia analiser e resumir oq cada commit fez -> se nao tem novo commit nao analisa
-- [ ] botao de IA para a gente preencher os dados do markdown com ia 
+  - plugins
+
+## ATALHOS
+
 - [ ] remover atalhos individuais dos tree items
-- [ ] ajustar o linear-plugin para ter o fetch project tambem caso o link seja de projeto
-- [ ] adicionar um plugin para gerir tarefas no lineear 
-- [ ] corrigir o extension para nao auto-criar as coisas, fazer isso so se o cara rodar o init 
-- [ ] corrigir o init para criar o branch-context-template
+- [ ] nao ta dando para atribuir atalho em global prompts/tools/tasks
+
+## TASKS
+
+- [ ] falta adicionar as secoes tasks no branch context menu
+- [ ] ajeitar o branch tasks para ter status: to do / doing / done 
+
+## TODO
+
+- [ ] botao de IA para a gente preencher os dados do markdown com ia 
 
 ## NAME 
 
@@ -60,4 +76,8 @@ repo center
 project center
 project lab
 project hub
+repo hub
+repo control center
+repo control panel
+
 
