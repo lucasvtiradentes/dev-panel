@@ -38,12 +38,18 @@ import { createBranchWatcher } from './watchers/branch-watcher';
 import { createConfigWatcher } from './watchers/config-watcher';
 import { createKeybindingsWatcher } from './watchers/keybindings-watcher';
 
-export function activate(context: vscode.ExtensionContext): object {
-  const activateStart = Date.now();
-  logger.clear();
-  logger.info('=== EXTENSION ACTIVATE START ===');
-  void setContextKey(ContextKey.ExtensionInitializing, true);
+interface Providers {
+  statusBarManager: StatusBarManager;
+  taskTreeDataProvider: TaskTreeDataProvider;
+  variablesProvider: VariablesProvider;
+  replacementsProvider: ReplacementsProvider;
+  toolTreeDataProvider: ToolTreeDataProvider;
+  promptTreeDataProvider: PromptTreeDataProvider;
+  branchContextProvider: BranchContextProvider;
+  branchTasksProvider: BranchTasksProvider;
+}
 
+function setupStatesAndContext(context: vscode.ExtensionContext): void {
   initWorkspaceState(context);
   initGlobalState(context);
   migrateGlobalState();
@@ -53,11 +59,15 @@ export function activate(context: vscode.ExtensionContext): object {
   setWorkspaceId(workspaceId);
   void setContextKey(ContextKey.WorkspaceId, workspaceId);
   logger.info(`Workspace ID: ${workspaceId}`);
+}
 
+function setupInitialKeybindings(): void {
   reloadToolKeybindings();
   reloadPromptKeybindings();
   reloadTaskKeybindings();
+}
 
+function setupProviders(context: vscode.ExtensionContext, activateStart: number): Providers {
   const statusBarManager = new StatusBarManager();
   const taskTreeDataProvider = new TaskTreeDataProvider(context);
   const variablesProvider = new VariablesProvider();
@@ -77,47 +87,64 @@ export function activate(context: vscode.ExtensionContext): object {
     ensureTemplateExists(workspace);
   }
 
+  return {
+    statusBarManager,
+    taskTreeDataProvider,
+    variablesProvider,
+    replacementsProvider,
+    toolTreeDataProvider,
+    promptTreeDataProvider,
+    branchContextProvider,
+    branchTasksProvider,
+  };
+}
+
+function setupTreeViews(providers: Providers): void {
   const tasksTreeView = vscode.window.createTreeView(getViewIdTasks(), {
-    treeDataProvider: taskTreeDataProvider,
-    dragAndDropController: taskTreeDataProvider.dragAndDropController,
+    treeDataProvider: providers.taskTreeDataProvider,
+    dragAndDropController: providers.taskTreeDataProvider.dragAndDropController,
   });
-  taskTreeDataProvider.setTreeView(tasksTreeView);
+  providers.taskTreeDataProvider.setTreeView(tasksTreeView);
 
   const toolsTreeView = vscode.window.createTreeView(getViewIdTools(), {
-    treeDataProvider: toolTreeDataProvider,
-    dragAndDropController: toolTreeDataProvider.dragAndDropController,
+    treeDataProvider: providers.toolTreeDataProvider,
+    dragAndDropController: providers.toolTreeDataProvider.dragAndDropController,
   });
-  toolTreeDataProvider.setTreeView(toolsTreeView);
+  providers.toolTreeDataProvider.setTreeView(toolsTreeView);
 
   const promptsTreeView = vscode.window.createTreeView(getViewIdPrompts(), {
-    treeDataProvider: promptTreeDataProvider,
-    dragAndDropController: promptTreeDataProvider.dragAndDropController,
+    treeDataProvider: providers.promptTreeDataProvider,
+    dragAndDropController: providers.promptTreeDataProvider.dragAndDropController,
   });
-  promptTreeDataProvider.setTreeView(promptsTreeView);
+  providers.promptTreeDataProvider.setTreeView(promptsTreeView);
 
-  vscode.window.registerTreeDataProvider(getViewIdConfigs(), variablesProvider);
-  vscode.window.registerTreeDataProvider(getViewIdReplacements(), replacementsProvider);
-  vscode.window.registerTreeDataProvider(getViewIdBranchContext(), branchContextProvider);
-  vscode.window.registerTreeDataProvider(getViewIdTodos(), branchTasksProvider);
+  vscode.window.registerTreeDataProvider(getViewIdConfigs(), providers.variablesProvider);
+  vscode.window.registerTreeDataProvider(getViewIdReplacements(), providers.replacementsProvider);
+  vscode.window.registerTreeDataProvider(getViewIdBranchContext(), providers.branchContextProvider);
+  vscode.window.registerTreeDataProvider(getViewIdTodos(), providers.branchTasksProvider);
+}
 
-  context.subscriptions.push({ dispose: () => statusBarManager.dispose() });
-  context.subscriptions.push({ dispose: () => taskTreeDataProvider.dispose() });
-  context.subscriptions.push({ dispose: () => variablesProvider.dispose() });
-  context.subscriptions.push({ dispose: () => replacementsProvider.dispose() });
-  context.subscriptions.push({ dispose: () => toolTreeDataProvider.dispose() });
-  context.subscriptions.push({ dispose: () => promptTreeDataProvider.dispose() });
-  context.subscriptions.push({ dispose: () => branchContextProvider.dispose() });
-  context.subscriptions.push({ dispose: () => branchTasksProvider.dispose() });
+function setupDisposables(context: vscode.ExtensionContext, providers: Providers): void {
+  context.subscriptions.push({ dispose: () => providers.statusBarManager.dispose() });
+  context.subscriptions.push({ dispose: () => providers.taskTreeDataProvider.dispose() });
+  context.subscriptions.push({ dispose: () => providers.variablesProvider.dispose() });
+  context.subscriptions.push({ dispose: () => providers.replacementsProvider.dispose() });
+  context.subscriptions.push({ dispose: () => providers.toolTreeDataProvider.dispose() });
+  context.subscriptions.push({ dispose: () => providers.promptTreeDataProvider.dispose() });
+  context.subscriptions.push({ dispose: () => providers.branchContextProvider.dispose() });
+  context.subscriptions.push({ dispose: () => providers.branchTasksProvider.dispose() });
+}
 
+function setupWatchers(context: vscode.ExtensionContext, providers: Providers, activateStart: number): void {
   const configWatcher = createConfigWatcher(() => {
     logger.info('Config changed, refreshing views');
-    variablesProvider.refresh();
-    replacementsProvider.refresh();
-    toolTreeDataProvider.refresh();
-    promptTreeDataProvider.refresh();
-    taskTreeDataProvider.refresh();
-    branchTasksProvider.refresh();
-    branchContextProvider.refresh();
+    providers.variablesProvider.refresh();
+    providers.replacementsProvider.refresh();
+    providers.toolTreeDataProvider.refresh();
+    providers.promptTreeDataProvider.refresh();
+    providers.taskTreeDataProvider.refresh();
+    providers.branchTasksProvider.refresh();
+    providers.branchContextProvider.refresh();
   });
   context.subscriptions.push(configWatcher);
 
@@ -126,34 +153,36 @@ export function activate(context: vscode.ExtensionContext): object {
     reloadPromptKeybindings();
     reloadTaskKeybindings();
 
-    toolTreeDataProvider.refresh();
-    promptTreeDataProvider.refresh();
-    replacementsProvider.refresh();
-    variablesProvider.refresh();
-    taskTreeDataProvider.refresh();
+    providers.toolTreeDataProvider.refresh();
+    providers.promptTreeDataProvider.refresh();
+    providers.replacementsProvider.refresh();
+    providers.variablesProvider.refresh();
+    providers.taskTreeDataProvider.refresh();
   });
   context.subscriptions.push(keybindingsWatcher);
 
   logger.info(`[activate] Creating branchWatcher (+${Date.now() - activateStart}ms)`);
   const branchWatcher = createBranchWatcher((newBranch) => {
     logger.info(`[branchWatcher] Branch changed to: ${newBranch}`);
-    branchContextProvider.setBranch(newBranch, false);
-    branchTasksProvider.setBranch(newBranch);
-    void replacementsProvider.handleBranchChange(newBranch);
-    void branchContextProvider.syncBranchContext();
+    providers.branchContextProvider.setBranch(newBranch, false);
+    providers.branchTasksProvider.setBranch(newBranch);
+    void providers.replacementsProvider.handleBranchChange(newBranch);
+    void providers.branchContextProvider.syncBranchContext();
   });
   context.subscriptions.push(branchWatcher);
   logger.info(`[activate] branchWatcher created (+${Date.now() - activateStart}ms)`);
+}
 
+function setupCommands(context: vscode.ExtensionContext, providers: Providers): void {
   const commandDisposables = registerAllCommands({
     context,
-    taskTreeDataProvider,
-    toolTreeDataProvider,
-    promptTreeDataProvider,
-    variablesProvider,
-    replacementsProvider,
-    branchContextProvider,
-    branchTasksProvider,
+    taskTreeDataProvider: providers.taskTreeDataProvider,
+    toolTreeDataProvider: providers.toolTreeDataProvider,
+    promptTreeDataProvider: providers.promptTreeDataProvider,
+    variablesProvider: providers.variablesProvider,
+    replacementsProvider: providers.replacementsProvider,
+    branchContextProvider: providers.branchContextProvider,
+    branchTasksProvider: providers.branchTasksProvider,
   });
   context.subscriptions.push(...commandDisposables);
 
@@ -162,6 +191,22 @@ export function activate(context: vscode.ExtensionContext): object {
   registerReplacementKeybindings(context);
   registerVariableKeybindings(context);
   registerTaskKeybindings(context);
+}
+
+export function activate(context: vscode.ExtensionContext): object {
+  const activateStart = Date.now();
+  logger.clear();
+  logger.info('=== EXTENSION ACTIVATE START ===');
+  void setContextKey(ContextKey.ExtensionInitializing, true);
+
+  setupStatesAndContext(context);
+  setupInitialKeybindings();
+
+  const providers = setupProviders(context, activateStart);
+  setupTreeViews(providers);
+  setupDisposables(context, providers);
+  setupWatchers(context, providers, activateStart);
+  setupCommands(context, providers);
 
   void setContextKey(ContextKey.ExtensionInitializing, false);
   logger.info(`=== EXTENSION ACTIVATE END (${Date.now() - activateStart}ms) ===`);
