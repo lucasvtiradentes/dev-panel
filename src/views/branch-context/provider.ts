@@ -424,9 +424,10 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   async openMarkdownFile(): Promise<void> {
-    const filePath = getBranchContextFilePath(this.currentBranch);
-    if (!filePath) return;
+    const workspace = getWorkspacePath();
+    if (!workspace) return;
 
+    const filePath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
     const uri = vscode.Uri.file(filePath);
     await vscode.window.showTextDocument(uri);
   }
