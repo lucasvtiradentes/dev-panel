@@ -2,6 +2,10 @@
 
 - [ ] ver um jeito pratico de ter o framework do POR por aqui ou algo customizavel 
 - [ ] ter um claude.md proprio da extensao onde vamos falar dos arquivos importantes api/cicd é onde ta a infra etc
+- [ ] ter um arquivo de "expected use cases" onde vamos falar como o repo deveria se comportar e ter IA para validar isso 
+  - ex: ao fazer um booking, podemos fazer refund em até 7d depois da compra
+  - ai a IA vai verificar se isso ta acontecendo (dar um jeito de cachear a solucao/analise) e ver se temos um test case para isso
+  - talvez ter um arquivo desse por branch -> vai ajudar a cobrir todos os usecases e expeceted behaviors 
 
 ## CLAUDE CODE MANAGER
 

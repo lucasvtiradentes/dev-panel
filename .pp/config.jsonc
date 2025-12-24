@@ -17,7 +17,7 @@
   "branchContext": {
     "builtinSections": {
       // "changedFiles": {
-      //   "provider": "node ./plugins/tree-changed-files.js"
+      //   "provider": "tsx ./plugins/tree-changed-files.ts"
       // },
       "changedFiles": true,
       "tasks": true
@@ -27,7 +27,7 @@
         "name": "GITHUB PR COMMENTS",
         "label": "Github PR comments",
         "type": "auto",
-        "provider": "node ./plugins/github-pr-comments.js",
+        "provider": "tsx ./plugins/github-pr-comments.ts",
         "icon": "github",
         "options": {
           "includeRegularComments": false,
@@ -38,7 +38,7 @@
         "name": "LINEAR ISSUE",
         "label": "Linear issue",
         "type": "auto",
-        "provider": "node ./plugins/linear-issue.js",
+        "provider": "tsx ./plugins/linear-issue.ts",
         "icon": "link-external"
       }
     ]
