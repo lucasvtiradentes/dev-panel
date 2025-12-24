@@ -4,10 +4,12 @@ import { logger } from './logger';
 
 export enum StoreKey {
   ConfigDir = 'configDir',
+  IsWritingBranchContext = 'isWritingBranchContext',
 }
 
 type ExtensionState = {
   [StoreKey.ConfigDir]: string | null;
+  [StoreKey.IsWritingBranchContext]: boolean;
 };
 
 type StateListener<K extends StoreKey> = (value: ExtensionState[K], oldValue: ExtensionState[K]) => void;
@@ -16,6 +18,7 @@ type AnyStateListener = StateListener<StoreKey>;
 class ExtensionStore {
   private state: ExtensionState = {
     [StoreKey.ConfigDir]: null,
+    [StoreKey.IsWritingBranchContext]: false,
   };
 
   private context: vscode.ExtensionContext | null = null;

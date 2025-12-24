@@ -5,6 +5,7 @@ import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
   type BranchType,
+  CONFIG_CACHE_TTL_MS,
   ChangedFilesStyle,
   GIT_LOG_LAST_COMMIT_MESSAGE,
   GIT_REV_PARSE_HEAD,
@@ -18,6 +19,8 @@ import {
   SECTION_NAME_OBJECTIVE,
   SECTION_NAME_PR_LINK,
   SECTION_NAME_REQUIREMENTS,
+  SYNC_DEBOUNCE_MS,
+  WRITING_MARKDOWN_TIMEOUT_MS,
 } from '../../common/constants';
 import {
   BRANCH_CONTEXT_NA,
@@ -31,10 +34,12 @@ import {
   getBranchContextTemplatePath,
   getConfigFilePathFromWorkspacePath,
 } from '../../common/lib/config-manager';
+import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { createLogger } from '../../common/lib/logger';
 import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { branchContextState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas/config-schema';
+import { SimpleCache } from '../../common/utils/cache';
 import { formatRelativeTime } from '../../common/utils/time-formatter';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { validateBranchContext } from './config-validator';
@@ -69,6 +74,10 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   private validationIndicator: ValidationIndicator;
   private treeView: vscode.TreeView<vscode.TreeItem> | null = null;
   private descriptionInterval: NodeJS.Timeout | null = null;
+  private sectionRegistryCache: SectionRegistry | null = null;
+  private configHashCache: string | null = null;
+  private configCache = new SimpleCache<PPConfig | null>(CONFIG_CACHE_TTL_MS);
+  private lastSyncTimestamp: string | null = null;
 
   constructor() {
     this.validationIndicator = new ValidationIndicator();
@@ -86,15 +95,25 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   private updateDescription(): void {
-    if (!this.treeView) return;
+    if (!this.treeView) {
+      logger.info('[updateDescription] No treeView, skipping');
+      return;
+    }
 
-    const context = loadBranchContext(this.currentBranch);
-    const lastSyncedTime = context.metadata?.lastSyncedTime;
+    if (!this.lastSyncTimestamp) {
+      logger.info('[updateDescription] Loading timestamp from cache (first time)');
+      const context = loadBranchContext(this.currentBranch);
+      this.lastSyncTimestamp = (context.metadata?.lastSyncedTime as string) || null;
+      logger.info(`[updateDescription] Loaded timestamp: ${this.lastSyncTimestamp}`);
+    }
 
-    if (lastSyncedTime) {
-      const timestamp = new Date(lastSyncedTime as string).getTime();
-      this.treeView.description = formatRelativeTime(timestamp);
+    if (this.lastSyncTimestamp) {
+      const timestamp = new Date(this.lastSyncTimestamp).getTime();
+      const description = formatRelativeTime(timestamp);
+      logger.info(`[updateDescription] Setting description: "${description}" (timestamp: ${this.lastSyncTimestamp})`);
+      this.treeView.description = description;
     } else {
+      logger.info('[updateDescription] No timestamp available, clearing description');
       this.treeView.description = undefined;
     }
   }
@@ -235,7 +254,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       syncFn();
       this.refresh();
       this.syncDebounceTimer = null;
-    }, 200);
+    }, SYNC_DEBOUNCE_MS);
   }
 
   private syncRootToBranch(): void {
@@ -343,7 +362,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     const hideEmpty = branchContextState.getHideEmptySections();
     const showChangedFiles = config?.branchContext?.builtinSections?.changedFiles ?? true;
 
-    const registry = new SectionRegistry(workspace, config?.branchContext, showChangedFiles);
+    const registry = this.getSectionRegistry(workspace, config ?? undefined, showChangedFiles);
 
     const changedFilesSectionMetadata = context.metadata?.sections?.[SECTION_NAME_CHANGED_FILES];
     let changedFilesValue = BRANCH_CONTEXT_NO_CHANGES;
@@ -407,14 +426,42 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   private loadConfig(workspace: string): PPConfig | null {
+    const cached = this.configCache.get(workspace);
+    if (cached !== undefined) {
+      return cached;
+    }
+
     const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
-    if (!fs.existsSync(configPath)) return null;
-    try {
-      const content = fs.readFileSync(configPath, 'utf-8');
-      return JSON5.parse(content) as PPConfig;
-    } catch {
+    if (!fs.existsSync(configPath)) {
+      this.configCache.set(workspace, null);
       return null;
     }
+
+    try {
+      const content = fs.readFileSync(configPath, 'utf-8');
+      const config = JSON5.parse(content) as PPConfig;
+      this.configCache.set(workspace, config);
+      return config;
+    } catch {
+      this.configCache.set(workspace, null);
+      return null;
+    }
+  }
+
+  private getSectionRegistry(
+    workspace: string,
+    config?: PPConfig,
+    showChangedFiles: boolean | { provider: string } = true,
+  ): SectionRegistry {
+    const configHash = config ? JSON.stringify(config.branchContext) : '';
+
+    if (this.sectionRegistryCache && this.configHashCache === configHash) {
+      return this.sectionRegistryCache;
+    }
+
+    this.sectionRegistryCache = new SectionRegistry(workspace, config?.branchContext, showChangedFiles);
+    this.configHashCache = configHash;
+    return this.sectionRegistryCache;
   }
 
   async editField(_branchName: string, sectionName: string, _currentValue: string | undefined): Promise<void> {
@@ -483,6 +530,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     const context = loadBranchContext(this.currentBranch);
     const config = this.loadConfig(workspace);
     this.isWritingMarkdown = true;
+    extensionStore.set(StoreKey.IsWritingBranchContext, true);
 
     try {
       const syncContext: SyncContext = {
@@ -500,7 +548,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
         logger.info(`[syncBranchContext] Fetching changedFiles (+${Date.now() - startTime}ms)`);
 
         if (typeof changedFilesConfig === 'object' && changedFilesConfig.provider) {
-          const registry = new SectionRegistry(workspace, config.branchContext, changedFilesConfig);
+          const registry = this.getSectionRegistry(workspace, config, changedFilesConfig);
           const changedFilesSection = registry.get(SECTION_NAME_CHANGED_FILES);
 
           if (changedFilesSection?.provider) {
@@ -529,7 +577,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
       const customAutoData: Record<string, string> = {};
       if (config?.branchContext?.customSections) {
-        const registry = new SectionRegistry(workspace, config.branchContext);
+        const registry = this.getSectionRegistry(workspace, config);
         const autoSections = registry.getAutoSections();
         logger.info(
           `[syncBranchContext] Fetching ${autoSections.length} auto sections in PARALLEL (+${Date.now() - startTime}ms)`,
@@ -593,10 +641,12 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       logger.info(`[syncBranchContext] Syncing to root (+${Date.now() - startTime}ms)`);
       this.syncBranchToRoot();
     } finally {
+      this.lastSyncTimestamp = new Date().toISOString();
       this.refresh();
       setTimeout(() => {
         this.isWritingMarkdown = false;
-      }, 100);
+        extensionStore.set(StoreKey.IsWritingBranchContext, false);
+      }, WRITING_MARKDOWN_TIMEOUT_MS);
       logger.info(`[syncBranchContext] END total time: ${Date.now() - startTime}ms`);
     }
   }

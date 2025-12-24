@@ -1,0 +1,5 @@
+export const BRANCH_CONTEXT_CACHE_TTL_MS = 30000;
+export const CONFIG_CACHE_TTL_MS = 5000;
+export const FILE_WATCHER_DEBOUNCE_MS = 150;
+export const WRITING_MARKDOWN_TIMEOUT_MS = 300;
+export const SYNC_DEBOUNCE_MS = 200;
