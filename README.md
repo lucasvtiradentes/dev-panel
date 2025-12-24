@@ -24,8 +24,19 @@
 - [ ] find test cases
 - [ ] adicionar prompt de revisar pr/branch
 
-## outros
+## DONE 
 
+- [x] ajeitar o schema do variables[number] pq ta mostrando multiSelect ate quando nao é do tipo files e folders
+- [x] adicionar botao no view de variables para ir para as configs.jsonc
+- [x] adicionar uma flag para "inlcudes" na selecao de files e fodlers -> no caso de querer considerar so um ou poucos fodlers e files nas opcoes
+- [x] remover a necessidade de ter config.tools.command -> ninguem usa esse comando -> mas pensar bem pq pode ser util para todar ali do sidebar e ver se ta tudo certo
+- [x] poder habilitar/desabilitar as tools -> adicionar icone para isso ou deixar o padroa ao clicar em cima delas e add icone para rodar a tool
+
+## TODO
+
+- [ ] adicionar uma description nas views de "replacements" e "tools" -> 3/6 (3 actives de 6 totais)
+- [ ] modificar a db-query para todas as queries serem salvas em um .md com query e response para a gente ter um tracking disso e poder marcar
+- [ ] ao mudar de branch mostrar algo que vai ser: [ ] feature / [ ] bugfix / [ ] other
 - [ ] adicionar integracao com linear cmd e mostrar as coisas para serem feitas no projeto/branch
   - por milestone 
   - por pessoa 
@@ -33,20 +44,7 @@
   - prompts
   - tools
   - scripts
-
-ajeitar o schema do variables[number] pq ta mostrando multiSelect ate quando nao é do tipo files e folders
-ao mudar de branch mostrar algo que vai ser: [ ] feature / [ ] bugfix / [ ] other
-adicionar botao no view de variables para ir para as configs.jsonc
-adicionar flag nos tools, prompts, etc -> fromRoot: true -> caminhos serem relativos ao root workspace
-poder habilitar/desabilitar as tools -> adicionar icone para isso ou deixar o padroa ao clicar em cima delas e add icone para rodar a tool
-remover a necessidade de ter config.tools.command -> ninguem usa esse comando -> mas pensar bem pq pode ser util para todar ali do sidebar e ver se ta tudo certo
-adicionar uma flag para "inlcudes" na selecao de files e fodlers -> no caso de querer considerar so um ou poucos fodlers e files nas opcoes
-
-plugings
-secoes dinamicas
-fetchear comments github
-fetcher linear issues
-
-
-modificar a db-query para todas as queries serem salvas em um .md com query e response para a gente ter um tracking disso e poder marcar
-
+- [ ] plugins
+  - [ ] secoes dinamicas
+  - [ ] fetchear comments github
+  - [ ] fetcher linear issues

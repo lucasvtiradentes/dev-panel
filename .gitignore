@@ -4,10 +4,12 @@
 dist-dev
 node_modules
 out
+.claude
 
 # FILES ========================================================================
 
 *.vsix
 .pp/variables.json
 .pp/branches/
+CLAUDE.md
 

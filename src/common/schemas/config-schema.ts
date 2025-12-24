@@ -2,6 +2,8 @@ import { z } from 'zod';
 import {
   BRANCHES_DIR_NAME,
   CONFIG_DIR_NAME,
+  DEFAULT_EXCLUDES,
+  DEFAULT_INCLUDES,
   EXTENSION_DISPLAY_NAME,
   PROMPTS_DIR_NAME,
 } from '../constants/scripts-constants';
@@ -29,16 +31,20 @@ export enum PromptExecutionMode {
 
 const PPInputSchema = z
   .object({
-    name: z.string().describe('Variable name used in template as {{name}}'),
+    name: z.string().describe('Variable name used in template as $name'),
     type: z.nativeEnum(PromptInputType).describe('Input type'),
     label: z.string().describe('Label shown in the input dialog'),
     placeholder: z.string().optional().describe('Placeholder text for text/number inputs'),
     options: z.array(z.string()).optional().describe('Available options for choice/multichoice types'),
     multiSelect: z.boolean().optional().describe('Enable multi-selection for file/folder types'),
+    includes: z
+      .array(z.string())
+      .optional()
+      .describe('Glob patterns to include for this input. Extends global includes'),
     excludes: z
       .array(z.string())
       .optional()
-      .describe('Glob patterns to exclude for this input. Overrides global excludes'),
+      .describe('Glob patterns to exclude for this input. Extends global excludes'),
   })
   .describe('An input required before execution (used by prompts and tasks)');
 
@@ -59,7 +65,7 @@ const PPTaskSchema = z
 const PPToolSchema = z
   .object({
     name: z.string().describe('Unique identifier for the tool'),
-    command: z.string().describe('Shell command to execute'),
+    command: z.string().optional().describe('Shell command to execute'),
     group: z.string().optional().describe('Group name for organizing tools'),
     useWorkspaceRoot: z
       .boolean()
@@ -88,24 +94,86 @@ const PPPromptSchema = z
   })
   .describe('A prompt that can be executed in Claude Code');
 
+const PPVariableBaseSchema = z.object({
+  name: z.string().describe('Unique identifier for the variable'),
+  command: z.string().optional().describe('Shell command to execute when value changes'),
+  description: z.string().optional().describe('Human-readable description'),
+  group: z.string().optional().describe('Group name for organizing variables'),
+});
+
+const PPVariableChooseSingleSchema = PPVariableBaseSchema.extend({
+  kind: z.literal('choose').describe('Choose from a list of options'),
+  options: z.array(z.string()).describe('Available options'),
+  multiSelect: z.literal(false).optional().describe('Single selection'),
+  default: z.string().optional().describe('Default value'),
+});
+
+const PPVariableChooseMultiSchema = PPVariableBaseSchema.extend({
+  kind: z.literal('choose').describe('Choose from a list of options (multi-select)'),
+  options: z.array(z.string()).describe('Available options'),
+  multiSelect: z.literal(true).describe('Multi-selection enabled'),
+  default: z.array(z.string()).optional().describe('Default values'),
+});
+
+const PPVariableChooseSchema = z.union([PPVariableChooseSingleSchema, PPVariableChooseMultiSchema]);
+
+const PPVariableToggleSchema = PPVariableBaseSchema.extend({
+  kind: z.literal('toggle').describe('Toggle between ON/OFF'),
+  default: z.boolean().optional().describe('Default value'),
+});
+
+const PPVariableInputSchema = PPVariableBaseSchema.extend({
+  kind: z.literal('input').describe('Free text input'),
+  default: z.string().optional().describe('Default value'),
+});
+
+const PPVariableFileSingleSchema = PPVariableBaseSchema.extend({
+  kind: z.literal('file').describe('File selection'),
+  multiSelect: z.literal(false).optional().describe('Single selection'),
+  includes: z.array(z.string()).optional().describe('Glob patterns to include. Extends global includes'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Extends global excludes'),
+  default: z.string().optional().describe('Default value'),
+});
+
+const PPVariableFileMultiSchema = PPVariableBaseSchema.extend({
+  kind: z.literal('file').describe('File selection (multi-select)'),
+  multiSelect: z.literal(true).describe('Multi-selection enabled'),
+  includes: z.array(z.string()).optional().describe('Glob patterns to include. Extends global includes'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Extends global excludes'),
+  default: z.array(z.string()).optional().describe('Default values'),
+});
+
+const PPVariableFileSchema = z.union([PPVariableFileSingleSchema, PPVariableFileMultiSchema]);
+
+const PPVariableFolderSingleSchema = PPVariableBaseSchema.extend({
+  kind: z.literal('folder').describe('Folder selection'),
+  multiSelect: z.literal(false).optional().describe('Single selection'),
+  includes: z.array(z.string()).optional().describe('Glob patterns to include. Extends global includes'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Extends global excludes'),
+  default: z.string().optional().describe('Default value'),
+});
+
+const PPVariableFolderMultiSchema = PPVariableBaseSchema.extend({
+  kind: z.literal('folder').describe('Folder selection (multi-select)'),
+  multiSelect: z.literal(true).describe('Multi-selection enabled'),
+  includes: z.array(z.string()).optional().describe('Glob patterns to include. Extends global includes'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Extends global excludes'),
+  default: z.array(z.string()).optional().describe('Default values'),
+});
+
+const PPVariableFolderSchema = z.union([PPVariableFolderSingleSchema, PPVariableFolderMultiSchema]);
+
 const PPVariableSchema = z
-  .object({
-    name: z.string().describe('Unique identifier for the variable'),
-    kind: z.enum(['choose', 'toggle', 'input', 'multi-select', 'file', 'folder']).describe('Type of variable input'),
-    options: z.array(z.string()).optional().describe('Available options for choose/multi-select kinds'),
-    command: z.string().optional().describe('Shell command to execute when value changes'),
-    description: z.string().optional().describe('Human-readable description'),
-    default: z
-      .union([z.string(), z.boolean(), z.array(z.string())])
-      .optional()
-      .describe('Default value'),
-    group: z.string().optional().describe('Group name for organizing variables'),
-    multiSelect: z.boolean().optional().describe('Enable multi-selection for file/folder kinds'),
-    excludes: z
-      .array(z.string())
-      .optional()
-      .describe('Glob patterns to exclude for file/folder kinds. Overrides global excludes'),
-  })
+  .union([
+    PPVariableChooseSingleSchema,
+    PPVariableChooseMultiSchema,
+    PPVariableToggleSchema,
+    PPVariableInputSchema,
+    PPVariableFileSingleSchema,
+    PPVariableFileMultiSchema,
+    PPVariableFolderSingleSchema,
+    PPVariableFolderMultiSchema,
+  ])
   .describe('A configuration variable shown in the Variables view');
 
 const PPReplacementPatchSchema = z.object({
@@ -147,11 +215,17 @@ const PPSettingsSchema = z
       .describe(
         'Execution mode for prompts with saveOutput: "timestamped" creates new file each time with timestamp, "overwrite" replaces previous file',
       ),
+    include: z
+      .array(z.string())
+      .optional()
+      .describe(
+        `Glob patterns to include globally (package.json search, prompt file/folder selection, variable file/folder selection). Extends defaults: ${DEFAULT_INCLUDES.join(', ')}. Add custom inclusions as needed (e.g. ["**/*.ts", "**/*.json"])`,
+      ),
     exclude: z
       .array(z.string())
       .optional()
       .describe(
-        `Glob patterns to exclude globally (package.json search, prompt file/folder selection, variable file/folder selection). Always excluded (hardcoded): node_modules, dist, .git. Add custom exclusions as needed (e.g. ["**/.pp/**", "**/.changeset/**", "**/out/**", "**/*.log"])`,
+        `Glob patterns to exclude globally (package.json search, prompt file/folder selection, variable file/folder selection). Extends defaults: ${DEFAULT_EXCLUDES.join(', ')}. Add custom exclusions as needed (e.g. ["**/.pp/**", "**/.changeset/**", "**/out/**", "**/*.log"])`,
       ),
   })
   .describe(`Global settings for ${EXTENSION_DISPLAY_NAME} behavior`);

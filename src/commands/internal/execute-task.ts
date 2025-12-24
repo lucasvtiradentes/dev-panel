@@ -27,7 +27,7 @@ function readPPVariablesAsEnv(workspacePath: string): Record<string, string> {
     const env: Record<string, string> = {};
     for (const [key, value] of Object.entries(variables)) {
       const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
-      env[key.toUpperCase()] = stringValue;
+      env[key] = stringValue;
     }
     return env;
   } catch {
@@ -225,8 +225,7 @@ function replaceVariablePlaceholders(content: string, variables: Record<string, 
   let result = content;
   for (const [key, value] of Object.entries(variables)) {
     const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
-    const upperKey = key.toUpperCase();
-    const pattern = new RegExp(`\\{\\{${upperKey}\\}\\}`, 'g');
+    const pattern = new RegExp(`\\$${key}`, 'g');
     result = result.replace(pattern, stringValue);
   }
   return result;

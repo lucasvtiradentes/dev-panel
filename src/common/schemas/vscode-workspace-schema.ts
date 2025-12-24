@@ -24,6 +24,7 @@ const ToolsStateSchema = z.object({
   showHidden: z.boolean().optional(),
   showOnlyFavorites: z.boolean().optional(),
   pp: SourceStateSchema,
+  activeTools: z.array(z.string()),
 });
 
 const PromptsStateSchema = z.object({
@@ -97,6 +98,7 @@ export const DEFAULT_TASKS_GLOBAL_STATE: TasksGlobalState = {
 export const DEFAULT_TOOLS_STATE: ToolsState = {
   isGrouped: false,
   pp: { ...DEFAULT_SOURCE_STATE },
+  activeTools: [],
 };
 
 export const DEFAULT_PROMPTS_STATE: PromptsState = {

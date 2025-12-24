@@ -47,7 +47,8 @@
     },
     {
       "name": "features",
-      "kind": "multi-select",
+      "kind": "choose",
+      "multiSelect": true,
       "options": [
         "auth",
         "analytics",
@@ -108,7 +109,7 @@
     },
     {
       "name": "show-date",
-      "command": "echo {{DUMP_NAME}} && date",
+      "command": "echo $DUMP_NAME && date",
       "group": "Utils",
       "inputs": [
         {

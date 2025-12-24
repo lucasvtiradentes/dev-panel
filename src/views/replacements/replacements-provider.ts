@@ -62,7 +62,7 @@ class ReplacementTreeItem extends vscode.TreeItem {
     this.contextValue = CONTEXT_VALUES.REPLACEMENT_ITEM;
 
     if (isActive) {
-      this.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
+      this.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.green'));
     }
 
     this.command = {

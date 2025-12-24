@@ -18,6 +18,7 @@ export const CLAUDE_DIR_NAME = '.claude';
 export const SKILLS_DIR_NAME = 'skills';
 export const SKILL_FILE_NAME = 'SKILL.md';
 export const ROOT_BRANCH_CONTEXT_FILE_NAME = '.branch-context.md';
+export const DEFAULT_INCLUDES = ['**/*'];
 export const DEFAULT_EXCLUDES = ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/out/**'];
 export const DEFAULT_EXCLUDED_DIRS = ['node_modules', 'dist', '.git'];
 

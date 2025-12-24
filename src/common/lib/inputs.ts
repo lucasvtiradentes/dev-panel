@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { DEFAULT_EXCLUDES } from '../constants';
+import { DEFAULT_EXCLUDES, DEFAULT_INCLUDES } from '../constants';
 import { type PPInput, type PPSettings, PromptInputType } from '../schemas';
 import { type FileSelectionOptions, selectFiles, selectFolders } from './file-selection';
 import { createLogger } from './logger';
@@ -49,6 +49,24 @@ async function collectSingleInput(
   }
 }
 
+function getIncludePatterns(input: PPInput, settings: PPSettings | undefined): string[] {
+  const defaultIncludes = [...DEFAULT_INCLUDES];
+
+  if (input.includes && input.includes.length > 0) {
+    log.debug(`Using input.includes merged with defaults: ${JSON.stringify([...defaultIncludes, ...input.includes])}`);
+    return [...defaultIncludes, ...input.includes];
+  }
+
+  if (settings?.include && settings.include.length > 0) {
+    const merged = [...defaultIncludes, ...settings.include];
+    log.debug(`Using settings.include merged with defaults: ${JSON.stringify(merged)}`);
+    return merged;
+  }
+
+  log.debug(`Using default includes: ${JSON.stringify(defaultIncludes)}`);
+  return defaultIncludes;
+}
+
 function getExcludePatterns(input: PPInput, settings: PPSettings | undefined): string[] {
   const defaultExcludes = [...DEFAULT_EXCLUDES];
 
@@ -82,12 +100,14 @@ async function collectFileInput(
     return undefined;
   }
 
+  const includes = getIncludePatterns(input, settings);
   const excludes = getExcludePatterns(input, settings);
-  log.info(`Resolved excludes: ${excludes.length} patterns`);
+  log.info(`Resolved includes: ${includes.length} patterns, excludes: ${excludes.length} patterns`);
 
   const options: FileSelectionOptions = {
     label: input.label,
     multiSelect: multiple,
+    includes,
     excludes,
   };
 
@@ -106,11 +126,13 @@ async function collectFolderInput(
     return undefined;
   }
 
+  const includes = getIncludePatterns(input, settings);
   const excludes = getExcludePatterns(input, settings);
 
   const options: FileSelectionOptions = {
     label: input.label,
     multiSelect: multiple,
+    includes,
     excludes,
   };
 
@@ -171,7 +193,7 @@ async function collectChoiceInput(input: PPInput, multiple: boolean): Promise<st
 export function replaceInputPlaceholders(content: string, values: InputValues): string {
   let result = content;
   for (const [name, value] of Object.entries(values)) {
-    result = result.replace(new RegExp(`\\{\\{${name}\\}\\}`, 'g'), value);
+    result = result.replace(new RegExp(`\\$${name}`, 'g'), value);
   }
   return result;
 }

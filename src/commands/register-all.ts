@@ -11,7 +11,7 @@ import type { BranchTasksProvider } from '../views/branch-tasks';
 import type { PromptTreeDataProvider, TreePrompt } from '../views/prompts';
 import type { ReplacementsProvider } from '../views/replacements';
 import type { TaskTreeDataProvider } from '../views/tasks';
-import type { ToolTreeDataProvider, TreeTool } from '../views/tools';
+import { type ToolTreeDataProvider, type TreeTool, toggleTool } from '../views/tools';
 import type { VariablesProvider } from '../views/variables';
 import { createAddPromptCommand } from './internal/add-prompt';
 import { createAddToolCommand } from './internal/add-tool';
@@ -32,6 +32,7 @@ import {
 import { createGenerateToolsDocsCommand } from './internal/generate-tools-docs';
 import { createGoToTaskCommand } from './internal/go-to-task';
 import { createOpenTasksConfigCommand } from './internal/open-tasks-config';
+import { createOpenVariablesConfigCommand } from './internal/open-variables-config';
 import { createRefreshCommand } from './internal/refresh';
 import { createResetConfigOptionCommand, createSelectConfigOptionCommand } from './internal/select-config-option';
 import {
@@ -117,6 +118,7 @@ export function registerAllCommands(options: {
     registerCommand(Command.ToggleToolsShowHiddenActive, () => toolTreeDataProvider.toggleShowHidden()),
     registerCommand(Command.ToggleToolsShowOnlyFavorites, () => toolTreeDataProvider.toggleShowOnlyFavorites()),
     registerCommand(Command.ToggleToolsShowOnlyFavoritesActive, () => toolTreeDataProvider.toggleShowOnlyFavorites()),
+    registerCommand(Command.ToggleTool, (item: TreeTool) => toggleTool(item)),
     createExecuteToolCommand(context),
     registerCommand(Command.GoToToolFile, async (item: TreeTool) => {
       if (item?.toolName) {
@@ -196,6 +198,7 @@ export function registerAllCommands(options: {
     registerCommand(Command.SyncVariableKeybindings, () => syncKeybindings()),
     createSetVariableKeybindingCommand(),
     createOpenVariablesKeybindingsCommand(),
+    createOpenVariablesConfigCommand(),
     registerCommand(Command.SyncTaskKeybindings, () => syncKeybindings()),
     createSetTaskKeybindingCommand(),
     createOpenTasksKeybindingsCommand(),
