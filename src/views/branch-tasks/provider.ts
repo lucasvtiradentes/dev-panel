@@ -1,36 +1,26 @@
 import * as fs from 'node:fs';
+import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import {
-  CONTEXT_VALUES,
-  MARKDOWN_SECTION_HEADER_PATTERN,
-  TODO_CHECKBOX_CHECKED_LOWER,
-  TODO_CHECKBOX_CHECKED_UPPER,
-  TODO_CHECKBOX_UNCHECKED,
-  TODO_ITEM_PATTERN,
-  TODO_MILESTONE_PATTERN,
-  TODO_SECTION_HEADER_PATTERN,
-  getCommandId,
-} from '../../common/constants';
-import { getBranchContextGlobPattern } from '../../common/lib/config-manager';
+import { CONFIG_FILE_NAME, CONTEXT_VALUES, getCommandId } from '../../common/constants';
+import { getBranchContextGlobPattern, getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
+import type { PPConfig } from '../../common/schemas/config-schema';
 import { getBranchContextFilePath } from '../branch-context/markdown-parser';
+import {
+  type SyncContext,
+  type TaskNode,
+  type TaskSyncProvider,
+  createTaskProvider,
+} from '../branch-context/providers';
 
 function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
 }
 
-type BranchTaskNode = {
-  text: string;
-  isChecked: boolean;
-  lineIndex: number;
-  children: BranchTaskNode[];
-  isHeading?: boolean;
-};
-
 export class BranchTaskItem extends vscode.TreeItem {
   constructor(
-    public readonly node: BranchTaskNode,
+    public readonly node: TaskNode,
     hasChildren: boolean,
   ) {
     let label: string;
@@ -57,73 +47,33 @@ export class BranchTaskItem extends vscode.TreeItem {
   }
 }
 
-function parseBranchTasksAsTree(branchTasksContent: string | undefined): { nodes: BranchTaskNode[]; lines: string[] } {
-  if (!branchTasksContent) return { nodes: [], lines: [] };
-
-  const lines = branchTasksContent.split('\n');
-  const rootNodes: BranchTaskNode[] = [];
-  const stack: { node: BranchTaskNode; indent: number }[] = [];
-  let currentMilestone: BranchTaskNode | null = null;
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-
-    const milestoneMatch = line.match(TODO_MILESTONE_PATTERN);
-    if (milestoneMatch) {
-      const milestoneNode: BranchTaskNode = {
-        text: milestoneMatch[1].trim(),
-        isChecked: false,
-        lineIndex: i,
-        children: [],
-        isHeading: true,
-      };
-      rootNodes.push(milestoneNode);
-      currentMilestone = milestoneNode;
-      stack.length = 0;
-      continue;
-    }
-
-    const match = line.match(TODO_ITEM_PATTERN);
-    if (!match) continue;
-
-    const indent = Math.floor(match[1].length / 2);
-    const isChecked = match[2].toLowerCase() === 'x';
-    const text = match[3].trim();
-
-    const node: BranchTaskNode = { text, isChecked, lineIndex: i, children: [] };
-
-    while (stack.length > 0 && stack[stack.length - 1].indent >= indent) {
-      stack.pop();
-    }
-
-    if (stack.length === 0) {
-      if (currentMilestone) {
-        currentMilestone.children.push(node);
-      } else {
-        rootNodes.push(node);
-      }
-    } else {
-      stack[stack.length - 1].node.children.push(node);
-    }
-
-    stack.push({ node, indent });
-  }
-
-  return { nodes: rootNodes, lines };
-}
-
 export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<BranchTaskItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private markdownWatcher: vscode.FileSystemWatcher | null = null;
   private currentBranch = '';
-  private cachedNodes: BranchTaskNode[] = [];
+  private cachedNodes: TaskNode[] = [];
   private showOnlyTodo = false;
   private grouped = true;
+  private taskProvider: TaskSyncProvider;
 
   constructor() {
+    const workspace = getWorkspacePath();
+    const config = workspace ? this.loadConfig(workspace) : null;
+    this.taskProvider = createTaskProvider(config?.branchContext?.tasks, workspace ?? undefined);
     this.setupMarkdownWatcher();
+  }
+
+  private loadConfig(workspace: string): PPConfig | null {
+    const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
+    if (!fs.existsSync(configPath)) return null;
+    try {
+      const content = fs.readFileSync(configPath, 'utf-8');
+      return JSON5.parse(content) as PPConfig;
+    } catch {
+      return null;
+    }
   }
 
   toggleShowOnlyTodo(): void {
@@ -138,7 +88,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
     this.refresh();
   }
 
-  private filterTodoNodes(nodes: BranchTaskNode[]): BranchTaskNode[] {
+  private filterTodoNodes(nodes: TaskNode[]): TaskNode[] {
     if (!this.showOnlyTodo) return nodes;
 
     return nodes
@@ -161,11 +111,11 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
 
         return null;
       })
-      .filter((node): node is BranchTaskNode => node !== null);
+      .filter((node): node is TaskNode => node !== null);
   }
 
-  private flattenNodes(nodes: BranchTaskNode[]): BranchTaskNode[] {
-    const result: BranchTaskNode[] = [];
+  private flattenNodes(nodes: TaskNode[]): TaskNode[] {
+    const result: TaskNode[] = [];
 
     for (const node of nodes) {
       if (node.isHeading) {
@@ -215,22 +165,22 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
       return;
     }
 
-    const content = fs.readFileSync(filePath, 'utf-8');
-    const lines = content.split('\n');
-    const taskIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
-    if (taskIndex === -1) {
+    const workspace = getWorkspacePath();
+    if (!workspace) {
       this.cachedNodes = [];
       return;
     }
 
-    const nextSectionIndex = lines.findIndex((l, i) => i > taskIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
-    const endIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
-    const branchTasksContent = lines
-      .slice(taskIndex + 1, endIndex)
-      .join('\n')
-      .trim();
-    const { nodes } = parseBranchTasksAsTree(branchTasksContent);
-    this.cachedNodes = nodes;
+    const syncContext: SyncContext = {
+      branchName: this.currentBranch,
+      workspacePath: workspace,
+      markdownPath: filePath,
+      branchContext: {},
+    };
+
+    this.taskProvider.getTasks(syncContext).then((nodes) => {
+      this.cachedNodes = nodes;
+    });
   }
 
   refresh(): void {
@@ -277,86 +227,19 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
     const filePath = getBranchContextFilePath(this.currentBranch);
     if (!filePath || !fs.existsSync(filePath)) return;
 
-    const content = fs.readFileSync(filePath, 'utf-8');
-    const lines = content.split('\n');
+    const workspace = getWorkspacePath();
+    if (!workspace) return;
 
-    const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
-    if (todoSectionIndex === -1) return;
+    const syncContext: SyncContext = {
+      branchName: this.currentBranch,
+      workspacePath: workspace,
+      markdownPath: filePath,
+      branchContext: {},
+    };
 
-    const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
-    if (actualLineIndex >= lines.length) return;
-
-    const line = lines[actualLineIndex];
-    if (line.includes(TODO_CHECKBOX_UNCHECKED)) {
-      lines[actualLineIndex] = line.replace(TODO_CHECKBOX_UNCHECKED, TODO_CHECKBOX_CHECKED_LOWER);
-    } else if (line.includes(TODO_CHECKBOX_CHECKED_LOWER) || line.includes(TODO_CHECKBOX_CHECKED_UPPER)) {
-      lines[actualLineIndex] = line.replace(/\[[xX]\]/, TODO_CHECKBOX_UNCHECKED);
-    }
-
-    this.autoToggleParentTask(lines, actualLineIndex);
-
-    fs.writeFileSync(filePath, lines.join('\n'));
-    this.refresh();
-  }
-
-  private autoToggleParentTask(lines: string[], childLineIndex: number): void {
-    const childMatch = lines[childLineIndex].match(TODO_ITEM_PATTERN);
-    if (!childMatch) return;
-
-    const childIndent = Math.floor(childMatch[1].length / 2);
-
-    if (childIndent === 0) return;
-
-    let parentLineIndex = -1;
-    for (let i = childLineIndex - 1; i >= 0; i--) {
-      const match = lines[i].match(TODO_ITEM_PATTERN);
-      if (!match) continue;
-
-      const indent = Math.floor(match[1].length / 2);
-      if (indent < childIndent) {
-        parentLineIndex = i;
-        break;
-      }
-    }
-
-    if (parentLineIndex === -1) return;
-
-    const parentMatch = lines[parentLineIndex].match(TODO_ITEM_PATTERN);
-    if (!parentMatch) return;
-
-    const parentIndent = Math.floor(parentMatch[1].length / 2);
-
-    const children: number[] = [];
-    for (let i = parentLineIndex + 1; i < lines.length; i++) {
-      const match = lines[i].match(TODO_ITEM_PATTERN);
-      if (!match) continue;
-
-      const indent = Math.floor(match[1].length / 2);
-
-      if (indent <= parentIndent) break;
-
-      if (indent === parentIndent + 1) {
-        children.push(i);
-      }
-    }
-
-    if (children.length === 0) return;
-
-    const allChildrenChecked = children.every((idx) => {
-      const line = lines[idx];
-      return line.includes(TODO_CHECKBOX_CHECKED_LOWER) || line.includes(TODO_CHECKBOX_CHECKED_UPPER);
+    this.taskProvider.onToggleTask(lineIndex, syncContext).then(() => {
+      this.refresh();
     });
-
-    const parentLine = lines[parentLineIndex];
-    if (allChildrenChecked) {
-      if (parentLine.includes(TODO_CHECKBOX_UNCHECKED)) {
-        lines[parentLineIndex] = parentLine.replace(TODO_CHECKBOX_UNCHECKED, TODO_CHECKBOX_CHECKED_LOWER);
-      }
-    } else {
-      if (parentLine.includes(TODO_CHECKBOX_CHECKED_LOWER) || parentLine.includes(TODO_CHECKBOX_CHECKED_UPPER)) {
-        lines[parentLineIndex] = parentLine.replace(/\[[xX]\]/, TODO_CHECKBOX_UNCHECKED);
-      }
-    }
   }
 
   dispose(): void {

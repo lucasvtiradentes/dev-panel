@@ -12,14 +12,32 @@ export const BRANCH_FIELD_DESCRIPTION_MAX_LENGTH = 50;
 
 export const TOOLS_DIR = 'tools';
 
+export const BRANCH_CONTEXT_SECTION_BRANCH_INFO = '# BRANCH INFO';
 export const BRANCH_CONTEXT_SECTION_OBJECTIVE = '# OBJECTIVE';
 export const BRANCH_CONTEXT_SECTION_REQUIREMENTS = '# REQUIREMENTS';
 export const BRANCH_CONTEXT_SECTION_NOTES = '# NOTES';
 export const BRANCH_CONTEXT_SECTION_TODO = '# TASKS';
 export const BRANCH_CONTEXT_SECTION_CHANGED_FILES = '# CHANGED FILES';
 
+export const BRANCH_CONTEXT_FIELD_BRANCH = 'BRANCH:';
 export const BRANCH_CONTEXT_FIELD_PR_LINK = 'PR LINK:';
 export const BRANCH_CONTEXT_FIELD_LINEAR_LINK = 'LINEAR LINK:';
+
+export const SECTION_NAME_BRANCH = BRANCH_CONTEXT_FIELD_BRANCH.replace(':', '').trim();
+export const SECTION_NAME_PR_LINK = BRANCH_CONTEXT_FIELD_PR_LINK.replace(':', '').trim();
+export const SECTION_NAME_LINEAR_LINK = BRANCH_CONTEXT_FIELD_LINEAR_LINK.replace(':', '').trim();
+export const SECTION_NAME_OBJECTIVE = BRANCH_CONTEXT_SECTION_OBJECTIVE.replace('#', '').trim();
+export const SECTION_NAME_REQUIREMENTS = BRANCH_CONTEXT_SECTION_REQUIREMENTS.replace('#', '').trim();
+export const SECTION_NAME_NOTES = BRANCH_CONTEXT_SECTION_NOTES.replace('#', '').trim();
+export const SECTION_NAME_TASKS = BRANCH_CONTEXT_SECTION_TODO.replace('#', '').trim();
+export const SECTION_NAME_BRANCH_INFO = BRANCH_CONTEXT_SECTION_BRANCH_INFO.replace('#', '').trim();
+
+export const SECTION_LABEL_BRANCH = 'Branch';
+export const SECTION_LABEL_PR_LINK = 'PR link';
+export const SECTION_LABEL_LINEAR_LINK = 'Linear link';
+export const SECTION_LABEL_OBJECTIVE = 'Objective';
+export const SECTION_LABEL_REQUIREMENTS = 'Requirements';
+export const SECTION_LABEL_NOTES = 'Notes';
 
 export const TODO_CHECKBOX_UNCHECKED = '[ ]';
 export const TODO_CHECKBOX_CHECKED_LOWER = '[x]';
@@ -39,6 +57,8 @@ export const STATUS_BAR_COMMAND_PREFIX = '/';
 export const TASK_SOURCE_WORKSPACE = 'Workspace';
 
 export const BASE_BRANCH = 'origin/main';
+
+export const BRANCH_CONTEXT_DEFAULT_ICON = 'symbol-field';
 
 export enum ChangedFilesStyle {
   Tree = 'tree',

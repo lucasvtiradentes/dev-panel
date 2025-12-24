@@ -1,17 +1,34 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-constants';
+import {
+  SECTION_NAME_BRANCH,
+  SECTION_NAME_BRANCH_INFO,
+  SECTION_NAME_LINEAR_LINK,
+  SECTION_NAME_NOTES,
+  SECTION_NAME_OBJECTIVE,
+  SECTION_NAME_PR_LINK,
+  SECTION_NAME_REQUIREMENTS,
+} from '../../common/constants';
+import { CONFIG_FILE_NAME, ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-constants';
 import {
   getBranchContextFilePath as getBranchContextFilePathUtil,
   getBranchContextGlobPattern,
+  getBranchContextTemplatePath,
+  getConfigFilePathFromWorkspacePath,
 } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
+import type { PPConfig } from '../../common/schemas/config-schema';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
-import { BranchContextField, BranchContextFieldItem, BranchHeaderItem } from './items';
+import { validateBranchContext } from './config-validator';
+import { SectionItem } from './items';
 import { generateBranchContextMarkdown } from './markdown-generator';
 import { getBranchContextFilePath, getFieldLineNumber } from './markdown-parser';
+import { type SyncContext, createChangedFilesProvider } from './providers';
+import { SectionRegistry } from './section-registry';
 import { loadBranchContext } from './state';
+import { ValidationIndicator } from './validation-indicator';
 
 const logger = createLogger('BranchContext');
 
@@ -25,15 +42,19 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
   private markdownWatcher: vscode.FileSystemWatcher | null = null;
   private rootMarkdownWatcher: vscode.FileSystemWatcher | null = null;
+  private templateWatcher: vscode.FileSystemWatcher | null = null;
   private currentBranch = '';
   private isWritingMarkdown = false;
   private isSyncing = false;
   private syncDebounceTimer: NodeJS.Timeout | null = null;
   private lastSyncDirection: 'root-to-branch' | 'branch-to-root' | null = null;
+  private validationIndicator: ValidationIndicator;
 
   constructor() {
+    this.validationIndicator = new ValidationIndicator();
     this.setupMarkdownWatcher();
     this.setupRootMarkdownWatcher();
+    this.setupTemplateWatcher();
   }
 
   private setupMarkdownWatcher(): void {
@@ -57,6 +78,23 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
     this.rootMarkdownWatcher.onDidChange(() => this.handleRootMarkdownChange());
     this.rootMarkdownWatcher.onDidCreate(() => this.handleRootMarkdownChange());
+  }
+
+  private setupTemplateWatcher(): void {
+    const workspace = getWorkspacePath();
+    if (!workspace) return;
+
+    const templatePath = getBranchContextTemplatePath(workspace);
+    this.templateWatcher = vscode.workspace.createFileSystemWatcher(templatePath);
+
+    this.templateWatcher.onDidChange(() => this.handleTemplateChange());
+    this.templateWatcher.onDidCreate(() => this.handleTemplateChange());
+  }
+
+  private handleTemplateChange(): void {
+    if (!this.currentBranch) return;
+    logger.info('[BranchContextProvider] Template changed, syncing branch context');
+    void this.syncBranchContext();
   }
 
   private handleMarkdownChange(uri?: vscode.Uri): void {
@@ -96,6 +134,23 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     if (await isGitRepository(workspace)) {
       logger.info('[BranchContextProvider] Adding to git exclude');
       this.addToGitExclude(workspace);
+    }
+
+    const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
+    if (fs.existsSync(configPath)) {
+      try {
+        const configContent = fs.readFileSync(configPath, 'utf-8');
+        const config = JSON5.parse(configContent) as PPConfig;
+        const issues = validateBranchContext(workspace, config.branchContext);
+
+        if (issues.length > 0) {
+          this.validationIndicator.show(issues);
+        } else {
+          this.validationIndicator.hide();
+        }
+      } catch {
+        this.validationIndicator.hide();
+      }
     }
   }
 
@@ -238,30 +293,63 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
 
     const context = loadBranchContext(this.currentBranch);
+    const config = this.loadConfig(workspace);
+    const registry = new SectionRegistry(workspace, config?.branchContext);
 
-    return [
-      new BranchHeaderItem(this.currentBranch),
-      new BranchContextFieldItem(BranchContextField.PrLink, context.prLink, this.currentBranch),
-      new BranchContextFieldItem(BranchContextField.LinearLink, context.linearLink, this.currentBranch),
-      new BranchContextFieldItem(BranchContextField.Objective, context.objective, this.currentBranch),
-      new BranchContextFieldItem(BranchContextField.Requirements, context.requirements, this.currentBranch),
-      new BranchContextFieldItem(BranchContextField.Notes, context.notes, this.currentBranch),
-    ];
+    const items: vscode.TreeItem[] = [];
+    for (const section of registry.getAllSections()) {
+      const value = this.getSectionValue(context, section.name, this.currentBranch);
+      items.push(new SectionItem(section, value, this.currentBranch));
+    }
+
+    return items;
   }
 
-  async editField(_branchName: string, field: BranchContextField, _currentValue: string | undefined): Promise<void> {
-    const fieldLineMap: Record<BranchContextField, string | null> = {
-      [BranchContextField.PrLink]: 'PR LINK',
-      [BranchContextField.LinearLink]: 'LINEAR LINK',
-      [BranchContextField.Objective]: 'OBJECTIVE',
-      [BranchContextField.Requirements]: 'REQUIREMENTS',
-      [BranchContextField.Notes]: 'NOTES',
+  private getSectionValue(
+    context: Record<string, unknown>,
+    sectionName: string,
+    currentBranch: string,
+  ): string | undefined {
+    const valueMap: Record<string, string | undefined> = {
+      [SECTION_NAME_BRANCH]: currentBranch,
+      [SECTION_NAME_PR_LINK]: context.prLink as string | undefined,
+      [SECTION_NAME_LINEAR_LINK]: context.linearLink as string | undefined,
+      [SECTION_NAME_OBJECTIVE]: context.objective as string | undefined,
+      [SECTION_NAME_REQUIREMENTS]: context.requirements as string | undefined,
+      [SECTION_NAME_NOTES]: context.notes as string | undefined,
     };
 
-    const lineKey = fieldLineMap[field];
-    if (lineKey) {
-      await this.openMarkdownFileAtLine(lineKey);
+    if (sectionName in valueMap) {
+      return valueMap[sectionName];
     }
+
+    const value = context[sectionName];
+    return typeof value === 'string' ? value : undefined;
+  }
+
+  private loadConfig(workspace: string): PPConfig | null {
+    const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
+    if (!fs.existsSync(configPath)) return null;
+    try {
+      const content = fs.readFileSync(configPath, 'utf-8');
+      return JSON5.parse(content) as PPConfig;
+    } catch {
+      return null;
+    }
+  }
+
+  async editField(_branchName: string, sectionName: string, _currentValue: string | undefined): Promise<void> {
+    const lineKeyMap: Record<string, string> = {
+      [SECTION_NAME_BRANCH]: SECTION_NAME_BRANCH_INFO,
+      [SECTION_NAME_PR_LINK]: SECTION_NAME_BRANCH_INFO,
+      [SECTION_NAME_LINEAR_LINK]: SECTION_NAME_BRANCH_INFO,
+      [SECTION_NAME_OBJECTIVE]: SECTION_NAME_OBJECTIVE,
+      [SECTION_NAME_REQUIREMENTS]: SECTION_NAME_REQUIREMENTS,
+      [SECTION_NAME_NOTES]: SECTION_NAME_NOTES,
+    };
+
+    const lineKey = lineKeyMap[sectionName] ?? sectionName;
+    await this.openMarkdownFileAtLine(lineKey);
   }
 
   async openMarkdownFile(): Promise<void> {
@@ -284,33 +372,90 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     });
   }
 
-  async refreshChangedFiles(): Promise<void> {
-    logger.info(`[refreshChangedFiles] Called for branch: ${this.currentBranch}`);
+  async syncBranchContext(): Promise<void> {
+    const startTime = Date.now();
+    logger.info(`[syncBranchContext] START for branch: ${this.currentBranch}`);
 
     if (!this.currentBranch) {
-      logger.warn('[refreshChangedFiles] No current branch, skipping');
+      logger.warn('[syncBranchContext] No current branch, skipping');
       return;
     }
 
     const workspace = getWorkspacePath();
     if (!workspace) {
-      logger.warn('[refreshChangedFiles] No workspace, skipping');
+      logger.warn('[syncBranchContext] No workspace, skipping');
       return;
     }
 
-    logger.info(`[refreshChangedFiles] Loading context for branch: ${this.currentBranch}`);
+    logger.info(`[syncBranchContext] Loading context (+${Date.now() - startTime}ms)`);
     const context = loadBranchContext(this.currentBranch);
+    const config = this.loadConfig(workspace);
     this.isWritingMarkdown = true;
 
     try {
-      logger.info('[refreshChangedFiles] Generating markdown with fresh git data');
-      await generateBranchContextMarkdown(this.currentBranch, { ...context, changedFiles: undefined });
-      logger.info('[refreshChangedFiles] Syncing branch to root');
+      const syncContext: SyncContext = {
+        branchName: this.currentBranch,
+        workspacePath: workspace,
+        markdownPath: getBranchContextFilePathUtil(workspace, this.currentBranch),
+        branchContext: context,
+      };
+
+      let changedFiles: string | undefined;
+      if (config?.branchContext?.changedFiles !== false) {
+        logger.info(`[syncBranchContext] Fetching changedFiles (+${Date.now() - startTime}ms)`);
+        const changedFilesProvider = createChangedFilesProvider(config?.branchContext?.changedFiles, workspace);
+        changedFiles = await changedFilesProvider.fetch(syncContext);
+        logger.info(`[syncBranchContext] changedFiles done (+${Date.now() - startTime}ms)`);
+      }
+
+      const customAutoData: Record<string, string> = {};
+      if (config?.branchContext?.sections) {
+        const registry = new SectionRegistry(workspace, config.branchContext);
+        const autoSections = registry.getAutoSections();
+        logger.info(
+          `[syncBranchContext] Fetching ${autoSections.length} auto sections in PARALLEL (+${Date.now() - startTime}ms)`,
+        );
+
+        const fetchPromises = autoSections
+          .filter((section) => section.provider)
+          .map(async (section) => {
+            logger.info(`[syncBranchContext] Starting "${section.name}" (+${Date.now() - startTime}ms)`);
+            try {
+              const sectionContext: SyncContext = {
+                ...syncContext,
+                sectionOptions: section.options,
+              };
+              const data = await section.provider!.fetch(sectionContext);
+              logger.info(`[syncBranchContext] "${section.name}" done (+${Date.now() - startTime}ms)`);
+              return { name: section.name, data };
+            } catch (error) {
+              logger.error(`[syncBranchContext] "${section.name}" FAILED (+${Date.now() - startTime}ms): ${error}`);
+              return { name: section.name, data: `Error: ${error}` };
+            }
+          });
+
+        const results = await Promise.all(fetchPromises);
+        for (const { name, data } of results) {
+          customAutoData[name] = data;
+        }
+        logger.info(`[syncBranchContext] All auto sections done (+${Date.now() - startTime}ms)`);
+      }
+
+      logger.info(`[syncBranchContext] Generating markdown (+${Date.now() - startTime}ms)`);
+      await generateBranchContextMarkdown(this.currentBranch, {
+        ...context,
+        changedFiles,
+        ...customAutoData,
+      });
+
+      logger.info(`[syncBranchContext] Syncing to root (+${Date.now() - startTime}ms)`);
       this.syncBranchToRoot();
     } finally {
+      this.refresh();
       setTimeout(() => {
         this.isWritingMarkdown = false;
       }, 100);
+      logger.info(`[syncBranchContext] END total time: ${Date.now() - startTime}ms`);
     }
   }
 
@@ -321,5 +466,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
     this.markdownWatcher?.dispose();
     this.rootMarkdownWatcher?.dispose();
+    this.templateWatcher?.dispose();
+    this.validationIndicator.dispose();
   }
 }

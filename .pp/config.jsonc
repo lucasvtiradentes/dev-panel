@@ -14,6 +14,31 @@
       "**/out/**"
     ]
   },
+  "branchContext": {
+    // "changedFiles": { "provider": "node ./plugins/tree-changed-files.js" },
+    "changedFiles": true,
+    "tasks": true,
+    "sections": [
+      {
+        "name": "GITHUB PR COMMENTS",
+        "label": "Github PR comments",
+        "type": "auto",
+        "provider": "node ./plugins/github-pr-comments.js",
+        "icon": "github",
+        "options": {
+          "includeRegularComments": false,
+          "includeReviewComments": true
+        }
+      },
+      {
+        "name": "LINEAR ISSUE",
+        "label": "Linear issue",
+        "type": "auto",
+        "provider": "node ./plugins/linear-issue.js",
+        "icon": "link-external"
+      }
+    ]
+  },
   "variables": [
     {
       "name": "environment",

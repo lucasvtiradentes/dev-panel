@@ -1,21 +1,11 @@
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
-import {
-  BRANCH_CONTEXT_DEFAULT_TODOS,
-  BRANCH_CONTEXT_FIELD_LINEAR_LINK,
-  BRANCH_CONTEXT_FIELD_PR_LINK,
-  BRANCH_CONTEXT_NA,
-  BRANCH_CONTEXT_SECTION_CHANGED_FILES,
-  BRANCH_CONTEXT_SECTION_NOTES,
-  BRANCH_CONTEXT_SECTION_OBJECTIVE,
-  BRANCH_CONTEXT_SECTION_REQUIREMENTS,
-  BRANCH_CONTEXT_SECTION_TODO,
-  ChangedFilesStyle,
-} from '../../common/constants';
+import { BRANCH_CONTEXT_DEFAULT_TODOS, BRANCH_CONTEXT_NA, ChangedFilesStyle } from '../../common/constants';
 import { getBranchContextFilePath, getBranchDirectory } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import type { BranchContext } from '../../common/schemas/types';
 import { getChangedFilesTree } from './git-changed-files';
+import { loadTemplate } from './template-parser';
 
 const logger = createLogger('MarkdownGenerator');
 
@@ -43,6 +33,8 @@ export async function generateBranchContextMarkdown(branchName: string, context:
   const mdPath = getBranchContextFilePath(workspace, branchName);
   logger.info(`[generateBranchContextMarkdown] Markdown path: ${mdPath}`);
 
+  const template = loadTemplate(workspace);
+
   const useExistingChanges = !!context.changedFiles;
   logger.info(`[generateBranchContextMarkdown] Using existing changed files: ${useExistingChanges}`);
 
@@ -51,35 +43,32 @@ export async function generateBranchContextMarkdown(branchName: string, context:
     `[generateBranchContextMarkdown] Changed files result (first 100 chars): ${changedFilesTree.substring(0, 100)}`,
   );
 
-  const lines: string[] = [
-    `# ${branchName}`,
-    '',
-    `${BRANCH_CONTEXT_FIELD_PR_LINK} ${context.prLink || BRANCH_CONTEXT_NA}`,
-    `${BRANCH_CONTEXT_FIELD_LINEAR_LINK} ${context.linearLink || BRANCH_CONTEXT_NA}`,
-    '',
-    BRANCH_CONTEXT_SECTION_OBJECTIVE,
-    '',
-    context.objective || BRANCH_CONTEXT_NA,
-    '',
-    BRANCH_CONTEXT_SECTION_REQUIREMENTS,
-    '',
-    context.requirements || BRANCH_CONTEXT_NA,
-    '',
-    BRANCH_CONTEXT_SECTION_NOTES,
-    '',
-    context.notes || BRANCH_CONTEXT_NA,
-    '',
-    BRANCH_CONTEXT_SECTION_TODO,
-    '',
-    context.todos || BRANCH_CONTEXT_DEFAULT_TODOS,
-    '',
-    BRANCH_CONTEXT_SECTION_CHANGED_FILES,
-    '',
-    '```',
-    changedFilesTree,
-    '```',
-    '',
-  ];
+  const replacements: Record<string, string> = {
+    BRANCH_NAME: branchName,
+    PR_LINK: context.prLink || BRANCH_CONTEXT_NA,
+    LINEAR_LINK: context.linearLink || BRANCH_CONTEXT_NA,
+    OBJECTIVE: context.objective || BRANCH_CONTEXT_NA,
+    REQUIREMENTS: context.requirements || BRANCH_CONTEXT_NA,
+    NOTES: context.notes || BRANCH_CONTEXT_NA,
+    TASKS: context.todos || BRANCH_CONTEXT_DEFAULT_TODOS,
+    CHANGED_FILES: changedFilesTree,
+  };
 
-  fs.writeFileSync(mdPath, lines.join('\n'));
+  for (const [key, value] of Object.entries(context)) {
+    if (typeof value === 'string' && !(key in replacements)) {
+      const placeholderKey = key.toUpperCase().replace(/\s+/g, '_');
+      replacements[placeholderKey] = value;
+      logger.info(`[generateBranchContextMarkdown] Added custom replacement: ${placeholderKey}`);
+    }
+  }
+
+  logger.info(`[generateBranchContextMarkdown] All replacements: ${Object.keys(replacements).join(', ')}`);
+
+  let output = template;
+  for (const [placeholder, value] of Object.entries(replacements)) {
+    const regex = new RegExp(`\\{\\{${placeholder}\\}\\}`, 'g');
+    output = output.replace(regex, value);
+  }
+
+  fs.writeFileSync(mdPath, output);
 }

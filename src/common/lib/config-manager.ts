@@ -1,7 +1,12 @@
 import { isAbsolute, join } from 'node:path';
 import * as vscode from 'vscode';
 import { CONFIG_DIR_NAME } from '../constants';
-import { BRANCHES_DIR_NAME, BRANCH_CONTEXT_FILENAME, PROMPTS_DIR_NAME } from '../constants/scripts-constants';
+import {
+  BRANCHES_DIR_NAME,
+  BRANCH_CONTEXT_FILENAME,
+  BRANCH_CONTEXT_TEMPLATE_FILENAME,
+  PROMPTS_DIR_NAME,
+} from '../constants/scripts-constants';
 import { StoreKey, extensionStore } from './extension-store';
 
 export function getConfigBaseDir(workspacePath: string, configDir: string | null): string {
@@ -153,4 +158,9 @@ export function getPromptOutputFilePath(
   }
 
   return join(promptsDir, `${safePromptName}.md`);
+}
+
+export function getBranchContextTemplatePath(workspace: string): string {
+  const configDirPath = getConfigDirPathFromWorkspacePath(workspace);
+  return join(configDirPath, BRANCH_CONTEXT_TEMPLATE_FILENAME);
 }

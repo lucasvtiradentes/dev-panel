@@ -45,6 +45,110 @@
       },
       "additionalProperties": false
     },
+    "branchContext": {
+      "description": "Branch context configuration",
+      "type": "object",
+      "properties": {
+        "changedFiles": {
+          "default": true,
+          "description": "Changed files section: false = hide, true = default provider, { provider: string } = custom provider",
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "provider": {
+                  "description": "Command to execute (e.g., \"node ./plugins/my-provider.js\", \"bash ./scripts/fetch.sh\")",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "provider"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "tasks": {
+          "default": true,
+          "description": "Tasks section: false = hide, true = default provider, { provider: string } = custom provider",
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "provider": {
+                  "description": "Command to execute (e.g., \"node ./plugins/my-provider.js\", \"bash ./scripts/fetch.sh\")",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "provider"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "sections": {
+          "default": [],
+          "description": "Custom sections to include in branch context",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "Section heading name exactly as it appears in template (e.g., \"TESTS SCENARIOS\")",
+                "type": "string"
+              },
+              "label": {
+                "description": "Display label in the view (e.g., \"Tests scenarios\"). Defaults to name if not set",
+                "type": "string"
+              },
+              "type": {
+                "description": "Section type: field = inline value, text = multi-line, auto = auto-populated",
+                "type": "string",
+                "enum": [
+                  "field",
+                  "text",
+                  "auto"
+                ]
+              },
+              "provider": {
+                "description": "Provider path for auto sections (e.g., \"./plugins/github-pr.js\")",
+                "type": "string"
+              },
+              "icon": {
+                "description": "VSCode icon name (optional, defaults to symbol-field)",
+                "type": "string"
+              },
+              "options": {
+                "description": "Custom options passed to the provider (e.g., { includeReviewComments: true })",
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {}
+              }
+            },
+            "required": [
+              "name",
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "changedFiles",
+        "tasks",
+        "sections"
+      ],
+      "additionalProperties": false
+    },
     "variables": {
       "description": "Configuration variables",
       "type": "array",

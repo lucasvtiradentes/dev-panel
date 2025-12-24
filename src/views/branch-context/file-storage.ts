@@ -1,9 +1,11 @@
 import * as fs from 'node:fs';
 import {
   BRANCH_CONTEXT_DEFAULT_TODOS,
+  BRANCH_CONTEXT_FIELD_BRANCH,
   BRANCH_CONTEXT_FIELD_LINEAR_LINK,
   BRANCH_CONTEXT_FIELD_PR_LINK,
   BRANCH_CONTEXT_NA,
+  BRANCH_CONTEXT_SECTION_BRANCH_INFO,
   BRANCH_CONTEXT_SECTION_CHANGED_FILES,
   BRANCH_CONTEXT_SECTION_NOTES,
   BRANCH_CONTEXT_SECTION_OBJECTIVE,
@@ -48,8 +50,9 @@ export function saveBranchContextToFile(workspace: string, branchName: string, c
 
 function generateMarkdown(branchName: string, context: BranchContext): string {
   const lines = [
-    `# ${branchName}`,
+    BRANCH_CONTEXT_SECTION_BRANCH_INFO,
     '',
+    `${BRANCH_CONTEXT_FIELD_BRANCH} ${branchName}`,
     `${BRANCH_CONTEXT_FIELD_PR_LINK} ${context.prLink || BRANCH_CONTEXT_NA}`,
     `${BRANCH_CONTEXT_FIELD_LINEAR_LINK} ${context.linearLink || BRANCH_CONTEXT_NA}`,
     '',
@@ -121,8 +124,26 @@ function extractCodeBlockSection(content: string, sectionName: string): string |
   return codeContent;
 }
 
+function extractAllCodeBlockSections(content: string): Record<string, string> {
+  const sections: Record<string, string> = {};
+  const sectionRegex = /^#\s+([A-Z][A-Z\s]+)\s*\n+```\s*\n([\s\S]*?)\n```/gm;
+
+  const matches = content.matchAll(sectionRegex);
+  for (const match of matches) {
+    const sectionName = match[1].trim();
+    const sectionContent = match[2].trim();
+
+    if (sectionContent && sectionContent !== 'No changes') {
+      sections[sectionName] = sectionContent;
+    }
+  }
+
+  return sections;
+}
+
 function parseBranchContext(content: string): BranchContext {
   const context: BranchContext = {
+    branchName: extractField(content, BRANCH_CONTEXT_FIELD_BRANCH.replace(':', '')),
     prLink: extractField(content, BRANCH_CONTEXT_FIELD_PR_LINK.replace(':', '')),
     linearLink: extractField(content, BRANCH_CONTEXT_FIELD_LINEAR_LINK.replace(':', '')),
     objective: extractSection(content, 'OBJECTIVE'),
@@ -131,6 +152,16 @@ function parseBranchContext(content: string): BranchContext {
     todos: extractSection(content, 'TASKS'),
     changedFiles: extractCodeBlockSection(content, 'CHANGED FILES'),
   };
+
+  const codeBlockSections = extractAllCodeBlockSections(content);
+  logger.info(`[parseBranchContext] Found code block sections: ${Object.keys(codeBlockSections).join(', ')}`);
+
+  for (const [name, value] of Object.entries(codeBlockSections)) {
+    if (name !== 'CHANGED FILES') {
+      logger.info(`[parseBranchContext] Adding custom section: ${name}`);
+      (context as Record<string, unknown>)[name] = value;
+    }
+  }
 
   return context;
 }
