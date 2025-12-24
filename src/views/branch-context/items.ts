@@ -22,24 +22,24 @@ export class SectionItem extends vscode.TreeItem {
 
     if (section.type === 'auto') {
       this.description = value ? truncate(value, BRANCH_FIELD_DESCRIPTION_MAX_LENGTH) : '(not synced)';
-      this.tooltip = 'Auto-populated section. Click "Sync" to refresh.';
+      this.tooltip = value ?? 'Auto-populated section. Click to view, use "Sync" to refresh.';
     } else {
       this.description = value ? truncate(value, BRANCH_FIELD_DESCRIPTION_MAX_LENGTH) : '(not set)';
       this.tooltip = value ?? `Click to set ${section.label.toLowerCase()}`;
+    }
 
-      if (section.command) {
-        this.command = {
-          command: getCommandId(section.command),
-          title: `Edit ${section.label}`,
-          arguments: [branchName, value],
-        };
-      } else {
-        this.command = {
-          command: getCommandId(Command.OpenBranchContextFileAtLine),
-          title: `Edit ${section.label}`,
-          arguments: [branchName, section.name],
-        };
-      }
+    if (section.command) {
+      this.command = {
+        command: getCommandId(section.command),
+        title: `Edit ${section.label}`,
+        arguments: [branchName, value],
+      };
+    } else {
+      this.command = {
+        command: getCommandId(Command.OpenBranchContextFileAtLine),
+        title: `View ${section.label}`,
+        arguments: [branchName, section.name],
+      };
     }
   }
 }
