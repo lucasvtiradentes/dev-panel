@@ -468,11 +468,13 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
       let changedFiles: string | undefined;
       let changedFilesSummary: string | undefined;
+      let changedFilesSectionMetadata: Record<string, unknown> | undefined;
       if (config?.branchContext?.builtinSections?.changedFiles !== false) {
         logger.info(`[syncBranchContext] Fetching changedFiles (+${Date.now() - startTime}ms)`);
         const result = await getChangedFilesWithSummary(workspace, ChangedFilesStyle.List);
         changedFiles = result.content;
         changedFilesSummary = result.summary;
+        changedFilesSectionMetadata = result.sectionMetadata;
         logger.info(`[syncBranchContext] changedFiles done (+${Date.now() - startTime}ms)`);
       }
 
@@ -510,12 +512,20 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       }
 
       logger.info(`[syncBranchContext] Generating markdown (+${Date.now() - startTime}ms)`);
-      await generateBranchContextMarkdown(this.currentBranch, {
-        ...context,
-        changedFiles,
-        ...customAutoData,
-        metadata: changedFilesSummary ? { changedFilesSummary } : undefined,
-      });
+      const sectionMetadataMap: Record<string, Record<string, unknown>> = {};
+      if (changedFilesSectionMetadata) {
+        sectionMetadataMap[SECTION_NAME_CHANGED_FILES] = changedFilesSectionMetadata;
+      }
+      await generateBranchContextMarkdown(
+        this.currentBranch,
+        {
+          ...context,
+          changedFiles,
+          ...customAutoData,
+          metadata: changedFilesSummary ? { changedFilesSummary } : undefined,
+        },
+        Object.keys(sectionMetadataMap).length > 0 ? sectionMetadataMap : undefined,
+      );
 
       logger.info(`[syncBranchContext] Syncing to root (+${Date.now() - startTime}ms)`);
       this.syncBranchToRoot();

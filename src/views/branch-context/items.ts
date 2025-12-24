@@ -35,11 +35,10 @@ export class SectionItem extends vscode.TreeItem {
     this.contextValue = CONTEXT_VALUES.BRANCH_CONTEXT_FIELD;
     this.iconPath = new vscode.ThemeIcon(section.icon);
 
+    this.description = this.getDescription();
     if (section.type === 'auto') {
-      this.description = this.getAutoDescription();
       this.tooltip = value ?? 'Auto-populated section. Click to view, use "Sync" to refresh.';
     } else {
-      this.description = value ? truncate(value, BRANCH_FIELD_DESCRIPTION_MAX_LENGTH) : DESCRIPTION_NOT_SET;
       this.tooltip = value ?? `Click to set ${section.label.toLowerCase()}`;
     }
 
@@ -58,8 +57,9 @@ export class SectionItem extends vscode.TreeItem {
     }
   }
 
-  private getAutoDescription(): string {
-    if (!this.value) return DESCRIPTION_NOT_SYNCED;
+  private getDescription(): string {
+    const notSetLabel = this.section.type === 'auto' ? DESCRIPTION_NOT_SYNCED : DESCRIPTION_NOT_SET;
+    if (!this.value) return notSetLabel;
 
     if (this.section.descriptionTemplate && this.metadata) {
       const formatted = interpolateTemplate(this.section.descriptionTemplate, this.metadata);

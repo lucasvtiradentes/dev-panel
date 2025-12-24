@@ -15,6 +15,7 @@ export type ChangedFilesSummary = {
 export type ChangedFilesResult = {
   content: string;
   summary: string;
+  sectionMetadata?: Record<string, unknown>;
 };
 
 export function formatChangedFilesSummary(summary: ChangedFilesSummary | null): string {
@@ -51,7 +52,14 @@ export async function getChangedFilesWithSummary(
   if (style === ChangedFilesStyle.Tree) {
     const content = await getChangedFilesTreeFormat(workspacePath);
     const summary = await getChangedFilesSummaryFromGit(workspacePath);
-    return { content, summary: formatChangedFilesSummary(summary) };
+    const sectionMetadata = summary
+      ? { filesCount: summary.added + summary.modified + summary.deleted, ...summary }
+      : { filesCount: 0, added: 0, modified: 0, deleted: 0 };
+    return {
+      content,
+      summary: formatChangedFilesSummary(summary),
+      sectionMetadata: content !== BRANCH_CONTEXT_NO_CHANGES ? sectionMetadata : undefined,
+    };
   }
   return getChangedFilesListFormatWithSummary(workspacePath);
 }
@@ -278,7 +286,18 @@ async function getChangedFilesListFormatWithSummary(workspacePath: string): Prom
       lines.push(`${statusSymbol}  ${file}${padding}(+${stats.added} -${stats.deleted})`);
     }
 
-    return { content: lines.join('\n'), summary: formatChangedFilesSummary(summary) };
+    const sectionMetadata = {
+      filesCount: statusMap.size,
+      added: summary.added,
+      modified: summary.modified,
+      deleted: summary.deleted,
+    };
+
+    return {
+      content: lines.join('\n'),
+      summary: formatChangedFilesSummary(summary),
+      sectionMetadata,
+    };
   } catch {
     return { content: 'Not a git repository', summary: BRANCH_CONTEXT_NO_CHANGES };
   }

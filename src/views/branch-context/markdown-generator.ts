@@ -5,6 +5,7 @@ import {
   BRANCH_CONTEXT_NA,
   ChangedFilesStyle,
   METADATA_PP_PREFIX,
+  METADATA_SECTION_PREFIX,
   METADATA_SUFFIX,
 } from '../../common/constants';
 import { getBranchContextFilePath, getBranchDirectory } from '../../common/lib/config-manager';
@@ -13,13 +14,19 @@ import type { BranchContext } from '../../common/schemas/types';
 import { getChangedFilesTree } from './git-changed-files';
 import { loadTemplate } from './template-parser';
 
+type SectionMetadataMap = Record<string, Record<string, unknown>>;
+
 const logger = createLogger('MarkdownGenerator');
 
 function getWorkspacePath(): string | null {
   return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
 }
 
-export async function generateBranchContextMarkdown(branchName: string, context: BranchContext): Promise<void> {
+export async function generateBranchContextMarkdown(
+  branchName: string,
+  context: BranchContext,
+  sectionMetadata?: SectionMetadataMap,
+): Promise<void> {
   logger.info(`[generateBranchContextMarkdown] Called for branch: ${branchName}`);
 
   const workspace = getWorkspacePath();
@@ -76,10 +83,37 @@ export async function generateBranchContextMarkdown(branchName: string, context:
     output = output.replace(regex, value);
   }
 
+  if (sectionMetadata) {
+    output = appendSectionMetadata(output, sectionMetadata);
+  }
+
   if (context.metadata) {
     const metadataJson = JSON.stringify(context.metadata);
     output += `\n${METADATA_PP_PREFIX}${metadataJson}${METADATA_SUFFIX}`;
   }
 
   fs.writeFileSync(mdPath, output);
+}
+
+function appendSectionMetadata(content: string, sectionMetadata: SectionMetadataMap): string {
+  let result = content;
+
+  for (const [sectionName, metadata] of Object.entries(sectionMetadata)) {
+    const sectionHeaderRegex = new RegExp(`^#\\s+${sectionName}\\s*$`, 'im');
+    const headerMatch = result.match(sectionHeaderRegex);
+
+    if (!headerMatch || headerMatch.index === undefined) continue;
+
+    const afterHeader = result.slice(headerMatch.index + headerMatch[0].length);
+    const codeBlockMatch = afterHeader.match(/^(\s*\n```[\s\S]*?```)/m);
+
+    if (codeBlockMatch && codeBlockMatch.index !== undefined) {
+      const insertPosition =
+        headerMatch.index + headerMatch[0].length + codeBlockMatch.index + codeBlockMatch[0].length;
+      const metadataStr = `\n\n${METADATA_SECTION_PREFIX}${JSON.stringify(metadata)}${METADATA_SUFFIX}`;
+      result = result.slice(0, insertPosition) + metadataStr + result.slice(insertPosition);
+    }
+  }
+
+  return result;
 }

@@ -157,15 +157,26 @@ function extractSectionMetadata(content: string): { cleanContent: string; metada
 
 function extractAllCodeBlockSections(content: string): Record<string, CodeBlockSection> {
   const sections: Record<string, CodeBlockSection> = {};
-  const sectionRegex = /^#\s+([A-Z][A-Z\s]+)\s*\n+```\s*\n([\s\S]*?)\n```/gm;
+  const sectionRegex = /^#\s+([A-Z][A-Z\s]+)\s*\n+```\s*\n([\s\S]*?)\n```(\s*\n+<!-- SECTION_METADATA: (.+?) -->)?/gm;
 
   const matches = content.matchAll(sectionRegex);
   for (const match of matches) {
     const sectionName = match[1].trim();
     const rawContent = match[2].trim();
+    const externalMetadataJson = match[4];
 
     if (rawContent && rawContent !== BRANCH_CONTEXT_NO_CHANGES) {
-      const { cleanContent, metadata } = extractSectionMetadata(rawContent);
+      const { cleanContent, metadata: internalMetadata } = extractSectionMetadata(rawContent);
+
+      let metadata: SectionMetadata | undefined = internalMetadata;
+      if (externalMetadataJson) {
+        try {
+          metadata = JSON.parse(externalMetadataJson) as SectionMetadata;
+        } catch {
+          // ignore parse errors
+        }
+      }
+
       sections[sectionName] = { content: cleanContent, metadata };
     }
   }
