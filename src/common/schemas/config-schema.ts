@@ -31,7 +31,7 @@ export enum PromptExecutionMode {
 
 const PPInputSchema = z
   .object({
-    name: z.string().describe('Variable name used in template as {{name}}'),
+    name: z.string().describe('Variable name used in template as $name'),
     type: z.nativeEnum(PromptInputType).describe('Input type'),
     label: z.string().describe('Label shown in the input dialog'),
     placeholder: z.string().optional().describe('Placeholder text for text/number inputs'),

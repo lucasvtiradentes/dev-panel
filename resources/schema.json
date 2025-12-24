@@ -580,7 +580,7 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "description": "Variable name used in template as {{name}}",
+                  "description": "Variable name used in template as $name",
                   "type": "string"
                 },
                 "type": {
@@ -712,7 +712,7 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "description": "Variable name used in template as {{name}}",
+                  "description": "Variable name used in template as $name",
                   "type": "string"
                 },
                 "type": {

@@ -193,7 +193,7 @@ async function collectChoiceInput(input: PPInput, multiple: boolean): Promise<st
 export function replaceInputPlaceholders(content: string, values: InputValues): string {
   let result = content;
   for (const [name, value] of Object.entries(values)) {
-    result = result.replace(new RegExp(`\\{\\{${name}\\}\\}`, 'g'), value);
+    result = result.replace(new RegExp(`\\$${name}`, 'g'), value);
   }
   return result;
 }
