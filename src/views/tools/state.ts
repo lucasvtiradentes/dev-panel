@@ -6,8 +6,6 @@ const helpers = createStateHelpers(globalToolsState, toolsState);
 
 export const isFavorite = helpers.isFavorite;
 export const isHidden = helpers.isHidden;
-export const toggleHidden = helpers.toggleHidden;
-export const toggleFavorite = helpers.toggleFavorite;
 
 export const getActiveTools = () => toolsState.getActiveTools();
 export const setActiveTools = (active: string[]) => toolsState.setActiveTools(active);

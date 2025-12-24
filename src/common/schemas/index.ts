@@ -2,7 +2,6 @@
 export {
   type PPConfig,
   type PPPrompt,
-  type PPPromptInput,
   type PPInput,
   type PPSettings,
   PPConfigSchema,

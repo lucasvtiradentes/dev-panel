@@ -24,7 +24,6 @@
           "description": "Execution mode for prompts with saveOutput: \"timestamped\" creates new file each time with timestamp, \"overwrite\" replaces previous file",
           "type": "string",
           "enum": [
-            "timestamped",
             "overwrite"
           ]
         },

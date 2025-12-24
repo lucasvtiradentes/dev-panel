@@ -39,7 +39,6 @@ export const LICENSE_FILE = 'LICENSE';
 export const README_FILE = 'README.md';
 
 export const TOOL_INSTRUCTIONS_FILE = 'instructions.md';
-export const SKILL_FILE = 'SKILL.md';
 export const AI_SPEC_FILES = ['CLAUDE.md', 'AGENTS.md'] as const;
 
 export const EDITOR_NAMES = {

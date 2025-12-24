@@ -86,10 +86,6 @@ export function buildLogFilename(isDev: boolean): string {
   return isDev ? `${LOG_BASENAME}-${DEV_SUFFIX}.log` : `${LOG_BASENAME}.log`;
 }
 
-export function sanitizeBranchName(branchName: string): string {
-  return branchName.replace(/[\/\\:*?"<>|]/g, '_');
-}
-
 export function getGlobalConfigDir(): string {
   return path.join(homedir(), CONFIG_DIR_NAME);
 }

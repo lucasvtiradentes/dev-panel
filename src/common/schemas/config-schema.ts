@@ -25,7 +25,6 @@ export enum AIProvider {
 }
 
 export enum PromptExecutionMode {
-  Timestamped = 'timestamped',
   Overwrite = 'overwrite',
 }
 
@@ -302,16 +301,9 @@ export const PPConfigSchema = z
   .describe(`${EXTENSION_DISPLAY_NAME} configuration file`);
 
 export type PPInput = z.infer<typeof PPInputSchema>;
-export type PPPromptInput = PPInput;
 export type PPPrompt = z.infer<typeof PPPromptSchema>;
 export type PPSettings = z.infer<typeof PPSettingsSchema>;
 export type PPConfig = z.infer<typeof PPConfigSchema>;
-export type PPTask = z.infer<typeof PPTaskSchema>;
-export type PPTool = z.infer<typeof PPToolSchema>;
 export type PPVariable = z.infer<typeof PPVariableSchema>;
 export type PPReplacement = z.infer<typeof PPReplacementSchema>;
-export type PPReplacementPatch = z.infer<typeof PPReplacementPatchSchema>;
 export type BranchContextConfig = z.infer<typeof BranchContextConfigSchema>;
-export type BranchContextSection = z.infer<typeof BranchContextSectionSchema>;
-export type BranchContextProviderConfig = z.infer<typeof BranchContextProviderSchema>;
-export type BuiltinSections = z.infer<typeof BuiltinSectionsSchema>;

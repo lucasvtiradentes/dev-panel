@@ -63,10 +63,6 @@ export const QUICK_PICK_ACTION_SEPARATOR = '__separator__';
 export const JSON_INDENT_SPACES = 4;
 export const CONFIG_INDENT = '    ';
 
-export const STATUS_BAR_UNDEFINED_TASK = '-- UNDEFINED TASK --';
-export const STATUS_BAR_COMMAND_PREFIX = '/';
-export const TASK_SOURCE_WORKSPACE = 'Workspace';
-
 export const BASE_BRANCH = 'origin/main';
 
 export const BRANCH_CONTEXT_DEFAULT_ICON = 'symbol-field';

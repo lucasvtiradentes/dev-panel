@@ -79,11 +79,6 @@ export function getReplacementCommandId(replacementName: string): string {
   return `${prefix}.${REPLACEMENT_COMMAND_SUFFIX}.${replacementName}`;
 }
 
-export function getReplacementCommandPrefix(): string {
-  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
-  return `${prefix}.${REPLACEMENT_COMMAND_SUFFIX}.`;
-}
-
 export function getVariableCommandId(variableName: string): string {
   const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
   return `${prefix}.${VARIABLE_COMMAND_SUFFIX}.${variableName}`;

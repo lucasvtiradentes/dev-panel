@@ -22,18 +22,11 @@ import {
   SECTION_NAME_REQUIREMENTS,
   SECTION_NAME_TASKS,
 } from '../../common/constants';
-import { getBranchContextFilePath, getBranchDirectory } from '../../common/lib/config-manager';
+import { getBranchContextFilePath } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import type { BranchContext, BranchContextMetadata, SectionMetadata } from '../../common/schemas/types';
 
 const logger = createLogger('BranchContext');
-
-export function ensureBranchDirectory(workspace: string, branchName: string): void {
-  const dirPath = getBranchDirectory(workspace, branchName);
-  if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true });
-  }
-}
 
 export function loadBranchContextFromFile(workspace: string, branchName: string): BranchContext {
   const filePath = getBranchContextFilePath(workspace, branchName);
@@ -49,13 +42,6 @@ export function loadBranchContextFromFile(workspace: string, branchName: string)
     logger.error(`Failed to load branch context for ${branchName}: ${error}`);
     return {};
   }
-}
-
-export function saveBranchContextToFile(workspace: string, branchName: string, context: BranchContext): void {
-  ensureBranchDirectory(workspace, branchName);
-  const filePath = getBranchContextFilePath(workspace, branchName);
-  const markdown = generateMarkdown(branchName, context);
-  fs.writeFileSync(filePath, markdown, 'utf-8');
 }
 
 function generateMarkdown(branchName: string, context: BranchContext): string {
@@ -266,8 +252,4 @@ function parseBranchContext(content: string): BranchContext {
   }
 
   return context;
-}
-
-export function branchContextFileExists(workspace: string, branchName: string): boolean {
-  return fs.existsSync(getBranchContextFilePath(workspace, branchName));
 }

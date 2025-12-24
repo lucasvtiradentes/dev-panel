@@ -6,5 +6,3 @@ const helpers = createStateHelpers(globalPromptsState, promptsState);
 
 export const isFavorite = helpers.isFavorite;
 export const isHidden = helpers.isHidden;
-export const toggleHidden = helpers.toggleHidden;
-export const toggleFavorite = helpers.toggleFavorite;

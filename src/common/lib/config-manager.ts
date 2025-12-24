@@ -9,18 +9,6 @@ import {
 } from '../constants/scripts-constants';
 import { StoreKey, extensionStore } from './extension-store';
 
-export function getConfigBaseDir(workspacePath: string, configDir: string | null): string {
-  if (!configDir) {
-    return workspacePath;
-  }
-
-  if (isAbsolute(configDir)) {
-    return configDir;
-  }
-
-  return join(workspacePath, configDir);
-}
-
 function getConfigDir(workspacePath: string, configDir: string | null): vscode.Uri {
   const baseDir = vscode.Uri.file(workspacePath);
 
