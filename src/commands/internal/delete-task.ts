@@ -1,10 +1,8 @@
 import * as fs from 'node:fs';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { CONFIG_FILE_NAME } from '../../common/constants';
-import { getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
+import { getWorkspaceConfigFilePath, loadWorkspaceConfig } from '../../common/lib/config-manager';
 import { Command, executeCommand, registerCommand } from '../../common/lib/vscode-utils';
-import type { PPConfig } from '../../common/schemas';
 import type { TreeTask } from '../../views/tasks/items';
 
 async function handleDeleteTask(treeTask: TreeTask): Promise<void> {
@@ -29,13 +27,13 @@ async function handleDeleteTask(treeTask: TreeTask): Promise<void> {
     return;
   }
 
-  const workspaceConfigPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
-  if (!fs.existsSync(workspaceConfigPath)) {
+  const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
+  if (!workspaceConfig) {
     vscode.window.showErrorMessage('Workspace config not found');
     return;
   }
 
-  const workspaceConfig = JSON5.parse(fs.readFileSync(workspaceConfigPath, 'utf8')) as PPConfig;
+  const workspaceConfigPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
   if (!workspaceConfig.tasks) {
     vscode.window.showErrorMessage('No tasks found in workspace config');
     return;

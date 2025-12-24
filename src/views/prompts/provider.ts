@@ -1,8 +1,5 @@
-import * as fs from 'node:fs';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
-  CONFIG_FILE_NAME,
   CONTEXT_VALUES,
   DND_MIME_TYPE_PROMPTS,
   GLOBAL_ITEM_PREFIX,
@@ -10,9 +7,8 @@ import {
   NO_GROUP_NAME,
   getCommandId,
   getGlobalConfigDir,
-  getGlobalConfigPath,
 } from '../../common/constants';
-import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
+import { getWorkspaceConfigDirPath, loadGlobalConfig, loadWorkspaceConfig } from '../../common/lib/config-manager';
 import { globalPromptsState } from '../../common/lib/global-state';
 import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
@@ -139,11 +135,8 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
   }
 
   private readPPPrompts(folder: vscode.WorkspaceFolder): NonNullable<PPConfig['prompts']> {
-    const configPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
-    log.debug(`readPPPrompts - reading: ${configPath}`);
-    if (!fs.existsSync(configPath)) return [];
-    const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
-    const prompts = config.prompts ?? [];
+    const config = loadWorkspaceConfig(folder);
+    const prompts = config?.prompts ?? [];
     log.info(`readPPPrompts - found ${prompts.length} prompts`);
     for (const p of prompts) {
       if (p.inputs) {
@@ -154,17 +147,10 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
   }
 
   private readGlobalPrompts(): NonNullable<PPConfig['prompts']> {
-    const configPath = getGlobalConfigPath();
-    log.debug(`readGlobalPrompts - reading: ${configPath}`);
-    if (!fs.existsSync(configPath)) return [];
-    try {
-      const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
-      const prompts = config.prompts ?? [];
-      log.info(`readGlobalPrompts - found ${prompts.length} prompts`);
-      return prompts;
-    } catch {
-      return [];
-    }
+    const config = loadGlobalConfig();
+    const prompts = config?.prompts ?? [];
+    log.info(`readGlobalPrompts - found ${prompts.length} prompts`);
+    return prompts;
   }
 
   private createPPPrompt(

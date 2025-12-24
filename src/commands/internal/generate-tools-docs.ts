@@ -1,22 +1,19 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
   AI_SPEC_AVAILABLE_TOOLS_REGEX,
   AI_SPEC_FILES,
   AI_SPEC_PROJECT_TOOLS_REGEX,
   CLAUDE_DIR_NAME,
-  CONFIG_FILE_NAME,
   GLOBAL_ITEM_PREFIX,
   SKILLS_DIR_NAME,
   SKILL_FILE_NAME,
   TOOLS_DIR,
   TOOL_INSTRUCTIONS_FILE,
-  getGlobalConfigPath,
   getGlobalToolsDir,
 } from '../../common/constants';
-import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
+import { getWorkspaceConfigDirPath, loadGlobalConfig, loadWorkspaceConfig } from '../../common/lib/config-manager';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas';
@@ -135,26 +132,13 @@ function parseInstructionsMd(content: string, toolName: string): ToolInstruction
 }
 
 function getGlobalTools(): NonNullable<PPConfig['tools']> {
-  const globalConfigPath = getGlobalConfigPath();
-  if (!fs.existsSync(globalConfigPath)) {
-    return [];
-  }
-  try {
-    const config = JSON5.parse(fs.readFileSync(globalConfigPath, 'utf8')) as PPConfig;
-    return config.tools ?? [];
-  } catch {
-    return [];
-  }
+  const config = loadGlobalConfig();
+  return config?.tools ?? [];
 }
 
 function generateToolsXml(workspaceFolder: vscode.WorkspaceFolder): string {
-  const configPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
-  let localTools: NonNullable<PPConfig['tools']> = [];
-
-  if (fs.existsSync(configPath)) {
-    const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
-    localTools = config.tools ?? [];
-  }
+  const config = loadWorkspaceConfig(workspaceFolder);
+  const localTools = config?.tools ?? [];
 
   const globalTools = getGlobalTools();
   const activeTools = toolsState.getActiveTools();
@@ -264,13 +248,8 @@ ${contentLines.join('\n').trim()}
 }
 
 async function syncToSkills(workspaceFolder: vscode.WorkspaceFolder): Promise<number> {
-  const configPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
-  let localTools: NonNullable<PPConfig['tools']> = [];
-
-  if (fs.existsSync(configPath)) {
-    const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
-    localTools = config.tools ?? [];
-  }
+  const config = loadWorkspaceConfig(workspaceFolder);
+  const localTools = config?.tools ?? [];
 
   const globalTools = getGlobalTools();
   const activeTools = toolsState.getActiveTools();

@@ -1,15 +1,14 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
+import { CONFIG_FILE_NAME, GLOBAL_ITEM_PREFIX, TOOLS_DIR, getGlobalToolsDir } from '../../common/constants';
 import {
-  CONFIG_FILE_NAME,
-  GLOBAL_ITEM_PREFIX,
-  TOOLS_DIR,
-  getGlobalConfigPath,
-  getGlobalToolsDir,
-} from '../../common/constants';
-import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath, joinConfigPath } from '../../common/lib/config-manager';
+  getWorkspaceConfigDirPath,
+  getWorkspaceConfigFilePath,
+  joinConfigPath,
+  loadGlobalConfig,
+  loadWorkspaceConfig,
+} from '../../common/lib/config-manager';
 import { Command, executeCommand, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 import type { TreeTool } from '../../views/tools/items';
@@ -44,13 +43,12 @@ async function handleCopyToolToWorkspace(treeTool: TreeTool): Promise<void> {
     workspaceFolder = selected.folder;
   }
 
-  const globalConfigPath = getGlobalConfigPath();
-  if (!fs.existsSync(globalConfigPath)) {
+  const globalConfig = loadGlobalConfig();
+  if (!globalConfig) {
     vscode.window.showErrorMessage('Global config not found');
     return;
   }
 
-  const globalConfig = JSON5.parse(fs.readFileSync(globalConfigPath, 'utf8')) as PPConfig;
   const tool = globalConfig.tools?.find((t) => t.name === toolName);
 
   if (!tool) {
@@ -65,15 +63,7 @@ async function handleCopyToolToWorkspace(treeTool: TreeTool): Promise<void> {
     fs.mkdirSync(workspaceConfigDir, { recursive: true });
   }
 
-  let workspaceConfig: PPConfig = {};
-  if (fs.existsSync(workspaceConfigPath)) {
-    try {
-      workspaceConfig = JSON5.parse(fs.readFileSync(workspaceConfigPath, 'utf8')) as PPConfig;
-    } catch (error) {
-      vscode.window.showErrorMessage('Failed to read workspace config');
-      return;
-    }
-  }
+  const workspaceConfig: PPConfig = loadWorkspaceConfig(workspaceFolder) ?? {};
 
   if (!workspaceConfig.tools) {
     workspaceConfig.tools = [];

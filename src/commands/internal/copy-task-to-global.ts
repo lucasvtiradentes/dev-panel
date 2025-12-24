@@ -1,8 +1,7 @@
 import * as fs from 'node:fs';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { CONFIG_FILE_NAME, GLOBAL_ITEM_PREFIX, getGlobalConfigDir, getGlobalConfigPath } from '../../common/constants';
-import { getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
+import { GLOBAL_ITEM_PREFIX, getGlobalConfigDir, getGlobalConfigPath } from '../../common/constants';
+import { loadGlobalConfig, loadWorkspaceConfig } from '../../common/lib/config-manager';
 import { Command, executeCommand, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 import type { TreeTask } from '../../views/tasks/items';
@@ -24,13 +23,12 @@ async function handleCopyTaskToGlobal(treeTask: TreeTask): Promise<void> {
     return;
   }
 
-  const workspaceConfigPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
-  if (!fs.existsSync(workspaceConfigPath)) {
+  const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
+  if (!workspaceConfig) {
     vscode.window.showErrorMessage('Workspace config not found');
     return;
   }
 
-  const workspaceConfig = JSON5.parse(fs.readFileSync(workspaceConfigPath, 'utf8')) as PPConfig;
   const task = workspaceConfig.tasks?.find((t) => t.name === treeTask.taskName);
 
   if (!task) {
@@ -45,15 +43,7 @@ async function handleCopyTaskToGlobal(treeTask: TreeTask): Promise<void> {
     fs.mkdirSync(globalConfigDir, { recursive: true });
   }
 
-  let globalConfig: PPConfig = {};
-  if (fs.existsSync(globalConfigPath)) {
-    try {
-      globalConfig = JSON5.parse(fs.readFileSync(globalConfigPath, 'utf8')) as PPConfig;
-    } catch (error) {
-      vscode.window.showErrorMessage('Failed to read global config');
-      return;
-    }
-  }
+  const globalConfig: PPConfig = loadGlobalConfig() ?? {};
 
   if (!globalConfig.tasks) {
     globalConfig.tasks = [];

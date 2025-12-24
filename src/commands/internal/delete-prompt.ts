@@ -1,11 +1,14 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { CONFIG_FILE_NAME, GLOBAL_ITEM_PREFIX, getGlobalConfigDir, getGlobalConfigPath } from '../../common/constants';
-import { getWorkspaceConfigFilePath, joinConfigPath } from '../../common/lib/config-manager';
+import {
+  getWorkspaceConfigFilePath,
+  joinConfigPath,
+  loadGlobalConfig,
+  loadWorkspaceConfig,
+} from '../../common/lib/config-manager';
 import { Command, executeCommand, registerCommand } from '../../common/lib/vscode-utils';
-import type { PPConfig } from '../../common/schemas';
 import type { TreePrompt } from '../../views/prompts/items';
 
 async function handleDeletePrompt(treePrompt: TreePrompt): Promise<void> {
@@ -26,13 +29,13 @@ async function handleDeletePrompt(treePrompt: TreePrompt): Promise<void> {
   if (choice !== 'Delete') return;
 
   if (isGlobal) {
-    const globalConfigPath = getGlobalConfigPath();
-    if (!fs.existsSync(globalConfigPath)) {
+    const globalConfig = loadGlobalConfig();
+    if (!globalConfig) {
       vscode.window.showErrorMessage('Global config not found');
       return;
     }
 
-    const globalConfig = JSON5.parse(fs.readFileSync(globalConfigPath, 'utf8')) as PPConfig;
+    const globalConfigPath = getGlobalConfigPath();
     if (!globalConfig.prompts) {
       vscode.window.showErrorMessage('No prompts found in global config');
       return;
@@ -64,13 +67,13 @@ async function handleDeletePrompt(treePrompt: TreePrompt): Promise<void> {
     return;
   }
 
-  const workspaceConfigPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
-  if (!fs.existsSync(workspaceConfigPath)) {
+  const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
+  if (!workspaceConfig) {
     vscode.window.showErrorMessage('Workspace config not found');
     return;
   }
 
-  const workspaceConfig = JSON5.parse(fs.readFileSync(workspaceConfigPath, 'utf8')) as PPConfig;
+  const workspaceConfigPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
   if (!workspaceConfig.prompts) {
     vscode.window.showErrorMessage('No prompts found in workspace config');
     return;
