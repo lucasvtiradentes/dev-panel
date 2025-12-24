@@ -14,6 +14,24 @@
       "**/out/**"
     ]
   },
+  "branchContext": {
+    "changedFiles": true,
+    "tasks": true,
+    "sections": [
+      {
+        "name": "GITHUB PR COMMENTS",
+        "type": "auto",
+        "provider": "./plugins/github-pr-comments.js",
+        "icon": "github"
+      },
+      {
+        "name": "LINEAR ISSUE",
+        "type": "auto",
+        "provider": "./plugins/linear-issue.js",
+        "icon": "link-external"
+      }
+    ]
+  },
   "variables": [
     {
       "name": "environment",
