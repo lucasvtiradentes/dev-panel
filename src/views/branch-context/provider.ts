@@ -60,8 +60,6 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   private syncDebounceTimer: NodeJS.Timeout | null = null;
   private lastSyncDirection: 'root-to-branch' | 'branch-to-root' | null = null;
   private validationIndicator: ValidationIndicator;
-  private autoSyncTimer: NodeJS.Timeout | null = null;
-  private autoSyncIntervalSeconds = 0;
 
   constructor() {
     this.validationIndicator = new ValidationIndicator();
@@ -161,44 +159,9 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
         } else {
           this.validationIndicator.hide();
         }
-
-        this.setupAutoSync(config);
       } catch {
         this.validationIndicator.hide();
       }
-    }
-  }
-
-  private setupAutoSync(config: PPConfig): void {
-    this.autoSyncIntervalSeconds = config.branchContext?.autoSyncInterval ?? 0;
-    if (this.autoSyncIntervalSeconds > 0) {
-      logger.info(`[BranchContextProvider] Auto-sync configured: ${this.autoSyncIntervalSeconds}s`);
-    }
-  }
-
-  private scheduleNextAutoSync(): void {
-    if (this.autoSyncTimer) {
-      clearTimeout(this.autoSyncTimer);
-      this.autoSyncTimer = null;
-    }
-
-    if (this.autoSyncIntervalSeconds <= 0) {
-      return;
-    }
-
-    logger.info(`[BranchContextProvider] Scheduling next auto-sync in ${this.autoSyncIntervalSeconds}s`);
-    this.autoSyncTimer = setTimeout(() => {
-      if (this.currentBranch && !this.isWritingMarkdown && !this.isSyncing) {
-        logger.info('[BranchContextProvider] Auto-sync triggered');
-        void this.syncBranchContext();
-      }
-    }, this.autoSyncIntervalSeconds * 1000);
-  }
-
-  private cancelAutoSync(): void {
-    if (this.autoSyncTimer) {
-      clearTimeout(this.autoSyncTimer);
-      this.autoSyncTimer = null;
     }
   }
 
@@ -224,7 +187,6 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     logger.info(`[BranchContextProvider] setBranch called: ${branchName} (current: ${this.currentBranch})`);
 
     if (branchName !== this.currentBranch) {
-      this.cancelAutoSync();
       this.currentBranch = branchName;
       if (shouldRefresh) {
         logger.info('[BranchContextProvider] Branch changed, refreshing');
@@ -542,7 +504,6 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
         this.isWritingMarkdown = false;
       }, 100);
       logger.info(`[syncBranchContext] END total time: ${Date.now() - startTime}ms`);
-      this.scheduleNextAutoSync();
     }
   }
 
@@ -550,10 +511,6 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     if (this.syncDebounceTimer) {
       clearTimeout(this.syncDebounceTimer);
       this.syncDebounceTimer = null;
-    }
-    if (this.autoSyncTimer) {
-      clearInterval(this.autoSyncTimer);
-      this.autoSyncTimer = null;
     }
     this.markdownWatcher?.dispose();
     this.rootMarkdownWatcher?.dispose();

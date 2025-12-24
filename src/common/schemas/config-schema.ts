@@ -287,12 +287,6 @@ const BranchContextConfigSchema = z.object({
     .optional()
     .describe('Custom sections to include in branch context')
     .default([]),
-  autoSyncInterval: z
-    .number()
-    .int()
-    .min(0)
-    .optional()
-    .describe('Auto-sync interval in seconds. 0 = disabled (default), any positive number enables periodic sync'),
 });
 
 export const PPConfigSchema = z

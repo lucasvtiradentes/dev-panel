@@ -29,7 +29,7 @@
         "emptyValue": "No PR link set",
         "descriptionTemplate": "{{prCommentsCount}} PR / {{reviewCommentsCount}} Review",
         "options": {
-          "includeRegularComments": true,
+          "includeRegularComments": false,
           "includeReviewComments": true
         }
       },
