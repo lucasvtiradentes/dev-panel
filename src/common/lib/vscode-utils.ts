@@ -71,7 +71,6 @@ export enum Command {
   EditBranchRequirements = 'editBranchRequirements',
   EditBranchNotes = 'editBranchNotes',
   EditBranchTodos = 'editBranchTodos',
-  ToggleBranchType = 'toggleBranchType',
   OpenBranchContextFile = 'openBranchContextFile',
   OpenBranchContextFileAtLine = 'openBranchContextFileAtLine',
   SyncBranchContext = 'syncBranchContext',

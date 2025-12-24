@@ -4,7 +4,6 @@ import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
-  type BranchType,
   CONFIG_CACHE_TTL_MS,
   ChangedFilesStyle,
   GIT_LOG_LAST_COMMIT_MESSAGE,
@@ -43,7 +42,6 @@ import { SimpleCache } from '../../common/utils/cache';
 import { formatRelativeTime } from '../../common/utils/time-formatter';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { validateBranchContext } from './config-validator';
-import { loadBranchContextFromFile } from './file-storage';
 import { formatChangedFilesSummary, getChangedFilesWithSummary } from './git-changed-files';
 import { SectionItem } from './items';
 import { generateBranchContextMarkdown } from './markdown-generator';
@@ -384,7 +382,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
         continue;
       }
 
-      items.push(new SectionItem(section, value, this.currentBranch, sectionMetadata));
+      items.push(new SectionItem(section, value, this.currentBranch, sectionMetadata, context.branchType));
     }
 
     return items;
@@ -497,18 +495,6 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     await vscode.window.showTextDocument(doc, {
       selection: new vscode.Range(lineNumber, 0, lineNumber, 0),
     });
-  }
-
-  async setBranchType(branchType: BranchType): Promise<void> {
-    const workspace = getWorkspacePath();
-    if (!workspace) return;
-
-    const context = loadBranchContextFromFile(workspace, this.currentBranch);
-    context.branchType = branchType;
-
-    await generateBranchContextMarkdown(this.currentBranch, context);
-    this.syncBranchToRoot();
-    this.refresh();
   }
 
   async syncBranchContext(): Promise<void> {

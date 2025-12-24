@@ -59,7 +59,6 @@ import {
 } from './internal/toggle-all-replacements';
 import { createToggleBranchContextHideEmptySectionsCommand } from './internal/toggle-branch-context-hide-empty-sections';
 import { createToggleBranchTasksCommands } from './internal/toggle-branch-tasks';
-import { createToggleBranchTypeCommand } from './internal/toggle-branch-type';
 import { createTogglePromptsViewCommands } from './internal/toggle-prompts-view';
 import { createToggleReplacementCommand } from './internal/toggle-replacement';
 import { createToggleReplacementsViewCommands } from './internal/toggle-replacements-view';
@@ -125,7 +124,6 @@ export function registerAllCommands(options: {
     ...createEditBranchFieldsCommands(branchContextProvider),
     createOpenBranchContextFileCommand(branchContextProvider),
     createSyncBranchContextCommand(branchContextProvider),
-    createToggleBranchTypeCommand(branchContextProvider),
     ...createToggleBranchContextHideEmptySectionsCommand(branchContextProvider),
     ...createToggleBranchTasksCommands(branchTasksProvider),
     createShowLogsCommand(),

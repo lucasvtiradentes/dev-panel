@@ -5,6 +5,7 @@ import {
   DESCRIPTION_NOT_SET,
   DESCRIPTION_NOT_SYNCED,
   METADATA_FIELD_DESCRIPTION,
+  SECTION_NAME_BRANCH,
   getCommandId,
 } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
@@ -23,11 +24,24 @@ export class SectionItem extends vscode.TreeItem {
     public readonly value: string | undefined,
     private readonly branchName: string,
     private readonly metadata?: SectionMetadata,
+    private readonly branchType?: string,
   ) {
     super(section.label, vscode.TreeItemCollapsibleState.None);
 
     this.contextValue = CONTEXT_VALUES.BRANCH_CONTEXT_FIELD;
-    this.iconPath = new vscode.ThemeIcon(section.icon);
+
+    if (section.name === SECTION_NAME_BRANCH && branchType) {
+      const colorMap: Record<string, string> = {
+        feature: 'charts.blue',
+        bugfix: 'charts.red',
+        chore: 'charts.purple',
+        other: 'editorLineNumber.foreground',
+      };
+      const color = colorMap[branchType] || 'editorLineNumber.foreground';
+      this.iconPath = new vscode.ThemeIcon(section.icon, new vscode.ThemeColor(color));
+    } else {
+      this.iconPath = new vscode.ThemeIcon(section.icon);
+    }
 
     this.description = this.getDescription();
     if (section.type === 'auto') {

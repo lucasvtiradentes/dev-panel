@@ -24,10 +24,8 @@ export const BRANCH_CONTEXT_FIELD_TYPE = 'TYPE:';
 export const BRANCH_CONTEXT_FIELD_PR_LINK = 'PR LINK:';
 export const BRANCH_CONTEXT_FIELD_LINEAR_LINK = 'LINEAR LINK:';
 
-export const BRANCH_TYPES = ['feature', 'bugfix', 'hotfix', 'chore', 'docs', 'test', 'refactor', 'other'] as const;
+export const BRANCH_TYPES = ['feature', 'bugfix', 'chore', 'other'] as const;
 export type BranchType = (typeof BRANCH_TYPES)[number];
-
-export const BRANCH_TYPE_CHECKBOX_PATTERN = /TYPE:\s*(\[.\]\s*\w+(?:\s+\[.\]\s*\w+)*)/i;
 
 export const SECTION_NAME_BRANCH = BRANCH_CONTEXT_FIELD_BRANCH.replace(':', '').trim();
 export const SECTION_NAME_PR_LINK = BRANCH_CONTEXT_FIELD_PR_LINK.replace(':', '').trim();

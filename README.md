@@ -14,6 +14,10 @@
 - [ ] uma vez por semana analisar o projeto, sugerir PR, etc
 - [ ] parsear a sessao -> pedir para ia agrupar chats do mesmo assunto -> sumarizar so oq eu tenho interesse ou mostrar a conversa por topicos
 
+## CLAUDE 
+
+- [ ] ver com claude code como pedir para ele me perguntar me dando opcoes igual acontece no plan mode
+
 ## AUTO CLAUDE
 
 - rodar tasks de 5 em 5 horas de forma randomica
@@ -42,17 +46,16 @@
 
 ## TODO
 
-- [ ] ao mudar de branch mostrar algo que vai ser: [ ] feature / [ ] bugfix / [ ] chore / [ ] other
 - [ ] ter um registry ou algo assim para adicionar tools nos projetos facilmente
   - prompts
   - tools
   - scripts
 - [ ] nao ta dando para atribuir atalho em global prompts/tools/tasks
 - [ ] ajeitar o branch tasks para ter status: to do / doing / done 
-- [ ] falta adicionar as secoes tasks e notes no branch context menu
-- [ ] ver com claude code como pedir para ele me perguntar me dando opcoes igual acontece no plan mode
+- [ ] falta adicionar as secoes tasks no branch context menu
 - [ ] plugin para pedir para ia analiser e resumir oq cada commit fez -> se nao tem novo commit nao analisa
 - [ ] botao de IA para a gente preencher os dados do markdown com ia 
+- [ ] remover atalhos individuais dos tree items
 
 ## NAME 
 

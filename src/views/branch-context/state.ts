@@ -27,7 +27,3 @@ export const loadBranchContext = (branchName: string): BranchContext => {
   contextCache.setWithFileHash(branchName, context, filePath);
   return context;
 };
-
-export const invalidateBranchContextCache = (branchName: string): void => {
-  contextCache.invalidate(branchName);
-};
