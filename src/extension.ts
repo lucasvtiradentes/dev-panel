@@ -15,25 +15,20 @@ import { initGlobalState, migrateGlobalState } from './common/lib/global-state';
 import { logger } from './common/lib/logger';
 import { ContextKey, generateWorkspaceId, setContextKey, setWorkspaceId } from './common/lib/vscode-utils';
 import { initWorkspaceState } from './common/lib/workspace-state';
-import {
-  registerPromptKeybindings,
-  registerReplacementKeybindings,
-  registerTaskKeybindings,
-  registerToolKeybindings,
-  registerVariableKeybindings,
-} from './keybindings/register-keybindings';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import { BranchContextProvider } from './views/branch-context';
 import { ensureTemplateExists } from './views/branch-context/template-initializer';
 import { BranchTasksProvider } from './views/branch-tasks';
 import { PromptTreeDataProvider } from './views/prompts';
-import { reloadPromptKeybindings } from './views/prompts/keybindings-local';
+import { registerPromptKeybindings, reloadPromptKeybindings } from './views/prompts/keybindings-local';
 import { ReplacementsProvider } from './views/replacements';
+import { registerReplacementKeybindings } from './views/replacements/keybindings-local';
 import { TaskTreeDataProvider } from './views/tasks';
-import { reloadTaskKeybindings } from './views/tasks/keybindings-local';
+import { registerTaskKeybindings, reloadTaskKeybindings } from './views/tasks/keybindings-local';
 import { ToolTreeDataProvider, setToolProviderInstance } from './views/tools';
-import { reloadToolKeybindings } from './views/tools/keybindings-local';
+import { registerToolKeybindings, reloadToolKeybindings } from './views/tools/keybindings-local';
 import { VariablesProvider } from './views/variables';
+import { registerVariableKeybindings } from './views/variables/keybindings-local';
 import { createBranchWatcher } from './watchers/branch-watcher';
 import { createConfigWatcher } from './watchers/config-watcher';
 import { createKeybindingsWatcher } from './watchers/keybindings-watcher';

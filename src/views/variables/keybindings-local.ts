@@ -1,8 +1,11 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
+import * as vscode from 'vscode';
 import { CONTEXT_PREFIX, getVariableCommandId, getVariableCommandPrefix } from '../../common/constants';
+import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { getVSCodeKeybindingsPath } from '../../common/lib/vscode-keybindings-utils';
-import { getWorkspaceId } from '../../common/lib/vscode-utils';
+import { Command, executeCommand, getWorkspaceId } from '../../common/lib/vscode-utils';
+import { forEachWorkspaceConfig } from '../../common/utils/config-loader';
 
 type VSCodeKeybinding = { key: string; command: string; when?: string };
 
@@ -44,4 +47,19 @@ export function getAllVariableKeybindings(): Record<string, string> {
   }
 
   return variableKeybindings;
+}
+
+export function registerVariableKeybindings(context: vscode.ExtensionContext): void {
+  forEachWorkspaceConfig((_folder, config) => {
+    const variables = config.variables ?? [];
+
+    for (const variable of variables) {
+      const commandId = getVariableCommandId(variable.name);
+      const disposable = vscode.commands.registerCommand(commandId, () => {
+        void executeCommand(Command.SelectConfigOption, variable);
+      });
+      context.subscriptions.push(disposable);
+    }
+  });
+  syncKeybindings();
 }
