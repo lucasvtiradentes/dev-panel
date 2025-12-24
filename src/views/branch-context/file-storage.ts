@@ -14,7 +14,9 @@ import {
   BRANCH_CONTEXT_SECTION_TODO,
   BUILTIN_SECTION_NAMES,
   METADATA_PP_PREFIX,
+  METADATA_PP_REGEX,
   METADATA_SECTION_PREFIX,
+  METADATA_SEPARATOR_REGEX,
   METADATA_SUFFIX,
   SECTION_NAME_CHANGED_FILES,
   SECTION_NAME_NOTES,
@@ -185,9 +187,11 @@ function extractAllTextSections(content: string, excludeNames: string[]): Record
     const startIndex = match.index + match[0].length;
     const nextMatch = matches[i + 1];
     const endIndex = nextMatch?.index ?? content.length;
-    const sectionContent = content.slice(startIndex, endIndex).trim();
+    let sectionContent = content.slice(startIndex, endIndex).trim();
 
     if (sectionContent.startsWith('```')) continue;
+
+    sectionContent = sectionContent.replace(METADATA_PP_REGEX, '').replace(METADATA_SEPARATOR_REGEX, '').trim();
 
     if (sectionContent && sectionContent !== BRANCH_CONTEXT_NA) {
       const { cleanContent, metadata } = extractSectionMetadata(sectionContent);

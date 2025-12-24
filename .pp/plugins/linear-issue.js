@@ -58,7 +58,7 @@ try {
     commentsCount,
   };
 
-  console.log(lines.join('\n') || 'No issue details available');
+  console.log(`${lines.join('\n') || 'No issue details available'}\n`);
   console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
 } catch (error) {
   if (error.message?.includes('not found')) {

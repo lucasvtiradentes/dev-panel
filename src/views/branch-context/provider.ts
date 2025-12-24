@@ -1,9 +1,13 @@
+import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
   ChangedFilesStyle,
+  GIT_LOG_LAST_COMMIT_MESSAGE,
+  GIT_REV_PARSE_HEAD,
+  METADATA_FIELD_TOTAL_COMMENTS,
   NOT_GIT_REPO_MESSAGE,
   SECTION_NAME_BRANCH,
   SECTION_NAME_BRANCH_INFO,
@@ -32,7 +36,7 @@ import { branchContextState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas/config-schema';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { validateBranchContext } from './config-validator';
-import { getChangedFilesWithSummary } from './git-changed-files';
+import { formatChangedFilesSummary, getChangedFilesWithSummary } from './git-changed-files';
 import { SectionItem } from './items';
 import { generateBranchContextMarkdown } from './markdown-generator';
 import { getBranchContextFilePath, getFieldLineNumber } from './markdown-parser';
@@ -312,28 +316,40 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     const showChangedFiles = config?.branchContext?.builtinSections?.changedFiles !== false;
 
     const registry = new SectionRegistry(workspace, config?.branchContext, showChangedFiles);
-    const changedFilesValue = context.metadata?.changedFilesSummary ?? BRANCH_CONTEXT_NO_CHANGES;
+
+    const changedFilesSectionMetadata = context.metadata?.sections?.[SECTION_NAME_CHANGED_FILES];
+    let changedFilesValue = BRANCH_CONTEXT_NO_CHANGES;
+    if (changedFilesSectionMetadata) {
+      const summary = {
+        added: (changedFilesSectionMetadata.added as number) || 0,
+        modified: (changedFilesSectionMetadata.modified as number) || 0,
+        deleted: (changedFilesSectionMetadata.deleted as number) || 0,
+      };
+      changedFilesValue = formatChangedFilesSummary(summary);
+    }
 
     const items: vscode.TreeItem[] = [];
     for (const section of registry.getAllSections()) {
       const value = this.getSectionValue(context, section.name, this.currentBranch, changedFilesValue);
+      const sectionMetadata = context.metadata?.sections?.[section.name];
 
-      if (hideEmpty && this.isSectionEmpty(value, section.emptyValue)) {
+      if (hideEmpty && this.isSectionEmpty(value, section.emptyValue, sectionMetadata)) {
         continue;
       }
 
-      const sectionMetadata = context.metadata?.sections?.[section.name];
       items.push(new SectionItem(section, value, this.currentBranch, sectionMetadata));
     }
 
     return items;
   }
 
-  private isSectionEmpty(value: string | undefined, emptyValue?: string): boolean {
+  private isSectionEmpty(value: string | undefined, emptyValue?: string, metadata?: Record<string, unknown>): boolean {
     if (!value) return true;
     const trimmed = value.trim();
     if (trimmed === '' || trimmed === BRANCH_CONTEXT_NA) return true;
     if (emptyValue && trimmed === emptyValue) return true;
+    if (metadata && METADATA_FIELD_TOTAL_COMMENTS in metadata && metadata[METADATA_FIELD_TOTAL_COMMENTS] === 0)
+      return true;
     return false;
   }
 
@@ -436,13 +452,11 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       };
 
       let changedFiles: string | undefined;
-      let changedFilesSummary: string | undefined;
       let changedFilesSectionMetadata: Record<string, unknown> | undefined;
       if (config?.branchContext?.builtinSections?.changedFiles !== false) {
         logger.info(`[syncBranchContext] Fetching changedFiles (+${Date.now() - startTime}ms)`);
         const result = await getChangedFilesWithSummary(workspace, ChangedFilesStyle.List);
         changedFiles = result.content;
-        changedFilesSummary = result.summary;
         changedFilesSectionMetadata = result.sectionMetadata;
         logger.info(`[syncBranchContext] changedFiles done (+${Date.now() - startTime}ms)`);
       }
@@ -485,13 +499,27 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       if (changedFilesSectionMetadata) {
         sectionMetadataMap[SECTION_NAME_CHANGED_FILES] = changedFilesSectionMetadata;
       }
+
+      let lastCommitHash: string | undefined;
+      let lastCommitMessage: string | undefined;
+      try {
+        lastCommitHash = execSync(GIT_REV_PARSE_HEAD, { cwd: workspace, encoding: 'utf-8' }).trim();
+        lastCommitMessage = execSync(GIT_LOG_LAST_COMMIT_MESSAGE, { cwd: workspace, encoding: 'utf-8' }).trim();
+      } catch (error) {
+        logger.error(`Failed to get git commit info: ${error}`);
+      }
+
       await generateBranchContextMarkdown(
         this.currentBranch,
         {
           ...context,
           changedFiles,
           ...customAutoData,
-          metadata: changedFilesSummary ? { changedFilesSummary } : undefined,
+          metadata: {
+            lastSyncedTime: new Date().toISOString(),
+            lastCommitMessage,
+            lastCommitHash,
+          },
         },
         Object.keys(sectionMetadataMap).length > 0 ? sectionMetadataMap : undefined,
       );

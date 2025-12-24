@@ -112,7 +112,7 @@ export class SectionRegistry {
         icon: 'diff',
         isBuiltin: true,
         emptyValue: BRANCH_CONTEXT_NO_CHANGES,
-        descriptionTemplate: '{{filesCount}} files',
+        descriptionTemplate: '{{summary}}',
       });
     }
   }

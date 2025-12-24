@@ -296,6 +296,7 @@ async function getChangedFilesListFormatWithSummary(workspacePath: string): Prom
       added: summary.added,
       modified: summary.modified,
       deleted: summary.deleted,
+      summary: formatChangedFilesSummary(summary),
     };
 
     return {

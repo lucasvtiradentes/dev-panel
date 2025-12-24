@@ -32,6 +32,11 @@ export const BRANCH_CONTEXT_DEFAULT_TODOS = '- [ ] task1\n- [ ] task2';
 export const METADATA_PP_PREFIX = '<!-- PP_METADATA: ';
 export const METADATA_SECTION_PREFIX = '<!-- SECTION_METADATA: ';
 export const METADATA_SUFFIX = ' -->';
+export const METADATA_SEPARATOR = '<!-- ------------------- -->';
+export const METADATA_PP_REGEX = /<!--\s*PP_METADATA:.*?-->/;
+export const METADATA_SEPARATOR_REGEX = /<!--\s*-+\s*-->/;
+
+export const METADATA_FIELD_TOTAL_COMMENTS = 'totalComments';
 
 export const DND_MIME_TYPE_TASKS = 'application/vnd.code.tree.projectpaneltasks';
 export const DND_MIME_TYPE_PROMPTS = 'application/vnd.code.tree.projectpanelprompts';

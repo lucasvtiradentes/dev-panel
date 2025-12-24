@@ -77,9 +77,9 @@ const totalComments = prCommentsCount + reviewCommentsCount;
 const metadata = { prCommentsCount, reviewCommentsCount, totalComments };
 
 if (output.length === 0) {
-  console.log('No comments yet');
+  console.log('No comments yet\n');
   console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
 } else {
-  console.log(output.join('\n'));
+  console.log(`${output.join('\n')}\n`);
   console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
 }

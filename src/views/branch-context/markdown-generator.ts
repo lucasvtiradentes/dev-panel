@@ -6,6 +6,7 @@ import {
   ChangedFilesStyle,
   METADATA_PP_PREFIX,
   METADATA_SECTION_PREFIX,
+  METADATA_SEPARATOR,
   METADATA_SUFFIX,
 } from '../../common/constants';
 import { getBranchContextFilePath, getBranchDirectory } from '../../common/lib/config-manager';
@@ -89,7 +90,7 @@ export async function generateBranchContextMarkdown(
 
   if (context.metadata) {
     const metadataJson = JSON.stringify(context.metadata);
-    output += `\n${METADATA_PP_PREFIX}${metadataJson}${METADATA_SUFFIX}`;
+    output += `\n\n${METADATA_SEPARATOR}\n\n${METADATA_PP_PREFIX}${metadataJson}${METADATA_SUFFIX}`;
   }
 
   fs.writeFileSync(mdPath, output);
