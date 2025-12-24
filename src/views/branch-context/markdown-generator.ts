@@ -106,11 +106,16 @@ function appendSectionMetadata(content: string, sectionMetadata: SectionMetadata
   let result = content;
 
   for (const [sectionName, metadata] of Object.entries(sectionMetadata)) {
+    logger.info(`[appendSectionMetadata] Processing section: ${sectionName}`);
     const sectionHeaderRegex = new RegExp(`^#\\s+${sectionName}\\s*$`, 'im');
     const headerMatch = result.match(sectionHeaderRegex);
 
-    if (!headerMatch || headerMatch.index === undefined) continue;
+    if (!headerMatch || headerMatch.index === undefined) {
+      logger.warn(`[appendSectionMetadata] Header not found for section: ${sectionName}`);
+      continue;
+    }
 
+    logger.info(`[appendSectionMetadata] Header found for ${sectionName} at index ${headerMatch.index}`);
     const afterHeader = result.slice(headerMatch.index + headerMatch[0].length);
     const codeBlockMatch = afterHeader.match(/^(\s*\n```[\s\S]*?```)/m);
 
@@ -118,7 +123,10 @@ function appendSectionMetadata(content: string, sectionMetadata: SectionMetadata
       const insertPosition =
         headerMatch.index + headerMatch[0].length + codeBlockMatch.index + codeBlockMatch[0].length;
       const metadataStr = `\n\n${METADATA_SECTION_PREFIX}${JSON.stringify(metadata)}${METADATA_SUFFIX}`;
+      logger.info(`[appendSectionMetadata] Inserting metadata for ${sectionName} at position ${insertPosition}`);
       result = result.slice(0, insertPosition) + metadataStr + result.slice(insertPosition);
+    } else {
+      logger.warn(`[appendSectionMetadata] Code block not found for section: ${sectionName}`);
     }
   }
 

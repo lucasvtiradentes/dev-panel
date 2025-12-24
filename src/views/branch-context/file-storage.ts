@@ -162,19 +162,32 @@ function extractAllCodeBlockSections(content: string): Record<string, CodeBlockS
     const rawContent = match[2].trim();
     const externalMetadataJson = match[4];
 
-    if (rawContent && rawContent !== BRANCH_CONTEXT_NO_CHANGES) {
-      const { cleanContent, metadata: internalMetadata } = extractSectionMetadata(rawContent);
+    logger.info(
+      `[extractAllCodeBlockSections] Section: ${sectionName}, has external metadata: ${!!externalMetadataJson}`,
+    );
 
-      let metadata: SectionMetadata | undefined = internalMetadata;
-      if (externalMetadataJson) {
-        try {
-          metadata = JSON.parse(externalMetadataJson) as SectionMetadata;
-        } catch {
-          // ignore parse errors
-        }
+    let metadata: SectionMetadata | undefined;
+    if (externalMetadataJson) {
+      try {
+        metadata = JSON.parse(externalMetadataJson) as SectionMetadata;
+        logger.info(`[extractAllCodeBlockSections] Parsed metadata for ${sectionName}: ${JSON.stringify(metadata)}`);
+      } catch (error) {
+        logger.error(`[extractAllCodeBlockSections] Failed to parse metadata for ${sectionName}: ${error}`);
       }
+    }
 
-      sections[sectionName] = { content: cleanContent, metadata };
+    const hasValidContent = rawContent && rawContent !== BRANCH_CONTEXT_NO_CHANGES;
+
+    if (hasValidContent || metadata) {
+      const { cleanContent, metadata: internalMetadata } = extractSectionMetadata(rawContent);
+      const finalMetadata = metadata || internalMetadata;
+      const finalContent = hasValidContent ? cleanContent : '';
+      logger.info(
+        `[extractAllCodeBlockSections] Adding section ${sectionName} with metadata: ${JSON.stringify(finalMetadata)}`,
+      );
+      sections[sectionName] = { content: finalContent, metadata: finalMetadata };
+    } else {
+      logger.info(`[extractAllCodeBlockSections] Skipping section ${sectionName} (no content and no metadata)`);
     }
   }
 
