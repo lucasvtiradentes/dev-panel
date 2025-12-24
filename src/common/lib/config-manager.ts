@@ -1,6 +1,8 @@
+import * as fs from 'node:fs';
 import { isAbsolute, join } from 'node:path';
+import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { CONFIG_DIR_NAME } from '../constants';
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, getGlobalConfigPath } from '../constants';
 import { FILENAME_INVALID_CHARS_PATTERN } from '../constants/regex-constants';
 import {
   BRANCHES_DIR_NAME,
@@ -8,6 +10,7 @@ import {
   BRANCH_CONTEXT_TEMPLATE_FILENAME,
   PROMPTS_DIR_NAME,
 } from '../constants/scripts-constants';
+import type { PPConfig } from '../schemas';
 import { StoreKey, extensionStore } from './extension-store';
 
 function getConfigDir(workspacePath: string, configDir: string | null): vscode.Uri {
@@ -152,4 +155,42 @@ export function getPromptOutputFilePath(
 export function getBranchContextTemplatePath(workspace: string): string {
   const configDirPath = getConfigDirPathFromWorkspacePath(workspace);
   return join(configDirPath, BRANCH_CONTEXT_TEMPLATE_FILENAME);
+}
+
+export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] {
+  return vscode.workspace.workspaceFolders ?? [];
+}
+
+export function loadWorkspaceConfig(folder: vscode.WorkspaceFolder): PPConfig | null {
+  const configPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
+  if (!fs.existsSync(configPath)) return null;
+
+  try {
+    return JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
+  } catch {
+    return null;
+  }
+}
+
+export function forEachWorkspaceConfig(callback: (folder: vscode.WorkspaceFolder, config: PPConfig) => void): void {
+  const folders = getWorkspaceFolders();
+  if (folders.length === 0) return;
+
+  for (const folder of folders) {
+    const config = loadWorkspaceConfig(folder);
+    if (!config) continue;
+
+    callback(folder, config);
+  }
+}
+
+export function loadGlobalConfig(): PPConfig | null {
+  const configPath = getGlobalConfigPath();
+  if (!fs.existsSync(configPath)) return null;
+
+  try {
+    return JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
+  } catch {
+    return null;
+  }
 }

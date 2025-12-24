@@ -2,10 +2,10 @@ import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { CONTEXT_PREFIX, getVariableCommandId, getVariableCommandPrefix } from '../../common/constants';
+import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { getVSCodeKeybindingsPath } from '../../common/lib/vscode-keybindings-utils';
 import { Command, executeCommand, getWorkspaceId } from '../../common/lib/vscode-utils';
-import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/utils/config-loader';
 
 type VSCodeKeybinding = { key: string; command: string; when?: string };
 

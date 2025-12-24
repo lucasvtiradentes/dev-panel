@@ -1,8 +1,7 @@
 import * as vscode from 'vscode';
 import { TOOL_TASK_TYPE, getGlobalConfigDir, getToolCommandId, getToolCommandPrefix } from '../../common/constants';
-import { getWorkspaceConfigDirPath } from '../../common/lib/config-manager';
+import { forEachWorkspaceConfig, getWorkspaceConfigDirPath, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
-import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/utils/config-loader';
 import { KeybindingManager } from '../common';
 
 const manager = new KeybindingManager({

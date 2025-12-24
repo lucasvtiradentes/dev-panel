@@ -6,8 +6,8 @@ import {
   getTaskCommandId,
   getTaskCommandPrefix,
 } from '../../common/constants';
+import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
-import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/utils/config-loader';
 import { readPPVariablesAsEnv } from '../../common/utils/variables-env';
 import { KeybindingManager } from '../common';
 

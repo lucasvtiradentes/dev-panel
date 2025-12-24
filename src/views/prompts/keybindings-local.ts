@@ -1,9 +1,8 @@
 import * as vscode from 'vscode';
 import { getGlobalConfigDir, getPromptCommandId, getPromptCommandPrefix } from '../../common/constants';
-import { getWorkspaceConfigDirPath } from '../../common/lib/config-manager';
+import { forEachWorkspaceConfig, getWorkspaceConfigDirPath, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { Command, executeCommand } from '../../common/lib/vscode-utils';
-import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/utils/config-loader';
 import { KeybindingManager } from '../common';
 
 const manager = new KeybindingManager({
