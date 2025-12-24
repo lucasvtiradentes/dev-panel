@@ -7,13 +7,17 @@ const includeRegularComments = options.includeRegularComments !== false;
 const includeReviewComments = options.includeReviewComments !== false;
 
 if (!prLink || prLink === 'N/A' || prLink.trim() === '') {
-  console.log('No PR link set');
+  const metadata = { isEmpty: true, description: 'No link' };
+  console.log('No PR link set\n');
+  console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
   process.exit(0);
 }
 
 const prMatch = prLink.match(/github\.com\/([^/]+)\/([^/]+)\/pull\/(\d+)/);
 if (!prMatch) {
-  console.log('Invalid PR URL format');
+  const metadata = { isEmpty: true, description: 'Invalid URL' };
+  console.log('Invalid PR URL format\n');
+  console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
   process.exit(0);
 }
 
@@ -74,7 +78,9 @@ if (includeReviewComments) {
 }
 
 const totalComments = prCommentsCount + reviewCommentsCount;
-const metadata = { prCommentsCount, reviewCommentsCount, totalComments };
+const isEmpty = totalComments === 0;
+const description = `${prCommentsCount} PR / ${reviewCommentsCount} Review`;
+const metadata = { prCommentsCount, reviewCommentsCount, totalComments, isEmpty, description };
 
 if (output.length === 0) {
   console.log('No comments yet\n');

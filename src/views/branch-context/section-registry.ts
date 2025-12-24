@@ -1,6 +1,5 @@
 import {
   BRANCH_CONTEXT_DEFAULT_ICON,
-  BRANCH_CONTEXT_NO_CHANGES,
   SECTION_LABEL_BRANCH,
   SECTION_LABEL_CHANGED_FILES,
   SECTION_LABEL_LINEAR_LINK,
@@ -35,8 +34,6 @@ export type SectionDefinition = {
   command?: Command;
   provider?: AutoSectionProvider;
   options?: Record<string, unknown>;
-  emptyValue?: string;
-  descriptionTemplate?: string;
 };
 
 export class SectionRegistry {
@@ -111,8 +108,6 @@ export class SectionRegistry {
         type: 'field',
         icon: 'diff',
         isBuiltin: true,
-        emptyValue: BRANCH_CONTEXT_NO_CHANGES,
-        descriptionTemplate: '{{summary}}',
       });
     }
   }
@@ -143,8 +138,6 @@ export class SectionRegistry {
         isBuiltin: false,
         provider,
         options: section.options,
-        emptyValue: section.emptyValue,
-        descriptionTemplate: section.descriptionTemplate,
       });
 
       logger.info(`[registerCustom] Registered section: ${section.name}`);

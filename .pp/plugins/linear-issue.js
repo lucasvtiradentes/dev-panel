@@ -4,13 +4,17 @@ const context = JSON.parse(process.env.PLUGIN_CONTEXT);
 const linearLink = context.branchContext.linearLink;
 
 if (!linearLink || linearLink === 'N/A' || linearLink.trim() === '') {
-  console.log('No Linear link set');
+  const metadata = { isEmpty: true, description: 'No link' };
+  console.log('No Linear link set\n');
+  console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
   process.exit(0);
 }
 
 const issueMatch = linearLink.match(/linear\.app\/[^/]+\/issue\/([A-Z]+-\d+)/);
 if (!issueMatch) {
-  console.log('Invalid Linear URL format');
+  const metadata = { isEmpty: true, description: 'Invalid URL' };
+  console.log('Invalid Linear URL format\n');
+  console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
   process.exit(0);
 }
 
@@ -52,18 +56,24 @@ try {
     }
   }
 
+  const state = data.state?.name || 'unknown';
+  const description = `${state} · ${commentsCount} comments`;
   const metadata = {
-    state: data.state?.name || 'unknown',
+    state,
     priority: data.priority || 'none',
     commentsCount,
+    isEmpty: false,
+    description,
   };
 
   console.log(`${lines.join('\n') || 'No issue details available'}\n`);
   console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
 } catch (error) {
+  const metadata = { isEmpty: true, description: 'Error' };
   if (error.message?.includes('not found')) {
-    console.log('Issue not found or not accessible');
+    console.log('Issue not found or not accessible\n');
   } else {
-    console.log(`Error fetching Linear issue: ${error.message}`);
+    console.log(`Error fetching Linear issue: ${error.message}\n`);
   }
+  console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
 }

@@ -36,7 +36,8 @@ export const METADATA_SEPARATOR = '<!-- ------------------- -->';
 export const METADATA_PP_REGEX = /<!--\s*PP_METADATA:.*?-->/;
 export const METADATA_SEPARATOR_REGEX = /<!--\s*-+\s*-->/;
 
-export const METADATA_FIELD_TOTAL_COMMENTS = 'totalComments';
+export const METADATA_FIELD_IS_EMPTY = 'isEmpty';
+export const METADATA_FIELD_DESCRIPTION = 'description';
 
 export const DND_MIME_TYPE_TASKS = 'application/vnd.code.tree.projectpaneltasks';
 export const DND_MIME_TYPE_PROMPTS = 'application/vnd.code.tree.projectpanelprompts';

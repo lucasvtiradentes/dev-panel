@@ -252,13 +252,6 @@ const BranchContextSectionSchema = z.object({
     .record(z.string(), z.any())
     .optional()
     .describe('Custom options passed to the provider (e.g., { includeReviewComments: true })'),
-  emptyValue: z.string().optional().describe('Value that indicates the section is empty (used with hideEmptySections)'),
-  descriptionTemplate: z
-    .string()
-    .optional()
-    .describe(
-      'Template for description shown in view. Use {{key}} to interpolate metadata values (e.g., "{{prCommentsCount}} PR / {{reviewCommentsCount}} Review")',
-    ),
 });
 
 const BranchContextProviderSchema = z.object({

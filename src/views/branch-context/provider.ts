@@ -7,7 +7,7 @@ import {
   ChangedFilesStyle,
   GIT_LOG_LAST_COMMIT_MESSAGE,
   GIT_REV_PARSE_HEAD,
-  METADATA_FIELD_TOTAL_COMMENTS,
+  METADATA_FIELD_IS_EMPTY,
   NOT_GIT_REPO_MESSAGE,
   SECTION_NAME_BRANCH,
   SECTION_NAME_BRANCH_INFO,
@@ -333,7 +333,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       const value = this.getSectionValue(context, section.name, this.currentBranch, changedFilesValue);
       const sectionMetadata = context.metadata?.sections?.[section.name];
 
-      if (hideEmpty && this.isSectionEmpty(value, section.emptyValue, sectionMetadata)) {
+      if (hideEmpty && this.isSectionEmpty(value, section.type, sectionMetadata)) {
         continue;
       }
 
@@ -343,13 +343,14 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     return items;
   }
 
-  private isSectionEmpty(value: string | undefined, emptyValue?: string, metadata?: Record<string, unknown>): boolean {
+  private isSectionEmpty(value: string | undefined, sectionType: string, metadata?: Record<string, unknown>): boolean {
+    if (sectionType === 'auto' && metadata) {
+      return metadata[METADATA_FIELD_IS_EMPTY] === true;
+    }
+
     if (!value) return true;
     const trimmed = value.trim();
     if (trimmed === '' || trimmed === BRANCH_CONTEXT_NA) return true;
-    if (emptyValue && trimmed === emptyValue) return true;
-    if (metadata && METADATA_FIELD_TOTAL_COMMENTS in metadata && metadata[METADATA_FIELD_TOTAL_COMMENTS] === 0)
-      return true;
     return false;
   }
 

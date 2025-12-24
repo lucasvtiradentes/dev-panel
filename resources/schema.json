@@ -142,14 +142,6 @@
                   "type": "string"
                 },
                 "additionalProperties": {}
-              },
-              "emptyValue": {
-                "description": "Value that indicates the section is empty (used with hideEmptySections)",
-                "type": "string"
-              },
-              "descriptionTemplate": {
-                "description": "Template for description shown in view. Use {{key}} to interpolate metadata values (e.g., \"{{prCommentsCount}} PR / {{reviewCommentsCount}} Review\")",
-                "type": "string"
               }
             },
             "required": [

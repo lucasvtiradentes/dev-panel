@@ -4,6 +4,7 @@ import {
   CONTEXT_VALUES,
   DESCRIPTION_NOT_SET,
   DESCRIPTION_NOT_SYNCED,
+  METADATA_FIELD_DESCRIPTION,
   getCommandId,
 } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
@@ -14,13 +15,6 @@ function truncate(str: string, maxLen: number): string {
   const firstLine = str.split('\n')[0];
   if (firstLine.length <= maxLen) return firstLine;
   return `${firstLine.slice(0, maxLen - 3)}...`;
-}
-
-function interpolateTemplate(template: string, metadata: SectionMetadata): string {
-  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => {
-    const value = metadata[key];
-    return value !== undefined ? String(value) : '';
-  });
 }
 
 export class SectionItem extends vscode.TreeItem {
@@ -61,9 +55,8 @@ export class SectionItem extends vscode.TreeItem {
     const notSetLabel = this.section.type === 'auto' ? DESCRIPTION_NOT_SYNCED : DESCRIPTION_NOT_SET;
     if (!this.value) return notSetLabel;
 
-    if (this.section.descriptionTemplate && this.metadata) {
-      const formatted = interpolateTemplate(this.section.descriptionTemplate, this.metadata);
-      if (formatted.trim()) return formatted;
+    if (this.metadata && METADATA_FIELD_DESCRIPTION in this.metadata) {
+      return String(this.metadata[METADATA_FIELD_DESCRIPTION]);
     }
 
     return truncate(this.value, BRANCH_FIELD_DESCRIPTION_MAX_LENGTH);
