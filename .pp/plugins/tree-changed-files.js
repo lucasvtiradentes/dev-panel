@@ -10,8 +10,9 @@ try {
   }).trim();
 
   if (!changedFiles) {
-    console.log('No changed files');
-    console.log('<!-- SECTION_METADATA: {"filesCount": 0} -->');
+    const metadata = { filesCount: 0, dirsCount: 0, isEmpty: true, description: 'No changes' };
+    console.log('No changed files\n');
+    console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
     process.exit(0);
   }
 
@@ -20,10 +21,11 @@ try {
   const dirs = [...new Set(files.map((f) => f.split('/').slice(0, -1).join('/')).filter(Boolean))];
   const dirsCount = dirs.length;
 
-  const metadata = { filesCount, dirsCount };
+  const description = `${filesCount} files in ${dirsCount} dirs`;
+  const metadata = { filesCount, dirsCount, isEmpty: false, description };
 
   if (dirs.length === 0) {
-    console.log(files.join('\n'));
+    console.log(`${files.join('\n')}\n`);
     console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
     process.exit(0);
   }
@@ -35,8 +37,10 @@ try {
     shell: '/bin/bash',
   });
 
-  console.log(result.trim());
+  console.log(`${result.trim()}\n`);
   console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
 } catch (error) {
-  console.log(`Error: ${error.message}`);
+  const metadata = { isEmpty: true, description: 'Error' };
+  console.log(`Error: ${error.message}\n`);
+  console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
 }

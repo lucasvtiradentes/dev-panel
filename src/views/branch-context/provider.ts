@@ -313,7 +313,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     const context = loadBranchContext(this.currentBranch);
     const config = this.loadConfig(workspace);
     const hideEmpty = branchContextState.getHideEmptySections();
-    const showChangedFiles = config?.branchContext?.builtinSections?.changedFiles !== false;
+    const showChangedFiles = config?.branchContext?.builtinSections?.changedFiles ?? true;
 
     const registry = new SectionRegistry(workspace, config?.branchContext, showChangedFiles);
 
@@ -454,11 +454,36 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
       let changedFiles: string | undefined;
       let changedFilesSectionMetadata: Record<string, unknown> | undefined;
-      if (config?.branchContext?.builtinSections?.changedFiles !== false) {
+      const changedFilesConfig = config?.branchContext?.builtinSections?.changedFiles;
+
+      if (changedFilesConfig !== false) {
         logger.info(`[syncBranchContext] Fetching changedFiles (+${Date.now() - startTime}ms)`);
-        const result = await getChangedFilesWithSummary(workspace, ChangedFilesStyle.List);
-        changedFiles = result.content;
-        changedFilesSectionMetadata = result.sectionMetadata;
+
+        if (typeof changedFilesConfig === 'object' && changedFilesConfig.provider) {
+          const registry = new SectionRegistry(workspace, config.branchContext, changedFilesConfig);
+          const changedFilesSection = registry.get(SECTION_NAME_CHANGED_FILES);
+
+          if (changedFilesSection?.provider) {
+            logger.info(`[syncBranchContext] Using custom provider for changedFiles: ${changedFilesConfig.provider}`);
+            const data = await changedFilesSection.provider.fetch(syncContext);
+            changedFiles = data;
+
+            const metadataMatch = data.match(/<!--\s*SECTION_METADATA:\s*(.+?)\s*-->/);
+            if (metadataMatch) {
+              try {
+                changedFilesSectionMetadata = JSON.parse(metadataMatch[1]) as Record<string, unknown>;
+                changedFiles = data.replace(/<!--\s*SECTION_METADATA:.*?-->/g, '').trim();
+              } catch (error) {
+                logger.error(`Failed to parse changedFiles metadata: ${error}`);
+              }
+            }
+          }
+        } else {
+          const result = await getChangedFilesWithSummary(workspace, ChangedFilesStyle.List);
+          changedFiles = result.content;
+          changedFilesSectionMetadata = result.sectionMetadata;
+        }
+
         logger.info(`[syncBranchContext] changedFiles done (+${Date.now() - startTime}ms)`);
       }
 

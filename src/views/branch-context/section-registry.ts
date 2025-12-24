@@ -39,14 +39,22 @@ export type SectionDefinition = {
 export class SectionRegistry {
   private sections: Map<string, SectionDefinition> = new Map();
 
-  constructor(workspace: string, config?: Partial<BranchContextConfig>, showChangedFiles = true) {
-    this.registerBuiltins(showChangedFiles);
+  constructor(
+    workspace: string,
+    config?: Partial<BranchContextConfig>,
+    showChangedFiles: boolean | { provider: string } = true,
+  ) {
+    this.registerBuiltins(workspace, config, showChangedFiles);
     if (config) {
       this.registerCustom(workspace, config);
     }
   }
 
-  private registerBuiltins(showChangedFiles: boolean): void {
+  private registerBuiltins(
+    workspace: string,
+    config?: Partial<BranchContextConfig>,
+    showChangedFiles: boolean | { provider: string } = true,
+  ): void {
     this.register({
       name: SECTION_NAME_BRANCH,
       label: SECTION_LABEL_BRANCH,
@@ -101,14 +109,26 @@ export class SectionRegistry {
       command: Command.EditBranchNotes,
     });
 
-    if (showChangedFiles) {
-      this.register({
-        name: SECTION_NAME_CHANGED_FILES,
-        label: SECTION_LABEL_CHANGED_FILES,
-        type: 'field',
-        icon: 'diff',
-        isBuiltin: true,
-      });
+    if (showChangedFiles !== false) {
+      if (typeof showChangedFiles === 'object' && showChangedFiles.provider) {
+        const provider = loadAutoProvider(workspace, showChangedFiles.provider);
+        this.register({
+          name: SECTION_NAME_CHANGED_FILES,
+          label: SECTION_LABEL_CHANGED_FILES,
+          type: 'auto',
+          icon: 'diff',
+          isBuiltin: true,
+          provider,
+        });
+      } else {
+        this.register({
+          name: SECTION_NAME_CHANGED_FILES,
+          label: SECTION_LABEL_CHANGED_FILES,
+          type: 'field',
+          icon: 'diff',
+          isBuiltin: true,
+        });
+      }
     }
   }
 

@@ -291,12 +291,15 @@ async function getChangedFilesListFormatWithSummary(workspacePath: string): Prom
       lines.push(`${statusSymbol}  ${file}${padding}(+${stats.added} -${stats.deleted})`);
     }
 
+    const formattedSummary = formatChangedFilesSummary(summary);
     const sectionMetadata = {
       filesCount: statusMap.size,
       added: summary.added,
       modified: summary.modified,
       deleted: summary.deleted,
-      summary: formatChangedFilesSummary(summary),
+      summary: formattedSummary,
+      isEmpty: statusMap.size === 0,
+      description: formattedSummary,
     };
 
     return {

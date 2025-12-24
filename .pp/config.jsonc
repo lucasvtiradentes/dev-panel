@@ -16,6 +16,9 @@
   },
   "branchContext": {
     "builtinSections": {
+      // "changedFiles": {
+      //   "provider": "node ./plugins/tree-changed-files.js"
+      // },
       "changedFiles": true,
       "tasks": true
     },
