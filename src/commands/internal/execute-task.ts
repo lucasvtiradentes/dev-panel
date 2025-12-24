@@ -18,6 +18,12 @@ import { getCurrentBranch } from '../../views/replacements/git-utils';
 
 const log = createLogger('execute-task');
 
+export type ExecutePromptParams = {
+  promptFilePath: string;
+  folder: vscode.WorkspaceFolder | null;
+  promptConfig?: PPPrompt;
+};
+
 function readPPVariablesAsEnv(workspacePath: string): Record<string, string> {
   const variablesPath = `${workspacePath}/${CONFIG_DIR_NAME}/${VARIABLES_FILE_NAME}`;
   if (!fs.existsSync(variablesPath)) return {};
@@ -234,7 +240,7 @@ function replaceVariablePlaceholders(content: string, variables: Record<string, 
 export function createExecutePromptCommand() {
   return registerCommand(
     Command.ExecutePrompt,
-    async (promptFilePath: string, folder: vscode.WorkspaceFolder | null, promptConfig?: PPPrompt) => {
+    async ({ promptFilePath, folder, promptConfig }: ExecutePromptParams) => {
       log.info('=== ExecutePrompt called ===');
       log.info(`promptFilePath: ${promptFilePath}`);
       log.info(`folder: ${folder ? folder.name : 'null (global)'}`);

@@ -6,7 +6,6 @@ import {
   CONFIG_DIR_KEY,
   GLOBAL_STATE_WORKSPACE_SOURCE,
   TOOL_TASK_TYPE,
-  getCommandId,
   getPromptCommandId,
   getReplacementCommandId,
   getTaskCommandId,
@@ -25,7 +24,14 @@ import { extensionStore } from './common/lib/extension-store';
 import { initGlobalState, migrateGlobalState } from './common/lib/global-state';
 import { syncKeybindings } from './common/lib/keybindings-sync';
 import { logger } from './common/lib/logger';
-import { Command, ContextKey, generateWorkspaceId, setContextKey, setWorkspaceId } from './common/lib/vscode-utils';
+import {
+  Command,
+  ContextKey,
+  executeCommand,
+  generateWorkspaceId,
+  setContextKey,
+  setWorkspaceId,
+} from './common/lib/vscode-utils';
 import { initWorkspaceState } from './common/lib/workspace-state';
 import type { PPConfig } from './common/schemas';
 import { StatusBarManager } from './status-bar/status-bar-manager';
@@ -86,7 +92,7 @@ function registerPromptKeybindings(context: vscode.ExtensionContext): void {
       const configDirPath = getWorkspaceConfigDirPath(folder);
       const promptFilePath = `${configDirPath}/${prompt.file}`;
       const disposable = vscode.commands.registerCommand(commandId, () => {
-        void vscode.commands.executeCommand(getCommandId(Command.ExecutePrompt), promptFilePath, folder, prompt);
+        void executeCommand(Command.ExecutePrompt, { promptFilePath, folder, promptConfig: prompt });
       });
       context.subscriptions.push(disposable);
     }
@@ -108,7 +114,7 @@ function registerReplacementKeybindings(context: vscode.ExtensionContext): void 
     for (const replacement of replacements) {
       const commandId = getReplacementCommandId(replacement.name);
       const disposable = vscode.commands.registerCommand(commandId, () => {
-        void vscode.commands.executeCommand(getCommandId(Command.ToggleReplacement), replacement);
+        void executeCommand(Command.ToggleReplacement, replacement);
       });
       context.subscriptions.push(disposable);
     }
@@ -130,7 +136,7 @@ function registerVariableKeybindings(context: vscode.ExtensionContext): void {
     for (const variable of variables) {
       const commandId = getVariableCommandId(variable.name);
       const disposable = vscode.commands.registerCommand(commandId, () => {
-        void vscode.commands.executeCommand(getCommandId(Command.SelectConfigOption), variable);
+        void executeCommand(Command.SelectConfigOption, variable);
       });
       context.subscriptions.push(disposable);
     }
