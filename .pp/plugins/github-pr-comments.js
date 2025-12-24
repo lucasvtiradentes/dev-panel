@@ -19,6 +19,8 @@ if (!prMatch) {
 
 const [, owner, repo, prNumber] = prMatch;
 const output = [];
+let prCommentsCount = 0;
+let reviewCommentsCount = 0;
 
 if (includeRegularComments) {
   try {
@@ -29,6 +31,7 @@ if (includeRegularComments) {
 
     const commentsData = JSON.parse(commentsResult);
     const comments = commentsData.comments || [];
+    prCommentsCount = comments.length;
 
     if (comments.length > 0) {
       output.push(`--- PR Comments (${comments.length}) ---\n`);
@@ -52,6 +55,7 @@ if (includeReviewComments) {
     });
 
     const reviewComments = JSON.parse(reviewsResult);
+    reviewCommentsCount = reviewComments.length;
 
     if (reviewComments.length > 0) {
       output.push(`\n--- Code Review Comments (${reviewComments.length}) ---\n`);
@@ -69,8 +73,13 @@ if (includeReviewComments) {
   }
 }
 
+const totalComments = prCommentsCount + reviewCommentsCount;
+const metadata = { prCommentsCount, reviewCommentsCount, totalComments };
+
 if (output.length === 0) {
   console.log('No comments yet');
+  console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
 } else {
   console.log(output.join('\n'));
+  console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
 }

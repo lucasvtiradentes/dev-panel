@@ -31,6 +31,7 @@ export const SECTION_NAME_REQUIREMENTS = BRANCH_CONTEXT_SECTION_REQUIREMENTS.rep
 export const SECTION_NAME_NOTES = BRANCH_CONTEXT_SECTION_NOTES.replace('#', '').trim();
 export const SECTION_NAME_TASKS = BRANCH_CONTEXT_SECTION_TODO.replace('#', '').trim();
 export const SECTION_NAME_BRANCH_INFO = BRANCH_CONTEXT_SECTION_BRANCH_INFO.replace('#', '').trim();
+export const SECTION_NAME_CHANGED_FILES = BRANCH_CONTEXT_SECTION_CHANGED_FILES.replace('#', '').trim();
 
 export const SECTION_LABEL_BRANCH = 'Branch';
 export const SECTION_LABEL_PR_LINK = 'PR link';
@@ -38,6 +39,7 @@ export const SECTION_LABEL_LINEAR_LINK = 'Linear link';
 export const SECTION_LABEL_OBJECTIVE = 'Objective';
 export const SECTION_LABEL_REQUIREMENTS = 'Requirements';
 export const SECTION_LABEL_NOTES = 'Notes';
+export const SECTION_LABEL_CHANGED_FILES = 'Changed files';
 
 export const TODO_CHECKBOX_UNCHECKED = '[ ]';
 export const TODO_CHECKBOX_CHECKED_LOWER = '[x]';

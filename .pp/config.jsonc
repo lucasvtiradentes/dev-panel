@@ -26,6 +26,7 @@
         "type": "auto",
         "provider": "node ./plugins/github-pr-comments.js",
         "icon": "github",
+        "emptyValue": "No PR link set",
         "options": {
           "includeRegularComments": false,
           "includeReviewComments": true
@@ -36,7 +37,8 @@
         "label": "Linear issue",
         "type": "auto",
         "provider": "node ./plugins/linear-issue.js",
-        "icon": "link-external"
+        "icon": "link-external",
+        "emptyValue": "No Linear link set"
       }
     ]
   },

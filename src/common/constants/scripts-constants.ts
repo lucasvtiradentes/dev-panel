@@ -24,7 +24,12 @@ export const DEFAULT_EXCLUDES = ['**/node_modules/**', '**/.git/**', '**/dist/**
 export const DEFAULT_EXCLUDED_DIRS = ['node_modules', 'dist', '.git'];
 
 export const BRANCH_CONTEXT_NA = 'N/A';
+export const BRANCH_CONTEXT_NO_CHANGES = 'No changes';
 export const BRANCH_CONTEXT_DEFAULT_TODOS = '- [ ] task1\n- [ ] task2';
+
+export const METADATA_PP_PREFIX = '<!-- PP_METADATA: ';
+export const METADATA_SECTION_PREFIX = '<!-- SECTION_METADATA: ';
+export const METADATA_SUFFIX = ' -->';
 
 export const DND_MIME_TYPE_TASKS = 'application/vnd.code.tree.projectpaneltasks';
 export const DND_MIME_TYPE_PROMPTS = 'application/vnd.code.tree.projectpanelprompts';

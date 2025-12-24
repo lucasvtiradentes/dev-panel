@@ -1,12 +1,15 @@
 import {
   BRANCH_CONTEXT_DEFAULT_ICON,
+  BRANCH_CONTEXT_NO_CHANGES,
   SECTION_LABEL_BRANCH,
+  SECTION_LABEL_CHANGED_FILES,
   SECTION_LABEL_LINEAR_LINK,
   SECTION_LABEL_NOTES,
   SECTION_LABEL_OBJECTIVE,
   SECTION_LABEL_PR_LINK,
   SECTION_LABEL_REQUIREMENTS,
   SECTION_NAME_BRANCH,
+  SECTION_NAME_CHANGED_FILES,
   SECTION_NAME_LINEAR_LINK,
   SECTION_NAME_NOTES,
   SECTION_NAME_OBJECTIVE,
@@ -32,19 +35,20 @@ export type SectionDefinition = {
   command?: Command;
   provider?: AutoSectionProvider;
   options?: Record<string, unknown>;
+  emptyValue?: string;
 };
 
 export class SectionRegistry {
   private sections: Map<string, SectionDefinition> = new Map();
 
-  constructor(workspace: string, config?: Partial<BranchContextConfig>) {
-    this.registerBuiltins();
+  constructor(workspace: string, config?: Partial<BranchContextConfig>, showChangedFiles = true) {
+    this.registerBuiltins(showChangedFiles);
     if (config) {
       this.registerCustom(workspace, config);
     }
   }
 
-  private registerBuiltins(): void {
+  private registerBuiltins(showChangedFiles: boolean): void {
     this.register({
       name: SECTION_NAME_BRANCH,
       label: SECTION_LABEL_BRANCH,
@@ -98,6 +102,17 @@ export class SectionRegistry {
       isBuiltin: true,
       command: Command.EditBranchNotes,
     });
+
+    if (showChangedFiles) {
+      this.register({
+        name: SECTION_NAME_CHANGED_FILES,
+        label: SECTION_LABEL_CHANGED_FILES,
+        type: 'field',
+        icon: 'diff',
+        isBuiltin: true,
+        emptyValue: BRANCH_CONTEXT_NO_CHANGES,
+      });
+    }
   }
 
   private registerCustom(workspace: string, config: Partial<BranchContextConfig>): void {
@@ -126,6 +141,7 @@ export class SectionRegistry {
         isBuiltin: false,
         provider,
         options: section.options,
+        emptyValue: section.emptyValue,
       });
 
       logger.info(`[registerCustom] Registered section: ${section.name}`);

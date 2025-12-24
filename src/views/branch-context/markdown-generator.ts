@@ -1,6 +1,12 @@
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
-import { BRANCH_CONTEXT_DEFAULT_TODOS, BRANCH_CONTEXT_NA, ChangedFilesStyle } from '../../common/constants';
+import {
+  BRANCH_CONTEXT_DEFAULT_TODOS,
+  BRANCH_CONTEXT_NA,
+  ChangedFilesStyle,
+  METADATA_PP_PREFIX,
+  METADATA_SUFFIX,
+} from '../../common/constants';
 import { getBranchContextFilePath, getBranchDirectory } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import type { BranchContext } from '../../common/schemas/types';
@@ -68,6 +74,11 @@ export async function generateBranchContextMarkdown(branchName: string, context:
   for (const [placeholder, value] of Object.entries(replacements)) {
     const regex = new RegExp(`\\{\\{${placeholder}\\}\\}`, 'g');
     output = output.replace(regex, value);
+  }
+
+  if (context.metadata) {
+    const metadataJson = JSON.stringify(context.metadata);
+    output += `\n${METADATA_PP_PREFIX}${metadataJson}${METADATA_SUFFIX}`;
   }
 
   fs.writeFileSync(mdPath, output);

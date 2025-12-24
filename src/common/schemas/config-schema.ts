@@ -245,6 +245,7 @@ const BranchContextSectionSchema = z.object({
     .record(z.string(), z.any())
     .optional()
     .describe('Custom options passed to the provider (e.g., { includeReviewComments: true })'),
+  emptyValue: z.string().optional().describe('Value that indicates the section is empty (used with hideEmptySections)'),
 });
 
 const BranchContextProviderSchema = z.object({
@@ -273,6 +274,13 @@ const BranchContextConfigSchema = z.object({
     .optional()
     .describe('Custom sections to include in branch context')
     .default([]),
+  autoSyncInterval: z
+    .number()
+    .int()
+    .min(0)
+    .optional()
+    .describe('Auto-sync interval in seconds. 0 = disabled (default), any positive number enables periodic sync'),
+  hideEmptySections: z.boolean().optional().describe('Hide sections that have no value set (N/A or empty)'),
 });
 
 export const PPConfigSchema = z

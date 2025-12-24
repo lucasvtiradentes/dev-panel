@@ -1,3 +1,10 @@
+export type SectionMetadata = Record<string, unknown>;
+
+export type BranchContextMetadata = {
+  changedFilesSummary?: string;
+  sections?: Record<string, SectionMetadata>;
+};
+
 export type BranchContext = {
   branchName?: string;
   prLink?: string;
@@ -7,6 +14,7 @@ export type BranchContext = {
   notes?: string;
   todos?: string;
   changedFiles?: string;
+  metadata?: BranchContextMetadata;
 };
 
 export enum TaskSource {
