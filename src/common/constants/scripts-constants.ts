@@ -22,6 +22,8 @@ export const ROOT_BRANCH_CONTEXT_FILE_NAME = '.branch-context.md';
 export const DEFAULT_INCLUDES = ['**/*'];
 export const DEFAULT_EXCLUDES = ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/out/**'];
 export const DEFAULT_EXCLUDED_DIRS = ['node_modules', 'dist', '.git'];
+export const CONFIG_SCHEMA_PATH = '../resources/schema.json';
+export const DEFAULT_AI_PROVIDER = 'claude';
 
 export const BRANCH_CONTEXT_NA = 'N/A';
 export const BRANCH_CONTEXT_NO_CHANGES = 'No changes';
