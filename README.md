@@ -44,7 +44,5 @@
   - prompts
   - tools
   - scripts
-- [ ] plugins
-  - [ ] secoes dinamicas
-  - [ ] fetchear comments github
-  - [ ] fetcher linear issues
+- [ ] nao ta dando para atribuir atalho em global prompts/tools/tasks
+- [ ] implementar o registry

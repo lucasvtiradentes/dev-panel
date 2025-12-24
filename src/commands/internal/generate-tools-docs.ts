@@ -6,6 +6,7 @@ import {
   AI_SPEC_FILES,
   CLAUDE_DIR_NAME,
   CONFIG_FILE_NAME,
+  GLOBAL_ITEM_PREFIX,
   SKILLS_DIR_NAME,
   SKILL_FILE_NAME,
   TOOLS_DIR,
@@ -15,6 +16,7 @@ import {
 } from '../../common/constants';
 import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
+import { toolsState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas';
 
 type ToolInstruction = {
@@ -153,9 +155,13 @@ function generateToolsXml(workspaceFolder: vscode.WorkspaceFolder): string {
   }
 
   const globalTools = getGlobalTools();
-  const allTools = [...localTools, ...globalTools];
+  const activeTools = toolsState.getActiveTools();
 
-  if (allTools.length === 0) {
+  const activeLocalTools = localTools.filter((tool) => activeTools.includes(tool.name));
+  const activeGlobalTools = globalTools.filter((tool) => activeTools.includes(`${GLOBAL_ITEM_PREFIX}${tool.name}`));
+  const allActiveTools = [...activeLocalTools, ...activeGlobalTools];
+
+  if (allActiveTools.length === 0) {
     return '<available_tools>\n  No custom CLI tools configured.\n</available_tools>';
   }
 
@@ -163,7 +169,7 @@ function generateToolsXml(workspaceFolder: vscode.WorkspaceFolder): string {
   toolsXml.push('  Custom CLI tools installed (execute via Bash tool):');
 
   const workspaceConfigDir = getWorkspaceConfigDirPath(workspaceFolder);
-  for (const tool of localTools) {
+  for (const tool of activeLocalTools) {
     const instructionsPath = path.join(workspaceConfigDir, TOOLS_DIR, tool.name, TOOL_INSTRUCTIONS_FILE);
 
     let description = '';
@@ -176,7 +182,7 @@ function generateToolsXml(workspaceFolder: vscode.WorkspaceFolder): string {
     toolsXml.push(`  - ${tool.name}: ${description}`);
   }
 
-  for (const tool of globalTools) {
+  for (const tool of activeGlobalTools) {
     const instructionsPath = path.join(getGlobalToolsDir(), tool.name, TOOL_INSTRUCTIONS_FILE);
 
     let description = '';
@@ -265,10 +271,32 @@ async function syncToSkills(workspaceFolder: vscode.WorkspaceFolder): Promise<nu
   }
 
   const globalTools = getGlobalTools();
+  const activeTools = toolsState.getActiveTools();
+
+  const activeLocalTools = localTools.filter((tool) => activeTools.includes(tool.name));
+  const activeGlobalTools = globalTools.filter((tool) => activeTools.includes(`${GLOBAL_ITEM_PREFIX}${tool.name}`));
+
+  const inactiveLocalTools = localTools.filter((tool) => !activeTools.includes(tool.name));
+  const inactiveGlobalTools = globalTools.filter((tool) => !activeTools.includes(`${GLOBAL_ITEM_PREFIX}${tool.name}`));
+
+  for (const tool of inactiveLocalTools) {
+    const skillDir = path.join(workspaceFolder.uri.fsPath, CLAUDE_DIR_NAME, SKILLS_DIR_NAME, tool.name);
+    if (fs.existsSync(skillDir)) {
+      fs.rmSync(skillDir, { recursive: true });
+    }
+  }
+
+  for (const tool of inactiveGlobalTools) {
+    const skillDir = path.join(workspaceFolder.uri.fsPath, CLAUDE_DIR_NAME, SKILLS_DIR_NAME, tool.name);
+    if (fs.existsSync(skillDir)) {
+      fs.rmSync(skillDir, { recursive: true });
+    }
+  }
+
   let syncedCount = 0;
 
   const workspaceConfigDir = getWorkspaceConfigDirPath(workspaceFolder);
-  for (const tool of localTools) {
+  for (const tool of activeLocalTools) {
     const instructionsPath = path.join(workspaceConfigDir, TOOLS_DIR, tool.name, TOOL_INSTRUCTIONS_FILE);
 
     if (!fs.existsSync(instructionsPath)) {
@@ -289,7 +317,7 @@ async function syncToSkills(workspaceFolder: vscode.WorkspaceFolder): Promise<nu
     syncedCount++;
   }
 
-  for (const tool of globalTools) {
+  for (const tool of activeGlobalTools) {
     const instructionsPath = path.join(getGlobalToolsDir(), tool.name, TOOL_INSTRUCTIONS_FILE);
 
     if (!fs.existsSync(instructionsPath)) {
