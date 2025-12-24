@@ -1,9 +1,11 @@
 import * as fs from 'node:fs';
+import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { CONTEXT_VALUES, getCommandId } from '../../common/constants';
-import { getBranchContextGlobPattern } from '../../common/lib/config-manager';
+import { CONFIG_FILE_NAME, CONTEXT_VALUES, getCommandId } from '../../common/constants';
+import { getBranchContextGlobPattern, getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
+import type { PPConfig } from '../../common/schemas/config-schema';
 import { getBranchContextFilePath } from '../branch-context/markdown-parser';
 import {
   type SyncContext,
@@ -57,8 +59,21 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
   private taskProvider: TaskSyncProvider;
 
   constructor() {
-    this.taskProvider = createTaskProvider(true);
+    const workspace = getWorkspacePath();
+    const config = workspace ? this.loadConfig(workspace) : null;
+    this.taskProvider = createTaskProvider(config?.branchContext?.tasks, workspace ?? undefined);
     this.setupMarkdownWatcher();
+  }
+
+  private loadConfig(workspace: string): PPConfig | null {
+    const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
+    if (!fs.existsSync(configPath)) return null;
+    try {
+      const content = fs.readFileSync(configPath, 'utf-8');
+      return JSON5.parse(content) as PPConfig;
+    } catch {
+      return null;
+    }
   }
 
   toggleShowOnlyTodo(): void {

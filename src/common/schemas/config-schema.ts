@@ -243,16 +243,22 @@ const BranchContextSectionSchema = z.object({
     .describe('Custom options passed to the provider (e.g., { includeReviewComments: true })'),
 });
 
+const BranchContextProviderSchema = z.object({
+  provider: z
+    .string()
+    .describe('Command to execute (e.g., "node ./plugins/my-provider.js", "bash ./scripts/fetch.sh")'),
+});
+
 const BranchContextConfigSchema = z.object({
   changedFiles: z
-    .union([z.boolean(), z.string()])
+    .union([z.boolean(), BranchContextProviderSchema])
     .optional()
-    .describe('Changed files section: false = hide, true = default provider, string = custom provider path')
+    .describe('Changed files section: false = hide, true = default provider, { provider: string } = custom provider')
     .default(true),
   tasks: z
-    .union([z.boolean(), z.string()])
+    .union([z.boolean(), BranchContextProviderSchema])
     .optional()
-    .describe('Tasks section: false = hide, true = default provider, string = custom provider path')
+    .describe('Tasks section: false = hide, true = default provider, { provider: string } = custom provider')
     .default(true),
   sections: z
     .array(BranchContextSectionSchema)
@@ -286,3 +292,4 @@ export type PPReplacement = z.infer<typeof PPReplacementSchema>;
 export type PPReplacementPatch = z.infer<typeof PPReplacementPatchSchema>;
 export type BranchContextConfig = z.infer<typeof BranchContextConfigSchema>;
 export type BranchContextSection = z.infer<typeof BranchContextSectionSchema>;
+export type BranchContextProviderConfig = z.infer<typeof BranchContextProviderSchema>;

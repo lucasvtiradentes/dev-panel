@@ -51,25 +51,45 @@
       "properties": {
         "changedFiles": {
           "default": true,
-          "description": "Changed files section: false = hide, true = default provider, string = custom provider path",
+          "description": "Changed files section: false = hide, true = default provider, { provider: string } = custom provider",
           "anyOf": [
             {
               "type": "boolean"
             },
             {
-              "type": "string"
+              "type": "object",
+              "properties": {
+                "provider": {
+                  "description": "Command to execute (e.g., \"node ./plugins/my-provider.js\", \"bash ./scripts/fetch.sh\")",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "provider"
+              ],
+              "additionalProperties": false
             }
           ]
         },
         "tasks": {
           "default": true,
-          "description": "Tasks section: false = hide, true = default provider, string = custom provider path",
+          "description": "Tasks section: false = hide, true = default provider, { provider: string } = custom provider",
           "anyOf": [
             {
               "type": "boolean"
             },
             {
-              "type": "string"
+              "type": "object",
+              "properties": {
+                "provider": {
+                  "description": "Command to execute (e.g., \"node ./plugins/my-provider.js\", \"bash ./scripts/fetch.sh\")",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "provider"
+              ],
+              "additionalProperties": false
             }
           ]
         },
