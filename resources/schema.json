@@ -45,6 +45,78 @@
       },
       "additionalProperties": false
     },
+    "branchContext": {
+      "description": "Branch context configuration",
+      "type": "object",
+      "properties": {
+        "changedFiles": {
+          "default": true,
+          "description": "Changed files section: false = hide, true = default provider, string = custom provider path",
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "tasks": {
+          "default": true,
+          "description": "Tasks section: false = hide, true = default provider, string = custom provider path",
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "sections": {
+          "default": [],
+          "description": "Custom sections to include in branch context",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "Section heading name exactly as it appears in template (e.g., \"TESTS SCENARIOS\")",
+                "type": "string"
+              },
+              "type": {
+                "description": "Section type: field = inline value, text = multi-line, auto = auto-populated",
+                "type": "string",
+                "enum": [
+                  "field",
+                  "text",
+                  "auto"
+                ]
+              },
+              "provider": {
+                "description": "Provider path for auto sections (e.g., \"./plugins/github-pr.js\")",
+                "type": "string"
+              },
+              "icon": {
+                "description": "VSCode icon name (optional, defaults to symbol-field)",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "changedFiles",
+        "tasks",
+        "sections"
+      ],
+      "additionalProperties": false
+    },
     "variables": {
       "description": "Configuration variables",
       "type": "array",

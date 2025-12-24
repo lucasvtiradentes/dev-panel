@@ -72,6 +72,7 @@ export enum Command {
   EditBranchTodos = 'editBranchTodos',
   OpenBranchContextFile = 'openBranchContextFile',
   SyncBranchContext = 'syncBranchContext',
+  ShowBranchContextValidation = 'showBranchContextValidation',
   ToggleTodo = 'toggleTodo',
   ToggleBranchTasksShowOnlyTodo = 'toggleBranchTasksShowOnlyTodo',
   ToggleBranchTasksShowOnlyTodoActive = 'toggleBranchTasksShowOnlyTodoActive',

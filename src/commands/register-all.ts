@@ -1,12 +1,25 @@
+import * as fs from 'node:fs';
 import * as path from 'node:path';
+import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { GLOBAL_ITEM_PREFIX, TOOLS_DIR, TOOL_INSTRUCTIONS_FILE, getGlobalConfigDir } from '../common/constants';
-import { joinConfigPath } from '../common/lib/config-manager';
+import {
+  CONFIG_FILE_NAME,
+  GLOBAL_ITEM_PREFIX,
+  TOOLS_DIR,
+  TOOL_INSTRUCTIONS_FILE,
+  getGlobalConfigDir,
+} from '../common/constants';
+import {
+  getBranchContextTemplatePath,
+  getConfigFilePathFromWorkspacePath,
+  joinConfigPath,
+} from '../common/lib/config-manager';
 import { syncKeybindings } from '../common/lib/keybindings-sync';
 import { Command, registerCommand } from '../common/lib/vscode-utils';
-import type { PPReplacement } from '../common/schemas/config-schema';
+import type { PPConfig, PPReplacement } from '../common/schemas/config-schema';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
 import { BranchContextField, type BranchContextProvider } from '../views/branch-context';
+import { validateBranchContext } from '../views/branch-context/config-validator';
 import type { BranchTasksProvider } from '../views/branch-tasks';
 import type { PromptTreeDataProvider, TreePrompt } from '../views/prompts';
 import type { ReplacementsProvider } from '../views/replacements';
@@ -205,5 +218,44 @@ export function registerAllCommands(options: {
     registerCommand(Command.SyncTaskKeybindings, () => syncKeybindings()),
     createSetTaskKeybindingCommand(),
     createOpenTasksKeybindingsCommand(),
+    registerCommand(Command.ShowBranchContextValidation, async () => {
+      const workspace = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+      if (!workspace) return;
+
+      const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
+      if (!fs.existsSync(configPath)) {
+        await vscode.window.showInformationMessage('No config file found');
+        return;
+      }
+
+      const configContent = fs.readFileSync(configPath, 'utf-8');
+      const config = JSON5.parse(configContent) as PPConfig;
+      const issues = validateBranchContext(workspace, config.branchContext);
+
+      if (issues.length === 0) {
+        await vscode.window.showInformationMessage('No validation issues found');
+        return;
+      }
+
+      const items = issues.map((issue) => ({
+        label: issue.section,
+        description: issue.message,
+        detail: `Severity: ${issue.severity}`,
+        issue,
+      }));
+
+      const selected = await vscode.window.showQuickPick(items, {
+        placeHolder: 'Select an issue to view details',
+      });
+
+      if (selected) {
+        const configUri = vscode.Uri.file(configPath);
+        const templatePath = getBranchContextTemplatePath(workspace);
+        const templateUri = vscode.Uri.file(templatePath);
+
+        await vscode.commands.executeCommand('vscode.open', configUri, vscode.ViewColumn.One);
+        await vscode.commands.executeCommand('vscode.open', templateUri, vscode.ViewColumn.Two);
+      }
+    }),
   ];
 }

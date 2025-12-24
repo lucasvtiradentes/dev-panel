@@ -230,10 +230,38 @@ const PPSettingsSchema = z
   })
   .describe(`Global settings for ${EXTENSION_DISPLAY_NAME} behavior`);
 
+const BranchContextSectionSchema = z.object({
+  name: z.string().describe('Section heading name exactly as it appears in template (e.g., "TESTS SCENARIOS")'),
+  type: z
+    .enum(['field', 'text', 'auto'])
+    .describe('Section type: field = inline value, text = multi-line, auto = auto-populated'),
+  provider: z.string().optional().describe('Provider path for auto sections (e.g., "./plugins/github-pr.js")'),
+  icon: z.string().optional().describe('VSCode icon name (optional, defaults to symbol-field)'),
+});
+
+const BranchContextConfigSchema = z.object({
+  changedFiles: z
+    .union([z.boolean(), z.string()])
+    .optional()
+    .describe('Changed files section: false = hide, true = default provider, string = custom provider path')
+    .default(true),
+  tasks: z
+    .union([z.boolean(), z.string()])
+    .optional()
+    .describe('Tasks section: false = hide, true = default provider, string = custom provider path')
+    .default(true),
+  sections: z
+    .array(BranchContextSectionSchema)
+    .optional()
+    .describe('Custom sections to include in branch context')
+    .default([]),
+});
+
 export const PPConfigSchema = z
   .object({
     $schema: z.string().optional().describe('JSON Schema reference'),
     settings: PPSettingsSchema.optional().describe('Global settings'),
+    branchContext: BranchContextConfigSchema.optional().describe('Branch context configuration'),
     variables: z.array(PPVariableSchema).optional().describe('Configuration variables'),
     replacements: z.array(PPReplacementSchema).optional().describe('File replacements/patches'),
     tasks: z.array(PPTaskSchema).optional().describe('Executable tasks'),
@@ -252,3 +280,5 @@ export type PPTool = z.infer<typeof PPToolSchema>;
 export type PPVariable = z.infer<typeof PPVariableSchema>;
 export type PPReplacement = z.infer<typeof PPReplacementSchema>;
 export type PPReplacementPatch = z.infer<typeof PPReplacementPatchSchema>;
+export type BranchContextConfig = z.infer<typeof BranchContextConfigSchema>;
+export type BranchContextSection = z.infer<typeof BranchContextSectionSchema>;
