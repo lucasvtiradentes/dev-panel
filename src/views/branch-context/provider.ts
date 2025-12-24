@@ -401,15 +401,18 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       };
 
       let changedFiles: string | undefined;
-      if (config?.branchContext?.changedFiles !== false) {
+      if (config?.branchContext?.builtinSections?.changedFiles !== false) {
         logger.info(`[syncBranchContext] Fetching changedFiles (+${Date.now() - startTime}ms)`);
-        const changedFilesProvider = createChangedFilesProvider(config?.branchContext?.changedFiles, workspace);
+        const changedFilesProvider = createChangedFilesProvider(
+          config?.branchContext?.builtinSections?.changedFiles,
+          workspace,
+        );
         changedFiles = await changedFilesProvider.fetch(syncContext);
         logger.info(`[syncBranchContext] changedFiles done (+${Date.now() - startTime}ms)`);
       }
 
       const customAutoData: Record<string, string> = {};
-      if (config?.branchContext?.sections) {
+      if (config?.branchContext?.customSections) {
         const registry = new SectionRegistry(workspace, config.branchContext);
         const autoSections = registry.getAutoSections();
         logger.info(

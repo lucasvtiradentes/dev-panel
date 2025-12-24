@@ -101,14 +101,14 @@ export class SectionRegistry {
   }
 
   private registerCustom(workspace: string, config: Partial<BranchContextConfig>): void {
-    if (!config.sections) {
+    if (!config.customSections) {
       logger.info('[registerCustom] No custom sections in config');
       return;
     }
 
-    logger.info(`[registerCustom] Registering ${config.sections.length} custom sections`);
+    logger.info(`[registerCustom] Registering ${config.customSections.length} custom sections`);
 
-    for (const section of config.sections) {
+    for (const section of config.customSections) {
       logger.info(`[registerCustom] Processing section: ${section.name}, type: ${section.type}`);
 
       let provider: AutoSectionProvider | undefined;

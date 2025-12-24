@@ -15,10 +15,11 @@
     ]
   },
   "branchContext": {
-    // "changedFiles": { "provider": "node ./plugins/tree-changed-files.js" },
-    "changedFiles": true,
-    "tasks": true,
-    "sections": [
+    "builtinSections": {
+      "changedFiles": true,
+      "tasks": true
+    },
+    "customSections": [
       {
         "name": "GITHUB PR COMMENTS",
         "label": "Github PR comments",

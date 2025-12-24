@@ -49,51 +49,62 @@
       "description": "Branch context configuration",
       "type": "object",
       "properties": {
-        "changedFiles": {
-          "default": true,
-          "description": "Changed files section: false = hide, true = default provider, { provider: string } = custom provider",
-          "anyOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "object",
-              "properties": {
-                "provider": {
-                  "description": "Command to execute (e.g., \"node ./plugins/my-provider.js\", \"bash ./scripts/fetch.sh\")",
-                  "type": "string"
+        "builtinSections": {
+          "description": "Configuration for built-in sections",
+          "type": "object",
+          "properties": {
+            "changedFiles": {
+              "default": true,
+              "description": "Changed files section: false = hide, true = default provider, { provider: string } = custom provider",
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "provider": {
+                      "description": "Command to execute (e.g., \"node ./plugins/my-provider.js\", \"bash ./scripts/fetch.sh\")",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "provider"
+                  ],
+                  "additionalProperties": false
                 }
-              },
-              "required": [
-                "provider"
-              ],
-              "additionalProperties": false
-            }
-          ]
-        },
-        "tasks": {
-          "default": true,
-          "description": "Tasks section: false = hide, true = default provider, { provider: string } = custom provider",
-          "anyOf": [
-            {
-              "type": "boolean"
+              ]
             },
-            {
-              "type": "object",
-              "properties": {
-                "provider": {
-                  "description": "Command to execute (e.g., \"node ./plugins/my-provider.js\", \"bash ./scripts/fetch.sh\")",
-                  "type": "string"
+            "tasks": {
+              "default": true,
+              "description": "Tasks section: false = hide, true = default provider, { provider: string } = custom provider",
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "provider": {
+                      "description": "Command to execute (e.g., \"node ./plugins/my-provider.js\", \"bash ./scripts/fetch.sh\")",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "provider"
+                  ],
+                  "additionalProperties": false
                 }
-              },
-              "required": [
-                "provider"
-              ],
-              "additionalProperties": false
+              ]
             }
-          ]
+          },
+          "required": [
+            "changedFiles",
+            "tasks"
+          ],
+          "additionalProperties": false
         },
-        "sections": {
+        "customSections": {
           "default": [],
           "description": "Custom sections to include in branch context",
           "type": "array",
@@ -143,9 +154,7 @@
         }
       },
       "required": [
-        "changedFiles",
-        "tasks",
-        "sections"
+        "customSections"
       ],
       "additionalProperties": false
     },

@@ -253,7 +253,7 @@ const BranchContextProviderSchema = z.object({
     .describe('Command to execute (e.g., "node ./plugins/my-provider.js", "bash ./scripts/fetch.sh")'),
 });
 
-const BranchContextConfigSchema = z.object({
+const BuiltinSectionsSchema = z.object({
   changedFiles: z
     .union([z.boolean(), BranchContextProviderSchema])
     .optional()
@@ -264,7 +264,11 @@ const BranchContextConfigSchema = z.object({
     .optional()
     .describe('Tasks section: false = hide, true = default provider, { provider: string } = custom provider')
     .default(true),
-  sections: z
+});
+
+const BranchContextConfigSchema = z.object({
+  builtinSections: BuiltinSectionsSchema.optional().describe('Configuration for built-in sections'),
+  customSections: z
     .array(BranchContextSectionSchema)
     .optional()
     .describe('Custom sections to include in branch context')
@@ -297,3 +301,4 @@ export type PPReplacementPatch = z.infer<typeof PPReplacementPatchSchema>;
 export type BranchContextConfig = z.infer<typeof BranchContextConfigSchema>;
 export type BranchContextSection = z.infer<typeof BranchContextSectionSchema>;
 export type BranchContextProviderConfig = z.infer<typeof BranchContextProviderSchema>;
+export type BuiltinSections = z.infer<typeof BuiltinSectionsSchema>;
