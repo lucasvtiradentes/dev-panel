@@ -488,6 +488,11 @@
         "icon": "$(keyboard)"
       },
       {
+        "command": "projectPanel.openVariablesConfig",
+        "title": "Open Variables Config",
+        "icon": "$(go-to-file)"
+      },
+      {
         "command": "projectPanel.syncTaskKeybindings",
         "title": "Project Panel: Sync Task Keybindings"
       },
@@ -519,6 +524,11 @@
           "command": "projectPanel.openVariablesKeybindings",
           "when": "view == projectPanelConfigs",
           "group": "navigation@3"
+        },
+        {
+          "command": "projectPanel.openVariablesConfig",
+          "when": "view == projectPanelConfigs",
+          "group": "navigation@2"
         },
         {
           "command": "projectPanel.toggleReplacementsGroupMode",

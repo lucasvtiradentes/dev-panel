@@ -86,6 +86,7 @@ export enum Command {
   SyncVariableKeybindings = 'syncVariableKeybindings',
   SetVariableKeybinding = 'setVariableKeybinding',
   OpenVariablesKeybindings = 'openVariablesKeybindings',
+  OpenVariablesConfig = 'openVariablesConfig',
   SyncTaskKeybindings = 'syncTaskKeybindings',
   SetTaskKeybinding = 'setTaskKeybinding',
   OpenTasksKeybindings = 'openTasksKeybindings',

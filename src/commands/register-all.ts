@@ -32,6 +32,7 @@ import {
 import { createGenerateToolsDocsCommand } from './internal/generate-tools-docs';
 import { createGoToTaskCommand } from './internal/go-to-task';
 import { createOpenTasksConfigCommand } from './internal/open-tasks-config';
+import { createOpenVariablesConfigCommand } from './internal/open-variables-config';
 import { createRefreshCommand } from './internal/refresh';
 import { createResetConfigOptionCommand, createSelectConfigOptionCommand } from './internal/select-config-option';
 import {
@@ -196,6 +197,7 @@ export function registerAllCommands(options: {
     registerCommand(Command.SyncVariableKeybindings, () => syncKeybindings()),
     createSetVariableKeybindingCommand(),
     createOpenVariablesKeybindingsCommand(),
+    createOpenVariablesConfigCommand(),
     registerCommand(Command.SyncTaskKeybindings, () => syncKeybindings()),
     createSetTaskKeybindingCommand(),
     createOpenTasksKeybindingsCommand(),
