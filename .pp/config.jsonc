@@ -15,7 +15,8 @@
     ]
   },
   "branchContext": {
-    "changedFiles": { "provider": "node ./plugins/tree-changed-files.js" },
+    // "changedFiles": { "provider": "node ./plugins/tree-changed-files.js" },
+    "changedFiles": true,
     "tasks": true,
     "sections": [
       {

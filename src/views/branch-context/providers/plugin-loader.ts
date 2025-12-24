@@ -1,8 +1,10 @@
-import { execSync } from 'node:child_process';
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
 import { getConfigDirPathFromWorkspacePath } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import type { AutoSectionProvider, SyncContext, TaskSyncProvider } from './interfaces';
 
+const execAsync = promisify(exec);
 const logger = createLogger('PluginLoader');
 
 export function loadAutoProvider(workspace: string, providerCommand: string): AutoSectionProvider {
@@ -22,10 +24,9 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
       logger.info(`[loadAutoProvider] Running: ${providerCommand}`);
 
       try {
-        const result = execSync(providerCommand, {
+        const { stdout } = await execAsync(providerCommand, {
           encoding: 'utf-8',
           timeout: 60000,
-          input: contextJson,
           cwd: configDir,
           env: {
             ...process.env,
@@ -33,7 +34,7 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
           },
         });
 
-        return result.trim();
+        return stdout.trim();
       } catch (error) {
         logger.error(`[loadAutoProvider] Script error: ${error}`);
         throw error;

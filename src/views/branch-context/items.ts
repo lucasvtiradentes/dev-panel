@@ -17,8 +17,8 @@ export class SectionItem extends vscode.TreeItem {
   ) {
     super(section.label, vscode.TreeItemCollapsibleState.None);
 
-    this.iconPath = new vscode.ThemeIcon(section.icon);
     this.contextValue = CONTEXT_VALUES.BRANCH_CONTEXT_FIELD;
+    this.iconPath = new vscode.ThemeIcon(section.icon);
 
     if (section.type === 'auto') {
       this.description = value ? truncate(value, BRANCH_FIELD_DESCRIPTION_MAX_LENGTH) : '(not synced)';

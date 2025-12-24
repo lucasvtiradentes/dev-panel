@@ -353,7 +353,8 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   async syncBranchContext(): Promise<void> {
-    logger.info(`[syncBranchContext] Called for branch: ${this.currentBranch}`);
+    const startTime = Date.now();
+    logger.info(`[syncBranchContext] START for branch: ${this.currentBranch}`);
 
     if (!this.currentBranch) {
       logger.warn('[syncBranchContext] No current branch, skipping');
@@ -366,14 +367,12 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       return;
     }
 
-    logger.info(`[syncBranchContext] Loading context for branch: ${this.currentBranch}`);
+    logger.info(`[syncBranchContext] Loading context (+${Date.now() - startTime}ms)`);
     const context = loadBranchContext(this.currentBranch);
     const config = this.loadConfig(workspace);
     this.isWritingMarkdown = true;
 
     try {
-      logger.info('[syncBranchContext] Syncing auto sections with fresh data');
-
       const syncContext: SyncContext = {
         branchName: this.currentBranch,
         workspacePath: workspace,
@@ -383,55 +382,60 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
       let changedFiles: string | undefined;
       if (config?.branchContext?.changedFiles !== false) {
+        logger.info(`[syncBranchContext] Fetching changedFiles (+${Date.now() - startTime}ms)`);
         const changedFilesProvider = createChangedFilesProvider(config?.branchContext?.changedFiles, workspace);
         changedFiles = await changedFilesProvider.fetch(syncContext);
+        logger.info(`[syncBranchContext] changedFiles done (+${Date.now() - startTime}ms)`);
       }
 
       const customAutoData: Record<string, string> = {};
       if (config?.branchContext?.sections) {
-        logger.info(`[syncBranchContext] Found ${config.branchContext.sections.length} custom sections in config`);
         const registry = new SectionRegistry(workspace, config.branchContext);
         const autoSections = registry.getAutoSections();
-        logger.info(`[syncBranchContext] Found ${autoSections.length} auto sections to fetch`);
+        logger.info(
+          `[syncBranchContext] Fetching ${autoSections.length} auto sections in PARALLEL (+${Date.now() - startTime}ms)`,
+        );
 
-        for (const section of autoSections) {
-          if (section.provider) {
-            logger.info(`[syncBranchContext] Fetching auto section: ${section.name}`);
+        const fetchPromises = autoSections
+          .filter((section) => section.provider)
+          .map(async (section) => {
+            logger.info(`[syncBranchContext] Starting "${section.name}" (+${Date.now() - startTime}ms)`);
             try {
               const sectionContext: SyncContext = {
                 ...syncContext,
                 sectionOptions: section.options,
               };
-              const data = await section.provider.fetch(sectionContext);
-              logger.info(`[syncBranchContext] Got data for ${section.name}: ${data.substring(0, 100)}...`);
-              customAutoData[section.name] = data;
+              const data = await section.provider!.fetch(sectionContext);
+              logger.info(`[syncBranchContext] "${section.name}" done (+${Date.now() - startTime}ms)`);
+              return { name: section.name, data };
             } catch (error) {
-              logger.error(`[syncBranchContext] Failed to fetch ${section.name}: ${error}`);
-              customAutoData[section.name] = `Error: ${error}`;
+              logger.error(`[syncBranchContext] "${section.name}" FAILED (+${Date.now() - startTime}ms): ${error}`);
+              return { name: section.name, data: `Error: ${error}` };
             }
-          } else {
-            logger.warn(`[syncBranchContext] Auto section ${section.name} has no provider`);
-          }
+          });
+
+        const results = await Promise.all(fetchPromises);
+        for (const { name, data } of results) {
+          customAutoData[name] = data;
         }
-      } else {
-        logger.info('[syncBranchContext] No custom sections configured');
+        logger.info(`[syncBranchContext] All auto sections done (+${Date.now() - startTime}ms)`);
       }
 
-      logger.info(`[syncBranchContext] customAutoData keys: ${Object.keys(customAutoData).join(', ')}`);
-      logger.info('[syncBranchContext] Calling generateBranchContextMarkdown with customAutoData');
-
+      logger.info(`[syncBranchContext] Generating markdown (+${Date.now() - startTime}ms)`);
       await generateBranchContextMarkdown(this.currentBranch, {
         ...context,
         changedFiles,
         ...customAutoData,
       });
 
-      logger.info('[syncBranchContext] Syncing branch to root');
+      logger.info(`[syncBranchContext] Syncing to root (+${Date.now() - startTime}ms)`);
       this.syncBranchToRoot();
     } finally {
+      this.refresh();
       setTimeout(() => {
         this.isWritingMarkdown = false;
       }, 100);
+      logger.info(`[syncBranchContext] END total time: ${Date.now() - startTime}ms`);
     }
   }
 
