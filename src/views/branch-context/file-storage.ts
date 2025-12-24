@@ -12,9 +12,15 @@ import {
   BRANCH_CONTEXT_SECTION_OBJECTIVE,
   BRANCH_CONTEXT_SECTION_REQUIREMENTS,
   BRANCH_CONTEXT_SECTION_TODO,
+  BUILTIN_SECTION_NAMES,
   METADATA_PP_PREFIX,
   METADATA_SECTION_PREFIX,
   METADATA_SUFFIX,
+  SECTION_NAME_CHANGED_FILES,
+  SECTION_NAME_NOTES,
+  SECTION_NAME_OBJECTIVE,
+  SECTION_NAME_REQUIREMENTS,
+  SECTION_NAME_TASKS,
 } from '../../common/constants';
 import { getBranchContextFilePath, getBranchDirectory } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
@@ -167,6 +173,34 @@ function extractAllCodeBlockSections(content: string): Record<string, CodeBlockS
   return sections;
 }
 
+function extractAllTextSections(content: string, excludeNames: string[]): Record<string, CodeBlockSection> {
+  const sections: Record<string, CodeBlockSection> = {};
+  const sectionRegex = /^#\s+([A-Z][A-Z\s]+)\s*$/gm;
+
+  const matches = [...content.matchAll(sectionRegex)];
+  for (let i = 0; i < matches.length; i++) {
+    const match = matches[i];
+    const sectionName = match[1].trim();
+
+    if (excludeNames.includes(sectionName)) continue;
+    if (match.index === undefined) continue;
+
+    const startIndex = match.index + match[0].length;
+    const nextMatch = matches[i + 1];
+    const endIndex = nextMatch?.index ?? content.length;
+    const sectionContent = content.slice(startIndex, endIndex).trim();
+
+    if (sectionContent.startsWith('```')) continue;
+
+    if (sectionContent && sectionContent !== BRANCH_CONTEXT_NA) {
+      const { cleanContent, metadata } = extractSectionMetadata(sectionContent);
+      sections[sectionName] = { content: cleanContent, metadata };
+    }
+  }
+
+  return sections;
+}
+
 function extractMetadata(content: string): BranchContextMetadata | undefined {
   const prefix = METADATA_PP_PREFIX.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const suffix = METADATA_SUFFIX.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -183,11 +217,16 @@ function extractMetadata(content: string): BranchContextMetadata | undefined {
 
 function parseBranchContext(content: string): BranchContext {
   const baseMetadata = extractMetadata(content) ?? {};
+
   const codeBlockSections = extractAllCodeBlockSections(content);
+  const textSections = extractAllTextSections(content, BUILTIN_SECTION_NAMES);
+  const allCustomSections = { ...codeBlockSections, ...textSections };
+
   logger.info(`[parseBranchContext] Found code block sections: ${Object.keys(codeBlockSections).join(', ')}`);
+  logger.info(`[parseBranchContext] Found text sections: ${Object.keys(textSections).join(', ')}`);
 
   const sectionsMetadata: Record<string, SectionMetadata> = {};
-  for (const [name, section] of Object.entries(codeBlockSections)) {
+  for (const [name, section] of Object.entries(allCustomSections)) {
     if (section.metadata) {
       sectionsMetadata[name] = section.metadata;
     }
@@ -197,19 +236,19 @@ function parseBranchContext(content: string): BranchContext {
     branchName: extractField(content, BRANCH_CONTEXT_FIELD_BRANCH.replace(':', '')),
     prLink: extractField(content, BRANCH_CONTEXT_FIELD_PR_LINK.replace(':', '')),
     linearLink: extractField(content, BRANCH_CONTEXT_FIELD_LINEAR_LINK.replace(':', '')),
-    objective: extractSection(content, 'OBJECTIVE'),
-    requirements: extractSection(content, 'REQUIREMENTS'),
-    notes: extractSection(content, 'NOTES'),
-    todos: extractSection(content, 'TASKS'),
-    changedFiles: extractCodeBlockSection(content, 'CHANGED FILES'),
+    objective: extractSection(content, SECTION_NAME_OBJECTIVE),
+    requirements: extractSection(content, SECTION_NAME_REQUIREMENTS),
+    notes: extractSection(content, SECTION_NAME_NOTES),
+    todos: extractSection(content, SECTION_NAME_TASKS),
+    changedFiles: extractCodeBlockSection(content, SECTION_NAME_CHANGED_FILES),
     metadata: {
       ...baseMetadata,
       sections: Object.keys(sectionsMetadata).length > 0 ? sectionsMetadata : undefined,
     },
   };
 
-  for (const [name, section] of Object.entries(codeBlockSections)) {
-    if (name !== 'CHANGED FILES') {
+  for (const [name, section] of Object.entries(allCustomSections)) {
+    if (name !== SECTION_NAME_CHANGED_FILES) {
       logger.info(`[parseBranchContext] Adding custom section: ${name}`);
       (context as Record<string, unknown>)[name] = section.content;
     }
