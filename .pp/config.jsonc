@@ -21,7 +21,7 @@
       {
         "name": "GITHUB PR COMMENTS",
         "type": "auto",
-        "provider": "./plugins/github-pr-comments.js",
+        "provider": "node ./plugins/github-pr-comments.js",
         "icon": "github",
         "options": {
           "includeRegularComments": false,
@@ -31,7 +31,7 @@
       {
         "name": "LINEAR ISSUE",
         "type": "auto",
-        "provider": "./plugins/linear-issue.js",
+        "provider": "node ./plugins/linear-issue.js",
         "icon": "link-external"
       }
     ]
