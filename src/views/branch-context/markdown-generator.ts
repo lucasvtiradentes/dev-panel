@@ -3,14 +3,17 @@ import * as vscode from 'vscode';
 import {
   BRANCH_CONTEXT_DEFAULT_TODOS,
   BRANCH_CONTEXT_NA,
+  type BranchType,
   ChangedFilesStyle,
   METADATA_PP_PREFIX,
   METADATA_SECTION_PREFIX,
+  METADATA_SEPARATOR,
   METADATA_SUFFIX,
 } from '../../common/constants';
 import { getBranchContextFilePath, getBranchDirectory } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import type { BranchContext } from '../../common/schemas/types';
+import { detectBranchType, generateBranchTypeCheckboxes } from './branch-type-utils';
 import { getChangedFilesTree } from './git-changed-files';
 import { loadTemplate } from './template-parser';
 
@@ -56,8 +59,12 @@ export async function generateBranchContextMarkdown(
     `[generateBranchContextMarkdown] Changed files result (first 100 chars): ${changedFilesTree.substring(0, 100)}`,
   );
 
+  const branchType = (context.branchType as BranchType | undefined) ?? detectBranchType(branchName);
+  const branchTypeCheckboxes = generateBranchTypeCheckboxes(branchType);
+
   const replacements: Record<string, string> = {
     BRANCH_NAME: branchName,
+    BRANCH_TYPE: branchTypeCheckboxes,
     PR_LINK: context.prLink || BRANCH_CONTEXT_NA,
     LINEAR_LINK: context.linearLink || BRANCH_CONTEXT_NA,
     OBJECTIVE: context.objective || BRANCH_CONTEXT_NA,
@@ -89,7 +96,7 @@ export async function generateBranchContextMarkdown(
 
   if (context.metadata) {
     const metadataJson = JSON.stringify(context.metadata);
-    output += `\n${METADATA_PP_PREFIX}${metadataJson}${METADATA_SUFFIX}`;
+    output += `\n\n${METADATA_SEPARATOR}\n\n${METADATA_PP_PREFIX}${metadataJson}${METADATA_SUFFIX}`;
   }
 
   fs.writeFileSync(mdPath, output);

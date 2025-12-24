@@ -1,12 +1,15 @@
 import type * as vscode from 'vscode';
+import { WORKSPACE_STATE_CONFIG_DIR_KEY } from '../constants/scripts-constants';
 import { logger } from './logger';
 
 export enum StoreKey {
   ConfigDir = 'configDir',
+  IsWritingBranchContext = 'isWritingBranchContext',
 }
 
 type ExtensionState = {
   [StoreKey.ConfigDir]: string | null;
+  [StoreKey.IsWritingBranchContext]: boolean;
 };
 
 type StateListener<K extends StoreKey> = (value: ExtensionState[K], oldValue: ExtensionState[K]) => void;
@@ -15,6 +18,7 @@ type AnyStateListener = StateListener<StoreKey>;
 class ExtensionStore {
   private state: ExtensionState = {
     [StoreKey.ConfigDir]: null,
+    [StoreKey.IsWritingBranchContext]: false,
   };
 
   private context: vscode.ExtensionContext | null = null;
@@ -22,7 +26,7 @@ class ExtensionStore {
 
   initialize(context: vscode.ExtensionContext): void {
     this.context = context;
-    const stored = context.workspaceState.get<string | null>('pp.configDir');
+    const stored = context.workspaceState.get<string | null>(WORKSPACE_STATE_CONFIG_DIR_KEY);
     this.state[StoreKey.ConfigDir] = stored ?? null;
   }
 
@@ -56,7 +60,7 @@ class ExtensionStore {
 
     switch (key) {
       case StoreKey.ConfigDir:
-        void this.context.workspaceState.update('pp.configDir', value as string | null);
+        void this.context.workspaceState.update(WORKSPACE_STATE_CONFIG_DIR_KEY, value as string | null);
         break;
     }
   }

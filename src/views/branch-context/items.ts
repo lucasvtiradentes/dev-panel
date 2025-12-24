@@ -4,6 +4,8 @@ import {
   CONTEXT_VALUES,
   DESCRIPTION_NOT_SET,
   DESCRIPTION_NOT_SYNCED,
+  METADATA_FIELD_DESCRIPTION,
+  SECTION_NAME_BRANCH,
   getCommandId,
 } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
@@ -16,24 +18,30 @@ function truncate(str: string, maxLen: number): string {
   return `${firstLine.slice(0, maxLen - 3)}...`;
 }
 
-function interpolateTemplate(template: string, metadata: SectionMetadata): string {
-  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => {
-    const value = metadata[key];
-    return value !== undefined ? String(value) : '';
-  });
-}
-
 export class SectionItem extends vscode.TreeItem {
   constructor(
     public readonly section: SectionDefinition,
     public readonly value: string | undefined,
     private readonly branchName: string,
     private readonly metadata?: SectionMetadata,
+    private readonly branchType?: string,
   ) {
     super(section.label, vscode.TreeItemCollapsibleState.None);
 
     this.contextValue = CONTEXT_VALUES.BRANCH_CONTEXT_FIELD;
-    this.iconPath = new vscode.ThemeIcon(section.icon);
+
+    if (section.name === SECTION_NAME_BRANCH && branchType) {
+      const colorMap: Record<string, string> = {
+        feature: 'charts.blue',
+        bugfix: 'charts.red',
+        chore: 'charts.purple',
+        other: 'editorLineNumber.foreground',
+      };
+      const color = colorMap[branchType] || 'editorLineNumber.foreground';
+      this.iconPath = new vscode.ThemeIcon(section.icon, new vscode.ThemeColor(color));
+    } else {
+      this.iconPath = new vscode.ThemeIcon(section.icon);
+    }
 
     this.description = this.getDescription();
     if (section.type === 'auto') {
@@ -46,13 +54,13 @@ export class SectionItem extends vscode.TreeItem {
       this.command = {
         command: getCommandId(section.command),
         title: `Edit ${section.label}`,
-        arguments: [branchName, value],
+        arguments: [{ branchName, value }],
       };
     } else {
       this.command = {
         command: getCommandId(Command.OpenBranchContextFileAtLine),
         title: `View ${section.label}`,
-        arguments: [branchName, section.name],
+        arguments: [{ branchName, sectionName: section.name }],
       };
     }
   }
@@ -61,9 +69,8 @@ export class SectionItem extends vscode.TreeItem {
     const notSetLabel = this.section.type === 'auto' ? DESCRIPTION_NOT_SYNCED : DESCRIPTION_NOT_SET;
     if (!this.value) return notSetLabel;
 
-    if (this.section.descriptionTemplate && this.metadata) {
-      const formatted = interpolateTemplate(this.section.descriptionTemplate, this.metadata);
-      if (formatted.trim()) return formatted;
+    if (this.metadata && METADATA_FIELD_DESCRIPTION in this.metadata) {
+      return String(this.metadata[METADATA_FIELD_DESCRIPTION]);
     }
 
     return truncate(this.value, BRANCH_FIELD_DESCRIPTION_MAX_LENGTH);

@@ -1,6 +1,5 @@
 import {
   BRANCH_CONTEXT_DEFAULT_ICON,
-  BRANCH_CONTEXT_NO_CHANGES,
   SECTION_LABEL_BRANCH,
   SECTION_LABEL_CHANGED_FILES,
   SECTION_LABEL_LINEAR_LINK,
@@ -35,21 +34,27 @@ export type SectionDefinition = {
   command?: Command;
   provider?: AutoSectionProvider;
   options?: Record<string, unknown>;
-  emptyValue?: string;
-  descriptionTemplate?: string;
 };
 
 export class SectionRegistry {
   private sections: Map<string, SectionDefinition> = new Map();
 
-  constructor(workspace: string, config?: Partial<BranchContextConfig>, showChangedFiles = true) {
-    this.registerBuiltins(showChangedFiles);
+  constructor(
+    workspace: string,
+    config?: Partial<BranchContextConfig>,
+    showChangedFiles: boolean | { provider: string } = true,
+  ) {
+    this.registerBuiltins(workspace, config, showChangedFiles);
     if (config) {
       this.registerCustom(workspace, config);
     }
   }
 
-  private registerBuiltins(showChangedFiles: boolean): void {
+  private registerBuiltins(
+    workspace: string,
+    config?: Partial<BranchContextConfig>,
+    showChangedFiles: boolean | { provider: string } = true,
+  ): void {
     this.register({
       name: SECTION_NAME_BRANCH,
       label: SECTION_LABEL_BRANCH,
@@ -104,16 +109,26 @@ export class SectionRegistry {
       command: Command.EditBranchNotes,
     });
 
-    if (showChangedFiles) {
-      this.register({
-        name: SECTION_NAME_CHANGED_FILES,
-        label: SECTION_LABEL_CHANGED_FILES,
-        type: 'field',
-        icon: 'diff',
-        isBuiltin: true,
-        emptyValue: BRANCH_CONTEXT_NO_CHANGES,
-        descriptionTemplate: '{{filesCount}} files',
-      });
+    if (showChangedFiles !== false) {
+      if (typeof showChangedFiles === 'object' && showChangedFiles.provider) {
+        const provider = loadAutoProvider(workspace, showChangedFiles.provider);
+        this.register({
+          name: SECTION_NAME_CHANGED_FILES,
+          label: SECTION_LABEL_CHANGED_FILES,
+          type: 'auto',
+          icon: 'diff',
+          isBuiltin: true,
+          provider,
+        });
+      } else {
+        this.register({
+          name: SECTION_NAME_CHANGED_FILES,
+          label: SECTION_LABEL_CHANGED_FILES,
+          type: 'field',
+          icon: 'diff',
+          isBuiltin: true,
+        });
+      }
     }
   }
 
@@ -143,8 +158,6 @@ export class SectionRegistry {
         isBuiltin: false,
         provider,
         options: section.options,
-        emptyValue: section.emptyValue,
-        descriptionTemplate: section.descriptionTemplate,
       });
 
       logger.info(`[registerCustom] Registered section: ${section.name}`);

@@ -67,8 +67,3 @@ export function parseTemplate(templateContent: string): TemplateSection[] {
 
   return sections;
 }
-
-export function isSectionInTemplate(templateContent: string, sectionName: string): boolean {
-  const sections = parseTemplate(templateContent);
-  return sections.some((s) => s.name === sectionName);
-}

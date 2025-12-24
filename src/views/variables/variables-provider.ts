@@ -10,6 +10,7 @@ import {
   DEFAULT_INCLUDES,
   DESCRIPTION_NOT_SET,
   DISPLAY_PREFIX,
+  ERROR_VARIABLE_COMMAND_FAILED,
   NO_GROUP_NAME,
   VARIABLES_FILE_NAME,
   getCommandId,
@@ -261,7 +262,7 @@ async function runCommand(variable: VariableItem, value: unknown): Promise<void>
           await execAsync(command, { cwd: configDirPath });
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
-          void vscode.window.showErrorMessage(`Variable command failed: ${errorMessage}`);
+          void vscode.window.showErrorMessage(`${ERROR_VARIABLE_COMMAND_FAILED}: ${errorMessage}`);
         }
       },
     );

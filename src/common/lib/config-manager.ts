@@ -1,6 +1,7 @@
 import { isAbsolute, join } from 'node:path';
 import * as vscode from 'vscode';
 import { CONFIG_DIR_NAME } from '../constants';
+import { FILENAME_INVALID_CHARS_PATTERN } from '../constants/regex-constants';
 import {
   BRANCHES_DIR_NAME,
   BRANCH_CONTEXT_FILENAME,
@@ -8,18 +9,6 @@ import {
   PROMPTS_DIR_NAME,
 } from '../constants/scripts-constants';
 import { StoreKey, extensionStore } from './extension-store';
-
-export function getConfigBaseDir(workspacePath: string, configDir: string | null): string {
-  if (!configDir) {
-    return workspacePath;
-  }
-
-  if (isAbsolute(configDir)) {
-    return configDir;
-  }
-
-  return join(workspacePath, configDir);
-}
 
 function getConfigDir(workspacePath: string, configDir: string | null): vscode.Uri {
   const baseDir = vscode.Uri.file(workspacePath);
@@ -125,7 +114,7 @@ export function getConfigDirPattern(): string {
 }
 
 export function getBranchDirectory(workspace: string, branchName: string): string {
-  const sanitized = branchName.replace(/[\/\\:*?"<>|]/g, '_');
+  const sanitized = branchName.replace(FILENAME_INVALID_CHARS_PATTERN, '_');
   const configDirPath = getConfigDirPathFromWorkspacePath(workspace);
   return join(configDirPath, BRANCHES_DIR_NAME, sanitized);
 }

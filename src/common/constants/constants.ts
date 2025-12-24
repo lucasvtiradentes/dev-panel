@@ -20,8 +20,12 @@ export const BRANCH_CONTEXT_SECTION_TODO = '# TASKS';
 export const BRANCH_CONTEXT_SECTION_CHANGED_FILES = '# CHANGED FILES';
 
 export const BRANCH_CONTEXT_FIELD_BRANCH = 'BRANCH:';
+export const BRANCH_CONTEXT_FIELD_TYPE = 'TYPE:';
 export const BRANCH_CONTEXT_FIELD_PR_LINK = 'PR LINK:';
 export const BRANCH_CONTEXT_FIELD_LINEAR_LINK = 'LINEAR LINK:';
+
+export const BRANCH_TYPES = ['feature', 'bugfix', 'chore', 'other'] as const;
+export type BranchType = (typeof BRANCH_TYPES)[number];
 
 export const SECTION_NAME_BRANCH = BRANCH_CONTEXT_FIELD_BRANCH.replace(':', '').trim();
 export const SECTION_NAME_PR_LINK = BRANCH_CONTEXT_FIELD_PR_LINK.replace(':', '').trim();
@@ -62,10 +66,6 @@ export const QUICK_PICK_ACTION_SEPARATOR = '__separator__';
 
 export const JSON_INDENT_SPACES = 4;
 export const CONFIG_INDENT = '    ';
-
-export const STATUS_BAR_UNDEFINED_TASK = '-- UNDEFINED TASK --';
-export const STATUS_BAR_COMMAND_PREFIX = '/';
-export const TASK_SOURCE_WORKSPACE = 'Workspace';
 
 export const BASE_BRANCH = 'origin/main';
 

@@ -3,7 +3,9 @@ import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
+  AI_SPEC_AVAILABLE_TOOLS_REGEX,
   AI_SPEC_FILES,
+  AI_SPEC_PROJECT_TOOLS_REGEX,
   CLAUDE_DIR_NAME,
   CONFIG_FILE_NAME,
   GLOBAL_ITEM_PREFIX,
@@ -359,13 +361,10 @@ function syncToAiSpecs(xml: string, workspaceFolder: vscode.WorkspaceFolder): vo
   for (const filePath of foundFiles) {
     let content = fs.readFileSync(filePath, 'utf8');
 
-    const projectToolsRegex = /<project_tools>[\s\S]*?<\/project_tools>/;
-    const availableToolsRegex = /<available_tools>[\s\S]*?<\/available_tools>/;
-
-    if (projectToolsRegex.test(content)) {
-      content = content.replace(projectToolsRegex, xml);
-    } else if (availableToolsRegex.test(content)) {
-      content = content.replace(availableToolsRegex, xml);
+    if (AI_SPEC_PROJECT_TOOLS_REGEX.test(content)) {
+      content = content.replace(AI_SPEC_PROJECT_TOOLS_REGEX, xml);
+    } else if (AI_SPEC_AVAILABLE_TOOLS_REGEX.test(content)) {
+      content = content.replace(AI_SPEC_AVAILABLE_TOOLS_REGEX, xml);
     } else {
       content = `${content.trimEnd()}\n\n${xml}\n`;
     }

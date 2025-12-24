@@ -1,6 +1,19 @@
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
-import { BASE_BRANCH, BRANCH_CONTEXT_NO_CHANGES, ChangedFilesStyle } from '../../common/constants';
+import {
+  BRANCH_CONTEXT_NO_CHANGES,
+  ChangedFilesStyle,
+  GIT_DIFF_BASE_BRANCH_NAME_ONLY,
+  GIT_DIFF_BASE_BRANCH_NAME_STATUS,
+  GIT_DIFF_BASE_BRANCH_NUMSTAT,
+  GIT_DIFF_CACHED_NAME_ONLY,
+  GIT_DIFF_CACHED_NAME_STATUS,
+  GIT_DIFF_CACHED_NUMSTAT,
+  GIT_DIFF_NAME_ONLY,
+  GIT_DIFF_NAME_STATUS,
+  GIT_DIFF_NUMSTAT,
+  NOT_GIT_REPO_MESSAGE,
+} from '../../common/constants';
 import { createLogger } from '../../common/lib/logger';
 
 const execAsync = promisify(exec);
@@ -66,11 +79,7 @@ export async function getChangedFilesWithSummary(
 
 async function getChangedFilesSummaryFromGit(workspacePath: string): Promise<ChangedFilesSummary | null> {
   try {
-    const commands = [
-      `git diff ${BASE_BRANCH}...HEAD --name-status`,
-      'git diff --cached --name-status',
-      'git diff --name-status',
-    ];
+    const commands = [GIT_DIFF_BASE_BRANCH_NAME_STATUS, GIT_DIFF_CACHED_NAME_STATUS, GIT_DIFF_NAME_STATUS];
 
     const results = await Promise.all(
       commands.map((cmd) => execAsync(cmd, { cwd: workspacePath }).then((r) => r.stdout)),
@@ -113,11 +122,7 @@ export async function getChangedFilesTree(workspacePath: string, style: ChangedF
 
 async function getChangedFilesTreeFormat(workspacePath: string): Promise<string> {
   try {
-    const commands = [
-      `git diff ${BASE_BRANCH}...HEAD --name-only`,
-      'git diff --cached --name-only',
-      'git diff --name-only',
-    ];
+    const commands = [GIT_DIFF_BASE_BRANCH_NAME_ONLY, GIT_DIFF_CACHED_NAME_ONLY, GIT_DIFF_NAME_ONLY];
 
     const results = await Promise.all(
       commands.map((cmd) => execAsync(cmd, { cwd: workspacePath }).then((r) => r.stdout)),
@@ -142,7 +147,7 @@ async function getChangedFilesTreeFormat(workspacePath: string): Promise<string>
     const tree = buildFileTree(Array.from(allFiles));
     return tree;
   } catch {
-    return 'Not a git repository';
+    return NOT_GIT_REPO_MESSAGE;
   }
 }
 
@@ -151,9 +156,9 @@ async function getChangedFilesListFormat(workspacePath: string): Promise<string>
 
   try {
     const commands = [
-      { status: `git diff ${BASE_BRANCH}...HEAD --name-status`, num: `git diff ${BASE_BRANCH}...HEAD --numstat` },
-      { status: 'git diff --cached --name-status', num: 'git diff --cached --numstat' },
-      { status: 'git diff --name-status', num: 'git diff --numstat' },
+      { status: GIT_DIFF_BASE_BRANCH_NAME_STATUS, num: GIT_DIFF_BASE_BRANCH_NUMSTAT },
+      { status: GIT_DIFF_CACHED_NAME_STATUS, num: GIT_DIFF_CACHED_NUMSTAT },
+      { status: GIT_DIFF_NAME_STATUS, num: GIT_DIFF_NUMSTAT },
     ];
 
     logger.info(`[getChangedFilesListFormat] Executing ${commands.length} git command pairs`);
@@ -218,16 +223,16 @@ async function getChangedFilesListFormat(workspacePath: string): Promise<string>
     return lines.join('\n');
   } catch (error) {
     logger.error(`[getChangedFilesListFormat] Error executing git commands: ${error}`);
-    return 'Not a git repository';
+    return NOT_GIT_REPO_MESSAGE;
   }
 }
 
 async function getChangedFilesListFormatWithSummary(workspacePath: string): Promise<ChangedFilesResult> {
   try {
     const commands = [
-      { status: `git diff ${BASE_BRANCH}...HEAD --name-status`, num: `git diff ${BASE_BRANCH}...HEAD --numstat` },
-      { status: 'git diff --cached --name-status', num: 'git diff --cached --numstat' },
-      { status: 'git diff --name-status', num: 'git diff --numstat' },
+      { status: GIT_DIFF_BASE_BRANCH_NAME_STATUS, num: GIT_DIFF_BASE_BRANCH_NUMSTAT },
+      { status: GIT_DIFF_CACHED_NAME_STATUS, num: GIT_DIFF_CACHED_NUMSTAT },
+      { status: GIT_DIFF_NAME_STATUS, num: GIT_DIFF_NUMSTAT },
     ];
 
     const results = await Promise.all(
@@ -286,11 +291,15 @@ async function getChangedFilesListFormatWithSummary(workspacePath: string): Prom
       lines.push(`${statusSymbol}  ${file}${padding}(+${stats.added} -${stats.deleted})`);
     }
 
+    const formattedSummary = formatChangedFilesSummary(summary);
     const sectionMetadata = {
       filesCount: statusMap.size,
       added: summary.added,
       modified: summary.modified,
       deleted: summary.deleted,
+      summary: formattedSummary,
+      isEmpty: statusMap.size === 0,
+      description: formattedSummary,
     };
 
     return {
@@ -299,7 +308,7 @@ async function getChangedFilesListFormatWithSummary(workspacePath: string): Prom
       sectionMetadata,
     };
   } catch {
-    return { content: 'Not a git repository', summary: BRANCH_CONTEXT_NO_CHANGES };
+    return { content: NOT_GIT_REPO_MESSAGE, summary: BRANCH_CONTEXT_NO_CHANGES };
   }
 }
 

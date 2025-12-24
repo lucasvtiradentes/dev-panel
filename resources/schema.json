@@ -24,7 +24,6 @@
           "description": "Execution mode for prompts with saveOutput: \"timestamped\" creates new file each time with timestamp, \"overwrite\" replaces previous file",
           "type": "string",
           "enum": [
-            "timestamped",
             "overwrite"
           ]
         },
@@ -143,14 +142,6 @@
                   "type": "string"
                 },
                 "additionalProperties": {}
-              },
-              "emptyValue": {
-                "description": "Value that indicates the section is empty (used with hideEmptySections)",
-                "type": "string"
-              },
-              "descriptionTemplate": {
-                "description": "Template for description shown in view. Use {{key}} to interpolate metadata values (e.g., \"{{prCommentsCount}} PR / {{reviewCommentsCount}} Review\")",
-                "type": "string"
               }
             },
             "required": [
@@ -159,16 +150,6 @@
             ],
             "additionalProperties": false
           }
-        },
-        "autoSyncInterval": {
-          "description": "Auto-sync interval in seconds. 0 = disabled (default), any positive number enables periodic sync",
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 9007199254740991
-        },
-        "hideEmptySections": {
-          "description": "Hide sections that have no value set (N/A or empty)",
-          "type": "boolean"
         }
       },
       "required": [

@@ -1,17 +1,21 @@
 import * as vscode from 'vscode';
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, EXTENSION_DISPLAY_NAME, PROMPTS_DIR_NAME } from '../../common/constants';
+import {
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  CONFIG_SCHEMA_PATH,
+  DEFAULT_AI_PROVIDER,
+  DEFAULT_EXCLUDES,
+  EXTENSION_DISPLAY_NAME,
+  PROMPTS_DIR_NAME,
+} from '../../common/constants';
 import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 
 const INIT_CONFIG_CONTENT = `{
-  "$schema": "../resources/schema.json",
+  "$schema": "${CONFIG_SCHEMA_PATH}",
   "settings": {
-    "aiProvider": "claude",
-    "exclude": [
-      "**/${CONFIG_DIR_NAME}/**",
-      "**/node_modules/**",
-      "**/dist/**"
-    ]
+    "aiProvider": "${DEFAULT_AI_PROVIDER}",
+    "exclude": ${JSON.stringify([`**/${CONFIG_DIR_NAME}/**`, ...DEFAULT_EXCLUDES], null, 4).replace(/\n/g, '\n    ')}
   },
   "variables": [
     {

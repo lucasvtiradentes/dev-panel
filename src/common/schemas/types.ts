@@ -1,12 +1,15 @@
 export type SectionMetadata = Record<string, unknown>;
 
 export type BranchContextMetadata = {
-  changedFilesSummary?: string;
+  lastCommitHash?: string;
+  lastCommitMessage?: string;
+  lastSyncedTime?: string;
   sections?: Record<string, SectionMetadata>;
 };
 
 export type BranchContext = {
   branchName?: string;
+  branchType?: string;
   prLink?: string;
   linearLink?: string;
   objective?: string;

@@ -24,8 +24,15 @@ export enum AIProvider {
   CursorAgent = 'cursor-agent',
 }
 
+export function getAIProvidersList(): string[] {
+  return Object.values(AIProvider);
+}
+
+export function getAIProvidersListFormatted(): string {
+  return getAIProvidersList().join(', ');
+}
+
 export enum PromptExecutionMode {
-  Timestamped = 'timestamped',
   Overwrite = 'overwrite',
 }
 
@@ -245,13 +252,6 @@ const BranchContextSectionSchema = z.object({
     .record(z.string(), z.any())
     .optional()
     .describe('Custom options passed to the provider (e.g., { includeReviewComments: true })'),
-  emptyValue: z.string().optional().describe('Value that indicates the section is empty (used with hideEmptySections)'),
-  descriptionTemplate: z
-    .string()
-    .optional()
-    .describe(
-      'Template for description shown in view. Use {{key}} to interpolate metadata values (e.g., "{{prCommentsCount}} PR / {{reviewCommentsCount}} Review")',
-    ),
 });
 
 const BranchContextProviderSchema = z.object({
@@ -280,13 +280,6 @@ const BranchContextConfigSchema = z.object({
     .optional()
     .describe('Custom sections to include in branch context')
     .default([]),
-  autoSyncInterval: z
-    .number()
-    .int()
-    .min(0)
-    .optional()
-    .describe('Auto-sync interval in seconds. 0 = disabled (default), any positive number enables periodic sync'),
-  hideEmptySections: z.boolean().optional().describe('Hide sections that have no value set (N/A or empty)'),
 });
 
 export const PPConfigSchema = z
@@ -303,16 +296,9 @@ export const PPConfigSchema = z
   .describe(`${EXTENSION_DISPLAY_NAME} configuration file`);
 
 export type PPInput = z.infer<typeof PPInputSchema>;
-export type PPPromptInput = PPInput;
 export type PPPrompt = z.infer<typeof PPPromptSchema>;
 export type PPSettings = z.infer<typeof PPSettingsSchema>;
 export type PPConfig = z.infer<typeof PPConfigSchema>;
-export type PPTask = z.infer<typeof PPTaskSchema>;
-export type PPTool = z.infer<typeof PPToolSchema>;
 export type PPVariable = z.infer<typeof PPVariableSchema>;
 export type PPReplacement = z.infer<typeof PPReplacementSchema>;
-export type PPReplacementPatch = z.infer<typeof PPReplacementPatchSchema>;
 export type BranchContextConfig = z.infer<typeof BranchContextConfigSchema>;
-export type BranchContextSection = z.infer<typeof BranchContextSectionSchema>;
-export type BranchContextProviderConfig = z.infer<typeof BranchContextProviderSchema>;
-export type BuiltinSections = z.infer<typeof BuiltinSectionsSchema>;

@@ -19,16 +19,6 @@ export function initGlobalState(context: vscode.ExtensionContext): void {
   _context = context;
 }
 
-export function resetGlobalState(): void {
-  if (!_context) return;
-  const cleanState: GlobalUIState = {
-    tasks: { ...DEFAULT_TASKS_GLOBAL_STATE },
-    tools: { ...DEFAULT_TOOLS_STATE },
-    prompts: { ...DEFAULT_PROMPTS_STATE },
-  };
-  void _context.globalState.update(GLOBAL_STATE_KEY, cleanState);
-}
-
 export function migrateGlobalState(): void {
   if (!_context) return;
   const state = getState();

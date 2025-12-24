@@ -15,8 +15,10 @@
     ]
   },
   "branchContext": {
-    "hideEmptySections": true,
     "builtinSections": {
+      // "changedFiles": {
+      //   "provider": "tsx ./plugins/tree-changed-files.ts"
+      // },
       "changedFiles": true,
       "tasks": true
     },
@@ -25,12 +27,10 @@
         "name": "GITHUB PR COMMENTS",
         "label": "Github PR comments",
         "type": "auto",
-        "provider": "node ./plugins/github-pr-comments.js",
+        "provider": "tsx ./plugins/github-pr-comments.ts",
         "icon": "github",
-        "emptyValue": "No PR link set",
-        "descriptionTemplate": "{{prCommentsCount}} PR / {{reviewCommentsCount}} Review",
         "options": {
-          "includeRegularComments": true,
+          "includeRegularComments": false,
           "includeReviewComments": true
         }
       },
@@ -38,10 +38,8 @@
         "name": "LINEAR ISSUE",
         "label": "Linear issue",
         "type": "auto",
-        "provider": "node ./plugins/linear-issue.js",
-        "icon": "link-external",
-        "emptyValue": "No Linear link set",
-        "descriptionTemplate": "{{state}} · {{commentsCount}} comments"
+        "provider": "tsx ./plugins/linear-issue.ts",
+        "icon": "link-external"
       }
     ]
   },

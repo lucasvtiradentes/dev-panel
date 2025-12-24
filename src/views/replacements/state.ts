@@ -8,5 +8,4 @@ export const setActiveReplacements = (active: string[]) => replacementsState.set
 export const addActiveReplacement = (name: string) => replacementsState.addActiveReplacement(name);
 export const removeActiveReplacement = (name: string) => replacementsState.removeActiveReplacement(name);
 
-export const getLastBranch = () => replacementsState.getLastBranch();
 export const setLastBranch = (branch: string) => replacementsState.setLastBranch(branch);

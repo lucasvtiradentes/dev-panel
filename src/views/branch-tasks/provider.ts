@@ -1,8 +1,16 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { CONFIG_FILE_NAME, CONTEXT_VALUES, getCommandId } from '../../common/constants';
+import {
+  CONFIG_FILE_NAME,
+  CONTEXT_VALUES,
+  EMPTY_TASKS_MESSAGE,
+  FILE_WATCHER_DEBOUNCE_MS,
+  NO_PENDING_TASKS_MESSAGE,
+  getCommandId,
+} from '../../common/constants';
 import { getBranchContextGlobPattern, getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
+import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas/config-schema';
@@ -57,6 +65,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
   private showOnlyTodo = false;
   private grouped = true;
   private taskProvider: TaskSyncProvider;
+  private fileChangeDebounce: NodeJS.Timeout | null = null;
 
   constructor() {
     const workspace = getWorkspacePath();
@@ -144,8 +153,21 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
     this.markdownWatcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(workspace, globPattern));
 
     this.markdownWatcher.onDidChange((uri) => {
+      if (extensionStore.get(StoreKey.IsWritingBranchContext)) {
+        logger.info(`[BranchTasksProvider] Ignoring file change during sync: ${uri.fsPath}`);
+        return;
+      }
+
       logger.info(`[BranchTasksProvider] File changed: ${uri.fsPath}, currentBranch: ${this.currentBranch}`);
-      this.refresh();
+
+      if (this.fileChangeDebounce) {
+        clearTimeout(this.fileChangeDebounce);
+      }
+
+      this.fileChangeDebounce = setTimeout(() => {
+        this.refresh();
+        this.fileChangeDebounce = null;
+      }, FILE_WATCHER_DEBOUNCE_MS);
     });
   }
 
@@ -211,7 +233,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
     }
 
     if (processedNodes.length === 0) {
-      const message = this.showOnlyTodo ? 'No pending tasks' : 'Click to add tasks';
+      const message = this.showOnlyTodo ? NO_PENDING_TASKS_MESSAGE : EMPTY_TASKS_MESSAGE;
       const openFileItem = new vscode.TreeItem(message);
       openFileItem.command = {
         command: getCommandId(Command.OpenBranchContextFile),

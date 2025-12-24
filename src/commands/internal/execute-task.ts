@@ -12,11 +12,23 @@ import { getPromptOutputFilePath, getWorkspaceConfigFilePath } from '../../commo
 import { collectInputs, replaceInputPlaceholders } from '../../common/lib/inputs';
 import { createLogger } from '../../common/lib/logger';
 import { Command, isMultiRootWorkspace, registerCommand } from '../../common/lib/vscode-utils';
-import { type PPConfig, type PPPrompt, type PPSettings, PromptExecutionMode } from '../../common/schemas';
+import {
+  type PPConfig,
+  type PPPrompt,
+  type PPSettings,
+  PromptExecutionMode,
+  getAIProvidersListFormatted,
+} from '../../common/schemas';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';
 
 const log = createLogger('execute-task');
+
+export type ExecutePromptParams = {
+  promptFilePath: string;
+  folder: vscode.WorkspaceFolder | null;
+  promptConfig?: PPPrompt;
+};
 
 function readPPVariablesAsEnv(workspacePath: string): Record<string, string> {
   const variablesPath = `${workspacePath}/${CONFIG_DIR_NAME}/${VARIABLES_FILE_NAME}`;
@@ -234,7 +246,7 @@ function replaceVariablePlaceholders(content: string, variables: Record<string, 
 export function createExecutePromptCommand() {
   return registerCommand(
     Command.ExecutePrompt,
-    async (promptFilePath: string, folder: vscode.WorkspaceFolder | null, promptConfig?: PPPrompt) => {
+    async ({ promptFilePath, folder, promptConfig }: ExecutePromptParams) => {
       log.info('=== ExecutePrompt called ===');
       log.info(`promptFilePath: ${promptFilePath}`);
       log.info(`folder: ${folder ? folder.name : 'null (global)'}`);
@@ -273,7 +285,7 @@ export function createExecutePromptCommand() {
       const provider = getProvider(settings?.aiProvider);
       if (!provider) {
         void vscode.window.showErrorMessage(
-          `AI provider not configured. Set "settings.aiProvider" in ${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME} (claude, gemini, or cursor-agent)`,
+          `AI provider not configured. Set "settings.aiProvider" in ${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME} (${getAIProvidersListFormatted()})`,
         );
         return;
       }

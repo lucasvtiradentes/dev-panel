@@ -4,6 +4,7 @@ import {
   BRANCH_CONTEXT_FIELD_BRANCH,
   BRANCH_CONTEXT_FIELD_LINEAR_LINK,
   BRANCH_CONTEXT_FIELD_PR_LINK,
+  BRANCH_CONTEXT_FIELD_TYPE,
   BRANCH_CONTEXT_NA,
   BRANCH_CONTEXT_NO_CHANGES,
   BRANCH_CONTEXT_SECTION_BRANCH_INFO,
@@ -14,7 +15,9 @@ import {
   BRANCH_CONTEXT_SECTION_TODO,
   BUILTIN_SECTION_NAMES,
   METADATA_PP_PREFIX,
+  METADATA_PP_REGEX,
   METADATA_SECTION_PREFIX,
+  METADATA_SEPARATOR_REGEX,
   METADATA_SUFFIX,
   SECTION_NAME_CHANGED_FILES,
   SECTION_NAME_NOTES,
@@ -22,18 +25,12 @@ import {
   SECTION_NAME_REQUIREMENTS,
   SECTION_NAME_TASKS,
 } from '../../common/constants';
-import { getBranchContextFilePath, getBranchDirectory } from '../../common/lib/config-manager';
+import { getBranchContextFilePath } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import type { BranchContext, BranchContextMetadata, SectionMetadata } from '../../common/schemas/types';
+import { parseBranchTypeCheckboxes } from './branch-type-utils';
 
 const logger = createLogger('BranchContext');
-
-export function ensureBranchDirectory(workspace: string, branchName: string): void {
-  const dirPath = getBranchDirectory(workspace, branchName);
-  if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true });
-  }
-}
 
 export function loadBranchContextFromFile(workspace: string, branchName: string): BranchContext {
   const filePath = getBranchContextFilePath(workspace, branchName);
@@ -49,13 +46,6 @@ export function loadBranchContextFromFile(workspace: string, branchName: string)
     logger.error(`Failed to load branch context for ${branchName}: ${error}`);
     return {};
   }
-}
-
-export function saveBranchContextToFile(workspace: string, branchName: string, context: BranchContext): void {
-  ensureBranchDirectory(workspace, branchName);
-  const filePath = getBranchContextFilePath(workspace, branchName);
-  const markdown = generateMarkdown(branchName, context);
-  fs.writeFileSync(filePath, markdown, 'utf-8');
 }
 
 function generateMarkdown(branchName: string, context: BranchContext): string {
@@ -100,6 +90,13 @@ function extractField(content: string, fieldName: string): string | undefined {
   const value = match[1].trim();
   if (value === BRANCH_CONTEXT_NA || value === '') return undefined;
   return value;
+}
+
+function extractBranchType(content: string): string | undefined {
+  const fieldValue = extractField(content, BRANCH_CONTEXT_FIELD_TYPE.replace(':', ''));
+  if (!fieldValue) return undefined;
+
+  return parseBranchTypeCheckboxes(fieldValue);
 }
 
 function extractSection(content: string, sectionName: string): string | undefined {
@@ -199,9 +196,11 @@ function extractAllTextSections(content: string, excludeNames: string[]): Record
     const startIndex = match.index + match[0].length;
     const nextMatch = matches[i + 1];
     const endIndex = nextMatch?.index ?? content.length;
-    const sectionContent = content.slice(startIndex, endIndex).trim();
+    let sectionContent = content.slice(startIndex, endIndex).trim();
 
     if (sectionContent.startsWith('```')) continue;
+
+    sectionContent = sectionContent.replace(METADATA_PP_REGEX, '').replace(METADATA_SEPARATOR_REGEX, '').trim();
 
     if (sectionContent && sectionContent !== BRANCH_CONTEXT_NA) {
       const { cleanContent, metadata } = extractSectionMetadata(sectionContent);
@@ -245,6 +244,7 @@ function parseBranchContext(content: string): BranchContext {
 
   const context: BranchContext = {
     branchName: extractField(content, BRANCH_CONTEXT_FIELD_BRANCH.replace(':', '')),
+    branchType: extractBranchType(content),
     prLink: extractField(content, BRANCH_CONTEXT_FIELD_PR_LINK.replace(':', '')),
     linearLink: extractField(content, BRANCH_CONTEXT_FIELD_LINEAR_LINK.replace(':', '')),
     objective: extractSection(content, SECTION_NAME_OBJECTIVE),
@@ -266,8 +266,4 @@ function parseBranchContext(content: string): BranchContext {
   }
 
   return context;
-}
-
-export function branchContextFileExists(workspace: string, branchName: string): boolean {
-  return fs.existsSync(getBranchContextFilePath(workspace, branchName));
 }

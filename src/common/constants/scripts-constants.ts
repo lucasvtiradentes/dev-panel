@@ -22,6 +22,8 @@ export const ROOT_BRANCH_CONTEXT_FILE_NAME = '.branch-context.md';
 export const DEFAULT_INCLUDES = ['**/*'];
 export const DEFAULT_EXCLUDES = ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/out/**'];
 export const DEFAULT_EXCLUDED_DIRS = ['node_modules', 'dist', '.git'];
+export const CONFIG_SCHEMA_PATH = '../resources/schema.json';
+export const DEFAULT_AI_PROVIDER = 'claude';
 
 export const BRANCH_CONTEXT_NA = 'N/A';
 export const BRANCH_CONTEXT_NO_CHANGES = 'No changes';
@@ -30,6 +32,12 @@ export const BRANCH_CONTEXT_DEFAULT_TODOS = '- [ ] task1\n- [ ] task2';
 export const METADATA_PP_PREFIX = '<!-- PP_METADATA: ';
 export const METADATA_SECTION_PREFIX = '<!-- SECTION_METADATA: ';
 export const METADATA_SUFFIX = ' -->';
+export const METADATA_SEPARATOR = '<!-- ------------------- -->';
+export const METADATA_PP_REGEX = /<!--\s*PP_METADATA:.*?-->/;
+export const METADATA_SEPARATOR_REGEX = /<!--\s*-+\s*-->/;
+
+export const METADATA_FIELD_IS_EMPTY = 'isEmpty';
+export const METADATA_FIELD_DESCRIPTION = 'description';
 
 export const DND_MIME_TYPE_TASKS = 'application/vnd.code.tree.projectpaneltasks';
 export const DND_MIME_TYPE_PROMPTS = 'application/vnd.code.tree.projectpanelprompts';
@@ -86,10 +94,6 @@ export function buildLogFilename(isDev: boolean): string {
   return isDev ? `${LOG_BASENAME}-${DEV_SUFFIX}.log` : `${LOG_BASENAME}.log`;
 }
 
-export function sanitizeBranchName(branchName: string): string {
-  return branchName.replace(/[\/\\:*?"<>|]/g, '_');
-}
-
 export function getGlobalConfigDir(): string {
   return path.join(homedir(), CONFIG_DIR_NAME);
 }
@@ -105,3 +109,31 @@ export function getGlobalToolsDir(): string {
 export function getGlobalPromptsDir(): string {
   return path.join(getGlobalConfigDir(), PROMPTS_DIR_NAME);
 }
+
+export const AI_SPEC_PROJECT_TOOLS_REGEX = /<project_tools>[\s\S]*?<\/project_tools>/;
+export const AI_SPEC_AVAILABLE_TOOLS_REGEX = /<available_tools>[\s\S]*?<\/available_tools>/;
+
+export const WORKSPACE_STATE_CONFIG_DIR_KEY = 'pp.configDir';
+
+export const ERROR_MSG_WORKSPACE_REQUIRED = 'File/folder input requires a workspace folder';
+export const ERROR_MSG_INVALID_NUMBER = 'Please enter a valid number';
+
+export const CONFIRM_YES = 'Yes';
+export const CONFIRM_NO = 'No';
+export const CONFIRM_OPTIONS = [CONFIRM_YES, CONFIRM_NO] as const;
+
+export const GLOBAL_ITEM_TOOLTIP_SUFFIX = 'from ~/.pp/config.jsonc';
+export const GLOBAL_PROMPT_TOOLTIP = `Global prompt ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
+export const GLOBAL_TASK_TOOLTIP = `Global task ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
+export const GLOBAL_TOOL_TOOLTIP = `Global tool ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
+
+export const NOT_GIT_REPO_MESSAGE = 'Not a git repository';
+export const EMPTY_TASKS_MESSAGE = 'Click to add tasks';
+export const NO_PENDING_TASKS_MESSAGE = 'No pending tasks';
+
+export const ERROR_REPLACEMENTS_REQUIRE_GIT = 'Replacements require a git repository';
+export const ERROR_TARGET_FILE_NOT_FOUND = 'Target file not found';
+export const ERROR_SOURCE_FILE_NOT_FOUND = 'Source file not found';
+export const ERROR_VARIABLE_COMMAND_FAILED = 'Variable command failed';
+
+export const NPM_RUN_COMMAND = 'npm run';

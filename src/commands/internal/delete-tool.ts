@@ -6,12 +6,11 @@ import {
   CONFIG_FILE_NAME,
   GLOBAL_ITEM_PREFIX,
   TOOLS_DIR,
-  getCommandId,
   getGlobalConfigPath,
   getGlobalToolsDir,
 } from '../../common/constants';
 import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
-import { Command, registerCommand } from '../../common/lib/vscode-utils';
+import { Command, executeCommand, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 import type { TreeTool } from '../../views/tools/items';
 
@@ -60,7 +59,7 @@ async function handleDeleteTool(treeTool: TreeTool): Promise<void> {
     }
 
     vscode.window.showInformationMessage(`✓ Global tool "${toolName}" deleted`);
-    void vscode.commands.executeCommand(getCommandId(Command.RefreshTools));
+    void executeCommand(Command.RefreshTools);
     return;
   }
 
@@ -98,7 +97,7 @@ async function handleDeleteTool(treeTool: TreeTool): Promise<void> {
   }
 
   vscode.window.showInformationMessage(`✓ Tool "${toolName}" deleted`);
-  void vscode.commands.executeCommand(getCommandId(Command.RefreshTools));
+  void executeCommand(Command.RefreshTools);
 }
 
 export function createDeleteToolCommand() {

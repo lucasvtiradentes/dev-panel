@@ -6,6 +6,7 @@ import {
   CONTEXT_VALUES,
   DND_MIME_TYPE_PROMPTS,
   GLOBAL_ITEM_PREFIX,
+  GLOBAL_PROMPT_TOOLTIP,
   NO_GROUP_NAME,
   getCommandId,
   getGlobalConfigDir,
@@ -182,7 +183,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     const treePrompt = new TreePrompt(prompt.name, promptFilePath, vscode.TreeItemCollapsibleState.None, {
       command: getCommandId(Command.ExecutePrompt),
       title: 'Execute',
-      arguments: [promptFilePath, folder, prompt],
+      arguments: [{ promptFilePath, folder, promptConfig: prompt }],
     });
 
     const keybinding = getPromptKeybinding(prompt.name);
@@ -223,7 +224,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
       {
         command: getCommandId(Command.ExecutePrompt),
         title: 'Execute',
-        arguments: [promptFilePath, null, prompt],
+        arguments: [{ promptFilePath, folder: null, promptConfig: prompt }],
       },
     );
 
@@ -235,7 +236,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     if (prompt.description) {
       treePrompt.tooltip = `Global: ${prompt.description}`;
     } else {
-      treePrompt.tooltip = 'Global prompt from ~/.pp/config.jsonc';
+      treePrompt.tooltip = GLOBAL_PROMPT_TOOLTIP;
     }
 
     if (hidden) {
