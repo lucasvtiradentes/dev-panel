@@ -9,6 +9,7 @@ export type BranchContextMetadata = {
 
 export type BranchContext = {
   branchName?: string;
+  branchType?: string;
   prLink?: string;
   linearLink?: string;
   objective?: string;

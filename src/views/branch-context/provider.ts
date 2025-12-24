@@ -4,6 +4,7 @@ import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
+  type BranchType,
   ChangedFilesStyle,
   GIT_LOG_LAST_COMMIT_MESSAGE,
   GIT_REV_PARSE_HEAD,
@@ -37,6 +38,7 @@ import type { PPConfig } from '../../common/schemas/config-schema';
 import { formatRelativeTime } from '../../common/utils/time-formatter';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { validateBranchContext } from './config-validator';
+import { loadBranchContextFromFile } from './file-storage';
 import { formatChangedFilesSummary, getChangedFilesWithSummary } from './git-changed-files';
 import { SectionItem } from './items';
 import { generateBranchContextMarkdown } from './markdown-generator';
@@ -448,6 +450,18 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     await vscode.window.showTextDocument(doc, {
       selection: new vscode.Range(lineNumber, 0, lineNumber, 0),
     });
+  }
+
+  async setBranchType(branchType: BranchType): Promise<void> {
+    const workspace = getWorkspacePath();
+    if (!workspace) return;
+
+    const context = loadBranchContextFromFile(workspace, this.currentBranch);
+    context.branchType = branchType;
+
+    await generateBranchContextMarkdown(this.currentBranch, context);
+    this.syncBranchToRoot();
+    this.refresh();
   }
 
   async syncBranchContext(): Promise<void> {

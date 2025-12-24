@@ -42,8 +42,7 @@
 
 ## TODO
 
-- [ ] adicionar uma description nas views de "replacements" e "tools" -> 3/6 (3 actives de 6 totais)
-- [ ] ao mudar de branch mostrar algo que vai ser: [ ] feature / [ ] bugfix / [ ] other
+- [ ] ao mudar de branch mostrar algo que vai ser: [ ] feature / [ ] bugfix / [ ] chore / [ ] other
 - [ ] ter um registry ou algo assim para adicionar tools nos projetos facilmente
   - prompts
   - tools
@@ -53,6 +52,7 @@
 - [ ] falta adicionar as secoes tasks e notes no branch context menu
 - [ ] ver com claude code como pedir para ele me perguntar me dando opcoes igual acontece no plan mode
 - [ ] plugin para pedir para ia analiser e resumir oq cada commit fez -> se nao tem novo commit nao analisa
+- [ ] botao de IA para a gente preencher os dados do markdown com ia 
 
 ## NAME 
 

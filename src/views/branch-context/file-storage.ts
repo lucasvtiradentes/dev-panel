@@ -4,6 +4,7 @@ import {
   BRANCH_CONTEXT_FIELD_BRANCH,
   BRANCH_CONTEXT_FIELD_LINEAR_LINK,
   BRANCH_CONTEXT_FIELD_PR_LINK,
+  BRANCH_CONTEXT_FIELD_TYPE,
   BRANCH_CONTEXT_NA,
   BRANCH_CONTEXT_NO_CHANGES,
   BRANCH_CONTEXT_SECTION_BRANCH_INFO,
@@ -27,6 +28,7 @@ import {
 import { getBranchContextFilePath } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import type { BranchContext, BranchContextMetadata, SectionMetadata } from '../../common/schemas/types';
+import { parseBranchTypeCheckboxes } from './branch-type-utils';
 
 const logger = createLogger('BranchContext');
 
@@ -88,6 +90,13 @@ function extractField(content: string, fieldName: string): string | undefined {
   const value = match[1].trim();
   if (value === BRANCH_CONTEXT_NA || value === '') return undefined;
   return value;
+}
+
+function extractBranchType(content: string): string | undefined {
+  const fieldValue = extractField(content, BRANCH_CONTEXT_FIELD_TYPE.replace(':', ''));
+  if (!fieldValue) return undefined;
+
+  return parseBranchTypeCheckboxes(fieldValue);
 }
 
 function extractSection(content: string, sectionName: string): string | undefined {
@@ -235,6 +244,7 @@ function parseBranchContext(content: string): BranchContext {
 
   const context: BranchContext = {
     branchName: extractField(content, BRANCH_CONTEXT_FIELD_BRANCH.replace(':', '')),
+    branchType: extractBranchType(content),
     prLink: extractField(content, BRANCH_CONTEXT_FIELD_PR_LINK.replace(':', '')),
     linearLink: extractField(content, BRANCH_CONTEXT_FIELD_LINEAR_LINK.replace(':', '')),
     objective: extractSection(content, SECTION_NAME_OBJECTIVE),
