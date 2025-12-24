@@ -2,19 +2,19 @@ import * as vscode from 'vscode';
 import { createLogger } from '../common/lib/logger';
 import { getCurrentBranch, isGitRepository } from '../views/replacements/git-utils';
 import type { BranchChangeCallback, GitAPI, GitRepository } from './types';
-import { WATCHER_CONSTANTS, getWorkspacePath } from './utils';
+import { GIT_CONSTANTS, WATCHER_CONSTANTS, getWorkspacePath } from './utils';
 
 const logger = createLogger('BranchWatcher');
 
 async function getGitAPI(): Promise<GitAPI | null> {
-  const gitExtension = vscode.extensions.getExtension('vscode.git');
+  const gitExtension = vscode.extensions.getExtension(GIT_CONSTANTS.EXTENSION_ID);
   if (!gitExtension) {
     return null;
   }
   if (!gitExtension.isActive) {
     await gitExtension.activate();
   }
-  return gitExtension.exports.getAPI(1);
+  return gitExtension.exports.getAPI(GIT_CONSTANTS.API_VERSION);
 }
 
 export function createBranchWatcher(onBranchChange: BranchChangeCallback): vscode.Disposable {
@@ -67,7 +67,9 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): vscod
     const workspace = getWorkspacePath();
     if (!workspace) return;
 
-    headWatcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(workspace, '.git/HEAD'));
+    headWatcher = vscode.workspace.createFileSystemWatcher(
+      new vscode.RelativePattern(workspace, GIT_CONSTANTS.HEAD_FILE_PATH),
+    );
 
     headWatcher.onDidChange(() => void handleBranchChange());
     disposables.push(headWatcher);
