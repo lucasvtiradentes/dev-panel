@@ -1,16 +1,7 @@
-import * as fs from 'node:fs';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import {
-  CONFIG_DIR_KEY,
   GLOBAL_STATE_WORKSPACE_SOURCE,
-  TOOL_TASK_TYPE,
-  getPromptCommandId,
-  getReplacementCommandId,
-  getTaskCommandId,
-  getToolCommandId,
-  getVariableCommandId,
   getViewIdBranchContext,
   getViewIdConfigs,
   getViewIdPrompts,
@@ -19,21 +10,18 @@ import {
   getViewIdTodos,
   getViewIdTools,
 } from './common/constants';
-import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from './common/lib/config-manager';
 import { extensionStore } from './common/lib/extension-store';
 import { initGlobalState, migrateGlobalState } from './common/lib/global-state';
-import { syncKeybindings } from './common/lib/keybindings-sync';
 import { logger } from './common/lib/logger';
-import {
-  Command,
-  ContextKey,
-  executeCommand,
-  generateWorkspaceId,
-  setContextKey,
-  setWorkspaceId,
-} from './common/lib/vscode-utils';
+import { ContextKey, generateWorkspaceId, setContextKey, setWorkspaceId } from './common/lib/vscode-utils';
 import { initWorkspaceState } from './common/lib/workspace-state';
-import type { PPConfig } from './common/schemas';
+import {
+  registerPromptKeybindings,
+  registerReplacementKeybindings,
+  registerTaskKeybindings,
+  registerToolKeybindings,
+  registerVariableKeybindings,
+} from './keybindings/register-keybindings';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import { BranchContextProvider } from './views/branch-context';
 import { ensureTemplateExists } from './views/branch-context/template-initializer';
@@ -49,124 +37,6 @@ import { VariablesProvider } from './views/variables';
 import { createBranchWatcher } from './watchers/branch-watcher';
 import { createConfigWatcher } from './watchers/config-watcher';
 import { createKeybindingsWatcher } from './watchers/keybindings-watcher';
-
-function registerToolKeybindings(context: vscode.ExtensionContext): void {
-  const folders = vscode.workspace.workspaceFolders ?? [];
-  if (!folders || folders.length === 0) return;
-
-  for (const folder of folders) {
-    const configPath = getWorkspaceConfigFilePath(folder, 'config.jsonc');
-    if (!fs.existsSync(configPath)) continue;
-
-    const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
-    const tools = config.tools ?? [];
-
-    for (const tool of tools) {
-      if (!tool.command) continue;
-      const commandId = getToolCommandId(tool.name);
-      const disposable = vscode.commands.registerCommand(commandId, () => {
-        const configDirPath = getWorkspaceConfigDirPath(folder);
-        const shellExec = new vscode.ShellExecution(tool.command!, { cwd: configDirPath });
-        const task = new vscode.Task({ type: TOOL_TASK_TYPE }, folder, tool.name, TOOL_TASK_TYPE, shellExec);
-        void vscode.tasks.executeTask(task);
-      });
-      context.subscriptions.push(disposable);
-    }
-  }
-  syncKeybindings();
-}
-
-function registerPromptKeybindings(context: vscode.ExtensionContext): void {
-  const folders = vscode.workspace.workspaceFolders ?? [];
-  if (!folders || folders.length === 0) return;
-
-  for (const folder of folders) {
-    const configPath = getWorkspaceConfigFilePath(folder, 'config.jsonc');
-    if (!fs.existsSync(configPath)) continue;
-
-    const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
-    const prompts = config.prompts ?? [];
-
-    for (const prompt of prompts) {
-      const commandId = getPromptCommandId(prompt.name);
-      const configDirPath = getWorkspaceConfigDirPath(folder);
-      const promptFilePath = `${configDirPath}/${prompt.file}`;
-      const disposable = vscode.commands.registerCommand(commandId, () => {
-        void executeCommand(Command.ExecutePrompt, { promptFilePath, folder, promptConfig: prompt });
-      });
-      context.subscriptions.push(disposable);
-    }
-  }
-  syncKeybindings();
-}
-
-function registerReplacementKeybindings(context: vscode.ExtensionContext): void {
-  const folders = vscode.workspace.workspaceFolders ?? [];
-  if (!folders || folders.length === 0) return;
-
-  for (const folder of folders) {
-    const configPath = getWorkspaceConfigFilePath(folder, 'config.jsonc');
-    if (!fs.existsSync(configPath)) continue;
-
-    const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
-    const replacements = config.replacements ?? [];
-
-    for (const replacement of replacements) {
-      const commandId = getReplacementCommandId(replacement.name);
-      const disposable = vscode.commands.registerCommand(commandId, () => {
-        void executeCommand(Command.ToggleReplacement, replacement);
-      });
-      context.subscriptions.push(disposable);
-    }
-  }
-  syncKeybindings();
-}
-
-function registerVariableKeybindings(context: vscode.ExtensionContext): void {
-  const folders = vscode.workspace.workspaceFolders ?? [];
-  if (!folders || folders.length === 0) return;
-
-  for (const folder of folders) {
-    const configPath = getWorkspaceConfigFilePath(folder, 'config.jsonc');
-    if (!fs.existsSync(configPath)) continue;
-
-    const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
-    const variables = config.variables ?? [];
-
-    for (const variable of variables) {
-      const commandId = getVariableCommandId(variable.name);
-      const disposable = vscode.commands.registerCommand(commandId, () => {
-        void executeCommand(Command.SelectConfigOption, variable);
-      });
-      context.subscriptions.push(disposable);
-    }
-  }
-  syncKeybindings();
-}
-
-function registerTaskKeybindings(context: vscode.ExtensionContext): void {
-  const folders = vscode.workspace.workspaceFolders ?? [];
-  if (!folders || folders.length === 0) return;
-
-  for (const folder of folders) {
-    const configPath = getWorkspaceConfigFilePath(folder, 'config.jsonc');
-    if (!fs.existsSync(configPath)) continue;
-
-    const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
-    const tasks = config.tasks ?? [];
-
-    for (const task of tasks) {
-      const commandId = getTaskCommandId(task.name);
-      const disposable = vscode.commands.registerCommand(commandId, () => {
-        const shellExec = new vscode.ShellExecution(task.command);
-        const vsTask = new vscode.Task({ type: CONFIG_DIR_KEY }, folder, task.name, CONFIG_DIR_KEY, shellExec);
-        void vscode.tasks.executeTask(vsTask);
-      });
-      context.subscriptions.push(disposable);
-    }
-  }
-  syncKeybindings();
-}
 
 export function activate(context: vscode.ExtensionContext): object {
   const activateStart = Date.now();

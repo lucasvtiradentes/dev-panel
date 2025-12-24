@@ -48,6 +48,7 @@
 - [ ] ajeitar o branch tasks para ter status: to do / doing / done 
 - [ ] falta adicionar as secoes tasks e notes no branch context menu
 - [ ] ver com claude code como pedir para ele me perguntar me dando opcoes igual acontece no plan mode
+- [ ] plugin para pedir para ia analiser e resumir oq cada commit fez -> se nao tem novo commit nao analisa
 
 ## NAME 
 
