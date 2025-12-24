@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { TOOL_TASK_TYPE, getToolCommandId, getToolCommandPrefix } from '../../common/constants';
+import { TOOL_TASK_TYPE, getGlobalConfigDir, getToolCommandId, getToolCommandPrefix } from '../../common/constants';
 import { getWorkspaceConfigDirPath } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
-import { forEachWorkspaceConfig } from '../../common/utils/config-loader';
+import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/utils/config-loader';
 import { KeybindingManager } from '../common';
 
 const manager = new KeybindingManager({
@@ -29,5 +29,29 @@ export function registerToolKeybindings(context: vscode.ExtensionContext): void 
       context.subscriptions.push(disposable);
     }
   });
+
+  const globalConfig = loadGlobalConfig();
+  if (globalConfig) {
+    const globalTools = globalConfig.tools ?? [];
+    const globalConfigDir = getGlobalConfigDir();
+
+    for (const tool of globalTools) {
+      if (!tool.command) continue;
+      const commandId = getToolCommandId(tool.name);
+      const disposable = vscode.commands.registerCommand(commandId, () => {
+        const shellExec = new vscode.ShellExecution(tool.command as string, { cwd: globalConfigDir });
+        const task = new vscode.Task(
+          { type: TOOL_TASK_TYPE },
+          vscode.TaskScope.Global,
+          tool.name,
+          TOOL_TASK_TYPE,
+          shellExec,
+        );
+        void vscode.tasks.executeTask(task);
+      });
+      context.subscriptions.push(disposable);
+    }
+  }
+
   syncKeybindings();
 }

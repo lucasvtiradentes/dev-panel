@@ -20,7 +20,6 @@ import { promptsState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas';
 import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../common';
 import { PromptGroupTreeItem, TreePrompt } from './items';
-import { getPromptKeybinding } from './keybindings-local';
 import { isFavorite, isHidden } from './state';
 
 const log = createLogger('prompts-provider');
@@ -186,12 +185,6 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
       arguments: [{ promptFilePath, folder, promptConfig: prompt }],
     });
 
-    const keybinding = getPromptKeybinding(prompt.name);
-
-    if (keybinding) {
-      treePrompt.description = keybinding;
-    }
-
     if (prompt.description) {
       treePrompt.tooltip = prompt.description;
     }
@@ -227,11 +220,6 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
         arguments: [{ promptFilePath, folder: null, promptConfig: prompt }],
       },
     );
-
-    const keybinding = getPromptKeybinding(prompt.name);
-    if (keybinding) {
-      treePrompt.description = keybinding;
-    }
 
     if (prompt.description) {
       treePrompt.tooltip = `Global: ${prompt.description}`;

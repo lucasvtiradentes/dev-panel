@@ -19,7 +19,6 @@ import type { PPConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
 import { readPPVariablesAsEnv } from '../../common/utils/variables-env';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
-import { getTaskKeybinding } from './keybindings-local';
 import { isFavorite, isHidden } from './state';
 
 export function hasPPGroups(): boolean {
@@ -157,11 +156,6 @@ function createPPTask(
     folder,
   );
 
-  const keybinding = getTaskKeybinding(task.name);
-  if (keybinding) {
-    treeTask.description = keybinding;
-  }
-
   if (task.description) {
     treeTask.tooltip = task.description;
   }
@@ -221,11 +215,6 @@ function createGlobalTask(
       arguments: [vsTask, null, task],
     },
   );
-
-  const keybinding = getTaskKeybinding(task.name);
-  if (keybinding) {
-    treeTask.description = keybinding;
-  }
 
   if (task.description) {
     treeTask.tooltip = `Global: ${task.description}`;

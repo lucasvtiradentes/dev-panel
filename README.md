@@ -55,11 +55,6 @@
   - scripts
   - plugins
 
-## ATALHOS
-
-- [ ] remover atalhos individuais dos tree items
-- [ ] nao ta dando para atribuir atalho em global prompts/tools/tasks
-
 ## TASKS
 
 - [ ] falta adicionar as secoes tasks no branch context menu
@@ -67,6 +62,7 @@
 
 ## TODO
 
+- [ ] ao mudar de branch nao estamos mudando de "branch type" - ta ficando como other
 - [ ] botao de IA para a gente preencher os dados do markdown com ia 
 
 ## NAME 

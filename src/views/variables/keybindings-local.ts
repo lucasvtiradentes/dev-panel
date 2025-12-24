@@ -5,7 +5,7 @@ import { CONTEXT_PREFIX, getVariableCommandId, getVariableCommandPrefix } from '
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { getVSCodeKeybindingsPath } from '../../common/lib/vscode-keybindings-utils';
 import { Command, executeCommand, getWorkspaceId } from '../../common/lib/vscode-utils';
-import { forEachWorkspaceConfig } from '../../common/utils/config-loader';
+import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/utils/config-loader';
 
 type VSCodeKeybinding = { key: string; command: string; when?: string };
 
@@ -61,5 +61,19 @@ export function registerVariableKeybindings(context: vscode.ExtensionContext): v
       context.subscriptions.push(disposable);
     }
   });
+
+  const globalConfig = loadGlobalConfig();
+  if (globalConfig) {
+    const globalVariables = globalConfig.variables ?? [];
+
+    for (const variable of globalVariables) {
+      const commandId = getVariableCommandId(variable.name);
+      const disposable = vscode.commands.registerCommand(commandId, () => {
+        void executeCommand(Command.SelectConfigOption, variable);
+      });
+      context.subscriptions.push(disposable);
+    }
+  }
+
   syncKeybindings();
 }

@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import { getPromptCommandId, getPromptCommandPrefix } from '../../common/constants';
+import { getGlobalConfigDir, getPromptCommandId, getPromptCommandPrefix } from '../../common/constants';
 import { getWorkspaceConfigDirPath } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { Command, executeCommand } from '../../common/lib/vscode-utils';
-import { forEachWorkspaceConfig } from '../../common/utils/config-loader';
+import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/utils/config-loader';
 import { KeybindingManager } from '../common';
 
 const manager = new KeybindingManager({
@@ -29,5 +29,21 @@ export function registerPromptKeybindings(context: vscode.ExtensionContext): voi
       context.subscriptions.push(disposable);
     }
   });
+
+  const globalConfig = loadGlobalConfig();
+  if (globalConfig) {
+    const globalPrompts = globalConfig.prompts ?? [];
+    const globalConfigDir = getGlobalConfigDir();
+
+    for (const prompt of globalPrompts) {
+      const commandId = getPromptCommandId(prompt.name);
+      const promptFilePath = `${globalConfigDir}/${prompt.file}`;
+      const disposable = vscode.commands.registerCommand(commandId, () => {
+        void executeCommand(Command.ExecutePrompt, { promptFilePath, folder: null, promptConfig: prompt });
+      });
+      context.subscriptions.push(disposable);
+    }
+  }
+
   syncKeybindings();
 }

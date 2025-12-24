@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { CONFIG_FILE_NAME } from '../constants';
+import { CONFIG_FILE_NAME, getGlobalConfigPath } from '../constants';
 import { getWorkspaceConfigFilePath } from '../lib/config-manager';
 import type { PPConfig } from '../schemas';
 
@@ -25,5 +25,16 @@ export function forEachWorkspaceConfig(callback: (folder: vscode.WorkspaceFolder
     if (!config) continue;
 
     callback(folder, config);
+  }
+}
+
+export function loadGlobalConfig(): PPConfig | null {
+  const configPath = getGlobalConfigPath();
+  if (!fs.existsSync(configPath)) return null;
+
+  try {
+    return JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
+  } catch {
+    return null;
   }
 }

@@ -23,7 +23,6 @@ import {
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/lib/file-selection';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { PPSettings } from '../../common/schemas';
-import { getVariableKeybinding } from './keybindings-local';
 import { getIsGrouped, saveIsGrouped } from './state';
 
 const execAsync = promisify(exec);
@@ -110,9 +109,8 @@ export class VariableTreeItem extends vscode.TreeItem {
   ) {
     super(variable.name, vscode.TreeItemCollapsibleState.None);
     this.contextValue = CONTEXT_VALUES.VARIABLE_ITEM;
-    const keybinding = getVariableKeybinding(variable.name);
     const value = formatValue(currentValue, variable);
-    this.description = keybinding ? `${value} • ${keybinding}` : value;
+    this.description = value;
     if (variable.description) {
       this.tooltip = variable.description;
     }
