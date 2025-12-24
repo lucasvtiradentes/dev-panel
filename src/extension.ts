@@ -113,9 +113,13 @@ function setupTreeViews(providers: Providers): void {
   });
   providers.promptTreeDataProvider.setTreeView(promptsTreeView);
 
+  const branchContextTreeView = vscode.window.createTreeView(getViewIdBranchContext(), {
+    treeDataProvider: providers.branchContextProvider,
+  });
+  providers.branchContextProvider.setTreeView(branchContextTreeView);
+
   vscode.window.registerTreeDataProvider(getViewIdConfigs(), providers.variablesProvider);
   vscode.window.registerTreeDataProvider(getViewIdReplacements(), providers.replacementsProvider);
-  vscode.window.registerTreeDataProvider(getViewIdBranchContext(), providers.branchContextProvider);
   vscode.window.registerTreeDataProvider(getViewIdTodos(), providers.branchTasksProvider);
 }
 

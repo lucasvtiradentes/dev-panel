@@ -34,6 +34,7 @@ import { createLogger } from '../../common/lib/logger';
 import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { branchContextState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas/config-schema';
+import { formatRelativeTime } from '../../common/utils/time-formatter';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { validateBranchContext } from './config-validator';
 import { formatChangedFilesSummary, getChangedFilesWithSummary } from './git-changed-files';
@@ -64,12 +65,36 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   private syncDebounceTimer: NodeJS.Timeout | null = null;
   private lastSyncDirection: 'root-to-branch' | 'branch-to-root' | null = null;
   private validationIndicator: ValidationIndicator;
+  private treeView: vscode.TreeView<vscode.TreeItem> | null = null;
+  private descriptionInterval: NodeJS.Timeout | null = null;
 
   constructor() {
     this.validationIndicator = new ValidationIndicator();
     this.setupMarkdownWatcher();
     this.setupRootMarkdownWatcher();
     this.setupTemplateWatcher();
+  }
+
+  setTreeView(treeView: vscode.TreeView<vscode.TreeItem>): void {
+    this.treeView = treeView;
+    this.updateDescription();
+    this.descriptionInterval = setInterval(() => {
+      this.updateDescription();
+    }, 60000);
+  }
+
+  private updateDescription(): void {
+    if (!this.treeView) return;
+
+    const context = loadBranchContext(this.currentBranch);
+    const lastSyncedTime = context.metadata?.lastSyncedTime;
+
+    if (lastSyncedTime) {
+      const timestamp = new Date(lastSyncedTime as string).getTime();
+      this.treeView.description = formatRelativeTime(timestamp);
+    } else {
+      this.treeView.description = undefined;
+    }
   }
 
   private setupMarkdownWatcher(): void {
@@ -289,6 +314,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
   refresh(): void {
     void setContextKey(ContextKey.BranchContextHideEmptySections, branchContextState.getHideEmptySections());
+    this.updateDescription();
     this._onDidChangeTreeData.fire(undefined);
   }
 
@@ -565,6 +591,10 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     if (this.syncDebounceTimer) {
       clearTimeout(this.syncDebounceTimer);
       this.syncDebounceTimer = null;
+    }
+    if (this.descriptionInterval) {
+      clearInterval(this.descriptionInterval);
+      this.descriptionInterval = null;
     }
     this.markdownWatcher?.dispose();
     this.rootMarkdownWatcher?.dispose();
