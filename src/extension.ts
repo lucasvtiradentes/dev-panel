@@ -261,7 +261,7 @@ export function activate(context: vscode.ExtensionContext): object {
   logger.info(`[activate] Creating branchWatcher (+${Date.now() - activateStart}ms)`);
   const branchWatcher = createBranchWatcher((newBranch) => {
     logger.info(`[branchWatcher] Branch changed to: ${newBranch}`);
-    branchContextProvider.setBranch(newBranch);
+    branchContextProvider.setBranch(newBranch, false);
     branchTasksProvider.setBranch(newBranch);
     void replacementsProvider.handleBranchChange(newBranch);
     void branchContextProvider.syncBranchContext();

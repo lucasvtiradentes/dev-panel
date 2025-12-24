@@ -219,14 +219,16 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
   }
 
-  setBranch(branchName: string): void {
+  setBranch(branchName: string, shouldRefresh = true): void {
     logger.info(`[BranchContextProvider] setBranch called: ${branchName} (current: ${this.currentBranch})`);
 
     if (branchName !== this.currentBranch) {
       this.cancelAutoSync();
       this.currentBranch = branchName;
-      logger.info('[BranchContextProvider] Branch changed, refreshing');
-      this.refresh();
+      if (shouldRefresh) {
+        logger.info('[BranchContextProvider] Branch changed, refreshing');
+        this.refresh();
+      }
     }
   }
 
