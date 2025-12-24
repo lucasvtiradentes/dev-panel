@@ -15,6 +15,7 @@ import { CONFIG_FILE_NAME, ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/co
 import {
   getBranchContextFilePath as getBranchContextFilePathUtil,
   getBranchContextGlobPattern,
+  getBranchContextTemplatePath,
   getConfigFilePathFromWorkspacePath,
 } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
@@ -41,6 +42,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
   private markdownWatcher: vscode.FileSystemWatcher | null = null;
   private rootMarkdownWatcher: vscode.FileSystemWatcher | null = null;
+  private templateWatcher: vscode.FileSystemWatcher | null = null;
   private currentBranch = '';
   private isWritingMarkdown = false;
   private isSyncing = false;
@@ -52,6 +54,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     this.validationIndicator = new ValidationIndicator();
     this.setupMarkdownWatcher();
     this.setupRootMarkdownWatcher();
+    this.setupTemplateWatcher();
   }
 
   private setupMarkdownWatcher(): void {
@@ -75,6 +78,23 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
     this.rootMarkdownWatcher.onDidChange(() => this.handleRootMarkdownChange());
     this.rootMarkdownWatcher.onDidCreate(() => this.handleRootMarkdownChange());
+  }
+
+  private setupTemplateWatcher(): void {
+    const workspace = getWorkspacePath();
+    if (!workspace) return;
+
+    const templatePath = getBranchContextTemplatePath(workspace);
+    this.templateWatcher = vscode.workspace.createFileSystemWatcher(templatePath);
+
+    this.templateWatcher.onDidChange(() => this.handleTemplateChange());
+    this.templateWatcher.onDidCreate(() => this.handleTemplateChange());
+  }
+
+  private handleTemplateChange(): void {
+    if (!this.currentBranch) return;
+    logger.info('[BranchContextProvider] Template changed, syncing branch context');
+    void this.syncBranchContext();
   }
 
   private handleMarkdownChange(uri?: vscode.Uri): void {
@@ -446,6 +466,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
     this.markdownWatcher?.dispose();
     this.rootMarkdownWatcher?.dispose();
+    this.templateWatcher?.dispose();
     this.validationIndicator.dispose();
   }
 }
