@@ -14,6 +14,7 @@ export const VARIABLES_FILE_NAME = 'variables.json';
 export const BRANCHES_DIR_NAME = 'branches';
 export const PROMPTS_DIR_NAME = 'prompts';
 export const BRANCH_CONTEXT_FILENAME = 'branch-context.md';
+export const BRANCH_CONTEXT_TEMPLATE_FILENAME = 'branch-context-template.md';
 export const CLAUDE_DIR_NAME = '.claude';
 export const SKILLS_DIR_NAME = 'skills';
 export const SKILL_FILE_NAME = 'SKILL.md';

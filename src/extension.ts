@@ -30,6 +30,7 @@ import { initWorkspaceState } from './common/lib/workspace-state';
 import type { PPConfig } from './common/schemas';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import { BranchContextProvider } from './views/branch-context';
+import { ensureTemplateExists } from './views/branch-context/template-initializer';
 import { BranchTasksProvider } from './views/branch-tasks';
 import { PromptTreeDataProvider } from './views/prompts';
 import { reloadPromptKeybindings } from './views/prompts/keybindings-local';
@@ -192,6 +193,11 @@ export function activate(context: vscode.ExtensionContext): object {
 
   void branchContextProvider.initialize();
   void vscode.tasks.fetchTasks();
+
+  const workspace = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+  if (workspace) {
+    ensureTemplateExists(workspace);
+  }
 
   const tasksTreeView = vscode.window.createTreeView(getViewIdTasks(), {
     treeDataProvider: taskTreeDataProvider,
