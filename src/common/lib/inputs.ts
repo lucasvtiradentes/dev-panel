@@ -1,5 +1,11 @@
 import * as vscode from 'vscode';
 import { DEFAULT_EXCLUDES, DEFAULT_INCLUDES } from '../constants';
+import {
+  CONFIRM_OPTIONS,
+  CONFIRM_YES,
+  ERROR_MSG_INVALID_NUMBER,
+  ERROR_MSG_WORKSPACE_REQUIRED,
+} from '../constants/scripts-constants';
 import { type PPInput, type PPSettings, PromptInputType } from '../schemas';
 import { type FileSelectionOptions, selectFiles, selectFolders } from './file-selection';
 import { createLogger } from './logger';
@@ -96,7 +102,7 @@ async function collectFileInput(
 
   const folder = workspaceFolder ?? vscode.workspace.workspaceFolders?.[0];
   if (!folder) {
-    void vscode.window.showErrorMessage('File/folder input requires a workspace folder');
+    void vscode.window.showErrorMessage(ERROR_MSG_WORKSPACE_REQUIRED);
     return undefined;
   }
 
@@ -122,7 +128,7 @@ async function collectFolderInput(
 ): Promise<string | undefined> {
   const folder = workspaceFolder ?? vscode.workspace.workspaceFolders?.[0];
   if (!folder) {
-    void vscode.window.showErrorMessage('File/folder input requires a workspace folder');
+    void vscode.window.showErrorMessage(ERROR_MSG_WORKSPACE_REQUIRED);
     return undefined;
   }
 
@@ -154,7 +160,7 @@ async function collectNumberInput(input: PPInput): Promise<string | undefined> {
     ignoreFocusOut: true,
     validateInput: (value: string) => {
       if (value && Number.isNaN(Number(value))) {
-        return 'Please enter a valid number';
+        return ERROR_MSG_INVALID_NUMBER;
       }
       return null;
     },
@@ -162,12 +168,12 @@ async function collectNumberInput(input: PPInput): Promise<string | undefined> {
 }
 
 async function collectConfirmInput(input: PPInput): Promise<string | undefined> {
-  const result = await vscode.window.showQuickPick(['Yes', 'No'], {
+  const result = await vscode.window.showQuickPick(CONFIRM_OPTIONS, {
     placeHolder: input.label,
     ignoreFocusOut: true,
   });
   if (!result) return undefined;
-  return result === 'Yes' ? 'true' : 'false';
+  return result === CONFIRM_YES ? 'true' : 'false';
 }
 
 async function collectChoiceInput(input: PPInput, multiple: boolean): Promise<string | undefined> {

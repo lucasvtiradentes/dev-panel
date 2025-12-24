@@ -1,6 +1,7 @@
 import { isAbsolute, join } from 'node:path';
 import * as vscode from 'vscode';
 import { CONFIG_DIR_NAME } from '../constants';
+import { FILENAME_INVALID_CHARS_PATTERN } from '../constants/regex-constants';
 import {
   BRANCHES_DIR_NAME,
   BRANCH_CONTEXT_FILENAME,
@@ -113,7 +114,7 @@ export function getConfigDirPattern(): string {
 }
 
 export function getBranchDirectory(workspace: string, branchName: string): string {
-  const sanitized = branchName.replace(/[\/\\:*?"<>|]/g, '_');
+  const sanitized = branchName.replace(FILENAME_INVALID_CHARS_PATTERN, '_');
   const configDirPath = getConfigDirPathFromWorkspacePath(workspace);
   return join(configDirPath, BRANCHES_DIR_NAME, sanitized);
 }

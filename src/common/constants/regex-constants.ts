@@ -15,3 +15,5 @@ export const PACKAGE_JSON_SCRIPTS_PATTERN = /"scripts"\s*:\s*\{/;
 export const SHELL_SCRIPT_PATTERN = /(?:bash\s+|sh\s+|\.\/)?(.+\.sh)$/;
 
 export const DIST_DIR_PREFIX = 'dist-';
+
+export const FILENAME_INVALID_CHARS_PATTERN = /[\/\\:*?"<>|]/g;

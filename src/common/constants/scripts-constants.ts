@@ -106,3 +106,12 @@ export function getGlobalPromptsDir(): string {
 
 export const AI_SPEC_PROJECT_TOOLS_REGEX = /<project_tools>[\s\S]*?<\/project_tools>/;
 export const AI_SPEC_AVAILABLE_TOOLS_REGEX = /<available_tools>[\s\S]*?<\/available_tools>/;
+
+export const WORKSPACE_STATE_CONFIG_DIR_KEY = 'pp.configDir';
+
+export const ERROR_MSG_WORKSPACE_REQUIRED = 'File/folder input requires a workspace folder';
+export const ERROR_MSG_INVALID_NUMBER = 'Please enter a valid number';
+
+export const CONFIRM_OPTIONS = ['Yes', 'No'] as const;
+export const CONFIRM_YES = 'Yes';
+export const CONFIRM_NO = 'No';
