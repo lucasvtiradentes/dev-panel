@@ -36,7 +36,7 @@ import { reloadPromptKeybindings } from './views/prompts/keybindings-local';
 import { ReplacementsProvider } from './views/replacements';
 import { TaskTreeDataProvider } from './views/tasks';
 import { reloadTaskKeybindings } from './views/tasks/keybindings-local';
-import { ToolTreeDataProvider } from './views/tools';
+import { ToolTreeDataProvider, setToolProviderInstance } from './views/tools';
 import { reloadToolKeybindings } from './views/tools/keybindings-local';
 import { VariablesProvider } from './views/variables';
 import { createBranchWatcher } from './watchers/branch-watcher';
@@ -55,10 +55,11 @@ function registerToolKeybindings(context: vscode.ExtensionContext): void {
     const tools = config.tools ?? [];
 
     for (const tool of tools) {
+      if (!tool.command) continue;
       const commandId = getToolCommandId(tool.name);
       const disposable = vscode.commands.registerCommand(commandId, () => {
         const configDirPath = getWorkspaceConfigDirPath(folder);
-        const shellExec = new vscode.ShellExecution(tool.command, { cwd: configDirPath });
+        const shellExec = new vscode.ShellExecution(tool.command!, { cwd: configDirPath });
         const task = new vscode.Task({ type: TOOL_TASK_TYPE }, folder, tool.name, TOOL_TASK_TYPE, shellExec);
         void vscode.tasks.executeTask(task);
       });
@@ -184,6 +185,7 @@ export function activate(context: vscode.ExtensionContext): object {
   const variablesProvider = new VariablesProvider();
   const replacementsProvider = new ReplacementsProvider();
   const toolTreeDataProvider = new ToolTreeDataProvider();
+  setToolProviderInstance(toolTreeDataProvider);
   const promptTreeDataProvider = new PromptTreeDataProvider();
   const branchContextProvider = new BranchContextProvider();
   const branchTasksProvider = new BranchTasksProvider();

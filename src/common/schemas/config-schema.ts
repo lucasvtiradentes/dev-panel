@@ -65,7 +65,7 @@ const PPTaskSchema = z
 const PPToolSchema = z
   .object({
     name: z.string().describe('Unique identifier for the tool'),
-    command: z.string().describe('Shell command to execute'),
+    command: z.string().optional().describe('Shell command to execute'),
     group: z.string().optional().describe('Group name for organizing tools'),
     useWorkspaceRoot: z
       .boolean()

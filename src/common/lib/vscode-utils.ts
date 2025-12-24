@@ -39,6 +39,7 @@ export enum Command {
   ToggleToolsShowHiddenActive = 'toggleToolsShowHiddenActive',
   ToggleToolsShowOnlyFavorites = 'toggleToolsShowOnlyFavorites',
   ToggleToolsShowOnlyFavoritesActive = 'toggleToolsShowOnlyFavoritesActive',
+  ToggleTool = 'toggleTool',
   ExecuteTool = 'executeTool',
   GoToToolFile = 'goToToolFile',
   GoToReplacementTargetFile = 'goToReplacementTargetFile',

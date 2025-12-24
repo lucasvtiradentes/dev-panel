@@ -228,6 +228,31 @@ export const toolsState = {
     this.saveSourceState(sourceState);
     return index === -1;
   },
+  getActiveTools(): string[] {
+    return this.load().activeTools ?? [];
+  },
+  setActiveTools(active: string[]): void {
+    const tools = this.load();
+    tools.activeTools = active;
+    this.save(tools);
+  },
+  addActiveTool(name: string): void {
+    const tools = this.load();
+    if (!tools.activeTools) {
+      tools.activeTools = [];
+    }
+    if (!tools.activeTools.includes(name)) {
+      tools.activeTools.push(name);
+      this.save(tools);
+    }
+  },
+  removeActiveTool(name: string): void {
+    const tools = this.load();
+    if (tools.activeTools) {
+      tools.activeTools = tools.activeTools.filter((n) => n !== name);
+      this.save(tools);
+    }
+  },
 };
 
 export const promptsState = {

@@ -3,7 +3,6 @@ import { homedir } from 'node:os';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
-  CONFIG_DIR_KEY,
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
   DND_MIME_TYPE_TOOLS,
@@ -18,12 +17,15 @@ import {
 } from '../../common/constants';
 import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
 import { globalToolsState } from '../../common/lib/global-state';
+import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas';
 import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../common';
 import { ToolGroupTreeItem, TreeTool } from './items';
-import { isFavorite, isHidden } from './state';
+import { addActiveTool, getActiveTools, isFavorite, isHidden, removeActiveTool, setActiveTools } from './state';
+
+const logger = createLogger('tools-provider');
 
 const TOOLS_CONFIG: ProviderConfig = {
   contextKeys: {
@@ -40,10 +42,56 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
 
   constructor() {
     super(toolsState, TOOLS_CONFIG, null, globalToolsState);
+    this.initializeActiveTools();
   }
 
   setTreeView(treeView: vscode.TreeView<TreeTool | ToolGroupTreeItem>): void {
     this._treeView = treeView;
+  }
+
+  private initializeActiveTools(): void {
+    const existingActiveTools = getActiveTools();
+    if (existingActiveTools.length > 0) return;
+
+    const allTools: string[] = [];
+    const globalTools = this.readGlobalTools();
+    for (const tool of globalTools) {
+      allTools.push(`${GLOBAL_ITEM_PREFIX}${tool.name}`);
+    }
+
+    const folders = vscode.workspace.workspaceFolders ?? [];
+    for (const folder of folders) {
+      const tools = this.readPPTools(folder);
+      for (const tool of tools) {
+        allTools.push(tool.name);
+      }
+    }
+
+    setActiveTools(allTools);
+  }
+
+  async toggleTool(tool: TreeTool): Promise<void> {
+    logger.info(`toggleTool called for: ${tool?.toolName ?? 'null'}`);
+
+    if (!tool || !tool.toolName) {
+      logger.error('toggleTool received null or invalid tool');
+      return;
+    }
+
+    const activeTools = getActiveTools();
+    const isActive = activeTools.includes(tool.toolName);
+
+    logger.info(`Tool ${tool.toolName} is currently ${isActive ? 'active' : 'inactive'}`);
+
+    if (isActive) {
+      removeActiveTool(tool.toolName);
+      logger.info(`Removed ${tool.toolName} from active tools`);
+    } else {
+      addActiveTool(tool.toolName);
+      logger.info(`Added ${tool.toolName} to active tools`);
+    }
+
+    this.refresh();
   }
 
   refresh(): void {
@@ -193,28 +241,17 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   private createPPTool(tool: NonNullable<PPConfig['tools']>[number], folder: vscode.WorkspaceFolder): TreeTool | null {
     const hidden = isHidden(tool.name);
     const favorite = isFavorite(tool.name);
+    const activeTools = getActiveTools();
+    const isActive = activeTools.includes(tool.name);
+
     if (hidden && !this._showHidden) return null;
     if (this._showOnlyFavorites && !favorite) return null;
 
     const configDirPath = getWorkspaceConfigDirPath(folder);
-    const cwd = tool.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
-    const shellExec = new vscode.ShellExecution(tool.command, { cwd });
-    const task = new vscode.Task(
-      { type: `${CONFIG_DIR_KEY}-tool` },
-      folder,
-      tool.name,
-      `${CONFIG_DIR_KEY}-tool`,
-      shellExec,
-    );
+    const toolFilePath = tool.command ? this.extractFileFromCommand(tool.command) : '';
+    const fullToolFilePath = toolFilePath ? `${configDirPath}/${toolFilePath}` : '';
 
-    const relativeFile = this.extractFileFromCommand(tool.command);
-    const toolFilePath = relativeFile ? `${configDirPath}/${relativeFile}` : '';
-
-    const treeTool = new TreeTool(tool.name, toolFilePath, vscode.TreeItemCollapsibleState.None, {
-      command: getCommandId(Command.ExecuteTool),
-      title: 'Execute',
-      arguments: [task, folder],
-    });
+    const treeTool = new TreeTool(tool.name, fullToolFilePath, vscode.TreeItemCollapsibleState.None);
 
     const configDirPath2 = getWorkspaceConfigDirPath(folder);
     const description = this.readToolDescription(tool.name, configDirPath2);
@@ -228,7 +265,16 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     } else if (favorite) {
       treeTool.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
       treeTool.contextValue = CONTEXT_VALUES.TOOL_FAVORITE;
+    } else if (isActive) {
+      treeTool.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.green'));
+      treeTool.contextValue = CONTEXT_VALUES.TOOL;
     }
+
+    treeTool.command = {
+      command: getCommandId(Command.ToggleTool),
+      title: 'Toggle Tool',
+      arguments: [treeTool],
+    };
 
     return treeTool;
   }
@@ -236,34 +282,18 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   private createGlobalTool(tool: NonNullable<PPConfig['tools']>[number]): TreeTool | null {
     const hidden = globalToolsState.isHidden(tool.name);
     const favorite = globalToolsState.isFavorite(tool.name);
+    const activeTools = getActiveTools();
+    const globalToolName = `${GLOBAL_ITEM_PREFIX}${tool.name}`;
+    const isActive = activeTools.includes(globalToolName);
 
     if (hidden && !this._showHidden) return null;
     if (this._showOnlyFavorites && !favorite) return null;
 
     const globalConfigDir = getGlobalConfigDir();
-    const shellExec = new vscode.ShellExecution(tool.command, { cwd: globalConfigDir });
+    const toolFilePath = tool.command ? this.extractFileFromCommand(tool.command) : '';
+    const fullToolFilePath = toolFilePath ? `${globalConfigDir}/${toolFilePath}` : '';
 
-    const task = new vscode.Task(
-      { type: `${CONFIG_DIR_KEY}-tool-global` },
-      vscode.TaskScope.Global,
-      tool.name,
-      `${CONFIG_DIR_KEY}-tool-global`,
-      shellExec,
-    );
-
-    const relativeFile = this.extractFileFromCommand(tool.command);
-    const toolFilePath = relativeFile ? `${globalConfigDir}/${relativeFile}` : '';
-
-    const treeTool = new TreeTool(
-      `${GLOBAL_ITEM_PREFIX}${tool.name}`,
-      toolFilePath,
-      vscode.TreeItemCollapsibleState.None,
-      {
-        command: getCommandId(Command.ExecuteTool),
-        title: 'Execute',
-        arguments: [task, null],
-      },
-    );
+    const treeTool = new TreeTool(globalToolName, fullToolFilePath, vscode.TreeItemCollapsibleState.None);
 
     const description = this.readToolDescription(tool.name, homedir());
     treeTool.tooltip = description ? `Global: ${description}` : 'Global tool from ~/.pp/config.jsonc';
@@ -274,9 +304,18 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     } else if (favorite) {
       treeTool.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
       treeTool.contextValue = CONTEXT_VALUES.TOOL_GLOBAL_FAVORITE;
+    } else if (isActive) {
+      treeTool.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.green'));
+      treeTool.contextValue = CONTEXT_VALUES.TOOL_GLOBAL;
     } else {
       treeTool.contextValue = CONTEXT_VALUES.TOOL_GLOBAL;
     }
+
+    treeTool.command = {
+      command: getCommandId(Command.ToggleTool),
+      title: 'Toggle Tool',
+      arguments: [treeTool],
+    };
 
     return treeTool;
   }
@@ -286,4 +325,14 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   }
 
   dispose(): void {}
+}
+
+let providerInstance: ToolTreeDataProvider | null = null;
+
+export function setToolProviderInstance(instance: ToolTreeDataProvider): void {
+  providerInstance = instance;
+}
+
+export async function toggleTool(tool: TreeTool): Promise<void> {
+  await providerInstance?.toggleTool(tool);
 }

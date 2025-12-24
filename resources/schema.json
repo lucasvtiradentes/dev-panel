@@ -675,8 +675,7 @@
           }
         },
         "required": [
-          "name",
-          "command"
+          "name"
         ],
         "additionalProperties": false
       }

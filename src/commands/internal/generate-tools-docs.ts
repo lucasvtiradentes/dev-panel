@@ -276,7 +276,7 @@ async function syncToSkills(workspaceFolder: vscode.WorkspaceFolder): Promise<nu
     }
 
     const instructionsContent = fs.readFileSync(instructionsPath, 'utf8');
-    const exampleCommand = instructionsContent.match(/```bash\n(.+?)\n/)?.[1] ?? tool.command;
+    const exampleCommand = instructionsContent.match(/```bash\n(.+?)\n/)?.[1] ?? tool.command ?? tool.name;
     const skillContent = generateSkillMd(instructionsContent, tool.name, exampleCommand);
 
     const skillDir = path.join(workspaceFolder.uri.fsPath, CLAUDE_DIR_NAME, SKILLS_DIR_NAME, tool.name);
@@ -297,7 +297,7 @@ async function syncToSkills(workspaceFolder: vscode.WorkspaceFolder): Promise<nu
     }
 
     const instructionsContent = fs.readFileSync(instructionsPath, 'utf8');
-    const exampleCommand = instructionsContent.match(/```bash\n(.+?)\n/)?.[1] ?? tool.command;
+    const exampleCommand = instructionsContent.match(/```bash\n(.+?)\n/)?.[1] ?? tool.command ?? tool.name;
     const skillContent = generateSkillMd(instructionsContent, tool.name, exampleCommand);
 
     const skillDir = path.join(workspaceFolder.uri.fsPath, CLAUDE_DIR_NAME, SKILLS_DIR_NAME, tool.name);
