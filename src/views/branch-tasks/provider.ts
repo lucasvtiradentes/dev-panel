@@ -24,6 +24,14 @@ import {
 } from '../branch-context/providers';
 import { formatTaskDescription, formatTaskTooltip, getStatusIcon } from './task-item-utils';
 
+type TaskFilter = {
+  status?: TaskStatus[];
+  priority?: TaskPriority[];
+  assignee?: string;
+  hasExternalLink?: boolean;
+  overdue?: boolean;
+};
+
 export class BranchTaskItem extends vscode.TreeItem {
   constructor(
     public readonly node: TaskNode,
@@ -62,6 +70,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
   private cachedNodes: TaskNode[] = [];
   private showOnlyTodo = false;
   private grouped = true;
+  private activeFilters: TaskFilter = {};
   private taskProvider: TaskSyncProvider;
   private fileChangeDebounce: NodeJS.Timeout | null = null;
 
@@ -70,6 +79,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
     const config = workspace ? this.loadConfig(workspace) : null;
     this.taskProvider = createTaskProvider(config?.branchContext?.builtinSections?.tasks, workspace ?? undefined);
     this.setupMarkdownWatcher();
+    void setContextKey(ContextKey.BranchTasksHasFilter, false);
   }
 
   private loadConfig(workspace: string): PPConfig | null {
@@ -86,6 +96,144 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
     this.grouped = !this.grouped;
     void setContextKey(ContextKey.BranchTasksGrouped, this.grouped);
     this.refresh();
+  }
+
+  async addRootTask(text: string): Promise<void> {
+    const syncContext = this.getSyncContext();
+    if (!syncContext) return;
+
+    await this.taskProvider.onCreateTask({ text }, undefined, syncContext);
+    this.refresh();
+  }
+
+  async syncTasks(): Promise<void> {
+    const syncContext = this.getSyncContext();
+    if (!syncContext) return;
+
+    try {
+      const result = await this.taskProvider.onSync(syncContext);
+      if (result.added > 0 || result.updated > 0 || result.deleted > 0) {
+        vscode.window.showInformationMessage(
+          `Synced: ${result.added} added, ${result.updated} updated, ${result.deleted} deleted`,
+        );
+      } else {
+        vscode.window.showInformationMessage('Tasks are up to date');
+      }
+      this.refresh();
+    } catch (error) {
+      vscode.window.showErrorMessage(`Sync failed: ${error}`);
+    }
+  }
+
+  async showFilterQuickPick(): Promise<void> {
+    const items: vscode.QuickPickItem[] = [
+      { label: '$(circle-large-outline) Todo only', description: 'Show only todo tasks' },
+      { label: '$(play-circle) Doing only', description: 'Show only in-progress tasks' },
+      { label: '$(error) Blocked only', description: 'Show only blocked tasks' },
+      { label: '$(warning) Overdue only', description: 'Show only overdue tasks' },
+      { label: '$(account) By assignee...', description: 'Filter by assignee name' },
+      { label: '$(flame) High priority+', description: 'Show urgent and high priority' },
+      { label: '$(link-external) With external link', description: 'Show only linked tasks' },
+      { label: '', kind: vscode.QuickPickItemKind.Separator },
+      { label: '$(close) Clear filters', description: 'Show all tasks' },
+    ];
+
+    const picked = await vscode.window.showQuickPick(items, {
+      placeHolder: 'Select filter',
+    });
+
+    if (!picked) return;
+
+    switch (picked.label) {
+      case '$(circle-large-outline) Todo only':
+        this.activeFilters = { status: ['todo'] };
+        break;
+      case '$(play-circle) Doing only':
+        this.activeFilters = { status: ['doing'] };
+        break;
+      case '$(error) Blocked only':
+        this.activeFilters = { status: ['blocked'] };
+        break;
+      case '$(warning) Overdue only':
+        this.activeFilters = { overdue: true };
+        break;
+      case '$(account) By assignee...': {
+        const assignee = await vscode.window.showInputBox({
+          prompt: 'Enter assignee name',
+          placeHolder: 'e.g., lucas',
+        });
+        if (assignee) {
+          this.activeFilters = { assignee };
+        }
+        break;
+      }
+      case '$(flame) High priority+':
+        this.activeFilters = { priority: ['urgent', 'high'] };
+        break;
+      case '$(link-external) With external link':
+        this.activeFilters = { hasExternalLink: true };
+        break;
+      case '$(close) Clear filters':
+        this.activeFilters = {};
+        break;
+    }
+
+    void setContextKey(ContextKey.BranchTasksHasFilter, Object.keys(this.activeFilters).length > 0);
+    this.refresh();
+  }
+
+  private applyFilters(nodes: TaskNode[]): TaskNode[] {
+    if (Object.keys(this.activeFilters).length === 0) {
+      return nodes;
+    }
+
+    return nodes.map((node) => this.filterNode(node)).filter((node): node is TaskNode => node !== null);
+  }
+
+  private filterNode(node: TaskNode): TaskNode | null {
+    if (!this.matchesFilter(node)) {
+      const filteredChildren = node.children.map((c) => this.filterNode(c)).filter((c): c is TaskNode => c !== null);
+
+      if (filteredChildren.length === 0) {
+        return null;
+      }
+
+      return { ...node, children: filteredChildren };
+    }
+
+    const filteredChildren = node.children.map((c) => this.filterNode(c)).filter((c): c is TaskNode => c !== null);
+
+    return { ...node, children: filteredChildren };
+  }
+
+  private matchesFilter(node: TaskNode): boolean {
+    const f = this.activeFilters;
+
+    if (f.status && !f.status.includes(node.status)) {
+      return false;
+    }
+
+    if (f.priority && (!node.meta.priority || !f.priority.includes(node.meta.priority))) {
+      return false;
+    }
+
+    if (f.assignee && node.meta.assignee !== f.assignee) {
+      return false;
+    }
+
+    if (f.hasExternalLink && !node.meta.externalUrl && !node.meta.externalId) {
+      return false;
+    }
+
+    if (f.overdue) {
+      if (!node.meta.dueDate) return false;
+      const date = new Date(node.meta.dueDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (date >= today) return false;
+    }
+
+    return true;
   }
 
   private filterTodoNodes(nodes: TaskNode[]): TaskNode[] {
@@ -206,13 +354,15 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
     }
 
     let processedNodes = this.filterTodoNodes(this.cachedNodes);
+    processedNodes = this.applyFilters(processedNodes);
 
     if (!this.grouped) {
       processedNodes = this.flattenNodes(processedNodes);
     }
 
+    const hasActiveFilter = Object.keys(this.activeFilters).length > 0;
     if (processedNodes.length === 0) {
-      const message = this.showOnlyTodo ? NO_PENDING_TASKS_MESSAGE : EMPTY_TASKS_MESSAGE;
+      const message = this.showOnlyTodo || hasActiveFilter ? NO_PENDING_TASKS_MESSAGE : EMPTY_TASKS_MESSAGE;
       const openFileItem = new vscode.TreeItem(message);
       openFileItem.command = {
         command: getCommandId(Command.OpenBranchContextFile),

@@ -525,6 +525,31 @@
         "icon": "$(play)"
       },
       {
+        "command": "projectPanel.addBranchTask",
+        "title": "Add Task",
+        "icon": "$(add)"
+      },
+      {
+        "command": "projectPanel.syncBranchTasks",
+        "title": "Sync Tasks",
+        "icon": "$(sync)"
+      },
+      {
+        "command": "projectPanel.filterBranchTasks",
+        "title": "Filter Tasks",
+        "icon": "$(filter)"
+      },
+      {
+        "command": "projectPanel.filterBranchTasksActive",
+        "title": "Filter Tasks (Active)",
+        "icon": "$(filter-filled)"
+      },
+      {
+        "command": "projectPanel.collapseBranchTasks",
+        "title": "Collapse All",
+        "icon": "$(collapse-all)"
+      },
+      {
         "command": "projectPanel.showLogs",
         "title": "Project Panel: Show Logs"
       },
@@ -795,9 +820,34 @@
           "group": "navigation@2"
         },
         {
+          "command": "projectPanel.filterBranchTasks",
+          "when": "view == projectPanelTodos && !branchTasksHasFilter",
+          "group": "navigation@3"
+        },
+        {
+          "command": "projectPanel.filterBranchTasksActive",
+          "when": "view == projectPanelTodos && branchTasksHasFilter",
+          "group": "navigation@3"
+        },
+        {
+          "command": "projectPanel.addBranchTask",
+          "when": "view == projectPanelTodos",
+          "group": "navigation@4"
+        },
+        {
+          "command": "projectPanel.syncBranchTasks",
+          "when": "view == projectPanelTodos",
+          "group": "navigation@5"
+        },
+        {
+          "command": "projectPanel.collapseBranchTasks",
+          "when": "view == projectPanelTodos",
+          "group": "navigation@6"
+        },
+        {
           "command": "projectPanel.editBranchTodos",
           "when": "view == projectPanelTodos",
-          "group": "navigation@3"
+          "group": "navigation@7"
         }
       ],
       "view/item/context": [
