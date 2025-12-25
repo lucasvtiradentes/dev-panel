@@ -11,7 +11,7 @@ import {
   type TasksGlobalState,
   type ToolsState,
 } from '../schemas';
-import { TaskSourceKey } from '../schemas/types';
+import { TaskSource } from '../schemas/types';
 
 let _context: vscode.ExtensionContext | null = null;
 
@@ -20,33 +20,7 @@ export function initGlobalState(context: vscode.ExtensionContext): void {
 }
 
 export function migrateGlobalState(): void {
-  if (!_context) return;
-  const state = getState();
-  let needsMigration = false;
-
-  if (state.prompts?.pp?.favorites && state.prompts.pp.favorites.length > 0) {
-    state.prompts.pp.favorites = [];
-    needsMigration = true;
-  }
-
-  if (state.prompts?.pp?.hidden && state.prompts.pp.hidden.length > 0) {
-    state.prompts.pp.hidden = [];
-    needsMigration = true;
-  }
-
-  if (state.tools?.pp?.favorites && state.tools.pp.favorites.length > 0) {
-    state.tools.pp.favorites = [];
-    needsMigration = true;
-  }
-
-  if (state.tools?.pp?.hidden && state.tools.pp.hidden.length > 0) {
-    state.tools.pp.hidden = [];
-    needsMigration = true;
-  }
-
-  if (needsMigration) {
-    saveState(state);
-  }
+  return;
 }
 
 function getState(): GlobalUIState {
@@ -80,11 +54,11 @@ export const globalToolsState = {
     saveState(state);
   },
   getSourceState(): SourceState {
-    return this.load()[TaskSourceKey.PP] ?? { ...DEFAULT_SOURCE_STATE };
+    return this.load()[TaskSource.DevPanel] ?? { ...DEFAULT_SOURCE_STATE };
   },
   saveSourceState(sourceState: SourceState): void {
     const tools = this.load();
-    tools[TaskSourceKey.PP] = sourceState;
+    tools[TaskSource.DevPanel] = sourceState;
     this.save(tools);
   },
   isFavorite(name: string): boolean {
@@ -127,11 +101,11 @@ export const globalTasksState = {
     saveState(state);
   },
   getSourceState(): SourceState {
-    return this.load()[TaskSourceKey.PP] ?? { ...DEFAULT_SOURCE_STATE };
+    return this.load()[TaskSource.DevPanel] ?? { ...DEFAULT_SOURCE_STATE };
   },
   saveSourceState(sourceState: SourceState): void {
     const tasks = this.load();
-    tasks[TaskSourceKey.PP] = sourceState;
+    tasks[TaskSource.DevPanel] = sourceState;
     this.save(tasks);
   },
   isFavorite(name: string): boolean {
@@ -174,11 +148,11 @@ export const globalPromptsState = {
     saveState(state);
   },
   getSourceState(): SourceState {
-    return this.load()[TaskSourceKey.PP] ?? { ...DEFAULT_SOURCE_STATE };
+    return this.load()[TaskSource.DevPanel] ?? { ...DEFAULT_SOURCE_STATE };
   },
   saveSourceState(sourceState: SourceState): void {
     const prompts = this.load();
-    prompts[TaskSourceKey.PP] = sourceState;
+    prompts[TaskSource.DevPanel] = sourceState;
     this.save(prompts);
   },
   isFavorite(name: string): boolean {

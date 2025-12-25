@@ -2,7 +2,7 @@
   "settings": {
     "aiProvider": "claude",
     "exclude": [
-      "**/.pp/**",
+      "**/.devpanel/**",
       "**/node_modules/**",
       "**/.git/**",
       "**/dist/**",
@@ -35,7 +35,7 @@
   "tasks": [
     {
       "name": "hello",
-      "command": "echo 'Hello from Project Panel!'",
+      "command": "echo 'Hello from Dev Panel!'",
       "group": "Utils"
     }
   ],

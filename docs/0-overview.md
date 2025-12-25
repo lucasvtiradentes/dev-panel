@@ -4,11 +4,11 @@ A VSCode extension for managing project-specific tools, scripts, prompts, and co
 
 # Motivation
 
-Developers often create helper scripts (db dumps, deployment shortcuts, code generators) that boost productivity but remain siloed in personal setups. **Project Panel** solves this by:
+Developers often create helper scripts (db dumps, deployment shortcuts, code generators) that boost productivity but remain siloed in personal setups. **Dev Panel** solves this by:
 
-- Making tools/scripts **shareable** via `.pp/` directory in the repo
+- Making tools/scripts **shareable** via `.devpanel/` directory in the repo
 - Providing a **visual interface** instead of remembering CLI commands
-- Supporting **global configs** (`~/.pp/`) for cross-project tools
+- Supporting **global configs** (`~/.devpanel/`) for cross-project tools
 
 # Features
 
@@ -26,14 +26,14 @@ Developers often create helper scripts (db dumps, deployment shortcuts, code gen
 - **Variables**: Configurable project options (toggle, choose, input, file/folder picker)
 - **Replacements**: File/patch swaps with one-click activation
 - **Prompts**: AI prompts with inputs, supports Claude/Gemini/Cursor
-- **Tasks**: Run npm scripts, VSCode tasks, or custom PP tasks
+- **Tasks**: Run npm scripts, VSCode tasks, or custom DevPanel tasks
 - **Tools**: Shell scripts with documentation, toggleable state
 - **Branch Context**: Per-branch markdown with objective, notes, PR/Linear links
 - **Branch Tasks**: Todo management with milestones, priorities, assignees
 
 ## Status bar
 
-Config location picker - allows changing where `.pp/` directory is located within the workspace.
+Config location picker - allows changing where `.devpanel/` directory is located within the workspace.
 
 ## Commands
 
@@ -51,7 +51,7 @@ Config location picker - allows changing where `.pp/` directory is located withi
 | Watcher | Trigger | Action |
 |---------|---------|--------|
 | **Branch** | Git HEAD change | Refresh branch context/tasks, sync markdown |
-| **Config** | `.pp/config.jsonc` change | Reload all views |
+| **Config** | `.devpanel/config.jsonc` change | Reload all views |
 | **Markdown** | Branch context file change | Sync to root `.branch-context.md` |
 | **Template** | Template file change | Re-sync branch context |
 
@@ -70,7 +70,7 @@ Config location picker - allows changing where `.pp/` directory is located withi
 └────────────────────────┬────────────────────────────────┘
                          ▼
 ┌─────────────────────────────────────────────────────────┐
-│           Check for .pp/config.jsonc                    │
+│           Check for .devpanel/config.jsonc                    │
 │                  NOT FOUND                              │
 └────────────────────────┬────────────────────────────────┘
                          ▼
@@ -80,7 +80,7 @@ Config location picker - allows changing where `.pp/` directory is located withi
 └────────────────────────┬────────────────────────────────┘
                          ▼
 ┌─────────────────────────────────────────────────────────┐
-│     User can still use global configs (~/.pp/)          │
+│     User can still use global configs (~/.devpanel/)          │
 │        or run "Init" command to bootstrap               │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -97,7 +97,7 @@ Config location picker - allows changing where `.pp/` directory is located withi
 └────────────────────────┬────────────────────────────────┘
                          ▼
 ┌─────────────────────────────────────────────────────────┐
-│           Load .pp/config.jsonc + ~/.pp/                │
+│           Load .devpanel/config.jsonc + ~/.devpanel/                │
 │              Parse with JSON5 + Zod                     │
 └────────────────────────┬────────────────────────────────┘
                          ▼
@@ -122,6 +122,6 @@ Config location picker - allows changing where `.pp/` directory is located withi
                          ▼
 ┌─────────────────────────────────────────────────────────┐
 │              Sync .branch-context.md                    │
-│            (root ↔ .pp/branches/X/)                     │
+│            (root ↔ .devpanel/branches/X/)                     │
 └─────────────────────────────────────────────────────────┘
 ```

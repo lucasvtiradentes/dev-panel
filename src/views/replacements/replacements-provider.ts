@@ -13,7 +13,7 @@ import {
 } from '../../common/constants';
 import { getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
-import type { PPConfig, PPReplacement } from '../../common/schemas/config-schema';
+import type { DevPanelConfig, DevPanelReplacement } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { fileExistsInGit, getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
@@ -48,7 +48,7 @@ function normalizePatchItem(item: { search: unknown; replace: unknown }): PatchI
 class ReplacementGroupTreeItem extends vscode.TreeItem {
   constructor(
     public readonly groupName: string,
-    public readonly replacements: PPReplacement[],
+    public readonly replacements: DevPanelReplacement[],
   ) {
     super(groupName, vscode.TreeItemCollapsibleState.Expanded);
     this.contextValue = CONTEXT_VALUES.REPLACEMENT_GROUP;
@@ -57,7 +57,7 @@ class ReplacementGroupTreeItem extends vscode.TreeItem {
 
 class ReplacementTreeItem extends vscode.TreeItem {
   constructor(
-    public readonly replacement: PPReplacement,
+    public readonly replacement: DevPanelReplacement,
     public readonly isActive: boolean,
   ) {
     super(replacement.name, vscode.TreeItemCollapsibleState.None);
@@ -180,7 +180,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       );
     }
 
-    const grouped = new Map<string, PPReplacement[]>();
+    const grouped = new Map<string, DevPanelReplacement[]>();
 
     for (const r of config.replacements) {
       const groupName = r.group ?? NO_GROUP_NAME;
@@ -202,7 +202,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     return Promise.resolve(items);
   }
 
-  private loadConfig(): PPConfig | null {
+  private loadConfig(): DevPanelConfig | null {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return null;
 
@@ -210,7 +210,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     if (!fs.existsSync(configPath)) return null;
 
     const content = fs.readFileSync(configPath, 'utf-8');
-    const config = json5.parse(content) as PPConfig;
+    const config = json5.parse(content) as DevPanelConfig;
 
     if (config.replacements) {
       for (const replacement of config.replacements) {
@@ -223,7 +223,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     return config;
   }
 
-  async toggleReplacement(replacement: PPReplacement): Promise<void> {
+  async toggleReplacement(replacement: DevPanelReplacement): Promise<void> {
     const activeReplacements = getActiveReplacements();
     const isActive = activeReplacements.includes(replacement.name);
 
@@ -236,7 +236,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     this.refresh();
   }
 
-  private async activateReplacement(replacement: PPReplacement): Promise<void> {
+  private async activateReplacement(replacement: DevPanelReplacement): Promise<void> {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
@@ -269,7 +269,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     addActiveReplacement(replacement.name);
   }
 
-  private async deactivateReplacement(replacement: PPReplacement): Promise<void> {
+  private async deactivateReplacement(replacement: DevPanelReplacement): Promise<void> {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
@@ -313,7 +313,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
   }
 }
 
-export async function toggleReplacement(replacement: PPReplacement): Promise<void> {
+export async function toggleReplacement(replacement: DevPanelReplacement): Promise<void> {
   await providerInstance?.toggleReplacement(replacement);
 }
 

@@ -36,7 +36,7 @@ export enum PromptExecutionMode {
   Overwrite = 'overwrite',
 }
 
-const PPInputSchema = z
+const DevPanelInputSchema = z
   .object({
     name: z.string().describe('Variable name used in template as $name'),
     type: z.nativeEnum(PromptInputType).describe('Input type'),
@@ -55,21 +55,21 @@ const PPInputSchema = z
   })
   .describe('An input required before execution (used by prompts and tasks)');
 
-const PPTaskSchema = z
+const DevPanelTaskSchema = z
   .object({
     name: z.string().describe('Unique identifier for the task'),
     command: z.string().describe('Shell command to execute'),
     group: z.string().optional().describe('Group name for organizing tasks'),
     description: z.string().optional().describe('Human-readable description shown as tooltip'),
-    inputs: z.array(PPInputSchema).optional().describe('Inputs to collect before running the task'),
+    inputs: z.array(DevPanelInputSchema).optional().describe('Inputs to collect before running the task'),
     useWorkspaceRoot: z
       .boolean()
       .optional()
-      .describe('If true, run command from workspace root instead of .pp directory'),
+      .describe('If true, run command from workspace root instead of .devpanel directory'),
   })
   .describe('A task that can be executed from the Tasks view');
 
-const PPToolSchema = z
+const DevPanelToolSchema = z
   .object({
     name: z.string().describe('Unique identifier for the tool'),
     command: z.string().optional().describe('Shell command to execute'),
@@ -77,17 +77,17 @@ const PPToolSchema = z
     useWorkspaceRoot: z
       .boolean()
       .optional()
-      .describe('If true, run command from workspace root instead of .pp directory'),
+      .describe('If true, run command from workspace root instead of .devpanel directory'),
   })
   .describe('A tool that can be executed from the Tools view');
 
-const PPPromptSchema = z
+const DevPanelPromptSchema = z
   .object({
     name: z.string().describe('Unique identifier for the prompt'),
     file: z.string().describe(`Path to prompt file relative to ${CONFIG_DIR_NAME}/${PROMPTS_DIR_NAME}/`),
     group: z.string().optional().describe('Group name for organizing prompts'),
     description: z.string().optional().describe('Human-readable description shown as tooltip'),
-    inputs: z.array(PPInputSchema).optional().describe('Inputs to collect before running the prompt'),
+    inputs: z.array(DevPanelInputSchema).optional().describe('Inputs to collect before running the prompt'),
     saveOutput: z
       .boolean()
       .optional()
@@ -97,44 +97,44 @@ const PPPromptSchema = z
     useWorkspaceRoot: z
       .boolean()
       .optional()
-      .describe('If true, resolve file path from workspace root instead of .pp directory'),
+      .describe('If true, resolve file path from workspace root instead of .devpanel directory'),
   })
   .describe('A prompt that can be executed in Claude Code');
 
-const PPVariableBaseSchema = z.object({
+const DevPanelVariableBaseSchema = z.object({
   name: z.string().describe('Unique identifier for the variable'),
   command: z.string().optional().describe('Shell command to execute when value changes'),
   description: z.string().optional().describe('Human-readable description'),
   group: z.string().optional().describe('Group name for organizing variables'),
 });
 
-const PPVariableChooseSingleSchema = PPVariableBaseSchema.extend({
+const DevPanelVariableChooseSingleSchema = DevPanelVariableBaseSchema.extend({
   kind: z.literal('choose').describe('Choose from a list of options'),
   options: z.array(z.string()).describe('Available options'),
   multiSelect: z.literal(false).optional().describe('Single selection'),
   default: z.string().optional().describe('Default value'),
 });
 
-const PPVariableChooseMultiSchema = PPVariableBaseSchema.extend({
+const DevPanelVariableChooseMultiSchema = DevPanelVariableBaseSchema.extend({
   kind: z.literal('choose').describe('Choose from a list of options (multi-select)'),
   options: z.array(z.string()).describe('Available options'),
   multiSelect: z.literal(true).describe('Multi-selection enabled'),
   default: z.array(z.string()).optional().describe('Default values'),
 });
 
-const PPVariableChooseSchema = z.union([PPVariableChooseSingleSchema, PPVariableChooseMultiSchema]);
+const DevPanelVariableChooseSchema = z.union([DevPanelVariableChooseSingleSchema, DevPanelVariableChooseMultiSchema]);
 
-const PPVariableToggleSchema = PPVariableBaseSchema.extend({
+const DevPanelVariableToggleSchema = DevPanelVariableBaseSchema.extend({
   kind: z.literal('toggle').describe('Toggle between ON/OFF'),
   default: z.boolean().optional().describe('Default value'),
 });
 
-const PPVariableInputSchema = PPVariableBaseSchema.extend({
+const DevPanelVariableInputSchema = DevPanelVariableBaseSchema.extend({
   kind: z.literal('input').describe('Free text input'),
   default: z.string().optional().describe('Default value'),
 });
 
-const PPVariableFileSingleSchema = PPVariableBaseSchema.extend({
+const DevPanelVariableFileSingleSchema = DevPanelVariableBaseSchema.extend({
   kind: z.literal('file').describe('File selection'),
   multiSelect: z.literal(false).optional().describe('Single selection'),
   includes: z.array(z.string()).optional().describe('Glob patterns to include. Extends global includes'),
@@ -142,7 +142,7 @@ const PPVariableFileSingleSchema = PPVariableBaseSchema.extend({
   default: z.string().optional().describe('Default value'),
 });
 
-const PPVariableFileMultiSchema = PPVariableBaseSchema.extend({
+const DevPanelVariableFileMultiSchema = DevPanelVariableBaseSchema.extend({
   kind: z.literal('file').describe('File selection (multi-select)'),
   multiSelect: z.literal(true).describe('Multi-selection enabled'),
   includes: z.array(z.string()).optional().describe('Glob patterns to include. Extends global includes'),
@@ -150,9 +150,9 @@ const PPVariableFileMultiSchema = PPVariableBaseSchema.extend({
   default: z.array(z.string()).optional().describe('Default values'),
 });
 
-const PPVariableFileSchema = z.union([PPVariableFileSingleSchema, PPVariableFileMultiSchema]);
+const DevPanelVariableFileSchema = z.union([DevPanelVariableFileSingleSchema, DevPanelVariableFileMultiSchema]);
 
-const PPVariableFolderSingleSchema = PPVariableBaseSchema.extend({
+const DevPanelVariableFolderSingleSchema = DevPanelVariableBaseSchema.extend({
   kind: z.literal('folder').describe('Folder selection'),
   multiSelect: z.literal(false).optional().describe('Single selection'),
   includes: z.array(z.string()).optional().describe('Glob patterns to include. Extends global includes'),
@@ -160,7 +160,7 @@ const PPVariableFolderSingleSchema = PPVariableBaseSchema.extend({
   default: z.string().optional().describe('Default value'),
 });
 
-const PPVariableFolderMultiSchema = PPVariableBaseSchema.extend({
+const DevPanelVariableFolderMultiSchema = DevPanelVariableBaseSchema.extend({
   kind: z.literal('folder').describe('Folder selection (multi-select)'),
   multiSelect: z.literal(true).describe('Multi-selection enabled'),
   includes: z.array(z.string()).optional().describe('Glob patterns to include. Extends global includes'),
@@ -168,49 +168,49 @@ const PPVariableFolderMultiSchema = PPVariableBaseSchema.extend({
   default: z.array(z.string()).optional().describe('Default values'),
 });
 
-const PPVariableFolderSchema = z.union([PPVariableFolderSingleSchema, PPVariableFolderMultiSchema]);
+const DevPanelVariableFolderSchema = z.union([DevPanelVariableFolderSingleSchema, DevPanelVariableFolderMultiSchema]);
 
-const PPVariableSchema = z
+const DevPanelVariableSchema = z
   .union([
-    PPVariableChooseSingleSchema,
-    PPVariableChooseMultiSchema,
-    PPVariableToggleSchema,
-    PPVariableInputSchema,
-    PPVariableFileSingleSchema,
-    PPVariableFileMultiSchema,
-    PPVariableFolderSingleSchema,
-    PPVariableFolderMultiSchema,
+    DevPanelVariableChooseSingleSchema,
+    DevPanelVariableChooseMultiSchema,
+    DevPanelVariableToggleSchema,
+    DevPanelVariableInputSchema,
+    DevPanelVariableFileSingleSchema,
+    DevPanelVariableFileMultiSchema,
+    DevPanelVariableFolderSingleSchema,
+    DevPanelVariableFolderMultiSchema,
   ])
   .describe('A configuration variable shown in the Variables view');
 
-const PPReplacementPatchSchema = z.object({
+const DevPanelReplacementPatchSchema = z.object({
   search: z.string().describe('Text or pattern to search for'),
   replace: z.string().describe('Replacement text'),
 });
 
-const PPReplacementBaseSchema = z.object({
+const DevPanelReplacementBaseSchema = z.object({
   name: z.string().describe('Unique identifier for the replacement'),
   description: z.string().optional().describe('Human-readable description'),
   group: z.string().optional().describe('Group name for organizing replacements'),
 });
 
-const PPReplacementFileSchema = PPReplacementBaseSchema.extend({
+const DevPanelReplacementFileSchema = DevPanelReplacementBaseSchema.extend({
   type: z.literal('file').describe('Replace entire file content'),
   source: z.string().describe('Source file path relative to workspace'),
   target: z.string().describe('Target file path relative to workspace'),
 });
 
-const PPReplacementPatchTypeSchema = PPReplacementBaseSchema.extend({
+const DevPanelReplacementPatchTypeSchema = DevPanelReplacementBaseSchema.extend({
   type: z.literal('patch').describe('Apply patches to file'),
   target: z.string().describe('Target file path relative to workspace'),
-  patches: z.array(PPReplacementPatchSchema).describe('List of search/replace patches'),
+  patches: z.array(DevPanelReplacementPatchSchema).describe('List of search/replace patches'),
 });
 
-const PPReplacementSchema = z
-  .discriminatedUnion('type', [PPReplacementFileSchema, PPReplacementPatchTypeSchema])
+const DevPanelReplacementSchema = z
+  .discriminatedUnion('type', [DevPanelReplacementFileSchema, DevPanelReplacementPatchTypeSchema])
   .describe('A file replacement/patch shown in the Replacements view');
 
-const PPSettingsSchema = z
+const DevPanelSettingsSchema = z
   .object({
     aiProvider: z
       .nativeEnum(AIProvider)
@@ -232,7 +232,7 @@ const PPSettingsSchema = z
       .array(z.string())
       .optional()
       .describe(
-        `Glob patterns to exclude globally (package.json search, prompt file/folder selection, variable file/folder selection). Extends defaults: ${DEFAULT_EXCLUDES.join(', ')}. Add custom exclusions as needed (e.g. ["**/.pp/**", "**/.changeset/**", "**/out/**", "**/*.log"])`,
+        `Glob patterns to exclude globally (package.json search, prompt file/folder selection, variable file/folder selection). Extends defaults: ${DEFAULT_EXCLUDES.join(', ')}. Add custom exclusions as needed (e.g. ["**/.devpanel/**", "**/.changeset/**", "**/out/**", "**/*.log"])`,
       ),
   })
   .describe(`Global settings for ${EXTENSION_DISPLAY_NAME} behavior`);
@@ -282,23 +282,23 @@ const BranchContextConfigSchema = z.object({
     .default([]),
 });
 
-export const PPConfigSchema = z
+export const DevPanelConfigSchema = z
   .object({
     $schema: z.string().optional().describe('JSON Schema reference'),
-    settings: PPSettingsSchema.optional().describe('Global settings'),
+    settings: DevPanelSettingsSchema.optional().describe('Global settings'),
     branchContext: BranchContextConfigSchema.optional().describe('Branch context configuration'),
-    variables: z.array(PPVariableSchema).optional().describe('Configuration variables'),
-    replacements: z.array(PPReplacementSchema).optional().describe('File replacements/patches'),
-    tasks: z.array(PPTaskSchema).optional().describe('Executable tasks'),
-    tools: z.array(PPToolSchema).optional().describe('Executable tools'),
-    prompts: z.array(PPPromptSchema).optional().describe('Claude Code prompts'),
+    variables: z.array(DevPanelVariableSchema).optional().describe('Configuration variables'),
+    replacements: z.array(DevPanelReplacementSchema).optional().describe('File replacements/patches'),
+    tasks: z.array(DevPanelTaskSchema).optional().describe('Executable tasks'),
+    tools: z.array(DevPanelToolSchema).optional().describe('Executable tools'),
+    prompts: z.array(DevPanelPromptSchema).optional().describe('Claude Code prompts'),
   })
   .describe(`${EXTENSION_DISPLAY_NAME} configuration file`);
 
-export type PPInput = z.infer<typeof PPInputSchema>;
-export type PPPrompt = z.infer<typeof PPPromptSchema>;
-export type PPSettings = z.infer<typeof PPSettingsSchema>;
-export type PPConfig = z.infer<typeof PPConfigSchema>;
-export type PPVariable = z.infer<typeof PPVariableSchema>;
-export type PPReplacement = z.infer<typeof PPReplacementSchema>;
+export type DevPanelInput = z.infer<typeof DevPanelInputSchema>;
+export type DevPanelPrompt = z.infer<typeof DevPanelPromptSchema>;
+export type DevPanelSettings = z.infer<typeof DevPanelSettingsSchema>;
+export type DevPanelConfig = z.infer<typeof DevPanelConfigSchema>;
+export type DevPanelVariable = z.infer<typeof DevPanelVariableSchema>;
+export type DevPanelReplacement = z.infer<typeof DevPanelReplacementSchema>;
 export type BranchContextConfig = z.infer<typeof BranchContextConfigSchema>;

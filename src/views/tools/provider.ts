@@ -18,7 +18,7 @@ import { globalToolsState } from '../../common/lib/global-state';
 import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
-import type { PPConfig } from '../../common/schemas';
+import type { DevPanelConfig } from '../../common/schemas';
 import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../common';
 import { ToolGroupTreeItem, TreeTool } from './items';
 import { addActiveTool, getActiveTools, isFavorite, isHidden, removeActiveTool, setActiveTools } from './state';
@@ -59,7 +59,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
 
     const folders = vscode.workspace.workspaceFolders ?? [];
     for (const folder of folders) {
-      const tools = this.readPPTools(folder);
+      const tools = this.readDevPanelTools(folder);
       for (const tool of tools) {
         allTools.push(tool.name);
       }
@@ -111,10 +111,10 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
       return this.sortElements(item.children);
     }
 
-    return this.getPPTools();
+    return this.getDevPanelTools();
   }
 
-  private async getPPTools(): Promise<Array<TreeTool | ToolGroupTreeItem>> {
+  private async getDevPanelTools(): Promise<Array<TreeTool | ToolGroupTreeItem>> {
     const folders = vscode.workspace.workspaceFolders ?? [];
 
     if (!this._grouped) {
@@ -127,9 +127,9 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
       }
 
       for (const folder of folders) {
-        const tools = this.readPPTools(folder);
+        const tools = this.readDevPanelTools(folder);
         for (const tool of tools) {
-          const treeTool = this.createPPTool(tool, folder);
+          const treeTool = this.createDevPanelTool(tool, folder);
           if (treeTool) toolElements.push(treeTool);
         }
       }
@@ -154,9 +154,9 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     }
 
     for (const folder of folders) {
-      const tools = this.readPPTools(folder);
+      const tools = this.readDevPanelTools(folder);
       for (const tool of tools) {
-        const treeTool = this.createPPTool(tool, folder);
+        const treeTool = this.createDevPanelTool(tool, folder);
         if (!treeTool) continue;
 
         const groupName = tool.group ?? NO_GROUP_NAME;
@@ -172,12 +172,12 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     return this.sortElements(toolElements);
   }
 
-  private readPPTools(folder: vscode.WorkspaceFolder): NonNullable<PPConfig['tools']> {
+  private readDevPanelTools(folder: vscode.WorkspaceFolder): NonNullable<DevPanelConfig['tools']> {
     const config = loadWorkspaceConfig(folder);
     return config?.tools ?? [];
   }
 
-  private readGlobalTools(): NonNullable<PPConfig['tools']> {
+  private readGlobalTools(): NonNullable<DevPanelConfig['tools']> {
     const config = loadGlobalConfig();
     return config?.tools ?? [];
   }
@@ -216,7 +216,10 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     return descriptionBuffer.length > 0 ? descriptionBuffer.join(' ') : null;
   }
 
-  private createPPTool(tool: NonNullable<PPConfig['tools']>[number], folder: vscode.WorkspaceFolder): TreeTool | null {
+  private createDevPanelTool(
+    tool: NonNullable<DevPanelConfig['tools']>[number],
+    folder: vscode.WorkspaceFolder,
+  ): TreeTool | null {
     const hidden = isHidden(tool.name);
     const favorite = isFavorite(tool.name);
     const activeTools = getActiveTools();
@@ -257,7 +260,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     return treeTool;
   }
 
-  private createGlobalTool(tool: NonNullable<PPConfig['tools']>[number]): TreeTool | null {
+  private createGlobalTool(tool: NonNullable<DevPanelConfig['tools']>[number]): TreeTool | null {
     const hidden = globalToolsState.isHidden(tool.name);
     const favorite = globalToolsState.isFavorite(tool.name);
     const activeTools = getActiveTools();

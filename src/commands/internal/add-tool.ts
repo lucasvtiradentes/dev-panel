@@ -13,7 +13,7 @@ import {
 } from '../../common/constants';
 import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath, parseConfig } from '../../common/lib/config-manager';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
-import type { PPConfig } from '../../common/schemas';
+import type { DevPanelConfig } from '../../common/schemas';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 
 async function handleAddTool(): Promise<void> {
@@ -72,7 +72,7 @@ async function handleAddTool(): Promise<void> {
     return;
   }
 
-  const newTool: NonNullable<PPConfig['tools']>[number] = {
+  const newTool: NonNullable<DevPanelConfig['tools']>[number] = {
     name,
     command,
   };

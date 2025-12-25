@@ -1,14 +1,15 @@
 import { homedir } from 'node:os';
 import * as path from 'node:path';
-import { TOOLS_DIR } from './constants';
+
+export const TOOLS_DIR = 'tools';
 
 export const EXTENSION_PUBLISHER = 'lucasvtiradentes';
-export const EXTENSION_NAME = 'project-panel';
-export const EXTENSION_DISPLAY_NAME = 'Project Panel';
+export const EXTENSION_NAME = 'dev-panel';
+export const EXTENSION_DISPLAY_NAME = 'Dev Panel';
 
-export const CONFIG_DIR_KEY = 'pp'; // Key used in workspace state objects (without the dot)
+export const CONFIG_DIR_KEY = 'devpanel';
 export const CONFIG_DIR_NAME = `.${CONFIG_DIR_KEY}`;
-export const DISPLAY_PREFIX = 'Project Panel:';
+export const DISPLAY_PREFIX = 'Dev Panel:';
 export const CONFIG_FILE_NAME = 'config.jsonc';
 export const VARIABLES_FILE_NAME = 'variables.json';
 export const BRANCHES_DIR_NAME = 'branches';
@@ -31,22 +32,22 @@ export const BRANCH_CONTEXT_NA = 'N/A';
 export const BRANCH_CONTEXT_NO_CHANGES = 'No changes';
 export const BRANCH_CONTEXT_DEFAULT_TODOS = '- [ ] task1\n- [ ] task2';
 
-export const METADATA_PP_PREFIX = '<!-- PP_METADATA: ';
+export const METADATA_DEVPANEL_PREFIX = '<!-- DEVPANEL_METADATA: ';
 export const METADATA_SECTION_PREFIX = '<!-- SECTION_METADATA: ';
 export const METADATA_SUFFIX = ' -->';
 export const METADATA_SEPARATOR = '<!-- ------------------- -->';
-export const METADATA_PP_REGEX = /<!--\s*PP_METADATA:.*?-->/;
+export const METADATA_DEVPANEL_REGEX = /<!--\s*DEVPANEL_METADATA:.*?-->/;
 export const METADATA_SEPARATOR_REGEX = /<!--\s*-+\s*-->/;
 
 export const METADATA_FIELD_IS_EMPTY = 'isEmpty';
 export const METADATA_FIELD_DESCRIPTION = 'description';
 
-export const DND_MIME_TYPE_TASKS = 'application/vnd.code.tree.projectpaneltasks';
-export const DND_MIME_TYPE_PROMPTS = 'application/vnd.code.tree.projectpanelprompts';
-export const DND_MIME_TYPE_TOOLS = 'application/vnd.code.tree.projectpaneltools';
-export const DND_MIME_TYPE_BRANCH_TASKS = 'application/vnd.code.tree.projectpanelbranchtasks';
+export const DND_MIME_TYPE_TASKS = `application/vnd.code.tree.${CONFIG_DIR_KEY}tasks`;
+export const DND_MIME_TYPE_PROMPTS = `application/vnd.code.tree.${CONFIG_DIR_KEY}prompts`;
+export const DND_MIME_TYPE_TOOLS = `application/vnd.code.tree.${CONFIG_DIR_KEY}tools`;
+export const DND_MIME_TYPE_BRANCH_TASKS = `application/vnd.code.tree.${CONFIG_DIR_KEY}branchtasks`;
 
-export const WORKSPACE_STATE_KEY = 'pp.uiState';
+export const WORKSPACE_STATE_KEY = `${CONFIG_DIR_KEY}.uiState`;
 
 export const LOCAL_DIST_DIR = 'dist-dev';
 
@@ -62,18 +63,18 @@ export const EDITOR_EXTENSIONS_PATHS = {
   },
 } as const;
 
-export const CONTEXT_PREFIX = 'projectPanel';
-export const VIEW_ID_TASKS = 'projectPanelTasks';
-export const VIEW_ID_CONFIGS = 'projectPanelConfigs';
-export const VIEW_ID_REPLACEMENTS = 'projectPanelReplacements';
-export const VIEW_ID_TOOLS = 'projectPanelTools';
-export const VIEW_ID_PROMPTS = 'projectPanelPrompts';
-export const VIEW_ID_BRANCH_CONTEXT = 'projectPanelBranchContext';
-export const VIEW_ID_TODOS = 'projectPanelTodos';
+export const CONTEXT_PREFIX = 'devPanel';
+export const VIEW_ID_TASKS = `${CONTEXT_PREFIX}Tasks`;
+export const VIEW_ID_CONFIGS = `${CONTEXT_PREFIX}Configs`;
+export const VIEW_ID_REPLACEMENTS = `${CONTEXT_PREFIX}Replacements`;
+export const VIEW_ID_TOOLS = `${CONTEXT_PREFIX}Tools`;
+export const VIEW_ID_PROMPTS = `${CONTEXT_PREFIX}Prompts`;
+export const VIEW_ID_BRANCH_CONTEXT = `${CONTEXT_PREFIX}BranchContext`;
+export const VIEW_ID_TODOS = `${CONTEXT_PREFIX}Todos`;
 export const DEV_SUFFIX = 'dev';
-export const LOG_BASENAME = 'project-panel';
+export const LOG_BASENAME = EXTENSION_NAME;
 export const TOOL_COMMAND_SUFFIX = 'tool';
-export const TOOL_TASK_TYPE = 'projectPanel-tool';
+export const TOOL_TASK_TYPE = `${CONTEXT_PREFIX}-tool`;
 export const GLOBAL_TASK_TYPE = `${CONFIG_DIR_KEY}-global`;
 export const PROMPT_COMMAND_SUFFIX = 'prompt';
 export const REPLACEMENT_COMMAND_SUFFIX = 'replacement';
@@ -114,9 +115,9 @@ export function getGlobalPromptsDir(): string {
   return path.join(getGlobalConfigDir(), PROMPTS_DIR_NAME);
 }
 
-export const AI_SPEC_PROJECT_TOOLS_REGEX = /<project_tools>[\s\S]*?<\/project_tools>/;
+export const AI_SPEC_DEV_TOOLS_REGEX = /<dev_tools>[\s\S]*?<\/dev_tools>/;
 
-export const REGISTRY_BASE_URL = 'https://raw.githubusercontent.com/lucasvtiradentes/project-panel/main/registry';
+export const REGISTRY_BASE_URL = 'https://raw.githubusercontent.com/lucasvtiradentes/dev-panel/main/registry';
 export const REGISTRY_INDEX_FILE = 'index.json';
 export const PLUGINS_DIR_NAME = 'plugins';
 export const SCRIPTS_DIR_NAME = 'scripts';
@@ -128,7 +129,7 @@ export const REGISTRY_DEFAULT_SCRIPT_FILE = 'script.sh';
 export const REGISTRY_CONFIG_FILE = 'config.json';
 export const AI_SPEC_AVAILABLE_TOOLS_REGEX = /<available_tools>[\s\S]*?<\/available_tools>/;
 
-export const WORKSPACE_STATE_CONFIG_DIR_KEY = 'pp.configDir';
+export const WORKSPACE_STATE_CONFIG_DIR_KEY = `${CONFIG_DIR_KEY}.configDir`;
 
 export const ERROR_MSG_WORKSPACE_REQUIRED = 'File/folder input requires a workspace folder';
 export const ERROR_MSG_INVALID_NUMBER = 'Please enter a valid number';
@@ -137,7 +138,7 @@ export const CONFIRM_YES = 'Yes';
 export const CONFIRM_NO = 'No';
 export const CONFIRM_OPTIONS = [CONFIRM_YES, CONFIRM_NO] as const;
 
-export const GLOBAL_ITEM_TOOLTIP_SUFFIX = 'from ~/.pp/config.jsonc';
+export const GLOBAL_ITEM_TOOLTIP_SUFFIX = 'from ~/.devpanel/config.jsonc';
 export const GLOBAL_PROMPT_TOOLTIP = `Global prompt ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
 export const GLOBAL_TASK_TOOLTIP = `Global task ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
 export const GLOBAL_TOOL_TOOLTIP = `Global tool ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;

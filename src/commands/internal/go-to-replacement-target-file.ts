@@ -1,10 +1,10 @@
 import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
-import type { PPReplacement } from '../../common/schemas/config-schema';
+import type { DevPanelReplacement } from '../../common/schemas/config-schema';
 import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
 
-export type GoToReplacementTargetFileParams = { replacement?: PPReplacement };
+export type GoToReplacementTargetFileParams = { replacement?: DevPanelReplacement };
 
 export function createGoToReplacementTargetFileCommand(): vscode.Disposable {
   return registerCommand(Command.GoToReplacementTargetFile, async (item: GoToReplacementTargetFileParams) => {

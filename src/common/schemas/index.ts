@@ -1,10 +1,10 @@
-// Config schema exports (for .pp/config.jsonc)
+// Config schema exports (for .devpanel/config.jsonc)
 export {
-  type PPConfig,
-  type PPPrompt,
-  type PPInput,
-  type PPSettings,
-  PPConfigSchema,
+  type DevPanelConfig,
+  type DevPanelPrompt,
+  type DevPanelInput,
+  type DevPanelSettings,
+  DevPanelConfigSchema,
   AIProvider,
   PromptExecutionMode,
   PromptInputType,

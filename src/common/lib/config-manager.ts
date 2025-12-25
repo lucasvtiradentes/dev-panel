@@ -10,7 +10,7 @@ import {
   BRANCH_CONTEXT_TEMPLATE_FILENAME,
   PROMPTS_DIR_NAME,
 } from '../constants/scripts-constants';
-import type { PPConfig } from '../schemas';
+import type { DevPanelConfig } from '../schemas';
 import { StoreKey, extensionStore } from './extension-store';
 
 function getConfigDir(workspacePath: string, configDir: string | null): vscode.Uri {
@@ -166,34 +166,36 @@ export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] {
   return vscode.workspace.workspaceFolders ?? [];
 }
 
-export function parseConfig(content: string): PPConfig | null {
+export function parseConfig(content: string): DevPanelConfig | null {
   try {
-    return JSON5.parse(content) as PPConfig;
+    return JSON5.parse(content) as DevPanelConfig;
   } catch {
     return null;
   }
 }
 
-export function loadConfigFromPath(configPath: string): PPConfig | null {
+export function loadConfigFromPath(configPath: string): DevPanelConfig | null {
   if (!fs.existsSync(configPath)) return null;
   try {
-    return JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
+    return JSON5.parse(fs.readFileSync(configPath, 'utf8')) as DevPanelConfig;
   } catch {
     return null;
   }
 }
 
-export function loadWorkspaceConfigFromPath(workspacePath: string): PPConfig | null {
+export function loadWorkspaceConfigFromPath(workspacePath: string): DevPanelConfig | null {
   const configPath = getConfigFilePathFromWorkspacePath(workspacePath, CONFIG_FILE_NAME);
   return loadConfigFromPath(configPath);
 }
 
-export function loadWorkspaceConfig(folder: vscode.WorkspaceFolder): PPConfig | null {
+export function loadWorkspaceConfig(folder: vscode.WorkspaceFolder): DevPanelConfig | null {
   const configPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
   return loadConfigFromPath(configPath);
 }
 
-export function forEachWorkspaceConfig(callback: (folder: vscode.WorkspaceFolder, config: PPConfig) => void): void {
+export function forEachWorkspaceConfig(
+  callback: (folder: vscode.WorkspaceFolder, config: DevPanelConfig) => void,
+): void {
   const folders = getWorkspaceFolders();
   if (folders.length === 0) return;
 
@@ -205,16 +207,16 @@ export function forEachWorkspaceConfig(callback: (folder: vscode.WorkspaceFolder
   }
 }
 
-export function loadGlobalConfig(): PPConfig | null {
+export function loadGlobalConfig(): DevPanelConfig | null {
   const configPath = getGlobalConfigPath();
   return loadConfigFromPath(configPath);
 }
 
 type ConfigArrayKey = 'prompts' | 'tasks' | 'tools';
 type ConfigArrayItem =
-  | NonNullable<PPConfig['prompts']>[number]
-  | NonNullable<PPConfig['tasks']>[number]
-  | NonNullable<PPConfig['tools']>[number];
+  | NonNullable<DevPanelConfig['prompts']>[number]
+  | NonNullable<DevPanelConfig['tasks']>[number]
+  | NonNullable<DevPanelConfig['tools']>[number];
 
 export function ensureDirectoryExists(dirPath: string): void {
   if (!fs.existsSync(dirPath)) {
@@ -222,18 +224,18 @@ export function ensureDirectoryExists(dirPath: string): void {
   }
 }
 
-export function saveConfigToPath(configPath: string, config: PPConfig): void {
+export function saveConfigToPath(configPath: string, config: DevPanelConfig): void {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
 }
 
-export function saveGlobalConfig(config: PPConfig): void {
+export function saveGlobalConfig(config: DevPanelConfig): void {
   const globalConfigDir = getGlobalConfigDir();
   const globalConfigPath = getGlobalConfigPath();
   ensureDirectoryExists(globalConfigDir);
   saveConfigToPath(globalConfigPath, config);
 }
 
-export function saveWorkspaceConfig(folder: vscode.WorkspaceFolder, config: PPConfig): void {
+export function saveWorkspaceConfig(folder: vscode.WorkspaceFolder, config: DevPanelConfig): void {
   const workspaceConfigDir = getWorkspaceConfigDirPath(folder);
   const workspaceConfigPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
   ensureDirectoryExists(workspaceConfigDir);
@@ -258,7 +260,11 @@ export async function confirmDelete(itemType: string, itemName: string, isGlobal
   return choice === 'Delete';
 }
 
-export function addOrUpdateConfigItem(config: PPConfig, arrayKey: ConfigArrayKey, item: ConfigArrayItem): boolean {
+export function addOrUpdateConfigItem(
+  config: DevPanelConfig,
+  arrayKey: ConfigArrayKey,
+  item: ConfigArrayItem,
+): boolean {
   if (!config[arrayKey]) {
     if (arrayKey === 'prompts') config.prompts = [];
     else if (arrayKey === 'tasks') config.tasks = [];
@@ -277,7 +283,11 @@ export function addOrUpdateConfigItem(config: PPConfig, arrayKey: ConfigArrayKey
   return false;
 }
 
-export function removeConfigItem(config: PPConfig, arrayKey: ConfigArrayKey, itemName: string): ConfigArrayItem | null {
+export function removeConfigItem(
+  config: DevPanelConfig,
+  arrayKey: ConfigArrayKey,
+  itemName: string,
+): ConfigArrayItem | null {
   const array = config[arrayKey] as ConfigArrayItem[] | undefined;
   if (!array) return null;
 

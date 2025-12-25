@@ -12,7 +12,7 @@ import { loadWorkspaceConfigFromPath } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
-import type { PPConfig } from '../../common/schemas/config-schema';
+import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { loadBranchContextFromFile } from '../branch-context/file-storage';
 import { getBranchContextFilePath } from '../branch-context/markdown-parser';
@@ -178,7 +178,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     void setContextKey(ContextKey.BranchTasksHasExternalProvider, hasExternalProvider);
   }
 
-  private loadConfig(workspace: string): PPConfig | null {
+  private loadConfig(workspace: string): DevPanelConfig | null {
     return loadWorkspaceConfigFromPath(workspace);
   }
 

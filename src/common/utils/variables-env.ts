@@ -20,7 +20,7 @@ export function loadVariablesFromPath(variablesPath: string): Record<string, unk
   }
 }
 
-export function readPPVariablesAsEnv(configDirPath: string): Record<string, string> {
+export function readDevPanelVariablesAsEnv(configDirPath: string): Record<string, string> {
   const variablesPath = `${configDirPath}/${VARIABLES_FILE_NAME}`;
   const variables = loadVariablesFromPath(variablesPath);
   if (!variables) return {};

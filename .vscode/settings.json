@@ -12,7 +12,7 @@
     ".github": true,
     ".husky": true,
     // ".ignore": true,
-    // ".pp": true,
+    // ".devpanel": true,
     ".tscanner": true,
     // ".vscode": true,
     "dist-dev": true,

@@ -1,6 +1,7 @@
 import { z } from 'zod';
+import { TASK_SOURCE_VALUES } from './types';
 
-const TaskSourceEnum = z.enum(['vscode', 'package', 'pp']);
+const TaskSourceEnum = z.enum(TASK_SOURCE_VALUES);
 
 const SourceStateSchema = z.object({
   flatOrder: z.array(z.string()),
@@ -15,15 +16,15 @@ const TasksStateSchema = z.object({
   current: TaskSourceEnum,
   isGrouped: z.boolean(),
   vscode: SourceStateSchema,
-  packageJson: SourceStateSchema,
-  pp: SourceStateSchema,
+  package: SourceStateSchema,
+  devpanel: SourceStateSchema,
 });
 
 const ToolsStateSchema = z.object({
   isGrouped: z.boolean(),
   showHidden: z.boolean().optional(),
   showOnlyFavorites: z.boolean().optional(),
-  pp: SourceStateSchema,
+  devpanel: SourceStateSchema,
   activeTools: z.array(z.string()),
 });
 
@@ -31,7 +32,7 @@ const PromptsStateSchema = z.object({
   isGrouped: z.boolean(),
   showHidden: z.boolean().optional(),
   showOnlyFavorites: z.boolean().optional(),
-  pp: SourceStateSchema,
+  devpanel: SourceStateSchema,
 });
 
 const VariablesStateSchema = z.object({
@@ -61,7 +62,7 @@ const TasksGlobalStateSchema = z.object({
   isGrouped: z.boolean(),
   showHidden: z.boolean().optional(),
   showOnlyFavorites: z.boolean().optional(),
-  pp: SourceStateSchema,
+  devpanel: SourceStateSchema,
 });
 
 const GlobalUIStateSchema = z.object({
@@ -92,24 +93,24 @@ export const DEFAULT_TASKS_STATE: TasksState = {
   current: 'vscode',
   isGrouped: false,
   vscode: { ...DEFAULT_SOURCE_STATE },
-  packageJson: { ...DEFAULT_SOURCE_STATE },
-  pp: { ...DEFAULT_SOURCE_STATE },
+  package: { ...DEFAULT_SOURCE_STATE },
+  devpanel: { ...DEFAULT_SOURCE_STATE },
 };
 
 export const DEFAULT_TASKS_GLOBAL_STATE: TasksGlobalState = {
   isGrouped: false,
-  pp: { ...DEFAULT_SOURCE_STATE },
+  devpanel: { ...DEFAULT_SOURCE_STATE },
 };
 
 export const DEFAULT_TOOLS_STATE: ToolsState = {
   isGrouped: false,
-  pp: { ...DEFAULT_SOURCE_STATE },
+  devpanel: { ...DEFAULT_SOURCE_STATE },
   activeTools: [],
 };
 
 export const DEFAULT_PROMPTS_STATE: PromptsState = {
   isGrouped: false,
-  pp: { ...DEFAULT_SOURCE_STATE },
+  devpanel: { ...DEFAULT_SOURCE_STATE },
 };
 
 export const DEFAULT_VARIABLES_STATE: VariablesState = {
