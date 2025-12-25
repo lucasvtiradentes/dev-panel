@@ -6,6 +6,24 @@ import { isMultiRootWorkspace } from '../../common/lib/vscode-utils';
 import type { CodeWorkspaceFile, TaskDefinition, TasksJson } from '../../common/schemas/types';
 import { BaseGroupTreeItem } from '../common';
 
+function loadCodeWorkspace(filePath: string): CodeWorkspaceFile | null {
+  if (!fs.existsSync(filePath)) return null;
+  try {
+    return JSON5.parse(fs.readFileSync(filePath, 'utf8')) as CodeWorkspaceFile;
+  } catch {
+    return null;
+  }
+}
+
+function loadTasksJson(filePath: string): TasksJson | null {
+  if (!fs.existsSync(filePath)) return null;
+  try {
+    return JSON5.parse(fs.readFileSync(filePath, 'utf8')) as TasksJson;
+  } catch {
+    return null;
+  }
+}
+
 export class GroupTreeItem extends BaseGroupTreeItem<TreeTask> {}
 
 export class WorkspaceTreeItem extends vscode.TreeItem {
@@ -78,7 +96,7 @@ export class TreeTask extends vscode.TreeItem {
     if (!workspaceFolders) return;
 
     for (const workspaceFolder of workspaceFolders) {
-      const tasksJson = this.loadTasksJson(workspaceFolder, multiRoot);
+      const tasksJson = this.loadTasksJsonForWorkspace(workspaceFolder, multiRoot);
       if (!tasksJson) continue;
 
       const taskDef = tasksJson.tasks.find((t) => t.label === this.label);
@@ -89,29 +107,26 @@ export class TreeTask extends vscode.TreeItem {
     }
   }
 
-  private loadTasksJson(workspaceFolder: vscode.WorkspaceFolder, multiRoot: boolean): TasksJson | null {
+  private loadTasksJsonForWorkspace(workspaceFolder: vscode.WorkspaceFolder, multiRoot: boolean): TasksJson | null {
     const basePath = workspaceFolder.uri.fsPath;
     const codeWorkspacePath = `${basePath}/${workspaceFolder.name}.code-workspace`;
     const tasksJsonPath = `${basePath}/${VSCODE_TASKS_PATH}`;
 
-    if (multiRoot && fs.existsSync(codeWorkspacePath)) {
-      const codeWorkspace = JSON5.parse(fs.readFileSync(codeWorkspacePath, 'utf8')) as CodeWorkspaceFile;
+    if (multiRoot) {
+      const codeWorkspace = loadCodeWorkspace(codeWorkspacePath);
+      if (codeWorkspace) {
+        let tasks = codeWorkspace.tasks?.tasks ?? [];
 
-      let tasks = codeWorkspace.tasks?.tasks ?? [];
+        const tasksJsonFile = loadTasksJson(tasksJsonPath);
+        if (tasksJsonFile) {
+          tasks = [...tasks, ...tasksJsonFile.tasks];
+        }
 
-      if (fs.existsSync(tasksJsonPath)) {
-        const tasksJsonFile = JSON5.parse(fs.readFileSync(tasksJsonPath, 'utf8')) as TasksJson;
-        tasks = [...tasks, ...tasksJsonFile.tasks];
+        return { tasks };
       }
-
-      return { tasks };
     }
 
-    if (fs.existsSync(tasksJsonPath)) {
-      return JSON5.parse(fs.readFileSync(tasksJsonPath, 'utf8')) as TasksJson;
-    }
-
-    return null;
+    return loadTasksJson(tasksJsonPath);
   }
 
   private applyTaskDefinition(taskDef: TaskDefinition): void {

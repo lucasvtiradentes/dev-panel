@@ -759,8 +759,7 @@
         },
         {
           "command": "projectPanel.setTaskKeybinding",
-          "when": "view == projectPanelTasks && viewItem =~ /^task/ && taskSourcePP",
-          "group": "inline@3"
+          "when": "view == projectPanelTasks && viewItem =~ /^task/ && taskSourcePP"
         },
         {
           "command": "projectPanel.executeTask",
@@ -846,13 +845,12 @@
         },
         {
           "command": "projectPanel.setPromptKeybinding",
-          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/",
-          "group": "inline@3"
+          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/"
         },
         {
           "command": "projectPanel.goToPromptFile",
           "when": "view == projectPanelPrompts && viewItem =~ /^prompt/",
-          "group": "inline@4"
+          "group": "inline@3"
         },
         {
           "command": "projectPanel.executePrompt",
@@ -875,13 +873,12 @@
         },
         {
           "command": "projectPanel.setVariableKeybinding",
-          "when": "view == projectPanelConfigs && viewItem == variableItem",
-          "group": "inline@1"
+          "when": "view == projectPanelConfigs && viewItem == variableItem"
         },
         {
           "command": "projectPanel.resetConfigOption",
           "when": "view == projectPanelConfigs && viewItem == variableItem",
-          "group": "inline@2"
+          "group": "inline@1"
         }
       ]
     },

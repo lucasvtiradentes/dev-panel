@@ -1,9 +1,7 @@
 import * as fs from 'node:fs';
 import { homedir } from 'node:os';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
-  CONFIG_FILE_NAME,
   CONTEXT_VALUES,
   DND_MIME_TYPE_TOOLS,
   GLOBAL_ITEM_PREFIX,
@@ -14,9 +12,8 @@ import {
   TOOL_INSTRUCTIONS_FILE,
   getCommandId,
   getGlobalConfigDir,
-  getGlobalConfigPath,
 } from '../../common/constants';
-import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
+import { getWorkspaceConfigDirPath, loadGlobalConfig, loadWorkspaceConfig } from '../../common/lib/config-manager';
 import { globalToolsState } from '../../common/lib/global-state';
 import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
@@ -109,18 +106,6 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     );
   }
 
-  protected getHiddenItems(): string[] {
-    const workspaceHidden = this.stateManager.getHiddenItems();
-    const globalHidden = globalToolsState.getSourceState().hidden.map((name) => `${GLOBAL_ITEM_PREFIX}${name}`);
-    return [...workspaceHidden, ...globalHidden];
-  }
-
-  protected getFavoriteItems(): string[] {
-    const workspaceFavorites = this.stateManager.getFavoriteItems();
-    const globalFavorites = globalToolsState.getSourceState().favorites.map((name) => `${GLOBAL_ITEM_PREFIX}${name}`);
-    return [...workspaceFavorites, ...globalFavorites];
-  }
-
   public async getChildren(item?: TreeTool | ToolGroupTreeItem): Promise<Array<TreeTool | ToolGroupTreeItem>> {
     if (item instanceof ToolGroupTreeItem) {
       return this.sortElements(item.children);
@@ -188,21 +173,13 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   }
 
   private readPPTools(folder: vscode.WorkspaceFolder): NonNullable<PPConfig['tools']> {
-    const configPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
-    if (!fs.existsSync(configPath)) return [];
-    const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
-    return config.tools ?? [];
+    const config = loadWorkspaceConfig(folder);
+    return config?.tools ?? [];
   }
 
   private readGlobalTools(): NonNullable<PPConfig['tools']> {
-    const configPath = getGlobalConfigPath();
-    if (!fs.existsSync(configPath)) return [];
-    try {
-      const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
-      return config.tools ?? [];
-    } catch {
-      return [];
-    }
+    const config = loadGlobalConfig();
+    return config?.tools ?? [];
   }
 
   private extractFileFromCommand(command: string): string | null {

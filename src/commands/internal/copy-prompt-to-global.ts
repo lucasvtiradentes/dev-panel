@@ -1,95 +1,71 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import JSON5 from 'json5';
-import * as vscode from 'vscode';
-import { CONFIG_FILE_NAME, GLOBAL_ITEM_PREFIX, getGlobalConfigDir, getGlobalConfigPath } from '../../common/constants';
-import { getWorkspaceConfigFilePath, joinConfigPath } from '../../common/lib/config-manager';
+import { getGlobalConfigDir } from '../../common/constants';
+import {
+  addOrUpdateConfigItem,
+  confirmOverwrite,
+  ensureDirectoryExists,
+  joinConfigPath,
+  loadGlobalConfig,
+  loadWorkspaceConfig,
+  saveGlobalConfig,
+} from '../../common/lib/config-manager';
 import { Command, executeCommand, registerCommand } from '../../common/lib/vscode-utils';
-import type { PPConfig } from '../../common/schemas';
+import {
+  isGlobalItem,
+  showAlreadyGlobalMessage,
+  showConfigNotFoundError,
+  showCopySuccessMessage,
+  showInvalidItemError,
+  showNotFoundError,
+} from '../../common/utils/item-utils';
+import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 import type { TreePrompt } from '../../views/prompts/items';
 
 async function handleCopyPromptToGlobal(treePrompt: TreePrompt): Promise<void> {
-  if (!treePrompt || !treePrompt.promptName) {
-    vscode.window.showErrorMessage('Invalid prompt selected');
+  if (!treePrompt?.promptName) {
+    showInvalidItemError('prompt');
     return;
   }
 
-  if (treePrompt.promptName.startsWith(GLOBAL_ITEM_PREFIX)) {
-    vscode.window.showInformationMessage('This prompt is already global');
+  if (isGlobalItem(treePrompt.promptName)) {
+    showAlreadyGlobalMessage('prompt');
     return;
   }
 
-  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-  if (!workspaceFolder) {
-    vscode.window.showErrorMessage('No workspace folder found');
+  const workspaceFolder = requireWorkspaceFolder();
+  if (!workspaceFolder) return;
+
+  const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
+  if (!workspaceConfig) {
+    showConfigNotFoundError('workspace');
     return;
   }
 
-  const workspaceConfigPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
-  if (!fs.existsSync(workspaceConfigPath)) {
-    vscode.window.showErrorMessage('Workspace config not found');
-    return;
-  }
-
-  const workspaceConfig = JSON5.parse(fs.readFileSync(workspaceConfigPath, 'utf8')) as PPConfig;
   const prompt = workspaceConfig.prompts?.find((p) => p.name === treePrompt.promptName);
-
   if (!prompt) {
-    vscode.window.showErrorMessage(`Prompt "${treePrompt.promptName}" not found in workspace config`);
+    showNotFoundError('Prompt', treePrompt.promptName, 'workspace');
     return;
   }
+
+  const globalConfig = loadGlobalConfig() ?? {};
+  const exists = globalConfig.prompts?.some((p) => p.name === prompt.name);
+
+  if (exists && !(await confirmOverwrite('Prompt', prompt.name))) return;
+
+  addOrUpdateConfigItem(globalConfig, 'prompts', prompt);
+  saveGlobalConfig(globalConfig);
 
   const globalConfigDir = getGlobalConfigDir();
-  const globalConfigPath = getGlobalConfigPath();
-
-  if (!fs.existsSync(globalConfigDir)) {
-    fs.mkdirSync(globalConfigDir, { recursive: true });
-  }
-
-  let globalConfig: PPConfig = {};
-  if (fs.existsSync(globalConfigPath)) {
-    try {
-      globalConfig = JSON5.parse(fs.readFileSync(globalConfigPath, 'utf8')) as PPConfig;
-    } catch (error) {
-      vscode.window.showErrorMessage('Failed to read global config');
-      return;
-    }
-  }
-
-  if (!globalConfig.prompts) {
-    globalConfig.prompts = [];
-  }
-
-  const existingPrompt = globalConfig.prompts.find((p) => p.name === prompt.name);
-  if (existingPrompt) {
-    const choice = await vscode.window.showWarningMessage(
-      `Prompt "${prompt.name}" already exists in global config. Overwrite?`,
-      'Overwrite',
-      'Cancel',
-    );
-
-    if (choice !== 'Overwrite') return;
-
-    const index = globalConfig.prompts.indexOf(existingPrompt);
-    globalConfig.prompts[index] = prompt;
-  } else {
-    globalConfig.prompts.push(prompt);
-  }
-
-  fs.writeFileSync(globalConfigPath, JSON.stringify(globalConfig, null, 2), 'utf8');
-
   const workspacePromptFile = joinConfigPath(workspaceFolder, prompt.file);
   const globalPromptFile = path.join(globalConfigDir, prompt.file);
 
   if (fs.existsSync(workspacePromptFile)) {
-    const globalPromptDir = path.dirname(globalPromptFile);
-    if (!fs.existsSync(globalPromptDir)) {
-      fs.mkdirSync(globalPromptDir, { recursive: true });
-    }
+    ensureDirectoryExists(path.dirname(globalPromptFile));
     fs.copyFileSync(workspacePromptFile, globalPromptFile);
   }
 
-  vscode.window.showInformationMessage(`✓ Prompt "${prompt.name}" copied to global config`);
+  showCopySuccessMessage('Prompt', prompt.name, 'global');
   void executeCommand(Command.RefreshPrompts);
 }
 

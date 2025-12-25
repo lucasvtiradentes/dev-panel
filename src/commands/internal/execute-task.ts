@@ -2,13 +2,16 @@ import { exec } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { promisify } from 'node:util';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 
 const execAsync = promisify(exec);
 import { GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, VARIABLES_FILE_NAME } from '../../common/constants/scripts-constants';
-import { getPromptOutputFilePath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
+import {
+  getPromptOutputFilePath,
+  getWorkspaceConfigFilePath,
+  loadWorkspaceConfig,
+} from '../../common/lib/config-manager';
 import { collectInputs, replaceInputPlaceholders } from '../../common/lib/inputs';
 import { createLogger } from '../../common/lib/logger';
 import { Command, isMultiRootWorkspace, registerCommand } from '../../common/lib/vscode-utils';
@@ -19,6 +22,8 @@ import {
   PromptExecutionMode,
   getAIProvidersListFormatted,
 } from '../../common/schemas';
+import { loadVariablesFromPath } from '../../common/utils/variables-env';
+import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';
 
@@ -32,19 +37,15 @@ export type ExecutePromptParams = {
 
 function readPPVariablesAsEnv(workspacePath: string): Record<string, string> {
   const variablesPath = `${workspacePath}/${CONFIG_DIR_NAME}/${VARIABLES_FILE_NAME}`;
-  if (!fs.existsSync(variablesPath)) return {};
-  try {
-    const variablesContent = fs.readFileSync(variablesPath, 'utf8');
-    const variables = JSON5.parse(variablesContent) as Record<string, unknown>;
-    const env: Record<string, string> = {};
-    for (const [key, value] of Object.entries(variables)) {
-      const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
-      env[key] = stringValue;
-    }
-    return env;
-  } catch {
-    return {};
+  const variables = loadVariablesFromPath(variablesPath);
+  if (!variables) return {};
+
+  const env: Record<string, string> = {};
+  for (const [key, value] of Object.entries(variables)) {
+    const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+    env[key] = stringValue;
   }
+  return env;
 }
 
 function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscode.Task {
@@ -110,7 +111,7 @@ export function createExecuteTaskCommand(context: vscode.ExtensionContext) {
 
       if (taskConfig?.inputs && taskConfig.inputs.length > 0) {
         const folder = scope && typeof scope !== 'number' && 'uri' in scope ? (scope as vscode.WorkspaceFolder) : null;
-        const folderForSettings = folder ?? vscode.workspace.workspaceFolders?.[0];
+        const folderForSettings = folder ?? getFirstWorkspaceFolder();
         const settings = folderForSettings ? readPPSettings(folderForSettings) : undefined;
 
         const inputValues = await collectInputs(taskConfig.inputs, folder, settings);
@@ -197,40 +198,25 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
 }
 
 function readPPSettings(folder: vscode.WorkspaceFolder): PPSettings | undefined {
-  const configPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
-  log.debug(`readPPSettings - configPath: ${configPath}`);
-  if (!fs.existsSync(configPath)) {
-    log.debug('readPPSettings - config file not found');
+  const config = loadWorkspaceConfig(folder);
+  if (!config) {
+    log.debug('readPPSettings - config file not found or failed to parse');
     return undefined;
   }
-  try {
-    const configContent = fs.readFileSync(configPath, 'utf8');
-    log.debug(`readPPSettings - file read, length: ${configContent.length}`);
-    const config = JSON5.parse(configContent) as PPConfig;
-    log.info(`readPPSettings - settings: ${JSON.stringify(config.settings)}`);
-    return config.settings;
-  } catch (err) {
-    log.error(`readPPSettings - error: ${err}`);
-    return undefined;
-  }
+  log.info(`readPPSettings - settings: ${JSON.stringify(config.settings)}`);
+  return config.settings;
 }
 
 function readPPVariables(folder: vscode.WorkspaceFolder): Record<string, unknown> | null {
   const variablesPath = getWorkspaceConfigFilePath(folder, VARIABLES_FILE_NAME);
   log.debug(`readPPVariables - variablesPath: ${variablesPath}`);
-  if (!fs.existsSync(variablesPath)) {
-    log.debug('readPPVariables - variables file not found');
+  const variables = loadVariablesFromPath(variablesPath);
+  if (!variables) {
+    log.debug('readPPVariables - variables file not found or failed to parse');
     return null;
   }
-  try {
-    const variablesContent = fs.readFileSync(variablesPath, 'utf8');
-    const variables = JSON5.parse(variablesContent) as Record<string, unknown>;
-    log.info(`readPPVariables - loaded ${Object.keys(variables).length} variables`);
-    return variables;
-  } catch (err) {
-    log.error(`readPPVariables - error: ${err}`);
-    return null;
-  }
+  log.info(`readPPVariables - loaded ${Object.keys(variables).length} variables`);
+  return variables;
 }
 
 function replaceVariablePlaceholders(content: string, variables: Record<string, unknown>): string {
@@ -266,7 +252,7 @@ export function createExecutePromptCommand() {
 
       let promptContent = fs.readFileSync(resolvedPromptFilePath, 'utf8');
 
-      const folderForSettings = folder ?? vscode.workspace.workspaceFolders?.[0];
+      const folderForSettings = folder ?? getFirstWorkspaceFolder();
       const settings = folderForSettings ? readPPSettings(folderForSettings) : undefined;
       log.info(`settings: ${JSON.stringify(settings)}`);
 
@@ -291,7 +277,7 @@ export function createExecutePromptCommand() {
       }
 
       if (promptConfig?.saveOutput) {
-        const folderForOutput = folder ?? vscode.workspace.workspaceFolders?.[0];
+        const folderForOutput = folder ?? getFirstWorkspaceFolder();
         if (!folderForOutput) {
           void vscode.window.showErrorMessage('No workspace folder available to save prompt output');
           return;

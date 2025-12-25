@@ -14,6 +14,7 @@ import {
 } from '../../common/constants';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import { TaskSource } from '../../common/schemas/types';
+import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { getExcludedDirs } from '../../views/tasks/package-json';
 import { getCurrentSource } from '../../views/tasks/state';
 
@@ -63,7 +64,7 @@ async function openPackageJsonAtScripts(packageJsonPath: string): Promise<void> 
 export function createOpenTasksConfigCommand() {
   return registerCommand(Command.OpenTasksConfig, async () => {
     const source = getCurrentSource();
-    const workspace = vscode.workspace.workspaceFolders?.[0];
+    const workspace = getFirstWorkspaceFolder();
     if (!workspace) return;
 
     const workspacePath = workspace.uri.fsPath;

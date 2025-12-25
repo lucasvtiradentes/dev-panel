@@ -1,11 +1,14 @@
 import * as fs from 'node:fs';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { CONFIG_FILE_NAME } from '../common/constants';
-import { getBranchContextTemplatePath, getConfigFilePathFromWorkspacePath } from '../common/lib/config-manager';
+import {
+  getBranchContextTemplatePath,
+  getConfigFilePathFromWorkspacePath,
+  parseConfig,
+} from '../common/lib/config-manager';
 import { syncKeybindings } from '../common/lib/keybindings-sync';
 import { Command, registerCommand } from '../common/lib/vscode-utils';
-import type { PPConfig } from '../common/schemas/config-schema';
+import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
 import type { BranchContextProvider } from '../views/branch-context';
 import { validateBranchContext } from '../views/branch-context/config-validator';
@@ -138,7 +141,7 @@ export function registerAllCommands(options: {
     createSetTaskKeybindingCommand(),
     createOpenTasksKeybindingsCommand(),
     registerCommand(Command.ShowBranchContextValidation, async () => {
-      const workspace = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+      const workspace = getFirstWorkspacePath();
       if (!workspace) return;
 
       const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
@@ -148,7 +151,11 @@ export function registerAllCommands(options: {
       }
 
       const configContent = fs.readFileSync(configPath, 'utf-8');
-      const config = JSON5.parse(configContent) as PPConfig;
+      const config = parseConfig(configContent);
+      if (!config) {
+        await vscode.window.showErrorMessage('Failed to parse config file');
+        return;
+      }
       const issues = validateBranchContext(workspace, config.branchContext);
 
       if (issues.length === 0) {

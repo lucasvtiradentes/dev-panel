@@ -7,6 +7,7 @@ import {
   ERROR_MSG_WORKSPACE_REQUIRED,
 } from '../constants/scripts-constants';
 import { type PPInput, type PPSettings, PromptInputType } from '../schemas';
+import { getFirstWorkspaceFolder } from '../utils/workspace-utils';
 import { type FileSelectionOptions, selectFiles, selectFolders } from './file-selection';
 import { createLogger } from './logger';
 
@@ -100,7 +101,7 @@ async function collectFileInput(
   log.info(`collectFileInput called - multiple: ${multiple}`);
   log.debug(`input: ${JSON.stringify(input)}`);
 
-  const folder = workspaceFolder ?? vscode.workspace.workspaceFolders?.[0];
+  const folder = workspaceFolder ?? getFirstWorkspaceFolder();
   if (!folder) {
     void vscode.window.showErrorMessage(ERROR_MSG_WORKSPACE_REQUIRED);
     return undefined;
@@ -126,7 +127,7 @@ async function collectFolderInput(
   multiple: boolean,
   settings?: PPSettings,
 ): Promise<string | undefined> {
-  const folder = workspaceFolder ?? vscode.workspace.workspaceFolders?.[0];
+  const folder = workspaceFolder ?? getFirstWorkspaceFolder();
   if (!folder) {
     void vscode.window.showErrorMessage(ERROR_MSG_WORKSPACE_REQUIRED);
     return undefined;

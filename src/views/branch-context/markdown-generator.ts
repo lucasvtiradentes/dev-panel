@@ -1,5 +1,4 @@
 import * as fs from 'node:fs';
-import * as vscode from 'vscode';
 import {
   BRANCH_CONTEXT_DEFAULT_TODOS,
   BRANCH_CONTEXT_NA,
@@ -13,6 +12,7 @@ import {
 import { getBranchContextFilePath, getBranchDirectory } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import type { BranchContext } from '../../common/schemas/types';
+import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { detectBranchType, generateBranchTypeCheckboxes } from './branch-type-utils';
 import { getChangedFilesTree } from './git-changed-files';
 import { loadTemplate } from './template-parser';
@@ -21,10 +21,6 @@ type SectionMetadataMap = Record<string, Record<string, unknown>>;
 
 const logger = createLogger('MarkdownGenerator');
 
-function getWorkspacePath(): string | null {
-  return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
-}
-
 export async function generateBranchContextMarkdown(
   branchName: string,
   context: BranchContext,
@@ -32,7 +28,7 @@ export async function generateBranchContextMarkdown(
 ): Promise<void> {
   logger.info(`[generateBranchContextMarkdown] Called for branch: ${branchName}`);
 
-  const workspace = getWorkspacePath();
+  const workspace = getFirstWorkspacePath();
   if (!workspace) {
     logger.warn('[generateBranchContextMarkdown] No workspace found');
     return;

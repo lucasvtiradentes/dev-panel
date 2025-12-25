@@ -14,6 +14,7 @@ import {
 import { getConfigDirPattern, getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { PPConfig, PPReplacement } from '../../common/schemas/config-schema';
+import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { fileExistsInGit, getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
 import {
@@ -42,10 +43,6 @@ function normalizePatchItem(item: { search: unknown; replace: unknown }): PatchI
     search: normalizeValue(item.search),
     replace: normalizeValue(item.replace),
   };
-}
-
-function getWorkspacePath(): string | null {
-  return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
 }
 
 class ReplacementGroupTreeItem extends vscode.TreeItem {
@@ -124,7 +121,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
   }
 
   private setupFileWatcher(): void {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     const configDirPattern = getConfigDirPattern();
@@ -138,7 +135,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
   }
 
   private async handleStartup(): Promise<void> {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (workspace && (await isGitRepository(workspace))) {
       const currentBranch = await getCurrentBranch(workspace);
       setLastBranch(currentBranch);
@@ -147,7 +144,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
   }
 
   private syncReplacementState(): void {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     const config = this.loadConfig();
@@ -226,7 +223,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
   }
 
   private loadConfig(): PPConfig | null {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return null;
 
     const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
@@ -260,7 +257,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
   }
 
   private async activateReplacement(replacement: PPReplacement): Promise<void> {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     if (!(await isGitRepository(workspace))) {
@@ -293,7 +290,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
   }
 
   private async deactivateReplacement(replacement: PPReplacement): Promise<void> {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     if (await isGitRepository(workspace)) {

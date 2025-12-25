@@ -1,7 +1,6 @@
 import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
   CONFIG_CACHE_TTL_MS,
@@ -24,14 +23,13 @@ import {
 import {
   BRANCH_CONTEXT_NA,
   BRANCH_CONTEXT_NO_CHANGES,
-  CONFIG_FILE_NAME,
   ROOT_BRANCH_CONTEXT_FILE_NAME,
 } from '../../common/constants/scripts-constants';
 import {
   getBranchContextFilePath as getBranchContextFilePathUtil,
   getBranchContextGlobPattern,
   getBranchContextTemplatePath,
-  getConfigFilePathFromWorkspacePath,
+  loadWorkspaceConfigFromPath,
 } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { createLogger } from '../../common/lib/logger';
@@ -40,6 +38,7 @@ import { branchContextState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas/config-schema';
 import { SimpleCache } from '../../common/utils/cache';
 import { formatRelativeTime } from '../../common/utils/time-formatter';
+import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { validateBranchContext } from './config-validator';
 import { formatChangedFilesSummary, getChangedFilesWithSummary } from './git-changed-files';
@@ -52,10 +51,6 @@ import { loadBranchContext } from './state';
 import { ValidationIndicator } from './validation-indicator';
 
 const logger = createLogger('BranchContext');
-
-function getWorkspacePath(): string | null {
-  return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
-}
 
 export class BranchContextProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined>();
@@ -117,7 +112,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   private setupMarkdownWatcher(): void {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     const globPattern = getBranchContextGlobPattern();
@@ -128,7 +123,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   private setupRootMarkdownWatcher(): void {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     this.rootMarkdownWatcher = vscode.workspace.createFileSystemWatcher(
@@ -140,7 +135,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   private setupTemplateWatcher(): void {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     const templatePath = getBranchContextTemplatePath(workspace);
@@ -161,7 +156,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       return;
     }
 
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace || !uri) return;
 
     const currentBranchPath = getBranchContextFilePathUtil(workspace, this.currentBranch);
@@ -184,7 +179,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   async initialize(): Promise<void> {
     logger.info('[BranchContextProvider] initialize called');
 
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) {
       logger.warn('[BranchContextProvider] No workspace found');
       return;
@@ -195,21 +190,16 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       this.addToGitExclude(workspace);
     }
 
-    const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
-    if (fs.existsSync(configPath)) {
-      try {
-        const configContent = fs.readFileSync(configPath, 'utf-8');
-        const config = JSON5.parse(configContent) as PPConfig;
-        const issues = validateBranchContext(workspace, config.branchContext);
-
-        if (issues.length > 0) {
-          this.validationIndicator.show(issues);
-        } else {
-          this.validationIndicator.hide();
-        }
-      } catch {
+    const config = loadWorkspaceConfigFromPath(workspace);
+    if (config) {
+      const issues = validateBranchContext(workspace, config.branchContext);
+      if (issues.length > 0) {
+        this.validationIndicator.show(issues);
+      } else {
         this.validationIndicator.hide();
       }
+    } else {
+      this.validationIndicator.hide();
     }
   }
 
@@ -265,7 +255,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       return;
     }
 
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     const rootPath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
@@ -303,7 +293,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       return;
     }
 
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     const rootPath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
@@ -344,7 +334,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   async getChildren(element?: vscode.TreeItem): Promise<vscode.TreeItem[]> {
     if (element) return [];
 
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return [];
 
     if (!(await isGitRepository(workspace))) {
@@ -429,21 +419,9 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       return cached;
     }
 
-    const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
-    if (!fs.existsSync(configPath)) {
-      this.configCache.set(workspace, null);
-      return null;
-    }
-
-    try {
-      const content = fs.readFileSync(configPath, 'utf-8');
-      const config = JSON5.parse(content) as PPConfig;
-      this.configCache.set(workspace, config);
-      return config;
-    } catch {
-      this.configCache.set(workspace, null);
-      return null;
-    }
+    const config = loadWorkspaceConfigFromPath(workspace);
+    this.configCache.set(workspace, config);
+    return config;
   }
 
   private getSectionRegistry(
@@ -477,7 +455,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   async openMarkdownFile(): Promise<void> {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     const filePath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
@@ -506,7 +484,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       return;
     }
 
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) {
       logger.warn('[syncBranchContext] No workspace, skipping');
       return;

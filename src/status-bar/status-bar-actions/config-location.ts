@@ -16,6 +16,7 @@ import {
   setConfigDir,
 } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
+import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 
 type QuickPickItemWithId<T> = vscode.QuickPickItem & { id: T };
 
@@ -28,11 +29,8 @@ function joinPath(base: string, segment: string): string {
 }
 
 export async function showConfigLocationMenu(): Promise<void> {
-  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-  if (!workspaceFolder) {
-    void vscode.window.showErrorMessage('No workspace folder open');
-    return;
-  }
+  const workspaceFolder = requireWorkspaceFolder();
+  if (!workspaceFolder) return;
 
   const workspacePath = workspaceFolder.uri.fsPath;
   const currentConfigDir = getCurrentConfigDir();

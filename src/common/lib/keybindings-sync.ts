@@ -1,12 +1,11 @@
 import * as fs from 'node:fs';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { getAllPromptKeybindings } from '../../views/prompts/keybindings-local';
 import { getAllTaskKeybindings } from '../../views/tasks/keybindings-local';
 import { getAllToolKeybindings } from '../../views/tools/keybindings-local';
 import { getAllVariableKeybindings } from '../../views/variables/keybindings-local';
 import { getPromptCommandId, getTaskCommandId, getToolCommandId, getVariableCommandId } from '../constants/functions';
-import { getVSCodeKeybindingsPath } from './vscode-keybindings-utils';
+import { getVSCodeKeybindingsPath, loadKeybindings } from './vscode-keybindings-utils';
 
 export function syncKeybindings(): void {
   const folders = vscode.workspace.workspaceFolders ?? [];
@@ -49,16 +48,7 @@ export function syncKeybindings(): void {
   if (keybindingsToAdd.length === 0) return;
 
   const keybindingsPath = getVSCodeKeybindingsPath();
-  let existingKeybindings: Array<{ command: string; key: string }> = [];
-
-  if (fs.existsSync(keybindingsPath)) {
-    try {
-      const content = fs.readFileSync(keybindingsPath, 'utf8');
-      existingKeybindings = content.trim() ? JSON5.parse(content) : [];
-    } catch {
-      existingKeybindings = [];
-    }
-  }
+  const existingKeybindings = loadKeybindings();
 
   const commandsToUpdate = new Set(keybindingsToAdd.map((k) => k.command));
   const filtered = existingKeybindings.filter((k) => !commandsToUpdate.has(k.command));

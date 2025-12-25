@@ -1,4 +1,5 @@
-import * as vscode from 'vscode';
+import type * as vscode from 'vscode';
+import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
 
 export const WATCHER_CONSTANTS = {
   BRANCH_POLL_INTERVAL_MS: 2000,
@@ -29,6 +30,4 @@ export function attachFileWatcherHandlers(watcher: vscode.FileSystemWatcher, han
   }
 }
 
-export function getWorkspacePath(): string | null {
-  return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
-}
+export { getFirstWorkspacePath as getWorkspacePath };

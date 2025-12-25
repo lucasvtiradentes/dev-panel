@@ -1,25 +1,20 @@
-import * as fs from 'node:fs';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
   CONFIG_DIR_KEY,
-  CONFIG_FILE_NAME,
   CONTEXT_VALUES,
   GLOBAL_ITEM_PREFIX,
   GLOBAL_TASK_TOOLTIP,
   NO_GROUP_NAME,
   getCommandId,
   getGlobalConfigDir,
-  getGlobalConfigPath,
 } from '../../common/constants';
-import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
+import { getWorkspaceConfigDirPath, loadGlobalConfig, loadWorkspaceConfig } from '../../common/lib/config-manager';
 import { globalTasksState } from '../../common/lib/global-state';
 import { Command } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
 import { readPPVariablesAsEnv } from '../../common/utils/variables-env';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
-import { getTaskKeybinding } from './keybindings-local';
 import { isFavorite, isHidden } from './state';
 
 export function hasPPGroups(): boolean {
@@ -97,21 +92,13 @@ export async function getPPTasks(
 }
 
 function readPPTasks(folder: vscode.WorkspaceFolder): NonNullable<PPConfig['tasks']> {
-  const configPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
-  if (!fs.existsSync(configPath)) return [];
-  const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
-  return config.tasks ?? [];
+  const config = loadWorkspaceConfig(folder);
+  return config?.tasks ?? [];
 }
 
 function readGlobalTasks(): NonNullable<PPConfig['tasks']> {
-  const configPath = getGlobalConfigPath();
-  if (!fs.existsSync(configPath)) return [];
-  try {
-    const config = JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
-    return config.tasks ?? [];
-  } catch {
-    return [];
-  }
+  const config = loadGlobalConfig();
+  return config?.tasks ?? [];
 }
 
 function createPPTask(
@@ -156,11 +143,6 @@ function createPPTask(
     },
     folder,
   );
-
-  const keybinding = getTaskKeybinding(task.name);
-  if (keybinding) {
-    treeTask.description = keybinding;
-  }
 
   if (task.description) {
     treeTask.tooltip = task.description;
@@ -221,11 +203,6 @@ function createGlobalTask(
       arguments: [vsTask, null, task],
     },
   );
-
-  const keybinding = getTaskKeybinding(task.name);
-  if (keybinding) {
-    treeTask.description = keybinding;
-  }
 
   if (task.description) {
     treeTask.tooltip = `Global: ${task.description}`;

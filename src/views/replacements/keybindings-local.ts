@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import { getReplacementCommandId } from '../../common/constants';
+import { forEachWorkspaceConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { Command, executeCommand } from '../../common/lib/vscode-utils';
-import { forEachWorkspaceConfig } from '../../common/utils/config-loader';
 
 export function registerReplacementKeybindings(context: vscode.ExtensionContext): void {
   forEachWorkspaceConfig((_folder, config) => {

@@ -1,117 +1,76 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import JSON5 from 'json5';
-import * as vscode from 'vscode';
+import { TOOLS_DIR, getGlobalToolsDir } from '../../common/constants';
 import {
-  CONFIG_FILE_NAME,
-  GLOBAL_ITEM_PREFIX,
-  TOOLS_DIR,
-  getGlobalConfigPath,
-  getGlobalToolsDir,
-} from '../../common/constants';
-import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath, joinConfigPath } from '../../common/lib/config-manager';
+  addOrUpdateConfigItem,
+  confirmOverwrite,
+  ensureDirectoryExists,
+  joinConfigPath,
+  loadGlobalConfig,
+  loadWorkspaceConfig,
+  saveWorkspaceConfig,
+} from '../../common/lib/config-manager';
 import { Command, executeCommand, registerCommand } from '../../common/lib/vscode-utils';
-import type { PPConfig } from '../../common/schemas';
+import {
+  isGlobalItem,
+  showAlreadyWorkspaceMessage,
+  showConfigNotFoundError,
+  showCopySuccessMessage,
+  showInvalidItemError,
+  showNotFoundError,
+  stripGlobalPrefix,
+} from '../../common/utils/item-utils';
+import { selectWorkspaceFolder } from '../../common/utils/workspace-utils';
 import type { TreeTool } from '../../views/tools/items';
 
 async function handleCopyToolToWorkspace(treeTool: TreeTool): Promise<void> {
-  if (!treeTool || !treeTool.toolName) {
-    vscode.window.showErrorMessage('Invalid tool selected');
+  if (!treeTool?.toolName) {
+    showInvalidItemError('tool');
     return;
   }
 
-  if (!treeTool.toolName.startsWith(GLOBAL_ITEM_PREFIX)) {
-    vscode.window.showInformationMessage('This tool is already in workspace');
+  if (!isGlobalItem(treeTool.toolName)) {
+    showAlreadyWorkspaceMessage('tool');
     return;
   }
 
-  const toolName = treeTool.toolName.substring(GLOBAL_ITEM_PREFIX.length);
+  const toolName = stripGlobalPrefix(treeTool.toolName);
 
-  let workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  const workspaceFolder = await selectWorkspaceFolder('Select workspace to copy tool to');
+  if (!workspaceFolder) return;
 
-  if (!workspaceFolder) {
-    vscode.window.showErrorMessage('No workspace folder found');
+  const globalConfig = loadGlobalConfig();
+  if (!globalConfig) {
+    showConfigNotFoundError('global');
     return;
   }
 
-  if ((vscode.workspace.workspaceFolders?.length ?? 0) > 1) {
-    const folders = vscode.workspace.workspaceFolders?.map((f) => ({ label: f.name, folder: f })) ?? [];
-    const selected = await vscode.window.showQuickPick(folders, {
-      placeHolder: 'Select workspace to copy tool to',
-    });
-
-    if (!selected) return;
-    workspaceFolder = selected.folder;
-  }
-
-  const globalConfigPath = getGlobalConfigPath();
-  if (!fs.existsSync(globalConfigPath)) {
-    vscode.window.showErrorMessage('Global config not found');
-    return;
-  }
-
-  const globalConfig = JSON5.parse(fs.readFileSync(globalConfigPath, 'utf8')) as PPConfig;
   const tool = globalConfig.tools?.find((t) => t.name === toolName);
-
   if (!tool) {
-    vscode.window.showErrorMessage(`Tool "${toolName}" not found in global config`);
+    showNotFoundError('Tool', toolName, 'global');
     return;
   }
 
-  const workspaceConfigPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
-  const workspaceConfigDir = getWorkspaceConfigDirPath(workspaceFolder);
+  const workspaceConfig = loadWorkspaceConfig(workspaceFolder) ?? {};
+  const exists = workspaceConfig.tools?.some((t) => t.name === tool.name);
 
-  if (!fs.existsSync(workspaceConfigDir)) {
-    fs.mkdirSync(workspaceConfigDir, { recursive: true });
-  }
+  if (exists && !(await confirmOverwrite('Tool', tool.name))) return;
 
-  let workspaceConfig: PPConfig = {};
-  if (fs.existsSync(workspaceConfigPath)) {
-    try {
-      workspaceConfig = JSON5.parse(fs.readFileSync(workspaceConfigPath, 'utf8')) as PPConfig;
-    } catch (error) {
-      vscode.window.showErrorMessage('Failed to read workspace config');
-      return;
-    }
-  }
-
-  if (!workspaceConfig.tools) {
-    workspaceConfig.tools = [];
-  }
-
-  const existingTool = workspaceConfig.tools.find((t) => t.name === tool.name);
-  if (existingTool) {
-    const choice = await vscode.window.showWarningMessage(
-      `Tool "${tool.name}" already exists in workspace. Overwrite?`,
-      'Overwrite',
-      'Cancel',
-    );
-
-    if (choice !== 'Overwrite') return;
-
-    const index = workspaceConfig.tools.indexOf(existingTool);
-    workspaceConfig.tools[index] = tool;
-  } else {
-    workspaceConfig.tools.push(tool);
-  }
-
-  fs.writeFileSync(workspaceConfigPath, JSON.stringify(workspaceConfig, null, 2), 'utf8');
+  addOrUpdateConfigItem(workspaceConfig, 'tools', tool);
+  saveWorkspaceConfig(workspaceFolder, workspaceConfig);
 
   const globalToolsDir = path.join(getGlobalToolsDir(), tool.name);
   const workspaceToolsDir = joinConfigPath(workspaceFolder, TOOLS_DIR, tool.name);
 
   if (fs.existsSync(globalToolsDir)) {
-    const workspaceToolsParentDir = joinConfigPath(workspaceFolder, TOOLS_DIR);
-    if (!fs.existsSync(workspaceToolsParentDir)) {
-      fs.mkdirSync(workspaceToolsParentDir, { recursive: true });
-    }
+    ensureDirectoryExists(joinConfigPath(workspaceFolder, TOOLS_DIR));
     if (fs.existsSync(workspaceToolsDir)) {
       fs.rmSync(workspaceToolsDir, { recursive: true });
     }
     fs.cpSync(globalToolsDir, workspaceToolsDir, { recursive: true });
   }
 
-  vscode.window.showInformationMessage(`✓ Tool "${tool.name}" copied to workspace`);
+  showCopySuccessMessage('Tool', tool.name, 'workspace');
   void executeCommand(Command.RefreshTools);
 }
 

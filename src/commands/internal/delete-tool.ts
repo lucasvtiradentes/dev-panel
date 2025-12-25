@@ -1,102 +1,97 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import JSON5 from 'json5';
-import * as vscode from 'vscode';
+import { TOOLS_DIR, getGlobalToolsDir } from '../../common/constants';
 import {
-  CONFIG_FILE_NAME,
-  GLOBAL_ITEM_PREFIX,
-  TOOLS_DIR,
-  getGlobalConfigPath,
-  getGlobalToolsDir,
-} from '../../common/constants';
-import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
+  confirmDelete,
+  getWorkspaceConfigDirPath,
+  loadGlobalConfig,
+  loadWorkspaceConfig,
+  removeConfigItem,
+  saveGlobalConfig,
+  saveWorkspaceConfig,
+} from '../../common/lib/config-manager';
 import { Command, executeCommand, registerCommand } from '../../common/lib/vscode-utils';
-import type { PPConfig } from '../../common/schemas';
+import {
+  isGlobalItem,
+  showConfigNotFoundError,
+  showDeleteSuccessMessage,
+  showInvalidItemError,
+  showNoItemsFoundError,
+  showNotFoundError,
+  stripGlobalPrefix,
+} from '../../common/utils/item-utils';
+import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 import type { TreeTool } from '../../views/tools/items';
 
 async function handleDeleteTool(treeTool: TreeTool): Promise<void> {
-  if (!treeTool || !treeTool.toolName) {
-    vscode.window.showErrorMessage('Invalid tool selected');
+  if (!treeTool?.toolName) {
+    showInvalidItemError('tool');
     return;
   }
 
-  const isGlobal = treeTool.toolName.startsWith(GLOBAL_ITEM_PREFIX);
-  const toolName = isGlobal ? treeTool.toolName.substring(GLOBAL_ITEM_PREFIX.length) : treeTool.toolName;
+  const isGlobal = isGlobalItem(treeTool.toolName);
+  const toolName = stripGlobalPrefix(treeTool.toolName);
 
-  const choice = await vscode.window.showWarningMessage(
-    `Are you sure you want to delete tool "${toolName}"${isGlobal ? ' (global)' : ''}?`,
-    { modal: true },
-    'Delete',
-  );
-
-  if (choice !== 'Delete') return;
+  if (!(await confirmDelete('tool', toolName, isGlobal))) return;
 
   if (isGlobal) {
-    const globalConfigPath = getGlobalConfigPath();
-    if (!fs.existsSync(globalConfigPath)) {
-      vscode.window.showErrorMessage('Global config not found');
+    const globalConfig = loadGlobalConfig();
+    if (!globalConfig) {
+      showConfigNotFoundError('global');
       return;
     }
 
-    const globalConfig = JSON5.parse(fs.readFileSync(globalConfigPath, 'utf8')) as PPConfig;
-    if (!globalConfig.tools) {
-      vscode.window.showErrorMessage('No tools found in global config');
+    if (!globalConfig.tools?.length) {
+      showNoItemsFoundError('tool', 'global');
       return;
     }
 
-    const toolIndex = globalConfig.tools.findIndex((t) => t.name === toolName);
-    if (toolIndex === -1) {
-      vscode.window.showErrorMessage(`Tool "${toolName}" not found in global config`);
+    const removed = removeConfigItem(globalConfig, 'tools', toolName);
+    if (!removed) {
+      showNotFoundError('Tool', toolName, 'global');
       return;
     }
 
-    globalConfig.tools.splice(toolIndex, 1);
-    fs.writeFileSync(globalConfigPath, JSON.stringify(globalConfig, null, 2), 'utf8');
+    saveGlobalConfig(globalConfig);
 
     const globalToolsDir = path.join(getGlobalToolsDir(), toolName);
     if (fs.existsSync(globalToolsDir)) {
       fs.rmSync(globalToolsDir, { recursive: true });
     }
 
-    vscode.window.showInformationMessage(`✓ Global tool "${toolName}" deleted`);
-    void executeCommand(Command.RefreshTools);
-    return;
+    showDeleteSuccessMessage('tool', toolName, true);
+  } else {
+    const workspaceFolder = requireWorkspaceFolder();
+    if (!workspaceFolder) return;
+
+    const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
+    if (!workspaceConfig) {
+      showConfigNotFoundError('workspace');
+      return;
+    }
+
+    if (!workspaceConfig.tools?.length) {
+      showNoItemsFoundError('tool', 'workspace');
+      return;
+    }
+
+    const removed = removeConfigItem(workspaceConfig, 'tools', toolName);
+    if (!removed) {
+      showNotFoundError('Tool', toolName, 'workspace');
+      return;
+    }
+
+    saveWorkspaceConfig(workspaceFolder, workspaceConfig);
+
+    const workspaceConfigDirPath = getWorkspaceConfigDirPath(workspaceFolder);
+    const workspaceToolsDir = path.join(workspaceConfigDirPath, TOOLS_DIR, toolName);
+    if (fs.existsSync(workspaceToolsDir)) {
+      fs.rmSync(workspaceToolsDir, { recursive: true });
+    }
+
+    showDeleteSuccessMessage('tool', toolName, false);
   }
 
-  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-  if (!workspaceFolder) {
-    vscode.window.showErrorMessage('No workspace folder found');
-    return;
-  }
-
-  const workspaceConfigPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
-  if (!fs.existsSync(workspaceConfigPath)) {
-    vscode.window.showErrorMessage('Workspace config not found');
-    return;
-  }
-
-  const workspaceConfig = JSON5.parse(fs.readFileSync(workspaceConfigPath, 'utf8')) as PPConfig;
-  if (!workspaceConfig.tools) {
-    vscode.window.showErrorMessage('No tools found in workspace config');
-    return;
-  }
-
-  const toolIndex = workspaceConfig.tools.findIndex((t) => t.name === toolName);
-  if (toolIndex === -1) {
-    vscode.window.showErrorMessage(`Tool "${toolName}" not found in workspace config`);
-    return;
-  }
-
-  workspaceConfig.tools.splice(toolIndex, 1);
-  fs.writeFileSync(workspaceConfigPath, JSON.stringify(workspaceConfig, null, 2), 'utf8');
-
-  const workspaceConfigDirPath = getWorkspaceConfigDirPath(workspaceFolder);
-  const workspaceToolsDir = path.join(workspaceConfigDirPath, TOOLS_DIR, toolName);
-  if (fs.existsSync(workspaceToolsDir)) {
-    fs.rmSync(workspaceToolsDir, { recursive: true });
-  }
-
-  vscode.window.showInformationMessage(`✓ Tool "${toolName}" deleted`);
   void executeCommand(Command.RefreshTools);
 }
 

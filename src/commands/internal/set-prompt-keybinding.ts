@@ -1,25 +1,16 @@
-import * as vscode from 'vscode';
+import type * as vscode from 'vscode';
 import { getPromptCommandId, getPromptCommandPrefix } from '../../common/constants';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
+import { openKeybindingsForCommand, openKeybindingsWithPrefix } from '../../common/utils/keybinding-utils';
 import type { TreePrompt } from '../../views/prompts';
-
-async function handleKeybindingManagement(item: TreePrompt): Promise<void> {
-  if (!item?.promptName) return;
-
-  const commandId = getPromptCommandId(item.promptName);
-  await vscode.commands.executeCommand('workbench.action.openGlobalKeybindings', `@command:${commandId}`);
-}
-
-async function openPromptsKeybindings(): Promise<void> {
-  await vscode.commands.executeCommand('workbench.action.openGlobalKeybindings', getPromptCommandPrefix());
-}
 
 export function createSetPromptKeybindingCommand(): vscode.Disposable {
   return registerCommand(Command.SetPromptKeybinding, async (item: TreePrompt) => {
-    await handleKeybindingManagement(item);
+    if (!item?.promptName) return;
+    await openKeybindingsForCommand(getPromptCommandId(item.promptName));
   });
 }
 
 export function createOpenPromptsKeybindingsCommand(): vscode.Disposable {
-  return registerCommand(Command.OpenPromptsKeybindings, openPromptsKeybindings);
+  return registerCommand(Command.OpenPromptsKeybindings, () => openKeybindingsWithPrefix(getPromptCommandPrefix()));
 }

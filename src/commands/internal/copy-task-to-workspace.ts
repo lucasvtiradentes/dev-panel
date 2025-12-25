@@ -1,96 +1,60 @@
-import * as fs from 'node:fs';
-import JSON5 from 'json5';
-import * as vscode from 'vscode';
-import { CONFIG_FILE_NAME, GLOBAL_ITEM_PREFIX, getGlobalConfigPath } from '../../common/constants';
-import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
+import {
+  addOrUpdateConfigItem,
+  confirmOverwrite,
+  loadGlobalConfig,
+  loadWorkspaceConfig,
+  saveWorkspaceConfig,
+} from '../../common/lib/config-manager';
 import { Command, executeCommand, registerCommand } from '../../common/lib/vscode-utils';
-import type { PPConfig } from '../../common/schemas';
+import {
+  isGlobalItem,
+  showAlreadyWorkspaceMessage,
+  showConfigNotFoundError,
+  showCopySuccessMessage,
+  showInvalidItemError,
+  showNotFoundError,
+  stripGlobalPrefix,
+} from '../../common/utils/item-utils';
+import { selectWorkspaceFolder } from '../../common/utils/workspace-utils';
 import type { TreeTask } from '../../views/tasks/items';
 
 async function handleCopyTaskToWorkspace(treeTask: TreeTask): Promise<void> {
-  if (!treeTask || !treeTask.taskName) {
-    vscode.window.showErrorMessage('Invalid task selected');
+  if (!treeTask?.taskName) {
+    showInvalidItemError('task');
     return;
   }
 
-  if (!treeTask.taskName.startsWith(GLOBAL_ITEM_PREFIX)) {
-    vscode.window.showInformationMessage('This task is already in workspace');
+  if (!isGlobalItem(treeTask.taskName)) {
+    showAlreadyWorkspaceMessage('task');
     return;
   }
 
-  const taskName = treeTask.taskName.substring(GLOBAL_ITEM_PREFIX.length);
+  const taskName = stripGlobalPrefix(treeTask.taskName);
 
-  let workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  const workspaceFolder = await selectWorkspaceFolder('Select workspace to copy task to');
+  if (!workspaceFolder) return;
 
-  if (!workspaceFolder) {
-    vscode.window.showErrorMessage('No workspace folder found');
+  const globalConfig = loadGlobalConfig();
+  if (!globalConfig) {
+    showConfigNotFoundError('global');
     return;
   }
 
-  if ((vscode.workspace.workspaceFolders?.length ?? 0) > 1) {
-    const folders = vscode.workspace.workspaceFolders?.map((f) => ({ label: f.name, folder: f })) ?? [];
-    const selected = await vscode.window.showQuickPick(folders, {
-      placeHolder: 'Select workspace to copy task to',
-    });
-
-    if (!selected) return;
-    workspaceFolder = selected.folder;
-  }
-
-  const globalConfigPath = getGlobalConfigPath();
-  if (!fs.existsSync(globalConfigPath)) {
-    vscode.window.showErrorMessage('Global config not found');
-    return;
-  }
-
-  const globalConfig = JSON5.parse(fs.readFileSync(globalConfigPath, 'utf8')) as PPConfig;
   const task = globalConfig.tasks?.find((t) => t.name === taskName);
-
   if (!task) {
-    vscode.window.showErrorMessage(`Task "${taskName}" not found in global config`);
+    showNotFoundError('Task', taskName, 'global');
     return;
   }
 
-  const workspaceConfigPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
-  const workspaceConfigDir = getWorkspaceConfigDirPath(workspaceFolder);
+  const workspaceConfig = loadWorkspaceConfig(workspaceFolder) ?? {};
+  const exists = workspaceConfig.tasks?.some((t) => t.name === task.name);
 
-  if (!fs.existsSync(workspaceConfigDir)) {
-    fs.mkdirSync(workspaceConfigDir, { recursive: true });
-  }
+  if (exists && !(await confirmOverwrite('Task', task.name))) return;
 
-  let workspaceConfig: PPConfig = {};
-  if (fs.existsSync(workspaceConfigPath)) {
-    try {
-      workspaceConfig = JSON5.parse(fs.readFileSync(workspaceConfigPath, 'utf8')) as PPConfig;
-    } catch (error) {
-      vscode.window.showErrorMessage('Failed to read workspace config');
-      return;
-    }
-  }
+  addOrUpdateConfigItem(workspaceConfig, 'tasks', task);
+  saveWorkspaceConfig(workspaceFolder, workspaceConfig);
 
-  if (!workspaceConfig.tasks) {
-    workspaceConfig.tasks = [];
-  }
-
-  const existingTask = workspaceConfig.tasks.find((t) => t.name === task.name);
-  if (existingTask) {
-    const choice = await vscode.window.showWarningMessage(
-      `Task "${task.name}" already exists in workspace. Overwrite?`,
-      'Overwrite',
-      'Cancel',
-    );
-
-    if (choice !== 'Overwrite') return;
-
-    const index = workspaceConfig.tasks.indexOf(existingTask);
-    workspaceConfig.tasks[index] = task;
-  } else {
-    workspaceConfig.tasks.push(task);
-  }
-
-  fs.writeFileSync(workspaceConfigPath, JSON.stringify(workspaceConfig, null, 2), 'utf8');
-
-  vscode.window.showInformationMessage(`✓ Task "${task.name}" copied to workspace`);
+  showCopySuccessMessage('Task', task.name, 'workspace');
   void executeCommand(Command.Refresh);
 }
 

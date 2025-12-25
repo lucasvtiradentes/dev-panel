@@ -1,19 +1,18 @@
 import * as fs from 'node:fs';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
-  CONFIG_FILE_NAME,
   CONTEXT_VALUES,
   EMPTY_TASKS_MESSAGE,
   FILE_WATCHER_DEBOUNCE_MS,
   NO_PENDING_TASKS_MESSAGE,
   getCommandId,
 } from '../../common/constants';
-import { getBranchContextGlobPattern, getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
+import { getBranchContextGlobPattern, loadWorkspaceConfigFromPath } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas/config-schema';
+import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { getBranchContextFilePath } from '../branch-context/markdown-parser';
 import {
   type SyncContext,
@@ -21,10 +20,6 @@ import {
   type TaskSyncProvider,
   createTaskProvider,
 } from '../branch-context/providers';
-
-function getWorkspacePath(): string | null {
-  return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
-}
 
 export class BranchTaskItem extends vscode.TreeItem {
   constructor(
@@ -68,21 +63,14 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
   private fileChangeDebounce: NodeJS.Timeout | null = null;
 
   constructor() {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     const config = workspace ? this.loadConfig(workspace) : null;
     this.taskProvider = createTaskProvider(config?.branchContext?.builtinSections?.tasks, workspace ?? undefined);
     this.setupMarkdownWatcher();
   }
 
   private loadConfig(workspace: string): PPConfig | null {
-    const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
-    if (!fs.existsSync(configPath)) return null;
-    try {
-      const content = fs.readFileSync(configPath, 'utf-8');
-      return JSON5.parse(content) as PPConfig;
-    } catch {
-      return null;
-    }
+    return loadWorkspaceConfigFromPath(workspace);
   }
 
   toggleShowOnlyTodo(): void {
@@ -142,7 +130,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
   }
 
   private setupMarkdownWatcher(): void {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) {
       logger.warn('[BranchTasksProvider] No workspace found, watcher not setup');
       return;
@@ -187,7 +175,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
       return;
     }
 
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) {
       this.cachedNodes = [];
       return;
@@ -249,7 +237,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
     const filePath = getBranchContextFilePath(this.currentBranch);
     if (!filePath || !fs.existsSync(filePath)) return;
 
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     const syncContext: SyncContext = {

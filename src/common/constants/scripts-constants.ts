@@ -71,6 +71,7 @@ export const DEV_SUFFIX = 'dev';
 export const LOG_BASENAME = 'project-panel';
 export const TOOL_COMMAND_SUFFIX = 'tool';
 export const TOOL_TASK_TYPE = 'projectPanel-tool';
+export const GLOBAL_TASK_TYPE = `${CONFIG_DIR_KEY}-global`;
 export const PROMPT_COMMAND_SUFFIX = 'prompt';
 export const REPLACEMENT_COMMAND_SUFFIX = 'replacement';
 export const VARIABLE_COMMAND_SUFFIX = 'variable';

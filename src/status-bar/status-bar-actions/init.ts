@@ -10,6 +10,7 @@ import {
 } from '../../common/constants';
 import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
+import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 
 const INIT_CONFIG_CONTENT = `{
   "$schema": "${CONFIG_SCHEMA_PATH}",
@@ -67,11 +68,8 @@ const SAMPLE_PROMPT_CONTENT = `Review the code changes in the current branch and
 `;
 
 export async function showInitMenu(): Promise<void> {
-  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-  if (!workspaceFolder) {
-    void vscode.window.showErrorMessage('No workspace folder open');
-    return;
-  }
+  const workspaceFolder = requireWorkspaceFolder();
+  if (!workspaceFolder) return;
 
   try {
     const configDirPath = getWorkspaceConfigDirPath(workspaceFolder);
