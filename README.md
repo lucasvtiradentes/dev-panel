@@ -39,17 +39,7 @@
 
 ## PLUGINS
 
-- [ ] adicionar um plugin para gerir tarefas no lineear 
 - [ ] plugin para pedir para ia analiser e resumir oq cada commit fez -> se nao tem novo commit nao analisa
-- [ ] ajustar o linear-plugin para ter o fetch project tambem caso o link seja de projeto
-
-## REGISTRY 
-
-- [ ] ter um registry ou algo assim para adicionar tools nos projetos facilmente
-  - prompts
-  - tools
-  - scripts
-  - plugins
 
 ## TODO
 
