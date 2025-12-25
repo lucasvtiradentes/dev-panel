@@ -40,12 +40,12 @@ export async function showInitMenu(): Promise<void> {
 
     await copyDirectoryRecursive(initResourcesUri, configDirUri);
 
-    logger.info('Project Panel initialized successfully');
+    logger.info(`${EXTENSION_DISPLAY_NAME} initialized successfully`);
     void vscode.window.showInformationMessage(
       `${EXTENSION_DISPLAY_NAME} initialized! Config created at ${CONFIG_FILE_NAME}`,
     );
   } catch (error) {
-    logger.error(`Failed to initialize Project Panel: ${error}`);
+    logger.error('Failed to initialize ${EXTENSION_DISPLAY_NAME}: ${error}');
     void vscode.window.showErrorMessage(`Failed to initialize: ${error}`);
   }
 }
