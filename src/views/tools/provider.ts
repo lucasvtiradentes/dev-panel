@@ -305,6 +305,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     return item;
   }
 
+  // tscanner-ignore-next-line no-empty-function
   dispose(): void {}
 }
 

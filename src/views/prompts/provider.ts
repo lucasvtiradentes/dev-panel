@@ -218,5 +218,6 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     return item;
   }
 
+  // tscanner-ignore-next-line no-empty-function
   dispose(): void {}
 }

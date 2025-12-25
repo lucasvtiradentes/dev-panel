@@ -157,6 +157,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     this.syncReplacementState();
   }
 
+  // tscanner-ignore-next-line no-empty-function
   dispose(): void {}
 
   refresh(): void {

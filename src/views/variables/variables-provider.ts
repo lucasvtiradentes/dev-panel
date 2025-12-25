@@ -139,6 +139,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     this._onDidChangeTreeData.fire(undefined);
   }
 
+  // tscanner-ignore-next-line no-empty-function
   dispose(): void {}
 
   refresh(): void {

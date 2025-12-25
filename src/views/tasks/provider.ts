@@ -225,5 +225,6 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     return task;
   }
 
+  // tscanner-ignore-next-line no-empty-function
   dispose(): void {}
 }

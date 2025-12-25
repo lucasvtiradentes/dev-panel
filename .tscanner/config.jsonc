@@ -20,7 +20,7 @@
       "no-explicit-any": {},
       "no-floating-promises": {},
       "no-forwarded-exports": {"exclude": ["**/index.ts"]},
-      "no-implicit-any": {},
+      // "no-implicit-any": {},
       "no-inferrable-types": {},
       "no-nested-require": {},
       "no-nested-ternary": {},

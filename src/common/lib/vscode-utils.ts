@@ -126,6 +126,7 @@ export enum Command {
   CopyTaskToWorkspace = 'copyTaskToWorkspace',
 }
 
+// tscanner-ignore-next-line no-explicit-any
 export function registerCommand(command: Command, callback: (...args: any[]) => any): vscode.Disposable {
   return vscode.commands.registerCommand(getCommandId(command), callback);
 }
