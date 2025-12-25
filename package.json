@@ -8,12 +8,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lucasvtiradentes/project-panel"
+    "url": "https://github.com/lucasvtiradentes/dev-panel"
   },
   "bugs": {
-    "url": "https://github.com/lucasvtiradentes/project-panel/issues"
+    "url": "https://github.com/lucasvtiradentes/dev-panel/issues"
   },
-  "homepage": "https://github.com/lucasvtiradentes/project-panel#readme",
+  "homepage": "https://github.com/lucasvtiradentes/dev-panel#readme",
   "engines": {
     "vscode": "^1.93.0"
   },

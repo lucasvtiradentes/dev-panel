@@ -11,7 +11,7 @@ import type {
 } from '../../src/views/branch-context/providers/interfaces';
 import { getPluginRequest, runPlugin } from './task-plugin-base';
 
-const LOG_FILE = join(tmpdir(), 'project-panel-dev.log');
+const LOG_FILE = join(tmpdir(), 'dev-panel-dev.log');
 
 function log(message: string): void {
   const timestamp = new Date().toISOString();

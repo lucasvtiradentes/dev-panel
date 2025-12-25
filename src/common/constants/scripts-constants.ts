@@ -117,7 +117,7 @@ export function getGlobalPromptsDir(): string {
 
 export const AI_SPEC_DEV_TOOLS_REGEX = /<dev_tools>[\s\S]*?<\/dev_tools>/;
 
-export const REGISTRY_BASE_URL = 'https://raw.githubusercontent.com/lucasvtiradentes/project-panel/main/registry';
+export const REGISTRY_BASE_URL = 'https://raw.githubusercontent.com/lucasvtiradentes/dev-panel/main/registry';
 export const REGISTRY_INDEX_FILE = 'index.json';
 export const PLUGINS_DIR_NAME = 'plugins';
 export const SCRIPTS_DIR_NAME = 'scripts';
