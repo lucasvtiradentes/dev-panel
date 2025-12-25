@@ -297,10 +297,9 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     const result: TaskNode[] = [];
 
     for (const node of nodes) {
+      result.push({ ...node, children: [] });
       if (node.children.length > 0) {
         result.push(...this.flattenNodes(node.children));
-      } else {
-        result.push({ ...node, children: [] });
       }
     }
 
