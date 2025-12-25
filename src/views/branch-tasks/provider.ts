@@ -17,23 +17,10 @@ import { getBranchContextFilePath } from '../branch-context/markdown-parser';
 import {
   type SyncContext,
   type TaskNode,
-  type TaskStatus,
   type TaskSyncProvider,
   createTaskProvider,
 } from '../branch-context/providers';
-
-function getStatusIcon(status: TaskStatus): vscode.ThemeIcon {
-  switch (status) {
-    case 'done':
-      return new vscode.ThemeIcon('pass-filled');
-    case 'doing':
-      return new vscode.ThemeIcon('play-circle');
-    case 'blocked':
-      return new vscode.ThemeIcon('error');
-    default:
-      return new vscode.ThemeIcon('circle-large-outline');
-  }
-}
+import { formatTaskDescription, formatTaskTooltip, getStatusIcon } from './task-item-utils';
 
 export class BranchTaskItem extends vscode.TreeItem {
   constructor(
@@ -42,15 +29,18 @@ export class BranchTaskItem extends vscode.TreeItem {
   ) {
     const label = hasChildren ? ` ${node.text}` : node.text;
     super(label, hasChildren ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
+
     this.contextValue = CONTEXT_VALUES.TODO_ITEM;
+    this.description = formatTaskDescription(node.meta, node.status);
+    this.tooltip = formatTaskTooltip(node.text, node.status, node.meta);
 
     if (hasChildren) {
-      this.iconPath = undefined;
+      this.iconPath = new vscode.ThemeIcon('chevron-right');
     } else {
-      this.iconPath = getStatusIcon(node.status);
+      this.iconPath = getStatusIcon(node.status, node.meta);
       this.command = {
-        command: getCommandId(Command.ToggleTodo),
-        title: 'Toggle Todo',
+        command: getCommandId(Command.CycleTaskStatus),
+        title: 'Cycle Status',
         arguments: [node.lineIndex],
       };
     }

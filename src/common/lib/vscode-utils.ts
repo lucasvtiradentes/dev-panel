@@ -78,6 +78,7 @@ export enum Command {
   ToggleBranchContextHideEmptySections = 'toggleBranchContextHideEmptySections',
   ToggleBranchContextHideEmptySectionsActive = 'toggleBranchContextHideEmptySectionsActive',
   ToggleTodo = 'toggleTodo',
+  CycleTaskStatus = 'cycleTaskStatus',
   ToggleBranchTasksShowOnlyTodo = 'toggleBranchTasksShowOnlyTodo',
   ToggleBranchTasksShowOnlyTodoActive = 'toggleBranchTasksShowOnlyTodoActive',
   ToggleBranchTasksGroupMode = 'toggleBranchTasksGroupMode',
