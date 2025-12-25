@@ -157,14 +157,6 @@
         "icon": "$(list-tree)"
       },
       {
-        "command": "projectPanel.executeTask",
-        "title": "Execute"
-      },
-      {
-        "command": "projectPanel.goToTask",
-        "title": "Go to Definition"
-      },
-      {
         "command": "projectPanel.openTasksConfig",
         "title": "Open Tasks Config",
         "icon": "$(go-to-file)"
@@ -285,7 +277,8 @@
       },
       {
         "command": "projectPanel.executeTool",
-        "title": "Execute Tool"
+        "title": "Execute Tool",
+        "icon": "$(terminal)"
       },
       {
         "command": "projectPanel.goToToolFile",
@@ -388,10 +381,6 @@
         "command": "projectPanel.togglePromptsShowOnlyFavoritesActive",
         "title": "Show All Prompts",
         "icon": "$(heart-filled)"
-      },
-      {
-        "command": "projectPanel.executePrompt",
-        "title": "Execute Prompt"
       },
       {
         "command": "projectPanel.goToPromptFile",
@@ -744,18 +733,15 @@
       "view/item/context": [
         {
           "command": "projectPanel.toggleFavorite",
-          "when": "view == projectPanelTasks && (viewItem == task || viewItem == task-pp || viewItem == task-pp-global || viewItem == task-hidden || viewItem == task-pp-hidden || viewItem == task-pp-global-hidden)",
-          "group": "inline@1"
+          "when": "view == projectPanelTasks && (viewItem == task || viewItem == task-pp || viewItem == task-pp-global || viewItem == task-hidden || viewItem == task-pp-hidden || viewItem == task-pp-global-hidden)"
         },
         {
           "command": "projectPanel.toggleUnfavorite",
-          "when": "view == projectPanelTasks && (viewItem == task-favorite || viewItem == task-pp-favorite || viewItem == task-pp-global-favorite)",
-          "group": "inline@1"
+          "when": "view == projectPanelTasks && (viewItem == task-favorite || viewItem == task-pp-favorite || viewItem == task-pp-global-favorite)"
         },
         {
           "command": "projectPanel.toggleHide",
-          "when": "view == projectPanelTasks && viewItem =~ /^task/",
-          "group": "inline@2"
+          "when": "view == projectPanelTasks && viewItem =~ /^task/"
         },
         {
           "command": "projectPanel.setTaskKeybinding",
@@ -771,18 +757,15 @@
         },
         {
           "command": "projectPanel.copyTaskToGlobal",
-          "when": "view == projectPanelTasks && viewItem =~ /^task-pp(-hidden|-favorite)?$/",
-          "group": "9_copy@1"
+          "when": "view == projectPanelTasks && viewItem =~ /^task-pp(-hidden|-favorite)?$/"
         },
         {
           "command": "projectPanel.copyTaskToWorkspace",
-          "when": "view == projectPanelTasks && viewItem =~ /^task-pp-global/",
-          "group": "9_copy@2"
+          "when": "view == projectPanelTasks && viewItem =~ /^task-pp-global/"
         },
         {
           "command": "projectPanel.deleteTask",
-          "when": "view == projectPanelTasks && viewItem =~ /^task-pp/",
-          "group": "9_delete@1"
+          "when": "view == projectPanelTasks && viewItem =~ /^task-pp/"
         },
         {
           "command": "projectPanel.goToReplacementTargetFile",
@@ -791,57 +774,48 @@
         },
         {
           "command": "projectPanel.toggleToolFavorite",
-          "when": "view == projectPanelTools && (viewItem == tool || viewItem == tool-global || viewItem == tool-hidden || viewItem == tool-global-hidden)",
-          "group": "inline@1"
+          "when": "view == projectPanelTools && (viewItem == tool || viewItem == tool-global || viewItem == tool-hidden || viewItem == tool-global-hidden)"
         },
         {
           "command": "projectPanel.toggleToolUnfavorite",
-          "when": "view == projectPanelTools && (viewItem == tool-favorite || viewItem == tool-global-favorite)",
-          "group": "inline@1"
+          "when": "view == projectPanelTools && (viewItem == tool-favorite || viewItem == tool-global-favorite)"
         },
         {
           "command": "projectPanel.toggleToolHide",
-          "when": "view == projectPanelTools && viewItem =~ /^tool/",
-          "group": "inline@2"
+          "when": "view == projectPanelTools && viewItem =~ /^tool/"
         },
         {
           "command": "projectPanel.goToToolFile",
-          "when": "view == projectPanelTools && viewItem =~ /^tool/",
-          "group": "inline@3"
+          "when": "view == projectPanelTools && viewItem =~ /^tool/"
         },
         {
           "command": "projectPanel.executeTool",
-          "when": "view == projectPanelTools"
+          "when": "view == projectPanelTools && viewItem =~ /^tool/",
+          "group": "inline@1"
         },
         {
           "command": "projectPanel.copyToolToGlobal",
-          "when": "view == projectPanelTools && viewItem =~ /^tool(-hidden|-favorite)?$/",
-          "group": "9_copy@1"
+          "when": "view == projectPanelTools && viewItem =~ /^tool(-hidden|-favorite)?$/"
         },
         {
           "command": "projectPanel.copyToolToWorkspace",
-          "when": "view == projectPanelTools && viewItem =~ /^tool-global/",
-          "group": "9_copy@2"
+          "when": "view == projectPanelTools && viewItem =~ /^tool-global/"
         },
         {
           "command": "projectPanel.deleteTool",
-          "when": "view == projectPanelTools && viewItem =~ /^tool/",
-          "group": "9_delete@1"
+          "when": "view == projectPanelTools && viewItem =~ /^tool/"
         },
         {
           "command": "projectPanel.togglePromptFavorite",
-          "when": "view == projectPanelPrompts && (viewItem == prompt || viewItem == prompt-global || viewItem == prompt-hidden || viewItem == prompt-global-hidden)",
-          "group": "inline@1"
+          "when": "view == projectPanelPrompts && (viewItem == prompt || viewItem == prompt-global || viewItem == prompt-hidden || viewItem == prompt-global-hidden)"
         },
         {
           "command": "projectPanel.togglePromptUnfavorite",
-          "when": "view == projectPanelPrompts && (viewItem == prompt-favorite || viewItem == prompt-global-favorite)",
-          "group": "inline@1"
+          "when": "view == projectPanelPrompts && (viewItem == prompt-favorite || viewItem == prompt-global-favorite)"
         },
         {
           "command": "projectPanel.togglePromptHide",
-          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/",
-          "group": "inline@2"
+          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/"
         },
         {
           "command": "projectPanel.setPromptKeybinding",
@@ -850,7 +824,7 @@
         {
           "command": "projectPanel.goToPromptFile",
           "when": "view == projectPanelPrompts && viewItem =~ /^prompt/",
-          "group": "inline@3"
+          "group": "inline@1"
         },
         {
           "command": "projectPanel.executePrompt",
@@ -858,18 +832,15 @@
         },
         {
           "command": "projectPanel.copyPromptToGlobal",
-          "when": "view == projectPanelPrompts && viewItem =~ /^prompt(-hidden|-favorite)?$/",
-          "group": "9_copy@1"
+          "when": "view == projectPanelPrompts && viewItem =~ /^prompt(-hidden|-favorite)?$/"
         },
         {
           "command": "projectPanel.copyPromptToWorkspace",
-          "when": "view == projectPanelPrompts && viewItem =~ /^prompt-global/",
-          "group": "9_copy@2"
+          "when": "view == projectPanelPrompts && viewItem =~ /^prompt-global/"
         },
         {
           "command": "projectPanel.deletePrompt",
-          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/",
-          "group": "9_delete@1"
+          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/"
         },
         {
           "command": "projectPanel.setVariableKeybinding",

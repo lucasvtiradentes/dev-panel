@@ -5,11 +5,18 @@ import { promisify } from 'node:util';
 import * as vscode from 'vscode';
 
 const execAsync = promisify(exec);
-import { GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, VARIABLES_FILE_NAME } from '../../common/constants/scripts-constants';
+import { GLOBAL_ITEM_PREFIX, GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
+import {
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  VARIABLES_FILE_NAME,
+  getGlobalConfigDir,
+} from '../../common/constants/scripts-constants';
 import {
   getPromptOutputFilePath,
+  getWorkspaceConfigDirPath,
   getWorkspaceConfigFilePath,
+  loadGlobalConfig,
   loadWorkspaceConfig,
 } from '../../common/lib/config-manager';
 import { collectInputs, replaceInputPlaceholders } from '../../common/lib/inputs';
@@ -26,6 +33,7 @@ import { loadVariablesFromPath } from '../../common/utils/variables-env';
 import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';
+import { TreeTool } from '../../views/tools/items';
 
 const log = createLogger('execute-task');
 
@@ -166,35 +174,51 @@ export function createExecuteTaskCommand(context: vscode.ExtensionContext) {
 }
 
 export function createExecuteToolCommand(context: vscode.ExtensionContext) {
-  return registerCommand(
-    Command.ExecuteTool,
-    async (task: vscode.Task, scope: vscode.TaskScope | vscode.WorkspaceFolder | undefined) => {
-      let modifiedTask = task;
+  return registerCommand(Command.ExecuteTool, (item: TreeTool | vscode.Task) => {
+    if (item instanceof TreeTool) {
+      const toolName = item.toolName;
+      const isGlobal = toolName.startsWith(GLOBAL_ITEM_PREFIX);
+      const actualName = isGlobal ? toolName.replace(GLOBAL_ITEM_PREFIX, '') : toolName;
 
-      if (scope && typeof scope !== 'number' && 'uri' in scope) {
-        const folder = scope as vscode.WorkspaceFolder;
-        const env = readPPVariablesAsEnv(folder.uri.fsPath);
+      let toolConfig: { command?: string; useWorkspaceRoot?: boolean } | undefined;
+      let cwd: string;
 
-        if (Object.keys(env).length > 0) {
-          modifiedTask = cloneTaskWithEnv(task, env);
+      const globalConfig = loadGlobalConfig();
+      const folder = getFirstWorkspaceFolder();
+
+      if (isGlobal) {
+        toolConfig = globalConfig?.tools?.find((t) => t.name === actualName);
+        cwd = folder ? folder.uri.fsPath : getGlobalConfigDir();
+      } else {
+        if (!folder) {
+          void vscode.window.showErrorMessage('No workspace folder found');
+          return;
         }
+        const config = loadWorkspaceConfig(folder);
+        toolConfig = config?.tools?.find((t) => t.name === actualName);
+        cwd = toolConfig?.useWorkspaceRoot ? folder.uri.fsPath : getWorkspaceConfigDirPath(folder);
       }
 
-      if (isMultiRootWorkspace()) {
-        if (scope != null && (scope as vscode.WorkspaceFolder).name != null) {
-          await context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, (scope as vscode.WorkspaceFolder).name);
-        }
+      if (!toolConfig?.command) {
+        void vscode.window.showErrorMessage(`Tool "${actualName}" has no command configured`);
+        return;
       }
 
-      void vscode.tasks.executeTask(modifiedTask).then((execution) => {
-        vscode.tasks.onDidEndTask((e) => {
-          if (e.execution === execution) {
-            void context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, null);
-          }
-        });
+      const terminal = vscode.window.createTerminal({ name: actualName, cwd });
+      terminal.show();
+      terminal.sendText(toolConfig.command);
+      return;
+    }
+
+    const task = item as vscode.Task;
+    void vscode.tasks.executeTask(task).then((execution) => {
+      vscode.tasks.onDidEndTask((e) => {
+        if (e.execution === execution) {
+          void context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, null);
+        }
       });
-    },
-  );
+    });
+  });
 }
 
 function readPPSettings(folder: vscode.WorkspaceFolder): PPSettings | undefined {
