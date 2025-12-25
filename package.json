@@ -848,11 +848,11 @@
       "view/item/context": [
         {
           "command": "devPanel.toggleFavorite",
-          "when": "view == devPanelTasks && (viewItem == task || viewItem == task-pp || viewItem == task-pp-global || viewItem == task-hidden || viewItem == task-pp-hidden || viewItem == task-pp-global-hidden)"
+          "when": "view == devPanelTasks && (viewItem == task || viewItem == task-devpanel || viewItem == task-devpanel-global || viewItem == task-hidden || viewItem == task-devpanel-hidden || viewItem == task-devpanel-global-hidden)"
         },
         {
           "command": "devPanel.toggleUnfavorite",
-          "when": "view == devPanelTasks && (viewItem == task-favorite || viewItem == task-pp-favorite || viewItem == task-pp-global-favorite)"
+          "when": "view == devPanelTasks && (viewItem == task-favorite || viewItem == task-devpanel-favorite || viewItem == task-devpanel-global-favorite)"
         },
         {
           "command": "devPanel.toggleHide",
@@ -872,15 +872,15 @@
         },
         {
           "command": "devPanel.copyTaskToGlobal",
-          "when": "view == devPanelTasks && viewItem =~ /^task-pp(-hidden|-favorite)?$/"
+          "when": "view == devPanelTasks && viewItem =~ /^task-devpanel(-hidden|-favorite)?$/"
         },
         {
           "command": "devPanel.copyTaskToWorkspace",
-          "when": "view == devPanelTasks && viewItem =~ /^task-pp-global/"
+          "when": "view == devPanelTasks && viewItem =~ /^task-devpanel-global/"
         },
         {
           "command": "devPanel.deleteTask",
-          "when": "view == devPanelTasks && viewItem =~ /^task-pp/"
+          "when": "view == devPanelTasks && viewItem =~ /^task-devpanel/"
         },
         {
           "command": "devPanel.goToReplacementTargetFile",

@@ -1,6 +1,7 @@
 import { homedir } from 'node:os';
 import * as path from 'node:path';
-import { TOOLS_DIR } from './constants';
+
+export const TOOLS_DIR = 'tools';
 
 export const EXTENSION_PUBLISHER = 'lucasvtiradentes';
 export const EXTENSION_NAME = 'dev-panel';
@@ -41,12 +42,12 @@ export const METADATA_SEPARATOR_REGEX = /<!--\s*-+\s*-->/;
 export const METADATA_FIELD_IS_EMPTY = 'isEmpty';
 export const METADATA_FIELD_DESCRIPTION = 'description';
 
-export const DND_MIME_TYPE_TASKS = 'application/vnd.code.tree.devpaneltasks';
-export const DND_MIME_TYPE_PROMPTS = 'application/vnd.code.tree.devpanelprompts';
-export const DND_MIME_TYPE_TOOLS = 'application/vnd.code.tree.devpaneltools';
-export const DND_MIME_TYPE_BRANCH_TASKS = 'application/vnd.code.tree.devpanelbranchtasks';
+export const DND_MIME_TYPE_TASKS = `application/vnd.code.tree.${CONFIG_DIR_KEY}tasks`;
+export const DND_MIME_TYPE_PROMPTS = `application/vnd.code.tree.${CONFIG_DIR_KEY}prompts`;
+export const DND_MIME_TYPE_TOOLS = `application/vnd.code.tree.${CONFIG_DIR_KEY}tools`;
+export const DND_MIME_TYPE_BRANCH_TASKS = `application/vnd.code.tree.${CONFIG_DIR_KEY}branchtasks`;
 
-export const WORKSPACE_STATE_KEY = 'devpanel.uiState';
+export const WORKSPACE_STATE_KEY = `${CONFIG_DIR_KEY}.uiState`;
 
 export const LOCAL_DIST_DIR = 'dist-dev';
 
@@ -63,17 +64,17 @@ export const EDITOR_EXTENSIONS_PATHS = {
 } as const;
 
 export const CONTEXT_PREFIX = 'devPanel';
-export const VIEW_ID_TASKS = 'devPanelTasks';
-export const VIEW_ID_CONFIGS = 'devPanelConfigs';
-export const VIEW_ID_REPLACEMENTS = 'devPanelReplacements';
-export const VIEW_ID_TOOLS = 'devPanelTools';
-export const VIEW_ID_PROMPTS = 'devPanelPrompts';
-export const VIEW_ID_BRANCH_CONTEXT = 'devPanelBranchContext';
-export const VIEW_ID_TODOS = 'devPanelTodos';
+export const VIEW_ID_TASKS = `${CONTEXT_PREFIX}Tasks`;
+export const VIEW_ID_CONFIGS = `${CONTEXT_PREFIX}Configs`;
+export const VIEW_ID_REPLACEMENTS = `${CONTEXT_PREFIX}Replacements`;
+export const VIEW_ID_TOOLS = `${CONTEXT_PREFIX}Tools`;
+export const VIEW_ID_PROMPTS = `${CONTEXT_PREFIX}Prompts`;
+export const VIEW_ID_BRANCH_CONTEXT = `${CONTEXT_PREFIX}BranchContext`;
+export const VIEW_ID_TODOS = `${CONTEXT_PREFIX}Todos`;
 export const DEV_SUFFIX = 'dev';
-export const LOG_BASENAME = 'dev-panel';
+export const LOG_BASENAME = EXTENSION_NAME;
 export const TOOL_COMMAND_SUFFIX = 'tool';
-export const TOOL_TASK_TYPE = 'devPanel-tool';
+export const TOOL_TASK_TYPE = `${CONTEXT_PREFIX}-tool`;
 export const GLOBAL_TASK_TYPE = `${CONFIG_DIR_KEY}-global`;
 export const PROMPT_COMMAND_SUFFIX = 'prompt';
 export const REPLACEMENT_COMMAND_SUFFIX = 'replacement';
@@ -128,7 +129,7 @@ export const REGISTRY_DEFAULT_SCRIPT_FILE = 'script.sh';
 export const REGISTRY_CONFIG_FILE = 'config.json';
 export const AI_SPEC_AVAILABLE_TOOLS_REGEX = /<available_tools>[\s\S]*?<\/available_tools>/;
 
-export const WORKSPACE_STATE_CONFIG_DIR_KEY = 'devpanel.configDir';
+export const WORKSPACE_STATE_CONFIG_DIR_KEY = `${CONFIG_DIR_KEY}.configDir`;
 
 export const ERROR_MSG_WORKSPACE_REQUIRED = 'File/folder input requires a workspace folder';
 export const ERROR_MSG_INVALID_NUMBER = 'Please enter a valid number';

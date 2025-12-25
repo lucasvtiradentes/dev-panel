@@ -1,3 +1,7 @@
+import { CONFIG_DIR_KEY } from './scripts-constants';
+
+const TASK_DP = `task-${CONFIG_DIR_KEY}`;
+
 export const CONTEXT_VALUES = {
   BRANCH_CONTEXT_FIELD: 'branchContextField',
   GROUP: 'group',
@@ -10,12 +14,12 @@ export const CONTEXT_VALUES = {
   TASK: 'task',
   TASK_HIDDEN: 'task-hidden',
   TASK_FAVORITE: 'task-favorite',
-  TASK_DEVPANEL: 'task-devpanel',
-  TASK_DEVPANEL_HIDDEN: 'task-devpanel-hidden',
-  TASK_DEVPANEL_FAVORITE: 'task-devpanel-favorite',
-  TASK_DEVPANEL_GLOBAL: 'task-devpanel-global',
-  TASK_DEVPANEL_GLOBAL_HIDDEN: 'task-devpanel-global-hidden',
-  TASK_DEVPANEL_GLOBAL_FAVORITE: 'task-devpanel-global-favorite',
+  TASK_DEVPANEL: TASK_DP,
+  TASK_DEVPANEL_HIDDEN: `${TASK_DP}-hidden`,
+  TASK_DEVPANEL_FAVORITE: `${TASK_DP}-favorite`,
+  TASK_DEVPANEL_GLOBAL: `${TASK_DP}-global`,
+  TASK_DEVPANEL_GLOBAL_HIDDEN: `${TASK_DP}-global-hidden`,
+  TASK_DEVPANEL_GLOBAL_FAVORITE: `${TASK_DP}-global-favorite`,
   PROMPT: 'prompt',
   PROMPT_HIDDEN: 'prompt-hidden',
   PROMPT_FAVORITE: 'prompt-favorite',
