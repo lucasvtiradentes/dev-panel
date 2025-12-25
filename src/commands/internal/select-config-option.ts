@@ -1,12 +1,17 @@
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { DevPanelVariable } from '../../common/schemas/config-schema';
-import { type VariableTreeItem, resetVariableOption, selectVariableOption } from '../../views/variables';
+import {
+  type VariableItem,
+  type VariableTreeItem,
+  resetVariableOption,
+  selectVariableOption,
+} from '../../views/variables';
 
 export type SelectConfigOptionParams = DevPanelVariable;
 
 export function createSelectConfigOptionCommand() {
   return registerCommand(Command.SelectConfigOption, (variable: SelectConfigOptionParams) =>
-    selectVariableOption(variable as any),
+    selectVariableOption(variable as unknown as VariableItem),
   );
 }
 

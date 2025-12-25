@@ -24,7 +24,7 @@ import { getIsGrouped, saveIsGrouped } from './state';
 
 const execAsync = promisify(exec);
 
-enum VariableKind {
+export enum VariableKind {
   Choose = 'choose',
   Input = 'input',
   Toggle = 'toggle',
@@ -32,7 +32,7 @@ enum VariableKind {
   Folder = 'folder',
 }
 
-type VariableItem = {
+export type VariableItem = {
   name: string;
   kind: VariableKind;
   options?: string[];

@@ -27,12 +27,21 @@ import {
   setLastBranch,
 } from './state';
 
-type PatchItem = {
+type NormalizedPatchItem = {
   search: string[];
   replace: string[];
 };
 
-function normalizePatchItem(item: { search: unknown; replace: unknown }): PatchItem {
+type NormalizedPatchReplacement = {
+  type: 'patch';
+  name: string;
+  target: string;
+  description?: string;
+  group?: string;
+  patches: NormalizedPatchItem[];
+};
+
+function normalizePatchItem(item: { search: unknown; replace: unknown }): NormalizedPatchItem {
   const normalizeValue = (value: unknown): string[] => {
     if (Array.isArray(value)) return value;
     if (typeof value === 'string') return [value];
@@ -215,7 +224,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     if (config.replacements) {
       for (const replacement of config.replacements) {
         if (replacement.type === 'patch') {
-          (replacement as any).patches = replacement.patches.map(normalizePatchItem);
+          (replacement as unknown as NormalizedPatchReplacement).patches = replacement.patches.map(normalizePatchItem);
         }
       }
     }
@@ -263,7 +272,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     if (replacement.type === 'file') {
       applyFileReplacement(workspace, replacement.source, replacement.target);
     } else {
-      applyPatches(workspace, replacement.target, (replacement as any).patches);
+      applyPatches(workspace, replacement.target, (replacement as unknown as NormalizedPatchReplacement).patches);
     }
 
     addActiveReplacement(replacement.name);
