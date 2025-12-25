@@ -543,11 +543,14 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
           .map(async (section) => {
             logger.info(`[syncBranchContext] Starting "${section.name}" (+${Date.now() - startTime}ms)`);
             try {
+              if (!section.provider) {
+                throw new Error('Provider is not defined');
+              }
               const sectionContext: SyncContext = {
                 ...syncContext,
                 sectionOptions: section.options,
               };
-              const data = await section.provider!.fetch(sectionContext);
+              const data = await section.provider.fetch(sectionContext);
               logger.info(`[syncBranchContext] "${section.name}" done (+${Date.now() - startTime}ms)`);
               return { name: section.name, data };
             } catch (error) {
