@@ -218,6 +218,34 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     fs.writeFileSync(context.markdownPath, lines.join('\n'));
   }
 
+  async onEditText(lineIndex: number, newText: string, context: SyncContext): Promise<void> {
+    if (!fs.existsSync(context.markdownPath)) return;
+
+    const content = fs.readFileSync(context.markdownPath, 'utf-8');
+    const lines = content.split('\n');
+
+    const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+    if (todoSectionIndex === -1) return;
+
+    const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
+    if (actualLineIndex >= lines.length) return;
+
+    const line = lines[actualLineIndex];
+    const match = line.match(TASK_ITEM_PATTERN);
+    if (!match) return;
+
+    const indent = match[1];
+    const statusChar = match[2];
+    const rawText = match[3];
+
+    const { meta: existingMeta } = parseTaskText(rawText);
+    const newContent = formatTaskLine(newText, existingMeta);
+
+    lines[actualLineIndex] = `${indent}- [${statusChar}] ${newContent}`;
+
+    fs.writeFileSync(context.markdownPath, lines.join('\n'));
+  }
+
   async onDeleteTask(lineIndex: number, context: SyncContext): Promise<void> {
     if (!fs.existsSync(context.markdownPath)) return;
 

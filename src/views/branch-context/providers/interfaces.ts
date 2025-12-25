@@ -54,6 +54,8 @@ export type TaskSyncProvider = {
 
   onUpdateMeta(lineIndex: number, meta: Partial<TaskMeta>, context: SyncContext): Promise<void>;
 
+  onEditText(lineIndex: number, newText: string, context: SyncContext): Promise<void>;
+
   onDeleteTask(lineIndex: number, context: SyncContext): Promise<void>;
 
   onSync(context: SyncContext): Promise<SyncResult>;

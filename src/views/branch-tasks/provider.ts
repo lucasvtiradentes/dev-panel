@@ -428,10 +428,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
-    const node = this.findNodeByLineIndex(lineIndex);
-    if (!node) return;
-
-    await this.taskProvider.onUpdateMeta(lineIndex, {}, syncContext);
+    await this.taskProvider.onEditText(lineIndex, text, syncContext);
     this.refresh();
   }
 

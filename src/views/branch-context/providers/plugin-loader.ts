@@ -164,6 +164,10 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       }
     },
 
+    async onEditText(_lineIndex: number, _newText: string, _context: SyncContext): Promise<void> {
+      throw new Error('Edit text not supported by plugin providers');
+    },
+
     async onDeleteTask(lineIndex: number, context: SyncContext): Promise<void> {
       const payload: DeleteTaskPayload = { lineIndex };
       const response = await executePlugin<DeleteTaskResponse>('deleteTask', context, payload);
