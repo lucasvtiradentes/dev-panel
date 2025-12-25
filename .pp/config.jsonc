@@ -19,9 +19,9 @@
       // "changedFiles": {
       //   "provider": "tsx ./plugins/tree-changed-files.ts"
       // },
+      // "tasks": { "provider": "tsx ./plugins/linear-tasks.ts" },
       "changedFiles": true,
-      "tasks": { "provider": "tsx ./plugins/linear-tasks.ts" }
-      // "tasks": true
+      "tasks": true
     },
     "customSections": [
       {

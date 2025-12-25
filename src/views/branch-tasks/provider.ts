@@ -13,6 +13,7 @@ import { logger } from '../../common/lib/logger';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { loadBranchContextFromFile } from '../branch-context/file-storage';
 import { getBranchContextFilePath } from '../branch-context/markdown-parser';
 import {
   type SyncContext,
@@ -316,11 +317,13 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
       return;
     }
 
+    const branchContext = loadBranchContextFromFile(workspace, this.currentBranch);
+
     const syncContext: SyncContext = {
       branchName: this.currentBranch,
       workspacePath: workspace,
       markdownPath: filePath,
-      branchContext: {},
+      branchContext,
     };
 
     this.taskProvider.getTasks(syncContext).then((nodes) => {
@@ -459,11 +462,13 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
     const workspace = getFirstWorkspacePath();
     if (!workspace) return null;
 
+    const branchContext = loadBranchContextFromFile(workspace, this.currentBranch);
+
     return {
       branchName: this.currentBranch,
       workspacePath: workspace,
       markdownPath: filePath,
-      branchContext: {},
+      branchContext,
     };
   }
 

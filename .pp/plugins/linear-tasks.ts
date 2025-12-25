@@ -1,4 +1,7 @@
 import { execSync } from 'node:child_process';
+import { appendFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import type {
   SyncResult,
   TaskMeta,
@@ -7,6 +10,13 @@ import type {
   TaskStatus,
 } from '../../src/views/branch-context/providers/interfaces';
 import { getPluginRequest, runPlugin } from './task-plugin-base';
+
+const LOG_FILE = join(tmpdir(), 'project-panel-dev.log');
+
+function log(message: string): void {
+  const timestamp = new Date().toISOString();
+  appendFileSync(LOG_FILE, `[${timestamp}] [linear-tasks    ] [DEBUG] ${message}\n`);
+}
 
 const CONSTANTS = {
   EXEC_TIMEOUT: 30000,
@@ -30,16 +40,24 @@ type LinearIssue = {
   labels?: { name: string }[];
   dueDate?: string;
   estimate?: number;
-  parent?: {
-    identifier: string;
-  };
-  children?: LinearIssue[];
   url: string;
+  subIssues?: {
+    identifier: string;
+    title: string;
+    completed: boolean;
+  }[];
 };
 
 type LinearState = {
   name: string;
   type: 'backlog' | 'unstarted' | 'started' | 'completed' | 'canceled';
+};
+
+type LinkKind = 'issue' | 'project';
+
+type ParsedLink = {
+  kind: LinkKind;
+  id: string;
 };
 
 function safeExecLinear(args: string): string | null {
@@ -49,7 +67,8 @@ function safeExecLinear(args: string): string | null {
       timeout: CONSTANTS.EXEC_TIMEOUT,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
-  } catch {
+  } catch (err) {
+    log(`safeExecLinear error: ${err}`);
     return null;
   }
 }
@@ -68,6 +87,20 @@ function parseJsonOutput(output: string): unknown {
     throw new Error('No JSON in output');
   }
   return JSON.parse(jsonMatch[0]);
+}
+
+function parseLinearLink(linearLink: string): ParsedLink | null {
+  const issueMatch = linearLink.match(/linear\.app\/[^/]+\/issue\/([A-Z]+-\d+)/);
+  if (issueMatch) {
+    return { kind: 'issue', id: issueMatch[1] };
+  }
+
+  const projectMatch = linearLink.match(/linear\.app\/[^/]+\/project\/([a-zA-Z0-9-]+)/);
+  if (projectMatch) {
+    return { kind: 'project', id: projectMatch[1] };
+  }
+
+  return null;
 }
 
 function mapLinearStateToStatus(state?: LinearState, customMapping?: Record<string, TaskStatus>): TaskStatus {
@@ -157,36 +190,56 @@ function linearIssueToTaskNode(
     meta.estimate = `${issue.estimate}pt`;
   }
 
-  const children = (issue.children ?? []).map((child, i) => linearIssueToTaskNode(child, i, customStateMapping));
-
   return {
     text: issue.title,
     status: mapLinearStateToStatus(issue.state as LinearState | undefined, customStateMapping),
     lineIndex: index,
-    children,
+    children: [],
     meta,
   };
 }
 
-function parseLinearLink(linearLink: string): string | null {
-  const issueMatch = linearLink.match(/linear\.app\/[^/]+\/issue\/([A-Z]+-\d+)/);
-  return issueMatch ? issueMatch[1] : null;
+function subIssueToTaskNode(
+  subIssue: { identifier: string; title: string; completed: boolean },
+  index: number,
+): TaskNode {
+  return {
+    text: subIssue.title,
+    status: subIssue.completed ? 'done' : 'todo',
+    lineIndex: index,
+    children: [],
+    meta: {
+      externalId: subIssue.identifier,
+      priority: 'none',
+    },
+  };
 }
 
 const request = getPluginRequest();
 const linearLink = request.context.branchContext?.linearLink as string | undefined;
 
+log(`linearLink received: "${linearLink}"`);
+
 if (!linearLink || linearLink === 'N/A' || linearLink.trim() === '') {
+  log('No valid linearLink, returning empty tasks');
   console.log(JSON.stringify({ success: true, tasks: [] }));
   process.exit(0);
 }
 
-const parentIssueId = parseLinearLink(linearLink);
+const parsed = parseLinearLink(linearLink);
 
-if (!parentIssueId) {
+log(`parsed result: ${JSON.stringify(parsed)}`);
+
+if (!parsed) {
+  log('Failed to parse linear link');
   console.log(JSON.stringify({ success: false, error: 'Invalid Linear link format' }));
   process.exit(1);
 }
+
+const linkKind = parsed.kind;
+const linkId = parsed.id;
+
+log(`linkKind: ${linkKind}, linkId: ${linkId}`);
 
 const options = (request.context.sectionOptions ?? {}) as Record<string, unknown>;
 const includeCompleted = (options.includeCompleted as boolean) ?? false;
@@ -194,35 +247,111 @@ const customStateMapping = options.stateMapping as Record<string, TaskStatus> | 
 
 const taskCache = new Map<number, string>();
 
+function ensureTaskCache(): void {
+  if (taskCache.size > 0) return;
+
+  log('ensureTaskCache: rebuilding cache');
+
+  if (linkKind === 'project') {
+    let issues = fetchProjectIssues();
+    if (!includeCompleted) {
+      issues = issues.filter((issue) => {
+        const stateType = issue.state?.type;
+        return stateType !== 'completed' && stateType !== 'canceled';
+      });
+    }
+    issues.forEach((issue, index) => {
+      taskCache.set(index, issue.identifier);
+    });
+  } else {
+    let subIssues = fetchIssueSubIssues();
+    if (!includeCompleted) {
+      subIssues = subIssues.filter((s) => !s.completed);
+    }
+    subIssues.forEach((subIssue, index) => {
+      taskCache.set(index, subIssue.identifier);
+    });
+  }
+
+  log(`ensureTaskCache: cache has ${taskCache.size} entries`);
+}
+
+function fetchProjectIssues(): LinearIssue[] {
+  const cmd = `project issues ${linkId} --format json`;
+  log(`fetchProjectIssues: executing "linear ${cmd}"`);
+
+  const output = safeExecLinear(cmd);
+  log(`fetchProjectIssues: output is ${output === null ? 'null' : `${output.length} chars`}`);
+
+  if (!output) {
+    log('fetchProjectIssues: no output, returning []');
+    return [];
+  }
+
+  try {
+    const jsonData = parseJsonOutput(output);
+    const issues = Array.isArray(jsonData) ? (jsonData as LinearIssue[]) : [];
+    log(`fetchProjectIssues: parsed ${issues.length} issues`);
+    return issues;
+  } catch (err) {
+    log(`fetchProjectIssues: parse error: ${err}`);
+    return [];
+  }
+}
+
+function fetchIssueSubIssues(): { identifier: string; title: string; completed: boolean }[] {
+  const output = safeExecLinear(`issue show ${linkId} --format json`);
+  if (!output) return [];
+
+  try {
+    const jsonData = parseJsonOutput(output) as LinearIssue;
+    return jsonData.subIssues ?? [];
+  } catch {
+    return [];
+  }
+}
+
 runPlugin({
   async getTasks(): Promise<TaskNode[]> {
-    let filter = `--parent ${parentIssueId}`;
-    if (!includeCompleted) {
-      filter += ' --state "!Done" --state "!Canceled"';
-    }
+    log(`getTasks called, linkKind: ${linkKind}`);
+    taskCache.clear();
 
-    const output = safeExecLinear(`issue list ${filter} --format json`);
+    if (linkKind === 'project') {
+      let issues = fetchProjectIssues();
+      log(`getTasks: fetched ${issues.length} issues before filter`);
 
-    if (!output) {
-      return [];
-    }
+      if (!includeCompleted) {
+        issues = issues.filter((issue) => {
+          const stateType = issue.state?.type;
+          return stateType !== 'completed' && stateType !== 'canceled';
+        });
+        log(`getTasks: ${issues.length} issues after filter`);
+      }
 
-    try {
-      const parsed = parseJsonOutput(output);
-      const issues = Array.isArray(parsed) ? parsed : [];
-
-      const tasks = (issues as LinearIssue[]).map((issue, index) => {
+      const tasks = issues.map((issue, index) => {
         taskCache.set(index, issue.identifier);
         return linearIssueToTaskNode(issue, index, customStateMapping);
       });
-
+      log(`getTasks: returning ${tasks.length} tasks`);
       return tasks;
-    } catch {
-      return [];
     }
+
+    const subIssues = fetchIssueSubIssues();
+    log(`getTasks: fetched ${subIssues.length} subIssues`);
+
+    let filtered = subIssues;
+    if (!includeCompleted) {
+      filtered = subIssues.filter((s) => !s.completed);
+    }
+
+    return filtered.map((subIssue, index) => {
+      taskCache.set(index, subIssue.identifier);
+      return subIssueToTaskNode(subIssue, index);
+    });
   },
 
   async setStatus(lineIndex: number, newStatus: TaskStatus): Promise<void> {
+    ensureTaskCache();
     const issueId = taskCache.get(lineIndex);
     if (!issueId) {
       throw new Error(`No issue found for lineIndex ${lineIndex}`);
@@ -233,8 +362,12 @@ runPlugin({
   },
 
   async createTask(text: string, _parentIndex?: number): Promise<TaskNode> {
+    if (linkKind === 'issue') {
+      throw new Error('Creating sub-issues is not supported via Linear CLI');
+    }
+
     const escapedText = text.replace(/"/g, '\\"');
-    const output = execLinear(`issue create --title "${escapedText}" --parent ${parentIssueId} --format json`);
+    const output = execLinear(`issue create --title "${escapedText}" --project "${linkId}" --format json`);
 
     const issue = parseJsonOutput(output) as LinearIssue;
     const index = taskCache.size;
@@ -244,6 +377,7 @@ runPlugin({
   },
 
   async updateMeta(lineIndex: number, meta: Partial<TaskMeta>): Promise<void> {
+    ensureTaskCache();
     const issueId = taskCache.get(lineIndex);
     if (!issueId) {
       throw new Error(`No issue found for lineIndex ${lineIndex}`);
@@ -272,6 +406,7 @@ runPlugin({
   },
 
   async deleteTask(lineIndex: number): Promise<void> {
+    ensureTaskCache();
     const issueId = taskCache.get(lineIndex);
     if (!issueId) {
       throw new Error(`No issue found for lineIndex ${lineIndex}`);
@@ -281,22 +416,18 @@ runPlugin({
   },
 
   async sync(): Promise<SyncResult> {
-    let filter = `--parent ${parentIssueId}`;
-    if (!includeCompleted) {
-      filter += ' --state "!Done" --state "!Canceled"';
-    }
+    taskCache.clear();
 
-    const output = safeExecLinear(`issue list ${filter} --format json`);
+    if (linkKind === 'project') {
+      let issues = fetchProjectIssues();
 
-    if (!output) {
-      return { added: 0, updated: 0, deleted: 0 };
-    }
+      if (!includeCompleted) {
+        issues = issues.filter((issue) => {
+          const stateType = issue.state?.type;
+          return stateType !== 'completed' && stateType !== 'canceled';
+        });
+      }
 
-    try {
-      const parsed = parseJsonOutput(output);
-      const issues = Array.isArray(parsed) ? (parsed as LinearIssue[]) : [];
-
-      taskCache.clear();
       issues.forEach((issue, index) => {
         taskCache.set(index, issue.identifier);
       });
@@ -306,8 +437,23 @@ runPlugin({
         updated: issues.length,
         deleted: 0,
       };
-    } catch {
-      return { added: 0, updated: 0, deleted: 0 };
     }
+
+    const subIssues = fetchIssueSubIssues();
+
+    let filtered = subIssues;
+    if (!includeCompleted) {
+      filtered = subIssues.filter((s) => !s.completed);
+    }
+
+    filtered.forEach((subIssue, index) => {
+      taskCache.set(index, subIssue.identifier);
+    });
+
+    return {
+      added: 0,
+      updated: filtered.length,
+      deleted: 0,
+    };
   },
 });

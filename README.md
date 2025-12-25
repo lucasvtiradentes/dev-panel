@@ -59,6 +59,8 @@
 
 - [ ] ao mudar de branch nao estamos mudando de "branch type" - ta ficando como other
 - [ ] botao de IA para a gente preencher os dados do markdown com ia 
+- [ ] adicionar milestone support
+- [ ] adicionar inline link para abrir issue do linear
 
 ## NAME 
 
