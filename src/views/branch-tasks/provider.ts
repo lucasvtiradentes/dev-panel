@@ -17,6 +17,8 @@ import { getBranchContextFilePath } from '../branch-context/markdown-parser';
 import {
   type SyncContext,
   type TaskNode,
+  type TaskPriority,
+  type TaskStatus,
   type TaskSyncProvider,
   createTaskProvider,
 } from '../branch-context/providers';
@@ -30,7 +32,11 @@ export class BranchTaskItem extends vscode.TreeItem {
     const label = hasChildren ? ` ${node.text}` : node.text;
     super(label, hasChildren ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
 
-    this.contextValue = CONTEXT_VALUES.TODO_ITEM;
+    if (node.meta.externalUrl || node.meta.externalId) {
+      this.contextValue = CONTEXT_VALUES.TODO_ITEM_WITH_EXTERNAL;
+    } else {
+      this.contextValue = CONTEXT_VALUES.TODO_ITEM;
+    }
     this.description = formatTaskDescription(node.meta, node.status);
     this.tooltip = formatTaskTooltip(node.text, node.status, node.meta);
 
@@ -219,38 +225,103 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
   }
 
   toggleTodo(lineIndex: number): void {
-    const filePath = getBranchContextFilePath(this.currentBranch);
-    if (!filePath || !fs.existsSync(filePath)) return;
+    const syncContext = this.getSyncContext();
+    if (!syncContext) return;
 
-    const workspace = getFirstWorkspacePath();
-    if (!workspace) return;
-
-    const task = this.findTaskByLineIndex(this.cachedNodes, lineIndex);
+    const task = this.findNodeByLineIndex(lineIndex);
     if (!task) return;
 
     const newStatus = this.taskProvider.cycleStatus(task.status);
-
-    const syncContext: SyncContext = {
-      branchName: this.currentBranch,
-      workspacePath: workspace,
-      markdownPath: filePath,
-      branchContext: {},
-    };
 
     this.taskProvider.onStatusChange(lineIndex, newStatus, syncContext).then(() => {
       this.refresh();
     });
   }
 
-  private findTaskByLineIndex(nodes: TaskNode[], lineIndex: number): TaskNode | null {
-    for (const node of nodes) {
-      if (node.lineIndex === lineIndex) return node;
-      if (node.children.length > 0) {
-        const found = this.findTaskByLineIndex(node.children, lineIndex);
+  async setStatus(lineIndex: number, status: TaskStatus): Promise<void> {
+    const syncContext = this.getSyncContext();
+    if (!syncContext) return;
+
+    await this.taskProvider.onStatusChange(lineIndex, status, syncContext);
+    this.refresh();
+  }
+
+  async setPriority(lineIndex: number, priority: TaskPriority): Promise<void> {
+    const syncContext = this.getSyncContext();
+    if (!syncContext) return;
+
+    await this.taskProvider.onUpdateMeta(lineIndex, { priority }, syncContext);
+    this.refresh();
+  }
+
+  async setAssignee(lineIndex: number, assignee: string | undefined): Promise<void> {
+    const syncContext = this.getSyncContext();
+    if (!syncContext) return;
+
+    await this.taskProvider.onUpdateMeta(lineIndex, { assignee }, syncContext);
+    this.refresh();
+  }
+
+  async setDueDate(lineIndex: number, dueDate: string | undefined): Promise<void> {
+    const syncContext = this.getSyncContext();
+    if (!syncContext) return;
+
+    await this.taskProvider.onUpdateMeta(lineIndex, { dueDate }, syncContext);
+    this.refresh();
+  }
+
+  async addSubtask(parentLineIndex: number, text: string): Promise<void> {
+    const syncContext = this.getSyncContext();
+    if (!syncContext) return;
+
+    await this.taskProvider.onCreateTask({ text }, parentLineIndex, syncContext);
+    this.refresh();
+  }
+
+  async editTaskText(lineIndex: number, text: string): Promise<void> {
+    const syncContext = this.getSyncContext();
+    if (!syncContext) return;
+
+    const node = this.findNodeByLineIndex(lineIndex);
+    if (!node) return;
+
+    await this.taskProvider.onUpdateMeta(lineIndex, {}, syncContext);
+    this.refresh();
+  }
+
+  async deleteTask(lineIndex: number): Promise<void> {
+    const syncContext = this.getSyncContext();
+    if (!syncContext) return;
+
+    await this.taskProvider.onDeleteTask(lineIndex, syncContext);
+    this.refresh();
+  }
+
+  findNodeByLineIndex(lineIndex: number): TaskNode | null {
+    const findInNodes = (nodes: TaskNode[]): TaskNode | null => {
+      for (const node of nodes) {
+        if (node.lineIndex === lineIndex) return node;
+        const found = findInNodes(node.children);
         if (found) return found;
       }
-    }
-    return null;
+      return null;
+    };
+    return findInNodes(this.cachedNodes);
+  }
+
+  private getSyncContext(): SyncContext | null {
+    const filePath = getBranchContextFilePath(this.currentBranch);
+    if (!filePath || !fs.existsSync(filePath)) return null;
+
+    const workspace = getFirstWorkspacePath();
+    if (!workspace) return null;
+
+    return {
+      branchName: this.currentBranch,
+      workspacePath: workspace,
+      markdownPath: filePath,
+      branchContext: {},
+    };
   }
 
   dispose(): void {

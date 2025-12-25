@@ -455,6 +455,70 @@
         "icon": "$(list-tree)"
       },
       {
+        "command": "projectPanel.setTaskStatus.todo",
+        "title": "Todo"
+      },
+      {
+        "command": "projectPanel.setTaskStatus.doing",
+        "title": "Doing"
+      },
+      {
+        "command": "projectPanel.setTaskStatus.done",
+        "title": "Done"
+      },
+      {
+        "command": "projectPanel.setTaskStatus.blocked",
+        "title": "Blocked"
+      },
+      {
+        "command": "projectPanel.setTaskPriority.urgent",
+        "title": "Urgent"
+      },
+      {
+        "command": "projectPanel.setTaskPriority.high",
+        "title": "High"
+      },
+      {
+        "command": "projectPanel.setTaskPriority.medium",
+        "title": "Medium"
+      },
+      {
+        "command": "projectPanel.setTaskPriority.low",
+        "title": "Low"
+      },
+      {
+        "command": "projectPanel.setTaskPriority.none",
+        "title": "None"
+      },
+      {
+        "command": "projectPanel.setTaskAssignee",
+        "title": "Set Assignee..."
+      },
+      {
+        "command": "projectPanel.setTaskDueDate",
+        "title": "Set Due Date..."
+      },
+      {
+        "command": "projectPanel.addSubtask",
+        "title": "Add Subtask"
+      },
+      {
+        "command": "projectPanel.editTaskText",
+        "title": "Edit Task..."
+      },
+      {
+        "command": "projectPanel.deleteBranchTask",
+        "title": "Delete Task"
+      },
+      {
+        "command": "projectPanel.copyTaskText",
+        "title": "Copy Task Text"
+      },
+      {
+        "command": "projectPanel.openTaskExternal",
+        "title": "Open in Browser"
+      },
+      {
         "command": "projectPanel.showLogs",
         "title": "Project Panel: Show Logs"
       },
@@ -850,9 +914,104 @@
           "command": "projectPanel.resetConfigOption",
           "when": "view == projectPanelConfigs && viewItem == variableItem",
           "group": "inline@1"
+        },
+        {
+          "submenu": "branchTasks.status",
+          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "group": "1_status"
+        },
+        {
+          "submenu": "branchTasks.priority",
+          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "group": "1_status"
+        },
+        {
+          "command": "projectPanel.setTaskAssignee",
+          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "group": "2_meta"
+        },
+        {
+          "command": "projectPanel.setTaskDueDate",
+          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "group": "2_meta"
+        },
+        {
+          "command": "projectPanel.addSubtask",
+          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "group": "3_actions"
+        },
+        {
+          "command": "projectPanel.editTaskText",
+          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "group": "3_actions"
+        },
+        {
+          "command": "projectPanel.deleteBranchTask",
+          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "group": "3_actions"
+        },
+        {
+          "command": "projectPanel.copyTaskText",
+          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "group": "4_clipboard"
+        },
+        {
+          "command": "projectPanel.openTaskExternal",
+          "when": "view == projectPanelTodos && viewItem == todoItemWithExternal",
+          "group": "4_clipboard"
+        }
+      ],
+      "branchTasks.status": [
+        {
+          "command": "projectPanel.setTaskStatus.todo",
+          "group": "status"
+        },
+        {
+          "command": "projectPanel.setTaskStatus.doing",
+          "group": "status"
+        },
+        {
+          "command": "projectPanel.setTaskStatus.done",
+          "group": "status"
+        },
+        {
+          "command": "projectPanel.setTaskStatus.blocked",
+          "group": "status"
+        }
+      ],
+      "branchTasks.priority": [
+        {
+          "command": "projectPanel.setTaskPriority.urgent",
+          "group": "priority"
+        },
+        {
+          "command": "projectPanel.setTaskPriority.high",
+          "group": "priority"
+        },
+        {
+          "command": "projectPanel.setTaskPriority.medium",
+          "group": "priority"
+        },
+        {
+          "command": "projectPanel.setTaskPriority.low",
+          "group": "priority"
+        },
+        {
+          "command": "projectPanel.setTaskPriority.none",
+          "group": "priority"
         }
       ]
     },
+    "submenus": [
+      {
+        "id": "branchTasks.status",
+        "label": "Status"
+      },
+      {
+        "id": "branchTasks.priority",
+        "label": "Priority"
+      }
+    ],
     "viewsWelcome": [
       {
         "view": "projectPanelConfigs",

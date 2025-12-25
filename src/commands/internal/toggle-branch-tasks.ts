@@ -1,6 +1,7 @@
 import type * as vscode from 'vscode';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { BranchTasksProvider } from '../../views/branch-tasks';
+import { createBranchTaskCommands } from '../../views/branch-tasks/commands';
 
 export type ToggleTodoParams = number;
 export type CycleTaskStatusParams = number;
@@ -15,5 +16,6 @@ export function createToggleBranchTasksCommands(branchTasksProvider: BranchTasks
     registerCommand(Command.CycleTaskStatus, (lineIndex: CycleTaskStatusParams) =>
       branchTasksProvider.toggleTodo(lineIndex),
     ),
+    ...createBranchTaskCommands(branchTasksProvider),
   ];
 }

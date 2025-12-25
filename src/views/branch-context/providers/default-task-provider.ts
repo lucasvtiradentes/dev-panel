@@ -122,13 +122,61 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     fs.writeFileSync(context.markdownPath, lines.join('\n'));
   }
 
-  async onCreateTask(_task: NewTask, _parentIndex: number | undefined, _context: SyncContext): Promise<TaskNode> {
+  async onCreateTask(task: NewTask, parentIndex: number | undefined, context: SyncContext): Promise<TaskNode> {
+    if (!fs.existsSync(context.markdownPath)) {
+      return { text: task.text, status: 'todo', lineIndex: -1, children: [], meta: createEmptyMeta() };
+    }
+
+    const content = fs.readFileSync(context.markdownPath, 'utf-8');
+    const lines = content.split('\n');
+
+    const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+    if (todoSectionIndex === -1) {
+      return { text: task.text, status: 'todo', lineIndex: -1, children: [], meta: createEmptyMeta() };
+    }
+
+    let insertIndex: number;
+    let indent = '';
+
+    if (parentIndex !== undefined) {
+      const actualParentIndex = todoSectionIndex + 1 + parentIndex + 1;
+      const parentLine = lines[actualParentIndex];
+      const parentMatch = parentLine?.match(TASK_ITEM_PATTERN);
+      if (parentMatch) {
+        indent = `${parentMatch[1]}  `;
+      }
+
+      let lastChildIndex = actualParentIndex;
+      const parentIndentLevel = Math.floor(indent.length / 2) - 1;
+
+      for (let i = actualParentIndex + 1; i < lines.length; i++) {
+        const match = lines[i].match(TASK_ITEM_PATTERN);
+        if (!match) continue;
+
+        const lineIndent = Math.floor(match[1].length / 2);
+        if (lineIndent <= parentIndentLevel) break;
+        lastChildIndex = i;
+      }
+
+      insertIndex = lastChildIndex + 1;
+    } else {
+      const nextSectionIndex = lines.findIndex(
+        (l, i) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
+      );
+      insertIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
+    }
+
+    const newLine = `${indent}- [ ] ${task.text}`;
+    lines.splice(insertIndex, 0, newLine);
+
+    fs.writeFileSync(context.markdownPath, lines.join('\n'));
+
     return {
-      text: _task.text,
+      text: task.text,
       status: 'todo',
-      lineIndex: -1,
+      lineIndex: insertIndex - todoSectionIndex - 2,
       children: [],
-      meta: createEmptyMeta(),
+      meta: {},
     };
   }
 
@@ -161,8 +209,37 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     fs.writeFileSync(context.markdownPath, lines.join('\n'));
   }
 
-  async onDeleteTask(_lineIndex: number, _context: SyncContext): Promise<void> {
-    // To be implemented when needed
+  async onDeleteTask(lineIndex: number, context: SyncContext): Promise<void> {
+    if (!fs.existsSync(context.markdownPath)) return;
+
+    const content = fs.readFileSync(context.markdownPath, 'utf-8');
+    const lines = content.split('\n');
+
+    const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+    if (todoSectionIndex === -1) return;
+
+    const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
+    if (actualLineIndex >= lines.length) return;
+
+    const taskLine = lines[actualLineIndex];
+    const taskMatch = taskLine.match(TASK_ITEM_PATTERN);
+    if (!taskMatch) return;
+
+    const taskIndent = Math.floor(taskMatch[1].length / 2);
+
+    let endIndex = actualLineIndex + 1;
+    for (let i = actualLineIndex + 1; i < lines.length; i++) {
+      const match = lines[i].match(TASK_ITEM_PATTERN);
+      if (!match) continue;
+
+      const lineIndent = Math.floor(match[1].length / 2);
+      if (lineIndent <= taskIndent) break;
+      endIndex = i + 1;
+    }
+
+    lines.splice(actualLineIndex, endIndex - actualLineIndex);
+
+    fs.writeFileSync(context.markdownPath, lines.join('\n'));
   }
 
   async onSync(_context: SyncContext): Promise<SyncResult> {
