@@ -51,14 +51,8 @@
   - scripts
   - plugins
 
-## INIT 
-
-- [ ] corrigir o extension para nao auto-criar as coisas, fazer isso so se o cara rodar o init 
-- [ ] corrigir o init para criar o branch-context-template
-
 ## TODO
 
-- [ ] ao mudar de branch nao estamos mudando de "branch type" - ta ficando como other
 - [ ] botao de IA para a gente preencher os dados do markdown com ia 
 - [ ] adicionar milestone support
 - [ ] adicionar inline link para abrir issue do linear
