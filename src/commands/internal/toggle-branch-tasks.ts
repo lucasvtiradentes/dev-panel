@@ -37,9 +37,6 @@ export function createToggleBranchTasksCommands(branchTasksProvider: BranchTasks
     registerCommand(Command.FilterBranchTasksActive, async () => {
       await branchTasksProvider.showFilterQuickPick();
     }),
-    registerCommand(Command.CollapseBranchTasks, () => {
-      vscode.commands.executeCommand('workbench.actions.treeView.projectPanelTodos.collapseAll');
-    }),
     ...createBranchTaskCommands(branchTasksProvider),
   ];
 }

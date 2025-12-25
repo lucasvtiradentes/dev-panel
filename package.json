@@ -545,11 +545,6 @@
         "icon": "$(filter-filled)"
       },
       {
-        "command": "projectPanel.collapseBranchTasks",
-        "title": "Collapse All",
-        "icon": "$(collapse-all)"
-      },
-      {
         "command": "projectPanel.showLogs",
         "title": "Project Panel: Show Logs"
       },
@@ -840,14 +835,9 @@
           "group": "navigation@5"
         },
         {
-          "command": "projectPanel.collapseBranchTasks",
-          "when": "view == projectPanelTodos",
-          "group": "navigation@6"
-        },
-        {
           "command": "projectPanel.editBranchTodos",
           "when": "view == projectPanelTodos",
-          "group": "navigation@7"
+          "group": "navigation@6"
         }
       ],
       "view/item/context": [

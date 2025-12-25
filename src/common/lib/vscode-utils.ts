@@ -105,7 +105,6 @@ export enum Command {
   SyncBranchTasks = 'syncBranchTasks',
   FilterBranchTasks = 'filterBranchTasks',
   FilterBranchTasksActive = 'filterBranchTasksActive',
-  CollapseBranchTasks = 'collapseBranchTasks',
   ShowLogs = 'showLogs',
   OpenSettingsMenu = 'openSettingsMenu',
   SyncToolKeybindings = 'syncToolKeybindings',
