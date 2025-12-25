@@ -1,8 +1,6 @@
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
 import {
-  CONTEXT_VALUES,
-  DND_MIME_TYPE_BRANCH_TASKS,
   EMPTY_TASKS_MESSAGE,
   FILE_WATCHER_DEBOUNCE_MS,
   NO_PENDING_TASKS_MESSAGE,
@@ -25,134 +23,16 @@ import {
   type TaskSyncProvider,
   createTaskProvider,
 } from '../branch-context/providers';
-import { formatTaskDescription, formatTaskTooltip, getStatusIcon } from './task-item-utils';
+import { type TaskFilter, applyFilters, filterTodoNodes, flattenNodes } from './filter-operations';
+import {
+  BranchMilestoneItem,
+  BranchTaskItem,
+  BranchTasksDragAndDropController,
+  type BranchTreeItem,
+  NO_MILESTONE_NAME,
+} from './task-tree-items';
 
-type TaskFilter = {
-  status?: TaskStatus[];
-  priority?: TaskPriority[];
-  assignee?: string;
-  hasExternalLink?: boolean;
-  overdue?: boolean;
-};
-
-export class BranchTaskItem extends vscode.TreeItem {
-  constructor(
-    public readonly node: TaskNode,
-    hasChildren: boolean,
-  ) {
-    const label = node.text;
-    super(label, hasChildren ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
-
-    if (node.meta.externalUrl || node.meta.externalId) {
-      this.contextValue = CONTEXT_VALUES.TODO_ITEM_WITH_EXTERNAL;
-    } else {
-      this.contextValue = CONTEXT_VALUES.TODO_ITEM;
-    }
-    this.description = formatTaskDescription(node.meta, node.status);
-    this.tooltip = formatTaskTooltip(node.text, node.status, node.meta);
-
-    this.iconPath = getStatusIcon(node.status, node.meta);
-    this.command = {
-      command: getCommandId(Command.CycleTaskStatus),
-      title: 'Cycle Status',
-      arguments: [node.lineIndex],
-    };
-  }
-}
-
-export const NO_MILESTONE_NAME = 'No Milestone';
-
-type DragData = {
-  type: 'task' | 'milestone';
-  lineIndex: number;
-  milestoneName?: string;
-};
-
-export class BranchTasksDragAndDropController implements vscode.TreeDragAndDropController<BranchTreeItem> {
-  readonly dropMimeTypes = [DND_MIME_TYPE_BRANCH_TASKS];
-  readonly dragMimeTypes = [DND_MIME_TYPE_BRANCH_TASKS];
-
-  constructor(private readonly provider: BranchTasksProvider) {}
-
-  handleDrag(
-    source: readonly BranchTreeItem[],
-    dataTransfer: vscode.DataTransfer,
-    _token: vscode.CancellationToken,
-  ): void {
-    const item = source[0];
-    if (!item || !(item instanceof BranchTaskItem)) return;
-
-    const data: DragData = {
-      type: 'task',
-      lineIndex: item.node.lineIndex,
-      milestoneName: this.provider.findMilestoneForTask(item.node.lineIndex),
-    };
-    dataTransfer.set(DND_MIME_TYPE_BRANCH_TASKS, new vscode.DataTransferItem(JSON.stringify(data)));
-  }
-
-  async handleDrop(
-    target: BranchTreeItem | undefined,
-    dataTransfer: vscode.DataTransfer,
-    _token: vscode.CancellationToken,
-  ): Promise<void> {
-    const transferItem = dataTransfer.get(DND_MIME_TYPE_BRANCH_TASKS);
-    if (!transferItem || !target) return;
-
-    const dragData = JSON.parse(transferItem.value as string) as DragData;
-    if (dragData.type !== 'task') return;
-
-    if (target instanceof BranchMilestoneItem) {
-      const targetMilestone = target.isNoMilestone ? null : target.milestone.name;
-      if (dragData.milestoneName !== targetMilestone) {
-        await this.provider.moveTaskToMilestone(dragData.lineIndex, targetMilestone);
-      }
-    } else if (target instanceof BranchTaskItem) {
-      const targetMilestone = this.provider.findMilestoneForTask(target.node.lineIndex);
-
-      if (dragData.milestoneName !== targetMilestone) {
-        await this.provider.moveTaskToMilestone(dragData.lineIndex, targetMilestone ?? null);
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        this.provider.refresh();
-      } else {
-        await this.provider.reorderTask(dragData.lineIndex, target.node.lineIndex);
-      }
-    }
-  }
-}
-
-export class BranchMilestoneItem extends vscode.TreeItem {
-  constructor(
-    public readonly milestone: MilestoneNode,
-    public readonly isNoMilestone = false,
-  ) {
-    super(milestone.name, vscode.TreeItemCollapsibleState.Expanded);
-    this.contextValue = CONTEXT_VALUES.MILESTONE_ITEM;
-    this.iconPath = new vscode.ThemeIcon(isNoMilestone ? 'inbox' : 'milestone');
-
-    const total = this.countAllTasks(milestone.tasks);
-    const done = this.countDoneTasks(milestone.tasks);
-    this.description = `${done}/${total}`;
-  }
-
-  private countAllTasks(tasks: TaskNode[]): number {
-    let count = 0;
-    for (const task of tasks) {
-      count += 1 + this.countAllTasks(task.children);
-    }
-    return count;
-  }
-
-  private countDoneTasks(tasks: TaskNode[]): number {
-    let count = 0;
-    for (const task of tasks) {
-      if (task.status === 'done') count++;
-      count += this.countDoneTasks(task.children);
-    }
-    return count;
-  }
-}
-
-type BranchTreeItem = BranchTaskItem | BranchMilestoneItem;
+export { BranchMilestoneItem, BranchTaskItem, BranchTasksDragAndDropController, NO_MILESTONE_NAME };
 
 export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<BranchTreeItem | undefined>();
@@ -278,91 +158,6 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     this.refresh();
   }
 
-  private applyFilters(nodes: TaskNode[]): TaskNode[] {
-    if (Object.keys(this.activeFilters).length === 0) {
-      return nodes;
-    }
-
-    return nodes.map((node) => this.filterNode(node)).filter((node): node is TaskNode => node !== null);
-  }
-
-  private filterNode(node: TaskNode): TaskNode | null {
-    if (!this.matchesFilter(node)) {
-      const filteredChildren = node.children.map((c) => this.filterNode(c)).filter((c): c is TaskNode => c !== null);
-
-      if (filteredChildren.length === 0) {
-        return null;
-      }
-
-      return { ...node, children: filteredChildren };
-    }
-
-    const filteredChildren = node.children.map((c) => this.filterNode(c)).filter((c): c is TaskNode => c !== null);
-
-    return { ...node, children: filteredChildren };
-  }
-
-  private matchesFilter(node: TaskNode): boolean {
-    const f = this.activeFilters;
-
-    if (f.status && !f.status.includes(node.status)) {
-      return false;
-    }
-
-    if (f.priority && (!node.meta.priority || !f.priority.includes(node.meta.priority))) {
-      return false;
-    }
-
-    if (f.assignee && node.meta.assignee !== f.assignee) {
-      return false;
-    }
-
-    if (f.hasExternalLink && !node.meta.externalUrl && !node.meta.externalId) {
-      return false;
-    }
-
-    if (f.overdue) {
-      if (!node.meta.dueDate) return false;
-      const date = new Date(node.meta.dueDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (date >= today) return false;
-    }
-
-    return true;
-  }
-
-  private filterTodoNodes(nodes: TaskNode[]): TaskNode[] {
-    if (!this.showOnlyTodo) return nodes;
-
-    return nodes
-      .map((node) => {
-        if (node.status !== 'done') {
-          if (node.children.length > 0) {
-            const filteredChildren = this.filterTodoNodes(node.children);
-            return { ...node, children: filteredChildren };
-          }
-          return node;
-        }
-
-        return null;
-      })
-      .filter((node): node is TaskNode => node !== null);
-  }
-
-  private flattenNodes(nodes: TaskNode[]): TaskNode[] {
-    const result: TaskNode[] = [];
-
-    for (const node of nodes) {
-      result.push({ ...node, children: [] });
-      if (node.children.length > 0) {
-        result.push(...this.flattenNodes(node.children));
-      }
-    }
-
-    return result;
-  }
-
   handleMarkdownChange(uri: vscode.Uri): void {
     if (extensionStore.get(StoreKey.IsWritingBranchContext)) {
       logger.info(`[BranchTasksProvider] Ignoring file change during sync: ${uri.fsPath}`);
@@ -438,10 +233,10 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
 
   async getChildren(element?: BranchTreeItem): Promise<BranchTreeItem[]> {
     if (element instanceof BranchMilestoneItem) {
-      let tasks = this.filterTodoNodes(element.milestone.tasks);
-      tasks = this.applyFilters(tasks);
+      let tasks = filterTodoNodes(element.milestone.tasks, this.showOnlyTodo);
+      tasks = applyFilters(tasks, this.activeFilters);
       if (!this.grouped) {
-        tasks = this.flattenNodes(tasks);
+        tasks = flattenNodes(tasks);
       }
       return tasks.map((node) => new BranchTaskItem(node, node.children.length > 0));
     }
@@ -461,10 +256,10 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     if (hasMilestones) {
       const result: BranchTreeItem[] = [];
 
-      let orphanTasks = this.filterTodoNodes(this.cachedOrphanTasks);
-      orphanTasks = this.applyFilters(orphanTasks);
+      let orphanTasks = filterTodoNodes(this.cachedOrphanTasks, this.showOnlyTodo);
+      orphanTasks = applyFilters(orphanTasks, this.activeFilters);
       if (!this.grouped) {
-        orphanTasks = this.flattenNodes(orphanTasks);
+        orphanTasks = flattenNodes(orphanTasks);
       }
 
       if (orphanTasks.length > 0) {
@@ -477,8 +272,8 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
       }
 
       for (const milestone of this.cachedMilestones) {
-        let tasks = this.filterTodoNodes(milestone.tasks);
-        tasks = this.applyFilters(tasks);
+        let tasks = filterTodoNodes(milestone.tasks, this.showOnlyTodo);
+        tasks = applyFilters(tasks, this.activeFilters);
         if (tasks.length > 0 || !this.showOnlyTodo) {
           result.push(new BranchMilestoneItem({ ...milestone, tasks }));
         }
@@ -498,11 +293,11 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
       return result;
     }
 
-    let processedNodes = this.filterTodoNodes(this.cachedNodes);
-    processedNodes = this.applyFilters(processedNodes);
+    let processedNodes = filterTodoNodes(this.cachedNodes, this.showOnlyTodo);
+    processedNodes = applyFilters(processedNodes, this.activeFilters);
 
     if (!this.grouped) {
-      processedNodes = this.flattenNodes(processedNodes);
+      processedNodes = flattenNodes(processedNodes);
     }
 
     const hasActiveFilter = Object.keys(this.activeFilters).length > 0;
