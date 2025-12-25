@@ -299,20 +299,20 @@ export async function selectVariableOption(variable: VariableItem): Promise<void
       const settings = providerInstance?.loadSettings();
 
       const defaultIncludes = [...DEFAULT_INCLUDES];
-      const includes =
-        variable.includes && variable.includes.length > 0
-          ? [...defaultIncludes, ...variable.includes]
-          : settings?.include && settings.include.length > 0
-            ? [...defaultIncludes, ...settings.include]
-            : defaultIncludes;
+      let includes = defaultIncludes;
+      if (variable.includes && variable.includes.length > 0) {
+        includes = [...defaultIncludes, ...variable.includes];
+      } else if (settings?.include && settings.include.length > 0) {
+        includes = [...defaultIncludes, ...settings.include];
+      }
 
       const defaultExcludes = [...DEFAULT_EXCLUDES];
-      const excludes =
-        variable.excludes && variable.excludes.length > 0
-          ? [...defaultExcludes, ...variable.excludes]
-          : settings?.exclude && settings.exclude.length > 0
-            ? [...defaultExcludes, ...settings.exclude]
-            : defaultExcludes;
+      let excludes = defaultExcludes;
+      if (variable.excludes && variable.excludes.length > 0) {
+        excludes = [...defaultExcludes, ...variable.excludes];
+      } else if (settings?.exclude && settings.exclude.length > 0) {
+        excludes = [...defaultExcludes, ...settings.exclude];
+      }
 
       const options: FileSelectionOptions = {
         label: variable.description || `Select file for ${variable.name}`,
@@ -334,20 +334,20 @@ export async function selectVariableOption(variable: VariableItem): Promise<void
       const settings = providerInstance?.loadSettings();
 
       const defaultIncludes = [...DEFAULT_INCLUDES];
-      const includes =
-        variable.includes && variable.includes.length > 0
-          ? [...defaultIncludes, ...variable.includes]
-          : settings?.include && settings.include.length > 0
-            ? [...defaultIncludes, ...settings.include]
-            : defaultIncludes;
+      let includes = defaultIncludes;
+      if (variable.includes && variable.includes.length > 0) {
+        includes = [...defaultIncludes, ...variable.includes];
+      } else if (settings?.include && settings.include.length > 0) {
+        includes = [...defaultIncludes, ...settings.include];
+      }
 
       const defaultExcludes = [...DEFAULT_EXCLUDES];
-      const excludes =
-        variable.excludes && variable.excludes.length > 0
-          ? [...defaultExcludes, ...variable.excludes]
-          : settings?.exclude && settings.exclude.length > 0
-            ? [...defaultExcludes, ...settings.exclude]
-            : defaultExcludes;
+      let excludes = defaultExcludes;
+      if (variable.excludes && variable.excludes.length > 0) {
+        excludes = [...defaultExcludes, ...variable.excludes];
+      } else if (settings?.exclude && settings.exclude.length > 0) {
+        excludes = [...defaultExcludes, ...settings.exclude];
+      }
 
       const options: FileSelectionOptions = {
         label: variable.description || `Select folder for ${variable.name}`,
