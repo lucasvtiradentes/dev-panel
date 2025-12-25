@@ -1,1 +1,1 @@
-export { BranchTasksProvider } from './provider';
+export { BranchTaskItem, BranchTasksProvider } from './provider';

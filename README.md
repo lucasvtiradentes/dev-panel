@@ -35,6 +35,7 @@
 ## TOOLS 
 
 - [ ] modificar a db-query para todas as queries serem salvas em um .md com query e response para a gente ter um tracking disso e poder marcar
+- [ ] o linear-cmd deve ser possivel de baixar essas imagens aqui https://uploads.linear.app/2e38837f-37e7-456b-83f7-9fd2f0478e3f/52b47afe-8787-44d7-84ba-559c0209a088/fe0ae9f1-410f-4eea-bf39-3183e85e7bd5 
 
 ## PLUGINS
 
@@ -55,15 +56,12 @@
 - [ ] corrigir o extension para nao auto-criar as coisas, fazer isso so se o cara rodar o init 
 - [ ] corrigir o init para criar o branch-context-template
 
-## TASKS
-
-- [ ] falta adicionar as secoes tasks no branch context menu
-- [ ] ajeitar o branch tasks para ter status: to do / doing / done 
-
 ## TODO
 
 - [ ] ao mudar de branch nao estamos mudando de "branch type" - ta ficando como other
 - [ ] botao de IA para a gente preencher os dados do markdown com ia 
+- [ ] adicionar milestone support
+- [ ] adicionar inline link para abrir issue do linear
 
 ## NAME 
 

@@ -7,7 +7,7 @@ import type { GoToPromptFileParams } from '../../commands/internal/go-to-prompt-
 import type { GoToReplacementTargetFileParams } from '../../commands/internal/go-to-replacement-target-file';
 import type { GoToToolFileParams } from '../../commands/internal/go-to-tool-file';
 import type { SelectConfigOptionParams } from '../../commands/internal/select-config-option';
-import type { ToggleTodoParams } from '../../commands/internal/toggle-branch-tasks';
+import type { CycleTaskStatusParams, ToggleTodoParams } from '../../commands/internal/toggle-branch-tasks';
 import type { TogglePromptFavoriteParams, TogglePromptHideParams } from '../../commands/internal/toggle-prompts-view';
 import type { ToggleReplacementParams } from '../../commands/internal/toggle-replacement';
 import type { ToggleTaskFavoriteParams, ToggleTaskHideParams } from '../../commands/internal/toggle-tasks-view';
@@ -40,6 +40,7 @@ export type CommandParams = {
   [Command.GoToPromptFile]: GoToPromptFileParams;
   [Command.GoToReplacementTargetFile]: GoToReplacementTargetFileParams;
   [Command.ToggleTodo]: ToggleTodoParams;
+  [Command.CycleTaskStatus]: CycleTaskStatusParams;
   [Command.ExecutePrompt]: ExecutePromptParams;
   [Command.ToggleReplacement]: ToggleReplacementParams;
   [Command.SelectConfigOption]: SelectConfigOptionParams;

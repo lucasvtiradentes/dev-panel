@@ -54,9 +54,13 @@ export const SECTION_LABEL_REQUIREMENTS = 'Requirements';
 export const SECTION_LABEL_NOTES = 'Notes';
 export const SECTION_LABEL_CHANGED_FILES = 'Changed files';
 
-export const TODO_CHECKBOX_UNCHECKED = '[ ]';
-export const TODO_CHECKBOX_CHECKED_LOWER = '[x]';
-export const TODO_CHECKBOX_CHECKED_UPPER = '[X]';
+export const TASK_STATUS_MARKERS = {
+  TODO: '[ ]',
+  DOING: '[>]',
+  DONE_LOWER: '[x]',
+  DONE_UPPER: '[X]',
+  BLOCKED: '[!]',
+} as const;
 
 export const ROOT_FOLDER_LABEL = '.';
 

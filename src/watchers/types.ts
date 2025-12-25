@@ -12,11 +12,5 @@ export type GitRepository = {
   onDidCheckout: vscode.Event<void>;
 };
 
-export type KeybindingEntry = {
-  key: string;
-  command: string;
-  when?: string;
-};
-
 export type BranchChangeCallback = (newBranch: string) => void;
 export type RefreshCallback = () => void;

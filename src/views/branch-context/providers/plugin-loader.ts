@@ -2,10 +2,35 @@ import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
 import { getConfigDirPathFromWorkspacePath } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
-import type { AutoSectionProvider, SyncContext, TaskSyncProvider } from './interfaces';
+import type {
+  AutoSectionProvider,
+  NewTask,
+  SyncContext,
+  SyncResult,
+  TaskMeta,
+  TaskNode,
+  TaskStatus,
+  TaskSyncProvider,
+} from './interfaces';
+import type {
+  CreateTaskPayload,
+  CreateTaskResponse,
+  DeleteTaskPayload,
+  DeleteTaskResponse,
+  GetTasksResponse,
+  PluginAction,
+  PluginRequest,
+  SetStatusPayload,
+  SetStatusResponse,
+  SyncResponse,
+  UpdateMetaPayload,
+  UpdateMetaResponse,
+} from './plugin-protocol';
 
 const execAsync = promisify(exec);
 const logger = createLogger('PluginLoader');
+
+const PLUGIN_TIMEOUT = 60000;
 
 export function loadAutoProvider(workspace: string, providerCommand: string): AutoSectionProvider {
   const configDir = getConfigDirPathFromWorkspacePath(workspace);
@@ -26,7 +51,7 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
       try {
         const { stdout } = await execAsync(providerCommand, {
           encoding: 'utf-8',
-          timeout: 60000,
+          timeout: PLUGIN_TIMEOUT,
           cwd: configDir,
           env: {
             ...process.env,
@@ -43,6 +68,130 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
   };
 }
 
-export function loadTaskProvider(_workspace: string, _providerCommand: string): TaskSyncProvider {
-  throw new Error('Custom task providers not yet implemented');
+export function loadTaskProvider(workspace: string, providerCommand: string): TaskSyncProvider {
+  const configDir = getConfigDirPathFromWorkspacePath(workspace);
+  logger.info(`[loadTaskProvider] Loading provider: ${providerCommand}`);
+
+  async function executePlugin<T>(action: PluginAction, context: SyncContext, payload?: unknown): Promise<T> {
+    const request: PluginRequest = {
+      action,
+      context: {
+        branchName: context.branchName,
+        workspacePath: context.workspacePath,
+        markdownPath: context.markdownPath,
+        branchContext: context.branchContext,
+        sectionOptions: context.sectionOptions,
+      },
+      payload,
+    };
+
+    const command = `${providerCommand} --action=${action}`;
+    logger.info(`[loadTaskProvider] Executing: ${command}`);
+
+    try {
+      const { stdout, stderr } = await execAsync(command, {
+        encoding: 'utf-8',
+        timeout: PLUGIN_TIMEOUT,
+        cwd: configDir,
+        env: {
+          ...process.env,
+          PLUGIN_CONTEXT: JSON.stringify(request),
+        },
+      });
+
+      if (stderr) {
+        logger.warn(`[loadTaskProvider] stderr: ${stderr}`);
+      }
+
+      const jsonMatch = stdout.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error(`Invalid plugin response: ${stdout}`);
+      }
+
+      return JSON.parse(jsonMatch[0]) as T;
+    } catch (error) {
+      logger.error(`[loadTaskProvider] Plugin error: ${error}`);
+      throw error;
+    }
+  }
+
+  return {
+    fromMarkdown(_content: string): TaskNode[] {
+      return [];
+    },
+
+    toMarkdown(_tasks: TaskNode[]): string {
+      return '';
+    },
+
+    async getTasks(context: SyncContext): Promise<TaskNode[]> {
+      const response = await executePlugin<GetTasksResponse>('getTasks', context);
+
+      if (!response.success) {
+        logger.error(`[loadTaskProvider] getTasks failed: ${response.error}`);
+        return [];
+      }
+
+      return response.tasks;
+    },
+
+    async onStatusChange(lineIndex: number, newStatus: TaskStatus, context: SyncContext): Promise<void> {
+      const payload: SetStatusPayload = { lineIndex, newStatus };
+      const response = await executePlugin<SetStatusResponse>('setStatus', context, payload);
+
+      if (!response.success) {
+        throw new Error(response.error ?? 'Failed to set status');
+      }
+    },
+
+    async onCreateTask(task: NewTask, parentIndex: number | undefined, context: SyncContext): Promise<TaskNode> {
+      const payload: CreateTaskPayload = { text: task.text, parentIndex };
+      const response = await executePlugin<CreateTaskResponse>('createTask', context, payload);
+
+      if (!response.success || !response.task) {
+        throw new Error(response.error ?? 'Failed to create task');
+      }
+
+      return response.task;
+    },
+
+    async onUpdateMeta(lineIndex: number, meta: Partial<TaskMeta>, context: SyncContext): Promise<void> {
+      const payload: UpdateMetaPayload = { lineIndex, meta };
+      const response = await executePlugin<UpdateMetaResponse>('updateMeta', context, payload);
+
+      if (!response.success) {
+        throw new Error(response.error ?? 'Failed to update meta');
+      }
+    },
+
+    async onEditText(_lineIndex: number, _newText: string, _context: SyncContext): Promise<void> {
+      throw new Error('Edit text not supported by plugin providers');
+    },
+
+    async onDeleteTask(lineIndex: number, context: SyncContext): Promise<void> {
+      const payload: DeleteTaskPayload = { lineIndex };
+      const response = await executePlugin<DeleteTaskResponse>('deleteTask', context, payload);
+
+      if (!response.success) {
+        throw new Error(response.error ?? 'Failed to delete task');
+      }
+    },
+
+    async onSync(context: SyncContext): Promise<SyncResult> {
+      const response = await executePlugin<SyncResponse>('sync', context);
+
+      if (!response.success || !response.result) {
+        throw new Error(response.error ?? 'Sync failed');
+      }
+
+      return response.result;
+    },
+
+    cycleStatus(currentStatus: TaskStatus): TaskStatus {
+      const cycle: TaskStatus[] = ['todo', 'doing', 'done'];
+      const idx = cycle.indexOf(currentStatus);
+      if (idx === -1) return 'todo';
+      return cycle[(idx + 1) % cycle.length];
+    },
+  };
 }

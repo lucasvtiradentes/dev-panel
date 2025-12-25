@@ -8,17 +8,37 @@ export type SyncContext = {
   sectionOptions?: Record<string, unknown>;
 };
 
+export type TaskStatus = 'todo' | 'doing' | 'done' | 'blocked';
+export type TaskPriority = 'urgent' | 'high' | 'medium' | 'low' | 'none';
+
+export type TaskMeta = {
+  assignee?: string;
+  priority?: TaskPriority;
+  tags?: string[];
+  dueDate?: string;
+  estimate?: string;
+  externalId?: string;
+  externalUrl?: string;
+};
+
 export type TaskNode = {
   text: string;
-  isChecked: boolean;
+  status: TaskStatus;
   lineIndex: number;
   children: TaskNode[];
-  isHeading?: boolean;
+  meta: TaskMeta;
 };
 
 export type NewTask = {
   text: string;
   parentIndex?: number;
+};
+
+export type SyncResult = {
+  added: number;
+  updated: number;
+  deleted: number;
+  conflicts?: { taskId: string; reason: string }[];
 };
 
 export type TaskSyncProvider = {
@@ -28,11 +48,23 @@ export type TaskSyncProvider = {
 
   getTasks(context: SyncContext): Promise<TaskNode[]>;
 
-  onToggleTask(lineIndex: number, context: SyncContext): Promise<void>;
+  onStatusChange(lineIndex: number, newStatus: TaskStatus, context: SyncContext): Promise<void>;
 
-  onCreateTask(task: NewTask, context: SyncContext): Promise<void>;
+  onCreateTask(task: NewTask, parentIndex: number | undefined, context: SyncContext): Promise<TaskNode>;
 
-  onSync(context: SyncContext): Promise<void>;
+  onUpdateMeta(lineIndex: number, meta: Partial<TaskMeta>, context: SyncContext): Promise<void>;
+
+  onEditText(lineIndex: number, newText: string, context: SyncContext): Promise<void>;
+
+  onDeleteTask(lineIndex: number, context: SyncContext): Promise<void>;
+
+  onSync(context: SyncContext): Promise<SyncResult>;
+
+  cycleStatus(currentStatus: TaskStatus): TaskStatus;
+
+  mapExternalStatus?(externalStatus: string): TaskStatus;
+
+  mapLocalStatus?(localStatus: TaskStatus): string;
 };
 
 export type AutoSectionProvider = {

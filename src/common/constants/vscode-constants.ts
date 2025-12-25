@@ -23,6 +23,7 @@ export const CONTEXT_VALUES = {
   PROMPT_GLOBAL_HIDDEN: 'prompt-global-hidden',
   PROMPT_GLOBAL_FAVORITE: 'prompt-global-favorite',
   TODO_ITEM: 'todoItem',
+  TODO_ITEM_WITH_EXTERNAL: 'todoItemWithExternal',
   GROUP_ITEM: 'groupItem',
   VARIABLE_ITEM: 'variableItem',
   REPLACEMENT_GROUP: 'replacementGroup',

@@ -1,59 +1,51 @@
 import * as fs from 'node:fs';
 import {
   MARKDOWN_SECTION_HEADER_PATTERN,
-  TODO_CHECKBOX_CHECKED_LOWER,
-  TODO_CHECKBOX_CHECKED_UPPER,
-  TODO_CHECKBOX_UNCHECKED,
-  TODO_ITEM_PATTERN,
-  TODO_MILESTONE_PATTERN,
+  TASK_ITEM_PATTERN,
+  TASK_STATUS_MARKERS,
   TODO_SECTION_HEADER_PATTERN,
 } from '../../../common/constants';
-import type { NewTask, SyncContext, TaskNode, TaskSyncProvider } from './interfaces';
+import type { NewTask, SyncContext, SyncResult, TaskMeta, TaskNode, TaskStatus, TaskSyncProvider } from './interfaces';
+import {
+  createEmptyMeta,
+  cycleStatus as cycleStatusUtil,
+  formatTaskLine,
+  parseStatusMarker,
+  parseTaskText,
+  statusToMarker,
+} from './task-utils';
 
 export class DefaultTaskProvider implements TaskSyncProvider {
   fromMarkdown(content: string): TaskNode[] {
     const lines = content.split('\n');
     const rootNodes: TaskNode[] = [];
     const stack: { node: TaskNode; indent: number }[] = [];
-    let currentMilestone: TaskNode | null = null;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
-      const milestoneMatch = line.match(TODO_MILESTONE_PATTERN);
-      if (milestoneMatch) {
-        const milestoneNode: TaskNode = {
-          text: milestoneMatch[1].trim(),
-          isChecked: false,
-          lineIndex: i,
-          children: [],
-          isHeading: true,
-        };
-        rootNodes.push(milestoneNode);
-        currentMilestone = milestoneNode;
-        stack.length = 0;
-        continue;
-      }
-
-      const match = line.match(TODO_ITEM_PATTERN);
+      const match = line.match(TASK_ITEM_PATTERN);
       if (!match) continue;
 
       const indent = Math.floor(match[1].length / 2);
-      const isChecked = match[2].toLowerCase() === 'x';
-      const text = match[3].trim();
+      const status = parseStatusMarker(match[2]);
+      const rawText = match[3];
+      const { text, meta } = parseTaskText(rawText);
 
-      const node: TaskNode = { text, isChecked, lineIndex: i, children: [] };
+      const node: TaskNode = {
+        text,
+        status,
+        lineIndex: i,
+        children: [],
+        meta,
+      };
 
       while (stack.length > 0 && stack[stack.length - 1].indent >= indent) {
         stack.pop();
       }
 
       if (stack.length === 0) {
-        if (currentMilestone) {
-          currentMilestone.children.push(node);
-        } else {
-          rootNodes.push(node);
-        }
+        rootNodes.push(node);
       } else {
         stack[stack.length - 1].node.children.push(node);
       }
@@ -69,18 +61,11 @@ export class DefaultTaskProvider implements TaskSyncProvider {
 
     const renderNode = (node: TaskNode, indent = 0): void => {
       const prefix = '  '.repeat(indent);
-
-      if (node.isHeading) {
-        lines.push(`\n## ${node.text}\n`);
-        for (const child of node.children) {
-          renderNode(child, 0);
-        }
-      } else {
-        const checkbox = node.isChecked ? '[x]' : '[ ]';
-        lines.push(`${prefix}- ${checkbox} ${node.text}`);
-        for (const child of node.children) {
-          renderNode(child, indent + 1);
-        }
+      const marker = statusToMarker(node.status);
+      const taskContent = formatTaskLine(node.text, node.meta);
+      lines.push(`${prefix}- [${marker}] ${taskContent}`);
+      for (const child of node.children) {
+        renderNode(child, indent + 1);
       }
     };
 
@@ -113,7 +98,7 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     return this.fromMarkdown(taskContent);
   }
 
-  async onToggleTask(lineIndex: number, context: SyncContext): Promise<void> {
+  async onStatusChange(lineIndex: number, newStatus: TaskStatus, context: SyncContext): Promise<void> {
     if (!fs.existsSync(context.markdownPath)) return;
 
     const content = fs.readFileSync(context.markdownPath, 'utf-8');
@@ -126,27 +111,184 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     if (actualLineIndex >= lines.length) return;
 
     const line = lines[actualLineIndex];
-    if (line.includes(TODO_CHECKBOX_UNCHECKED)) {
-      lines[actualLineIndex] = line.replace(TODO_CHECKBOX_UNCHECKED, TODO_CHECKBOX_CHECKED_LOWER);
-    } else if (line.includes(TODO_CHECKBOX_CHECKED_LOWER) || line.includes(TODO_CHECKBOX_CHECKED_UPPER)) {
-      lines[actualLineIndex] = line.replace(/\[[xX]\]/, TODO_CHECKBOX_UNCHECKED);
-    }
+    const match = line.match(TASK_ITEM_PATTERN);
+    if (!match) return;
+
+    const newMarker = statusToMarker(newStatus);
+    lines[actualLineIndex] = line.replace(/\[([ xX>!])\]/, `[${newMarker}]`);
 
     this.autoToggleParentTask(lines, actualLineIndex);
 
     fs.writeFileSync(context.markdownPath, lines.join('\n'));
   }
 
-  async onCreateTask(_task: NewTask, _context: SyncContext): Promise<void> {
-    // To be implemented when needed
+  async onCreateTask(task: NewTask, parentIndex: number | undefined, context: SyncContext): Promise<TaskNode> {
+    if (!fs.existsSync(context.markdownPath)) {
+      return { text: task.text, status: 'todo', lineIndex: -1, children: [], meta: createEmptyMeta() };
+    }
+
+    const content = fs.readFileSync(context.markdownPath, 'utf-8');
+    const lines = content.split('\n');
+
+    const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+    if (todoSectionIndex === -1) {
+      return { text: task.text, status: 'todo', lineIndex: -1, children: [], meta: createEmptyMeta() };
+    }
+
+    let insertIndex: number;
+    let indent = '';
+
+    if (parentIndex !== undefined) {
+      const actualParentIndex = todoSectionIndex + 1 + parentIndex + 1;
+      const parentLine = lines[actualParentIndex];
+      const parentMatch = parentLine?.match(TASK_ITEM_PATTERN);
+      if (parentMatch) {
+        indent = `${parentMatch[1]}  `;
+      }
+
+      let lastChildIndex = actualParentIndex;
+      const parentIndentLevel = Math.floor(indent.length / 2) - 1;
+
+      for (let i = actualParentIndex + 1; i < lines.length; i++) {
+        const match = lines[i].match(TASK_ITEM_PATTERN);
+        if (!match) continue;
+
+        const lineIndent = Math.floor(match[1].length / 2);
+        if (lineIndent <= parentIndentLevel) break;
+        lastChildIndex = i;
+      }
+
+      insertIndex = lastChildIndex + 1;
+    } else {
+      const nextSectionIndex = lines.findIndex(
+        (l, i) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
+      );
+      const endIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
+
+      let lastTaskIndex = todoSectionIndex;
+      for (let i = todoSectionIndex + 1; i < endIndex; i++) {
+        if (TASK_ITEM_PATTERN.test(lines[i])) {
+          lastTaskIndex = i;
+        }
+      }
+
+      insertIndex = lastTaskIndex + 1;
+    }
+
+    const newLine = `${indent}- [ ] ${task.text}`;
+    lines.splice(insertIndex, 0, newLine);
+
+    fs.writeFileSync(context.markdownPath, lines.join('\n'));
+
+    return {
+      text: task.text,
+      status: 'todo',
+      lineIndex: insertIndex - todoSectionIndex - 2,
+      children: [],
+      meta: {},
+    };
   }
 
-  async onSync(_context: SyncContext): Promise<void> {
-    // Default provider syncs from markdown (no external source)
+  async onUpdateMeta(lineIndex: number, metaUpdate: Partial<TaskMeta>, context: SyncContext): Promise<void> {
+    if (!fs.existsSync(context.markdownPath)) return;
+
+    const content = fs.readFileSync(context.markdownPath, 'utf-8');
+    const lines = content.split('\n');
+
+    const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+    if (todoSectionIndex === -1) return;
+
+    const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
+    if (actualLineIndex >= lines.length) return;
+
+    const line = lines[actualLineIndex];
+    const match = line.match(TASK_ITEM_PATTERN);
+    if (!match) return;
+
+    const indent = match[1];
+    const statusChar = match[2];
+    const rawText = match[3];
+
+    const { text, meta: existingMeta } = parseTaskText(rawText);
+    const newMeta = { ...existingMeta, ...metaUpdate };
+    const newContent = formatTaskLine(text, newMeta);
+
+    lines[actualLineIndex] = `${indent}- [${statusChar}] ${newContent}`;
+
+    fs.writeFileSync(context.markdownPath, lines.join('\n'));
+  }
+
+  async onEditText(lineIndex: number, newText: string, context: SyncContext): Promise<void> {
+    if (!fs.existsSync(context.markdownPath)) return;
+
+    const content = fs.readFileSync(context.markdownPath, 'utf-8');
+    const lines = content.split('\n');
+
+    const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+    if (todoSectionIndex === -1) return;
+
+    const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
+    if (actualLineIndex >= lines.length) return;
+
+    const line = lines[actualLineIndex];
+    const match = line.match(TASK_ITEM_PATTERN);
+    if (!match) return;
+
+    const indent = match[1];
+    const statusChar = match[2];
+    const rawText = match[3];
+
+    const { meta: existingMeta } = parseTaskText(rawText);
+    const newContent = formatTaskLine(newText, existingMeta);
+
+    lines[actualLineIndex] = `${indent}- [${statusChar}] ${newContent}`;
+
+    fs.writeFileSync(context.markdownPath, lines.join('\n'));
+  }
+
+  async onDeleteTask(lineIndex: number, context: SyncContext): Promise<void> {
+    if (!fs.existsSync(context.markdownPath)) return;
+
+    const content = fs.readFileSync(context.markdownPath, 'utf-8');
+    const lines = content.split('\n');
+
+    const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+    if (todoSectionIndex === -1) return;
+
+    const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
+    if (actualLineIndex >= lines.length) return;
+
+    const taskLine = lines[actualLineIndex];
+    const taskMatch = taskLine.match(TASK_ITEM_PATTERN);
+    if (!taskMatch) return;
+
+    const taskIndent = Math.floor(taskMatch[1].length / 2);
+
+    let endIndex = actualLineIndex + 1;
+    for (let i = actualLineIndex + 1; i < lines.length; i++) {
+      const match = lines[i].match(TASK_ITEM_PATTERN);
+      if (!match) continue;
+
+      const lineIndent = Math.floor(match[1].length / 2);
+      if (lineIndent <= taskIndent) break;
+      endIndex = i + 1;
+    }
+
+    lines.splice(actualLineIndex, endIndex - actualLineIndex);
+
+    fs.writeFileSync(context.markdownPath, lines.join('\n'));
+  }
+
+  async onSync(_context: SyncContext): Promise<SyncResult> {
+    return { added: 0, updated: 0, deleted: 0 };
+  }
+
+  cycleStatus(currentStatus: TaskStatus): TaskStatus {
+    return cycleStatusUtil(currentStatus);
   }
 
   private autoToggleParentTask(lines: string[], childLineIndex: number): void {
-    const childMatch = lines[childLineIndex].match(TODO_ITEM_PATTERN);
+    const childMatch = lines[childLineIndex].match(TASK_ITEM_PATTERN);
     if (!childMatch) return;
 
     const childIndent = Math.floor(childMatch[1].length / 2);
@@ -154,7 +296,7 @@ export class DefaultTaskProvider implements TaskSyncProvider {
 
     let parentLineIndex = -1;
     for (let i = childLineIndex - 1; i >= 0; i--) {
-      const match = lines[i].match(TODO_ITEM_PATTERN);
+      const match = lines[i].match(TASK_ITEM_PATTERN);
       if (!match) continue;
 
       const indent = Math.floor(match[1].length / 2);
@@ -166,14 +308,14 @@ export class DefaultTaskProvider implements TaskSyncProvider {
 
     if (parentLineIndex === -1) return;
 
-    const parentMatch = lines[parentLineIndex].match(TODO_ITEM_PATTERN);
+    const parentMatch = lines[parentLineIndex].match(TASK_ITEM_PATTERN);
     if (!parentMatch) return;
 
     const parentIndent = Math.floor(parentMatch[1].length / 2);
 
     const children: number[] = [];
     for (let i = parentLineIndex + 1; i < lines.length; i++) {
-      const match = lines[i].match(TODO_ITEM_PATTERN);
+      const match = lines[i].match(TASK_ITEM_PATTERN);
       if (!match) continue;
 
       const indent = Math.floor(match[1].length / 2);
@@ -187,19 +329,19 @@ export class DefaultTaskProvider implements TaskSyncProvider {
 
     if (children.length === 0) return;
 
-    const allChildrenChecked = children.every((idx) => {
+    const allChildrenDone = children.every((idx) => {
       const line = lines[idx];
-      return line.includes(TODO_CHECKBOX_CHECKED_LOWER) || line.includes(TODO_CHECKBOX_CHECKED_UPPER);
+      return line.includes(TASK_STATUS_MARKERS.DONE_LOWER) || line.includes(TASK_STATUS_MARKERS.DONE_UPPER);
     });
 
     const parentLine = lines[parentLineIndex];
-    if (allChildrenChecked) {
-      if (parentLine.includes(TODO_CHECKBOX_UNCHECKED)) {
-        lines[parentLineIndex] = parentLine.replace(TODO_CHECKBOX_UNCHECKED, TODO_CHECKBOX_CHECKED_LOWER);
+    if (allChildrenDone) {
+      if (parentLine.includes(TASK_STATUS_MARKERS.TODO)) {
+        lines[parentLineIndex] = parentLine.replace(TASK_STATUS_MARKERS.TODO, TASK_STATUS_MARKERS.DONE_LOWER);
       }
     } else {
-      if (parentLine.includes(TODO_CHECKBOX_CHECKED_LOWER) || parentLine.includes(TODO_CHECKBOX_CHECKED_UPPER)) {
-        lines[parentLineIndex] = parentLine.replace(/\[[xX]\]/, TODO_CHECKBOX_UNCHECKED);
+      if (parentLine.includes(TASK_STATUS_MARKERS.DONE_LOWER) || parentLine.includes(TASK_STATUS_MARKERS.DONE_UPPER)) {
+        lines[parentLineIndex] = parentLine.replace(/\[[xX]\]/, TASK_STATUS_MARKERS.TODO);
       }
     }
   }
