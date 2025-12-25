@@ -141,6 +141,44 @@ export function createBranchTaskCommands(provider: BranchTasksProvider): vscode.
       if (!node?.meta.externalUrl) return;
       await vscode.env.openExternal(vscode.Uri.parse(node.meta.externalUrl));
     }),
+
+    registerCommand(Command.SetTaskMilestone, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
+      const milestones = provider.getMilestoneNames();
+
+      const NEW_MILESTONE = '__new__';
+      type MilestoneQuickPickItem = vscode.QuickPickItem & { value: string | null };
+
+      const items: MilestoneQuickPickItem[] = [
+        { label: '$(inbox) No Milestone', value: null },
+        { label: '$(add) New Milestone...', value: NEW_MILESTONE },
+      ];
+
+      if (milestones.length > 0) {
+        items.push({ label: '', kind: vscode.QuickPickItemKind.Separator, value: null });
+        for (const m of milestones) {
+          items.push({ label: `$(milestone) ${m}`, value: m });
+        }
+      }
+
+      const picked = await vscode.window.showQuickPick(items, {
+        placeHolder: 'Move to milestone',
+      });
+
+      if (picked === undefined) return;
+
+      if (picked.value === NEW_MILESTONE) {
+        const name = await vscode.window.showInputBox({
+          prompt: 'Enter milestone name',
+          placeHolder: 'e.g., Sprint 1',
+        });
+        if (!name) return;
+        await provider.createMilestone(name);
+        await provider.moveTaskToMilestone(lineIndex, name);
+      } else {
+        await provider.moveTaskToMilestone(lineIndex, picked.value);
+      }
+    }),
   ];
 }
 

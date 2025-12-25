@@ -177,6 +177,22 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       }
     },
 
+    async getMilestones(_context: SyncContext) {
+      return { orphanTasks: [], milestones: [] };
+    },
+
+    async moveTaskToMilestone(
+      _taskLineIndex: number,
+      _targetMilestoneName: string | null,
+      _context: SyncContext,
+    ): Promise<void> {
+      throw new Error('Move task to milestone not supported by plugin providers');
+    },
+
+    async createMilestone(_name: string, _context: SyncContext): Promise<void> {
+      throw new Error('Create milestone not supported by plugin providers');
+    },
+
     async onSync(context: SyncContext): Promise<SyncResult> {
       const response = await executePlugin<SyncResponse>('sync', context);
 

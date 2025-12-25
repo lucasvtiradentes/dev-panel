@@ -520,6 +520,11 @@
         "icon": "$(link-external)"
       },
       {
+        "command": "projectPanel.setTaskMilestone",
+        "title": "Milestone...",
+        "icon": "$(milestone)"
+      },
+      {
         "command": "projectPanel.cycleTaskStatus",
         "title": "Cycle Status",
         "icon": "$(play)"
@@ -968,6 +973,11 @@
         },
         {
           "submenu": "branchTasks.priority",
+          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "group": "1_status"
+        },
+        {
+          "command": "projectPanel.setTaskMilestone",
           "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
           "group": "1_status"
         },

@@ -97,6 +97,7 @@ export enum Command {
   DeleteBranchTask = 'deleteBranchTask',
   CopyTaskText = 'copyTaskText',
   OpenTaskExternal = 'openTaskExternal',
+  SetTaskMilestone = 'setTaskMilestone',
   ToggleBranchTasksShowOnlyTodo = 'toggleBranchTasksShowOnlyTodo',
   ToggleBranchTasksShowOnlyTodoActive = 'toggleBranchTasksShowOnlyTodoActive',
   ToggleBranchTasksGroupMode = 'toggleBranchTasksGroupMode',

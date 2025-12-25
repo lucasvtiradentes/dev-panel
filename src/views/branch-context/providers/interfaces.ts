@@ -29,6 +29,12 @@ export type TaskNode = {
   meta: TaskMeta;
 };
 
+export type MilestoneNode = {
+  name: string;
+  lineIndex: number;
+  tasks: TaskNode[];
+};
+
 export type NewTask = {
   text: string;
   parentIndex?: number;
@@ -48,6 +54,8 @@ export type TaskSyncProvider = {
 
   getTasks(context: SyncContext): Promise<TaskNode[]>;
 
+  getMilestones(context: SyncContext): Promise<{ orphanTasks: TaskNode[]; milestones: MilestoneNode[] }>;
+
   onStatusChange(lineIndex: number, newStatus: TaskStatus, context: SyncContext): Promise<void>;
 
   onCreateTask(task: NewTask, parentIndex: number | undefined, context: SyncContext): Promise<TaskNode>;
@@ -57,6 +65,10 @@ export type TaskSyncProvider = {
   onEditText(lineIndex: number, newText: string, context: SyncContext): Promise<void>;
 
   onDeleteTask(lineIndex: number, context: SyncContext): Promise<void>;
+
+  moveTaskToMilestone(taskLineIndex: number, targetMilestoneName: string | null, context: SyncContext): Promise<void>;
+
+  createMilestone(name: string, context: SyncContext): Promise<void>;
 
   onSync(context: SyncContext): Promise<SyncResult>;
 

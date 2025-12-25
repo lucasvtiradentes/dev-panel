@@ -3,6 +3,7 @@ export const TOOL_NAME_VALIDATION_MESSAGE = 'Name must contain only lowercase le
 
 export const TASK_ITEM_PATTERN = /^(\s*)-\s*\[([ xX>!])\]\s*(.*)$/;
 export const TODO_SECTION_HEADER_PATTERN = /^#\s+TASKS\s*$/;
+export const MILESTONE_HEADER_PATTERN = /^##\s+(.+)$/;
 
 export const TASK_META_BLOCK_PATTERN = /<([^>]+)>$/;
 export const TASK_META_ASSIGNEE_PATTERN = /@(\w[\w-]*)/g;
