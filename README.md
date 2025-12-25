@@ -46,3 +46,4 @@
 - [ ] botao de IA para a gente preencher os dados do markdown com ia 
 - [ ] adicionar inline link para abrir issue do linear
 - [ ] bug: ao mudar de branch ta dando erro na "branch tasks" -> nao ta mostrando as duas tasks default -> mas no branch context mostra -> ai tenho que ctrl+s no .branch-context.md para poder dar certo
+- [ ] adicionar project rules (endpoint create etc)
