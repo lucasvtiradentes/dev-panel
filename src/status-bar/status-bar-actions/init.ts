@@ -44,14 +44,6 @@ export async function showInitMenu(): Promise<void> {
     void vscode.window.showInformationMessage(
       `${EXTENSION_DISPLAY_NAME} initialized! Config created at ${CONFIG_FILE_NAME}`,
     );
-
-    const openConfig = await vscode.window.showInformationMessage('Open config file?', 'Open', 'Later');
-
-    if (openConfig === 'Open') {
-      const configFileUri = vscode.Uri.joinPath(configDirUri, CONFIG_FILE_NAME);
-      const doc = await vscode.workspace.openTextDocument(configFileUri);
-      await vscode.window.showTextDocument(doc);
-    }
   } catch (error) {
     logger.error(`Failed to initialize Project Panel: ${error}`);
     void vscode.window.showErrorMessage(`Failed to initialize: ${error}`);
