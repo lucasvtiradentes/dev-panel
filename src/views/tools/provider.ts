@@ -60,8 +60,8 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     const folders = vscode.workspace.workspaceFolders ?? [];
     for (const folder of folders) {
       const tools = this.readDevPanelTools(folder);
-      for (const tool of tools) {
-        allTools.push(tool.name);
+      for (const toolItem of tools) {
+        allTools.push(toolItem.name);
       }
     }
 
@@ -128,8 +128,8 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
 
       for (const folder of folders) {
         const tools = this.readDevPanelTools(folder);
-        for (const tool of tools) {
-          const treeTool = this.createDevPanelTool(tool, folder);
+        for (const toolItem of tools) {
+          const treeTool = this.createDevPanelTool(toolItem, folder);
           if (treeTool) toolElements.push(treeTool);
         }
       }
@@ -155,11 +155,11 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
 
     for (const folder of folders) {
       const tools = this.readDevPanelTools(folder);
-      for (const tool of tools) {
-        const treeTool = this.createDevPanelTool(tool, folder);
+      for (const toolItem of tools) {
+        const treeTool = this.createDevPanelTool(toolItem, folder);
         if (!treeTool) continue;
 
-        const groupName = tool.group ?? NO_GROUP_NAME;
+        const groupName = toolItem.group ?? NO_GROUP_NAME;
 
         if (!groups[groupName]) {
           groups[groupName] = new ToolGroupTreeItem(groupName);

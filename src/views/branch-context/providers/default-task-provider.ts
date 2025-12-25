@@ -226,26 +226,26 @@ export class DefaultTaskProvider implements TaskSyncProvider {
 
     if (targetMilestoneName === null) {
       let firstMilestoneIndex = -1;
-      for (let i = todoSectionIndex + 1; i < sectionEndIndex; i++) {
-        if (MILESTONE_HEADER_PATTERN.test(lines[i])) {
-          firstMilestoneIndex = i;
+      for (let j = todoSectionIndex + 1; j < sectionEndIndex; j++) {
+        if (MILESTONE_HEADER_PATTERN.test(lines[j])) {
+          firstMilestoneIndex = j;
           break;
         }
       }
 
       if (firstMilestoneIndex === -1) {
         let lastTaskIndex = todoSectionIndex;
-        for (let i = todoSectionIndex + 1; i < sectionEndIndex; i++) {
-          if (TASK_ITEM_PATTERN.test(lines[i])) {
-            lastTaskIndex = i;
+        for (let k = todoSectionIndex + 1; k < sectionEndIndex; k++) {
+          if (TASK_ITEM_PATTERN.test(lines[k])) {
+            lastTaskIndex = k;
           }
         }
         insertIndex = lastTaskIndex + 1;
       } else {
         let insertBeforeMilestone = todoSectionIndex + 1;
-        for (let i = todoSectionIndex + 1; i < firstMilestoneIndex; i++) {
-          if (TASK_ITEM_PATTERN.test(lines[i])) {
-            insertBeforeMilestone = i + 1;
+        for (let k = todoSectionIndex + 1; k < firstMilestoneIndex; k++) {
+          if (TASK_ITEM_PATTERN.test(lines[k])) {
+            insertBeforeMilestone = k + 1;
           }
         }
         insertIndex = insertBeforeMilestone;
@@ -254,12 +254,12 @@ export class DefaultTaskProvider implements TaskSyncProvider {
       let targetMilestoneIndex = -1;
       let nextMilestoneIndex = sectionEndIndex;
 
-      for (let i = todoSectionIndex + 1; i < sectionEndIndex; i++) {
-        const match = lines[i].match(MILESTONE_HEADER_PATTERN);
+      for (let j = todoSectionIndex + 1; j < sectionEndIndex; j++) {
+        const match = lines[j].match(MILESTONE_HEADER_PATTERN);
         if (match && match[1].trim() === targetMilestoneName) {
-          targetMilestoneIndex = i;
+          targetMilestoneIndex = j;
         } else if (match && targetMilestoneIndex !== -1) {
-          nextMilestoneIndex = i;
+          nextMilestoneIndex = j;
           break;
         }
       }
@@ -267,9 +267,9 @@ export class DefaultTaskProvider implements TaskSyncProvider {
       if (targetMilestoneIndex === -1) return Promise.resolve();
 
       let lastTaskInMilestone = targetMilestoneIndex;
-      for (let i = targetMilestoneIndex + 1; i < nextMilestoneIndex; i++) {
-        if (TASK_ITEM_PATTERN.test(lines[i])) {
-          lastTaskInMilestone = i;
+      for (let k = targetMilestoneIndex + 1; k < nextMilestoneIndex; k++) {
+        if (TASK_ITEM_PATTERN.test(lines[k])) {
+          lastTaskInMilestone = k;
         }
       }
 

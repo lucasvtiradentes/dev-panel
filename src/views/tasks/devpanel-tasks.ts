@@ -47,8 +47,8 @@ export async function getDevPanelTasks(
 
     for (const folder of folders) {
       const tasks = readDevPanelTasks(folder);
-      for (const task of tasks) {
-        const treeTask = createDevPanelTask(task, folder, showHidden, showOnlyFavorites);
+      for (const taskItem of tasks) {
+        const treeTask = createDevPanelTask(taskItem, folder, showHidden, showOnlyFavorites);
         if (treeTask) taskElements.push(treeTask);
       }
     }
@@ -74,11 +74,11 @@ export async function getDevPanelTasks(
 
   for (const folder of folders) {
     const tasks = readDevPanelTasks(folder);
-    for (const task of tasks) {
-      const treeTask = createDevPanelTask(task, folder, showHidden, showOnlyFavorites);
+    for (const taskItem of tasks) {
+      const treeTask = createDevPanelTask(taskItem, folder, showHidden, showOnlyFavorites);
       if (!treeTask) continue;
 
-      const groupName = task.group ?? NO_GROUP_NAME;
+      const groupName = taskItem.group ?? NO_GROUP_NAME;
 
       if (!groups[groupName]) {
         groups[groupName] = new GroupTreeItem(groupName);

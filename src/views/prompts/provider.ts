@@ -78,8 +78,8 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
 
       for (const folder of folders) {
         const prompts = this.readDevPanelPrompts(folder);
-        for (const prompt of prompts) {
-          const treePrompt = this.createDevPanelPrompt(prompt, folder);
+        for (const promptItem of prompts) {
+          const treePrompt = this.createDevPanelPrompt(promptItem, folder);
           if (treePrompt) promptElements.push(treePrompt);
         }
       }
@@ -105,11 +105,11 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
 
     for (const folder of folders) {
       const prompts = this.readDevPanelPrompts(folder);
-      for (const prompt of prompts) {
-        const treePrompt = this.createDevPanelPrompt(prompt, folder);
+      for (const promptItem of prompts) {
+        const treePrompt = this.createDevPanelPrompt(promptItem, folder);
         if (!treePrompt) continue;
 
-        const groupName = prompt.group ?? NO_GROUP_NAME;
+        const groupName = promptItem.group ?? NO_GROUP_NAME;
 
         if (!groups[groupName]) {
           groups[groupName] = new PromptGroupTreeItem(groupName);
