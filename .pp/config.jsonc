@@ -20,7 +20,8 @@
       //   "provider": "tsx ./plugins/tree-changed-files.ts"
       // },
       "changedFiles": true,
-      "tasks": true
+      "tasks": { "provider": "tsx ./plugins/linear-tasks.ts" }
+      // "tasks": true
     },
     "customSections": [
       {
@@ -38,7 +39,7 @@
         "name": "LINEAR ISSUE",
         "label": "Linear issue",
         "type": "auto",
-        "provider": "tsx ./plugins/linear-issue.ts",
+        "provider": "tsx ./plugins/linear-info.ts",
         "icon": "link-external"
       }
     ]
