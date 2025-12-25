@@ -66,12 +66,12 @@ export async function generateBranchContextMarkdown(
   const replacements: Record<string, string> = {
     BRANCH_NAME: branchName,
     BRANCH_TYPE: branchTypeCheckboxes,
-    PR_LINK: context.prLink || BRANCH_CONTEXT_NA,
-    LINEAR_LINK: context.linearLink || BRANCH_CONTEXT_NA,
-    OBJECTIVE: context.objective || BRANCH_CONTEXT_NA,
-    REQUIREMENTS: context.requirements || BRANCH_CONTEXT_NA,
-    NOTES: context.notes || BRANCH_CONTEXT_NA,
-    TASKS: context.todos || BRANCH_CONTEXT_DEFAULT_TODOS,
+    PR_LINK: context.prLink ?? BRANCH_CONTEXT_NA,
+    LINEAR_LINK: context.linearLink ?? BRANCH_CONTEXT_NA,
+    OBJECTIVE: context.objective ?? BRANCH_CONTEXT_NA,
+    REQUIREMENTS: context.requirements ?? BRANCH_CONTEXT_NA,
+    NOTES: context.notes ?? BRANCH_CONTEXT_NA,
+    TASKS: context.todos ?? BRANCH_CONTEXT_DEFAULT_TODOS,
     CHANGED_FILES: changedFilesTree,
   };
 

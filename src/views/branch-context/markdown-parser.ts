@@ -4,7 +4,7 @@ import { getBranchContextFilePath as getBranchContextFilePathUtil } from '../../
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 
 function normalizeValue(value: string | undefined): string | undefined {
-  if (!value || value === BRANCH_CONTEXT_NA) return undefined;
+  if (value === undefined || value === BRANCH_CONTEXT_NA) return undefined;
   return value;
 }
 
