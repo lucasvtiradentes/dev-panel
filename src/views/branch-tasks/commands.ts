@@ -11,55 +11,67 @@ function extractLineIndex(itemOrLineIndex: ItemOrLineIndex): number {
 
 export function createBranchTaskCommands(provider: BranchTasksProvider): vscode.Disposable[] {
   return [
-    registerCommand(Command.SetTaskStatus, async (lineIndex: number) => {
+    registerCommand(Command.SetTaskStatus, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
       const status = await pickStatus();
       if (!status) return;
       await provider.setStatus(lineIndex, status);
     }),
 
-    registerCommand(Command.SetTaskStatusTodo, async (lineIndex: number) => {
+    registerCommand(Command.SetTaskStatusTodo, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
       await provider.setStatus(lineIndex, 'todo');
     }),
 
-    registerCommand(Command.SetTaskStatusDoing, async (lineIndex: number) => {
+    registerCommand(Command.SetTaskStatusDoing, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
       await provider.setStatus(lineIndex, 'doing');
     }),
 
-    registerCommand(Command.SetTaskStatusDone, async (lineIndex: number) => {
+    registerCommand(Command.SetTaskStatusDone, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
       await provider.setStatus(lineIndex, 'done');
     }),
 
-    registerCommand(Command.SetTaskStatusBlocked, async (lineIndex: number) => {
+    registerCommand(Command.SetTaskStatusBlocked, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
       await provider.setStatus(lineIndex, 'blocked');
     }),
 
-    registerCommand(Command.SetTaskPriority, async (lineIndex: number) => {
+    registerCommand(Command.SetTaskPriority, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
       const priority = await pickPriority();
       if (!priority) return;
       await provider.setPriority(lineIndex, priority);
     }),
 
-    registerCommand(Command.SetTaskPriorityUrgent, async (lineIndex: number) => {
+    registerCommand(Command.SetTaskPriorityUrgent, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
       await provider.setPriority(lineIndex, 'urgent');
     }),
 
-    registerCommand(Command.SetTaskPriorityHigh, async (lineIndex: number) => {
+    registerCommand(Command.SetTaskPriorityHigh, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
       await provider.setPriority(lineIndex, 'high');
     }),
 
-    registerCommand(Command.SetTaskPriorityMedium, async (lineIndex: number) => {
+    registerCommand(Command.SetTaskPriorityMedium, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
       await provider.setPriority(lineIndex, 'medium');
     }),
 
-    registerCommand(Command.SetTaskPriorityLow, async (lineIndex: number) => {
+    registerCommand(Command.SetTaskPriorityLow, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
       await provider.setPriority(lineIndex, 'low');
     }),
 
-    registerCommand(Command.SetTaskPriorityNone, async (lineIndex: number) => {
+    registerCommand(Command.SetTaskPriorityNone, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
       await provider.setPriority(lineIndex, 'none');
     }),
 
-    registerCommand(Command.SetTaskAssignee, async (lineIndex: number) => {
+    registerCommand(Command.SetTaskAssignee, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
       const assignee = await vscode.window.showInputBox({
         prompt: 'Enter assignee name',
         placeHolder: 'e.g., lucas',
@@ -68,7 +80,8 @@ export function createBranchTaskCommands(provider: BranchTasksProvider): vscode.
       await provider.setAssignee(lineIndex, assignee ? assignee : undefined);
     }),
 
-    registerCommand(Command.SetTaskDueDate, async (lineIndex: number) => {
+    registerCommand(Command.SetTaskDueDate, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
       const dueDate = await vscode.window.showInputBox({
         prompt: 'Enter due date (YYYY-MM-DD)',
         placeHolder: 'e.g., 2025-01-15',
@@ -84,7 +97,8 @@ export function createBranchTaskCommands(provider: BranchTasksProvider): vscode.
       await provider.setDueDate(lineIndex, dueDate ? dueDate : undefined);
     }),
 
-    registerCommand(Command.AddSubtask, async (lineIndex: number) => {
+    registerCommand(Command.AddSubtask, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
       const text = await vscode.window.showInputBox({
         prompt: 'Enter subtask text',
         placeHolder: 'New subtask',
@@ -93,7 +107,8 @@ export function createBranchTaskCommands(provider: BranchTasksProvider): vscode.
       await provider.addSubtask(lineIndex, text);
     }),
 
-    registerCommand(Command.EditTaskText, async (lineIndex: number) => {
+    registerCommand(Command.EditTaskText, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
       const node = provider.findNodeByLineIndex(lineIndex);
       if (!node) return;
 
@@ -105,21 +120,23 @@ export function createBranchTaskCommands(provider: BranchTasksProvider): vscode.
       await provider.editTaskText(lineIndex, text);
     }),
 
-    registerCommand(Command.DeleteBranchTask, async (lineIndex: number) => {
+    registerCommand(Command.DeleteBranchTask, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
       const confirm = await vscode.window.showWarningMessage('Delete this task?', { modal: true }, 'Delete');
       if (confirm !== 'Delete') return;
       await provider.deleteTask(lineIndex);
     }),
 
-    registerCommand(Command.CopyTaskText, async (lineIndex: number) => {
+    registerCommand(Command.CopyTaskText, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
       const node = provider.findNodeByLineIndex(lineIndex);
       if (!node) return;
       await vscode.env.clipboard.writeText(node.text);
       vscode.window.showInformationMessage('Task text copied');
     }),
 
-    registerCommand(Command.OpenTaskExternal, async (itemOrLineIndex: ItemOrLineIndex) => {
-      const lineIndex = extractLineIndex(itemOrLineIndex);
+    registerCommand(Command.OpenTaskExternal, async (item: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(item);
       const node = provider.findNodeByLineIndex(lineIndex);
       if (!node?.meta.externalUrl) return;
       await vscode.env.openExternal(vscode.Uri.parse(node.meta.externalUrl));
