@@ -11,7 +11,7 @@ import {
   NO_GROUP_NAME,
   getCommandId,
 } from '../../common/constants';
-import { getConfigDirPattern, getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
+import { getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { PPConfig, PPReplacement } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
@@ -84,15 +84,12 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
   private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
-  private configWatcher: vscode.FileSystemWatcher | null = null;
-  private gitHeadWatcher: vscode.FileSystemWatcher | null = null;
   private _grouped: boolean;
 
   constructor() {
     providerInstance = this;
     this._grouped = getIsGrouped();
     this.updateContextKeys();
-    this.setupFileWatcher();
     this.handleStartup();
   }
 
@@ -118,20 +115,6 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     saveIsGrouped(this._grouped);
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(undefined);
-  }
-
-  private setupFileWatcher(): void {
-    const workspace = getFirstWorkspacePath();
-    if (!workspace) return;
-
-    const configDirPattern = getConfigDirPattern();
-    this.configWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, `${configDirPattern}/${CONFIG_FILE_NAME}`),
-    );
-
-    this.configWatcher.onDidChange(() => this.refresh());
-    this.configWatcher.onDidCreate(() => this.refresh());
-    this.configWatcher.onDidDelete(() => this.refresh());
   }
 
   private async handleStartup(): Promise<void> {
@@ -165,10 +148,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     this.syncReplacementState();
   }
 
-  dispose(): void {
-    this.configWatcher?.dispose();
-    this.gitHeadWatcher?.dispose();
-  }
+  dispose(): void {}
 
   refresh(): void {
     this.syncReplacementState();

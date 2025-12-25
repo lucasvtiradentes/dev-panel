@@ -15,11 +15,7 @@ import {
   VARIABLES_FILE_NAME,
   getCommandId,
 } from '../../common/constants';
-import {
-  getConfigDirPathFromWorkspacePath,
-  getConfigDirPattern,
-  getConfigFilePathFromWorkspacePath,
-} from '../../common/lib/config-manager';
+import { getConfigDirPathFromWorkspacePath, getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/lib/file-selection';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { PPSettings } from '../../common/schemas';
@@ -124,14 +120,12 @@ let providerInstance: VariablesProvider | null = null;
 export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
-  private fileWatcher: vscode.FileSystemWatcher | null = null;
   private _grouped: boolean;
 
   constructor() {
     providerInstance = this;
     this._grouped = getIsGrouped();
     this.updateContextKeys();
-    this.setupFileWatcher();
   }
 
   private updateContextKeys(): void {
@@ -145,23 +139,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     this._onDidChangeTreeData.fire(undefined);
   }
 
-  private setupFileWatcher(): void {
-    const workspace = getFirstWorkspacePath();
-    if (!workspace) return;
-
-    const configDirPattern = getConfigDirPattern();
-    this.fileWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, `${configDirPattern}/{${CONFIG_FILE_NAME},${VARIABLES_FILE_NAME}}`),
-    );
-
-    this.fileWatcher.onDidChange(() => this.refresh());
-    this.fileWatcher.onDidCreate(() => this.refresh());
-    this.fileWatcher.onDidDelete(() => this.refresh());
-  }
-
-  dispose(): void {
-    this.fileWatcher?.dispose();
-  }
+  dispose(): void {}
 
   refresh(): void {
     this._onDidChangeTreeData.fire(undefined);

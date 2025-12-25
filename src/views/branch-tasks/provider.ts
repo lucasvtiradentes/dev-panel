@@ -8,7 +8,7 @@ import {
   NO_PENDING_TASKS_MESSAGE,
   getCommandId,
 } from '../../common/constants';
-import { getBranchContextGlobPattern, loadWorkspaceConfigFromPath } from '../../common/lib/config-manager';
+import { loadWorkspaceConfigFromPath } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
@@ -158,7 +158,6 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
   private _onDidChangeTreeData = new vscode.EventEmitter<BranchTreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
-  private markdownWatcher: vscode.FileSystemWatcher | null = null;
   private currentBranch = '';
   private cachedNodes: TaskNode[] = [];
   private cachedOrphanTasks: TaskNode[] = [];
@@ -174,7 +173,6 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     const config = workspace ? this.loadConfig(workspace) : null;
     const tasksConfig = config?.branchContext?.builtinSections?.tasks;
     this.taskProvider = createTaskProvider(tasksConfig, workspace ?? undefined);
-    this.setupMarkdownWatcher();
     void setContextKey(ContextKey.BranchTasksHasFilter, false);
     const hasExternalProvider = typeof tasksConfig === 'object' && 'provider' in tasksConfig;
     void setContextKey(ContextKey.BranchTasksHasExternalProvider, hasExternalProvider);
@@ -365,34 +363,22 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     return result;
   }
 
-  private setupMarkdownWatcher(): void {
-    const workspace = getFirstWorkspacePath();
-    if (!workspace) {
-      logger.warn('[BranchTasksProvider] No workspace found, watcher not setup');
+  handleMarkdownChange(uri: vscode.Uri): void {
+    if (extensionStore.get(StoreKey.IsWritingBranchContext)) {
+      logger.info(`[BranchTasksProvider] Ignoring file change during sync: ${uri.fsPath}`);
       return;
     }
 
-    const globPattern = getBranchContextGlobPattern();
-    logger.info(`[BranchTasksProvider] Setting up watcher with pattern: ${globPattern}`);
-    this.markdownWatcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(workspace, globPattern));
+    logger.info(`[BranchTasksProvider] File changed: ${uri.fsPath}, currentBranch: ${this.currentBranch}`);
 
-    this.markdownWatcher.onDidChange((uri) => {
-      if (extensionStore.get(StoreKey.IsWritingBranchContext)) {
-        logger.info(`[BranchTasksProvider] Ignoring file change during sync: ${uri.fsPath}`);
-        return;
-      }
+    if (this.fileChangeDebounce) {
+      clearTimeout(this.fileChangeDebounce);
+    }
 
-      logger.info(`[BranchTasksProvider] File changed: ${uri.fsPath}, currentBranch: ${this.currentBranch}`);
-
-      if (this.fileChangeDebounce) {
-        clearTimeout(this.fileChangeDebounce);
-      }
-
-      this.fileChangeDebounce = setTimeout(() => {
-        this.refresh();
-        this.fileChangeDebounce = null;
-      }, FILE_WATCHER_DEBOUNCE_MS);
-    });
+    this.fileChangeDebounce = setTimeout(() => {
+      this.refresh();
+      this.fileChangeDebounce = null;
+    }, FILE_WATCHER_DEBOUNCE_MS);
   }
 
   setBranch(branchName: string): void {
@@ -686,6 +672,8 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
   }
 
   dispose(): void {
-    this.markdownWatcher?.dispose();
+    if (this.fileChangeDebounce) {
+      clearTimeout(this.fileChangeDebounce);
+    }
   }
 }
