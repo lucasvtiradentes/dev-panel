@@ -44,6 +44,7 @@ export const METADATA_FIELD_DESCRIPTION = 'description';
 export const DND_MIME_TYPE_TASKS = 'application/vnd.code.tree.projectpaneltasks';
 export const DND_MIME_TYPE_PROMPTS = 'application/vnd.code.tree.projectpanelprompts';
 export const DND_MIME_TYPE_TOOLS = 'application/vnd.code.tree.projectpaneltools';
+export const DND_MIME_TYPE_BRANCH_TASKS = 'application/vnd.code.tree.projectpanelbranchtasks';
 
 export const WORKSPACE_STATE_KEY = 'pp.uiState';
 

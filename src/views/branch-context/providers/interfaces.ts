@@ -29,6 +29,12 @@ export type TaskNode = {
   meta: TaskMeta;
 };
 
+export type MilestoneNode = {
+  name: string;
+  lineIndex: number;
+  tasks: TaskNode[];
+};
+
 export type NewTask = {
   text: string;
   parentIndex?: number;
@@ -41,12 +47,21 @@ export type SyncResult = {
   conflicts?: { taskId: string; reason: string }[];
 };
 
+export type TaskStats = {
+  completed: number;
+  total: number;
+};
+
 export type TaskSyncProvider = {
   fromMarkdown(content: string): TaskNode[];
 
   toMarkdown(tasks: TaskNode[]): string;
 
   getTasks(context: SyncContext): Promise<TaskNode[]>;
+
+  getTaskStats(context: SyncContext): Promise<TaskStats>;
+
+  getMilestones(context: SyncContext): Promise<{ orphanTasks: TaskNode[]; milestones: MilestoneNode[] }>;
 
   onStatusChange(lineIndex: number, newStatus: TaskStatus, context: SyncContext): Promise<void>;
 
@@ -57,6 +72,17 @@ export type TaskSyncProvider = {
   onEditText(lineIndex: number, newText: string, context: SyncContext): Promise<void>;
 
   onDeleteTask(lineIndex: number, context: SyncContext): Promise<void>;
+
+  moveTaskToMilestone(taskLineIndex: number, targetMilestoneName: string | null, context: SyncContext): Promise<void>;
+
+  reorderTask(
+    taskLineIndex: number,
+    targetLineIndex: number,
+    position: 'before' | 'after',
+    context: SyncContext,
+  ): Promise<void>;
+
+  createMilestone(name: string, context: SyncContext): Promise<void>;
 
   onSync(context: SyncContext): Promise<SyncResult>;
 

@@ -135,6 +135,10 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       return response.tasks;
     },
 
+    async getTaskStats(_context: SyncContext): Promise<{ completed: number; total: number }> {
+      return { completed: 0, total: 0 };
+    },
+
     async onStatusChange(lineIndex: number, newStatus: TaskStatus, context: SyncContext): Promise<void> {
       const payload: SetStatusPayload = { lineIndex, newStatus };
       const response = await executePlugin<SetStatusResponse>('setStatus', context, payload);
@@ -175,6 +179,31 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       if (!response.success) {
         throw new Error(response.error ?? 'Failed to delete task');
       }
+    },
+
+    async getMilestones(_context: SyncContext) {
+      return { orphanTasks: [], milestones: [] };
+    },
+
+    async moveTaskToMilestone(
+      _taskLineIndex: number,
+      _targetMilestoneName: string | null,
+      _context: SyncContext,
+    ): Promise<void> {
+      throw new Error('Move task to milestone not supported by plugin providers');
+    },
+
+    async reorderTask(
+      _taskLineIndex: number,
+      _targetLineIndex: number,
+      _position: 'before' | 'after',
+      _context: SyncContext,
+    ): Promise<void> {
+      throw new Error('Reorder task not supported by plugin providers');
+    },
+
+    async createMilestone(_name: string, _context: SyncContext): Promise<void> {
+      throw new Error('Create milestone not supported by plugin providers');
     },
 
     async onSync(context: SyncContext): Promise<SyncResult> {

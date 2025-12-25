@@ -53,24 +53,24 @@ function generateMarkdown(branchName: string, context: BranchContext): string {
     BRANCH_CONTEXT_SECTION_BRANCH_INFO,
     '',
     `${BRANCH_CONTEXT_FIELD_BRANCH} ${branchName}`,
-    `${BRANCH_CONTEXT_FIELD_PR_LINK} ${context.prLink || BRANCH_CONTEXT_NA}`,
-    `${BRANCH_CONTEXT_FIELD_LINEAR_LINK} ${context.linearLink || BRANCH_CONTEXT_NA}`,
+    `${BRANCH_CONTEXT_FIELD_PR_LINK} ${context.prLink ?? BRANCH_CONTEXT_NA}`,
+    `${BRANCH_CONTEXT_FIELD_LINEAR_LINK} ${context.linearLink ?? BRANCH_CONTEXT_NA}`,
     '',
     BRANCH_CONTEXT_SECTION_OBJECTIVE,
     '',
-    context.objective || BRANCH_CONTEXT_NA,
+    context.objective ?? BRANCH_CONTEXT_NA,
     '',
     BRANCH_CONTEXT_SECTION_REQUIREMENTS,
     '',
-    context.requirements || BRANCH_CONTEXT_NA,
+    context.requirements ?? BRANCH_CONTEXT_NA,
     '',
     BRANCH_CONTEXT_SECTION_NOTES,
     '',
-    context.notes || BRANCH_CONTEXT_NA,
+    context.notes ?? BRANCH_CONTEXT_NA,
     '',
     BRANCH_CONTEXT_SECTION_TODO,
     '',
-    context.todos || BRANCH_CONTEXT_DEFAULT_TODOS,
+    context.todos ?? BRANCH_CONTEXT_DEFAULT_TODOS,
     '',
     BRANCH_CONTEXT_SECTION_CHANGED_FILES,
     '',
@@ -88,7 +88,7 @@ function extractField(content: string, fieldName: string): string | undefined {
   if (!match) return undefined;
 
   const value = match[1].trim();
-  if (value === BRANCH_CONTEXT_NA || value === '') return undefined;
+  if (value === BRANCH_CONTEXT_NA) return undefined;
   return value;
 }
 
@@ -111,7 +111,7 @@ function extractSection(content: string, sectionName: string): string | undefine
   const endIndex = nextHeaderMatch && nextHeaderMatch.index !== undefined ? nextHeaderMatch.index : afterHeader.length;
   const sectionContent = afterHeader.slice(0, endIndex).trim();
 
-  if (sectionContent === BRANCH_CONTEXT_NA || sectionContent === '') return undefined;
+  if (sectionContent === BRANCH_CONTEXT_NA) return undefined;
   return sectionContent;
 }
 

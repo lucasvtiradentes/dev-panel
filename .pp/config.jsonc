@@ -24,8 +24,8 @@
     },
     "customSections": [
       {
-        "name": "GITHUB PR COMMENTS",
-        "label": "Github PR comments",
+        "name": "GH PR INFO",
+        "label": "PR info",
         "type": "auto",
         "provider": "tsx ./plugins/github-pr-comments.ts",
         "icon": "github",
@@ -35,8 +35,8 @@
         }
       },
       {
-        "name": "LINEAR ISSUE",
-        "label": "Linear issue",
+        "name": "LINEAR INFO",
+        "label": "Linear info",
         "type": "auto",
         "provider": "tsx ./plugins/linear-info.ts",
         "icon": "link-external"

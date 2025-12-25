@@ -44,7 +44,6 @@
 ## TODO
 
 - [ ] botao de IA para a gente preencher os dados do markdown com ia 
-- [ ] adicionar milestone support
 - [ ] adicionar inline link para abrir issue do linear
 
 ## NAME 
