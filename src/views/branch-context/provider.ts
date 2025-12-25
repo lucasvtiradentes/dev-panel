@@ -29,8 +29,6 @@ import {
 import {
   configDirExists,
   getBranchContextFilePath as getBranchContextFilePathUtil,
-  getBranchContextGlobPattern,
-  getBranchContextTemplatePath,
   loadWorkspaceConfigFromPath,
 } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
@@ -58,9 +56,6 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
-  private markdownWatcher: vscode.FileSystemWatcher | null = null;
-  private rootMarkdownWatcher: vscode.FileSystemWatcher | null = null;
-  private templateWatcher: vscode.FileSystemWatcher | null = null;
   private currentBranch = '';
   private isWritingMarkdown = false;
   private isSyncing = false;
@@ -81,9 +76,6 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     const config = workspace ? loadWorkspaceConfigFromPath(workspace) : null;
     const tasksConfig = config?.branchContext?.builtinSections?.tasks;
     this.taskProvider = createTaskProvider(tasksConfig, workspace ?? undefined);
-    this.setupMarkdownWatcher();
-    this.setupRootMarkdownWatcher();
-    this.setupTemplateWatcher();
   }
 
   setTreeView(treeView: vscode.TreeView<vscode.TreeItem>): void {
@@ -118,47 +110,13 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
   }
 
-  private setupMarkdownWatcher(): void {
-    const workspace = getFirstWorkspacePath();
-    if (!workspace) return;
-
-    const globPattern = getBranchContextGlobPattern();
-    this.markdownWatcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(workspace, globPattern));
-
-    this.markdownWatcher.onDidChange((uri) => this.handleMarkdownChange(uri));
-    this.markdownWatcher.onDidCreate((uri) => this.handleMarkdownChange(uri));
-  }
-
-  private setupRootMarkdownWatcher(): void {
-    const workspace = getFirstWorkspacePath();
-    if (!workspace) return;
-
-    this.rootMarkdownWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME),
-    );
-
-    this.rootMarkdownWatcher.onDidChange(() => this.handleRootMarkdownChange());
-    this.rootMarkdownWatcher.onDidCreate(() => this.handleRootMarkdownChange());
-  }
-
-  private setupTemplateWatcher(): void {
-    const workspace = getFirstWorkspacePath();
-    if (!workspace) return;
-
-    const templatePath = getBranchContextTemplatePath(workspace);
-    this.templateWatcher = vscode.workspace.createFileSystemWatcher(templatePath);
-
-    this.templateWatcher.onDidChange(() => this.handleTemplateChange());
-    this.templateWatcher.onDidCreate(() => this.handleTemplateChange());
-  }
-
-  private handleTemplateChange(): void {
+  handleTemplateChange(): void {
     if (!this.currentBranch) return;
     logger.info('[BranchContextProvider] Template changed, syncing branch context');
     void this.syncBranchContext();
   }
 
-  private handleMarkdownChange(uri?: vscode.Uri): void {
+  handleMarkdownChange(uri?: vscode.Uri): void {
     if (this.isWritingMarkdown || this.isSyncing) {
       return;
     }
@@ -175,7 +133,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     this.debouncedSync(() => this.syncBranchToRoot());
   }
 
-  private handleRootMarkdownChange(): void {
+  handleRootMarkdownChange(): void {
     if (this.isWritingMarkdown || this.isSyncing) {
       return;
     }
@@ -650,9 +608,6 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       clearInterval(this.descriptionInterval);
       this.descriptionInterval = null;
     }
-    this.markdownWatcher?.dispose();
-    this.rootMarkdownWatcher?.dispose();
-    this.templateWatcher?.dispose();
     this.validationIndicator.dispose();
   }
 }

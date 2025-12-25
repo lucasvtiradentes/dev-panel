@@ -14,3 +14,4 @@ export type GitRepository = {
 
 export type BranchChangeCallback = (newBranch: string) => void;
 export type RefreshCallback = () => void;
+export type UriChangeCallback = (uri: vscode.Uri) => void;
