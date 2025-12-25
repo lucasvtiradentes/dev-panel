@@ -8,9 +8,11 @@ import {
   EXTENSION_DISPLAY_NAME,
   PROMPTS_DIR_NAME,
 } from '../../common/constants';
+import { BRANCH_CONTEXT_TEMPLATE_FILENAME } from '../../common/constants/scripts-constants';
 import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
+import { DEFAULT_TEMPLATE } from '../../views/branch-context/default-template';
 
 const INIT_CONFIG_CONTENT = `{
   "$schema": "${CONFIG_SCHEMA_PATH}",
@@ -76,6 +78,7 @@ export async function showInitMenu(): Promise<void> {
     const configFilePath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
     const promptsDirPath = vscode.Uri.joinPath(vscode.Uri.file(configDirPath), PROMPTS_DIR_NAME);
     const samplePromptPath = vscode.Uri.joinPath(promptsDirPath, 'code-review.md');
+    const templatePath = vscode.Uri.joinPath(vscode.Uri.file(configDirPath), BRANCH_CONTEXT_TEMPLATE_FILENAME);
 
     await vscode.workspace.fs.createDirectory(vscode.Uri.file(configDirPath));
     await vscode.workspace.fs.createDirectory(promptsDirPath);
@@ -83,6 +86,7 @@ export async function showInitMenu(): Promise<void> {
     const encoder = new TextEncoder();
     await vscode.workspace.fs.writeFile(vscode.Uri.file(configFilePath), encoder.encode(INIT_CONFIG_CONTENT));
     await vscode.workspace.fs.writeFile(samplePromptPath, encoder.encode(SAMPLE_PROMPT_CONTENT));
+    await vscode.workspace.fs.writeFile(templatePath, encoder.encode(DEFAULT_TEMPLATE));
 
     logger.info('Project Panel initialized successfully');
     void vscode.window.showInformationMessage(
