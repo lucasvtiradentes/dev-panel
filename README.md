@@ -55,11 +55,6 @@
 - [ ] corrigir o extension para nao auto-criar as coisas, fazer isso so se o cara rodar o init 
 - [ ] corrigir o init para criar o branch-context-template
 
-## TASKS
-
-- [ ] falta adicionar as secoes tasks no branch context menu
-- [ ] ajeitar o branch tasks para ter status: to do / doing / done 
-
 ## TODO
 
 - [ ] ao mudar de branch nao estamos mudando de "branch type" - ta ficando como other

@@ -17,30 +17,37 @@ import { getBranchContextFilePath } from '../branch-context/markdown-parser';
 import {
   type SyncContext,
   type TaskNode,
+  type TaskStatus,
   type TaskSyncProvider,
   createTaskProvider,
 } from '../branch-context/providers';
+
+function getStatusIcon(status: TaskStatus): vscode.ThemeIcon {
+  switch (status) {
+    case 'done':
+      return new vscode.ThemeIcon('pass-filled');
+    case 'doing':
+      return new vscode.ThemeIcon('play-circle');
+    case 'blocked':
+      return new vscode.ThemeIcon('error');
+    default:
+      return new vscode.ThemeIcon('circle-large-outline');
+  }
+}
 
 export class BranchTaskItem extends vscode.TreeItem {
   constructor(
     public readonly node: TaskNode,
     hasChildren: boolean,
   ) {
-    let label: string;
-    if (node.isHeading) {
-      label = node.text;
-    } else if (hasChildren) {
-      label = ` ${node.text}`;
-    } else {
-      label = node.text;
-    }
+    const label = hasChildren ? ` ${node.text}` : node.text;
     super(label, hasChildren ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
     this.contextValue = CONTEXT_VALUES.TODO_ITEM;
 
     if (hasChildren) {
       this.iconPath = undefined;
     } else {
-      this.iconPath = new vscode.ThemeIcon(node.isChecked ? 'pass-filled' : 'circle-large-outline');
+      this.iconPath = getStatusIcon(node.status);
       this.command = {
         command: getCommandId(Command.ToggleTodo),
         title: 'Toggle Todo',
@@ -90,15 +97,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
 
     return nodes
       .map((node) => {
-        if (node.isHeading) {
-          const filteredChildren = this.filterTodoNodes(node.children);
-          if (filteredChildren.length > 0) {
-            return { ...node, children: filteredChildren };
-          }
-          return null;
-        }
-
-        if (!node.isChecked) {
+        if (node.status !== 'done') {
           if (node.children.length > 0) {
             const filteredChildren = this.filterTodoNodes(node.children);
             return { ...node, children: filteredChildren };
@@ -115,14 +114,10 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
     const result: TaskNode[] = [];
 
     for (const node of nodes) {
-      if (node.isHeading) {
+      if (node.children.length > 0) {
         result.push(...this.flattenNodes(node.children));
       } else {
-        if (node.children.length > 0) {
-          result.push(...this.flattenNodes(node.children));
-        } else {
-          result.push({ ...node, children: [] });
-        }
+        result.push({ ...node, children: [] });
       }
     }
 
@@ -240,6 +235,11 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
+    const task = this.findTaskByLineIndex(this.cachedNodes, lineIndex);
+    if (!task) return;
+
+    const newStatus = this.taskProvider.cycleStatus(task.status);
+
     const syncContext: SyncContext = {
       branchName: this.currentBranch,
       workspacePath: workspace,
@@ -247,9 +247,20 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
       branchContext: {},
     };
 
-    this.taskProvider.onToggleTask(lineIndex, syncContext).then(() => {
+    this.taskProvider.onStatusChange(lineIndex, newStatus, syncContext).then(() => {
       this.refresh();
     });
+  }
+
+  private findTaskByLineIndex(nodes: TaskNode[], lineIndex: number): TaskNode | null {
+    for (const node of nodes) {
+      if (node.lineIndex === lineIndex) return node;
+      if (node.children.length > 0) {
+        const found = this.findTaskByLineIndex(node.children, lineIndex);
+        if (found) return found;
+      }
+    }
+    return null;
   }
 
   dispose(): void {

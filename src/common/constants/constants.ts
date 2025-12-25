@@ -58,6 +58,21 @@ export const TODO_CHECKBOX_UNCHECKED = '[ ]';
 export const TODO_CHECKBOX_CHECKED_LOWER = '[x]';
 export const TODO_CHECKBOX_CHECKED_UPPER = '[X]';
 
+export const TASK_STATUS_MARKERS = {
+  TODO: '[ ]',
+  DOING: '[>]',
+  DONE_LOWER: '[x]',
+  DONE_UPPER: '[X]',
+  BLOCKED: '[!]',
+} as const;
+
+export const TASK_STATUS_CHARS = {
+  TODO: ' ',
+  DOING: '>',
+  DONE: 'x',
+  BLOCKED: '!',
+} as const;
+
 export const ROOT_FOLDER_LABEL = '.';
 
 export const QUICK_PICK_ACTION_SELECT = '__select__';
