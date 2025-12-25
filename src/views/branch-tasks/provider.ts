@@ -37,7 +37,7 @@ export class BranchTaskItem extends vscode.TreeItem {
     public readonly node: TaskNode,
     hasChildren: boolean,
   ) {
-    const label = hasChildren ? ` ${node.text}` : node.text;
+    const label = node.text;
     super(label, hasChildren ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
 
     if (node.meta.externalUrl || node.meta.externalId) {
@@ -48,16 +48,12 @@ export class BranchTaskItem extends vscode.TreeItem {
     this.description = formatTaskDescription(node.meta, node.status);
     this.tooltip = formatTaskTooltip(node.text, node.status, node.meta);
 
-    if (hasChildren) {
-      this.iconPath = new vscode.ThemeIcon('chevron-right');
-    } else {
-      this.iconPath = getStatusIcon(node.status, node.meta);
-      this.command = {
-        command: getCommandId(Command.CycleTaskStatus),
-        title: 'Cycle Status',
-        arguments: [node.lineIndex],
-      };
-    }
+    this.iconPath = getStatusIcon(node.status, node.meta);
+    this.command = {
+      command: getCommandId(Command.CycleTaskStatus),
+      title: 'Cycle Status',
+      arguments: [node.lineIndex],
+    };
   }
 }
 
