@@ -129,9 +129,9 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     return { completed, total };
   }
 
-  async getMilestones(context: SyncContext): Promise<{ orphanTasks: TaskNode[]; milestones: MilestoneNode[] }> {
+  getMilestones(context: SyncContext): Promise<{ orphanTasks: TaskNode[]; milestones: MilestoneNode[] }> {
     if (!fs.existsSync(context.markdownPath)) {
-      return { orphanTasks: [], milestones: [] };
+      return Promise.resolve({ orphanTasks: [], milestones: [] });
     }
 
     const content = fs.readFileSync(context.markdownPath, 'utf-8');
@@ -139,7 +139,7 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     const taskSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
 
     if (taskSectionIndex === -1) {
-      return { orphanTasks: [], milestones: [] };
+      return Promise.resolve({ orphanTasks: [], milestones: [] });
     }
 
     const nextSectionIndex = lines.findIndex((l, i) => i > taskSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
@@ -184,31 +184,27 @@ export class DefaultTaskProvider implements TaskSyncProvider {
 
     flushTasks();
 
-    return { orphanTasks, milestones };
+    return Promise.resolve({ orphanTasks, milestones });
   }
 
-  async moveTaskToMilestone(
-    taskLineIndex: number,
-    targetMilestoneName: string | null,
-    context: SyncContext,
-  ): Promise<void> {
-    if (!fs.existsSync(context.markdownPath)) return;
+  moveTaskToMilestone(taskLineIndex: number, targetMilestoneName: string | null, context: SyncContext): Promise<void> {
+    if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
 
     const content = fs.readFileSync(context.markdownPath, 'utf-8');
     const lines = content.split('\n');
 
     const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
-    if (todoSectionIndex === -1) return;
+    if (todoSectionIndex === -1) return Promise.resolve();
 
     const nextSectionIndex = lines.findIndex((l, i) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
     const sectionEndIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
 
     const actualLineIndex = todoSectionIndex + 1 + taskLineIndex + 1;
-    if (actualLineIndex >= lines.length) return;
+    if (actualLineIndex >= lines.length) return Promise.resolve();
 
     const taskLine = lines[actualLineIndex];
     const taskMatch = taskLine.match(TASK_ITEM_PATTERN);
-    if (!taskMatch) return;
+    if (!taskMatch) return Promise.resolve();
 
     const taskIndent = Math.floor(taskMatch[1].length / 2);
     let taskEndIndex = actualLineIndex + 1;
@@ -268,7 +264,7 @@ export class DefaultTaskProvider implements TaskSyncProvider {
         }
       }
 
-      if (targetMilestoneIndex === -1) return;
+      if (targetMilestoneIndex === -1) return Promise.resolve();
 
       let lastTaskInMilestone = targetMilestoneIndex;
       for (let i = targetMilestoneIndex + 1; i < nextMilestoneIndex; i++) {
@@ -283,16 +279,17 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     lines.splice(insertIndex, 0, ...taskLines);
 
     fs.writeFileSync(context.markdownPath, lines.join('\n'));
+    return Promise.resolve();
   }
 
-  async createMilestone(name: string, context: SyncContext): Promise<void> {
-    if (!fs.existsSync(context.markdownPath)) return;
+  createMilestone(name: string, context: SyncContext): Promise<void> {
+    if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
 
     const content = fs.readFileSync(context.markdownPath, 'utf-8');
     const lines = content.split('\n');
 
     const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
-    if (todoSectionIndex === -1) return;
+    if (todoSectionIndex === -1) return Promise.resolve();
 
     const nextSectionIndex = lines.findIndex((l, i) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
     const sectionEndIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
@@ -309,22 +306,23 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     lines.splice(insertIndex, 0, ...newMilestoneLines);
 
     fs.writeFileSync(context.markdownPath, lines.join('\n'));
+    return Promise.resolve();
   }
 
-  async reorderTask(
+  reorderTask(
     taskLineIndex: number,
     targetLineIndex: number,
     position: 'before' | 'after',
     context: SyncContext,
   ): Promise<void> {
-    if (!fs.existsSync(context.markdownPath)) return;
-    if (taskLineIndex === targetLineIndex) return;
+    if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
+    if (taskLineIndex === targetLineIndex) return Promise.resolve();
 
     const content = fs.readFileSync(context.markdownPath, 'utf-8');
     const lines = content.split('\n');
 
     const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
-    if (todoSectionIndex === -1) return;
+    if (todoSectionIndex === -1) return Promise.resolve();
 
     const nextSectionIndex = lines.findIndex((l, i) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
     const sectionEndIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
@@ -332,11 +330,11 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     const actualTaskIndex = todoSectionIndex + 1 + taskLineIndex + 1;
     const actualTargetIndex = todoSectionIndex + 1 + targetLineIndex + 1;
 
-    if (actualTaskIndex >= sectionEndIndex || actualTargetIndex >= sectionEndIndex) return;
+    if (actualTaskIndex >= sectionEndIndex || actualTargetIndex >= sectionEndIndex) return Promise.resolve();
 
     const taskLine = lines[actualTaskIndex];
     const taskMatch = taskLine.match(TASK_ITEM_PATTERN);
-    if (!taskMatch) return;
+    if (!taskMatch) return Promise.resolve();
 
     const taskIndent = Math.floor(taskMatch[1].length / 2);
     let taskEndIndex = actualTaskIndex + 1;
@@ -360,7 +358,7 @@ export class DefaultTaskProvider implements TaskSyncProvider {
 
     const targetLine = lines[newTargetIndex];
     const targetMatch = targetLine?.match(TASK_ITEM_PATTERN);
-    if (!targetMatch) return;
+    if (!targetMatch) return Promise.resolve();
 
     const targetIndent = Math.floor(targetMatch[1].length / 2);
     let targetEndIndex = newTargetIndex + 1;
@@ -390,6 +388,7 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     lines.splice(insertIndex, 0, ...adjustedTaskLines);
 
     fs.writeFileSync(context.markdownPath, lines.join('\n'));
+    return Promise.resolve();
   }
 
   private fromMarkdownWithOffset(content: string, lineIndexBase: number): TaskNode[] {
@@ -432,21 +431,21 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     return rootNodes;
   }
 
-  async onStatusChange(lineIndex: number, newStatus: TaskStatus, context: SyncContext): Promise<void> {
-    if (!fs.existsSync(context.markdownPath)) return;
+  onStatusChange(lineIndex: number, newStatus: TaskStatus, context: SyncContext): Promise<void> {
+    if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
 
     const content = fs.readFileSync(context.markdownPath, 'utf-8');
     const lines = content.split('\n');
 
     const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
-    if (todoSectionIndex === -1) return;
+    if (todoSectionIndex === -1) return Promise.resolve();
 
     const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
-    if (actualLineIndex >= lines.length) return;
+    if (actualLineIndex >= lines.length) return Promise.resolve();
 
     const line = lines[actualLineIndex];
     const match = line.match(TASK_ITEM_PATTERN);
-    if (!match) return;
+    if (!match) return Promise.resolve();
 
     const newMarker = statusToMarker(newStatus);
     lines[actualLineIndex] = line.replace(/\[([ xX>!])\]/, `[${newMarker}]`);
@@ -454,11 +453,12 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     this.autoToggleParentTask(lines, actualLineIndex);
 
     fs.writeFileSync(context.markdownPath, lines.join('\n'));
+    return Promise.resolve();
   }
 
-  async onCreateTask(task: NewTask, parentIndex: number | undefined, context: SyncContext): Promise<TaskNode> {
+  onCreateTask(task: NewTask, parentIndex: number | undefined, context: SyncContext): Promise<TaskNode> {
     if (!fs.existsSync(context.markdownPath)) {
-      return { text: task.text, status: 'todo', lineIndex: -1, children: [], meta: createEmptyMeta() };
+      return Promise.resolve({ text: task.text, status: 'todo', lineIndex: -1, children: [], meta: createEmptyMeta() });
     }
 
     const content = fs.readFileSync(context.markdownPath, 'utf-8');
@@ -466,7 +466,7 @@ export class DefaultTaskProvider implements TaskSyncProvider {
 
     const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
     if (todoSectionIndex === -1) {
-      return { text: task.text, status: 'todo', lineIndex: -1, children: [], meta: createEmptyMeta() };
+      return Promise.resolve({ text: task.text, status: 'todo', lineIndex: -1, children: [], meta: createEmptyMeta() });
     }
 
     let insertIndex: number;
@@ -514,30 +514,30 @@ export class DefaultTaskProvider implements TaskSyncProvider {
 
     fs.writeFileSync(context.markdownPath, lines.join('\n'));
 
-    return {
+    return Promise.resolve({
       text: task.text,
       status: 'todo',
       lineIndex: insertIndex - todoSectionIndex - 2,
       children: [],
       meta: {},
-    };
+    });
   }
 
-  async onUpdateMeta(lineIndex: number, metaUpdate: Partial<TaskMeta>, context: SyncContext): Promise<void> {
-    if (!fs.existsSync(context.markdownPath)) return;
+  onUpdateMeta(lineIndex: number, metaUpdate: Partial<TaskMeta>, context: SyncContext): Promise<void> {
+    if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
 
     const content = fs.readFileSync(context.markdownPath, 'utf-8');
     const lines = content.split('\n');
 
     const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
-    if (todoSectionIndex === -1) return;
+    if (todoSectionIndex === -1) return Promise.resolve();
 
     const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
-    if (actualLineIndex >= lines.length) return;
+    if (actualLineIndex >= lines.length) return Promise.resolve();
 
     const line = lines[actualLineIndex];
     const match = line.match(TASK_ITEM_PATTERN);
-    if (!match) return;
+    if (!match) return Promise.resolve();
 
     const indent = match[1];
     const statusChar = match[2];
@@ -550,23 +550,24 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     lines[actualLineIndex] = `${indent}- [${statusChar}] ${newContent}`;
 
     fs.writeFileSync(context.markdownPath, lines.join('\n'));
+    return Promise.resolve();
   }
 
-  async onEditText(lineIndex: number, newText: string, context: SyncContext): Promise<void> {
-    if (!fs.existsSync(context.markdownPath)) return;
+  onEditText(lineIndex: number, newText: string, context: SyncContext): Promise<void> {
+    if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
 
     const content = fs.readFileSync(context.markdownPath, 'utf-8');
     const lines = content.split('\n');
 
     const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
-    if (todoSectionIndex === -1) return;
+    if (todoSectionIndex === -1) return Promise.resolve();
 
     const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
-    if (actualLineIndex >= lines.length) return;
+    if (actualLineIndex >= lines.length) return Promise.resolve();
 
     const line = lines[actualLineIndex];
     const match = line.match(TASK_ITEM_PATTERN);
-    if (!match) return;
+    if (!match) return Promise.resolve();
 
     const indent = match[1];
     const statusChar = match[2];
@@ -578,23 +579,24 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     lines[actualLineIndex] = `${indent}- [${statusChar}] ${newContent}`;
 
     fs.writeFileSync(context.markdownPath, lines.join('\n'));
+    return Promise.resolve();
   }
 
-  async onDeleteTask(lineIndex: number, context: SyncContext): Promise<void> {
-    if (!fs.existsSync(context.markdownPath)) return;
+  onDeleteTask(lineIndex: number, context: SyncContext): Promise<void> {
+    if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
 
     const content = fs.readFileSync(context.markdownPath, 'utf-8');
     const lines = content.split('\n');
 
     const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
-    if (todoSectionIndex === -1) return;
+    if (todoSectionIndex === -1) return Promise.resolve();
 
     const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
-    if (actualLineIndex >= lines.length) return;
+    if (actualLineIndex >= lines.length) return Promise.resolve();
 
     const taskLine = lines[actualLineIndex];
     const taskMatch = taskLine.match(TASK_ITEM_PATTERN);
-    if (!taskMatch) return;
+    if (!taskMatch) return Promise.resolve();
 
     const taskIndent = Math.floor(taskMatch[1].length / 2);
 
@@ -611,10 +613,11 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     lines.splice(actualLineIndex, endIndex - actualLineIndex);
 
     fs.writeFileSync(context.markdownPath, lines.join('\n'));
+    return Promise.resolve();
   }
 
-  async onSync(_context: SyncContext): Promise<SyncResult> {
-    return { added: 0, updated: 0, deleted: 0 };
+  onSync(_context: SyncContext): Promise<SyncResult> {
+    return Promise.resolve({ added: 0, updated: 0, deleted: 0 });
   }
 
   cycleStatus(currentStatus: TaskStatus): TaskStatus {

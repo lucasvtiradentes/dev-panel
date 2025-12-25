@@ -135,8 +135,8 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       return response.tasks;
     },
 
-    async getTaskStats(_context: SyncContext): Promise<{ completed: number; total: number }> {
-      return { completed: 0, total: 0 };
+    getTaskStats(_context: SyncContext): Promise<{ completed: number; total: number }> {
+      return Promise.resolve({ completed: 0, total: 0 });
     },
 
     async onStatusChange(lineIndex: number, newStatus: TaskStatus, context: SyncContext): Promise<void> {
@@ -168,8 +168,8 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       }
     },
 
-    async onEditText(_lineIndex: number, _newText: string, _context: SyncContext): Promise<void> {
-      throw new Error('Edit text not supported by plugin providers');
+    onEditText(_lineIndex: number, _newText: string, _context: SyncContext): Promise<void> {
+      return Promise.reject(new Error('Edit text not supported by plugin providers'));
     },
 
     async onDeleteTask(lineIndex: number, context: SyncContext): Promise<void> {
@@ -181,29 +181,29 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       }
     },
 
-    async getMilestones(_context: SyncContext) {
-      return { orphanTasks: [], milestones: [] };
+    getMilestones(_context: SyncContext) {
+      return Promise.resolve({ orphanTasks: [], milestones: [] });
     },
 
-    async moveTaskToMilestone(
+    moveTaskToMilestone(
       _taskLineIndex: number,
       _targetMilestoneName: string | null,
       _context: SyncContext,
     ): Promise<void> {
-      throw new Error('Move task to milestone not supported by plugin providers');
+      return Promise.reject(new Error('Move task to milestone not supported by plugin providers'));
     },
 
-    async reorderTask(
+    reorderTask(
       _taskLineIndex: number,
       _targetLineIndex: number,
       _position: 'before' | 'after',
       _context: SyncContext,
     ): Promise<void> {
-      throw new Error('Reorder task not supported by plugin providers');
+      return Promise.reject(new Error('Reorder task not supported by plugin providers'));
     },
 
-    async createMilestone(_name: string, _context: SyncContext): Promise<void> {
-      throw new Error('Create milestone not supported by plugin providers');
+    createMilestone(_name: string, _context: SyncContext): Promise<void> {
+      return Promise.reject(new Error('Create milestone not supported by plugin providers'));
     },
 
     async onSync(context: SyncContext): Promise<SyncResult> {

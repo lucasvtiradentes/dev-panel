@@ -350,15 +350,20 @@ runPlugin({
     });
   },
 
-  async setStatus(lineIndex: number, newStatus: TaskStatus): Promise<void> {
-    ensureTaskCache();
-    const issueId = taskCache.get(lineIndex);
-    if (!issueId) {
-      throw new Error(`No issue found for lineIndex ${lineIndex}`);
-    }
+  setStatus(lineIndex: number, newStatus: TaskStatus): Promise<void> {
+    try {
+      ensureTaskCache();
+      const issueId = taskCache.get(lineIndex);
+      if (!issueId) {
+        throw new Error(`No issue found for lineIndex ${lineIndex}`);
+      }
 
-    const linearState = mapStatusToLinearState(newStatus);
-    execLinear(`issue update ${issueId} --state "${linearState}"`);
+      const linearState = mapStatusToLinearState(newStatus);
+      execLinear(`issue update ${issueId} --state "${linearState}"`);
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
   },
 
   async createTask(text: string, _parentIndex?: number): Promise<TaskNode> {
@@ -376,46 +381,56 @@ runPlugin({
     return linearIssueToTaskNode(issue, index, customStateMapping);
   },
 
-  async updateMeta(lineIndex: number, meta: Partial<TaskMeta>): Promise<void> {
-    ensureTaskCache();
-    const issueId = taskCache.get(lineIndex);
-    if (!issueId) {
-      throw new Error(`No issue found for lineIndex ${lineIndex}`);
-    }
-
-    const args: string[] = [];
-
-    if (meta.priority !== undefined) {
-      const linearPriority = mapPriorityToLinear(meta.priority);
-      if (linearPriority !== undefined) {
-        args.push(`--priority ${linearPriority}`);
+  updateMeta(lineIndex: number, meta: Partial<TaskMeta>): Promise<void> {
+    try {
+      ensureTaskCache();
+      const issueId = taskCache.get(lineIndex);
+      if (!issueId) {
+        throw new Error(`No issue found for lineIndex ${lineIndex}`);
       }
-    }
 
-    if (meta.assignee !== undefined) {
-      args.push(`--assignee "${meta.assignee}"`);
-    }
+      const args: string[] = [];
 
-    if (meta.dueDate !== undefined) {
-      args.push(`--due-date "${meta.dueDate}"`);
-    }
+      if (meta.priority !== undefined) {
+        const linearPriority = mapPriorityToLinear(meta.priority);
+        if (linearPriority !== undefined) {
+          args.push(`--priority ${linearPriority}`);
+        }
+      }
 
-    if (args.length > 0) {
-      execLinear(`issue update ${issueId} ${args.join(' ')}`);
+      if (meta.assignee !== undefined) {
+        args.push(`--assignee "${meta.assignee}"`);
+      }
+
+      if (meta.dueDate !== undefined) {
+        args.push(`--due-date "${meta.dueDate}"`);
+      }
+
+      if (args.length > 0) {
+        execLinear(`issue update ${issueId} ${args.join(' ')}`);
+      }
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
     }
   },
 
-  async deleteTask(lineIndex: number): Promise<void> {
-    ensureTaskCache();
-    const issueId = taskCache.get(lineIndex);
-    if (!issueId) {
-      throw new Error(`No issue found for lineIndex ${lineIndex}`);
-    }
+  deleteTask(lineIndex: number): Promise<void> {
+    try {
+      ensureTaskCache();
+      const issueId = taskCache.get(lineIndex);
+      if (!issueId) {
+        throw new Error(`No issue found for lineIndex ${lineIndex}`);
+      }
 
-    execLinear(`issue update ${issueId} --state "Canceled"`);
+      execLinear(`issue update ${issueId} --state "Canceled"`);
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
   },
 
-  async sync(): Promise<SyncResult> {
+  sync(): Promise<SyncResult> {
     taskCache.clear();
 
     if (linkKind === 'project') {
@@ -432,11 +447,11 @@ runPlugin({
         taskCache.set(index, issue.identifier);
       });
 
-      return {
+      return Promise.resolve({
         added: 0,
         updated: issues.length,
         deleted: 0,
-      };
+      });
     }
 
     const subIssues = fetchIssueSubIssues();
@@ -450,10 +465,10 @@ runPlugin({
       taskCache.set(index, subIssue.identifier);
     });
 
-    return {
+    return Promise.resolve({
       added: 0,
       updated: filtered.length,
       deleted: 0,
-    };
+    });
   },
 });

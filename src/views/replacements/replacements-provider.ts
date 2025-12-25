@@ -143,7 +143,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     setActiveReplacements(activeReplacements);
   }
 
-  async handleBranchChange(currentBranch: string): Promise<void> {
+  handleBranchChange(currentBranch: string): void {
     setLastBranch(currentBranch);
     this.syncReplacementState();
   }

@@ -68,7 +68,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     setActiveTools(allTools);
   }
 
-  async toggleTool(tool: TreeTool): Promise<void> {
+  toggleTool(tool: TreeTool): void {
     logger.info(`toggleTool called for: ${tool?.toolName ?? 'null'}`);
 
     if (!tool || !tool.toolName) {
@@ -314,6 +314,6 @@ export function setToolProviderInstance(instance: ToolTreeDataProvider): void {
   providerInstance = instance;
 }
 
-export async function toggleTool(tool: TreeTool): Promise<void> {
-  await providerInstance?.toggleTool(tool);
+export function toggleTool(tool: TreeTool): void {
+  providerInstance?.toggleTool(tool);
 }
