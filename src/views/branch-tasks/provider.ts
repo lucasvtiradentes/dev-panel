@@ -1,15 +1,13 @@
 import * as fs from 'node:fs';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
-  CONFIG_FILE_NAME,
   CONTEXT_VALUES,
   EMPTY_TASKS_MESSAGE,
   FILE_WATCHER_DEBOUNCE_MS,
   NO_PENDING_TASKS_MESSAGE,
   getCommandId,
 } from '../../common/constants';
-import { getBranchContextGlobPattern, getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
+import { getBranchContextGlobPattern, loadWorkspaceConfigFromPath } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
@@ -75,14 +73,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
   }
 
   private loadConfig(workspace: string): PPConfig | null {
-    const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
-    if (!fs.existsSync(configPath)) return null;
-    try {
-      const content = fs.readFileSync(configPath, 'utf-8');
-      return JSON5.parse(content) as PPConfig;
-    } catch {
-      return null;
-    }
+    return loadWorkspaceConfigFromPath(workspace);
   }
 
   toggleShowOnlyTodo(): void {

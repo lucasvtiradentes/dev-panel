@@ -1,11 +1,10 @@
-import * as fs from 'node:fs';
-import JSON5 from 'json5';
 import { CONTEXT_PREFIX } from '../../common/constants';
-import { getVSCodeKeybindingsPath } from '../../common/lib/vscode-keybindings-utils';
+import {
+  type VSCodeKeybinding,
+  loadKeybindings as loadVSCodeKeybindings,
+} from '../../common/lib/vscode-keybindings-utils';
 import { getWorkspaceId } from '../../common/lib/vscode-utils';
 import type { KeybindingConfig } from './types';
-
-type VSCodeKeybinding = { key: string; command: string; when?: string };
 
 export class KeybindingManager {
   private keybindings: VSCodeKeybinding[] = [];
@@ -20,20 +19,7 @@ export class KeybindingManager {
   }
 
   private loadKeybindings(): void {
-    const filePath = getVSCodeKeybindingsPath();
-
-    if (!fs.existsSync(filePath)) {
-      this.keybindings = [];
-      return;
-    }
-
-    try {
-      const content = fs.readFileSync(filePath, 'utf8');
-      this.keybindings = content.trim() ? JSON5.parse(content) : [];
-    } catch {
-      this.keybindings = [];
-    }
-
+    this.keybindings = loadVSCodeKeybindings();
     this.workspaceId = getWorkspaceId();
   }
 

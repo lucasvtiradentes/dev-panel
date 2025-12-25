@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
   CONFIG_FILE_NAME,
@@ -12,7 +11,7 @@ import {
   TOOL_NAME_PATTERN,
   TOOL_NAME_VALIDATION_MESSAGE,
 } from '../../common/constants';
-import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath } from '../../common/lib/config-manager';
+import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath, parseConfig } from '../../common/lib/config-manager';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
 
@@ -59,7 +58,11 @@ async function handleAddTool(): Promise<void> {
   }
 
   const configContent = fs.readFileSync(configPath, 'utf8');
-  const config = JSON5.parse(configContent) as PPConfig;
+  const config = parseConfig(configContent);
+  if (!config) {
+    vscode.window.showErrorMessage('Failed to parse config file');
+    return;
+  }
 
   if (!config.tools) {
     config.tools = [];

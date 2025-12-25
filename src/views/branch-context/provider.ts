@@ -1,7 +1,6 @@
 import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
   CONFIG_CACHE_TTL_MS,
@@ -24,14 +23,13 @@ import {
 import {
   BRANCH_CONTEXT_NA,
   BRANCH_CONTEXT_NO_CHANGES,
-  CONFIG_FILE_NAME,
   ROOT_BRANCH_CONTEXT_FILE_NAME,
 } from '../../common/constants/scripts-constants';
 import {
   getBranchContextFilePath as getBranchContextFilePathUtil,
   getBranchContextGlobPattern,
   getBranchContextTemplatePath,
-  getConfigFilePathFromWorkspacePath,
+  loadWorkspaceConfigFromPath,
 } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { createLogger } from '../../common/lib/logger';
@@ -195,21 +193,16 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       this.addToGitExclude(workspace);
     }
 
-    const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
-    if (fs.existsSync(configPath)) {
-      try {
-        const configContent = fs.readFileSync(configPath, 'utf-8');
-        const config = JSON5.parse(configContent) as PPConfig;
-        const issues = validateBranchContext(workspace, config.branchContext);
-
-        if (issues.length > 0) {
-          this.validationIndicator.show(issues);
-        } else {
-          this.validationIndicator.hide();
-        }
-      } catch {
+    const config = loadWorkspaceConfigFromPath(workspace);
+    if (config) {
+      const issues = validateBranchContext(workspace, config.branchContext);
+      if (issues.length > 0) {
+        this.validationIndicator.show(issues);
+      } else {
         this.validationIndicator.hide();
       }
+    } else {
+      this.validationIndicator.hide();
     }
   }
 
@@ -429,21 +422,9 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       return cached;
     }
 
-    const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
-    if (!fs.existsSync(configPath)) {
-      this.configCache.set(workspace, null);
-      return null;
-    }
-
-    try {
-      const content = fs.readFileSync(configPath, 'utf-8');
-      const config = JSON5.parse(content) as PPConfig;
-      this.configCache.set(workspace, config);
-      return config;
-    } catch {
-      this.configCache.set(workspace, null);
-      return null;
-    }
+    const config = loadWorkspaceConfigFromPath(workspace);
+    this.configCache.set(workspace, config);
+    return config;
   }
 
   private getSectionRegistry(

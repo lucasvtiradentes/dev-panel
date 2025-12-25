@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import {
   CONFIG_DIR_NAME,
@@ -13,8 +12,8 @@ import {
   PACKAGE_JSON,
   getCommandId,
 } from '../../common/constants';
+import { loadConfigFromPath } from '../../common/lib/config-manager';
 import { Command } from '../../common/lib/vscode-utils';
-import type { PPConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
 import { readPPVariablesAsEnv } from '../../common/utils/variables-env';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
@@ -49,16 +48,12 @@ export function getExcludedDirs(workspacePath: string): Set<string> {
   const configPath = path.join(workspacePath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
   const excluded = new Set(DEFAULT_EXCLUDED_DIRS);
 
-  if (fs.existsSync(configPath)) {
-    try {
-      const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8')) as PPConfig;
-      const customExcludePatterns = config.settings?.exclude ?? [];
-      const customDirs = extractDirNamesFromGlobs(customExcludePatterns);
-      for (const dir of customDirs) {
-        excluded.add(dir);
-      }
-    } catch {
-      // ignore
+  const config = loadConfigFromPath(configPath);
+  if (config) {
+    const customExcludePatterns = config.settings?.exclude ?? [];
+    const customDirs = extractDirNamesFromGlobs(customExcludePatterns);
+    for (const dir of customDirs) {
+      excluded.add(dir);
     }
   }
 

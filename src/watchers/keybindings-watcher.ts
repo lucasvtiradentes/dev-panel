@@ -1,12 +1,11 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { CONTEXT_PREFIX, KEYBINDINGS_FILE } from '../common/constants';
 import { createLogger } from '../common/lib/logger';
-import { getVSCodeKeybindingsPath } from '../common/lib/vscode-keybindings-utils';
+import { getVSCodeKeybindingsPath, parseKeybindings } from '../common/lib/vscode-keybindings-utils';
 import { getWorkspaceId } from '../common/lib/vscode-utils';
-import type { KeybindingEntry, RefreshCallback } from './types';
+import type { RefreshCallback } from './types';
 import { WATCHER_CONSTANTS, attachFileWatcherHandlers } from './utils';
 
 const logger = createLogger('KeybindingsWatcher');
@@ -24,10 +23,10 @@ function createKeybindingsUpdater() {
       const keybindingsPath = getVSCodeKeybindingsPath();
       if (!fs.existsSync(keybindingsPath)) return;
 
-      let keybindings: KeybindingEntry[];
+      let keybindings: { key: string; command: string; when?: string }[];
       try {
         const content = fs.readFileSync(keybindingsPath, 'utf8');
-        keybindings = content.trim() ? JSON5.parse(content) : [];
+        keybindings = parseKeybindings(content);
       } catch (error) {
         logger.error(`Failed to read keybindings file: ${String(error)}`);
         return;

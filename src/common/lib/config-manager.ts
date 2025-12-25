@@ -161,15 +161,31 @@ export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] {
   return vscode.workspace.workspaceFolders ?? [];
 }
 
-export function loadWorkspaceConfig(folder: vscode.WorkspaceFolder): PPConfig | null {
-  const configPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
-  if (!fs.existsSync(configPath)) return null;
+export function parseConfig(content: string): PPConfig | null {
+  try {
+    return JSON5.parse(content) as PPConfig;
+  } catch {
+    return null;
+  }
+}
 
+export function loadConfigFromPath(configPath: string): PPConfig | null {
+  if (!fs.existsSync(configPath)) return null;
   try {
     return JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
   } catch {
     return null;
   }
+}
+
+export function loadWorkspaceConfigFromPath(workspacePath: string): PPConfig | null {
+  const configPath = getConfigFilePathFromWorkspacePath(workspacePath, CONFIG_FILE_NAME);
+  return loadConfigFromPath(configPath);
+}
+
+export function loadWorkspaceConfig(folder: vscode.WorkspaceFolder): PPConfig | null {
+  const configPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
+  return loadConfigFromPath(configPath);
 }
 
 export function forEachWorkspaceConfig(callback: (folder: vscode.WorkspaceFolder, config: PPConfig) => void): void {
@@ -186,11 +202,5 @@ export function forEachWorkspaceConfig(callback: (folder: vscode.WorkspaceFolder
 
 export function loadGlobalConfig(): PPConfig | null {
   const configPath = getGlobalConfigPath();
-  if (!fs.existsSync(configPath)) return null;
-
-  try {
-    return JSON5.parse(fs.readFileSync(configPath, 'utf8')) as PPConfig;
-  } catch {
-    return null;
-  }
+  return loadConfigFromPath(configPath);
 }

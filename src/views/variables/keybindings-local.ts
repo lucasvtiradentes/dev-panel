@@ -1,25 +1,9 @@
-import * as fs from 'node:fs';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { CONTEXT_PREFIX, getVariableCommandId, getVariableCommandPrefix } from '../../common/constants';
 import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
-import { getVSCodeKeybindingsPath } from '../../common/lib/vscode-keybindings-utils';
+import { type VSCodeKeybinding, loadKeybindings } from '../../common/lib/vscode-keybindings-utils';
 import { Command, executeCommand, getWorkspaceId } from '../../common/lib/vscode-utils';
-
-type VSCodeKeybinding = { key: string; command: string; when?: string };
-
-function readVSCodeKeybindings(): VSCodeKeybinding[] {
-  const filePath = getVSCodeKeybindingsPath();
-  if (!fs.existsSync(filePath)) return [];
-
-  try {
-    const content = fs.readFileSync(filePath, 'utf8');
-    return content.trim() ? JSON5.parse(content) : [];
-  } catch {
-    return [];
-  }
-}
 
 function matchesWorkspace(kb: VSCodeKeybinding): boolean {
   const workspaceId = getWorkspaceId();
@@ -28,14 +12,14 @@ function matchesWorkspace(kb: VSCodeKeybinding): boolean {
 }
 
 export function getVariableKeybinding(variableName: string): string | undefined {
-  const keybindings = readVSCodeKeybindings();
+  const keybindings = loadKeybindings();
   const commandId = getVariableCommandId(variableName);
   const binding = keybindings.find((kb) => kb.command === commandId && matchesWorkspace(kb));
   return binding?.key;
 }
 
 export function getAllVariableKeybindings(): Record<string, string> {
-  const keybindings = readVSCodeKeybindings();
+  const keybindings = loadKeybindings();
   const variableKeybindings: Record<string, string> = {};
   const commandPrefix = getVariableCommandPrefix();
 
