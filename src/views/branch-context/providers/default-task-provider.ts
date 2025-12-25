@@ -163,7 +163,16 @@ export class DefaultTaskProvider implements TaskSyncProvider {
       const nextSectionIndex = lines.findIndex(
         (l, i) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
       );
-      insertIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
+      const endIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
+
+      let lastTaskIndex = todoSectionIndex;
+      for (let i = todoSectionIndex + 1; i < endIndex; i++) {
+        if (TASK_ITEM_PATTERN.test(lines[i])) {
+          lastTaskIndex = i;
+        }
+      }
+
+      insertIndex = lastTaskIndex + 1;
     }
 
     const newLine = `${indent}- [ ] ${task.text}`;
