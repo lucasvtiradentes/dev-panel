@@ -31,18 +31,7 @@ export function createOpenSettingsMenuCommand() {
       }
     }
 
-    const mainMenuItems: QuickPickItemWithId<SettingsMenuOption>[] = [
-      {
-        id: SettingsMenuOption.ManageConfigLocation,
-        label: '$(folder) Change Config Location',
-        detail: `Select where ${EXTENSION_DISPLAY_NAME} config should be located`,
-      },
-      {
-        id: SettingsMenuOption.Registry,
-        label: '$(package) Registry',
-        detail: 'Browse and install tools/prompts from registry',
-      },
-    ];
+    const mainMenuItems: QuickPickItemWithId<SettingsMenuOption>[] = [];
 
     if (showInit) {
       mainMenuItems.push({
@@ -50,6 +39,19 @@ export function createOpenSettingsMenuCommand() {
         label: '$(file-add) Init',
         detail: `Initialize ${EXTENSION_DISPLAY_NAME} in current workspace`,
       });
+    } else {
+      mainMenuItems.push(
+        {
+          id: SettingsMenuOption.ManageConfigLocation,
+          label: '$(folder) Change Config Location',
+          detail: `Select where ${EXTENSION_DISPLAY_NAME} config should be located`,
+        },
+        {
+          id: SettingsMenuOption.Registry,
+          label: '$(package) Registry',
+          detail: 'Browse and install tools/prompts from registry',
+        },
+      );
     }
 
     const selected = await vscode.window.showQuickPick(mainMenuItems, {
