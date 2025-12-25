@@ -6,7 +6,14 @@ import {
   TODO_SECTION_HEADER_PATTERN,
 } from '../../../common/constants';
 import type { NewTask, SyncContext, SyncResult, TaskMeta, TaskNode, TaskStatus, TaskSyncProvider } from './interfaces';
-import { createEmptyMeta, cycleStatus as cycleStatusUtil, parseStatusMarker, statusToMarker } from './task-utils';
+import {
+  createEmptyMeta,
+  cycleStatus as cycleStatusUtil,
+  formatTaskLine,
+  parseStatusMarker,
+  parseTaskText,
+  statusToMarker,
+} from './task-utils';
 
 export class DefaultTaskProvider implements TaskSyncProvider {
   fromMarkdown(content: string): TaskNode[] {
@@ -22,14 +29,15 @@ export class DefaultTaskProvider implements TaskSyncProvider {
 
       const indent = Math.floor(match[1].length / 2);
       const status = parseStatusMarker(match[2]);
-      const text = match[3].trim();
+      const rawText = match[3];
+      const { text, meta } = parseTaskText(rawText);
 
       const node: TaskNode = {
         text,
         status,
         lineIndex: i,
         children: [],
-        meta: createEmptyMeta(),
+        meta,
       };
 
       while (stack.length > 0 && stack[stack.length - 1].indent >= indent) {
@@ -54,7 +62,8 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     const renderNode = (node: TaskNode, indent = 0): void => {
       const prefix = '  '.repeat(indent);
       const marker = statusToMarker(node.status);
-      lines.push(`${prefix}- [${marker}] ${node.text}`);
+      const taskContent = formatTaskLine(node.text, node.meta);
+      lines.push(`${prefix}- [${marker}] ${taskContent}`);
       for (const child of node.children) {
         renderNode(child, indent + 1);
       }
@@ -123,8 +132,33 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     };
   }
 
-  async onUpdateMeta(_lineIndex: number, _meta: Partial<TaskMeta>, _context: SyncContext): Promise<void> {
-    // To be implemented in Stage 2
+  async onUpdateMeta(lineIndex: number, metaUpdate: Partial<TaskMeta>, context: SyncContext): Promise<void> {
+    if (!fs.existsSync(context.markdownPath)) return;
+
+    const content = fs.readFileSync(context.markdownPath, 'utf-8');
+    const lines = content.split('\n');
+
+    const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+    if (todoSectionIndex === -1) return;
+
+    const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
+    if (actualLineIndex >= lines.length) return;
+
+    const line = lines[actualLineIndex];
+    const match = line.match(TASK_ITEM_PATTERN);
+    if (!match) return;
+
+    const indent = match[1];
+    const statusChar = match[2];
+    const rawText = match[3];
+
+    const { text, meta: existingMeta } = parseTaskText(rawText);
+    const newMeta = { ...existingMeta, ...metaUpdate };
+    const newContent = formatTaskLine(text, newMeta);
+
+    lines[actualLineIndex] = `${indent}- [${statusChar}] ${newContent}`;
+
+    fs.writeFileSync(context.markdownPath, lines.join('\n'));
   }
 
   async onDeleteTask(_lineIndex: number, _context: SyncContext): Promise<void> {
