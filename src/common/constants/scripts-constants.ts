@@ -114,6 +114,17 @@ export function getGlobalPromptsDir(): string {
 }
 
 export const AI_SPEC_PROJECT_TOOLS_REGEX = /<project_tools>[\s\S]*?<\/project_tools>/;
+
+export const REGISTRY_BASE_URL = 'https://raw.githubusercontent.com/lucasvtiradentes/project-panel/main/registry';
+export const REGISTRY_INDEX_FILE = 'index.json';
+export const PLUGINS_DIR_NAME = 'plugins';
+export const SCRIPTS_DIR_NAME = 'scripts';
+
+export const REGISTRY_DEFAULT_PLUGIN_FILE = 'plugin.ts';
+export const REGISTRY_DEFAULT_PROMPT_FILE = 'prompt.md';
+export const REGISTRY_DEFAULT_TOOL_FILE = 'instructions.md';
+export const REGISTRY_DEFAULT_SCRIPT_FILE = 'script.sh';
+export const REGISTRY_CONFIG_FILE = 'config.json';
 export const AI_SPEC_AVAILABLE_TOOLS_REGEX = /<available_tools>[\s\S]*?<\/available_tools>/;
 
 export const WORKSPACE_STATE_CONFIG_DIR_KEY = 'pp.configDir';

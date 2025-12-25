@@ -6,6 +6,7 @@ import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { showConfigLocationMenu } from './config-location';
 import { showInitMenu } from './init';
+import { showRegistryMenu } from './registry';
 
 enum SettingsMenuOption {
   ManageConfigLocation = 'manage-config-location',
@@ -66,7 +67,7 @@ export function createOpenSettingsMenuCommand() {
         await showConfigLocationMenu();
         break;
       case SettingsMenuOption.Registry:
-        void vscode.window.showInformationMessage('Registry: Not implemented yet');
+        await showRegistryMenu();
         break;
       case SettingsMenuOption.Init:
         await showInitMenu();

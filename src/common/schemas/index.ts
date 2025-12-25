@@ -12,6 +12,9 @@ export {
   getAIProvidersListFormatted,
 } from './config-schema';
 
+// Registry schema exports (for registry items)
+export { RegistryItemKind, type RegistryItem, type RegistryIndex, type RegistryItemEntry } from './registry-schema';
+
 // VSCode workspace schema exports (for VSCode workspace state)
 export {
   type VariablesState,
