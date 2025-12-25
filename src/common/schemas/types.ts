@@ -23,20 +23,10 @@ export type BranchContext = {
 export enum TaskSource {
   VSCode = 'vscode',
   Package = 'package',
-  PP = 'pp',
+  DevPanel = 'devpanel',
 }
 
-export enum TaskSourceKey {
-  VSCode = 'vscode',
-  Package = 'packageJson',
-  PP = 'pp',
-}
-
-export const TASK_SOURCE_TO_KEY: Record<TaskSource, TaskSourceKey> = {
-  [TaskSource.VSCode]: TaskSourceKey.VSCode,
-  [TaskSource.Package]: TaskSourceKey.Package,
-  [TaskSource.PP]: TaskSourceKey.PP,
-};
+export const TASK_SOURCE_VALUES = Object.values(TaskSource) as [string, ...string[]];
 
 export type TaskSourceInfo = {
   id: TaskSource;
@@ -47,7 +37,7 @@ export type TaskSourceInfo = {
 export const TASK_SOURCES: TaskSourceInfo[] = [
   { id: TaskSource.VSCode, label: 'VSCode', icon: 'tools' },
   { id: TaskSource.Package, label: 'Package.json', icon: 'package' },
-  { id: TaskSource.PP, label: 'PP', icon: 'beaker' },
+  { id: TaskSource.DevPanel, label: 'DevPanel', icon: 'beaker' },
 ];
 
 type TaskIcon = {

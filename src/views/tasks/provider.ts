@@ -5,9 +5,9 @@ import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { tasksState } from '../../common/lib/workspace-state';
 import { TASK_SOURCES, TaskSource } from '../../common/schemas/types';
 import { createSourcedDragAndDropController } from '../common';
+import { getDevPanelTasks, hasDevPanelGroups } from './devpanel-tasks';
 import { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
 import { getPackageScripts, hasPackageGroups } from './package-json';
-import { getPPTasks, hasPPGroups } from './pp-tasks';
 import {
   getCurrentSource,
   getFavoriteItems,
@@ -85,8 +85,8 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
         return hasVSCodeGroups();
       case TaskSource.Package:
         return hasPackageGroups();
-      case TaskSource.PP:
-        return hasPPGroups();
+      case TaskSource.DevPanel:
+        return hasDevPanelGroups();
     }
   }
 
@@ -96,7 +96,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     const hasGroups = await this.checkHasGroups();
     void setContextKey(ContextKey.TaskSourceVSCode, this._source === TaskSource.VSCode);
     void setContextKey(ContextKey.TaskSourcePackage, this._source === TaskSource.Package);
-    void setContextKey(ContextKey.TaskSourcePP, this._source === TaskSource.PP);
+    void setContextKey(ContextKey.TaskSourceDevPanel, this._source === TaskSource.DevPanel);
     void setContextKey(ContextKey.TasksGrouped, this._grouped);
     void setContextKey(ContextKey.TasksHasGroups, hasGroups);
     void setContextKey(ContextKey.TasksHasHidden, hiddenItems.length > 0);
@@ -216,8 +216,8 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
         });
       case TaskSource.Package:
         return getPackageScripts(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn);
-      case TaskSource.PP:
-        return getPPTasks(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn);
+      case TaskSource.DevPanel:
+        return getDevPanelTasks(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn);
     }
   }
 

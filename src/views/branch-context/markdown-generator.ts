@@ -4,7 +4,7 @@ import {
   BRANCH_CONTEXT_NA,
   type BranchType,
   ChangedFilesStyle,
-  METADATA_PP_PREFIX,
+  METADATA_DEVPANEL_PREFIX,
   METADATA_SECTION_PREFIX,
   METADATA_SEPARATOR,
   METADATA_SUFFIX,
@@ -97,7 +97,7 @@ export async function generateBranchContextMarkdown(
 
   if (context.metadata) {
     const metadataJson = JSON.stringify(context.metadata);
-    output += `\n\n${METADATA_SEPARATOR}\n\n${METADATA_PP_PREFIX}${metadataJson}${METADATA_SUFFIX}`;
+    output += `\n\n${METADATA_SEPARATOR}\n\n${METADATA_DEVPANEL_PREFIX}${metadataJson}${METADATA_SUFFIX}`;
   }
 
   fs.writeFileSync(mdPath, output);

@@ -11,22 +11,22 @@ import {
 import { getWorkspaceConfigDirPath, loadGlobalConfig, loadWorkspaceConfig } from '../../common/lib/config-manager';
 import { globalTasksState } from '../../common/lib/global-state';
 import { Command } from '../../common/lib/vscode-utils';
-import type { PPConfig } from '../../common/schemas';
+import type { DevPanelConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
-import { readPPVariablesAsEnv } from '../../common/utils/variables-env';
+import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
-export function hasPPGroups(): boolean {
+export function hasDevPanelGroups(): boolean {
   const folders = vscode.workspace.workspaceFolders ?? [];
   for (const folder of folders) {
-    const tasks = readPPTasks(folder);
+    const tasks = readDevPanelTasks(folder);
     if (tasks.some((task) => task.group != null)) return true;
   }
   return false;
 }
 
-export async function getPPTasks(
+export async function getDevPanelTasks(
   grouped: boolean,
   showHidden: boolean,
   showOnlyFavorites: boolean,
@@ -46,9 +46,9 @@ export async function getPPTasks(
     }
 
     for (const folder of folders) {
-      const tasks = readPPTasks(folder);
+      const tasks = readDevPanelTasks(folder);
       for (const task of tasks) {
-        const treeTask = createPPTask(task, folder, showHidden, showOnlyFavorites);
+        const treeTask = createDevPanelTask(task, folder, showHidden, showOnlyFavorites);
         if (treeTask) taskElements.push(treeTask);
       }
     }
@@ -73,9 +73,9 @@ export async function getPPTasks(
   }
 
   for (const folder of folders) {
-    const tasks = readPPTasks(folder);
+    const tasks = readDevPanelTasks(folder);
     for (const task of tasks) {
-      const treeTask = createPPTask(task, folder, showHidden, showOnlyFavorites);
+      const treeTask = createDevPanelTask(task, folder, showHidden, showOnlyFavorites);
       if (!treeTask) continue;
 
       const groupName = task.group ?? NO_GROUP_NAME;
@@ -91,29 +91,29 @@ export async function getPPTasks(
   return sortFn(taskElements);
 }
 
-function readPPTasks(folder: vscode.WorkspaceFolder): NonNullable<PPConfig['tasks']> {
+function readDevPanelTasks(folder: vscode.WorkspaceFolder): NonNullable<DevPanelConfig['tasks']> {
   const config = loadWorkspaceConfig(folder);
   return config?.tasks ?? [];
 }
 
-function readGlobalTasks(): NonNullable<PPConfig['tasks']> {
+function readGlobalTasks(): NonNullable<DevPanelConfig['tasks']> {
   const config = loadGlobalConfig();
   return config?.tasks ?? [];
 }
 
-function createPPTask(
-  task: NonNullable<PPConfig['tasks']>[number],
+function createDevPanelTask(
+  task: NonNullable<DevPanelConfig['tasks']>[number],
   folder: vscode.WorkspaceFolder,
   showHidden: boolean,
   showOnlyFavorites: boolean,
 ): TreeTask | null {
-  const hidden = isHidden(TaskSource.PP, task.name);
-  const favorite = isFavorite(TaskSource.PP, task.name);
+  const hidden = isHidden(TaskSource.DevPanel, task.name);
+  const favorite = isFavorite(TaskSource.DevPanel, task.name);
   if (hidden && !showHidden) return null;
   if (showOnlyFavorites && !favorite) return null;
 
   const configDirPath = getWorkspaceConfigDirPath(folder);
-  const env = readPPVariablesAsEnv(configDirPath);
+  const env = readDevPanelVariablesAsEnv(configDirPath);
   const cwd = task.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
   const shellExec = new vscode.ShellExecution(task.command, { env, cwd });
   const vsTask = new vscode.Task(
@@ -150,19 +150,19 @@ function createPPTask(
 
   if (hidden) {
     treeTask.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
-    treeTask.contextValue = CONTEXT_VALUES.TASK_PP_HIDDEN;
+    treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_HIDDEN;
   } else if (favorite) {
     treeTask.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
-    treeTask.contextValue = CONTEXT_VALUES.TASK_PP_FAVORITE;
+    treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_FAVORITE;
   } else {
-    treeTask.contextValue = CONTEXT_VALUES.TASK_PP;
+    treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL;
   }
 
   return treeTask;
 }
 
 function createGlobalTask(
-  task: NonNullable<PPConfig['tasks']>[number],
+  task: NonNullable<DevPanelConfig['tasks']>[number],
   showHidden: boolean,
   showOnlyFavorites: boolean,
 ): TreeTask | null {
@@ -173,7 +173,7 @@ function createGlobalTask(
   if (showOnlyFavorites && !favorite) return null;
 
   const globalConfigDir = getGlobalConfigDir();
-  const env = readPPVariablesAsEnv(globalConfigDir);
+  const env = readDevPanelVariablesAsEnv(globalConfigDir);
   const cwd = globalConfigDir;
   const shellExec = new vscode.ShellExecution(task.command, { env, cwd });
 
@@ -212,12 +212,12 @@ function createGlobalTask(
 
   if (hidden) {
     treeTask.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
-    treeTask.contextValue = CONTEXT_VALUES.TASK_PP_GLOBAL_HIDDEN;
+    treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_GLOBAL_HIDDEN;
   } else if (favorite) {
     treeTask.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
-    treeTask.contextValue = CONTEXT_VALUES.TASK_PP_GLOBAL_FAVORITE;
+    treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_GLOBAL_FAVORITE;
   } else {
-    treeTask.contextValue = CONTEXT_VALUES.TASK_PP_GLOBAL;
+    treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_GLOBAL;
   }
 
   return treeTask;

@@ -15,7 +15,7 @@ import {
 import { loadConfigFromPath } from '../../common/lib/config-manager';
 import { Command } from '../../common/lib/vscode-utils';
 import { TaskSource } from '../../common/schemas/types';
-import { readPPVariablesAsEnv } from '../../common/utils/variables-env';
+import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
@@ -279,7 +279,7 @@ function createNpmTask(options: {
   if (showOnlyFavorites && !favorite) return null;
 
   const configDirPath = path.join(folder.uri.fsPath, CONFIG_DIR_NAME);
-  const env = readPPVariablesAsEnv(configDirPath);
+  const env = readDevPanelVariablesAsEnv(configDirPath);
   const shellExec = new vscode.ShellExecution(`${NPM_RUN_COMMAND} ${name}`, { cwd, env });
   const task = new vscode.Task({ type: 'npm' }, folder, name, 'npm', shellExec);
   const displayName = useDisplayName && name.includes(':') ? name.split(':').slice(1).join(':') : name;

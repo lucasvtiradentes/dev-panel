@@ -13,7 +13,7 @@ import { globalPromptsState } from '../../common/lib/global-state';
 import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { promptsState } from '../../common/lib/workspace-state';
-import type { PPConfig } from '../../common/schemas';
+import type { DevPanelConfig } from '../../common/schemas';
 import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../common';
 import { PromptGroupTreeItem, TreePrompt } from './items';
 import { isFavorite, isHidden } from './state';
@@ -61,10 +61,10 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
       return this.sortElements(item.children);
     }
 
-    return this.getPPPrompts();
+    return this.getDevPanelPrompts();
   }
 
-  private async getPPPrompts(): Promise<Array<TreePrompt | PromptGroupTreeItem>> {
+  private async getDevPanelPrompts(): Promise<Array<TreePrompt | PromptGroupTreeItem>> {
     const folders = vscode.workspace.workspaceFolders ?? [];
 
     if (!this._grouped) {
@@ -77,9 +77,9 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
       }
 
       for (const folder of folders) {
-        const prompts = this.readPPPrompts(folder);
+        const prompts = this.readDevPanelPrompts(folder);
         for (const prompt of prompts) {
-          const treePrompt = this.createPPPrompt(prompt, folder);
+          const treePrompt = this.createDevPanelPrompt(prompt, folder);
           if (treePrompt) promptElements.push(treePrompt);
         }
       }
@@ -104,9 +104,9 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     }
 
     for (const folder of folders) {
-      const prompts = this.readPPPrompts(folder);
+      const prompts = this.readDevPanelPrompts(folder);
       for (const prompt of prompts) {
-        const treePrompt = this.createPPPrompt(prompt, folder);
+        const treePrompt = this.createDevPanelPrompt(prompt, folder);
         if (!treePrompt) continue;
 
         const groupName = prompt.group ?? NO_GROUP_NAME;
@@ -122,10 +122,10 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     return this.sortElements(promptElements);
   }
 
-  private readPPPrompts(folder: vscode.WorkspaceFolder): NonNullable<PPConfig['prompts']> {
+  private readDevPanelPrompts(folder: vscode.WorkspaceFolder): NonNullable<DevPanelConfig['prompts']> {
     const config = loadWorkspaceConfig(folder);
     const prompts = config?.prompts ?? [];
-    log.info(`readPPPrompts - found ${prompts.length} prompts`);
+    log.info(`readDevPanelPrompts - found ${prompts.length} prompts`);
     for (const p of prompts) {
       if (p.inputs) {
         log.debug(`prompt "${p.name}" inputs: ${JSON.stringify(p.inputs)}`);
@@ -134,15 +134,15 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     return prompts;
   }
 
-  private readGlobalPrompts(): NonNullable<PPConfig['prompts']> {
+  private readGlobalPrompts(): NonNullable<DevPanelConfig['prompts']> {
     const config = loadGlobalConfig();
     const prompts = config?.prompts ?? [];
     log.info(`readGlobalPrompts - found ${prompts.length} prompts`);
     return prompts;
   }
 
-  private createPPPrompt(
-    prompt: NonNullable<PPConfig['prompts']>[number],
+  private createDevPanelPrompt(
+    prompt: NonNullable<DevPanelConfig['prompts']>[number],
     folder: vscode.WorkspaceFolder,
   ): TreePrompt | null {
     const hidden = isHidden(prompt.name);
@@ -174,7 +174,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     return treePrompt;
   }
 
-  private createGlobalPrompt(prompt: NonNullable<PPConfig['prompts']>[number]): TreePrompt | null {
+  private createGlobalPrompt(prompt: NonNullable<DevPanelConfig['prompts']>[number]): TreePrompt | null {
     const hidden = globalPromptsState.isHidden(prompt.name);
     const favorite = globalPromptsState.isFavorite(prompt.name);
 

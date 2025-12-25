@@ -18,7 +18,7 @@ import {
 import { getConfigDirPathFromWorkspacePath, getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/lib/file-selection';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
-import type { PPSettings } from '../../common/schemas';
+import type { DevPanelSettings } from '../../common/schemas';
 import { getFirstWorkspaceFolder, getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { getIsGrouped, saveIsGrouped } from './state';
 
@@ -196,7 +196,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     return json5.parse(content);
   }
 
-  public loadSettings(): PPSettings | undefined {
+  public loadSettings(): DevPanelSettings | undefined {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return undefined;
 

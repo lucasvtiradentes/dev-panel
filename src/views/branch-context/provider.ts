@@ -35,7 +35,7 @@ import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { createLogger } from '../../common/lib/logger';
 import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { branchContextState } from '../../common/lib/workspace-state';
-import type { PPConfig } from '../../common/schemas/config-schema';
+import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import { SimpleCache } from '../../common/utils/cache';
 import { formatRelativeTime } from '../../common/utils/time-formatter';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
@@ -66,7 +66,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   private descriptionInterval: NodeJS.Timeout | null = null;
   private sectionRegistryCache: SectionRegistry | null = null;
   private configHashCache: string | null = null;
-  private configCache = new SimpleCache<PPConfig | null>(CONFIG_CACHE_TTL_MS);
+  private configCache = new SimpleCache<DevPanelConfig | null>(CONFIG_CACHE_TTL_MS);
   private lastSyncTimestamp: string | null = null;
   private taskProvider: TaskSyncProvider;
 
@@ -391,7 +391,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     return typeof value === 'string' ? value : undefined;
   }
 
-  private loadConfig(workspace: string): PPConfig | null {
+  private loadConfig(workspace: string): DevPanelConfig | null {
     const cached = this.configCache.get(workspace);
     if (cached !== undefined) {
       return cached;
@@ -404,7 +404,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
   private getSectionRegistry(
     workspace: string,
-    config?: PPConfig,
+    config?: DevPanelConfig,
     showChangedFiles: boolean | { provider: string } = true,
   ): SectionRegistry {
     const configHash = config ? JSON.stringify(config.branchContext) : '';

@@ -11,7 +11,7 @@ import {
   saveWorkspaceConfig,
 } from '../../common/lib/config-manager';
 import { Command, executeCommand, registerCommand } from '../../common/lib/vscode-utils';
-import type { PPPrompt } from '../../common/schemas';
+import type { DevPanelPrompt } from '../../common/schemas';
 import {
   isGlobalItem,
   showConfigNotFoundError,
@@ -47,7 +47,7 @@ async function handleDeletePrompt(treePrompt: TreePrompt): Promise<void> {
       return;
     }
 
-    const removed = removeConfigItem(globalConfig, 'prompts', promptName) as PPPrompt | null;
+    const removed = removeConfigItem(globalConfig, 'prompts', promptName) as DevPanelPrompt | null;
     if (!removed) {
       showNotFoundError('Prompt', promptName, 'global');
       return;
@@ -76,7 +76,7 @@ async function handleDeletePrompt(treePrompt: TreePrompt): Promise<void> {
       return;
     }
 
-    const removed = removeConfigItem(workspaceConfig, 'prompts', promptName) as PPPrompt | null;
+    const removed = removeConfigItem(workspaceConfig, 'prompts', promptName) as DevPanelPrompt | null;
     if (!removed) {
       showNotFoundError('Prompt', promptName, 'workspace');
       return;

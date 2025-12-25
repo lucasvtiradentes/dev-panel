@@ -6,7 +6,7 @@ import {
   ERROR_MSG_INVALID_NUMBER,
   ERROR_MSG_WORKSPACE_REQUIRED,
 } from '../constants/scripts-constants';
-import { type PPInput, type PPSettings, PromptInputType } from '../schemas';
+import { type DevPanelInput, type DevPanelSettings, PromptInputType } from '../schemas';
 import { getFirstWorkspaceFolder } from '../utils/workspace-utils';
 import { type FileSelectionOptions, selectFiles, selectFolders } from './file-selection';
 import { createLogger } from './logger';
@@ -16,9 +16,9 @@ const log = createLogger('inputs');
 type InputValues = Record<string, string>;
 
 export async function collectInputs(
-  inputs: PPInput[],
+  inputs: DevPanelInput[],
   workspaceFolder: vscode.WorkspaceFolder | null,
-  settings?: PPSettings,
+  settings?: DevPanelSettings,
 ): Promise<InputValues | null> {
   const values: InputValues = {};
 
@@ -32,9 +32,9 @@ export async function collectInputs(
 }
 
 async function collectSingleInput(
-  input: PPInput,
+  input: DevPanelInput,
   workspaceFolder: vscode.WorkspaceFolder | null,
-  settings?: PPSettings,
+  settings?: DevPanelSettings,
 ): Promise<string | undefined> {
   switch (input.type) {
     case PromptInputType.File:
@@ -56,7 +56,7 @@ async function collectSingleInput(
   }
 }
 
-function getIncludePatterns(input: PPInput, settings: PPSettings | undefined): string[] {
+function getIncludePatterns(input: DevPanelInput, settings: DevPanelSettings | undefined): string[] {
   const defaultIncludes = [...DEFAULT_INCLUDES];
 
   if (input.includes && input.includes.length > 0) {
@@ -74,7 +74,7 @@ function getIncludePatterns(input: PPInput, settings: PPSettings | undefined): s
   return defaultIncludes;
 }
 
-function getExcludePatterns(input: PPInput, settings: PPSettings | undefined): string[] {
+function getExcludePatterns(input: DevPanelInput, settings: DevPanelSettings | undefined): string[] {
   const defaultExcludes = [...DEFAULT_EXCLUDES];
 
   if (input.excludes && input.excludes.length > 0) {
@@ -93,10 +93,10 @@ function getExcludePatterns(input: PPInput, settings: PPSettings | undefined): s
 }
 
 async function collectFileInput(
-  input: PPInput,
+  input: DevPanelInput,
   workspaceFolder: vscode.WorkspaceFolder | null,
   multiple: boolean,
-  settings?: PPSettings,
+  settings?: DevPanelSettings,
 ): Promise<string | undefined> {
   log.info(`collectFileInput called - multiple: ${multiple}`);
   log.debug(`input: ${JSON.stringify(input)}`);
@@ -122,10 +122,10 @@ async function collectFileInput(
 }
 
 async function collectFolderInput(
-  input: PPInput,
+  input: DevPanelInput,
   workspaceFolder: vscode.WorkspaceFolder | null,
   multiple: boolean,
-  settings?: PPSettings,
+  settings?: DevPanelSettings,
 ): Promise<string | undefined> {
   const folder = workspaceFolder ?? getFirstWorkspaceFolder();
   if (!folder) {
@@ -146,7 +146,7 @@ async function collectFolderInput(
   return selectFolders(folder, options);
 }
 
-async function collectTextInput(input: PPInput): Promise<string | undefined> {
+async function collectTextInput(input: DevPanelInput): Promise<string | undefined> {
   return vscode.window.showInputBox({
     prompt: input.label,
     placeHolder: input.placeholder,
@@ -154,7 +154,7 @@ async function collectTextInput(input: PPInput): Promise<string | undefined> {
   });
 }
 
-async function collectNumberInput(input: PPInput): Promise<string | undefined> {
+async function collectNumberInput(input: DevPanelInput): Promise<string | undefined> {
   return vscode.window.showInputBox({
     prompt: input.label,
     placeHolder: input.placeholder,
@@ -168,7 +168,7 @@ async function collectNumberInput(input: PPInput): Promise<string | undefined> {
   });
 }
 
-async function collectConfirmInput(input: PPInput): Promise<string | undefined> {
+async function collectConfirmInput(input: DevPanelInput): Promise<string | undefined> {
   const result = await vscode.window.showQuickPick(CONFIRM_OPTIONS, {
     placeHolder: input.label,
     ignoreFocusOut: true,
@@ -177,7 +177,7 @@ async function collectConfirmInput(input: PPInput): Promise<string | undefined> 
   return result === CONFIRM_YES ? 'true' : 'false';
 }
 
-async function collectChoiceInput(input: PPInput, multiple: boolean): Promise<string | undefined> {
+async function collectChoiceInput(input: DevPanelInput, multiple: boolean): Promise<string | undefined> {
   if (!input.options || input.options.length === 0) return undefined;
 
   if (multiple) {

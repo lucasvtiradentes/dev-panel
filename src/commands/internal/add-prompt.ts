@@ -12,7 +12,7 @@ import {
 } from '../../common/constants';
 import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath, parseConfig } from '../../common/lib/config-manager';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
-import type { PPConfig } from '../../common/schemas';
+import type { DevPanelConfig } from '../../common/schemas';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 
 async function handleAddPrompt(): Promise<void> {
@@ -76,7 +76,7 @@ async function handleAddPrompt(): Promise<void> {
     return;
   }
 
-  const newPrompt: NonNullable<PPConfig['prompts']>[number] = {
+  const newPrompt: NonNullable<DevPanelConfig['prompts']>[number] = {
     name,
     file: `${PROMPTS_DIR_NAME}/${fileName}.md`,
   };

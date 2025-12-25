@@ -81,10 +81,10 @@ export function createOpenTasksConfigCommand() {
         break;
       }
 
-      case TaskSource.PP: {
-        const ppConfigPath = path.join(workspacePath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
-        if (fs.existsSync(ppConfigPath)) {
-          const content = fs.readFileSync(ppConfigPath, 'utf-8');
+      case TaskSource.DevPanel: {
+        const configPath = path.join(workspacePath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
+        if (fs.existsSync(configPath)) {
+          const content = fs.readFileSync(configPath, 'utf-8');
           const lines = content.split('\n');
           let tasksLine = 0;
 
@@ -95,7 +95,7 @@ export function createOpenTasksConfigCommand() {
             }
           }
 
-          const uri = vscode.Uri.file(ppConfigPath);
+          const uri = vscode.Uri.file(configPath);
           const doc = await vscode.workspace.openTextDocument(uri);
           await vscode.window.showTextDocument(doc, {
             selection: new vscode.Range(tasksLine, 0, tasksLine, 0),

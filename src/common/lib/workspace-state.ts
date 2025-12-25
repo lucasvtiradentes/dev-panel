@@ -18,7 +18,7 @@ import {
   type VariablesState,
   type WorkspaceUIState,
 } from '../schemas';
-import { TASK_SOURCE_TO_KEY, TaskSource, TaskSourceKey } from '../schemas/types';
+import { TaskSource } from '../schemas/types';
 
 let _context: vscode.ExtensionContext | null = null;
 
@@ -34,10 +34,6 @@ function getState(): WorkspaceUIState {
 function saveState(state: WorkspaceUIState): void {
   if (!_context) return;
   void _context.workspaceState.update(WORKSPACE_STATE_KEY, state);
-}
-
-function getTaskSourceKey(source: TaskSource): TaskSourceKey {
-  return TASK_SOURCE_TO_KEY[source];
 }
 
 export const tasksState = {
@@ -68,13 +64,11 @@ export const tasksState = {
   },
   getSourceState(source: TaskSource): SourceState {
     const tasks = this.load();
-    const key = getTaskSourceKey(source);
-    return tasks[key] ?? { ...DEFAULT_SOURCE_STATE };
+    return tasks[source] ?? { ...DEFAULT_SOURCE_STATE };
   },
   saveSourceState(source: TaskSource, sourceState: SourceState): void {
     const tasks = this.load();
-    const key = getTaskSourceKey(source);
-    tasks[key] = sourceState;
+    tasks[source] = sourceState;
     this.save(tasks);
   },
   getOrder(source: TaskSource, isGrouped: boolean): string[] {
@@ -182,11 +176,11 @@ export const toolsState = {
     return this.getSourceState().favorites;
   },
   getSourceState(): SourceState {
-    return this.load()[TaskSourceKey.PP] ?? { ...DEFAULT_SOURCE_STATE };
+    return this.load()[TaskSource.DevPanel] ?? { ...DEFAULT_SOURCE_STATE };
   },
   saveSourceState(sourceState: SourceState): void {
     const tools = this.load();
-    tools[TaskSourceKey.PP] = sourceState;
+    tools[TaskSource.DevPanel] = sourceState;
     this.save(tools);
   },
   getOrder(isGrouped: boolean): string[] {
@@ -297,11 +291,11 @@ export const promptsState = {
     return this.getSourceState().favorites;
   },
   getSourceState(): SourceState {
-    return this.load()[TaskSourceKey.PP] ?? { ...DEFAULT_SOURCE_STATE };
+    return this.load()[TaskSource.DevPanel] ?? { ...DEFAULT_SOURCE_STATE };
   },
   saveSourceState(sourceState: SourceState): void {
     const prompts = this.load();
-    prompts[TaskSourceKey.PP] = sourceState;
+    prompts[TaskSource.DevPanel] = sourceState;
     this.save(prompts);
   },
   getOrder(isGrouped: boolean): string[] {

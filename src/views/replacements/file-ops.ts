@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import type { PPReplacement } from '../../common/schemas/config-schema';
+import type { DevPanelReplacement } from '../../common/schemas/config-schema';
 
 type PatchItem = {
   search: string[];
@@ -34,7 +34,7 @@ export function fileExists(workspace: string, filePath: string): boolean {
   return fs.existsSync(path.join(workspace, filePath));
 }
 
-export function isReplacementActive(workspace: string, replacement: PPReplacement): boolean {
+export function isReplacementActive(workspace: string, replacement: DevPanelReplacement): boolean {
   const targetPath = path.join(workspace, replacement.target);
 
   if (!fs.existsSync(targetPath)) {

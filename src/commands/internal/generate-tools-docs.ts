@@ -3,8 +3,8 @@ import * as path from 'node:path';
 import * as vscode from 'vscode';
 import {
   AI_SPEC_AVAILABLE_TOOLS_REGEX,
+  AI_SPEC_DEV_TOOLS_REGEX,
   AI_SPEC_FILES,
-  AI_SPEC_PROJECT_TOOLS_REGEX,
   CLAUDE_DIR_NAME,
   GLOBAL_ITEM_PREFIX,
   SKILLS_DIR_NAME,
@@ -16,7 +16,7 @@ import {
 import { getWorkspaceConfigDirPath, loadGlobalConfig, loadWorkspaceConfig } from '../../common/lib/config-manager';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
-import type { PPConfig } from '../../common/schemas';
+import type { DevPanelConfig } from '../../common/schemas';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 
 type ToolInstruction = {
@@ -132,7 +132,7 @@ function parseInstructionsMd(content: string, toolName: string): ToolInstruction
   return instruction;
 }
 
-function getGlobalTools(): NonNullable<PPConfig['tools']> {
+function getGlobalTools(): NonNullable<DevPanelConfig['tools']> {
   const config = loadGlobalConfig();
   return config?.tools ?? [];
 }
@@ -341,8 +341,8 @@ function syncToAiSpecs(xml: string, workspaceFolder: vscode.WorkspaceFolder): vo
   for (const filePath of foundFiles) {
     let content = fs.readFileSync(filePath, 'utf8');
 
-    if (AI_SPEC_PROJECT_TOOLS_REGEX.test(content)) {
-      content = content.replace(AI_SPEC_PROJECT_TOOLS_REGEX, xml);
+    if (AI_SPEC_DEV_TOOLS_REGEX.test(content)) {
+      content = content.replace(AI_SPEC_DEV_TOOLS_REGEX, xml);
     } else if (AI_SPEC_AVAILABLE_TOOLS_REGEX.test(content)) {
       content = content.replace(AI_SPEC_AVAILABLE_TOOLS_REGEX, xml);
     } else {

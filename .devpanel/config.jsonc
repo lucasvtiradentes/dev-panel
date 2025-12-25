@@ -2,7 +2,7 @@
   "settings": {
     "aiProvider": "claude",
     "exclude": [
-      "**/.pp/**",
+      "**/.devpanel/**",
       "**/.changeset/**",
       "**/.ignore/**",
       "**/.github/**",

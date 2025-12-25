@@ -14,8 +14,8 @@ import {
   BRANCH_CONTEXT_SECTION_REQUIREMENTS,
   BRANCH_CONTEXT_SECTION_TODO,
   BUILTIN_SECTION_NAMES,
-  METADATA_PP_PREFIX,
-  METADATA_PP_REGEX,
+  METADATA_DEVPANEL_PREFIX,
+  METADATA_DEVPANEL_REGEX,
   METADATA_SECTION_PREFIX,
   METADATA_SEPARATOR_REGEX,
   METADATA_SUFFIX,
@@ -203,7 +203,7 @@ function extractAllTextSections(content: string, excludeNames: string[]): Record
 
     if (sectionContent.startsWith('```')) continue;
 
-    sectionContent = sectionContent.replace(METADATA_PP_REGEX, '').replace(METADATA_SEPARATOR_REGEX, '').trim();
+    sectionContent = sectionContent.replace(METADATA_DEVPANEL_REGEX, '').replace(METADATA_SEPARATOR_REGEX, '').trim();
 
     if (sectionContent && sectionContent !== BRANCH_CONTEXT_NA) {
       const { cleanContent, metadata } = extractSectionMetadata(sectionContent);
@@ -215,7 +215,7 @@ function extractAllTextSections(content: string, excludeNames: string[]): Record
 }
 
 function extractMetadata(content: string): BranchContextMetadata | undefined {
-  const prefix = METADATA_PP_PREFIX.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const prefix = METADATA_DEVPANEL_PREFIX.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const suffix = METADATA_SUFFIX.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const metadataRegex = new RegExp(`${prefix}(.+?)${suffix}`);
   const match = content.match(metadataRegex);

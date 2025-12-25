@@ -24,9 +24,9 @@ import { collectInputs, replaceInputPlaceholders } from '../../common/lib/inputs
 import { createLogger } from '../../common/lib/logger';
 import { Command, isMultiRootWorkspace, registerCommand } from '../../common/lib/vscode-utils';
 import {
-  type PPConfig,
-  type PPPrompt,
-  type PPSettings,
+  type DevPanelConfig,
+  type DevPanelPrompt,
+  type DevPanelSettings,
   PromptExecutionMode,
   getAIProvidersListFormatted,
 } from '../../common/schemas';
@@ -41,10 +41,10 @@ const log = createLogger('execute-task');
 export type ExecutePromptParams = {
   promptFilePath: string;
   folder: vscode.WorkspaceFolder | null;
-  promptConfig?: PPPrompt;
+  promptConfig?: DevPanelPrompt;
 };
 
-function readPPVariablesAsEnv(workspacePath: string): Record<string, string> {
+function readDevPanelVariablesAsEnv(workspacePath: string): Record<string, string> {
   const variablesPath = `${workspacePath}/${CONFIG_DIR_NAME}/${VARIABLES_FILE_NAME}`;
   const variables = loadVariablesFromPath(variablesPath);
   if (!variables) return {};
@@ -114,14 +114,14 @@ export function createExecuteTaskCommand(context: vscode.ExtensionContext) {
     async (
       task: vscode.Task,
       scope: vscode.TaskScope | vscode.WorkspaceFolder | undefined,
-      taskConfig?: NonNullable<PPConfig['tasks']>[number],
+      taskConfig?: NonNullable<DevPanelConfig['tasks']>[number],
     ) => {
       let modifiedTask = task;
 
       if (taskConfig?.inputs && taskConfig.inputs.length > 0) {
         const folder = scope && typeof scope !== 'number' && 'uri' in scope ? (scope as vscode.WorkspaceFolder) : null;
         const folderForSettings = folder ?? getFirstWorkspaceFolder();
-        const settings = folderForSettings ? readPPSettings(folderForSettings) : undefined;
+        const settings = folderForSettings ? readDevPanelSettings(folderForSettings) : undefined;
 
         const inputValues = await collectInputs(taskConfig.inputs, folder, settings);
         if (inputValues === null) return;
@@ -145,7 +145,7 @@ export function createExecuteTaskCommand(context: vscode.ExtensionContext) {
 
       if (scope && typeof scope !== 'number' && 'uri' in scope) {
         const folder = scope as vscode.WorkspaceFolder;
-        const env = readPPVariablesAsEnv(folder.uri.fsPath);
+        const env = readDevPanelVariablesAsEnv(folder.uri.fsPath);
 
         if (Object.keys(env).length > 0) {
           modifiedTask = cloneTaskWithEnv(modifiedTask, env);
@@ -191,7 +191,7 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
       if (isGlobal) {
         toolConfig = globalConfig?.tools?.find((t) => t.name === actualName);
         cwd = folder ? folder.uri.fsPath : getGlobalConfigDir();
-        env = readPPVariablesAsEnv(getGlobalConfigDir());
+        env = readDevPanelVariablesAsEnv(getGlobalConfigDir());
       } else {
         if (!folder) {
           void vscode.window.showErrorMessage('No workspace folder found');
@@ -201,7 +201,7 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
         toolConfig = config?.tools?.find((t) => t.name === actualName);
         const configDirPath = getWorkspaceConfigDirPath(folder);
         cwd = toolConfig?.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
-        env = readPPVariablesAsEnv(configDirPath);
+        env = readDevPanelVariablesAsEnv(configDirPath);
       }
 
       if (!toolConfig?.command) {
@@ -241,25 +241,25 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
   });
 }
 
-function readPPSettings(folder: vscode.WorkspaceFolder): PPSettings | undefined {
+function readDevPanelSettings(folder: vscode.WorkspaceFolder): DevPanelSettings | undefined {
   const config = loadWorkspaceConfig(folder);
   if (!config) {
-    log.debug('readPPSettings - config file not found or failed to parse');
+    log.debug('readDevPanelSettings - config file not found or failed to parse');
     return undefined;
   }
-  log.info(`readPPSettings - settings: ${JSON.stringify(config.settings)}`);
+  log.info(`readDevPanelSettings - settings: ${JSON.stringify(config.settings)}`);
   return config.settings;
 }
 
-function readPPVariables(folder: vscode.WorkspaceFolder): Record<string, unknown> | null {
+function readDevPanelVariables(folder: vscode.WorkspaceFolder): Record<string, unknown> | null {
   const variablesPath = getWorkspaceConfigFilePath(folder, VARIABLES_FILE_NAME);
-  log.debug(`readPPVariables - variablesPath: ${variablesPath}`);
+  log.debug(`readDevPanelVariables - variablesPath: ${variablesPath}`);
   const variables = loadVariablesFromPath(variablesPath);
   if (!variables) {
-    log.debug('readPPVariables - variables file not found or failed to parse');
+    log.debug('readDevPanelVariables - variables file not found or failed to parse');
     return null;
   }
-  log.info(`readPPVariables - loaded ${Object.keys(variables).length} variables`);
+  log.info(`readDevPanelVariables - loaded ${Object.keys(variables).length} variables`);
   return variables;
 }
 
@@ -297,10 +297,10 @@ export function createExecutePromptCommand() {
       let promptContent = fs.readFileSync(resolvedPromptFilePath, 'utf8');
 
       const folderForSettings = folder ?? getFirstWorkspaceFolder();
-      const settings = folderForSettings ? readPPSettings(folderForSettings) : undefined;
+      const settings = folderForSettings ? readDevPanelSettings(folderForSettings) : undefined;
       log.info(`settings: ${JSON.stringify(settings)}`);
 
-      const variables = folder ? readPPVariables(folder) : null;
+      const variables = folder ? readDevPanelVariables(folder) : null;
       if (variables) {
         promptContent = replaceVariablePlaceholders(promptContent, variables);
       }
@@ -349,7 +349,7 @@ async function executePromptWithSave(options: {
   folder: vscode.WorkspaceFolder;
   promptName: string;
   provider: PromptProvider;
-  settings?: PPSettings;
+  settings?: DevPanelSettings;
 }): Promise<void> {
   const { promptContent, folder, promptName, provider, settings } = options;
   const workspacePath = folder.uri.fsPath;

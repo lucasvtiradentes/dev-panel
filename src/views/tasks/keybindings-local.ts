@@ -8,7 +8,7 @@ import {
 } from '../../common/constants';
 import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
-import { readPPVariablesAsEnv } from '../../common/utils/variables-env';
+import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { KeybindingManager } from '../common';
 
 const manager = new KeybindingManager({
@@ -41,7 +41,7 @@ export function registerTaskKeybindings(context: vscode.ExtensionContext): void 
 
     for (const task of globalTasks) {
       const commandId = getTaskCommandId(task.name);
-      const env = readPPVariablesAsEnv(globalConfigDir);
+      const env = readDevPanelVariablesAsEnv(globalConfigDir);
       const disposable = vscode.commands.registerCommand(commandId, () => {
         const shellExec = new vscode.ShellExecution(task.command, { env, cwd: globalConfigDir });
         const vsTask = new vscode.Task(

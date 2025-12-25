@@ -9,7 +9,7 @@ out
 # FILES ========================================================================
 
 *.vsix
-.pp/variables.json
-.pp/branches/
+.devpanel/variables.json
+.devpanel/branches/
 CLAUDE.md
 

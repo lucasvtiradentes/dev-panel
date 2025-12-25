@@ -1,6 +1,6 @@
 {
-  "name": "project-panel",
-  "displayName": "Project Panel",
+  "name": "dev-panel",
+  "displayName": "Dev Panel",
   "description": "VS Code extension to view and run tasks from Explorer pane",
   "icon": "resources/icon.png",
   "version": "0.0.1",
@@ -71,42 +71,42 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "projectPanel",
-          "title": "Project Panel",
+          "id": "devPanel",
+          "title": "Dev Panel",
           "icon": "resources/icon.svg"
         }
       ]
     },
     "views": {
-      "projectPanel": [
+      "devPanel": [
         {
-          "id": "projectPanelConfigs",
+          "id": "devPanelConfigs",
           "name": "Variables"
         },
         {
-          "id": "projectPanelReplacements",
+          "id": "devPanelReplacements",
           "name": "Replacements"
         },
         {
-          "id": "projectPanelTools",
+          "id": "devPanelTools",
           "name": "Tools"
         },
         {
-          "id": "projectPanelPrompts",
+          "id": "devPanelPrompts",
           "name": "Prompts"
         },
         {
-          "id": "projectPanelBranchContext",
+          "id": "devPanelBranchContext",
           "name": "Branch Context"
         },
         {
-          "id": "projectPanelTodos",
+          "id": "devPanelTodos",
           "name": "Branch Tasks"
         }
       ],
       "explorer": [
         {
-          "id": "projectPanelTasks",
+          "id": "devPanelTasks",
           "name": "Task Runner",
           "icon": "$(tasklist)"
         }
@@ -114,489 +114,489 @@
     },
     "commands": [
       {
-        "command": "projectPanel.selectConfigOption",
+        "command": "devPanel.selectConfigOption",
         "title": "Select Config Option"
       },
       {
-        "command": "projectPanel.resetConfigOption",
+        "command": "devPanel.resetConfigOption",
         "title": "Reset Config Option",
         "icon": "$(discard)"
       },
       {
-        "command": "projectPanel.toggleConfigsGroupMode",
+        "command": "devPanel.toggleConfigsGroupMode",
         "title": "Toggle Configs Group Mode",
         "icon": "$(list-flat)"
       },
       {
-        "command": "projectPanel.toggleConfigsGroupModeGrouped",
+        "command": "devPanel.toggleConfigsGroupModeGrouped",
         "title": "Toggle Configs Group Mode",
         "icon": "$(list-tree)"
       },
       {
-        "command": "projectPanel.toggleReplacement",
+        "command": "devPanel.toggleReplacement",
         "title": "Toggle Replacement"
       },
       {
-        "command": "projectPanel.toggleAllReplacementsActivate",
+        "command": "devPanel.toggleAllReplacementsActivate",
         "title": "Activate All Replacements",
         "icon": "$(circle-outline)"
       },
       {
-        "command": "projectPanel.toggleAllReplacementsDeactivate",
+        "command": "devPanel.toggleAllReplacementsDeactivate",
         "title": "Deactivate All Replacements",
         "icon": "$(circle-filled)"
       },
       {
-        "command": "projectPanel.toggleReplacementsGroupMode",
+        "command": "devPanel.toggleReplacementsGroupMode",
         "title": "Toggle Replacements Group Mode",
         "icon": "$(list-flat)"
       },
       {
-        "command": "projectPanel.toggleReplacementsGroupModeGrouped",
+        "command": "devPanel.toggleReplacementsGroupModeGrouped",
         "title": "Toggle Replacements Group Mode",
         "icon": "$(list-tree)"
       },
       {
-        "command": "projectPanel.openTasksConfig",
+        "command": "devPanel.openTasksConfig",
         "title": "Open Tasks Config",
         "icon": "$(go-to-file)"
       },
       {
-        "command": "projectPanel.refresh",
+        "command": "devPanel.refresh",
         "title": "Refresh",
         "icon": "$(extensions-refresh)"
       },
       {
-        "command": "projectPanel.switchTaskSource",
+        "command": "devPanel.switchTaskSource",
         "title": "Switch to npm Scripts",
         "icon": "$(tools)"
       },
       {
-        "command": "projectPanel.switchTaskSourceFromPackage",
+        "command": "devPanel.switchTaskSourceFromPackage",
         "title": "Switch to PP Tasks",
         "icon": "$(package)"
       },
       {
-        "command": "projectPanel.switchTaskSourceFromPP",
+        "command": "devPanel.switchTaskSourceFromPP",
         "title": "Switch to VSCode Tasks",
         "icon": "$(beaker)"
       },
       {
-        "command": "projectPanel.toggleGroupMode",
+        "command": "devPanel.toggleGroupMode",
         "title": "Toggle Group Mode",
         "icon": "$(list-flat)"
       },
       {
-        "command": "projectPanel.toggleGroupModeGrouped",
+        "command": "devPanel.toggleGroupModeGrouped",
         "title": "Toggle Group Mode",
         "icon": "$(list-tree)"
       },
       {
-        "command": "projectPanel.toggleFavorite",
+        "command": "devPanel.toggleFavorite",
         "title": "Toggle Favorite",
         "icon": "$(heart)"
       },
       {
-        "command": "projectPanel.toggleHide",
+        "command": "devPanel.toggleHide",
         "title": "Toggle Hide",
         "icon": "$(eye-closed)"
       },
       {
-        "command": "projectPanel.toggleUnfavorite",
+        "command": "devPanel.toggleUnfavorite",
         "title": "Remove from Favorites",
         "icon": "$(heart-filled)"
       },
       {
-        "command": "projectPanel.toggleTasksShowHidden",
+        "command": "devPanel.toggleTasksShowHidden",
         "title": "Show Hidden Tasks",
         "icon": "$(eye)"
       },
       {
-        "command": "projectPanel.toggleTasksShowHiddenActive",
+        "command": "devPanel.toggleTasksShowHiddenActive",
         "title": "Hide Hidden Tasks",
         "icon": "$(eye-closed)"
       },
       {
-        "command": "projectPanel.toggleTasksShowOnlyFavorites",
+        "command": "devPanel.toggleTasksShowOnlyFavorites",
         "title": "Show Only Favorites",
         "icon": "$(heart)"
       },
       {
-        "command": "projectPanel.toggleTasksShowOnlyFavoritesActive",
+        "command": "devPanel.toggleTasksShowOnlyFavoritesActive",
         "title": "Show All Tasks",
         "icon": "$(heart-filled)"
       },
       {
-        "command": "projectPanel.openSettingsMenu",
+        "command": "devPanel.openSettingsMenu",
         "title": "Open Settings Menu"
       },
       {
-        "command": "projectPanel.toggleToolsGroupMode",
+        "command": "devPanel.toggleToolsGroupMode",
         "title": "Toggle Tools Group Mode",
         "icon": "$(list-flat)"
       },
       {
-        "command": "projectPanel.toggleToolsGroupModeGrouped",
+        "command": "devPanel.toggleToolsGroupModeGrouped",
         "title": "Toggle Tools Group Mode",
         "icon": "$(list-tree)"
       },
       {
-        "command": "projectPanel.toggleToolFavorite",
+        "command": "devPanel.toggleToolFavorite",
         "title": "Toggle Tool Favorite",
         "icon": "$(heart)"
       },
       {
-        "command": "projectPanel.toggleToolHide",
+        "command": "devPanel.toggleToolHide",
         "title": "Toggle Tool Hide",
         "icon": "$(eye-closed)"
       },
       {
-        "command": "projectPanel.toggleToolUnfavorite",
+        "command": "devPanel.toggleToolUnfavorite",
         "title": "Remove from Favorites",
         "icon": "$(heart-filled)"
       },
       {
-        "command": "projectPanel.toggleToolsShowHidden",
+        "command": "devPanel.toggleToolsShowHidden",
         "title": "Show Hidden Tools",
         "icon": "$(eye)"
       },
       {
-        "command": "projectPanel.toggleToolsShowHiddenActive",
+        "command": "devPanel.toggleToolsShowHiddenActive",
         "title": "Hide Hidden Tools",
         "icon": "$(eye-closed)"
       },
       {
-        "command": "projectPanel.toggleToolsShowOnlyFavorites",
+        "command": "devPanel.toggleToolsShowOnlyFavorites",
         "title": "Show Only Favorites",
         "icon": "$(heart)"
       },
       {
-        "command": "projectPanel.toggleToolsShowOnlyFavoritesActive",
+        "command": "devPanel.toggleToolsShowOnlyFavoritesActive",
         "title": "Show All Tools",
         "icon": "$(heart-filled)"
       },
       {
-        "command": "projectPanel.executeTool",
+        "command": "devPanel.executeTool",
         "title": "Execute Tool",
         "icon": "$(terminal)"
       },
       {
-        "command": "projectPanel.goToToolFile",
+        "command": "devPanel.goToToolFile",
         "title": "Go to Tool File",
         "icon": "$(go-to-file)"
       },
       {
-        "command": "projectPanel.generateToolsDocs",
+        "command": "devPanel.generateToolsDocs",
         "title": "Generate Tools Documentation",
         "icon": "$(sync)"
       },
       {
-        "command": "projectPanel.addTool",
+        "command": "devPanel.addTool",
         "title": "Add Tool",
         "icon": "$(add)"
       },
       {
-        "command": "projectPanel.copyToolToGlobal",
+        "command": "devPanel.copyToolToGlobal",
         "title": "Copy to Global",
         "icon": "$(globe)"
       },
       {
-        "command": "projectPanel.copyToolToWorkspace",
+        "command": "devPanel.copyToolToWorkspace",
         "title": "Copy to Workspace",
         "icon": "$(file-directory)"
       },
       {
-        "command": "projectPanel.deleteTool",
+        "command": "devPanel.deleteTool",
         "title": "Delete Tool"
       },
       {
-        "command": "projectPanel.copyPromptToGlobal",
+        "command": "devPanel.copyPromptToGlobal",
         "title": "Copy to Global",
         "icon": "$(globe)"
       },
       {
-        "command": "projectPanel.copyPromptToWorkspace",
+        "command": "devPanel.copyPromptToWorkspace",
         "title": "Copy to Workspace",
         "icon": "$(file-directory)"
       },
       {
-        "command": "projectPanel.deletePrompt",
+        "command": "devPanel.deletePrompt",
         "title": "Delete Prompt"
       },
       {
-        "command": "projectPanel.deleteTask",
+        "command": "devPanel.deleteTask",
         "title": "Delete Task"
       },
       {
-        "command": "projectPanel.copyTaskToGlobal",
+        "command": "devPanel.copyTaskToGlobal",
         "title": "Copy to Global",
         "icon": "$(globe)"
       },
       {
-        "command": "projectPanel.copyTaskToWorkspace",
+        "command": "devPanel.copyTaskToWorkspace",
         "title": "Copy to Workspace",
         "icon": "$(file-directory)"
       },
       {
-        "command": "projectPanel.togglePromptsGroupMode",
+        "command": "devPanel.togglePromptsGroupMode",
         "title": "Toggle Prompts Group Mode",
         "icon": "$(list-flat)"
       },
       {
-        "command": "projectPanel.togglePromptsGroupModeGrouped",
+        "command": "devPanel.togglePromptsGroupModeGrouped",
         "title": "Toggle Prompts Group Mode",
         "icon": "$(list-tree)"
       },
       {
-        "command": "projectPanel.togglePromptFavorite",
+        "command": "devPanel.togglePromptFavorite",
         "title": "Add to Favorites",
         "icon": "$(heart)"
       },
       {
-        "command": "projectPanel.togglePromptUnfavorite",
+        "command": "devPanel.togglePromptUnfavorite",
         "title": "Remove from Favorites",
         "icon": "$(heart-filled)"
       },
       {
-        "command": "projectPanel.togglePromptHide",
+        "command": "devPanel.togglePromptHide",
         "title": "Toggle Prompt Hide",
         "icon": "$(eye-closed)"
       },
       {
-        "command": "projectPanel.togglePromptsShowHidden",
+        "command": "devPanel.togglePromptsShowHidden",
         "title": "Show Hidden Prompts",
         "icon": "$(eye)"
       },
       {
-        "command": "projectPanel.togglePromptsShowHiddenActive",
+        "command": "devPanel.togglePromptsShowHiddenActive",
         "title": "Hide Hidden Prompts",
         "icon": "$(eye-closed)"
       },
       {
-        "command": "projectPanel.togglePromptsShowOnlyFavorites",
+        "command": "devPanel.togglePromptsShowOnlyFavorites",
         "title": "Show Only Favorites",
         "icon": "$(heart)"
       },
       {
-        "command": "projectPanel.togglePromptsShowOnlyFavoritesActive",
+        "command": "devPanel.togglePromptsShowOnlyFavoritesActive",
         "title": "Show All Prompts",
         "icon": "$(heart-filled)"
       },
       {
-        "command": "projectPanel.goToPromptFile",
+        "command": "devPanel.goToPromptFile",
         "title": "Go to Prompt File",
         "icon": "$(go-to-file)"
       },
       {
-        "command": "projectPanel.goToReplacementTargetFile",
+        "command": "devPanel.goToReplacementTargetFile",
         "title": "Go to Replacement Target File",
         "icon": "$(go-to-file)"
       },
       {
-        "command": "projectPanel.addPrompt",
+        "command": "devPanel.addPrompt",
         "title": "Add Prompt",
         "icon": "$(add)"
       },
       {
-        "command": "projectPanel.openBranchContextFile",
+        "command": "devPanel.openBranchContextFile",
         "title": "Open Branch Context File",
         "icon": "$(go-to-file)"
       },
       {
-        "command": "projectPanel.syncBranchContext",
+        "command": "devPanel.syncBranchContext",
         "title": "Sync Branch Context",
         "icon": "$(sync)"
       },
       {
-        "command": "projectPanel.toggleBranchContextHideEmptySections",
+        "command": "devPanel.toggleBranchContextHideEmptySections",
         "title": "Hide Empty Sections",
         "icon": "$(eye-closed)"
       },
       {
-        "command": "projectPanel.toggleBranchContextHideEmptySectionsActive",
+        "command": "devPanel.toggleBranchContextHideEmptySectionsActive",
         "title": "Show Empty Sections",
         "icon": "$(eye)"
       },
       {
-        "command": "projectPanel.editBranchObjective",
+        "command": "devPanel.editBranchObjective",
         "title": "Edit Branch Objective"
       },
       {
-        "command": "projectPanel.editBranchLinearLink",
+        "command": "devPanel.editBranchLinearLink",
         "title": "Edit Branch Linear Link"
       },
       {
-        "command": "projectPanel.editBranchNotes",
+        "command": "devPanel.editBranchNotes",
         "title": "Edit Branch Notes"
       },
       {
-        "command": "projectPanel.editBranchTodos",
+        "command": "devPanel.editBranchTodos",
         "title": "Edit Branch Todos",
         "icon": "$(go-to-file)"
       },
       {
-        "command": "projectPanel.toggleBranchTasksShowOnlyTodo",
+        "command": "devPanel.toggleBranchTasksShowOnlyTodo",
         "title": "Show Only Pending Tasks",
         "icon": "$(checklist)"
       },
       {
-        "command": "projectPanel.toggleBranchTasksShowOnlyTodoActive",
+        "command": "devPanel.toggleBranchTasksShowOnlyTodoActive",
         "title": "Show All Tasks",
         "icon": "$(check-all)"
       },
       {
-        "command": "projectPanel.toggleBranchTasksGroupMode",
+        "command": "devPanel.toggleBranchTasksGroupMode",
         "title": "Toggle Branch Tasks Group Mode",
         "icon": "$(list-flat)"
       },
       {
-        "command": "projectPanel.toggleBranchTasksGroupModeGrouped",
+        "command": "devPanel.toggleBranchTasksGroupModeGrouped",
         "title": "Toggle Branch Tasks Group Mode",
         "icon": "$(list-tree)"
       },
       {
-        "command": "projectPanel.setTaskStatus.todo",
+        "command": "devPanel.setTaskStatus.todo",
         "title": "Todo"
       },
       {
-        "command": "projectPanel.setTaskStatus.doing",
+        "command": "devPanel.setTaskStatus.doing",
         "title": "Doing"
       },
       {
-        "command": "projectPanel.setTaskStatus.done",
+        "command": "devPanel.setTaskStatus.done",
         "title": "Done"
       },
       {
-        "command": "projectPanel.setTaskStatus.blocked",
+        "command": "devPanel.setTaskStatus.blocked",
         "title": "Blocked"
       },
       {
-        "command": "projectPanel.setTaskPriority.urgent",
+        "command": "devPanel.setTaskPriority.urgent",
         "title": "Urgent"
       },
       {
-        "command": "projectPanel.setTaskPriority.high",
+        "command": "devPanel.setTaskPriority.high",
         "title": "High"
       },
       {
-        "command": "projectPanel.setTaskPriority.medium",
+        "command": "devPanel.setTaskPriority.medium",
         "title": "Medium"
       },
       {
-        "command": "projectPanel.setTaskPriority.low",
+        "command": "devPanel.setTaskPriority.low",
         "title": "Low"
       },
       {
-        "command": "projectPanel.setTaskPriority.none",
+        "command": "devPanel.setTaskPriority.none",
         "title": "None"
       },
       {
-        "command": "projectPanel.setTaskAssignee",
+        "command": "devPanel.setTaskAssignee",
         "title": "Set Assignee..."
       },
       {
-        "command": "projectPanel.setTaskDueDate",
+        "command": "devPanel.setTaskDueDate",
         "title": "Set Due Date..."
       },
       {
-        "command": "projectPanel.addSubtask",
+        "command": "devPanel.addSubtask",
         "title": "Add Subtask"
       },
       {
-        "command": "projectPanel.editTaskText",
+        "command": "devPanel.editTaskText",
         "title": "Edit Task..."
       },
       {
-        "command": "projectPanel.deleteBranchTask",
+        "command": "devPanel.deleteBranchTask",
         "title": "Delete Task"
       },
       {
-        "command": "projectPanel.copyTaskText",
+        "command": "devPanel.copyTaskText",
         "title": "Copy Task Text"
       },
       {
-        "command": "projectPanel.openTaskExternal",
+        "command": "devPanel.openTaskExternal",
         "title": "Open in Browser",
         "icon": "$(link-external)"
       },
       {
-        "command": "projectPanel.setTaskMilestone",
+        "command": "devPanel.setTaskMilestone",
         "title": "Milestone...",
         "icon": "$(milestone)"
       },
       {
-        "command": "projectPanel.cycleTaskStatus",
+        "command": "devPanel.cycleTaskStatus",
         "title": "Cycle Status",
         "icon": "$(play)"
       },
       {
-        "command": "projectPanel.addBranchTask",
+        "command": "devPanel.addBranchTask",
         "title": "Add Task",
         "icon": "$(add)"
       },
       {
-        "command": "projectPanel.syncBranchTasks",
+        "command": "devPanel.syncBranchTasks",
         "title": "Sync Tasks",
         "icon": "$(sync)"
       },
       {
-        "command": "projectPanel.filterBranchTasks",
+        "command": "devPanel.filterBranchTasks",
         "title": "Filter Tasks",
         "icon": "$(filter)"
       },
       {
-        "command": "projectPanel.filterBranchTasksActive",
+        "command": "devPanel.filterBranchTasksActive",
         "title": "Filter Tasks (Active)",
         "icon": "$(filter-filled)"
       },
       {
-        "command": "projectPanel.showLogs",
-        "title": "Project Panel: Show Logs"
+        "command": "devPanel.showLogs",
+        "title": "Dev Panel: Show Logs"
       },
       {
-        "command": "projectPanel.syncPromptKeybindings",
-        "title": "Project Panel: Sync Prompt Keybindings"
+        "command": "devPanel.syncPromptKeybindings",
+        "title": "Dev Panel: Sync Prompt Keybindings"
       },
       {
-        "command": "projectPanel.setPromptKeybinding",
+        "command": "devPanel.setPromptKeybinding",
         "title": "Set Keybinding",
         "icon": "$(keyboard)"
       },
       {
-        "command": "projectPanel.openPromptsKeybindings",
+        "command": "devPanel.openPromptsKeybindings",
         "title": "Open Prompts Keybindings",
         "icon": "$(keyboard)"
       },
       {
-        "command": "projectPanel.syncVariableKeybindings",
-        "title": "Project Panel: Sync Variable Keybindings"
+        "command": "devPanel.syncVariableKeybindings",
+        "title": "Dev Panel: Sync Variable Keybindings"
       },
       {
-        "command": "projectPanel.setVariableKeybinding",
+        "command": "devPanel.setVariableKeybinding",
         "title": "Set Keybinding",
         "icon": "$(keyboard)"
       },
       {
-        "command": "projectPanel.openVariablesKeybindings",
+        "command": "devPanel.openVariablesKeybindings",
         "title": "Open Configs Keybindings",
         "icon": "$(keyboard)"
       },
       {
-        "command": "projectPanel.openVariablesConfig",
+        "command": "devPanel.openVariablesConfig",
         "title": "Open Variables Config",
         "icon": "$(go-to-file)"
       },
       {
-        "command": "projectPanel.syncTaskKeybindings",
-        "title": "Project Panel: Sync Task Keybindings"
+        "command": "devPanel.syncTaskKeybindings",
+        "title": "Dev Panel: Sync Task Keybindings"
       },
       {
-        "command": "projectPanel.setTaskKeybinding",
+        "command": "devPanel.setTaskKeybinding",
         "title": "Set Keybinding",
         "icon": "$(keyboard)"
       },
       {
-        "command": "projectPanel.openTasksKeybindings",
+        "command": "devPanel.openTasksKeybindings",
         "title": "Open Tasks Keybindings",
         "icon": "$(keyboard)"
       }
@@ -605,467 +605,467 @@
     "menus": {
       "view/title": [
         {
-          "command": "projectPanel.toggleConfigsGroupMode",
-          "when": "view == projectPanelConfigs && !configsGrouped",
+          "command": "devPanel.toggleConfigsGroupMode",
+          "when": "view == devPanelConfigs && !configsGrouped",
           "group": "navigation@1"
         },
         {
-          "command": "projectPanel.toggleConfigsGroupModeGrouped",
-          "when": "view == projectPanelConfigs && configsGrouped",
+          "command": "devPanel.toggleConfigsGroupModeGrouped",
+          "when": "view == devPanelConfigs && configsGrouped",
           "group": "navigation@1"
         },
         {
-          "command": "projectPanel.openVariablesKeybindings",
-          "when": "view == projectPanelConfigs",
+          "command": "devPanel.openVariablesKeybindings",
+          "when": "view == devPanelConfigs",
           "group": "navigation@3"
         },
         {
-          "command": "projectPanel.openVariablesConfig",
-          "when": "view == projectPanelConfigs",
+          "command": "devPanel.openVariablesConfig",
+          "when": "view == devPanelConfigs",
           "group": "navigation@2"
         },
         {
-          "command": "projectPanel.toggleReplacementsGroupMode",
-          "when": "view == projectPanelReplacements && !replacementsGrouped",
+          "command": "devPanel.toggleReplacementsGroupMode",
+          "when": "view == devPanelReplacements && !replacementsGrouped",
           "group": "navigation@1"
         },
         {
-          "command": "projectPanel.toggleReplacementsGroupModeGrouped",
-          "when": "view == projectPanelReplacements && replacementsGrouped",
+          "command": "devPanel.toggleReplacementsGroupModeGrouped",
+          "when": "view == devPanelReplacements && replacementsGrouped",
           "group": "navigation@1"
         },
         {
-          "command": "projectPanel.toggleAllReplacementsActivate",
-          "when": "view == projectPanelReplacements && !replacementsAllActive",
+          "command": "devPanel.toggleAllReplacementsActivate",
+          "when": "view == devPanelReplacements && !replacementsAllActive",
           "group": "navigation@2"
         },
         {
-          "command": "projectPanel.toggleAllReplacementsDeactivate",
-          "when": "view == projectPanelReplacements && replacementsAllActive",
+          "command": "devPanel.toggleAllReplacementsDeactivate",
+          "when": "view == devPanelReplacements && replacementsAllActive",
           "group": "navigation@2"
         },
         {
-          "command": "projectPanel.toggleGroupMode",
-          "when": "view == projectPanelTasks && !tasksGrouped && tasksHasGroups",
+          "command": "devPanel.toggleGroupMode",
+          "when": "view == devPanelTasks && !tasksGrouped && tasksHasGroups",
           "group": "navigation@1"
         },
         {
-          "command": "projectPanel.toggleGroupModeGrouped",
-          "when": "view == projectPanelTasks && tasksGrouped && tasksHasGroups",
+          "command": "devPanel.toggleGroupModeGrouped",
+          "when": "view == devPanelTasks && tasksGrouped && tasksHasGroups",
           "group": "navigation@1"
         },
         {
-          "command": "projectPanel.switchTaskSource",
-          "when": "view == projectPanelTasks && taskSourceVSCode",
+          "command": "devPanel.switchTaskSource",
+          "when": "view == devPanelTasks && taskSourceVSCode",
           "group": "navigation@2"
         },
         {
-          "command": "projectPanel.switchTaskSourceFromPackage",
-          "when": "view == projectPanelTasks && taskSourcePackage",
+          "command": "devPanel.switchTaskSourceFromPackage",
+          "when": "view == devPanelTasks && taskSourcePackage",
           "group": "navigation@2"
         },
         {
-          "command": "projectPanel.switchTaskSourceFromPP",
-          "when": "view == projectPanelTasks && taskSourcePP",
+          "command": "devPanel.switchTaskSourceFromPP",
+          "when": "view == devPanelTasks && taskSourcePP",
           "group": "navigation@2"
         },
         {
-          "command": "projectPanel.openTasksConfig",
-          "when": "view == projectPanelTasks",
+          "command": "devPanel.openTasksConfig",
+          "when": "view == devPanelTasks",
           "group": "navigation@3"
         },
         {
-          "command": "projectPanel.toggleTasksShowOnlyFavorites",
-          "when": "view == projectPanelTasks && tasksHasFavorites && !tasksShowOnlyFavorites",
+          "command": "devPanel.toggleTasksShowOnlyFavorites",
+          "when": "view == devPanelTasks && tasksHasFavorites && !tasksShowOnlyFavorites",
           "group": "navigation@4"
         },
         {
-          "command": "projectPanel.toggleTasksShowOnlyFavoritesActive",
-          "when": "view == projectPanelTasks && tasksHasFavorites && tasksShowOnlyFavorites",
+          "command": "devPanel.toggleTasksShowOnlyFavoritesActive",
+          "when": "view == devPanelTasks && tasksHasFavorites && tasksShowOnlyFavorites",
           "group": "navigation@4"
         },
         {
-          "command": "projectPanel.toggleTasksShowHidden",
-          "when": "view == projectPanelTasks && tasksHasHidden && !tasksShowHidden",
+          "command": "devPanel.toggleTasksShowHidden",
+          "when": "view == devPanelTasks && tasksHasHidden && !tasksShowHidden",
           "group": "navigation@5"
         },
         {
-          "command": "projectPanel.toggleTasksShowHiddenActive",
-          "when": "view == projectPanelTasks && tasksHasHidden && tasksShowHidden",
+          "command": "devPanel.toggleTasksShowHiddenActive",
+          "when": "view == devPanelTasks && tasksHasHidden && tasksShowHidden",
           "group": "navigation@5"
         },
         {
-          "command": "projectPanel.openTasksKeybindings",
-          "when": "view == projectPanelTasks && taskSourcePP",
+          "command": "devPanel.openTasksKeybindings",
+          "when": "view == devPanelTasks && taskSourcePP",
           "group": "navigation@6"
         },
         {
-          "command": "projectPanel.toggleToolsGroupMode",
-          "when": "view == projectPanelTools && !toolsGrouped",
+          "command": "devPanel.toggleToolsGroupMode",
+          "when": "view == devPanelTools && !toolsGrouped",
           "group": "navigation@1"
         },
         {
-          "command": "projectPanel.toggleToolsGroupModeGrouped",
-          "when": "view == projectPanelTools && toolsGrouped",
+          "command": "devPanel.toggleToolsGroupModeGrouped",
+          "when": "view == devPanelTools && toolsGrouped",
           "group": "navigation@1"
         },
         {
-          "command": "projectPanel.toggleToolsShowOnlyFavorites",
-          "when": "view == projectPanelTools && toolsHasFavorites && !toolsShowOnlyFavorites",
+          "command": "devPanel.toggleToolsShowOnlyFavorites",
+          "when": "view == devPanelTools && toolsHasFavorites && !toolsShowOnlyFavorites",
           "group": "navigation@2"
         },
         {
-          "command": "projectPanel.toggleToolsShowOnlyFavoritesActive",
-          "when": "view == projectPanelTools && toolsHasFavorites && toolsShowOnlyFavorites",
+          "command": "devPanel.toggleToolsShowOnlyFavoritesActive",
+          "when": "view == devPanelTools && toolsHasFavorites && toolsShowOnlyFavorites",
           "group": "navigation@2"
         },
         {
-          "command": "projectPanel.toggleToolsShowHidden",
-          "when": "view == projectPanelTools && toolsHasHidden && !toolsShowHidden",
+          "command": "devPanel.toggleToolsShowHidden",
+          "when": "view == devPanelTools && toolsHasHidden && !toolsShowHidden",
           "group": "navigation@3"
         },
         {
-          "command": "projectPanel.toggleToolsShowHiddenActive",
-          "when": "view == projectPanelTools && toolsHasHidden && toolsShowHidden",
+          "command": "devPanel.toggleToolsShowHiddenActive",
+          "when": "view == devPanelTools && toolsHasHidden && toolsShowHidden",
           "group": "navigation@3"
         },
         {
-          "command": "projectPanel.generateToolsDocs",
-          "when": "view == projectPanelTools",
+          "command": "devPanel.generateToolsDocs",
+          "when": "view == devPanelTools",
           "group": "navigation@4"
         },
         {
-          "command": "projectPanel.addTool",
-          "when": "view == projectPanelTools",
+          "command": "devPanel.addTool",
+          "when": "view == devPanelTools",
           "group": "navigation@5"
         },
         {
-          "command": "projectPanel.togglePromptsGroupMode",
-          "when": "view == projectPanelPrompts && !promptsGrouped",
+          "command": "devPanel.togglePromptsGroupMode",
+          "when": "view == devPanelPrompts && !promptsGrouped",
           "group": "navigation@1"
         },
         {
-          "command": "projectPanel.togglePromptsGroupModeGrouped",
-          "when": "view == projectPanelPrompts && promptsGrouped",
+          "command": "devPanel.togglePromptsGroupModeGrouped",
+          "when": "view == devPanelPrompts && promptsGrouped",
           "group": "navigation@1"
         },
         {
-          "command": "projectPanel.togglePromptsShowOnlyFavorites",
-          "when": "view == projectPanelPrompts && promptsHasFavorites && !promptsShowOnlyFavorites",
+          "command": "devPanel.togglePromptsShowOnlyFavorites",
+          "when": "view == devPanelPrompts && promptsHasFavorites && !promptsShowOnlyFavorites",
           "group": "navigation@2"
         },
         {
-          "command": "projectPanel.togglePromptsShowOnlyFavoritesActive",
-          "when": "view == projectPanelPrompts && promptsHasFavorites && promptsShowOnlyFavorites",
+          "command": "devPanel.togglePromptsShowOnlyFavoritesActive",
+          "when": "view == devPanelPrompts && promptsHasFavorites && promptsShowOnlyFavorites",
           "group": "navigation@2"
         },
         {
-          "command": "projectPanel.togglePromptsShowHidden",
-          "when": "view == projectPanelPrompts && promptsHasHidden && !promptsShowHidden",
+          "command": "devPanel.togglePromptsShowHidden",
+          "when": "view == devPanelPrompts && promptsHasHidden && !promptsShowHidden",
           "group": "navigation@3"
         },
         {
-          "command": "projectPanel.togglePromptsShowHiddenActive",
-          "when": "view == projectPanelPrompts && promptsHasHidden && promptsShowHidden",
+          "command": "devPanel.togglePromptsShowHiddenActive",
+          "when": "view == devPanelPrompts && promptsHasHidden && promptsShowHidden",
           "group": "navigation@3"
         },
         {
-          "command": "projectPanel.addPrompt",
-          "when": "view == projectPanelPrompts",
+          "command": "devPanel.addPrompt",
+          "when": "view == devPanelPrompts",
           "group": "navigation@4"
         },
         {
-          "command": "projectPanel.openPromptsKeybindings",
-          "when": "view == projectPanelPrompts",
+          "command": "devPanel.openPromptsKeybindings",
+          "when": "view == devPanelPrompts",
           "group": "navigation@5"
         },
         {
-          "command": "projectPanel.openBranchContextFile",
-          "when": "view == projectPanelBranchContext",
+          "command": "devPanel.openBranchContextFile",
+          "when": "view == devPanelBranchContext",
           "group": "navigation@1"
         },
         {
-          "command": "projectPanel.syncBranchContext",
-          "when": "view == projectPanelBranchContext",
+          "command": "devPanel.syncBranchContext",
+          "when": "view == devPanelBranchContext",
           "group": "navigation@2"
         },
         {
-          "command": "projectPanel.toggleBranchContextHideEmptySections",
-          "when": "view == projectPanelBranchContext && !branchContextHideEmptySections",
+          "command": "devPanel.toggleBranchContextHideEmptySections",
+          "when": "view == devPanelBranchContext && !branchContextHideEmptySections",
           "group": "navigation@3"
         },
         {
-          "command": "projectPanel.toggleBranchContextHideEmptySectionsActive",
-          "when": "view == projectPanelBranchContext && branchContextHideEmptySections",
+          "command": "devPanel.toggleBranchContextHideEmptySectionsActive",
+          "when": "view == devPanelBranchContext && branchContextHideEmptySections",
           "group": "navigation@3"
         },
         {
-          "command": "projectPanel.toggleBranchTasksGroupMode",
-          "when": "view == projectPanelTodos && !branchTasksGrouped",
+          "command": "devPanel.toggleBranchTasksGroupMode",
+          "when": "view == devPanelTodos && !branchTasksGrouped",
           "group": "navigation@1"
         },
         {
-          "command": "projectPanel.toggleBranchTasksGroupModeGrouped",
-          "when": "view == projectPanelTodos && branchTasksGrouped",
+          "command": "devPanel.toggleBranchTasksGroupModeGrouped",
+          "when": "view == devPanelTodos && branchTasksGrouped",
           "group": "navigation@1"
         },
         {
-          "command": "projectPanel.toggleBranchTasksShowOnlyTodo",
-          "when": "view == projectPanelTodos && !branchTasksShowOnlyTodo",
+          "command": "devPanel.toggleBranchTasksShowOnlyTodo",
+          "when": "view == devPanelTodos && !branchTasksShowOnlyTodo",
           "group": "navigation@2"
         },
         {
-          "command": "projectPanel.toggleBranchTasksShowOnlyTodoActive",
-          "when": "view == projectPanelTodos && branchTasksShowOnlyTodo",
+          "command": "devPanel.toggleBranchTasksShowOnlyTodoActive",
+          "when": "view == devPanelTodos && branchTasksShowOnlyTodo",
           "group": "navigation@2"
         },
         {
-          "command": "projectPanel.filterBranchTasks",
-          "when": "view == projectPanelTodos && !branchTasksHasFilter",
+          "command": "devPanel.filterBranchTasks",
+          "when": "view == devPanelTodos && !branchTasksHasFilter",
           "group": "navigation@3"
         },
         {
-          "command": "projectPanel.filterBranchTasksActive",
-          "when": "view == projectPanelTodos && branchTasksHasFilter",
+          "command": "devPanel.filterBranchTasksActive",
+          "when": "view == devPanelTodos && branchTasksHasFilter",
           "group": "navigation@3"
         },
         {
-          "command": "projectPanel.addBranchTask",
-          "when": "view == projectPanelTodos",
+          "command": "devPanel.addBranchTask",
+          "when": "view == devPanelTodos",
           "group": "navigation@4"
         },
         {
-          "command": "projectPanel.syncBranchTasks",
-          "when": "view == projectPanelTodos && branchTasksHasExternalProvider",
+          "command": "devPanel.syncBranchTasks",
+          "when": "view == devPanelTodos && branchTasksHasExternalProvider",
           "group": "navigation@5"
         },
         {
-          "command": "projectPanel.editBranchTodos",
-          "when": "view == projectPanelTodos",
+          "command": "devPanel.editBranchTodos",
+          "when": "view == devPanelTodos",
           "group": "navigation@6"
         }
       ],
       "view/item/context": [
         {
-          "command": "projectPanel.toggleFavorite",
-          "when": "view == projectPanelTasks && (viewItem == task || viewItem == task-pp || viewItem == task-pp-global || viewItem == task-hidden || viewItem == task-pp-hidden || viewItem == task-pp-global-hidden)"
+          "command": "devPanel.toggleFavorite",
+          "when": "view == devPanelTasks && (viewItem == task || viewItem == task-pp || viewItem == task-pp-global || viewItem == task-hidden || viewItem == task-pp-hidden || viewItem == task-pp-global-hidden)"
         },
         {
-          "command": "projectPanel.toggleUnfavorite",
-          "when": "view == projectPanelTasks && (viewItem == task-favorite || viewItem == task-pp-favorite || viewItem == task-pp-global-favorite)"
+          "command": "devPanel.toggleUnfavorite",
+          "when": "view == devPanelTasks && (viewItem == task-favorite || viewItem == task-pp-favorite || viewItem == task-pp-global-favorite)"
         },
         {
-          "command": "projectPanel.toggleHide",
-          "when": "view == projectPanelTasks && viewItem =~ /^task/"
+          "command": "devPanel.toggleHide",
+          "when": "view == devPanelTasks && viewItem =~ /^task/"
         },
         {
-          "command": "projectPanel.setTaskKeybinding",
-          "when": "view == projectPanelTasks && viewItem =~ /^task/ && taskSourcePP"
+          "command": "devPanel.setTaskKeybinding",
+          "when": "view == devPanelTasks && viewItem =~ /^task/ && taskSourcePP"
         },
         {
-          "command": "projectPanel.executeTask",
-          "when": "view == projectPanelTasks"
+          "command": "devPanel.executeTask",
+          "when": "view == devPanelTasks"
         },
         {
-          "command": "projectPanel.goToTask",
-          "when": "view == projectPanelTasks"
+          "command": "devPanel.goToTask",
+          "when": "view == devPanelTasks"
         },
         {
-          "command": "projectPanel.copyTaskToGlobal",
-          "when": "view == projectPanelTasks && viewItem =~ /^task-pp(-hidden|-favorite)?$/"
+          "command": "devPanel.copyTaskToGlobal",
+          "when": "view == devPanelTasks && viewItem =~ /^task-pp(-hidden|-favorite)?$/"
         },
         {
-          "command": "projectPanel.copyTaskToWorkspace",
-          "when": "view == projectPanelTasks && viewItem =~ /^task-pp-global/"
+          "command": "devPanel.copyTaskToWorkspace",
+          "when": "view == devPanelTasks && viewItem =~ /^task-pp-global/"
         },
         {
-          "command": "projectPanel.deleteTask",
-          "when": "view == projectPanelTasks && viewItem =~ /^task-pp/"
+          "command": "devPanel.deleteTask",
+          "when": "view == devPanelTasks && viewItem =~ /^task-pp/"
         },
         {
-          "command": "projectPanel.goToReplacementTargetFile",
-          "when": "view == projectPanelReplacements && viewItem == replacementItem",
+          "command": "devPanel.goToReplacementTargetFile",
+          "when": "view == devPanelReplacements && viewItem == replacementItem",
           "group": "inline@1"
         },
         {
-          "command": "projectPanel.toggleToolFavorite",
-          "when": "view == projectPanelTools && (viewItem == tool || viewItem == tool-global || viewItem == tool-hidden || viewItem == tool-global-hidden)"
+          "command": "devPanel.toggleToolFavorite",
+          "when": "view == devPanelTools && (viewItem == tool || viewItem == tool-global || viewItem == tool-hidden || viewItem == tool-global-hidden)"
         },
         {
-          "command": "projectPanel.toggleToolUnfavorite",
-          "when": "view == projectPanelTools && (viewItem == tool-favorite || viewItem == tool-global-favorite)"
+          "command": "devPanel.toggleToolUnfavorite",
+          "when": "view == devPanelTools && (viewItem == tool-favorite || viewItem == tool-global-favorite)"
         },
         {
-          "command": "projectPanel.toggleToolHide",
-          "when": "view == projectPanelTools && viewItem =~ /^tool/"
+          "command": "devPanel.toggleToolHide",
+          "when": "view == devPanelTools && viewItem =~ /^tool/"
         },
         {
-          "command": "projectPanel.goToToolFile",
-          "when": "view == projectPanelTools && viewItem =~ /^tool/"
+          "command": "devPanel.goToToolFile",
+          "when": "view == devPanelTools && viewItem =~ /^tool/"
         },
         {
-          "command": "projectPanel.executeTool",
-          "when": "view == projectPanelTools && viewItem =~ /^tool/",
+          "command": "devPanel.executeTool",
+          "when": "view == devPanelTools && viewItem =~ /^tool/",
           "group": "inline@1"
         },
         {
-          "command": "projectPanel.copyToolToGlobal",
-          "when": "view == projectPanelTools && viewItem =~ /^tool(-hidden|-favorite)?$/"
+          "command": "devPanel.copyToolToGlobal",
+          "when": "view == devPanelTools && viewItem =~ /^tool(-hidden|-favorite)?$/"
         },
         {
-          "command": "projectPanel.copyToolToWorkspace",
-          "when": "view == projectPanelTools && viewItem =~ /^tool-global/"
+          "command": "devPanel.copyToolToWorkspace",
+          "when": "view == devPanelTools && viewItem =~ /^tool-global/"
         },
         {
-          "command": "projectPanel.deleteTool",
-          "when": "view == projectPanelTools && viewItem =~ /^tool/"
+          "command": "devPanel.deleteTool",
+          "when": "view == devPanelTools && viewItem =~ /^tool/"
         },
         {
-          "command": "projectPanel.togglePromptFavorite",
-          "when": "view == projectPanelPrompts && (viewItem == prompt || viewItem == prompt-global || viewItem == prompt-hidden || viewItem == prompt-global-hidden)"
+          "command": "devPanel.togglePromptFavorite",
+          "when": "view == devPanelPrompts && (viewItem == prompt || viewItem == prompt-global || viewItem == prompt-hidden || viewItem == prompt-global-hidden)"
         },
         {
-          "command": "projectPanel.togglePromptUnfavorite",
-          "when": "view == projectPanelPrompts && (viewItem == prompt-favorite || viewItem == prompt-global-favorite)"
+          "command": "devPanel.togglePromptUnfavorite",
+          "when": "view == devPanelPrompts && (viewItem == prompt-favorite || viewItem == prompt-global-favorite)"
         },
         {
-          "command": "projectPanel.togglePromptHide",
-          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/"
+          "command": "devPanel.togglePromptHide",
+          "when": "view == devPanelPrompts && viewItem =~ /^prompt/"
         },
         {
-          "command": "projectPanel.setPromptKeybinding",
-          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/"
+          "command": "devPanel.setPromptKeybinding",
+          "when": "view == devPanelPrompts && viewItem =~ /^prompt/"
         },
         {
-          "command": "projectPanel.goToPromptFile",
-          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/",
+          "command": "devPanel.goToPromptFile",
+          "when": "view == devPanelPrompts && viewItem =~ /^prompt/",
           "group": "inline@1"
         },
         {
-          "command": "projectPanel.executePrompt",
-          "when": "view == projectPanelPrompts"
+          "command": "devPanel.executePrompt",
+          "when": "view == devPanelPrompts"
         },
         {
-          "command": "projectPanel.copyPromptToGlobal",
-          "when": "view == projectPanelPrompts && viewItem =~ /^prompt(-hidden|-favorite)?$/"
+          "command": "devPanel.copyPromptToGlobal",
+          "when": "view == devPanelPrompts && viewItem =~ /^prompt(-hidden|-favorite)?$/"
         },
         {
-          "command": "projectPanel.copyPromptToWorkspace",
-          "when": "view == projectPanelPrompts && viewItem =~ /^prompt-global/"
+          "command": "devPanel.copyPromptToWorkspace",
+          "when": "view == devPanelPrompts && viewItem =~ /^prompt-global/"
         },
         {
-          "command": "projectPanel.deletePrompt",
-          "when": "view == projectPanelPrompts && viewItem =~ /^prompt/"
+          "command": "devPanel.deletePrompt",
+          "when": "view == devPanelPrompts && viewItem =~ /^prompt/"
         },
         {
-          "command": "projectPanel.setVariableKeybinding",
-          "when": "view == projectPanelConfigs && viewItem == variableItem"
+          "command": "devPanel.setVariableKeybinding",
+          "when": "view == devPanelConfigs && viewItem == variableItem"
         },
         {
-          "command": "projectPanel.resetConfigOption",
-          "when": "view == projectPanelConfigs && viewItem == variableItem",
+          "command": "devPanel.resetConfigOption",
+          "when": "view == devPanelConfigs && viewItem == variableItem",
           "group": "inline@1"
         },
         {
           "submenu": "branchTasks.status",
-          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
           "group": "1_status"
         },
         {
           "submenu": "branchTasks.priority",
-          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
           "group": "1_status"
         },
         {
-          "command": "projectPanel.setTaskMilestone",
-          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "command": "devPanel.setTaskMilestone",
+          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
           "group": "1_status"
         },
         {
-          "command": "projectPanel.setTaskAssignee",
-          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "command": "devPanel.setTaskAssignee",
+          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
           "group": "2_meta"
         },
         {
-          "command": "projectPanel.setTaskDueDate",
-          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "command": "devPanel.setTaskDueDate",
+          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
           "group": "2_meta"
         },
         {
-          "command": "projectPanel.addSubtask",
-          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "command": "devPanel.addSubtask",
+          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
           "group": "3_actions"
         },
         {
-          "command": "projectPanel.editTaskText",
-          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "command": "devPanel.editTaskText",
+          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
           "group": "3_actions"
         },
         {
-          "command": "projectPanel.deleteBranchTask",
-          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "command": "devPanel.deleteBranchTask",
+          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
           "group": "3_actions"
         },
         {
-          "command": "projectPanel.copyTaskText",
-          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "command": "devPanel.copyTaskText",
+          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
           "group": "4_clipboard"
         },
         {
-          "command": "projectPanel.openTaskExternal",
-          "when": "view == projectPanelTodos && viewItem == todoItemWithExternal",
+          "command": "devPanel.openTaskExternal",
+          "when": "view == devPanelTodos && viewItem == todoItemWithExternal",
           "group": "4_clipboard"
         }
       ],
       "view/item/inline": [
         {
-          "command": "projectPanel.cycleTaskStatus",
-          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "command": "devPanel.cycleTaskStatus",
+          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
           "group": "inline@1"
         },
         {
-          "command": "projectPanel.openTaskExternal",
-          "when": "view == projectPanelTodos && viewItem == todoItemWithExternal",
+          "command": "devPanel.openTaskExternal",
+          "when": "view == devPanelTodos && viewItem == todoItemWithExternal",
           "group": "inline@2"
         }
       ],
       "branchTasks.status": [
         {
-          "command": "projectPanel.setTaskStatus.todo",
+          "command": "devPanel.setTaskStatus.todo",
           "group": "status"
         },
         {
-          "command": "projectPanel.setTaskStatus.doing",
+          "command": "devPanel.setTaskStatus.doing",
           "group": "status"
         },
         {
-          "command": "projectPanel.setTaskStatus.done",
+          "command": "devPanel.setTaskStatus.done",
           "group": "status"
         },
         {
-          "command": "projectPanel.setTaskStatus.blocked",
+          "command": "devPanel.setTaskStatus.blocked",
           "group": "status"
         }
       ],
       "branchTasks.priority": [
         {
-          "command": "projectPanel.setTaskPriority.urgent",
+          "command": "devPanel.setTaskPriority.urgent",
           "group": "priority"
         },
         {
-          "command": "projectPanel.setTaskPriority.high",
+          "command": "devPanel.setTaskPriority.high",
           "group": "priority"
         },
         {
-          "command": "projectPanel.setTaskPriority.medium",
+          "command": "devPanel.setTaskPriority.medium",
           "group": "priority"
         },
         {
-          "command": "projectPanel.setTaskPriority.low",
+          "command": "devPanel.setTaskPriority.low",
           "group": "priority"
         },
         {
-          "command": "projectPanel.setTaskPriority.none",
+          "command": "devPanel.setTaskPriority.none",
           "group": "priority"
         }
       ]
@@ -1082,62 +1082,62 @@
     ],
     "viewsWelcome": [
       {
-        "view": "projectPanelConfigs",
+        "view": "devPanelConfigs",
         "contents": "Loading variables...",
         "when": "extensionInitializing"
       },
       {
-        "view": "projectPanelConfigs",
+        "view": "devPanelConfigs",
         "contents": "No variables configured.\n\nAdd variables in your config file.",
         "when": "!extensionInitializing"
       },
       {
-        "view": "projectPanelReplacements",
+        "view": "devPanelReplacements",
         "contents": "Loading replacements...",
         "when": "extensionInitializing"
       },
       {
-        "view": "projectPanelReplacements",
+        "view": "devPanelReplacements",
         "contents": "No replacements configured.\n\nAdd replacements in your config file.",
         "when": "!extensionInitializing"
       },
       {
-        "view": "projectPanelTools",
+        "view": "devPanelTools",
         "contents": "Loading tools...",
         "when": "extensionInitializing"
       },
       {
-        "view": "projectPanelTools",
+        "view": "devPanelTools",
         "contents": "No tools configured.\n\nAdd tools in your config file.",
         "when": "!extensionInitializing"
       },
       {
-        "view": "projectPanelPrompts",
+        "view": "devPanelPrompts",
         "contents": "Loading prompts...",
         "when": "extensionInitializing"
       },
       {
-        "view": "projectPanelPrompts",
+        "view": "devPanelPrompts",
         "contents": "No prompts configured.\n\nAdd prompts in your config file.",
         "when": "!extensionInitializing"
       },
       {
-        "view": "projectPanelTodos",
+        "view": "devPanelTodos",
         "contents": "Loading branch tasks...",
         "when": "extensionInitializing"
       },
       {
-        "view": "projectPanelTodos",
+        "view": "devPanelTodos",
         "contents": "No tasks in current branch.\n\nTasks are defined in the branch context file.",
         "when": "!extensionInitializing"
       },
       {
-        "view": "projectPanelTasks",
+        "view": "devPanelTasks",
         "contents": "Loading tasks...",
         "when": "extensionInitializing"
       },
       {
-        "view": "projectPanelTasks",
+        "view": "devPanelTasks",
         "contents": "No tasks available.\n\nAdd tasks in your config file or package.json.",
         "when": "!extensionInitializing"
       }
@@ -1149,7 +1149,7 @@
     ],
     "jsonValidation": [
       {
-        "fileMatch": "**/.pp/config.jsonc",
+        "fileMatch": "**/.devpanel/config.jsonc",
         "url": "./resources/schema.json"
       }
     ]
