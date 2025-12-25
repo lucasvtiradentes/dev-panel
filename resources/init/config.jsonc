@@ -39,7 +39,13 @@
       "group": "Utils"
     }
   ],
-  "tools": [],
+  "tools": [
+    {
+      "name": "example-tool",
+      "command": "echo",
+      "instructions": "tools/example-tool/instructions.md"
+    }
+  ],
   "prompts": [
     {
       "name": "code-review",
