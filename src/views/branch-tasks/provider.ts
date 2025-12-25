@@ -1,15 +1,10 @@
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
-import {
-  EMPTY_TASKS_MESSAGE,
-  FILE_WATCHER_DEBOUNCE_MS,
-  NO_PENDING_TASKS_MESSAGE,
-  getCommandId,
-} from '../../common/constants';
+import { FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
 import { loadWorkspaceConfigFromPath } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
-import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
+import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { loadBranchContextFromFile } from '../branch-context/file-storage';
@@ -23,7 +18,15 @@ import {
   type TaskSyncProvider,
   createTaskProvider,
 } from '../branch-context/providers';
-import { type TaskFilter, applyFilters, filterTodoNodes, flattenNodes } from './filter-operations';
+import type { TaskFilter } from './filter-operations';
+import { showFilterQuickPick as showFilterQuickPickDialog } from './filter-quick-pick';
+import {
+  buildFlatTree,
+  buildMilestoneChildren,
+  buildMilestonesTree,
+  buildTaskChildren,
+  createEmptyStateItem,
+} from './provider-tree-builder';
 import {
   BranchMilestoneItem,
   BranchTaskItem,
@@ -102,58 +105,10 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
   }
 
   async showFilterQuickPick(): Promise<void> {
-    const items: vscode.QuickPickItem[] = [
-      { label: '$(circle-large-outline) Todo only', description: 'Show only todo tasks' },
-      { label: '$(play-circle) Doing only', description: 'Show only in-progress tasks' },
-      { label: '$(error) Blocked only', description: 'Show only blocked tasks' },
-      { label: '$(warning) Overdue only', description: 'Show only overdue tasks' },
-      { label: '$(account) By assignee...', description: 'Filter by assignee name' },
-      { label: '$(flame) High priority+', description: 'Show urgent and high priority' },
-      { label: '$(link-external) With external link', description: 'Show only linked tasks' },
-      { label: '', kind: vscode.QuickPickItemKind.Separator },
-      { label: '$(close) Clear filters', description: 'Show all tasks' },
-    ];
+    const filter = await showFilterQuickPickDialog();
+    if (filter === null) return;
 
-    const picked = await vscode.window.showQuickPick(items, {
-      placeHolder: 'Select filter',
-    });
-
-    if (!picked) return;
-
-    switch (picked.label) {
-      case '$(circle-large-outline) Todo only':
-        this.activeFilters = { status: ['todo'] };
-        break;
-      case '$(play-circle) Doing only':
-        this.activeFilters = { status: ['doing'] };
-        break;
-      case '$(error) Blocked only':
-        this.activeFilters = { status: ['blocked'] };
-        break;
-      case '$(warning) Overdue only':
-        this.activeFilters = { overdue: true };
-        break;
-      case '$(account) By assignee...': {
-        const assignee = await vscode.window.showInputBox({
-          prompt: 'Enter assignee name',
-          placeHolder: 'e.g., lucas',
-        });
-        if (assignee) {
-          this.activeFilters = { assignee };
-        }
-        break;
-      }
-      case '$(flame) High priority+':
-        this.activeFilters = { priority: ['urgent', 'high'] };
-        break;
-      case '$(link-external) With external link':
-        this.activeFilters = { hasExternalLink: true };
-        break;
-      case '$(close) Clear filters':
-        this.activeFilters = {};
-        break;
-    }
-
+    this.activeFilters = filter;
     void setContextKey(ContextKey.BranchTasksHasFilter, Object.keys(this.activeFilters).length > 0);
     this.refresh();
   }
@@ -233,16 +188,11 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
 
   async getChildren(element?: BranchTreeItem): Promise<BranchTreeItem[]> {
     if (element instanceof BranchMilestoneItem) {
-      let tasks = filterTodoNodes(element.milestone.tasks, this.showOnlyTodo);
-      tasks = applyFilters(tasks, this.activeFilters);
-      if (!this.grouped) {
-        tasks = flattenNodes(tasks);
-      }
-      return tasks.map((node) => new BranchTaskItem(node, node.children.length > 0));
+      return buildMilestoneChildren(element.milestone, this.showOnlyTodo, this.activeFilters, this.grouped);
     }
 
     if (element instanceof BranchTaskItem) {
-      return element.node.children.map((child) => new BranchTaskItem(child, child.children.length > 0));
+      return buildTaskChildren(element.node);
     }
 
     this.loadBranchTasks();
@@ -252,66 +202,31 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     }
 
     const hasMilestones = this.cachedMilestones.length > 0;
+    const hasActiveFilter = Object.keys(this.activeFilters).length > 0;
 
     if (hasMilestones) {
-      const result: BranchTreeItem[] = [];
+      const result = buildMilestonesTree(
+        this.cachedOrphanTasks,
+        this.cachedMilestones,
+        this.showOnlyTodo,
+        this.activeFilters,
+        this.grouped,
+      );
 
-      let orphanTasks = filterTodoNodes(this.cachedOrphanTasks, this.showOnlyTodo);
-      orphanTasks = applyFilters(orphanTasks, this.activeFilters);
-      if (!this.grouped) {
-        orphanTasks = flattenNodes(orphanTasks);
-      }
-
-      if (orphanTasks.length > 0) {
-        const noMilestoneNode: MilestoneNode = {
-          name: NO_MILESTONE_NAME,
-          lineIndex: -1,
-          tasks: orphanTasks,
-        };
-        result.push(new BranchMilestoneItem(noMilestoneNode, true));
-      }
-
-      for (const milestone of this.cachedMilestones) {
-        let tasks = filterTodoNodes(milestone.tasks, this.showOnlyTodo);
-        tasks = applyFilters(tasks, this.activeFilters);
-        if (tasks.length > 0 || !this.showOnlyTodo) {
-          result.push(new BranchMilestoneItem({ ...milestone, tasks }));
-        }
-      }
-
-      const hasActiveFilter = Object.keys(this.activeFilters).length > 0;
       if (result.length === 0) {
-        const message = this.showOnlyTodo || hasActiveFilter ? NO_PENDING_TASKS_MESSAGE : EMPTY_TASKS_MESSAGE;
-        const openFileItem = new vscode.TreeItem(message);
-        openFileItem.command = {
-          command: getCommandId(Command.OpenBranchContextFile),
-          title: 'Open Branch Context File',
-        };
-        return [openFileItem as unknown as BranchTreeItem];
+        return [createEmptyStateItem(this.showOnlyTodo, hasActiveFilter) as unknown as BranchTreeItem];
       }
 
       return result;
     }
 
-    let processedNodes = filterTodoNodes(this.cachedNodes, this.showOnlyTodo);
-    processedNodes = applyFilters(processedNodes, this.activeFilters);
+    const result = buildFlatTree(this.cachedNodes, this.showOnlyTodo, this.activeFilters, this.grouped);
 
-    if (!this.grouped) {
-      processedNodes = flattenNodes(processedNodes);
+    if (result.length === 0) {
+      return [createEmptyStateItem(this.showOnlyTodo, hasActiveFilter) as unknown as BranchTreeItem];
     }
 
-    const hasActiveFilter = Object.keys(this.activeFilters).length > 0;
-    if (processedNodes.length === 0) {
-      const message = this.showOnlyTodo || hasActiveFilter ? NO_PENDING_TASKS_MESSAGE : EMPTY_TASKS_MESSAGE;
-      const openFileItem = new vscode.TreeItem(message);
-      openFileItem.command = {
-        command: getCommandId(Command.OpenBranchContextFile),
-        title: 'Open Branch Context File',
-      };
-      return [openFileItem as unknown as BranchTreeItem];
-    }
-
-    return processedNodes.map((node) => new BranchTaskItem(node, node.children.length > 0));
+    return result;
   }
 
   toggleTodo(lineIndex: number): void {
