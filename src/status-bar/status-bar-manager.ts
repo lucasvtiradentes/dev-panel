@@ -4,19 +4,25 @@ import { Command } from '../common/lib/vscode-utils';
 
 export class StatusBarManager {
   private readonly statusBarItem: vscode.StatusBarItem;
+  private hasConfig = true;
 
-  constructor() {
+  constructor(hasConfig = true) {
+    this.hasConfig = hasConfig;
     this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
     this.statusBarItem.command = getCommandId(Command.OpenSettingsMenu);
     this.updateDisplay();
     this.statusBarItem.show();
   }
 
+  setHasConfig(hasConfig: boolean): void {
+    this.hasConfig = hasConfig;
+    this.updateDisplay();
+  }
+
   private updateDisplay(): void {
     const icon = '$(settings-gear)';
-    const text = EXTENSION_DISPLAY_NAME;
+    const text = this.hasConfig ? EXTENSION_DISPLAY_NAME : `${EXTENSION_DISPLAY_NAME} (No config)`;
     this.statusBarItem.text = `${icon} ${text}`;
-    // this.statusBarItem.tooltip = this.buildTooltip();
   }
 
   private buildTooltip(): string {

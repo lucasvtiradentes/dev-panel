@@ -26,6 +26,7 @@ import {
   ROOT_BRANCH_CONTEXT_FILE_NAME,
 } from '../../common/constants/scripts-constants';
 import {
+  configDirExists,
   getBranchContextFilePath as getBranchContextFilePathUtil,
   getBranchContextGlobPattern,
   getBranchContextTemplatePath,
@@ -488,6 +489,11 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     const workspace = getFirstWorkspacePath();
     if (!workspace) {
       logger.warn('[syncBranchContext] No workspace, skipping');
+      return;
+    }
+
+    if (!configDirExists(workspace)) {
+      logger.info('[syncBranchContext] No config directory, skipping');
       return;
     }
 

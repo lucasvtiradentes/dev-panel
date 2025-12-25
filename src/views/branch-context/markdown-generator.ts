@@ -9,7 +9,7 @@ import {
   METADATA_SEPARATOR,
   METADATA_SUFFIX,
 } from '../../common/constants';
-import { getBranchContextFilePath, getBranchDirectory } from '../../common/lib/config-manager';
+import { configDirExists, getBranchContextFilePath, getBranchDirectory } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import type { BranchContext } from '../../common/schemas/types';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
@@ -31,6 +31,11 @@ export async function generateBranchContextMarkdown(
   const workspace = getFirstWorkspacePath();
   if (!workspace) {
     logger.warn('[generateBranchContextMarkdown] No workspace found');
+    return;
+  }
+
+  if (!configDirExists(workspace)) {
+    logger.info('[generateBranchContextMarkdown] No config directory, skipping');
     return;
   }
 

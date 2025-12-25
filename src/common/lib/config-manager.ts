@@ -103,6 +103,11 @@ export function getConfigDirPathFromWorkspacePath(workspacePath: string): string
   return getConfigDirPath(workspacePath, configDir);
 }
 
+export function configDirExists(workspacePath: string): boolean {
+  const configDirPath = getConfigDirPathFromWorkspacePath(workspacePath);
+  return fs.existsSync(configDirPath);
+}
+
 export function getConfigFilePathFromWorkspacePath(workspacePath: string, fileName: string): string {
   const configDir = getCurrentConfigDir();
   return getConfigPath(workspacePath, configDir, fileName);
