@@ -7,6 +7,7 @@ import * as vscode from 'vscode';
 const execAsync = promisify(exec);
 import { GLOBAL_ITEM_PREFIX, GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
 import {
+  CONFIG_DIR_KEY,
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   VARIABLES_FILE_NAME,
@@ -182,6 +183,7 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
 
       let toolConfig: { command?: string; useWorkspaceRoot?: boolean } | undefined;
       let cwd: string;
+      let env: Record<string, string> = {};
 
       const globalConfig = loadGlobalConfig();
       const folder = getFirstWorkspaceFolder();
@@ -189,6 +191,7 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
       if (isGlobal) {
         toolConfig = globalConfig?.tools?.find((t) => t.name === actualName);
         cwd = folder ? folder.uri.fsPath : getGlobalConfigDir();
+        env = readPPVariablesAsEnv(getGlobalConfigDir());
       } else {
         if (!folder) {
           void vscode.window.showErrorMessage('No workspace folder found');
@@ -196,7 +199,9 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
         }
         const config = loadWorkspaceConfig(folder);
         toolConfig = config?.tools?.find((t) => t.name === actualName);
-        cwd = toolConfig?.useWorkspaceRoot ? folder.uri.fsPath : getWorkspaceConfigDirPath(folder);
+        const configDirPath = getWorkspaceConfigDirPath(folder);
+        cwd = toolConfig?.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
+        env = readPPVariablesAsEnv(configDirPath);
       }
 
       if (!toolConfig?.command) {
@@ -204,9 +209,24 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
         return;
       }
 
-      const terminal = vscode.window.createTerminal({ name: actualName, cwd });
-      terminal.show();
-      terminal.sendText(toolConfig.command);
+      const shellExec = new vscode.ShellExecution(toolConfig.command, { env, cwd });
+      const vsTask = new vscode.Task(
+        { type: `${CONFIG_DIR_KEY}-tool`, task: actualName },
+        folder ?? vscode.TaskScope.Global,
+        actualName,
+        `${CONFIG_DIR_KEY}-tool`,
+        shellExec,
+      );
+
+      vsTask.presentationOptions = {
+        reveal: vscode.TaskRevealKind.Always,
+        panel: vscode.TaskPanelKind.New,
+        clear: false,
+        focus: false,
+        showReuseMessage: false,
+      };
+
+      void vscode.tasks.executeTask(vsTask);
       return;
     }
 
