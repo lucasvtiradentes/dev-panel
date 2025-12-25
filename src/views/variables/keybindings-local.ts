@@ -10,9 +10,7 @@ const manager = new KeybindingManager({
   getCommandId: getVariableCommandId,
 });
 
-export const getVariableKeybinding = (name: string) => manager.getKeybinding(name);
 export const getAllVariableKeybindings = () => manager.getAllKeybindings();
-export const reloadVariableKeybindings = () => manager.reload();
 
 export function registerVariableKeybindings(context: vscode.ExtensionContext): void {
   forEachWorkspaceConfig((_folder, config) => {

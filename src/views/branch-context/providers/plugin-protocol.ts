@@ -65,11 +65,3 @@ export type SyncResponse = {
   result?: SyncResult;
   error?: string;
 };
-
-export type PluginResponse =
-  | GetTasksResponse
-  | SetStatusResponse
-  | CreateTaskResponse
-  | UpdateMetaResponse
-  | DeleteTaskResponse
-  | SyncResponse;

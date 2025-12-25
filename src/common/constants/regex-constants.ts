@@ -1,8 +1,6 @@
 export const TOOL_NAME_PATTERN = /^[a-z0-9-]+$/;
 export const TOOL_NAME_VALIDATION_MESSAGE = 'Name must contain only lowercase letters, numbers, and hyphens';
 
-export const TODO_MILESTONE_PATTERN = /^##\s+(.+)$/;
-export const TODO_ITEM_PATTERN = /^(\s*)-\s*\[([ xX])\]\s*(.*)$/;
 export const TASK_ITEM_PATTERN = /^(\s*)-\s*\[([ xX>!])\]\s*(.*)$/;
 export const TODO_SECTION_HEADER_PATTERN = /^#\s+TASKS\s*$/;
 

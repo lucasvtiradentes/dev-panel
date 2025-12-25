@@ -10,7 +10,6 @@ const manager = new KeybindingManager({
   getCommandId: getPromptCommandId,
 });
 
-export const getPromptKeybinding = (name: string) => manager.getKeybinding(name);
 export const getAllPromptKeybindings = () => manager.getAllKeybindings();
 export const reloadPromptKeybindings = () => manager.reload();
 

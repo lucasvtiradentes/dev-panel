@@ -135,23 +135,3 @@ export function formatTaskLine(text: string, meta: TaskMeta): string {
   const metaStr = serializeTaskMeta(meta);
   return metaStr ? `${text} ${metaStr}` : text;
 }
-
-export function detectExternalUrl(externalId: string | undefined): string | undefined {
-  if (!externalId) return undefined;
-
-  if (/^[A-Z]+-\d+$/.test(externalId)) {
-    return `https://linear.app/issue/${externalId}`;
-  }
-
-  return undefined;
-}
-
-export function enrichMetaWithUrl(meta: TaskMeta): TaskMeta {
-  if (meta.externalId && !meta.externalUrl) {
-    const url = detectExternalUrl(meta.externalId);
-    if (url) {
-      return { ...meta, externalUrl: url };
-    }
-  }
-  return meta;
-}
