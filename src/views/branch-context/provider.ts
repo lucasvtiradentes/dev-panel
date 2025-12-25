@@ -340,7 +340,13 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
 
     const items: vscode.TreeItem[] = [];
     for (const section of registry.getAllSections()) {
-      const value = this.getSectionValue(context, section.name, this.currentBranch, changedFilesValue, tasksValue);
+      const value = this.getSectionValue({
+        context,
+        sectionName: section.name,
+        currentBranch: this.currentBranch,
+        changedFilesValue,
+        tasksValue,
+      });
       const sectionMetadata = context.metadata?.sections?.[section.name];
 
       if (hideEmpty && this.isSectionEmpty(value, section.type, sectionMetadata)) {
@@ -365,13 +371,14 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     return false;
   }
 
-  private getSectionValue(
-    context: Record<string, unknown>,
-    sectionName: string,
-    currentBranch: string,
-    changedFilesValue?: string,
-    tasksValue?: string,
-  ): string | undefined {
+  private getSectionValue(opts: {
+    context: Record<string, unknown>;
+    sectionName: string;
+    currentBranch: string;
+    changedFilesValue?: string;
+    tasksValue?: string;
+  }): string | undefined {
+    const { context, sectionName, currentBranch, changedFilesValue, tasksValue } = opts;
     const valueMap: Record<string, string | undefined> = {
       [SECTION_NAME_BRANCH]: currentBranch,
       [SECTION_NAME_PR_LINK]: context.prLink as string | undefined,
