@@ -1,10 +1,14 @@
 import type * as vscode from 'vscode';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
-import type { BranchTasksProvider } from '../../views/branch-tasks';
+import type { BranchTaskItem, BranchTasksProvider } from '../../views/branch-tasks';
 import { createBranchTaskCommands } from '../../views/branch-tasks/commands';
 
 export type ToggleTodoParams = number;
-export type CycleTaskStatusParams = number;
+export type CycleTaskStatusParams = BranchTaskItem | number;
+
+function extractLineIndex(itemOrLineIndex: BranchTaskItem | number): number {
+  return typeof itemOrLineIndex === 'number' ? itemOrLineIndex : itemOrLineIndex.node.lineIndex;
+}
 
 export function createToggleBranchTasksCommands(branchTasksProvider: BranchTasksProvider): vscode.Disposable[] {
   return [
@@ -13,8 +17,8 @@ export function createToggleBranchTasksCommands(branchTasksProvider: BranchTasks
     registerCommand(Command.ToggleBranchTasksGroupMode, () => branchTasksProvider.toggleGroupMode()),
     registerCommand(Command.ToggleBranchTasksGroupModeGrouped, () => branchTasksProvider.toggleGroupMode()),
     registerCommand(Command.ToggleTodo, (lineIndex: ToggleTodoParams) => branchTasksProvider.toggleTodo(lineIndex)),
-    registerCommand(Command.CycleTaskStatus, (lineIndex: CycleTaskStatusParams) =>
-      branchTasksProvider.toggleTodo(lineIndex),
+    registerCommand(Command.CycleTaskStatus, (itemOrLineIndex: CycleTaskStatusParams) =>
+      branchTasksProvider.toggleTodo(extractLineIndex(itemOrLineIndex)),
     ),
     ...createBranchTaskCommands(branchTasksProvider),
   ];

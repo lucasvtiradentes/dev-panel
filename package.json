@@ -516,7 +516,13 @@
       },
       {
         "command": "projectPanel.openTaskExternal",
-        "title": "Open in Browser"
+        "title": "Open in Browser",
+        "icon": "$(link-external)"
+      },
+      {
+        "command": "projectPanel.cycleTaskStatus",
+        "title": "Cycle Status",
+        "icon": "$(play)"
       },
       {
         "command": "projectPanel.showLogs",
@@ -959,6 +965,18 @@
           "command": "projectPanel.openTaskExternal",
           "when": "view == projectPanelTodos && viewItem == todoItemWithExternal",
           "group": "4_clipboard"
+        }
+      ],
+      "view/item/inline": [
+        {
+          "command": "projectPanel.cycleTaskStatus",
+          "when": "view == projectPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
+          "group": "inline@1"
+        },
+        {
+          "command": "projectPanel.openTaskExternal",
+          "when": "view == projectPanelTodos && viewItem == todoItemWithExternal",
+          "group": "inline@2"
         }
       ],
       "branchTasks.status": [

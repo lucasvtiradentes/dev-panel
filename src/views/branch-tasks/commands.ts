@@ -1,7 +1,13 @@
 import * as vscode from 'vscode';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { TaskPriority, TaskStatus } from '../branch-context/providers/interfaces';
-import type { BranchTasksProvider } from './provider';
+import type { BranchTaskItem, BranchTasksProvider } from './provider';
+
+type ItemOrLineIndex = BranchTaskItem | number;
+
+function extractLineIndex(itemOrLineIndex: ItemOrLineIndex): number {
+  return typeof itemOrLineIndex === 'number' ? itemOrLineIndex : itemOrLineIndex.node.lineIndex;
+}
 
 export function createBranchTaskCommands(provider: BranchTasksProvider): vscode.Disposable[] {
   return [
@@ -112,7 +118,8 @@ export function createBranchTaskCommands(provider: BranchTasksProvider): vscode.
       vscode.window.showInformationMessage('Task text copied');
     }),
 
-    registerCommand(Command.OpenTaskExternal, async (lineIndex: number) => {
+    registerCommand(Command.OpenTaskExternal, async (itemOrLineIndex: ItemOrLineIndex) => {
+      const lineIndex = extractLineIndex(itemOrLineIndex);
       const node = provider.findNodeByLineIndex(lineIndex);
       if (!node?.meta.externalUrl) return;
       await vscode.env.openExternal(vscode.Uri.parse(node.meta.externalUrl));
