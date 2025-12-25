@@ -197,6 +197,7 @@ export const ContextKey = {
   BranchTasksShowOnlyTodo: 'branchTasksShowOnlyTodo',
   BranchTasksGrouped: 'branchTasksGrouped',
   BranchTasksHasFilter: 'branchTasksHasFilter',
+  BranchTasksHasExternalProvider: 'branchTasksHasExternalProvider',
   WorkspaceId: `${CONTEXT_PREFIX}.workspaceId`,
 } as const;
 

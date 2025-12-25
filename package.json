@@ -831,7 +831,7 @@
         },
         {
           "command": "projectPanel.syncBranchTasks",
-          "when": "view == projectPanelTodos",
+          "when": "view == projectPanelTodos && branchTasksHasExternalProvider",
           "group": "navigation@5"
         },
         {

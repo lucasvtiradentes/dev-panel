@@ -74,9 +74,12 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
   constructor() {
     const workspace = getFirstWorkspacePath();
     const config = workspace ? this.loadConfig(workspace) : null;
-    this.taskProvider = createTaskProvider(config?.branchContext?.builtinSections?.tasks, workspace ?? undefined);
+    const tasksConfig = config?.branchContext?.builtinSections?.tasks;
+    this.taskProvider = createTaskProvider(tasksConfig, workspace ?? undefined);
     this.setupMarkdownWatcher();
     void setContextKey(ContextKey.BranchTasksHasFilter, false);
+    const hasExternalProvider = typeof tasksConfig === 'object' && 'provider' in tasksConfig;
+    void setContextKey(ContextKey.BranchTasksHasExternalProvider, hasExternalProvider);
   }
 
   private loadConfig(workspace: string): PPConfig | null {
