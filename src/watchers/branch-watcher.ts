@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
 import { createLogger } from '../common/lib/logger';
+import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
 import { getCurrentBranch, isGitRepository } from '../views/replacements/git-utils';
 import type { BranchChangeCallback, GitAPI, GitRepository } from './types';
-import { GIT_CONSTANTS, WATCHER_CONSTANTS, getWorkspacePath } from './utils';
+import { GIT_CONSTANTS, WATCHER_CONSTANTS } from './utils';
 
 const logger = createLogger('BranchWatcher');
 
@@ -24,7 +25,7 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): vscod
   let pollInterval: ReturnType<typeof setInterval> | null = null;
 
   const handleBranchChange = async () => {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     try {
@@ -64,7 +65,7 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): vscod
   };
 
   const setupHeadFileWatcher = () => {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     headWatcher = vscode.workspace.createFileSystemWatcher(
@@ -82,7 +83,7 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): vscod
   };
 
   const initializeBranch = async () => {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     if (await isGitRepository(workspace)) {

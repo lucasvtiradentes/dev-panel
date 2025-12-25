@@ -2,8 +2,9 @@ import * as vscode from 'vscode';
 import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../common/constants/scripts-constants';
 import { getBranchContextGlobPattern, getBranchContextTemplatePath } from '../common/lib/config-manager';
 import { createLogger } from '../common/lib/logger';
+import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
 import type { RefreshCallback, UriChangeCallback } from './types';
-import { attachFileWatcherHandlers, getWorkspacePath } from './utils';
+import { attachFileWatcherHandlers } from './utils';
 
 const logger = createLogger('MarkdownWatcher');
 
@@ -16,7 +17,7 @@ type MarkdownWatcherCallbacks = {
 export function createMarkdownWatcher(callbacks: MarkdownWatcherCallbacks): vscode.Disposable {
   logger.info('[createMarkdownWatcher] START');
   const disposables: vscode.Disposable[] = [];
-  const workspace = getWorkspacePath();
+  const workspace = getFirstWorkspacePath();
 
   if (!workspace) {
     logger.warn('[createMarkdownWatcher] No workspace found, watchers not created');
