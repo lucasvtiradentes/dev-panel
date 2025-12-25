@@ -41,6 +41,7 @@ function createNoopProvider(): TaskSyncProvider {
     onEditText: () => Promise.resolve(),
     onDeleteTask: () => Promise.resolve(),
     moveTaskToMilestone: () => Promise.resolve(),
+    reorderTask: () => Promise.resolve(),
     createMilestone: () => Promise.resolve(),
     onSync: () => Promise.resolve({ added: 0, updated: 0, deleted: 0 }),
     cycleStatus: () => 'todo',

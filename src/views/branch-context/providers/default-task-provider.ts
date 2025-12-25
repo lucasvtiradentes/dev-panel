@@ -290,6 +290,87 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     fs.writeFileSync(context.markdownPath, lines.join('\n'));
   }
 
+  async reorderTask(
+    taskLineIndex: number,
+    targetLineIndex: number,
+    position: 'before' | 'after',
+    context: SyncContext,
+  ): Promise<void> {
+    if (!fs.existsSync(context.markdownPath)) return;
+    if (taskLineIndex === targetLineIndex) return;
+
+    const content = fs.readFileSync(context.markdownPath, 'utf-8');
+    const lines = content.split('\n');
+
+    const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+    if (todoSectionIndex === -1) return;
+
+    const nextSectionIndex = lines.findIndex((l, i) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
+    const sectionEndIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
+
+    const actualTaskIndex = todoSectionIndex + 1 + taskLineIndex + 1;
+    const actualTargetIndex = todoSectionIndex + 1 + targetLineIndex + 1;
+
+    if (actualTaskIndex >= sectionEndIndex || actualTargetIndex >= sectionEndIndex) return;
+
+    const taskLine = lines[actualTaskIndex];
+    const taskMatch = taskLine.match(TASK_ITEM_PATTERN);
+    if (!taskMatch) return;
+
+    const taskIndent = Math.floor(taskMatch[1].length / 2);
+    let taskEndIndex = actualTaskIndex + 1;
+    for (let i = actualTaskIndex + 1; i < sectionEndIndex; i++) {
+      const match = lines[i].match(TASK_ITEM_PATTERN);
+      if (!match) {
+        if (lines[i].trim() === '' || MILESTONE_HEADER_PATTERN.test(lines[i])) break;
+        continue;
+      }
+      const lineIndent = Math.floor(match[1].length / 2);
+      if (lineIndent <= taskIndent) break;
+      taskEndIndex = i + 1;
+    }
+
+    const taskLines = lines.splice(actualTaskIndex, taskEndIndex - actualTaskIndex);
+
+    let newTargetIndex = actualTargetIndex;
+    if (actualTargetIndex > actualTaskIndex) {
+      newTargetIndex -= taskLines.length;
+    }
+
+    const targetLine = lines[newTargetIndex];
+    const targetMatch = targetLine?.match(TASK_ITEM_PATTERN);
+    if (!targetMatch) return;
+
+    const targetIndent = Math.floor(targetMatch[1].length / 2);
+    let targetEndIndex = newTargetIndex + 1;
+    for (let i = newTargetIndex + 1; i < lines.length; i++) {
+      const match = lines[i].match(TASK_ITEM_PATTERN);
+      if (!match) {
+        if (lines[i].trim() === '' || MILESTONE_HEADER_PATTERN.test(lines[i])) break;
+        continue;
+      }
+      const lineIndent = Math.floor(match[1].length / 2);
+      if (lineIndent <= targetIndent) break;
+      targetEndIndex = i + 1;
+    }
+
+    const indentDiff = targetIndent - taskIndent;
+    const adjustedTaskLines = taskLines.map((line) => {
+      const match = line.match(TASK_ITEM_PATTERN);
+      if (!match) return line;
+
+      const currentIndentSpaces = match[1].length;
+      const newIndentSpaces = Math.max(0, currentIndentSpaces + indentDiff * 2);
+      const newIndent = '  '.repeat(newIndentSpaces / 2);
+      return line.replace(/^(\s*)/, newIndent);
+    });
+
+    const insertIndex = position === 'before' ? newTargetIndex : targetEndIndex;
+    lines.splice(insertIndex, 0, ...adjustedTaskLines);
+
+    fs.writeFileSync(context.markdownPath, lines.join('\n'));
+  }
+
   private fromMarkdownWithOffset(content: string, lineIndexBase: number): TaskNode[] {
     const lines = content.split('\n');
     const rootNodes: TaskNode[] = [];

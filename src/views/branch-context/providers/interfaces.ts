@@ -68,6 +68,13 @@ export type TaskSyncProvider = {
 
   moveTaskToMilestone(taskLineIndex: number, targetMilestoneName: string | null, context: SyncContext): Promise<void>;
 
+  reorderTask(
+    taskLineIndex: number,
+    targetLineIndex: number,
+    position: 'before' | 'after',
+    context: SyncContext,
+  ): Promise<void>;
+
   createMilestone(name: string, context: SyncContext): Promise<void>;
 
   onSync(context: SyncContext): Promise<SyncResult>;

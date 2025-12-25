@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import * as vscode from 'vscode';
 import {
   CONTEXT_VALUES,
+  DND_MIME_TYPE_BRANCH_TASKS,
   EMPTY_TASKS_MESSAGE,
   FILE_WATCHER_DEBOUNCE_MS,
   NO_PENDING_TASKS_MESSAGE,
@@ -60,6 +61,64 @@ export class BranchTaskItem extends vscode.TreeItem {
 }
 
 export const NO_MILESTONE_NAME = 'No Milestone';
+
+type DragData = {
+  type: 'task' | 'milestone';
+  lineIndex: number;
+  milestoneName?: string;
+};
+
+export class BranchTasksDragAndDropController implements vscode.TreeDragAndDropController<BranchTreeItem> {
+  readonly dropMimeTypes = [DND_MIME_TYPE_BRANCH_TASKS];
+  readonly dragMimeTypes = [DND_MIME_TYPE_BRANCH_TASKS];
+
+  constructor(private readonly provider: BranchTasksProvider) {}
+
+  handleDrag(
+    source: readonly BranchTreeItem[],
+    dataTransfer: vscode.DataTransfer,
+    _token: vscode.CancellationToken,
+  ): void {
+    const item = source[0];
+    if (!item || !(item instanceof BranchTaskItem)) return;
+
+    const data: DragData = {
+      type: 'task',
+      lineIndex: item.node.lineIndex,
+      milestoneName: this.provider.findMilestoneForTask(item.node.lineIndex),
+    };
+    dataTransfer.set(DND_MIME_TYPE_BRANCH_TASKS, new vscode.DataTransferItem(JSON.stringify(data)));
+  }
+
+  async handleDrop(
+    target: BranchTreeItem | undefined,
+    dataTransfer: vscode.DataTransfer,
+    _token: vscode.CancellationToken,
+  ): Promise<void> {
+    const transferItem = dataTransfer.get(DND_MIME_TYPE_BRANCH_TASKS);
+    if (!transferItem || !target) return;
+
+    const dragData = JSON.parse(transferItem.value as string) as DragData;
+    if (dragData.type !== 'task') return;
+
+    if (target instanceof BranchMilestoneItem) {
+      const targetMilestone = target.isNoMilestone ? null : target.milestone.name;
+      if (dragData.milestoneName !== targetMilestone) {
+        await this.provider.moveTaskToMilestone(dragData.lineIndex, targetMilestone);
+      }
+    } else if (target instanceof BranchTaskItem) {
+      const targetMilestone = this.provider.findMilestoneForTask(target.node.lineIndex);
+
+      if (dragData.milestoneName !== targetMilestone) {
+        await this.provider.moveTaskToMilestone(dragData.lineIndex, targetMilestone ?? null);
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        this.provider.refresh();
+      } else {
+        await this.provider.reorderTask(dragData.lineIndex, target.node.lineIndex);
+      }
+    }
+  }
+}
 
 export class BranchMilestoneItem extends vscode.TreeItem {
   constructor(
@@ -591,6 +650,39 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
 
     await this.taskProvider.createMilestone(name, syncContext);
     this.refresh();
+  }
+
+  async reorderTask(taskLineIndex: number, targetLineIndex: number): Promise<void> {
+    const syncContext = this.getSyncContext();
+    if (!syncContext) return;
+
+    const position = taskLineIndex < targetLineIndex ? 'after' : 'before';
+    await this.taskProvider.reorderTask(taskLineIndex, targetLineIndex, position, syncContext);
+    this.refresh();
+  }
+
+  findMilestoneForTask(lineIndex: number): string | undefined {
+    for (const milestone of this.cachedMilestones) {
+      const found = this.findTaskInNodes(milestone.tasks, lineIndex);
+      if (found) return milestone.name;
+    }
+
+    const foundInOrphan = this.findTaskInNodes(this.cachedOrphanTasks, lineIndex);
+    if (foundInOrphan) return undefined;
+
+    return undefined;
+  }
+
+  private findTaskInNodes(nodes: TaskNode[], lineIndex: number): boolean {
+    for (const node of nodes) {
+      if (node.lineIndex === lineIndex) return true;
+      if (this.findTaskInNodes(node.children, lineIndex)) return true;
+    }
+    return false;
+  }
+
+  get dragAndDropController(): BranchTasksDragAndDropController {
+    return new BranchTasksDragAndDropController(this);
   }
 
   dispose(): void {

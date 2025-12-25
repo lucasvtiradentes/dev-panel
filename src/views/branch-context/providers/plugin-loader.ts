@@ -189,6 +189,15 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       throw new Error('Move task to milestone not supported by plugin providers');
     },
 
+    async reorderTask(
+      _taskLineIndex: number,
+      _targetLineIndex: number,
+      _position: 'before' | 'after',
+      _context: SyncContext,
+    ): Promise<void> {
+      throw new Error('Reorder task not supported by plugin providers');
+    },
+
     async createMilestone(_name: string, _context: SyncContext): Promise<void> {
       throw new Error('Create milestone not supported by plugin providers');
     },

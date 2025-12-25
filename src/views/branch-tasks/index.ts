@@ -1,1 +1,7 @@
-export { BranchMilestoneItem, BranchTaskItem, BranchTasksProvider, NO_MILESTONE_NAME } from './provider';
+export {
+  BranchMilestoneItem,
+  BranchTaskItem,
+  BranchTasksDragAndDropController,
+  BranchTasksProvider,
+  NO_MILESTONE_NAME,
+} from './provider';
