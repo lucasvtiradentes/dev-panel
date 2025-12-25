@@ -47,12 +47,19 @@ export type SyncResult = {
   conflicts?: { taskId: string; reason: string }[];
 };
 
+export type TaskStats = {
+  completed: number;
+  total: number;
+};
+
 export type TaskSyncProvider = {
   fromMarkdown(content: string): TaskNode[];
 
   toMarkdown(tasks: TaskNode[]): string;
 
   getTasks(context: SyncContext): Promise<TaskNode[]>;
+
+  getTaskStats(context: SyncContext): Promise<TaskStats>;
 
   getMilestones(context: SyncContext): Promise<{ orphanTasks: TaskNode[]; milestones: MilestoneNode[] }>;
 

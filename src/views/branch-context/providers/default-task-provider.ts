@@ -108,6 +108,27 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     return this.fromMarkdown(taskContent);
   }
 
+  async getTaskStats(context: SyncContext): Promise<{ completed: number; total: number }> {
+    const tasks = await this.getTasks(context);
+    return this.countTaskStats(tasks);
+  }
+
+  private countTaskStats(nodes: TaskNode[]): { completed: number; total: number } {
+    let completed = 0;
+    let total = 0;
+
+    for (const node of nodes) {
+      total++;
+      if (node.status === 'done') completed++;
+
+      const childStats = this.countTaskStats(node.children);
+      completed += childStats.completed;
+      total += childStats.total;
+    }
+
+    return { completed, total };
+  }
+
   async getMilestones(context: SyncContext): Promise<{ orphanTasks: TaskNode[]; milestones: MilestoneNode[] }> {
     if (!fs.existsSync(context.markdownPath)) {
       return { orphanTasks: [], milestones: [] };

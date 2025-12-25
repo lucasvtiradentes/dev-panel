@@ -7,6 +7,7 @@ import {
   SECTION_LABEL_OBJECTIVE,
   SECTION_LABEL_PR_LINK,
   SECTION_LABEL_REQUIREMENTS,
+  SECTION_LABEL_TASKS,
   SECTION_NAME_BRANCH,
   SECTION_NAME_CHANGED_FILES,
   SECTION_NAME_LINEAR_LINK,
@@ -14,6 +15,7 @@ import {
   SECTION_NAME_OBJECTIVE,
   SECTION_NAME_PR_LINK,
   SECTION_NAME_REQUIREMENTS,
+  SECTION_NAME_TASKS,
 } from '../../common/constants';
 import { createLogger } from '../../common/lib/logger';
 import { Command } from '../../common/lib/vscode-utils';
@@ -108,6 +110,16 @@ export class SectionRegistry {
       isBuiltin: true,
       command: Command.EditBranchNotes,
     });
+
+    if (config?.builtinSections?.tasks !== false) {
+      this.register({
+        name: SECTION_NAME_TASKS,
+        label: SECTION_LABEL_TASKS,
+        type: 'text',
+        icon: 'tasklist',
+        isBuiltin: true,
+      });
+    }
 
     if (showChangedFiles !== false) {
       if (typeof showChangedFiles === 'object' && showChangedFiles.provider) {

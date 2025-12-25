@@ -34,6 +34,7 @@ function createNoopProvider(): TaskSyncProvider {
     fromMarkdown: () => [],
     toMarkdown: () => '',
     getTasks: () => Promise.resolve([]),
+    getTaskStats: () => Promise.resolve({ completed: 0, total: 0 }),
     getMilestones: () => Promise.resolve({ orphanTasks: [], milestones: [] }),
     onStatusChange: () => Promise.resolve(),
     onCreateTask: () => Promise.resolve({ text: '', status: 'todo', lineIndex: -1, children: [], meta: {} }),

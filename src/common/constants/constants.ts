@@ -52,6 +52,7 @@ export const SECTION_LABEL_LINEAR_LINK = 'Linear link';
 export const SECTION_LABEL_OBJECTIVE = 'Objective';
 export const SECTION_LABEL_REQUIREMENTS = 'Requirements';
 export const SECTION_LABEL_NOTES = 'Notes';
+export const SECTION_LABEL_TASKS = 'Tasks';
 export const SECTION_LABEL_CHANGED_FILES = 'Changed files';
 
 export const TASK_STATUS_MARKERS = {

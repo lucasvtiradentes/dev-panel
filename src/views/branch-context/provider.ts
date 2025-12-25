@@ -17,6 +17,7 @@ import {
   SECTION_NAME_OBJECTIVE,
   SECTION_NAME_PR_LINK,
   SECTION_NAME_REQUIREMENTS,
+  SECTION_NAME_TASKS,
   SYNC_DEBOUNCE_MS,
   WRITING_MARKDOWN_TIMEOUT_MS,
 } from '../../common/constants';
@@ -46,7 +47,7 @@ import { formatChangedFilesSummary, getChangedFilesWithSummary } from './git-cha
 import { SectionItem } from './items';
 import { generateBranchContextMarkdown } from './markdown-generator';
 import { getFieldLineNumber } from './markdown-parser';
-import type { SyncContext } from './providers';
+import { type SyncContext, type TaskSyncProvider, createTaskProvider } from './providers';
 import { SectionRegistry } from './section-registry';
 import { loadBranchContext } from './state';
 import { ValidationIndicator } from './validation-indicator';
@@ -72,9 +73,14 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   private configHashCache: string | null = null;
   private configCache = new SimpleCache<PPConfig | null>(CONFIG_CACHE_TTL_MS);
   private lastSyncTimestamp: string | null = null;
+  private taskProvider: TaskSyncProvider;
 
   constructor() {
     this.validationIndicator = new ValidationIndicator();
+    const workspace = getFirstWorkspacePath();
+    const config = workspace ? loadWorkspaceConfigFromPath(workspace) : null;
+    const tasksConfig = config?.branchContext?.builtinSections?.tasks;
+    this.taskProvider = createTaskProvider(tasksConfig, workspace ?? undefined);
     this.setupMarkdownWatcher();
     this.setupRootMarkdownWatcher();
     this.setupTemplateWatcher();
@@ -364,9 +370,19 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       changedFilesValue = formatChangedFilesSummary(summary);
     }
 
+    const markdownPath = getBranchContextFilePathUtil(workspace, this.currentBranch);
+    const syncContext: SyncContext = {
+      branchName: this.currentBranch,
+      workspacePath: workspace,
+      markdownPath,
+      branchContext: context,
+    };
+    const taskStats = await this.taskProvider.getTaskStats(syncContext);
+    const tasksValue = taskStats.total > 0 ? `${taskStats.completed}/${taskStats.total}` : undefined;
+
     const items: vscode.TreeItem[] = [];
     for (const section of registry.getAllSections()) {
-      const value = this.getSectionValue(context, section.name, this.currentBranch, changedFilesValue);
+      const value = this.getSectionValue(context, section.name, this.currentBranch, changedFilesValue, tasksValue);
       const sectionMetadata = context.metadata?.sections?.[section.name];
 
       if (hideEmpty && this.isSectionEmpty(value, section.type, sectionMetadata)) {
@@ -380,8 +396,9 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   private isSectionEmpty(value: string | undefined, sectionType: string, metadata?: Record<string, unknown>): boolean {
-    if (sectionType === 'auto' && metadata) {
-      return metadata[METADATA_FIELD_IS_EMPTY] === true;
+    if (sectionType === 'auto') {
+      if (metadata && metadata[METADATA_FIELD_IS_EMPTY] === true) return true;
+      return false;
     }
 
     if (!value) return true;
@@ -395,6 +412,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     sectionName: string,
     currentBranch: string,
     changedFilesValue?: string,
+    tasksValue?: string,
   ): string | undefined {
     const valueMap: Record<string, string | undefined> = {
       [SECTION_NAME_BRANCH]: currentBranch,
@@ -403,6 +421,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       [SECTION_NAME_OBJECTIVE]: context.objective as string | undefined,
       [SECTION_NAME_REQUIREMENTS]: context.requirements as string | undefined,
       [SECTION_NAME_NOTES]: context.notes as string | undefined,
+      [SECTION_NAME_TASKS]: tasksValue,
       [SECTION_NAME_CHANGED_FILES]: changedFilesValue,
     };
 

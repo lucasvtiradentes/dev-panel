@@ -135,6 +135,10 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       return response.tasks;
     },
 
+    async getTaskStats(_context: SyncContext): Promise<{ completed: number; total: number }> {
+      return { completed: 0, total: 0 };
+    },
+
     async onStatusChange(lineIndex: number, newStatus: TaskStatus, context: SyncContext): Promise<void> {
       const payload: SetStatusPayload = { lineIndex, newStatus };
       const response = await executePlugin<SetStatusResponse>('setStatus', context, payload);

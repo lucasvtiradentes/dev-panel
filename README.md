@@ -45,6 +45,8 @@
 
 - [ ] botao de IA para a gente preencher os dados do markdown com ia 
 - [ ] adicionar inline link para abrir issue do linear
+- [ ] mudar linear issue para linea info 
+- [ ] mudar github comments para github info
 
 ## NAME 
 
