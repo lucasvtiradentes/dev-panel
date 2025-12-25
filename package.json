@@ -437,12 +437,12 @@
       {
         "command": "projectPanel.toggleBranchTasksShowOnlyTodo",
         "title": "Show Only Pending Tasks",
-        "icon": "$(filter)"
+        "icon": "$(checklist)"
       },
       {
         "command": "projectPanel.toggleBranchTasksShowOnlyTodoActive",
         "title": "Show All Tasks",
-        "icon": "$(clear-all)"
+        "icon": "$(check-all)"
       },
       {
         "command": "projectPanel.toggleBranchTasksGroupMode",
