@@ -85,7 +85,11 @@ function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscod
       newExecution,
       task.problemMatchers,
     );
-  } else if (execution instanceof vscode.ProcessExecution) {
+    newTask.presentationOptions = task.presentationOptions;
+    return newTask;
+  }
+
+  if (execution instanceof vscode.ProcessExecution) {
     const mergedEnv = { ...execution.options?.env, ...env };
     const newExecution = new vscode.ProcessExecution(execution.process, execution.args, {
       ...execution.options,
@@ -100,12 +104,11 @@ function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscod
       newExecution,
       task.problemMatchers,
     );
-  } else {
-    return task;
+    newTask.presentationOptions = task.presentationOptions;
+    return newTask;
   }
 
-  newTask.presentationOptions = task.presentationOptions;
-  return newTask;
+  return task;
 }
 
 export function createExecuteTaskCommand(context: vscode.ExtensionContext) {

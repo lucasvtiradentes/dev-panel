@@ -50,31 +50,32 @@ async function handleDeleteTask(treeTask: TreeTask): Promise<void> {
 
     saveGlobalConfig(globalConfig);
     showDeleteSuccessMessage('task', taskName, true);
-  } else {
-    const workspaceFolder = requireWorkspaceFolder();
-    if (!workspaceFolder) return;
-
-    const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
-    if (!workspaceConfig) {
-      showConfigNotFoundError('workspace');
-      return;
-    }
-
-    if (!workspaceConfig.tasks?.length) {
-      showNoItemsFoundError('task', 'workspace');
-      return;
-    }
-
-    const removed = removeConfigItem(workspaceConfig, 'tasks', taskName);
-    if (!removed) {
-      showNotFoundError('Task', taskName, 'workspace');
-      return;
-    }
-
-    saveWorkspaceConfig(workspaceFolder, workspaceConfig);
-    showDeleteSuccessMessage('task', taskName, false);
+    void executeCommand(Command.Refresh);
+    return;
   }
 
+  const workspaceFolder = requireWorkspaceFolder();
+  if (!workspaceFolder) return;
+
+  const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
+  if (!workspaceConfig) {
+    showConfigNotFoundError('workspace');
+    return;
+  }
+
+  if (!workspaceConfig.tasks?.length) {
+    showNoItemsFoundError('task', 'workspace');
+    return;
+  }
+
+  const removed = removeConfigItem(workspaceConfig, 'tasks', taskName);
+  if (!removed) {
+    showNotFoundError('Task', taskName, 'workspace');
+    return;
+  }
+
+  saveWorkspaceConfig(workspaceFolder, workspaceConfig);
+  showDeleteSuccessMessage('task', taskName, false);
   void executeCommand(Command.Refresh);
 }
 

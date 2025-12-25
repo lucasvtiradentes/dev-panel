@@ -260,13 +260,14 @@ export async function selectVariableOption(variable: VariableItem): Promise<void
         });
         if (!selected) return;
         newValue = selected.map((s) => s.label);
-      } else {
-        const selected = await vscode.window.showQuickPick(variable.options || [], {
-          placeHolder: `Select ${variable.name}`,
-        });
-        if (!selected) return;
-        newValue = selected;
+        break;
       }
+
+      const selected = await vscode.window.showQuickPick(variable.options || [], {
+        placeHolder: `Select ${variable.name}`,
+      });
+      if (!selected) return;
+      newValue = selected;
       break;
     }
 

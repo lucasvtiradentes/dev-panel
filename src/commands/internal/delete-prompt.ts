@@ -61,37 +61,38 @@ async function handleDeletePrompt(treePrompt: TreePrompt): Promise<void> {
     }
 
     showDeleteSuccessMessage('prompt', promptName, true);
-  } else {
-    const workspaceFolder = requireWorkspaceFolder();
-    if (!workspaceFolder) return;
-
-    const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
-    if (!workspaceConfig) {
-      showConfigNotFoundError('workspace');
-      return;
-    }
-
-    if (!workspaceConfig.prompts?.length) {
-      showNoItemsFoundError('prompt', 'workspace');
-      return;
-    }
-
-    const removed = removeConfigItem(workspaceConfig, 'prompts', promptName) as DevPanelPrompt | null;
-    if (!removed) {
-      showNotFoundError('Prompt', promptName, 'workspace');
-      return;
-    }
-
-    saveWorkspaceConfig(workspaceFolder, workspaceConfig);
-
-    const workspacePromptFile = joinConfigPath(workspaceFolder, removed.file);
-    if (fs.existsSync(workspacePromptFile)) {
-      fs.rmSync(workspacePromptFile);
-    }
-
-    showDeleteSuccessMessage('prompt', promptName, false);
+    void executeCommand(Command.RefreshPrompts);
+    return;
   }
 
+  const workspaceFolder = requireWorkspaceFolder();
+  if (!workspaceFolder) return;
+
+  const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
+  if (!workspaceConfig) {
+    showConfigNotFoundError('workspace');
+    return;
+  }
+
+  if (!workspaceConfig.prompts?.length) {
+    showNoItemsFoundError('prompt', 'workspace');
+    return;
+  }
+
+  const removed = removeConfigItem(workspaceConfig, 'prompts', promptName) as DevPanelPrompt | null;
+  if (!removed) {
+    showNotFoundError('Prompt', promptName, 'workspace');
+    return;
+  }
+
+  saveWorkspaceConfig(workspaceFolder, workspaceConfig);
+
+  const workspacePromptFile = joinConfigPath(workspaceFolder, removed.file);
+  if (fs.existsSync(workspacePromptFile)) {
+    fs.rmSync(workspacePromptFile);
+  }
+
+  showDeleteSuccessMessage('prompt', promptName, false);
   void executeCommand(Command.RefreshPrompts);
 }
 

@@ -175,9 +175,10 @@ export function createBranchTaskCommands(provider: BranchTasksProvider): vscode.
         if (!name) return;
         await provider.createMilestone(name);
         await provider.moveTaskToMilestone(lineIndex, name);
-      } else {
-        await provider.moveTaskToMilestone(lineIndex, picked.value);
+        return;
       }
+
+      await provider.moveTaskToMilestone(lineIndex, picked.value);
     }),
   ];
 }

@@ -60,38 +60,39 @@ async function handleDeleteTool(treeTool: TreeTool): Promise<void> {
     }
 
     showDeleteSuccessMessage('tool', toolName, true);
-  } else {
-    const workspaceFolder = requireWorkspaceFolder();
-    if (!workspaceFolder) return;
-
-    const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
-    if (!workspaceConfig) {
-      showConfigNotFoundError('workspace');
-      return;
-    }
-
-    if (!workspaceConfig.tools?.length) {
-      showNoItemsFoundError('tool', 'workspace');
-      return;
-    }
-
-    const removed = removeConfigItem(workspaceConfig, 'tools', toolName);
-    if (!removed) {
-      showNotFoundError('Tool', toolName, 'workspace');
-      return;
-    }
-
-    saveWorkspaceConfig(workspaceFolder, workspaceConfig);
-
-    const workspaceConfigDirPath = getWorkspaceConfigDirPath(workspaceFolder);
-    const workspaceToolsDir = path.join(workspaceConfigDirPath, TOOLS_DIR, toolName);
-    if (fs.existsSync(workspaceToolsDir)) {
-      fs.rmSync(workspaceToolsDir, { recursive: true });
-    }
-
-    showDeleteSuccessMessage('tool', toolName, false);
+    void executeCommand(Command.RefreshTools);
+    return;
   }
 
+  const workspaceFolder = requireWorkspaceFolder();
+  if (!workspaceFolder) return;
+
+  const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
+  if (!workspaceConfig) {
+    showConfigNotFoundError('workspace');
+    return;
+  }
+
+  if (!workspaceConfig.tools?.length) {
+    showNoItemsFoundError('tool', 'workspace');
+    return;
+  }
+
+  const removed = removeConfigItem(workspaceConfig, 'tools', toolName);
+  if (!removed) {
+    showNotFoundError('Tool', toolName, 'workspace');
+    return;
+  }
+
+  saveWorkspaceConfig(workspaceFolder, workspaceConfig);
+
+  const workspaceConfigDirPath = getWorkspaceConfigDirPath(workspaceFolder);
+  const workspaceToolsDir = path.join(workspaceConfigDirPath, TOOLS_DIR, toolName);
+  if (fs.existsSync(workspaceToolsDir)) {
+    fs.rmSync(workspaceToolsDir, { recursive: true });
+  }
+
+  showDeleteSuccessMessage('tool', toolName, false);
   void executeCommand(Command.RefreshTools);
 }
 
