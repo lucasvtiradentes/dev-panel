@@ -106,18 +106,6 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     );
   }
 
-  protected getHiddenItems(): string[] {
-    const workspaceHidden = this.stateManager.getHiddenItems();
-    const globalHidden = globalToolsState.getSourceState().hidden.map((name) => `${GLOBAL_ITEM_PREFIX}${name}`);
-    return [...workspaceHidden, ...globalHidden];
-  }
-
-  protected getFavoriteItems(): string[] {
-    const workspaceFavorites = this.stateManager.getFavoriteItems();
-    const globalFavorites = globalToolsState.getSourceState().favorites.map((name) => `${GLOBAL_ITEM_PREFIX}${name}`);
-    return [...workspaceFavorites, ...globalFavorites];
-  }
-
   public async getChildren(item?: TreeTool | ToolGroupTreeItem): Promise<Array<TreeTool | ToolGroupTreeItem>> {
     if (item instanceof ToolGroupTreeItem) {
       return this.sortElements(item.children);

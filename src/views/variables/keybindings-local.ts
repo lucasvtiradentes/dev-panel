@@ -1,37 +1,18 @@
 import * as vscode from 'vscode';
-import { CONTEXT_PREFIX, getVariableCommandId, getVariableCommandPrefix } from '../../common/constants';
+import { getVariableCommandId, getVariableCommandPrefix } from '../../common/constants';
 import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
-import { type VSCodeKeybinding, loadKeybindings } from '../../common/lib/vscode-keybindings-utils';
-import { Command, executeCommand, getWorkspaceId } from '../../common/lib/vscode-utils';
+import { Command, executeCommand } from '../../common/lib/vscode-utils';
+import { KeybindingManager } from '../common';
 
-function matchesWorkspace(kb: VSCodeKeybinding): boolean {
-  const workspaceId = getWorkspaceId();
-  if (!workspaceId) return !kb.when;
-  return kb.when?.includes(`${CONTEXT_PREFIX}.workspaceId == '${workspaceId}'`) ?? false;
-}
+const manager = new KeybindingManager({
+  commandPrefix: getVariableCommandPrefix(),
+  getCommandId: getVariableCommandId,
+});
 
-export function getVariableKeybinding(variableName: string): string | undefined {
-  const keybindings = loadKeybindings();
-  const commandId = getVariableCommandId(variableName);
-  const binding = keybindings.find((kb) => kb.command === commandId && matchesWorkspace(kb));
-  return binding?.key;
-}
-
-export function getAllVariableKeybindings(): Record<string, string> {
-  const keybindings = loadKeybindings();
-  const variableKeybindings: Record<string, string> = {};
-  const commandPrefix = getVariableCommandPrefix();
-
-  for (const kb of keybindings) {
-    if (kb.command.startsWith(`${commandPrefix}.`) && matchesWorkspace(kb)) {
-      const variableName = kb.command.replace(`${commandPrefix}.`, '');
-      variableKeybindings[variableName] = kb.key;
-    }
-  }
-
-  return variableKeybindings;
-}
+export const getVariableKeybinding = (name: string) => manager.getKeybinding(name);
+export const getAllVariableKeybindings = () => manager.getAllKeybindings();
+export const reloadVariableKeybindings = () => manager.reload();
 
 export function registerVariableKeybindings(context: vscode.ExtensionContext): void {
   forEachWorkspaceConfig((_folder, config) => {

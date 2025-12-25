@@ -70,23 +70,39 @@ export abstract class BaseTreeDataProvider<
   }
 
   protected getHiddenItems(): string[] {
+    let workspaceHidden: string[] = [];
     if (this.isSimpleStateManager(this.stateManager)) {
-      return this.stateManager.getHiddenItems();
+      workspaceHidden = this.stateManager.getHiddenItems();
+    } else if (this.getSource) {
+      workspaceHidden = this.stateManager.getHiddenItems(this.getSource());
     }
-    if (this.getSource) {
-      return this.stateManager.getHiddenItems(this.getSource());
+
+    if (this.globalStateManager) {
+      const globalHidden = this.globalStateManager
+        .getSourceState()
+        .hidden.map((name) => `${GLOBAL_ITEM_PREFIX}${name}`);
+      return [...workspaceHidden, ...globalHidden];
     }
-    return [];
+
+    return workspaceHidden;
   }
 
   protected getFavoriteItems(): string[] {
+    let workspaceFavorites: string[] = [];
     if (this.isSimpleStateManager(this.stateManager)) {
-      return this.stateManager.getFavoriteItems();
+      workspaceFavorites = this.stateManager.getFavoriteItems();
+    } else if (this.getSource) {
+      workspaceFavorites = this.stateManager.getFavoriteItems(this.getSource());
     }
-    if (this.getSource) {
-      return this.stateManager.getFavoriteItems(this.getSource());
+
+    if (this.globalStateManager) {
+      const globalFavorites = this.globalStateManager
+        .getSourceState()
+        .favorites.map((name) => `${GLOBAL_ITEM_PREFIX}${name}`);
+      return [...workspaceFavorites, ...globalFavorites];
     }
-    return [];
+
+    return workspaceFavorites;
   }
 
   toggleGroupMode(): void {

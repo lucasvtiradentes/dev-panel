@@ -56,18 +56,6 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     );
   }
 
-  protected getHiddenItems(): string[] {
-    const workspaceHidden = this.stateManager.getHiddenItems();
-    const globalHidden = globalPromptsState.getSourceState().hidden.map((name) => `${GLOBAL_ITEM_PREFIX}${name}`);
-    return [...workspaceHidden, ...globalHidden];
-  }
-
-  protected getFavoriteItems(): string[] {
-    const workspaceFavorites = this.stateManager.getFavoriteItems();
-    const globalFavorites = globalPromptsState.getSourceState().favorites.map((name) => `${GLOBAL_ITEM_PREFIX}${name}`);
-    return [...workspaceFavorites, ...globalFavorites];
-  }
-
   public async getChildren(item?: TreePrompt | PromptGroupTreeItem): Promise<Array<TreePrompt | PromptGroupTreeItem>> {
     if (item instanceof PromptGroupTreeItem) {
       return this.sortElements(item.children);
