@@ -1136,6 +1136,12 @@
       {
         "type": "util"
       }
+    ],
+    "jsonValidation": [
+      {
+        "fileMatch": "**/.pp/config.jsonc",
+        "url": "./resources/schema.json"
+      }
     ]
   }
 }

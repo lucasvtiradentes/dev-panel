@@ -1,0 +1,50 @@
+{
+  "settings": {
+    "aiProvider": "claude",
+    "exclude": [
+      "**/.pp/**",
+      "**/node_modules/**",
+      "**/.git/**",
+      "**/dist/**",
+      "**/out/**"
+    ]
+  },
+  "variables": [
+    {
+      "name": "environment",
+      "kind": "choose",
+      "options": ["dev", "staging", "prod"],
+      "description": "Select target environment",
+      "default": "dev"
+    }
+  ],
+  "replacements": [
+    {
+      "name": "enable-debug",
+      "type": "patch",
+      "description": "Enable debug mode",
+      "target": "src/index.ts",
+      "patches": [
+        {
+          "search": "const DEBUG = false;",
+          "replace": "const DEBUG = true;"
+        }
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "name": "hello",
+      "command": "echo 'Hello from Project Panel!'",
+      "group": "Utils"
+    }
+  ],
+  "tools": [],
+  "prompts": [
+    {
+      "name": "code-review",
+      "file": "prompts/code-review.md",
+      "description": "Review code changes in current branch"
+    }
+  ]
+}

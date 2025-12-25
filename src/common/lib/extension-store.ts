@@ -30,6 +30,10 @@ class ExtensionStore {
     this.state[StoreKey.ConfigDir] = stored ?? null;
   }
 
+  getExtensionUri(): vscode.Uri | null {
+    return this.context?.extensionUri ?? null;
+  }
+
   get<K extends StoreKey>(key: K): ExtensionState[K] {
     return this.state[key];
   }
