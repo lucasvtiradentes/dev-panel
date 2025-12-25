@@ -34,14 +34,10 @@ export function getBranchContextFilePath(branchName: string): string | null {
   return getBranchContextFilePathUtil(workspace, branchName);
 }
 
-export function getFieldLineNumber(branchName: string, fieldName: string): number {
-  const workspace = getFirstWorkspacePath();
-  if (!workspace) return 0;
+export function getFieldLineNumber(filePath: string, fieldName: string): number {
+  if (!fs.existsSync(filePath)) return 0;
 
-  const mdPath = getBranchContextFilePathUtil(workspace, branchName);
-  if (!fs.existsSync(mdPath)) return 0;
-
-  const content = fs.readFileSync(mdPath, 'utf-8');
+  const content = fs.readFileSync(filePath, 'utf-8');
   const lines = content.split('\n');
 
   for (let i = 0; i < lines.length; i++) {

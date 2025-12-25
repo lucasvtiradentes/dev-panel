@@ -36,11 +36,6 @@
 
 - [ ] modificar a db-query para todas as queries serem salvas em um .md com query e response para a gente ter um tracking disso e poder marcar
 
-## INIT 
-
-- [ ] corrigir o extension para nao auto-criar as coisas, fazer isso so se o cara rodar o init 
-- [ ] corrigir o init para criar o branch-context-template
-
 ## PLUGINS
 
 - [ ] adicionar um plugin para gerir tarefas no lineear 
@@ -54,6 +49,11 @@
   - tools
   - scripts
   - plugins
+
+## INIT 
+
+- [ ] corrigir o extension para nao auto-criar as coisas, fazer isso so se o cara rodar o init 
+- [ ] corrigir o init para criar o branch-context-template
 
 ## TASKS
 

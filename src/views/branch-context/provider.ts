@@ -44,7 +44,7 @@ import { validateBranchContext } from './config-validator';
 import { formatChangedFilesSummary, getChangedFilesWithSummary } from './git-changed-files';
 import { SectionItem } from './items';
 import { generateBranchContextMarkdown } from './markdown-generator';
-import { getBranchContextFilePath, getFieldLineNumber } from './markdown-parser';
+import { getFieldLineNumber } from './markdown-parser';
 import type { SyncContext } from './providers';
 import { SectionRegistry } from './section-registry';
 import { loadBranchContext } from './state';
@@ -464,10 +464,11 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   async openMarkdownFileAtLine(fieldName: string): Promise<void> {
-    const filePath = getBranchContextFilePath(this.currentBranch);
-    if (!filePath) return;
+    const workspace = getFirstWorkspacePath();
+    if (!workspace) return;
 
-    const lineNumber = getFieldLineNumber(this.currentBranch, fieldName);
+    const filePath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
+    const lineNumber = getFieldLineNumber(filePath, fieldName);
     const uri = vscode.Uri.file(filePath);
     const doc = await vscode.workspace.openTextDocument(uri);
     await vscode.window.showTextDocument(doc, {
