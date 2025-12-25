@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { GLOBAL_ITEM_PREFIX, TOOLS_DIR, TOOL_INSTRUCTIONS_FILE, getGlobalConfigDir } from '../../common/constants';
 import { joinConfigPath } from '../../common/lib/config-manager';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
+import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
 import type { TreeTool } from '../../views/tools';
 
 export type GoToToolFileParams = TreeTool;
@@ -17,7 +18,7 @@ export function createGoToToolFileCommand(): vscode.Disposable {
         const globalConfigDir = getGlobalConfigDir();
         instructionsPath = `${globalConfigDir}/${TOOLS_DIR}/${toolName}/${TOOL_INSTRUCTIONS_FILE}`;
       } else {
-        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        const workspaceFolder = getFirstWorkspaceFolder();
         if (!workspaceFolder) return;
         instructionsPath = joinConfigPath(workspaceFolder, TOOLS_DIR, toolName, TOOL_INSTRUCTIONS_FILE);
       }

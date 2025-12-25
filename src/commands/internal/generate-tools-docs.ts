@@ -17,6 +17,7 @@ import { getWorkspaceConfigDirPath, loadGlobalConfig, loadWorkspaceConfig } from
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas';
+import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 
 type ToolInstruction = {
   id: string;
@@ -357,11 +358,8 @@ function syncToAiSpecs(xml: string, workspaceFolder: vscode.WorkspaceFolder): vo
 }
 
 async function handleGenerateToolsDocs(): Promise<void> {
-  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-  if (!workspaceFolder) {
-    vscode.window.showErrorMessage('No workspace folder found');
-    return;
-  }
+  const workspaceFolder = requireWorkspaceFolder();
+  if (!workspaceFolder) return;
 
   const skillsCount = await syncToSkills(workspaceFolder);
   const xml = generateToolsXml(workspaceFolder);

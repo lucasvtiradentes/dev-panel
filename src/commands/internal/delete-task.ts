@@ -1,54 +1,80 @@
-import * as fs from 'node:fs';
-import * as vscode from 'vscode';
-import { CONFIG_FILE_NAME } from '../../common/constants';
-import { getWorkspaceConfigFilePath, loadWorkspaceConfig } from '../../common/lib/config-manager';
+import {
+  confirmDelete,
+  loadGlobalConfig,
+  loadWorkspaceConfig,
+  removeConfigItem,
+  saveGlobalConfig,
+  saveWorkspaceConfig,
+} from '../../common/lib/config-manager';
 import { Command, executeCommand, registerCommand } from '../../common/lib/vscode-utils';
+import {
+  isGlobalItem,
+  showConfigNotFoundError,
+  showDeleteSuccessMessage,
+  showInvalidItemError,
+  showNoItemsFoundError,
+  showNotFoundError,
+  stripGlobalPrefix,
+} from '../../common/utils/item-utils';
+import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 import type { TreeTask } from '../../views/tasks/items';
 
 async function handleDeleteTask(treeTask: TreeTask): Promise<void> {
-  if (!treeTask || !treeTask.taskName) {
-    vscode.window.showErrorMessage('Invalid task selected');
+  if (!treeTask?.taskName) {
+    showInvalidItemError('task');
     return;
   }
 
-  const taskName = treeTask.taskName;
+  const isGlobal = isGlobalItem(treeTask.taskName);
+  const taskName = stripGlobalPrefix(treeTask.taskName);
 
-  const choice = await vscode.window.showWarningMessage(
-    `Are you sure you want to delete task "${taskName}"?`,
-    { modal: true },
-    'Delete',
-  );
+  if (!(await confirmDelete('task', taskName, isGlobal))) return;
 
-  if (choice !== 'Delete') return;
+  if (isGlobal) {
+    const globalConfig = loadGlobalConfig();
+    if (!globalConfig) {
+      showConfigNotFoundError('global');
+      return;
+    }
 
-  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-  if (!workspaceFolder) {
-    vscode.window.showErrorMessage('No workspace folder found');
-    return;
+    if (!globalConfig.tasks?.length) {
+      showNoItemsFoundError('task', 'global');
+      return;
+    }
+
+    const removed = removeConfigItem(globalConfig, 'tasks', taskName);
+    if (!removed) {
+      showNotFoundError('Task', taskName, 'global');
+      return;
+    }
+
+    saveGlobalConfig(globalConfig);
+    showDeleteSuccessMessage('task', taskName, true);
+  } else {
+    const workspaceFolder = requireWorkspaceFolder();
+    if (!workspaceFolder) return;
+
+    const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
+    if (!workspaceConfig) {
+      showConfigNotFoundError('workspace');
+      return;
+    }
+
+    if (!workspaceConfig.tasks?.length) {
+      showNoItemsFoundError('task', 'workspace');
+      return;
+    }
+
+    const removed = removeConfigItem(workspaceConfig, 'tasks', taskName);
+    if (!removed) {
+      showNotFoundError('Task', taskName, 'workspace');
+      return;
+    }
+
+    saveWorkspaceConfig(workspaceFolder, workspaceConfig);
+    showDeleteSuccessMessage('task', taskName, false);
   }
 
-  const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
-  if (!workspaceConfig) {
-    vscode.window.showErrorMessage('Workspace config not found');
-    return;
-  }
-
-  const workspaceConfigPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
-  if (!workspaceConfig.tasks) {
-    vscode.window.showErrorMessage('No tasks found in workspace config');
-    return;
-  }
-
-  const taskIndex = workspaceConfig.tasks.findIndex((t) => t.name === taskName);
-  if (taskIndex === -1) {
-    vscode.window.showErrorMessage(`Task "${taskName}" not found in workspace config`);
-    return;
-  }
-
-  workspaceConfig.tasks.splice(taskIndex, 1);
-  fs.writeFileSync(workspaceConfigPath, JSON.stringify(workspaceConfig, null, 2), 'utf8');
-
-  vscode.window.showInformationMessage(`✓ Task "${taskName}" deleted`);
   void executeCommand(Command.Refresh);
 }
 

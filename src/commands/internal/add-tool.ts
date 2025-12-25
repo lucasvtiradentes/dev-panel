@@ -14,13 +14,11 @@ import {
 import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath, parseConfig } from '../../common/lib/config-manager';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas';
+import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 
 async function handleAddTool(): Promise<void> {
-  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-  if (!workspaceFolder) {
-    vscode.window.showErrorMessage('No workspace folder found');
-    return;
-  }
+  const workspaceFolder = requireWorkspaceFolder();
+  if (!workspaceFolder) return;
 
   const name = await vscode.window.showInputBox({
     prompt: 'Tool name (used as identifier)',

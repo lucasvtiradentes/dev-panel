@@ -38,6 +38,7 @@ import { branchContextState } from '../../common/lib/workspace-state';
 import type { PPConfig } from '../../common/schemas/config-schema';
 import { SimpleCache } from '../../common/utils/cache';
 import { formatRelativeTime } from '../../common/utils/time-formatter';
+import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { validateBranchContext } from './config-validator';
 import { formatChangedFilesSummary, getChangedFilesWithSummary } from './git-changed-files';
@@ -50,10 +51,6 @@ import { loadBranchContext } from './state';
 import { ValidationIndicator } from './validation-indicator';
 
 const logger = createLogger('BranchContext');
-
-function getWorkspacePath(): string | null {
-  return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
-}
 
 export class BranchContextProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined>();
@@ -115,7 +112,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   private setupMarkdownWatcher(): void {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     const globPattern = getBranchContextGlobPattern();
@@ -126,7 +123,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   private setupRootMarkdownWatcher(): void {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     this.rootMarkdownWatcher = vscode.workspace.createFileSystemWatcher(
@@ -138,7 +135,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   private setupTemplateWatcher(): void {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     const templatePath = getBranchContextTemplatePath(workspace);
@@ -159,7 +156,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       return;
     }
 
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace || !uri) return;
 
     const currentBranchPath = getBranchContextFilePathUtil(workspace, this.currentBranch);
@@ -182,7 +179,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   async initialize(): Promise<void> {
     logger.info('[BranchContextProvider] initialize called');
 
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) {
       logger.warn('[BranchContextProvider] No workspace found');
       return;
@@ -258,7 +255,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       return;
     }
 
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     const rootPath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
@@ -296,7 +293,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       return;
     }
 
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     const rootPath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
@@ -337,7 +334,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   async getChildren(element?: vscode.TreeItem): Promise<vscode.TreeItem[]> {
     if (element) return [];
 
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return [];
 
     if (!(await isGitRepository(workspace))) {
@@ -458,7 +455,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
   }
 
   async openMarkdownFile(): Promise<void> {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     const filePath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
@@ -487,7 +484,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       return;
     }
 
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) {
       logger.warn('[syncBranchContext] No workspace, skipping');
       return;

@@ -12,6 +12,7 @@ import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { PPConfig } from '../../common/schemas/config-schema';
+import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { getBranchContextFilePath } from '../branch-context/markdown-parser';
 import {
   type SyncContext,
@@ -19,10 +20,6 @@ import {
   type TaskSyncProvider,
   createTaskProvider,
 } from '../branch-context/providers';
-
-function getWorkspacePath(): string | null {
-  return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
-}
 
 export class BranchTaskItem extends vscode.TreeItem {
   constructor(
@@ -66,7 +63,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
   private fileChangeDebounce: NodeJS.Timeout | null = null;
 
   constructor() {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     const config = workspace ? this.loadConfig(workspace) : null;
     this.taskProvider = createTaskProvider(config?.branchContext?.builtinSections?.tasks, workspace ?? undefined);
     this.setupMarkdownWatcher();
@@ -133,7 +130,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
   }
 
   private setupMarkdownWatcher(): void {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) {
       logger.warn('[BranchTasksProvider] No workspace found, watcher not setup');
       return;
@@ -178,7 +175,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
       return;
     }
 
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) {
       this.cachedNodes = [];
       return;
@@ -240,7 +237,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTaskIt
     const filePath = getBranchContextFilePath(this.currentBranch);
     if (!filePath || !fs.existsSync(filePath)) return;
 
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     const syncContext: SyncContext = {

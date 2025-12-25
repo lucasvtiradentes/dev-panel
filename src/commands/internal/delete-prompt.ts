@@ -1,100 +1,97 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import * as vscode from 'vscode';
-import { CONFIG_FILE_NAME, GLOBAL_ITEM_PREFIX, getGlobalConfigDir, getGlobalConfigPath } from '../../common/constants';
+import { getGlobalConfigDir } from '../../common/constants';
 import {
-  getWorkspaceConfigFilePath,
+  confirmDelete,
   joinConfigPath,
   loadGlobalConfig,
   loadWorkspaceConfig,
+  removeConfigItem,
+  saveGlobalConfig,
+  saveWorkspaceConfig,
 } from '../../common/lib/config-manager';
 import { Command, executeCommand, registerCommand } from '../../common/lib/vscode-utils';
+import type { PPPrompt } from '../../common/schemas';
+import {
+  isGlobalItem,
+  showConfigNotFoundError,
+  showDeleteSuccessMessage,
+  showInvalidItemError,
+  showNoItemsFoundError,
+  showNotFoundError,
+  stripGlobalPrefix,
+} from '../../common/utils/item-utils';
+import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 import type { TreePrompt } from '../../views/prompts/items';
 
 async function handleDeletePrompt(treePrompt: TreePrompt): Promise<void> {
-  if (!treePrompt || !treePrompt.promptName) {
-    vscode.window.showErrorMessage('Invalid prompt selected');
+  if (!treePrompt?.promptName) {
+    showInvalidItemError('prompt');
     return;
   }
 
-  const isGlobal = treePrompt.promptName.startsWith(GLOBAL_ITEM_PREFIX);
-  const promptName = isGlobal ? treePrompt.promptName.substring(GLOBAL_ITEM_PREFIX.length) : treePrompt.promptName;
+  const isGlobal = isGlobalItem(treePrompt.promptName);
+  const promptName = stripGlobalPrefix(treePrompt.promptName);
 
-  const choice = await vscode.window.showWarningMessage(
-    `Are you sure you want to delete prompt "${promptName}"${isGlobal ? ' (global)' : ''}?`,
-    { modal: true },
-    'Delete',
-  );
-
-  if (choice !== 'Delete') return;
+  if (!(await confirmDelete('prompt', promptName, isGlobal))) return;
 
   if (isGlobal) {
     const globalConfig = loadGlobalConfig();
     if (!globalConfig) {
-      vscode.window.showErrorMessage('Global config not found');
+      showConfigNotFoundError('global');
       return;
     }
 
-    const globalConfigPath = getGlobalConfigPath();
-    if (!globalConfig.prompts) {
-      vscode.window.showErrorMessage('No prompts found in global config');
+    if (!globalConfig.prompts?.length) {
+      showNoItemsFoundError('prompt', 'global');
       return;
     }
 
-    const promptIndex = globalConfig.prompts.findIndex((p) => p.name === promptName);
-    if (promptIndex === -1) {
-      vscode.window.showErrorMessage(`Prompt "${promptName}" not found in global config`);
+    const removed = removeConfigItem(globalConfig, 'prompts', promptName) as PPPrompt | null;
+    if (!removed) {
+      showNotFoundError('Prompt', promptName, 'global');
       return;
     }
 
-    const prompt = globalConfig.prompts[promptIndex];
-    globalConfig.prompts.splice(promptIndex, 1);
-    fs.writeFileSync(globalConfigPath, JSON.stringify(globalConfig, null, 2), 'utf8');
+    saveGlobalConfig(globalConfig);
 
-    const globalPromptFile = path.join(getGlobalConfigDir(), prompt.file);
+    const globalPromptFile = path.join(getGlobalConfigDir(), removed.file);
     if (fs.existsSync(globalPromptFile)) {
       fs.rmSync(globalPromptFile);
     }
 
-    vscode.window.showInformationMessage(`✓ Global prompt "${promptName}" deleted`);
-    void executeCommand(Command.RefreshPrompts);
-    return;
+    showDeleteSuccessMessage('prompt', promptName, true);
+  } else {
+    const workspaceFolder = requireWorkspaceFolder();
+    if (!workspaceFolder) return;
+
+    const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
+    if (!workspaceConfig) {
+      showConfigNotFoundError('workspace');
+      return;
+    }
+
+    if (!workspaceConfig.prompts?.length) {
+      showNoItemsFoundError('prompt', 'workspace');
+      return;
+    }
+
+    const removed = removeConfigItem(workspaceConfig, 'prompts', promptName) as PPPrompt | null;
+    if (!removed) {
+      showNotFoundError('Prompt', promptName, 'workspace');
+      return;
+    }
+
+    saveWorkspaceConfig(workspaceFolder, workspaceConfig);
+
+    const workspacePromptFile = joinConfigPath(workspaceFolder, removed.file);
+    if (fs.existsSync(workspacePromptFile)) {
+      fs.rmSync(workspacePromptFile);
+    }
+
+    showDeleteSuccessMessage('prompt', promptName, false);
   }
 
-  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-  if (!workspaceFolder) {
-    vscode.window.showErrorMessage('No workspace folder found');
-    return;
-  }
-
-  const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
-  if (!workspaceConfig) {
-    vscode.window.showErrorMessage('Workspace config not found');
-    return;
-  }
-
-  const workspaceConfigPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
-  if (!workspaceConfig.prompts) {
-    vscode.window.showErrorMessage('No prompts found in workspace config');
-    return;
-  }
-
-  const promptIndex = workspaceConfig.prompts.findIndex((p) => p.name === promptName);
-  if (promptIndex === -1) {
-    vscode.window.showErrorMessage(`Prompt "${promptName}" not found in workspace config`);
-    return;
-  }
-
-  const prompt = workspaceConfig.prompts[promptIndex];
-  workspaceConfig.prompts.splice(promptIndex, 1);
-  fs.writeFileSync(workspaceConfigPath, JSON.stringify(workspaceConfig, null, 2), 'utf8');
-
-  const workspacePromptFile = joinConfigPath(workspaceFolder, prompt.file);
-  if (fs.existsSync(workspacePromptFile)) {
-    fs.rmSync(workspacePromptFile);
-  }
-
-  vscode.window.showInformationMessage(`✓ Prompt "${promptName}" deleted`);
   void executeCommand(Command.RefreshPrompts);
 }
 

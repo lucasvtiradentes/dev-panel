@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import { getWorkspaceConfigDirPath } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
+import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { showConfigLocationMenu } from './config-location';
 import { showInitMenu } from './init';
 
@@ -18,7 +19,7 @@ export function createOpenSettingsMenuCommand() {
   return registerCommand(Command.OpenSettingsMenu, async () => {
     logger.info('openSettingsMenu command called');
 
-    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    const workspaceFolder = getFirstWorkspaceFolder();
     let showInit = false;
 
     if (workspaceFolder) {

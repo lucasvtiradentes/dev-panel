@@ -23,6 +23,7 @@ import {
   getAIProvidersListFormatted,
 } from '../../common/schemas';
 import { loadVariablesFromPath } from '../../common/utils/variables-env';
+import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';
 
@@ -110,7 +111,7 @@ export function createExecuteTaskCommand(context: vscode.ExtensionContext) {
 
       if (taskConfig?.inputs && taskConfig.inputs.length > 0) {
         const folder = scope && typeof scope !== 'number' && 'uri' in scope ? (scope as vscode.WorkspaceFolder) : null;
-        const folderForSettings = folder ?? vscode.workspace.workspaceFolders?.[0];
+        const folderForSettings = folder ?? getFirstWorkspaceFolder();
         const settings = folderForSettings ? readPPSettings(folderForSettings) : undefined;
 
         const inputValues = await collectInputs(taskConfig.inputs, folder, settings);
@@ -251,7 +252,7 @@ export function createExecutePromptCommand() {
 
       let promptContent = fs.readFileSync(resolvedPromptFilePath, 'utf8');
 
-      const folderForSettings = folder ?? vscode.workspace.workspaceFolders?.[0];
+      const folderForSettings = folder ?? getFirstWorkspaceFolder();
       const settings = folderForSettings ? readPPSettings(folderForSettings) : undefined;
       log.info(`settings: ${JSON.stringify(settings)}`);
 
@@ -276,7 +277,7 @@ export function createExecutePromptCommand() {
       }
 
       if (promptConfig?.saveOutput) {
-        const folderForOutput = folder ?? vscode.workspace.workspaceFolders?.[0];
+        const folderForOutput = folder ?? getFirstWorkspaceFolder();
         if (!folderForOutput) {
           void vscode.window.showErrorMessage('No workspace folder available to save prompt output');
           return;

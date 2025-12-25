@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import { isAbsolute, join } from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, getGlobalConfigPath } from '../constants';
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, getGlobalConfigDir, getGlobalConfigPath } from '../constants';
 import { FILENAME_INVALID_CHARS_PATTERN } from '../constants/regex-constants';
 import {
   BRANCHES_DIR_NAME,
@@ -203,4 +203,82 @@ export function forEachWorkspaceConfig(callback: (folder: vscode.WorkspaceFolder
 export function loadGlobalConfig(): PPConfig | null {
   const configPath = getGlobalConfigPath();
   return loadConfigFromPath(configPath);
+}
+
+type ConfigArrayKey = 'prompts' | 'tasks' | 'tools';
+type ConfigArrayItem =
+  | NonNullable<PPConfig['prompts']>[number]
+  | NonNullable<PPConfig['tasks']>[number]
+  | NonNullable<PPConfig['tools']>[number];
+
+export function ensureDirectoryExists(dirPath: string): void {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+}
+
+export function saveConfigToPath(configPath: string, config: PPConfig): void {
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
+}
+
+export function saveGlobalConfig(config: PPConfig): void {
+  const globalConfigDir = getGlobalConfigDir();
+  const globalConfigPath = getGlobalConfigPath();
+  ensureDirectoryExists(globalConfigDir);
+  saveConfigToPath(globalConfigPath, config);
+}
+
+export function saveWorkspaceConfig(folder: vscode.WorkspaceFolder, config: PPConfig): void {
+  const workspaceConfigDir = getWorkspaceConfigDirPath(folder);
+  const workspaceConfigPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
+  ensureDirectoryExists(workspaceConfigDir);
+  saveConfigToPath(workspaceConfigPath, config);
+}
+
+export async function confirmOverwrite(itemType: string, itemName: string): Promise<boolean> {
+  const choice = await vscode.window.showWarningMessage(
+    `${itemType} "${itemName}" already exists. Overwrite?`,
+    'Overwrite',
+    'Cancel',
+  );
+  return choice === 'Overwrite';
+}
+
+export async function confirmDelete(itemType: string, itemName: string, isGlobal: boolean): Promise<boolean> {
+  const choice = await vscode.window.showWarningMessage(
+    `Are you sure you want to delete ${itemType} "${itemName}"${isGlobal ? ' (global)' : ''}?`,
+    { modal: true },
+    'Delete',
+  );
+  return choice === 'Delete';
+}
+
+export function addOrUpdateConfigItem(config: PPConfig, arrayKey: ConfigArrayKey, item: ConfigArrayItem): boolean {
+  if (!config[arrayKey]) {
+    if (arrayKey === 'prompts') config.prompts = [];
+    else if (arrayKey === 'tasks') config.tasks = [];
+    else if (arrayKey === 'tools') config.tools = [];
+  }
+
+  const array = config[arrayKey] as ConfigArrayItem[];
+  const existingIndex = array.findIndex((i) => i.name === item.name);
+
+  if (existingIndex !== -1) {
+    array[existingIndex] = item;
+    return true;
+  }
+
+  array.push(item);
+  return false;
+}
+
+export function removeConfigItem(config: PPConfig, arrayKey: ConfigArrayKey, itemName: string): ConfigArrayItem | null {
+  const array = config[arrayKey] as ConfigArrayItem[] | undefined;
+  if (!array) return null;
+
+  const index = array.findIndex((i) => i.name === itemName);
+  if (index === -1) return null;
+
+  const [item] = array.splice(index, 1);
+  return item;
 }

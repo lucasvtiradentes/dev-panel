@@ -8,6 +8,7 @@ import {
 } from '../common/lib/config-manager';
 import { syncKeybindings } from '../common/lib/keybindings-sync';
 import { Command, registerCommand } from '../common/lib/vscode-utils';
+import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
 import type { BranchContextProvider } from '../views/branch-context';
 import { validateBranchContext } from '../views/branch-context/config-validator';
@@ -140,7 +141,7 @@ export function registerAllCommands(options: {
     createSetTaskKeybindingCommand(),
     createOpenTasksKeybindingsCommand(),
     registerCommand(Command.ShowBranchContextValidation, async () => {
-      const workspace = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+      const workspace = getFirstWorkspacePath();
       if (!workspace) return;
 
       const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);

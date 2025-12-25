@@ -15,6 +15,7 @@ import { initGlobalState, migrateGlobalState } from './common/lib/global-state';
 import { logger } from './common/lib/logger';
 import { ContextKey, generateWorkspaceId, setContextKey, setWorkspaceId } from './common/lib/vscode-utils';
 import { initWorkspaceState } from './common/lib/workspace-state';
+import { getFirstWorkspacePath } from './common/utils/workspace-utils';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import { BranchContextProvider } from './views/branch-context';
 import { ensureTemplateExists } from './views/branch-context/template-initializer';
@@ -77,7 +78,7 @@ function setupProviders(context: vscode.ExtensionContext, activateStart: number)
   void branchContextProvider.initialize();
   void vscode.tasks.fetchTasks();
 
-  const workspace = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+  const workspace = getFirstWorkspacePath();
   if (workspace) {
     ensureTemplateExists(workspace);
   }

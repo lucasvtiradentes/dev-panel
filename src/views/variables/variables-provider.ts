@@ -23,6 +23,7 @@ import {
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/lib/file-selection';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { PPSettings } from '../../common/schemas';
+import { getFirstWorkspaceFolder, getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { getIsGrouped, saveIsGrouped } from './state';
 
 const execAsync = promisify(exec);
@@ -57,12 +58,8 @@ type PpState = {
   [key: string]: unknown;
 };
 
-function getWorkspacePath(): string | null {
-  return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? null;
-}
-
 function getStatePath(): string | null {
-  const workspace = getWorkspacePath();
+  const workspace = getFirstWorkspacePath();
   if (!workspace) return null;
   return getConfigFilePathFromWorkspacePath(workspace, VARIABLES_FILE_NAME);
 }
@@ -149,7 +146,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
   }
 
   private setupFileWatcher(): void {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     const configDirPattern = getConfigDirPattern();
@@ -211,7 +208,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
   }
 
   private loadConfig(): PpVariables | null {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return null;
 
     const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
@@ -222,7 +219,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
   }
 
   public loadSettings(): PPSettings | undefined {
-    const workspace = getWorkspacePath();
+    const workspace = getFirstWorkspacePath();
     if (!workspace) return undefined;
 
     const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
@@ -237,7 +234,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
 async function runCommand(variable: VariableItem, value: unknown): Promise<void> {
   if (!variable.command) return;
 
-  const workspace = getWorkspacePath();
+  const workspace = getFirstWorkspacePath();
   if (!workspace) return;
 
   const formattedValue = Array.isArray(value) ? value.join(',') : String(value);
@@ -317,7 +314,7 @@ export async function selectVariableOption(variable: VariableItem): Promise<void
     }
 
     case VariableKind.File: {
-      const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+      const workspaceFolder = getFirstWorkspaceFolder();
       if (!workspaceFolder) return;
 
       const settings = providerInstance?.loadSettings();
@@ -352,7 +349,7 @@ export async function selectVariableOption(variable: VariableItem): Promise<void
     }
 
     case VariableKind.Folder: {
-      const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+      const workspaceFolder = getFirstWorkspaceFolder();
       if (!workspaceFolder) return;
 
       const settings = providerInstance?.loadSettings();

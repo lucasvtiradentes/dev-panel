@@ -1,93 +1,73 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import * as vscode from 'vscode';
+import { TOOLS_DIR, getGlobalToolsDir } from '../../common/constants';
 import {
-  GLOBAL_ITEM_PREFIX,
-  TOOLS_DIR,
-  getGlobalConfigDir,
-  getGlobalConfigPath,
-  getGlobalToolsDir,
-} from '../../common/constants';
-import { joinConfigPath, loadGlobalConfig, loadWorkspaceConfig } from '../../common/lib/config-manager';
+  addOrUpdateConfigItem,
+  confirmOverwrite,
+  ensureDirectoryExists,
+  joinConfigPath,
+  loadGlobalConfig,
+  loadWorkspaceConfig,
+  saveGlobalConfig,
+} from '../../common/lib/config-manager';
 import { Command, executeCommand, registerCommand } from '../../common/lib/vscode-utils';
-import type { PPConfig } from '../../common/schemas';
+import {
+  isGlobalItem,
+  showAlreadyGlobalMessage,
+  showConfigNotFoundError,
+  showCopySuccessMessage,
+  showInvalidItemError,
+  showNotFoundError,
+} from '../../common/utils/item-utils';
+import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 import type { TreeTool } from '../../views/tools/items';
 
 async function handleCopyToolToGlobal(treeTool: TreeTool): Promise<void> {
-  if (!treeTool || !treeTool.toolName) {
-    vscode.window.showErrorMessage('Invalid tool selected');
+  if (!treeTool?.toolName) {
+    showInvalidItemError('tool');
     return;
   }
 
-  if (treeTool.toolName.startsWith(GLOBAL_ITEM_PREFIX)) {
-    vscode.window.showInformationMessage('This tool is already global');
+  if (isGlobalItem(treeTool.toolName)) {
+    showAlreadyGlobalMessage('tool');
     return;
   }
 
-  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-  if (!workspaceFolder) {
-    vscode.window.showErrorMessage('No workspace folder found');
-    return;
-  }
+  const workspaceFolder = requireWorkspaceFolder();
+  if (!workspaceFolder) return;
 
   const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
   if (!workspaceConfig) {
-    vscode.window.showErrorMessage('Workspace config not found');
+    showConfigNotFoundError('workspace');
     return;
   }
 
   const tool = workspaceConfig.tools?.find((t) => t.name === treeTool.toolName);
-
   if (!tool) {
-    vscode.window.showErrorMessage(`Tool "${treeTool.toolName}" not found in workspace config`);
+    showNotFoundError('Tool', treeTool.toolName, 'workspace');
     return;
   }
 
-  const globalConfigDir = getGlobalConfigDir();
-  const globalConfigPath = getGlobalConfigPath();
+  const globalConfig = loadGlobalConfig() ?? {};
+  const exists = globalConfig.tools?.some((t) => t.name === tool.name);
 
-  if (!fs.existsSync(globalConfigDir)) {
-    fs.mkdirSync(globalConfigDir, { recursive: true });
-  }
+  if (exists && !(await confirmOverwrite('Tool', tool.name))) return;
 
-  const globalConfig: PPConfig = loadGlobalConfig() ?? {};
-
-  if (!globalConfig.tools) {
-    globalConfig.tools = [];
-  }
-
-  const existingTool = globalConfig.tools.find((t) => t.name === tool.name);
-  if (existingTool) {
-    const choice = await vscode.window.showWarningMessage(
-      `Tool "${tool.name}" already exists in global config. Overwrite?`,
-      'Overwrite',
-      'Cancel',
-    );
-
-    if (choice !== 'Overwrite') return;
-
-    const index = globalConfig.tools.indexOf(existingTool);
-    globalConfig.tools[index] = tool;
-  } else {
-    globalConfig.tools.push(tool);
-  }
-
-  fs.writeFileSync(globalConfigPath, JSON.stringify(globalConfig, null, 2), 'utf8');
+  addOrUpdateConfigItem(globalConfig, 'tools', tool);
+  saveGlobalConfig(globalConfig);
 
   const workspaceToolsDir = joinConfigPath(workspaceFolder, TOOLS_DIR, tool.name);
   const globalToolsDir = path.join(getGlobalToolsDir(), tool.name);
 
   if (fs.existsSync(workspaceToolsDir)) {
-    if (!fs.existsSync(getGlobalToolsDir())) {
-      fs.mkdirSync(getGlobalToolsDir(), { recursive: true });
-    }
+    ensureDirectoryExists(getGlobalToolsDir());
     if (fs.existsSync(globalToolsDir)) {
       fs.rmSync(globalToolsDir, { recursive: true });
     }
     fs.cpSync(workspaceToolsDir, globalToolsDir, { recursive: true });
   }
 
-  vscode.window.showInformationMessage(`✓ Tool "${tool.name}" copied to global config`);
+  showCopySuccessMessage('Tool', tool.name, 'global');
   void executeCommand(Command.RefreshTools);
 }
 
