@@ -3,6 +3,7 @@ import { GLOBAL_ITEM_PREFIX, TOOLS_DIR, TOOL_INSTRUCTIONS_FILE, getGlobalConfigD
 import { joinConfigPath } from '../../../common/lib/config-manager';
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import { getFirstWorkspaceFolder } from '../../../common/utils/workspace-utils';
+import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import type { TreeTool } from '../../../views/tools';
 
@@ -25,7 +26,7 @@ export function createGoToToolFileCommand(): Disposable {
       }
 
       const uri = vscode.Uri.file(instructionsPath);
-      await vscode.window.showTextDocument(uri);
+      await VscodeHelper.openDocument(uri);
     }
   });
 }

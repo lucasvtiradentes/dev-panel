@@ -180,10 +180,10 @@ ${command}
 
   if (openFile?.value === 'instructions') {
     const uri = vscode.Uri.file(instructionsPath);
-    await vscode.window.showTextDocument(uri);
+    await VscodeHelper.openDocument(uri);
   } else if (openFile?.value === 'config') {
     const uri = vscode.Uri.file(configPath);
-    await vscode.window.showTextDocument(uri);
+    await VscodeHelper.openDocument(uri);
   }
 }
 

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { getCommandId } from '../constants/functions';
 import { CONTEXT_PREFIX } from '../constants/scripts-constants';
-import type { Disposable, Uri } from '../vscode/vscode-types';
+import type { Disposable } from '../vscode/vscode-types';
 import type { CommandParams } from './command-params';
 
 export enum Command {
@@ -146,12 +146,6 @@ export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] | undef
 export function isMultiRootWorkspace(): boolean {
   const folders = vscode.workspace.workspaceFolders;
   return folders != null && folders.length > 1;
-}
-
-export async function openDocumentAtLine(uri: Uri, line: number) {
-  await vscode.window.showTextDocument(uri, {
-    selection: new vscode.Range(line, 0, line, 0),
-  });
 }
 
 export const ContextKey = {

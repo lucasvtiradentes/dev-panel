@@ -58,10 +58,7 @@ async function openPackageJsonAtScripts(packageJsonPath: string) {
   }
 
   const uri = vscode.Uri.file(packageJsonPath);
-  const doc = await vscode.workspace.openTextDocument(uri);
-  await vscode.window.showTextDocument(doc, {
-    selection: new vscode.Range(scriptsLine, 0, scriptsLine, 0),
-  });
+  await VscodeHelper.openDocumentAtLine(uri, scriptsLine);
 }
 
 export function createOpenTasksConfigCommand() {
@@ -77,7 +74,7 @@ export function createOpenTasksConfigCommand() {
         const tasksJsonPath = path.join(workspacePath, VSCODE_DIR, VSCODE_TASKS_FILE);
         if (fs.existsSync(tasksJsonPath)) {
           const uri = vscode.Uri.file(tasksJsonPath);
-          await vscode.window.showTextDocument(uri);
+          await VscodeHelper.openDocument(uri);
         } else {
           void VscodeHelper.showToastMessage(ToastKind.Error, `${VSCODE_TASKS_PATH} not found`);
         }
@@ -99,10 +96,7 @@ export function createOpenTasksConfigCommand() {
           }
 
           const uri = vscode.Uri.file(configPath);
-          const doc = await vscode.workspace.openTextDocument(uri);
-          await vscode.window.showTextDocument(doc, {
-            selection: new vscode.Range(tasksLine, 0, tasksLine, 0),
-          });
+          await VscodeHelper.openDocumentAtLine(uri, tasksLine);
         } else {
           void VscodeHelper.showToastMessage(ToastKind.Error, `${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME} not found`);
         }

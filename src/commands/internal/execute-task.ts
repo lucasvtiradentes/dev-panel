@@ -390,8 +390,7 @@ async function executePromptWithSave(options: {
         const command = provider.getExecuteCommand(tempFile, outputFile);
         await execAsync(command, { cwd: workspacePath });
         fs.unlinkSync(tempFile);
-        const doc = await vscode.workspace.openTextDocument(outputFile);
-        await vscode.window.showTextDocument(doc);
+        await VscodeHelper.openDocument(vscode.Uri.file(outputFile));
       } catch (error: unknown) {
         fs.unlinkSync(tempFile);
         void VscodeHelper.showToastMessage(ToastKind.Error, `Prompt failed: ${TypeGuards.getErrorMessage(error)}`);

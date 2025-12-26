@@ -18,6 +18,6 @@ export function createOpenVariablesConfigCommand() {
     }
 
     const uri = vscode.Uri.file(configPath);
-    await vscode.window.showTextDocument(uri);
+    await VscodeHelper.openDocument(uri);
   });
 }

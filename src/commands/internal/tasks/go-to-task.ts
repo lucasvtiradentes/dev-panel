@@ -1,12 +1,6 @@
 import * as vscode from 'vscode';
 import { VSCODE_TASKS_PATH } from '../../../common/constants';
-import {
-  Command,
-  getWorkspaceFolders,
-  isMultiRootWorkspace,
-  openDocumentAtLine,
-  registerCommand,
-} from '../../../common/lib/vscode-utils';
+import { Command, getWorkspaceFolders, isMultiRootWorkspace, registerCommand } from '../../../common/lib/vscode-utils';
 import { TypeGuards } from '../../../common/utils/type-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { TreeTask } from '../../../views/tasks';
@@ -30,7 +24,7 @@ export function createGoToTaskCommand() {
 
     for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
       if (lines[lineNumber].includes(task.label as string)) {
-        await openDocumentAtLine(tasksFileUri, lineNumber);
+        await VscodeHelper.openDocumentAtLine(tasksFileUri, lineNumber);
         return;
       }
     }

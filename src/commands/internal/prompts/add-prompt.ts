@@ -161,7 +161,7 @@ Example command or code
   VscodeHelper.showToastMessage(ToastKind.Info, `Prompt "${name}" created successfully`);
 
   const uri = vscode.Uri.file(promptFilePath);
-  await vscode.window.showTextDocument(uri);
+  await VscodeHelper.openDocument(uri);
 }
 
 export function createAddPromptCommand(): Disposable {

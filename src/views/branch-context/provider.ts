@@ -24,6 +24,7 @@ import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { branchContextState } from '../../common/lib/workspace-state';
 import { formatRelativeTime } from '../../common/utils/time-formatter';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { validateBranchContext } from './config-validator';
@@ -283,7 +284,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
 
     const filePath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
     const uri = vscode.Uri.file(filePath);
-    await vscode.window.showTextDocument(uri);
+    await VscodeHelper.openDocument(uri);
   }
 
   async openMarkdownFileAtLine(fieldName: string) {
@@ -293,10 +294,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
     const filePath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
     const lineNumber = getFieldLineNumber(filePath, fieldName);
     const uri = vscode.Uri.file(filePath);
-    const doc = await vscode.workspace.openTextDocument(uri);
-    await vscode.window.showTextDocument(doc, {
-      selection: new vscode.Range(lineNumber, 0, lineNumber, 0),
-    });
+    await VscodeHelper.openDocumentAtLine(uri, lineNumber);
   }
 
   async syncBranchContext() {

@@ -7,8 +7,7 @@ import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 export function createShowLogsCommand() {
   return registerCommand(Command.ShowLogs, async () => {
     try {
-      const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(LOG_FILE_PATH));
-      await vscode.window.showTextDocument(doc, { preview: false });
+      await VscodeHelper.openDocument(vscode.Uri.file(LOG_FILE_PATH), { preview: false });
     } catch (error: unknown) {
       VscodeHelper.showToastMessage(ToastKind.Error, `Failed to open logs: ${TypeGuards.getErrorMessage(error)}`);
     }

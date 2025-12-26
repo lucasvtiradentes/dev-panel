@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import type { VscodeColor, VscodeColorString, VscodeIcon, VscodeIconString } from './vscode-constants';
-import type { ThemeIcon, TreeView } from './vscode-types';
+import type { ThemeIcon, TreeView, Uri } from './vscode-types';
 
 export enum ToastKind {
   Info = 'info',
@@ -15,6 +15,16 @@ export class VscodeHelper {
 
   static createCustomIcon(icon: VscodeIconString, color?: VscodeColorString): ThemeIcon {
     return color ? new vscode.ThemeIcon(icon, new vscode.ThemeColor(color)) : new vscode.ThemeIcon(icon);
+  }
+
+  static async openDocument(uri: Uri, options?: vscode.TextDocumentShowOptions): Promise<vscode.TextEditor> {
+    return vscode.window.showTextDocument(uri, options);
+  }
+
+  static async openDocumentAtLine(uri: Uri, line: number): Promise<vscode.TextEditor> {
+    return vscode.window.showTextDocument(uri, {
+      selection: new vscode.Range(line, 0, line, 0),
+    });
   }
 
   static showToastMessage(kind: ToastKind, message: string, ...items: string[]): Thenable<string | undefined>;
