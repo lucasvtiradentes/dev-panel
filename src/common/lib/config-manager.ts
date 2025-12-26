@@ -130,11 +130,6 @@ export function getBranchContextFilePath(workspace: string, branchName: string):
   return join(getBranchDirectory(workspace, branchName), BRANCH_CONTEXT_FILENAME);
 }
 
-export function getBranchContextGlobPattern(): string {
-  const configDirPattern = getConfigDirPattern();
-  return `${configDirPattern}/${BRANCHES_DIR_NAME}/*/${BRANCH_CONTEXT_FILENAME}`;
-}
-
 export function getBranchPromptsDirectory(workspace: string, branchName: string): string {
   return join(getBranchDirectory(workspace, branchName), PROMPTS_DIR_NAME);
 }
