@@ -13,8 +13,8 @@ import {
   GIT_DIFF_NAME_STATUS,
   GIT_DIFF_NUMSTAT,
   NOT_GIT_REPO_MESSAGE,
-} from '../../common/constants';
-import { createLogger } from '../../common/lib/logger';
+} from '../../../../common/constants';
+import { createLogger } from '../../../../common/lib/logger';
 
 const execAsync = promisify(exec);
 const logger = createLogger('GitChangedFiles');

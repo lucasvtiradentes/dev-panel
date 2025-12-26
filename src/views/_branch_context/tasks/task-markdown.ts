@@ -1,5 +1,5 @@
 import { TASK_ITEM_PATTERN } from '../../../common/constants';
-import type { TaskNode } from './interfaces';
+import type { TaskNode } from '../providers/interfaces';
 import { formatTaskLine, parseStatusMarker, parseTaskText, statusToMarker } from './task-utils';
 
 export function fromMarkdown(content: string): TaskNode[] {

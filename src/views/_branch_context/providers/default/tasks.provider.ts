@@ -1,6 +1,10 @@
 import * as fs from 'node:fs';
-import { MARKDOWN_SECTION_HEADER_PATTERN, TODO_SECTION_HEADER_PATTERN } from '../../../common/constants';
-import type { TaskStatus } from '../../../common/schemas';
+import { MARKDOWN_SECTION_HEADER_PATTERN, TODO_SECTION_HEADER_PATTERN } from '../../../../common/constants';
+import type { TaskStatus } from '../../../../common/schemas';
+import * as milestoneOps from '../../tasks/milestone-operations';
+import * as taskCrud from '../../tasks/task-crud';
+import { fromMarkdown, toMarkdown } from '../../tasks/task-markdown';
+import { cycleStatus as cycleStatusUtil } from '../../tasks/task-utils';
 import type {
   MilestoneNode,
   NewTask,
@@ -9,11 +13,7 @@ import type {
   TaskMeta,
   TaskNode,
   TaskSyncProvider,
-} from './interfaces';
-import * as milestoneOps from './milestone-operations';
-import * as taskCrud from './task-crud';
-import { fromMarkdown, toMarkdown } from './task-markdown';
-import { cycleStatus as cycleStatusUtil } from './task-utils';
+} from '../interfaces';
 
 export class DefaultTaskProvider implements TaskSyncProvider {
   fromMarkdown = fromMarkdown;

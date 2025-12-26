@@ -8,7 +8,7 @@ import {
   TASK_META_TAG_PATTERN,
 } from '../../../common/constants';
 import { TaskPriority, TaskStatus } from '../../../common/schemas';
-import type { TaskMeta } from './interfaces';
+import type { TaskMeta } from '../providers/interfaces';
 
 export function parseStatusMarker(marker: string): TaskStatus {
   const char = marker.toLowerCase();

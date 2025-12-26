@@ -8,13 +8,13 @@ import {
   METADATA_SECTION_PREFIX,
   METADATA_SEPARATOR,
   METADATA_SUFFIX,
-} from '../../common/constants';
-import { configDirExists, getBranchContextFilePath, getBranchDirectory } from '../../common/lib/config-manager';
-import { createLogger } from '../../common/lib/logger';
-import type { BranchContext } from '../../common/schemas/types';
-import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+} from '../../../common/constants';
+import { configDirExists, getBranchContextFilePath, getBranchDirectory } from '../../../common/lib/config-manager';
+import { createLogger } from '../../../common/lib/logger';
+import type { BranchContext } from '../../../common/schemas/types';
+import { getFirstWorkspacePath } from '../../../common/utils/workspace-utils';
+import { getChangedFilesTree } from '../providers/default/file-changes-utils';
 import { detectBranchType, generateBranchTypeCheckboxes } from './branch-type-utils';
-import { getChangedFilesTree } from './git-changed-files';
 import { loadTemplate } from './template-parser';
 
 type SectionMetadataMap = Record<string, Record<string, unknown>>;

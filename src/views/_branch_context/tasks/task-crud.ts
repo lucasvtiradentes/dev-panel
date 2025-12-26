@@ -8,7 +8,7 @@ import {
   TODO_SECTION_HEADER_PATTERN,
 } from '../../../common/constants';
 import type { TaskStatus } from '../../../common/schemas';
-import type { NewTask, SyncContext, TaskMeta, TaskNode } from './interfaces';
+import type { NewTask, SyncContext, TaskMeta, TaskNode } from '../providers/interfaces';
 import { formatTaskLine, parseTaskText, statusToMarker } from './task-utils';
 
 function createEmptyTaskNode(text: string): TaskNode {

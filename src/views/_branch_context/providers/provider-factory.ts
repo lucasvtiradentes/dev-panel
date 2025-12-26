@@ -1,6 +1,6 @@
 import { DEFAULT_TASK_STATUS, INVALID_LINE_INDEX } from '../../../common/constants';
 import { createLogger } from '../../../common/lib/logger';
-import { DefaultTaskProvider } from './default-task-provider';
+import { DefaultTaskProvider } from './default/tasks.provider';
 import type { TaskSyncProvider } from './interfaces';
 import { loadTaskProvider } from './plugin-loader';
 

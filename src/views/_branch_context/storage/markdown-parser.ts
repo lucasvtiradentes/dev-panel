@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
-import { BRANCH_CONTEXT_NA } from '../../common/constants';
-import { getBranchContextFilePath as getBranchContextFilePathUtil } from '../../common/lib/config-manager';
-import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { BRANCH_CONTEXT_NA } from '../../../common/constants';
+import { getBranchContextFilePath as getBranchContextFilePathUtil } from '../../../common/lib/config-manager';
+import { getFirstWorkspacePath } from '../../../common/utils/workspace-utils';
 
 function normalizeValue(value: string | undefined): string | undefined {
   if (value === undefined || value === BRANCH_CONTEXT_NA) return undefined;

@@ -24,10 +24,10 @@ import {
   SECTION_NAME_OBJECTIVE,
   SECTION_NAME_REQUIREMENTS,
   SECTION_NAME_TASKS,
-} from '../../common/constants';
-import { getBranchContextFilePath } from '../../common/lib/config-manager';
-import { createLogger } from '../../common/lib/logger';
-import type { BranchContext, BranchContextMetadata, SectionMetadata } from '../../common/schemas/types';
+} from '../../../common/constants';
+import { getBranchContextFilePath } from '../../../common/lib/config-manager';
+import { createLogger } from '../../../common/lib/logger';
+import type { BranchContext, BranchContextMetadata, SectionMetadata } from '../../../common/schemas/types';
 import { parseBranchTypeCheckboxes } from './branch-type-utils';
 
 const logger = createLogger('BranchContext');

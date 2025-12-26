@@ -4,7 +4,7 @@ import { VscodeColor, VscodeIcon } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { MarkdownString, ThemeIcon } from '../../common/vscode/vscode-types';
-import type { TaskMeta } from '../branch-context/providers/interfaces';
+import type { TaskMeta } from '../_branch_context';
 
 export function formatTaskDescription(meta: TaskMeta, status: TaskStatus): string {
   if (status === TaskStatus.Done) {

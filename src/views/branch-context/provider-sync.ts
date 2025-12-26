@@ -14,11 +14,10 @@ import { getBranchContextFilePath as getBranchContextFilePathUtil } from '../../
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { createLogger } from '../../common/lib/logger';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
-import { getChangedFilesWithSummary } from './git-changed-files';
-import { generateBranchContextMarkdown } from './markdown-generator';
+import { getChangedFilesWithSummary } from '../_branch_context/providers/default/file-changes-utils';
+import type { SyncContext } from '../_branch_context/providers/interfaces';
+import { generateBranchContextMarkdown, loadBranchContext } from '../_branch_context/storage';
 import type { ProviderHelpers } from './provider-helpers';
-import type { SyncContext } from './providers';
-import { loadBranchContext } from './state';
 
 const logger = createLogger('BranchContextSync');
 

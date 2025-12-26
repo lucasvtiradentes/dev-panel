@@ -3,7 +3,7 @@ import { CONTEXT_VALUES, DND_MIME_TYPE_BRANCH_TASKS, getCommandId } from '../../
 import { Command } from '../../common/lib/vscode-utils';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { CancellationToken, DataTransfer } from '../../common/vscode/vscode-types';
-import type { MilestoneNode, TaskNode } from '../branch-context/providers';
+import type { MilestoneNode, TaskNode } from '../_branch_context';
 import { formatTaskDescription, formatTaskTooltip, getStatusIcon } from './task-item-utils';
 
 export const NO_MILESTONE_NAME = 'No Milestone';

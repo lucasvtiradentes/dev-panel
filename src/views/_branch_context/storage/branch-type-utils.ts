@@ -1,4 +1,4 @@
-import { BRANCH_TYPES, type BranchType } from '../../common/constants';
+import { BRANCH_TYPES, type BranchType } from '../../../common/constants';
 
 export function detectBranchType(branchName: string): BranchType {
   const normalizedName = branchName.toLowerCase();

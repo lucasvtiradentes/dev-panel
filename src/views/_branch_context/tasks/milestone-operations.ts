@@ -5,7 +5,7 @@ import {
   TASK_ITEM_PATTERN,
   TODO_SECTION_HEADER_PATTERN,
 } from '../../../common/constants';
-import type { MilestoneNode, SyncContext, TaskNode } from './interfaces';
+import type { MilestoneNode, SyncContext, TaskNode } from '../providers/interfaces';
 import { fromMarkdownWithOffset } from './task-markdown';
 
 export function getMilestones(context: SyncContext): Promise<{ orphanTasks: TaskNode[]; milestones: MilestoneNode[] }> {

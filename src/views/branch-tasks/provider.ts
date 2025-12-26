@@ -10,15 +10,15 @@ import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeItem, Uri } from '../../common/vscode/vscode-types';
-import { loadBranchContextFromFile } from '../branch-context/file-storage';
-import { getBranchContextFilePath } from '../branch-context/markdown-parser';
 import {
   type MilestoneNode,
   type SyncContext,
   type TaskNode,
   type TaskSyncProvider,
   createTaskProvider,
-} from '../branch-context/providers';
+  getBranchContextFilePath,
+  loadBranchContextFromFile,
+} from '../_branch_context';
 import type { TaskFilter } from './filter-operations';
 import { showFilterQuickPick as showFilterQuickPickDialog } from './filter-quick-pick';
 import {

@@ -1,5 +1,5 @@
 import * as fs from 'node:fs';
-import { getBranchContextTemplatePath } from '../../common/lib/config-manager';
+import { getBranchContextTemplatePath } from '../../../common/lib/config-manager';
 import { DEFAULT_TEMPLATE } from './default-template';
 
 export type TemplateSection = {

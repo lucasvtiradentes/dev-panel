@@ -26,15 +26,14 @@ import { formatRelativeTime } from '../../common/utils/time-formatter';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
+import { createTaskProvider, loadBranchContext } from '../_branch_context';
+import { formatChangedFilesSummary } from '../_branch_context/providers/default/file-changes-utils';
+import { getFieldLineNumber } from '../_branch_context/storage/markdown-parser';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { validateBranchContext } from './config-validator';
-import { formatChangedFilesSummary } from './git-changed-files';
 import { SectionItem } from './items';
-import { getFieldLineNumber } from './markdown-parser';
 import { ProviderHelpers } from './provider-helpers';
 import { SyncManager } from './provider-sync';
-import { createTaskProvider } from './providers';
-import { loadBranchContext } from './state';
 import { ValidationIndicator } from './validation-indicator';
 
 const logger = createLogger('BranchContext');

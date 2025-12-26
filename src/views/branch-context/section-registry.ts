@@ -22,8 +22,8 @@ import { Command } from '../../common/lib/vscode-utils';
 import { SectionType } from '../../common/schemas';
 import type { BranchContextConfig } from '../../common/schemas/config-schema';
 import { VscodeIcon, type VscodeIconString } from '../../common/vscode/vscode-constants';
-import type { AutoSectionProvider } from './providers/interfaces';
-import { loadAutoProvider } from './providers/plugin-loader';
+import type { AutoSectionProvider } from '../_branch_context/providers/interfaces';
+import { loadAutoProvider } from '../_branch_context/providers/plugin-loader';
 
 const logger = createLogger('SectionRegistry');
 

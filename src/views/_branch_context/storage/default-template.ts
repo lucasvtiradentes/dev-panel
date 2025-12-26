@@ -4,10 +4,11 @@ import {
   BRANCH_CONTEXT_TEMPLATE_FILENAME,
   INIT_RESOURCES_DIR_NAME,
   RESOURCES_DIR_NAME,
-} from '../../common/constants/scripts-constants';
+} from '../../../common/constants/scripts-constants';
 
 const templatePath = path.join(
   __dirname,
+  '..',
   '..',
   RESOURCES_DIR_NAME,
   INIT_RESOURCES_DIR_NAME,

@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import { getBranchContextTemplatePath, getConfigDirPathFromWorkspacePath } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
-import { DEFAULT_TEMPLATE } from './default-template';
+import { DEFAULT_TEMPLATE } from '../_branch_context/storage/default-template';
 
 const logger = createLogger('TemplateInitializer');
 
