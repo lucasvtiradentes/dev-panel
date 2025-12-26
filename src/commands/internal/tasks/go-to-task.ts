@@ -9,6 +9,7 @@ import {
   registerCommand,
   showToastMessage,
 } from '../../../common/lib/vscode-utils';
+import { TypeGuards } from '../../../common/utils/type-utils';
 import type { TreeTask } from '../../../views/tasks';
 
 export function createGoToTaskCommand() {
@@ -19,7 +20,7 @@ export function createGoToTaskCommand() {
     }
 
     const folders = getWorkspaceFolders();
-    if (!folders || folders.length === 0) {
+    if (!folders || !TypeGuards.isNonEmptyArray(folders)) {
       showToastMessage(ToastKind.Error, 'No workspace folder found');
       return;
     }

@@ -14,6 +14,7 @@ import {
 } from '../../../common/constants';
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import { TaskSource } from '../../../common/schemas/types';
+import { TypeGuards } from '../../../common/utils/type-utils';
 import { getFirstWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { getExcludedDirs } from '../../../views/tasks/package-json';
 import { getCurrentSource } from '../../../views/tasks/state';
@@ -109,7 +110,7 @@ export function createOpenTasksConfigCommand() {
       case TaskSource.Package: {
         const packageJsons = await findAllPackageJsons(workspace);
 
-        if (packageJsons.length === 0) {
+        if (!TypeGuards.isNonEmptyArray(packageJsons)) {
           void vscode.window.showErrorMessage(`No ${PACKAGE_JSON} found`);
         } else if (packageJsons.length === 1) {
           await openPackageJsonAtScripts(packageJsons[0]);

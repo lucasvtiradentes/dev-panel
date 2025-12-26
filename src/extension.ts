@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { registerAllCommands } from './commands';
+import { registerAllCommands } from './commands/register-all';
 import {
   GLOBAL_STATE_WORKSPACE_SOURCE,
   getViewIdBranchContext,

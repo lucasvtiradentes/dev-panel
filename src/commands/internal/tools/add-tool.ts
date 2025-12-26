@@ -90,7 +90,8 @@ async function handleAddTool() {
     return;
   }
 
-  const startIndex = toolsStartMatch.index + toolsStartMatch[0].length;
+  const matchIndex = toolsStartMatch.index;
+  const startIndex = matchIndex + toolsStartMatch[0].length;
   let bracketCount = 1;
   let endIndex = startIndex;
 

@@ -30,6 +30,7 @@ import {
   PromptExecutionMode,
   getAIProvidersListFormatted,
 } from '../../common/schemas';
+import { TypeGuards } from '../../common/utils/type-utils';
 import { loadVariablesFromPath } from '../../common/utils/variables-env';
 import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
@@ -51,7 +52,7 @@ function readDevPanelVariablesAsEnv(workspacePath: string): Record<string, strin
 
   const env: Record<string, string> = {};
   for (const [key, value] of Object.entries(variables)) {
-    const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+    const stringValue = TypeGuards.isObject(value) ? JSON.stringify(value) : String(value);
     env[key] = stringValue;
   }
   return env;
@@ -269,7 +270,7 @@ function readDevPanelVariables(folder: vscode.WorkspaceFolder): Record<string, u
 function replaceVariablePlaceholders(content: string, variables: Record<string, unknown>): string {
   let result = content;
   for (const [key, value] of Object.entries(variables)) {
-    const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+    const stringValue = TypeGuards.isObject(value) ? JSON.stringify(value) : String(value);
     const pattern = new RegExp(`\\$${key}`, 'g');
     result = result.replace(pattern, stringValue);
   }
@@ -382,10 +383,9 @@ async function executePromptWithSave(options: {
         fs.unlinkSync(tempFile);
         const doc = await vscode.workspace.openTextDocument(outputFile);
         await vscode.window.showTextDocument(doc);
-      } catch (error) {
+      } catch (error: unknown) {
         fs.unlinkSync(tempFile);
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        void vscode.window.showErrorMessage(`Prompt failed: ${errorMessage}`);
+        void vscode.window.showErrorMessage(`Prompt failed: ${TypeGuards.getErrorMessage(error)}`);
       }
     },
   );

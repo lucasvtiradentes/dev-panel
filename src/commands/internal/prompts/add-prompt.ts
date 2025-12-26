@@ -98,7 +98,8 @@ async function handleAddPrompt() {
     return;
   }
 
-  const startIndex = promptsStartMatch.index + promptsStartMatch[0].length;
+  const matchIndex = promptsStartMatch.index;
+  const startIndex = matchIndex + promptsStartMatch[0].length;
   let bracketCount = 1;
   let endIndex = startIndex;
 
