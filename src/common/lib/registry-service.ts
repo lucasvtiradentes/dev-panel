@@ -91,10 +91,7 @@ export async function fetchItemFile(
   return { fileName: file, content };
 }
 
-export async function fetchItemConfig(
-  kind: RegistryItemKind,
-  itemName: string,
-): Promise<Record<string, unknown> | null> {
+async function fetchItemConfig(kind: RegistryItemKind, itemName: string): Promise<Record<string, unknown> | null> {
   const config = KIND_CONFIG[kind];
   const url = `${REGISTRY_BASE_URL}/${config.dirName}/${itemName}/${REGISTRY_CONFIG_FILE}`;
   try {

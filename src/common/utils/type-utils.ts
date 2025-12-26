@@ -1,4 +1,4 @@
-export type LooseAutocomplete<T> = T | (string & {});
+type LooseAutocomplete<T> = T | (string & {});
 
 export class TypeGuards {
   static isError(value: unknown): value is Error {

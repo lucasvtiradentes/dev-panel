@@ -37,7 +37,7 @@ export function statusToMarker(status: TaskStatus): string {
   }
 }
 
-export function createEmptyMeta(): TaskMeta {
+function createEmptyMeta(): TaskMeta {
   return {};
 }
 

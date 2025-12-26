@@ -5,7 +5,7 @@ export type NormalizedPatchItem = {
   replace: string[];
 };
 
-export type NormalizedPatchReplacement = {
+type NormalizedPatchReplacement = {
   type: 'patch';
   target: string;
   patches: NormalizedPatchItem[];
@@ -31,7 +31,6 @@ export enum SectionType {
   Field = 'field',
   Text = 'text',
   Auto = 'auto',
-  Special = 'special',
 }
 
 export enum PluginAction {
