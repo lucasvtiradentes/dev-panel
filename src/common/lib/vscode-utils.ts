@@ -132,6 +132,11 @@ export function registerCommand(command: Command, callback: (...args: any[]) => 
   return vscode.commands.registerCommand(getCommandId(command), callback);
 }
 
+// tscanner-ignore-next-line no-explicit-any
+export function registerDynamicCommand(commandId: string, callback: (...args: any[]) => any): Disposable {
+  return vscode.commands.registerCommand(commandId, callback);
+}
+
 export function executeCommand<T extends Command>(
   command: T,
   ...args: T extends keyof CommandParams ? [CommandParams[T]] : []
