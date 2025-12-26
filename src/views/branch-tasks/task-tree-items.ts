@@ -8,8 +8,13 @@ import { formatTaskDescription, formatTaskTooltip, getStatusIcon } from './task-
 
 export const NO_MILESTONE_NAME = 'No Milestone';
 
+enum DragItemType {
+  Task = 'task',
+  Milestone = 'milestone',
+}
+
 type DragData = {
-  type: 'task' | 'milestone';
+  type: DragItemType;
   lineIndex: number;
   milestoneName?: string;
 };
@@ -91,7 +96,7 @@ export class BranchTasksDragAndDropController implements vscode.TreeDragAndDropC
     if (!item || !(item instanceof BranchTaskItem)) return;
 
     const data: DragData = {
-      type: 'task',
+      type: DragItemType.Task,
       lineIndex: item.node.lineIndex,
       milestoneName: this.provider.findMilestoneForTask(item.node.lineIndex),
     };
@@ -105,14 +110,14 @@ export class BranchTasksDragAndDropController implements vscode.TreeDragAndDropC
     let dragData: DragData;
     try {
       const parsed = JSON.parse(transferItem.value as string);
-      if (typeof parsed !== 'object' || parsed === null || parsed.type !== 'task') {
+      if (typeof parsed !== 'object' || parsed === null || parsed.type !== DragItemType.Task) {
         return;
       }
       dragData = parsed as DragData;
     } catch {
       return;
     }
-    if (dragData.type !== 'task') return;
+    if (dragData.type !== DragItemType.Task) return;
 
     if (target instanceof BranchMilestoneItem) {
       const targetMilestone = target.isNoMilestone ? null : target.milestone.name;

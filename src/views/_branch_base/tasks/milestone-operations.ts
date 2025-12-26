@@ -5,6 +5,7 @@ import {
   TASK_ITEM_PATTERN,
   TODO_SECTION_HEADER_PATTERN,
 } from '../../../common/constants';
+import type { Position } from '../../../common/constants/enums';
 import type { MilestoneNode, SyncContext, TaskNode } from '../providers/interfaces';
 import { fromMarkdownWithOffset } from './task-markdown';
 
@@ -188,12 +189,7 @@ export function createMilestone(name: string, context: SyncContext) {
   return Promise.resolve();
 }
 
-export function reorderTask(
-  taskLineIndex: number,
-  targetLineIndex: number,
-  position: 'before' | 'after',
-  context: SyncContext,
-) {
+export function reorderTask(taskLineIndex: number, targetLineIndex: number, position: Position, context: SyncContext) {
   if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
   if (taskLineIndex === targetLineIndex) return Promise.resolve();
 

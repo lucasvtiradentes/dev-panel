@@ -1,3 +1,5 @@
+import { LocationScope } from '../../../common/constants';
+import { ConfigKey } from '../../../common/constants';
 import {
   addOrUpdateConfigItem,
   confirmOverwrite,
@@ -33,13 +35,13 @@ async function handleCopyTaskToGlobal(treeTask: TreeTask) {
 
   const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
   if (!workspaceConfig) {
-    showConfigNotFoundError('workspace');
+    showConfigNotFoundError(LocationScope.Workspace);
     return;
   }
 
   const task = workspaceConfig.tasks?.find((t) => t.name === treeTask.taskName);
   if (!task) {
-    showNotFoundError('Task', treeTask.taskName, 'workspace');
+    showNotFoundError('Task', treeTask.taskName, LocationScope.Workspace);
     return;
   }
 
@@ -48,10 +50,10 @@ async function handleCopyTaskToGlobal(treeTask: TreeTask) {
 
   if (exists && !(await confirmOverwrite('Task', task.name))) return;
 
-  addOrUpdateConfigItem(globalConfig, 'tasks', task);
+  addOrUpdateConfigItem(globalConfig, ConfigKey.Tasks, task);
   saveGlobalConfig(globalConfig);
 
-  showCopySuccessMessage('Task', task.name, 'global');
+  showCopySuccessMessage('Task', task.name, LocationScope.Global);
   void executeCommand(Command.Refresh);
 }
 

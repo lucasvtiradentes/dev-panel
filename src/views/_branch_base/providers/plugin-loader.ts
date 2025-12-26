@@ -1,5 +1,6 @@
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
+import type { Position } from '../../../common/constants/enums';
 import { getConfigDirPathFromWorkspacePath } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import { PluginAction, TaskStatus } from '../../../common/schemas';
@@ -194,12 +195,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       return Promise.reject(new Error('Move task to milestone not supported by plugin providers'));
     },
 
-    reorderTask(
-      _taskLineIndex: number,
-      _targetLineIndex: number,
-      _position: 'before' | 'after',
-      _context: SyncContext,
-    ) {
+    reorderTask(_taskLineIndex: number, _targetLineIndex: number, _position: Position, _context: SyncContext) {
       return Promise.reject(new Error('Reorder task not supported by plugin providers'));
     },
 

@@ -1,3 +1,5 @@
+import { LocationScope } from '../../../common/constants';
+import { ConfigKey } from '../../../common/constants';
 import {
   confirmDelete,
   loadGlobalConfig,
@@ -33,18 +35,18 @@ async function handleDeleteTask(treeTask: TreeTask) {
   if (isGlobal) {
     const globalConfig = loadGlobalConfig();
     if (!globalConfig) {
-      showConfigNotFoundError('global');
+      showConfigNotFoundError(LocationScope.Global);
       return;
     }
 
     if (!globalConfig.tasks?.length) {
-      showNoItemsFoundError('task', 'global');
+      showNoItemsFoundError('task', LocationScope.Global);
       return;
     }
 
-    const removed = removeConfigItem(globalConfig, 'tasks', taskName);
+    const removed = removeConfigItem(globalConfig, ConfigKey.Tasks, taskName);
     if (!removed) {
-      showNotFoundError('Task', taskName, 'global');
+      showNotFoundError('Task', taskName, LocationScope.Global);
       return;
     }
 
@@ -59,18 +61,18 @@ async function handleDeleteTask(treeTask: TreeTask) {
 
   const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
   if (!workspaceConfig) {
-    showConfigNotFoundError('workspace');
+    showConfigNotFoundError(LocationScope.Workspace);
     return;
   }
 
   if (!workspaceConfig.tasks?.length) {
-    showNoItemsFoundError('task', 'workspace');
+    showNoItemsFoundError('task', LocationScope.Workspace);
     return;
   }
 
-  const removed = removeConfigItem(workspaceConfig, 'tasks', taskName);
+  const removed = removeConfigItem(workspaceConfig, ConfigKey.Tasks, taskName);
   if (!removed) {
-    showNotFoundError('Task', taskName, 'workspace');
+    showNotFoundError('Task', taskName, LocationScope.Workspace);
     return;
   }
 

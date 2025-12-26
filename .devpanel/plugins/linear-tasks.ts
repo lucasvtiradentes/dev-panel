@@ -48,12 +48,23 @@ type LinearIssue = {
   }[];
 };
 
+enum LinearStateType {
+  Backlog = 'backlog',
+  Unstarted = 'unstarted',
+  Started = 'started',
+  Completed = 'completed',
+  Canceled = 'canceled',
+}
+
 type LinearState = {
   name: string;
-  type: 'backlog' | 'unstarted' | 'started' | 'completed' | 'canceled';
+  type: LinearStateType;
 };
 
-type LinkKind = 'issue' | 'project';
+enum LinkKind {
+  Issue = 'issue',
+  Project = 'project',
+}
 
 type ParsedLink = {
   kind: LinkKind;
@@ -92,12 +103,12 @@ function parseJsonOutput(output: string): unknown {
 function parseLinearLink(linearLink: string): ParsedLink | null {
   const issueMatch = linearLink.match(/linear\.app\/[^/]+\/issue\/([A-Z]+-\d+)/);
   if (issueMatch) {
-    return { kind: 'issue', id: issueMatch[1] };
+    return { kind: LinkKind.Issue, id: issueMatch[1] };
   }
 
   const projectMatch = linearLink.match(/linear\.app\/[^/]+\/project\/([a-zA-Z0-9-]+)/);
   if (projectMatch) {
-    return { kind: 'project', id: projectMatch[1] };
+    return { kind: LinkKind.Project, id: projectMatch[1] };
   }
 
   return null;
@@ -111,10 +122,10 @@ function mapLinearStateToStatus(state?: LinearState, customMapping?: Record<stri
   }
 
   switch (state.type) {
-    case 'completed':
-    case 'canceled':
+    case LinearStateType.Completed:
+    case LinearStateType.Canceled:
       return 'done';
-    case 'started':
+    case LinearStateType.Started:
       return 'doing';
     default:
       return 'todo';
@@ -252,12 +263,12 @@ function ensureTaskCache() {
 
   log('ensureTaskCache: rebuilding cache');
 
-  if (linkKind === 'project') {
+  if (linkKind === LinkKind.Project) {
     let issues = fetchProjectIssues();
     if (!includeCompleted) {
       issues = issues.filter((issue) => {
         const stateType = issue.state?.type;
-        return stateType !== 'completed' && stateType !== 'canceled';
+        return stateType !== LinearStateType.Completed && stateType !== LinearStateType.Canceled;
       });
     }
     issues.forEach((issue, index) => {
@@ -316,14 +327,14 @@ runPlugin({
     log(`getTasks called, linkKind: ${linkKind}`);
     taskCache.clear();
 
-    if (linkKind === 'project') {
+    if (linkKind === LinkKind.Project) {
       let issues = fetchProjectIssues();
       log(`getTasks: fetched ${issues.length} issues before filter`);
 
       if (!includeCompleted) {
         issues = issues.filter((issue) => {
           const stateType = issue.state?.type;
-          return stateType !== 'completed' && stateType !== 'canceled';
+          return stateType !== LinearStateType.Completed && stateType !== LinearStateType.Canceled;
         });
         log(`getTasks: ${issues.length} issues after filter`);
       }
@@ -367,7 +378,7 @@ runPlugin({
   },
 
   async createTask(text: string, _parentIndex?: number): Promise<TaskNode> {
-    if (linkKind === 'issue') {
+    if (linkKind === LinkKind.Issue) {
       throw new Error('Creating sub-issues is not supported via Linear CLI');
     }
 
@@ -433,13 +444,13 @@ runPlugin({
   sync(): Promise<SyncResult> {
     taskCache.clear();
 
-    if (linkKind === 'project') {
+    if (linkKind === LinkKind.Project) {
       let issues = fetchProjectIssues();
 
       if (!includeCompleted) {
         issues = issues.filter((issue) => {
           const stateType = issue.state?.type;
-          return stateType !== 'completed' && stateType !== 'canceled';
+          return stateType !== LinearStateType.Completed && stateType !== LinearStateType.Canceled;
         });
       }
 

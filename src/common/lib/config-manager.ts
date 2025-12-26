@@ -3,6 +3,7 @@ import { isAbsolute, join } from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, getGlobalConfigDir, getGlobalConfigPath } from '../constants';
+import type { ConfigKey } from '../constants/enums';
 import { FILENAME_INVALID_CHARS_PATTERN } from '../constants/regex-constants';
 import {
   BRANCHES_DIR_NAME,
@@ -208,7 +209,7 @@ export function loadGlobalConfig(): DevPanelConfig | null {
   return loadConfigFromPath(configPath);
 }
 
-type ConfigArrayKey = 'prompts' | 'tasks' | 'tools';
+type ConfigArrayKey = ConfigKey.Prompts | ConfigKey.Tasks | ConfigKey.Tools;
 type ConfigArrayItem =
   | NonNullable<DevPanelConfig['prompts']>[number]
   | NonNullable<DevPanelConfig['tasks']>[number]

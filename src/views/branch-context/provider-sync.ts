@@ -21,10 +21,15 @@ import type { ProviderHelpers } from './provider-helpers';
 
 const logger = createLogger('BranchContextSync');
 
+enum SyncDirection {
+  RootToBranch = 'root-to-branch',
+  BranchToRoot = 'branch-to-root',
+}
+
 export class SyncManager {
   private isSyncing = false;
   private syncDebounceTimer: NodeJS.Timeout | null = null;
-  private lastSyncDirection: 'root-to-branch' | 'branch-to-root' | null = null;
+  private lastSyncDirection: SyncDirection | null = null;
   private isWritingMarkdown = false;
 
   constructor(
@@ -52,7 +57,7 @@ export class SyncManager {
       return;
     }
 
-    if (this.lastSyncDirection === 'root-to-branch') {
+    if (this.lastSyncDirection === SyncDirection.RootToBranch) {
       this.lastSyncDirection = null;
       return;
     }
@@ -68,7 +73,7 @@ export class SyncManager {
     }
 
     this.isSyncing = true;
-    this.lastSyncDirection = 'root-to-branch';
+    this.lastSyncDirection = SyncDirection.RootToBranch;
 
     try {
       const content = fs.readFileSync(rootPath, 'utf-8');
@@ -92,7 +97,7 @@ export class SyncManager {
       return;
     }
 
-    if (this.lastSyncDirection === 'branch-to-root') {
+    if (this.lastSyncDirection === SyncDirection.BranchToRoot) {
       this.lastSyncDirection = null;
       return;
     }
@@ -108,7 +113,7 @@ export class SyncManager {
     }
 
     this.isSyncing = true;
-    this.lastSyncDirection = 'branch-to-root';
+    this.lastSyncDirection = SyncDirection.BranchToRoot;
 
     try {
       const content = fs.readFileSync(branchPath, 'utf-8');

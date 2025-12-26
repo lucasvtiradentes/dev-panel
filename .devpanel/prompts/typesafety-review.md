@@ -24,6 +24,8 @@ $FOLDERS
    - Hardcoded values that should be constants
    - Union string types where enums would be better
 
+   **Pro tip:** Search for `' | '` to quickly find union string types that are good enum candidates
+
 2. **Categorize findings:**
    - **Critical:** Unsafe type casts, untyped errors, unsafe indexing, unvalidated JSON
    - **Moderate:** Loose equality, incomplete type guards, property access issues, type assertions, optional chaining abuse
@@ -219,6 +221,8 @@ const timeout = setTimeout(fn, 5000);
 type Status = 'pending' | 'active' | 'completed';
 function setMode(mode: 'light' | 'dark') { }
 ```
+**Search tip:** Use grep/search for pattern `' | '` to find union string types quickly.
+
 **Issues found:**
 - `file:line` - Union type and suggested enum definition
 - `file:line` - Union type and suggested enum definition

@@ -1,3 +1,4 @@
+import type { Position } from '../../../common/constants/enums';
 import type { BranchContext, TaskPriority, TaskStatus } from '../../../common/schemas';
 
 export type SyncContext = {
@@ -72,12 +73,7 @@ export type TaskSyncProvider = {
 
   moveTaskToMilestone(taskLineIndex: number, targetMilestoneName: string | null, context: SyncContext): Promise<void>;
 
-  reorderTask(
-    taskLineIndex: number,
-    targetLineIndex: number,
-    position: 'before' | 'after',
-    context: SyncContext,
-  ): Promise<void>;
+  reorderTask(taskLineIndex: number, targetLineIndex: number, position: Position, context: SyncContext): Promise<void>;
 
   createMilestone(name: string, context: SyncContext): Promise<void>;
 

@@ -14,33 +14,36 @@ import {
   SCRIPTS_DIR_NAME,
   TOOLS_DIR,
 } from '../constants';
+import { ConfigKey } from '../constants/enums';
 import { type RegistryIndex, RegistryIndexSchema, type RegistryItemEntry, RegistryItemKind } from '../schemas';
 import type { WorkspaceFolder } from '../vscode/vscode-types';
 import { getConfigDirPathFromWorkspacePath, getWorkspaceConfigDirPath } from './config-manager';
 import { logger } from './logger';
 
+type RegistryConfigKey = Exclude<ConfigKey, ConfigKey.Tasks>;
+
 type KindConfig = {
   dirName: string;
   defaultFile: string;
-  configKey: 'plugins' | 'prompts' | 'tools' | 'scripts';
+  configKey: RegistryConfigKey;
 };
 
 const KIND_CONFIG: Record<RegistryItemKind, KindConfig> = {
   [RegistryItemKind.Plugin]: {
     dirName: PLUGINS_DIR_NAME,
     defaultFile: REGISTRY_DEFAULT_PLUGIN_FILE,
-    configKey: 'plugins',
+    configKey: ConfigKey.Plugins,
   },
   [RegistryItemKind.Prompt]: {
     dirName: PROMPTS_DIR_NAME,
     defaultFile: REGISTRY_DEFAULT_PROMPT_FILE,
-    configKey: 'prompts',
+    configKey: ConfigKey.Prompts,
   },
-  [RegistryItemKind.Tool]: { dirName: TOOLS_DIR, defaultFile: REGISTRY_DEFAULT_TOOL_FILE, configKey: 'tools' },
+  [RegistryItemKind.Tool]: { dirName: TOOLS_DIR, defaultFile: REGISTRY_DEFAULT_TOOL_FILE, configKey: ConfigKey.Tools },
   [RegistryItemKind.Script]: {
     dirName: SCRIPTS_DIR_NAME,
     defaultFile: REGISTRY_DEFAULT_SCRIPT_FILE,
-    configKey: 'scripts',
+    configKey: ConfigKey.Scripts,
   },
 };
 

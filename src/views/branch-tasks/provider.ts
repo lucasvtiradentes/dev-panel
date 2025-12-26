@@ -1,6 +1,7 @@
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
 import { FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
+import { Position } from '../../common/constants/enums';
 import { loadWorkspaceConfigFromPath } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
@@ -352,7 +353,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
-    const position = taskLineIndex < targetLineIndex ? 'after' : 'before';
+    const position = taskLineIndex < targetLineIndex ? Position.After : Position.Before;
     await this.taskProvider.reorderTask(taskLineIndex, targetLineIndex, position, syncContext);
     this.refresh();
   }

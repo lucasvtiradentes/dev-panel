@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { getGlobalPromptsDir } from '../../../common/constants';
+import { ConfigKey, LocationScope, getGlobalPromptsDir } from '../../../common/constants';
 import {
   addOrUpdateConfigItem,
   confirmOverwrite,
@@ -41,13 +41,13 @@ async function handleCopyPromptToWorkspace(treePrompt: TreePrompt) {
 
   const globalConfig = loadGlobalConfig();
   if (!globalConfig) {
-    showConfigNotFoundError('global');
+    showConfigNotFoundError(LocationScope.Global);
     return;
   }
 
   const prompt = globalConfig.prompts?.find((p) => p.name === promptName);
   if (!prompt) {
-    showNotFoundError('Prompt', promptName, 'global');
+    showNotFoundError('Prompt', promptName, LocationScope.Global);
     return;
   }
 
@@ -56,7 +56,7 @@ async function handleCopyPromptToWorkspace(treePrompt: TreePrompt) {
 
   if (exists && !(await confirmOverwrite('Prompt', prompt.name))) return;
 
-  addOrUpdateConfigItem(workspaceConfig, 'prompts', prompt);
+  addOrUpdateConfigItem(workspaceConfig, ConfigKey.Prompts, prompt);
   saveWorkspaceConfig(workspaceFolder, workspaceConfig);
 
   const globalPromptFile = path.join(getGlobalPromptsDir(), prompt.file);
@@ -68,7 +68,7 @@ async function handleCopyPromptToWorkspace(treePrompt: TreePrompt) {
     fs.copyFileSync(globalPromptFile, workspacePromptFile);
   }
 
-  showCopySuccessMessage('Prompt', prompt.name, 'workspace');
+  showCopySuccessMessage('Prompt', prompt.name, LocationScope.Workspace);
   void executeCommand(Command.RefreshPrompts);
 }
 

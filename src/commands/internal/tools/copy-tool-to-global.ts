@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { TOOLS_DIR, getGlobalToolsDir } from '../../../common/constants';
+import { ConfigKey, LocationScope, TOOLS_DIR, getGlobalToolsDir } from '../../../common/constants';
 import {
   addOrUpdateConfigItem,
   confirmOverwrite,
@@ -38,13 +38,13 @@ async function handleCopyToolToGlobal(treeTool: TreeTool) {
 
   const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
   if (!workspaceConfig) {
-    showConfigNotFoundError('workspace');
+    showConfigNotFoundError(LocationScope.Workspace);
     return;
   }
 
   const tool = workspaceConfig.tools?.find((t) => t.name === treeTool.toolName);
   if (!tool) {
-    showNotFoundError('Tool', treeTool.toolName, 'workspace');
+    showNotFoundError('Tool', treeTool.toolName, LocationScope.Workspace);
     return;
   }
 
@@ -53,7 +53,7 @@ async function handleCopyToolToGlobal(treeTool: TreeTool) {
 
   if (exists && !(await confirmOverwrite('Tool', tool.name))) return;
 
-  addOrUpdateConfigItem(globalConfig, 'tools', tool);
+  addOrUpdateConfigItem(globalConfig, ConfigKey.Tools, tool);
   saveGlobalConfig(globalConfig);
 
   const workspaceToolsDir = joinConfigPath(workspaceFolder, TOOLS_DIR, tool.name);
@@ -67,7 +67,7 @@ async function handleCopyToolToGlobal(treeTool: TreeTool) {
     fs.cpSync(workspaceToolsDir, globalToolsDir, { recursive: true });
   }
 
-  showCopySuccessMessage('Tool', tool.name, 'global');
+  showCopySuccessMessage('Tool', tool.name, LocationScope.Global);
   void executeCommand(Command.RefreshTools);
 }
 

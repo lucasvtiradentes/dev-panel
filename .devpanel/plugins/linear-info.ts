@@ -50,7 +50,10 @@ type LinearProject = {
   targetDate?: string;
 };
 
-type LinkKind = 'issue' | 'project';
+enum LinkKind {
+  Issue = 'issue',
+  Project = 'project',
+}
 
 type ParsedLink = {
   kind: LinkKind;
@@ -77,12 +80,12 @@ function isValidLink(link: string): boolean {
 function parseLinearLink(linearLink: string): ParsedLink | null {
   const issueMatch = linearLink.match(/linear\.app\/[^/]+\/issue\/([A-Z]+-\d+)/);
   if (issueMatch) {
-    return { kind: 'issue', id: issueMatch[1] };
+    return { kind: LinkKind.Issue, id: issueMatch[1] };
   }
 
   const projectMatch = linearLink.match(/linear\.app\/[^/]+\/project\/([a-zA-Z0-9-]+)/);
   if (projectMatch) {
-    return { kind: 'project', id: projectMatch[1] };
+    return { kind: LinkKind.Project, id: projectMatch[1] };
   }
 
   return null;
@@ -198,7 +201,7 @@ function handleIssue(issueId: string) {
   const commentsCount = comments.length;
   const description = `${state} · ${commentsCount} comments`;
   const metadata: Metadata = {
-    kind: 'issue',
+    kind: LinkKind.Issue,
     state,
     priority: data.priority ?? CONSTANTS.PRIORITY_NONE,
     commentsCount,
@@ -224,7 +227,7 @@ function handleProject(projectId: string) {
   const progress = data.progress !== undefined ? Math.round(data.progress * 100) : 0;
   const description = `${state} · ${progress}%`;
   const metadata: Metadata = {
-    kind: 'project',
+    kind: LinkKind.Project,
     state,
     isEmpty: false,
     description,
@@ -249,7 +252,7 @@ function main() {
     process.exit(0);
   }
 
-  if (parsed.kind === 'issue') {
+  if (parsed.kind === LinkKind.Issue) {
     handleIssue(parsed.id);
   } else {
     handleProject(parsed.id);

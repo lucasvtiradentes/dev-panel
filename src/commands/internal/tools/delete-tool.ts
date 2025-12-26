@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { TOOLS_DIR, getGlobalToolsDir } from '../../../common/constants';
+import { ConfigKey, LocationScope, TOOLS_DIR, getGlobalToolsDir } from '../../../common/constants';
 import {
   confirmDelete,
   getWorkspaceConfigDirPath,
@@ -37,18 +37,18 @@ async function handleDeleteTool(treeTool: TreeTool) {
   if (isGlobal) {
     const globalConfig = loadGlobalConfig();
     if (!globalConfig) {
-      showConfigNotFoundError('global');
+      showConfigNotFoundError(LocationScope.Global);
       return;
     }
 
     if (!globalConfig.tools?.length) {
-      showNoItemsFoundError('tool', 'global');
+      showNoItemsFoundError('tool', LocationScope.Global);
       return;
     }
 
-    const removed = removeConfigItem(globalConfig, 'tools', toolName);
+    const removed = removeConfigItem(globalConfig, ConfigKey.Tools, toolName);
     if (!removed) {
-      showNotFoundError('Tool', toolName, 'global');
+      showNotFoundError('Tool', toolName, LocationScope.Global);
       return;
     }
 
@@ -69,18 +69,18 @@ async function handleDeleteTool(treeTool: TreeTool) {
 
   const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
   if (!workspaceConfig) {
-    showConfigNotFoundError('workspace');
+    showConfigNotFoundError(LocationScope.Workspace);
     return;
   }
 
   if (!workspaceConfig.tools?.length) {
-    showNoItemsFoundError('tool', 'workspace');
+    showNoItemsFoundError('tool', LocationScope.Workspace);
     return;
   }
 
-  const removed = removeConfigItem(workspaceConfig, 'tools', toolName);
+  const removed = removeConfigItem(workspaceConfig, ConfigKey.Tools, toolName);
   if (!removed) {
-    showNotFoundError('Tool', toolName, 'workspace');
+    showNotFoundError('Tool', toolName, LocationScope.Workspace);
     return;
   }
 

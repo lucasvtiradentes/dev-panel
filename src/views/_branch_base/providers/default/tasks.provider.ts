@@ -1,5 +1,6 @@
 import * as fs from 'node:fs';
 import { MARKDOWN_SECTION_HEADER_PATTERN, TODO_SECTION_HEADER_PATTERN } from '../../../../common/constants';
+import type { Position } from '../../../../common/constants/enums';
 import type { TaskStatus } from '../../../../common/schemas';
 import * as milestoneOps from '../../tasks/milestone-operations';
 import * as taskCrud from '../../tasks/task-crud';
@@ -75,7 +76,7 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     return milestoneOps.createMilestone(name, context);
   }
 
-  reorderTask(taskLineIndex: number, targetLineIndex: number, position: 'before' | 'after', context: SyncContext) {
+  reorderTask(taskLineIndex: number, targetLineIndex: number, position: Position, context: SyncContext) {
     return milestoneOps.reorderTask(taskLineIndex, targetLineIndex, position, context);
   }
 

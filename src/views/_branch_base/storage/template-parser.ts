@@ -3,9 +3,15 @@ import { getBranchContextTemplatePath } from '../../../common/lib/config-manager
 import { extensionStore } from '../../../common/lib/extension-store';
 import { getDefaultTemplate } from './default-template';
 
+export enum TemplateSectionType {
+  Field = 'field',
+  Text = 'text',
+  Code = 'code',
+}
+
 export type TemplateSection = {
   name: string;
-  type: 'field' | 'text' | 'code';
+  type: TemplateSectionType;
   placeholder: string;
   order: number;
 };
@@ -33,7 +39,7 @@ export function parseTemplate(templateContent: string): TemplateSection[] {
     if (fieldMatch) {
       sections.push({
         name: fieldMatch[1].trim(),
-        type: 'field',
+        type: TemplateSectionType.Field,
         placeholder: fieldMatch[2],
         order: order++,
       });
@@ -51,7 +57,7 @@ export function parseTemplate(templateContent: string): TemplateSection[] {
         const placeholderMatch = lines[j + 1]?.match(/\{\{([A-Z_]+)\}\}/);
         sections.push({
           name: sectionName,
-          type: 'code',
+          type: TemplateSectionType.Code,
           placeholder: placeholderMatch?.[1] || sectionName.replace(/\s+/g, '_').toUpperCase(),
           order: order++,
         });
@@ -59,7 +65,7 @@ export function parseTemplate(templateContent: string): TemplateSection[] {
         const placeholderMatch = lines[j]?.match(/\{\{([A-Z_]+)\}\}/);
         sections.push({
           name: sectionName,
-          type: 'text',
+          type: TemplateSectionType.Text,
           placeholder: placeholderMatch?.[1] || sectionName.replace(/\s+/g, '_').toUpperCase(),
           order: order++,
         });
