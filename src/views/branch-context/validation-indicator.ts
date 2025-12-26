@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { getCommandId } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { StatusBarItem } from '../../common/vscode/vscode-types';
 import type { ValidationIssue } from './config-validator';
 
@@ -8,7 +9,7 @@ export class ValidationIndicator {
   private statusBarItem: StatusBarItem;
 
   constructor() {
-    this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+    this.statusBarItem = VscodeHelper.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
   }
 
   show(issues: ValidationIssue[]) {

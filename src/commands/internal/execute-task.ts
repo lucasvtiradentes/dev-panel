@@ -350,7 +350,7 @@ export function createExecutePromptCommand() {
         return;
       }
 
-      const terminal = vscode.window.createTerminal({ name: provider.name });
+      const terminal = VscodeHelper.createTerminal({ name: provider.name });
       terminal.show();
       provider.executeInteractive(terminal, promptContent);
     },

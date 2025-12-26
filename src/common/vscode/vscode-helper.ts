@@ -128,4 +128,12 @@ export class VscodeHelper {
   ): Thenable<R> {
     return vscode.window.withProgress(options, task);
   }
+
+  static createStatusBarItem(alignment?: vscode.StatusBarAlignment, priority?: number): vscode.StatusBarItem {
+    return vscode.window.createStatusBarItem(alignment, priority);
+  }
+
+  static createTerminal(options: vscode.TerminalOptions): vscode.Terminal {
+    return vscode.window.createTerminal(options);
+  }
 }
