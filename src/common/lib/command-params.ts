@@ -1,21 +1,24 @@
 import type {
   EditBranchFieldParams,
   OpenBranchContextFileAtLineParams,
-} from '../../commands/internal/edit-branch-fields';
+} from '../../commands/internal/branch-context/edit-branch-fields';
+import type { CycleTaskStatusParams, ToggleTodoParams } from '../../commands/internal/branch-tasks/toggle-branch-tasks';
 import type { ExecutePromptParams } from '../../commands/internal/execute-task';
-import type { GoToPromptFileParams } from '../../commands/internal/go-to-prompt-file';
-import type { GoToReplacementTargetFileParams } from '../../commands/internal/go-to-replacement-target-file';
-import type { GoToToolFileParams } from '../../commands/internal/go-to-tool-file';
+import type { GoToPromptFileParams } from '../../commands/internal/prompts/go-to-prompt-file';
+import type {
+  TogglePromptFavoriteParams,
+  TogglePromptHideParams,
+} from '../../commands/internal/prompts/toggle-prompts-view';
+import type { GoToReplacementTargetFileParams } from '../../commands/internal/replacements/go-to-replacement-target-file';
+import type { ToggleReplacementParams } from '../../commands/internal/replacements/toggle-replacement';
 import type { SelectConfigOptionParams } from '../../commands/internal/select-config-option';
-import type { CycleTaskStatusParams, ToggleTodoParams } from '../../commands/internal/toggle-branch-tasks';
-import type { TogglePromptFavoriteParams, TogglePromptHideParams } from '../../commands/internal/toggle-prompts-view';
-import type { ToggleReplacementParams } from '../../commands/internal/toggle-replacement';
-import type { ToggleTaskFavoriteParams, ToggleTaskHideParams } from '../../commands/internal/toggle-tasks-view';
+import type { ToggleTaskFavoriteParams, ToggleTaskHideParams } from '../../commands/internal/tasks/toggle-tasks-view';
+import type { GoToToolFileParams } from '../../commands/internal/tools/go-to-tool-file';
 import type {
   ToggleToolFavoriteParams,
   ToggleToolHideParams,
   ToggleToolParams,
-} from '../../commands/internal/toggle-tools-view';
+} from '../../commands/internal/tools/toggle-tools-view';
 import { Command } from './vscode-utils';
 
 export type CommandParams = {
