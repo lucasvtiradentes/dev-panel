@@ -4,14 +4,15 @@ import { logger } from '../../common/lib/logger';
 import { fetchRegistryIndex, getInstalledItems, getItemsForKind, installItem } from '../../common/lib/registry-service';
 import { type RegistryItemEntry, RegistryItemKind } from '../../common/schemas';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
+import { VscodeIcon } from '../../common/vscode/vscode-constants';
 
 type QuickPickItemWithId<T> = vscode.QuickPickItem & { id: T };
 
-const KIND_LABELS: Record<RegistryItemKind, { label: string; icon: string }> = {
-  [RegistryItemKind.Plugin]: { label: 'Plugins', icon: 'extensions' },
-  [RegistryItemKind.Prompt]: { label: 'Prompts', icon: 'comment-discussion' },
-  [RegistryItemKind.Tool]: { label: 'Tools', icon: 'tools' },
-  [RegistryItemKind.Script]: { label: 'Scripts', icon: 'terminal' },
+const KIND_LABELS: Record<RegistryItemKind, { label: string; icon: VscodeIcon }> = {
+  [RegistryItemKind.Plugin]: { label: 'Plugins', icon: VscodeIcon.Extensions },
+  [RegistryItemKind.Prompt]: { label: 'Prompts', icon: VscodeIcon.CommentDiscussion },
+  [RegistryItemKind.Tool]: { label: 'Tools', icon: VscodeIcon.Tools },
+  [RegistryItemKind.Script]: { label: 'Scripts', icon: VscodeIcon.Terminal },
 };
 
 export async function showRegistryMenu() {

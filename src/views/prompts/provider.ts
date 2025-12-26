@@ -14,6 +14,7 @@ import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { promptsState } from '../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../common/schemas';
+import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../_base';
 import { PromptGroupTreeItem, TreePrompt } from './items';
 import { isFavorite, isHidden } from './state';
@@ -164,10 +165,10 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     }
 
     if (hidden) {
-      treePrompt.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+      treePrompt.iconPath = VscodeIcons.HiddenItem;
       treePrompt.contextValue = CONTEXT_VALUES.PROMPT_HIDDEN;
     } else if (favorite) {
-      treePrompt.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+      treePrompt.iconPath = VscodeIcons.FavoriteItem;
       treePrompt.contextValue = CONTEXT_VALUES.PROMPT_FAVORITE;
     }
 
@@ -202,10 +203,10 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     }
 
     if (hidden) {
-      treePrompt.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+      treePrompt.iconPath = VscodeIcons.HiddenItem;
       treePrompt.contextValue = CONTEXT_VALUES.PROMPT_GLOBAL_HIDDEN;
     } else if (favorite) {
-      treePrompt.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+      treePrompt.iconPath = VscodeIcons.FavoriteItem;
       treePrompt.contextValue = CONTEXT_VALUES.PROMPT_GLOBAL_FAVORITE;
     } else {
       treePrompt.contextValue = CONTEXT_VALUES.PROMPT_GLOBAL;

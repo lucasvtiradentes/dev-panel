@@ -21,6 +21,7 @@ import { createLogger } from '../../common/lib/logger';
 import { Command } from '../../common/lib/vscode-utils';
 import { SectionType } from '../../common/schemas';
 import type { BranchContextConfig } from '../../common/schemas/config-schema';
+import { VscodeIcon, type VscodeIconString } from '../../common/vscode/vscode-constants';
 import type { AutoSectionProvider } from './providers/interfaces';
 import { loadAutoProvider } from './providers/plugin-loader';
 
@@ -30,7 +31,7 @@ export type SectionDefinition = {
   name: string;
   label: string;
   type: SectionType;
-  icon: string;
+  icon: VscodeIconString;
   isBuiltin: boolean;
   command?: Command;
   provider?: AutoSectionProvider;
@@ -60,7 +61,7 @@ export class SectionRegistry {
       name: SECTION_NAME_BRANCH,
       label: SECTION_LABEL_BRANCH,
       type: SectionType.Field,
-      icon: 'git-branch',
+      icon: VscodeIcon.GitBranch,
       isBuiltin: true,
       command: Command.EditBranchName,
     });
@@ -69,7 +70,7 @@ export class SectionRegistry {
       name: SECTION_NAME_PR_LINK,
       label: SECTION_LABEL_PR_LINK,
       type: SectionType.Field,
-      icon: 'git-pull-request',
+      icon: VscodeIcon.GitPullRequest,
       isBuiltin: true,
       command: Command.EditBranchPrLink,
     });
@@ -78,7 +79,7 @@ export class SectionRegistry {
       name: SECTION_NAME_LINEAR_LINK,
       label: SECTION_LABEL_LINEAR_LINK,
       type: SectionType.Field,
-      icon: 'link',
+      icon: VscodeIcon.Link,
       isBuiltin: true,
       command: Command.EditBranchLinearLink,
     });
@@ -87,7 +88,7 @@ export class SectionRegistry {
       name: SECTION_NAME_OBJECTIVE,
       label: SECTION_LABEL_OBJECTIVE,
       type: SectionType.Text,
-      icon: 'target',
+      icon: VscodeIcon.Target,
       isBuiltin: true,
       command: Command.EditBranchObjective,
     });
@@ -96,7 +97,7 @@ export class SectionRegistry {
       name: SECTION_NAME_REQUIREMENTS,
       label: SECTION_LABEL_REQUIREMENTS,
       type: SectionType.Text,
-      icon: 'checklist',
+      icon: VscodeIcon.Checklist,
       isBuiltin: true,
       command: Command.EditBranchRequirements,
     });
@@ -105,7 +106,7 @@ export class SectionRegistry {
       name: SECTION_NAME_NOTES,
       label: SECTION_LABEL_NOTES,
       type: SectionType.Text,
-      icon: 'note',
+      icon: VscodeIcon.Note,
       isBuiltin: true,
       command: Command.EditBranchNotes,
     });
@@ -115,7 +116,7 @@ export class SectionRegistry {
         name: SECTION_NAME_TASKS,
         label: SECTION_LABEL_TASKS,
         type: SectionType.Text,
-        icon: 'tasklist',
+        icon: VscodeIcon.Tasklist,
         isBuiltin: true,
       });
     }
@@ -127,7 +128,7 @@ export class SectionRegistry {
           name: SECTION_NAME_CHANGED_FILES,
           label: SECTION_LABEL_CHANGED_FILES,
           type: SectionType.Auto,
-          icon: 'diff',
+          icon: VscodeIcon.Diff,
           isBuiltin: true,
           provider,
         });
@@ -136,7 +137,7 @@ export class SectionRegistry {
           name: SECTION_NAME_CHANGED_FILES,
           label: SECTION_LABEL_CHANGED_FILES,
           type: SectionType.Auto,
-          icon: 'diff',
+          icon: VscodeIcon.Diff,
           isBuiltin: true,
         });
       }

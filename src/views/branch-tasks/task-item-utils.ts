@@ -1,5 +1,8 @@
 import * as vscode from 'vscode';
 import { type TaskPriority, TaskStatus } from '../../common/schemas';
+import { VscodeColor, VscodeIcon } from '../../common/vscode/vscode-constants';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
+import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { TaskMeta } from '../branch-context/providers/interfaces';
 
 export function formatTaskDescription(meta: TaskMeta, status: TaskStatus): string {
@@ -64,37 +67,37 @@ export function getStatusIcon(status: TaskStatus, meta: TaskMeta): vscode.ThemeI
 
   switch (status) {
     case 'done':
-      return new vscode.ThemeIcon('pass-filled', new vscode.ThemeColor('testing.iconPassed'));
+      return VscodeIcons.TaskDone;
 
     case 'doing':
-      return new vscode.ThemeIcon('play-circle', new vscode.ThemeColor('charts.blue'));
+      return VscodeIcons.TaskDoing;
 
     case 'blocked':
-      return new vscode.ThemeIcon('error', new vscode.ThemeColor('errorForeground'));
+      return VscodeIcons.TaskBlocked;
 
     default: {
       if (overdue) {
-        return new vscode.ThemeIcon('circle-large-outline', new vscode.ThemeColor('errorForeground'));
+        return VscodeIcons.TaskOverdue;
       }
 
       const priorityColor = getPriorityColor(meta.priority);
       if (priorityColor) {
-        return new vscode.ThemeIcon('circle-large-outline', new vscode.ThemeColor(priorityColor));
+        return VscodeHelper.createIcon(VscodeIcon.CircleLargeOutline, priorityColor);
       }
 
-      return new vscode.ThemeIcon('circle-large-outline');
+      return VscodeIcons.TaskDefault;
     }
   }
 }
 
-function getPriorityColor(priority: TaskPriority | undefined): string | undefined {
+function getPriorityColor(priority: TaskPriority | undefined): VscodeColor | undefined {
   switch (priority) {
     case 'urgent':
-      return 'errorForeground';
+      return VscodeColor.ErrorForeground;
     case 'high':
-      return 'editorWarning.foreground';
+      return VscodeColor.EditorWarningForeground;
     case 'medium':
-      return 'editorInfo.foreground';
+      return VscodeColor.EditorInfoForeground;
     default:
       return undefined;
   }

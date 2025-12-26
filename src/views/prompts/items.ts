@@ -1,5 +1,6 @@
-import * as vscode from 'vscode';
+import type * as vscode from 'vscode';
 import { CONTEXT_VALUES } from '../../common/constants';
+import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import { BaseGroupTreeItem, BaseNamedTreeItem } from '../_base';
 
 export class PromptGroupTreeItem extends BaseGroupTreeItem<TreePrompt> {}
@@ -29,7 +30,7 @@ export class TreePrompt extends BaseNamedTreeItem {
 
   setFavorite(isFavorite: boolean) {
     if (isFavorite) {
-      this.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
+      this.iconPath = VscodeIcons.FavoriteItem;
     }
   }
 }

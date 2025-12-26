@@ -1,3 +1,5 @@
+import { VscodeIcon } from '../vscode/vscode-constants';
+
 export type NormalizedPatchItem = {
   search: string[];
   replace: string[];
@@ -67,13 +69,13 @@ export const TASK_SOURCE_VALUES = Object.values(TaskSource) as [string, ...strin
 export type TaskSourceInfo = {
   id: TaskSource;
   label: string;
-  icon: string;
+  icon: VscodeIcon;
 };
 
 export const TASK_SOURCES: TaskSourceInfo[] = [
-  { id: TaskSource.VSCode, label: 'VSCode', icon: 'tools' },
-  { id: TaskSource.Package, label: 'Package.json', icon: 'package' },
-  { id: TaskSource.DevPanel, label: 'DevPanel', icon: 'beaker' },
+  { id: TaskSource.VSCode, label: 'VSCode', icon: VscodeIcon.Tools },
+  { id: TaskSource.Package, label: 'Package.json', icon: VscodeIcon.Package },
+  { id: TaskSource.DevPanel, label: 'DevPanel', icon: VscodeIcon.Beaker },
 ];
 
 type TaskIcon = {

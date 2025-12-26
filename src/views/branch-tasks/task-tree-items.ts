@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { CONTEXT_VALUES, DND_MIME_TYPE_BRANCH_TASKS, getCommandId } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
+import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { MilestoneNode, TaskNode } from '../branch-context/providers';
 import { formatTaskDescription, formatTaskTooltip, getStatusIcon } from './task-item-utils';
 
@@ -44,7 +45,7 @@ export class BranchMilestoneItem extends vscode.TreeItem {
   ) {
     super(milestone.name, vscode.TreeItemCollapsibleState.Expanded);
     this.contextValue = CONTEXT_VALUES.MILESTONE_ITEM;
-    this.iconPath = new vscode.ThemeIcon(isNoMilestone ? 'inbox' : 'milestone');
+    this.iconPath = isNoMilestone ? VscodeIcons.Inbox : VscodeIcons.Milestone;
 
     const total = this.countAllTasks(milestone.tasks);
     const done = this.countDoneTasks(milestone.tasks);

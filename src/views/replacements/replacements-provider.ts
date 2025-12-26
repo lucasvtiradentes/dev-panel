@@ -16,6 +16,7 @@ import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-util
 import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { fileExistsInGit, getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
 import {
@@ -72,7 +73,7 @@ class ReplacementTreeItem extends vscode.TreeItem {
     this.contextValue = CONTEXT_VALUES.REPLACEMENT_ITEM;
 
     if (isActive) {
-      this.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.green'));
+      this.iconPath = VscodeIcons.ActiveItem;
     }
 
     this.command = {

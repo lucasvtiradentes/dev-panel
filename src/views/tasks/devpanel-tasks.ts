@@ -14,6 +14,7 @@ import { Command } from '../../common/lib/vscode-utils';
 import type { DevPanelConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
+import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
@@ -149,10 +150,10 @@ function createDevPanelTask(
   }
 
   if (hidden) {
-    treeTask.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+    treeTask.iconPath = VscodeIcons.HiddenItem;
     treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_HIDDEN;
   } else if (favorite) {
-    treeTask.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+    treeTask.iconPath = VscodeIcons.FavoriteItem;
     treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_FAVORITE;
   } else {
     treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL;
@@ -211,10 +212,10 @@ function createGlobalTask(
   }
 
   if (hidden) {
-    treeTask.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+    treeTask.iconPath = VscodeIcons.HiddenItem;
     treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_GLOBAL_HIDDEN;
   } else if (favorite) {
-    treeTask.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+    treeTask.iconPath = VscodeIcons.FavoriteItem;
     treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_GLOBAL_FAVORITE;
   } else {
     treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_GLOBAL;

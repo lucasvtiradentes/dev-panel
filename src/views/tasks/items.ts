@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import { CONTEXT_VALUES, NO_GROUP_NAME, VSCODE_TASKS_PATH } from '../../common/constants';
 import { isMultiRootWorkspace } from '../../common/lib/vscode-utils';
 import type { CodeWorkspaceFile, TaskDefinition, TasksJson } from '../../common/schemas/types';
+import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import { BaseGroupTreeItem } from '../_base';
 
 function loadCodeWorkspace(filePath: string): CodeWorkspaceFile | null {
@@ -85,7 +86,7 @@ export class TreeTask extends vscode.TreeItem {
 
   setFavorite(isFavorite: boolean) {
     if (isFavorite) {
-      this.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
+      this.iconPath = VscodeIcons.FavoriteItem;
     }
   }
 

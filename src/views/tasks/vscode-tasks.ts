@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { CONTEXT_VALUES, getCommandId } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
 import { TaskSource } from '../../common/schemas/types';
+import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import { type GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
@@ -61,10 +62,10 @@ export async function getVSCodeTasks(options: {
     }
 
     if (hidden) {
-      _task.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+      _task.iconPath = VscodeIcons.HiddenItem;
       _task.contextValue = CONTEXT_VALUES.TASK_HIDDEN;
     } else if (favorite) {
-      _task.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+      _task.iconPath = VscodeIcons.FavoriteItem;
       _task.contextValue = CONTEXT_VALUES.TASK_FAVORITE;
     }
 

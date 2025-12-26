@@ -19,6 +19,7 @@ import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../common/schemas';
+import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../_base';
 import { ToolGroupTreeItem, TreeTool } from './items';
 import { addActiveTool, getActiveTools, isFavorite, isHidden, removeActiveTool, setActiveTools } from './state';
@@ -241,13 +242,13 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     }
 
     if (hidden) {
-      treeTool.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+      treeTool.iconPath = VscodeIcons.HiddenItem;
       treeTool.contextValue = CONTEXT_VALUES.TOOL_HIDDEN;
     } else if (favorite) {
-      treeTool.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+      treeTool.iconPath = VscodeIcons.FavoriteItem;
       treeTool.contextValue = CONTEXT_VALUES.TOOL_FAVORITE;
     } else if (isActive) {
-      treeTool.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.green'));
+      treeTool.iconPath = VscodeIcons.ActiveItem;
       treeTool.contextValue = CONTEXT_VALUES.TOOL;
     }
 
@@ -280,13 +281,13 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     treeTool.tooltip = description ? `Global: ${description}` : GLOBAL_TOOL_TOOLTIP;
 
     if (hidden) {
-      treeTool.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+      treeTool.iconPath = VscodeIcons.HiddenItem;
       treeTool.contextValue = CONTEXT_VALUES.TOOL_GLOBAL_HIDDEN;
     } else if (favorite) {
-      treeTool.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+      treeTool.iconPath = VscodeIcons.FavoriteItem;
       treeTool.contextValue = CONTEXT_VALUES.TOOL_GLOBAL_FAVORITE;
     } else if (isActive) {
-      treeTool.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.green'));
+      treeTool.iconPath = VscodeIcons.ActiveItem;
       treeTool.contextValue = CONTEXT_VALUES.TOOL_GLOBAL;
     } else {
       treeTool.contextValue = CONTEXT_VALUES.TOOL_GLOBAL;

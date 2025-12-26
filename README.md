@@ -49,3 +49,4 @@
 - [ ] adicionar project rules (endpoint create etc)
 - [ ] adicionar project agents 
 - [ ] ter codebase rules (tipo ter um arquivo para vscode utils)
+- [ ] ter um codebase patterns (swr, endpoints, etc)

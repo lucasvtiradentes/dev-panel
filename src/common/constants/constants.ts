@@ -1,3 +1,4 @@
+import { VscodeIcon } from '../vscode/vscode-constants';
 import { CONFIG_DIR_KEY, CONTEXT_PREFIX } from './scripts-constants';
 
 declare const __IS_DEV_BUILD__: boolean;
@@ -71,7 +72,7 @@ export const CONFIG_INDENT = '    ';
 
 export const BASE_BRANCH = 'origin/main';
 
-export const BRANCH_CONTEXT_DEFAULT_ICON = 'symbol-field';
+export const BRANCH_CONTEXT_DEFAULT_ICON = VscodeIcon.SymbolField;
 
 export const DESCRIPTION_NOT_SET = '(not set)';
 export const DESCRIPTION_NOT_SYNCED = '(not synced)';

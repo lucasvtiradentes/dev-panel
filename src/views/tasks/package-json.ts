@@ -16,6 +16,7 @@ import { loadConfigFromPath } from '../../common/lib/config-manager';
 import { Command } from '../../common/lib/vscode-utils';
 import { TaskSource } from '../../common/schemas/types';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
+import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
@@ -299,10 +300,10 @@ function createNpmTask(options: {
   treeTask.tooltip = command;
 
   if (hidden) {
-    treeTask.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+    treeTask.iconPath = VscodeIcons.HiddenItem;
     treeTask.contextValue = CONTEXT_VALUES.TASK_HIDDEN;
   } else if (favorite) {
-    treeTask.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+    treeTask.iconPath = VscodeIcons.FavoriteItem;
     treeTask.contextValue = CONTEXT_VALUES.TASK_FAVORITE;
   }
 
