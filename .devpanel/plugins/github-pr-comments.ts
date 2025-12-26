@@ -54,7 +54,7 @@ function parsePrLink(prLink: string): { owner: string; repo: string; prNumber: s
   return { owner, repo, prNumber };
 }
 
-function outputWithMetadata(content: string, metadata: Metadata): void {
+function outputWithMetadata(content: string, metadata: Metadata) {
   console.log(`${content}\n`);
   console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
 }
@@ -112,7 +112,7 @@ function formatReviewComments(comments: ReviewComment[]): string[] {
   return lines;
 }
 
-function main(): void {
+function main() {
   const context = getPluginContext();
   const prLink = context.branchContext.prLink;
   const options = context.sectionOptions ?? {};

@@ -14,11 +14,11 @@ export class KeybindingManager {
     this.loadKeybindings();
   }
 
-  reload(): void {
+  reload() {
     this.loadKeybindings();
   }
 
-  private loadKeybindings(): void {
+  private loadKeybindings() {
     this.keybindings = loadVSCodeKeybindings();
     this.workspaceId = getWorkspaceId();
   }

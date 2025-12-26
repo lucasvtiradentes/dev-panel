@@ -88,7 +88,7 @@ function parseLinearLink(linearLink: string): ParsedLink | null {
   return null;
 }
 
-function outputWithMetadata(content: string, metadata: Metadata): void {
+function outputWithMetadata(content: string, metadata: Metadata) {
   console.log(`${content}\n`);
   console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
 }
@@ -181,7 +181,7 @@ function formatIssueComments(comments: LinearComment[]): string[] {
   return lines;
 }
 
-function handleIssue(issueId: string): void {
+function handleIssue(issueId: string) {
   const data = fetchLinearIssue(issueId);
   if (!data) {
     outputWithMetadata('Issue not found or not accessible', { isEmpty: true, description: 'Error' });
@@ -210,7 +210,7 @@ function handleIssue(issueId: string): void {
   outputWithMetadata(content, metadata);
 }
 
-function handleProject(projectId: string): void {
+function handleProject(projectId: string) {
   const data = fetchLinearProject(projectId);
   if (!data) {
     outputWithMetadata('Project not found or not accessible', { isEmpty: true, description: 'Error' });
@@ -234,7 +234,7 @@ function handleProject(projectId: string): void {
   outputWithMetadata(content, metadata);
 }
 
-function main(): void {
+function main() {
   const context = getPluginContext();
   const linearLink = context.branchContext.linearLink;
 

@@ -10,7 +10,7 @@ export class ValidationIndicator {
     this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
   }
 
-  show(issues: ValidationIssue[]): void {
+  show(issues: ValidationIssue[]) {
     if (issues.length === 0) {
       this.hide();
       return;
@@ -39,11 +39,11 @@ export class ValidationIndicator {
     this.statusBarItem.show();
   }
 
-  hide(): void {
+  hide() {
     this.statusBarItem.hide();
   }
 
-  dispose(): void {
+  dispose() {
     this.statusBarItem.dispose();
   }
 }

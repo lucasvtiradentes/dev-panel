@@ -56,7 +56,7 @@ export abstract class BaseTreeDataProvider<
     return this.getSource === null;
   }
 
-  protected updateContextKeys(): void {
+  protected updateContextKeys() {
     const hiddenItems = this.getHiddenItems();
     const favoriteItems = this.getFavoriteItems();
 
@@ -105,14 +105,14 @@ export abstract class BaseTreeDataProvider<
     return workspaceFavorites;
   }
 
-  toggleGroupMode(): void {
+  toggleGroupMode() {
     this._grouped = !this._grouped;
     this.stateManager.saveIsGrouped(this._grouped);
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
   }
 
-  toggleShowHidden(): void {
+  toggleShowHidden() {
     this._showHidden = !this._showHidden;
     if (this.isSimpleStateManager(this.stateManager)) {
       this.stateManager.saveShowHidden(this._showHidden);
@@ -123,7 +123,7 @@ export abstract class BaseTreeDataProvider<
     this._onDidChangeTreeData.fire(null);
   }
 
-  toggleShowOnlyFavorites(): void {
+  toggleShowOnlyFavorites() {
     this._showOnlyFavorites = !this._showOnlyFavorites;
     if (this.isSimpleStateManager(this.stateManager)) {
       this.stateManager.saveShowOnlyFavorites(this._showOnlyFavorites);
@@ -134,7 +134,7 @@ export abstract class BaseTreeDataProvider<
     this._onDidChangeTreeData.fire(null);
   }
 
-  toggleFavorite(item: TItem): void {
+  toggleFavorite(item: TItem) {
     const name = item.getName();
     if (!name) return;
 
@@ -160,7 +160,7 @@ export abstract class BaseTreeDataProvider<
     this._onDidChangeTreeData.fire(null);
   }
 
-  toggleHide(item: TItem): void {
+  toggleHide(item: TItem) {
     const name = item.getName();
     if (!name) return;
 
@@ -186,7 +186,7 @@ export abstract class BaseTreeDataProvider<
     this._onDidChangeTreeData.fire(null);
   }
 
-  refresh(): void {
+  refresh() {
     this._onDidChangeTreeData.fire(null);
   }
 

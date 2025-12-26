@@ -105,13 +105,13 @@ Examples:
 // ✅ Service with state - use instance
 export class Logger {
   constructor(private namespace: string) {}
-  info(message: string): void { }
+  info(message: string){ }
 }
 
 export class CacheManager {
   private cache = new Map();
   get(key: string): unknown { }
-  set(key: string, value: unknown): void { }
+  set(key: string, value: unknown){ }
 }
 
 // Singleton export

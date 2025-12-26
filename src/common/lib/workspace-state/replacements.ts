@@ -5,7 +5,7 @@ export const replacementsState = {
   load(): ReplacementsState {
     return getState().replacements ?? { ...DEFAULT_REPLACEMENTS_STATE };
   },
-  save(newReplacementsState: ReplacementsState): void {
+  save(newReplacementsState: ReplacementsState) {
     const state = getState();
     state.replacements = newReplacementsState;
     saveState(state);
@@ -13,7 +13,7 @@ export const replacementsState = {
   getIsGrouped(): boolean {
     return this.load().isGrouped ?? true;
   },
-  saveIsGrouped(isGrouped: boolean): void {
+  saveIsGrouped(isGrouped: boolean) {
     const replacements = this.load();
     replacements.isGrouped = isGrouped;
     this.save(replacements);
@@ -21,19 +21,19 @@ export const replacementsState = {
   getActiveReplacements(): string[] {
     return this.load().activeReplacements ?? [];
   },
-  setActiveReplacements(active: string[]): void {
+  setActiveReplacements(active: string[]) {
     const replacements = this.load();
     replacements.activeReplacements = active;
     this.save(replacements);
   },
-  addActiveReplacement(name: string): void {
+  addActiveReplacement(name: string) {
     const replacements = this.load();
     if (!replacements.activeReplacements.includes(name)) {
       replacements.activeReplacements.push(name);
       this.save(replacements);
     }
   },
-  removeActiveReplacement(name: string): void {
+  removeActiveReplacement(name: string) {
     const replacements = this.load();
     replacements.activeReplacements = replacements.activeReplacements.filter((n) => n !== name);
     this.save(replacements);
@@ -41,7 +41,7 @@ export const replacementsState = {
   getLastBranch(): string {
     return this.load().lastBranch ?? '';
   },
-  setLastBranch(branch: string): void {
+  setLastBranch(branch: string) {
     const replacements = this.load();
     replacements.lastBranch = branch;
     this.save(replacements);

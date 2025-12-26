@@ -36,7 +36,7 @@ export function getAction(): PluginAction {
   return actionArg.split('=')[1] as PluginAction;
 }
 
-export function outputResponse(response: unknown): void {
+export function outputResponse(response: unknown) {
   console.log(JSON.stringify(response));
 }
 

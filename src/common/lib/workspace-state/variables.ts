@@ -5,7 +5,7 @@ export const variablesState = {
   load(): VariablesState {
     return getState().variables ?? { ...DEFAULT_VARIABLES_STATE };
   },
-  save(newVariablesState: VariablesState): void {
+  save(newVariablesState: VariablesState) {
     const state = getState();
     state.variables = newVariablesState;
     saveState(state);
@@ -13,7 +13,7 @@ export const variablesState = {
   getIsGrouped(): boolean {
     return this.load().isGrouped ?? true;
   },
-  saveIsGrouped(isGrouped: boolean): void {
+  saveIsGrouped(isGrouped: boolean) {
     const variables = this.load();
     variables.isGrouped = isGrouped;
     this.save(variables);

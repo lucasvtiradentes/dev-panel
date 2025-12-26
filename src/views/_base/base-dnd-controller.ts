@@ -18,7 +18,7 @@ export class BaseDragAndDropController<TItem extends NamedTreeItem, TSource = vo
     this.dragMimeTypes = [mimeType];
   }
 
-  handleDrag(source: readonly TItem[], dataTransfer: vscode.DataTransfer, _token: vscode.CancellationToken): void {
+  handleDrag(source: readonly TItem[], dataTransfer: vscode.DataTransfer, _token: vscode.CancellationToken) {
     const item = source[0];
     if (!item) return;
 
@@ -26,7 +26,7 @@ export class BaseDragAndDropController<TItem extends NamedTreeItem, TSource = vo
     dataTransfer.set(this.mimeType, new vscode.DataTransferItem(label));
   }
 
-  handleDrop(target: TItem | undefined, dataTransfer: vscode.DataTransfer, _token: vscode.CancellationToken): void {
+  handleDrop(target: TItem | undefined, dataTransfer: vscode.DataTransfer, _token: vscode.CancellationToken) {
     const transferItem = dataTransfer.get(this.mimeType);
     if (!transferItem || !target) return;
 
@@ -43,7 +43,7 @@ export class BaseDragAndDropController<TItem extends NamedTreeItem, TSource = vo
     return typeof item.label === 'string' ? item.label : (item.label?.label ?? '');
   }
 
-  private reorderItems(draggedLabel: string, targetLabel: string): void {
+  private reorderItems(draggedLabel: string, targetLabel: string) {
     const isGrouped = this.getIsGrouped();
     const source = this.getSource ? this.getSource() : (undefined as TSource);
 

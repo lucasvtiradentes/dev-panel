@@ -55,7 +55,7 @@ export class SectionRegistry {
     workspace: string,
     config?: Partial<BranchContextConfig>,
     showChangedFiles: boolean | { provider: string } = true,
-  ): void {
+  ) {
     this.register({
       name: SECTION_NAME_BRANCH,
       label: SECTION_LABEL_BRANCH,
@@ -143,7 +143,7 @@ export class SectionRegistry {
     }
   }
 
-  private registerCustom(workspace: string, config: Partial<BranchContextConfig>): void {
+  private registerCustom(workspace: string, config: Partial<BranchContextConfig>) {
     if (!config.customSections) {
       logger.info('[registerCustom] No custom sections in config');
       return;
@@ -175,7 +175,7 @@ export class SectionRegistry {
     }
   }
 
-  private register(definition: SectionDefinition): void {
+  private register(definition: SectionDefinition) {
     this.sections.set(definition.name, definition);
   }
 

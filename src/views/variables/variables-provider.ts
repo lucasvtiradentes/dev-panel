@@ -45,7 +45,7 @@ function loadState(): PpState {
   return JSON.parse(content);
 }
 
-function saveState(state: PpState): void {
+function saveState(state: PpState) {
   const statePath = getStatePath();
   if (!statePath) return;
   fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
@@ -106,11 +106,11 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     this.updateContextKeys();
   }
 
-  private updateContextKeys(): void {
+  private updateContextKeys() {
     void setContextKey(ContextKey.ConfigsGrouped, this._grouped);
   }
 
-  toggleGroupMode(): void {
+  toggleGroupMode() {
     this._grouped = !this._grouped;
     saveIsGrouped(this._grouped);
     this.updateContextKeys();
@@ -118,9 +118,9 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
   }
 
   // tscanner-ignore-next-line no-empty-function
-  dispose(): void {}
+  dispose() {}
 
-  refresh(): void {
+  refresh() {
     this._onDidChangeTreeData.fire(undefined);
   }
 
@@ -348,7 +348,7 @@ export async function selectVariableOption(variable: DevPanelVariable) {
   await runCommand(variable, newValue);
 }
 
-export function resetVariableOption(item: VariableTreeItem): void {
+export function resetVariableOption(item: VariableTreeItem) {
   const state = loadState();
   delete state[item.variable.name];
   saveState(state);

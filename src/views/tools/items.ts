@@ -27,7 +27,7 @@ export class TreeTool extends BaseNamedTreeItem {
     return this.toolName;
   }
 
-  setFavorite(isFavorite: boolean): void {
+  setFavorite(isFavorite: boolean) {
     if (isFavorite) {
       this.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
     }

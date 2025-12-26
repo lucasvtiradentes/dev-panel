@@ -5,7 +5,7 @@ import { DEFAULT_TEMPLATE } from './default-template';
 
 const logger = createLogger('TemplateInitializer');
 
-export function ensureTemplateExists(workspace: string): void {
+export function ensureTemplateExists(workspace: string) {
   const templatePath = getBranchContextTemplatePath(workspace);
 
   if (fs.existsSync(templatePath)) {

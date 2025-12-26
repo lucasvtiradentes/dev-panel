@@ -14,12 +14,12 @@ export class StatusBarManager {
     this.statusBarItem.show();
   }
 
-  setHasConfig(hasConfig: boolean): void {
+  setHasConfig(hasConfig: boolean) {
     this.hasConfig = hasConfig;
     this.updateDisplay();
   }
 
-  private updateDisplay(): void {
+  private updateDisplay() {
     const icon = '$(settings-gear)';
     const text = this.hasConfig ? EXTENSION_DISPLAY_NAME : `${EXTENSION_DISPLAY_NAME} (No config)`;
     this.statusBarItem.text = `${icon} ${text}`;
@@ -30,11 +30,11 @@ export class StatusBarManager {
     return lines.join('\n');
   }
 
-  refresh(): void {
+  refresh() {
     this.updateDisplay();
   }
 
-  dispose(): void {
+  dispose() {
     this.statusBarItem.dispose();
   }
 }

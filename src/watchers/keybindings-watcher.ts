@@ -14,7 +14,7 @@ function createKeybindingsUpdater() {
   let isUpdating = false;
 
   return {
-    updateKeybindings(): void {
+    updateKeybindings() {
       if (isUpdating) return;
 
       const workspaceId = getWorkspaceId();

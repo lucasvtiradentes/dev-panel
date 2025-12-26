@@ -200,7 +200,7 @@ export function onDeleteTask(lineIndex: number, context: SyncContext) {
   return Promise.resolve();
 }
 
-function autoToggleParentTask(lines: string[], childLineIndex: number): void {
+function autoToggleParentTask(lines: string[], childLineIndex: number) {
   const childMatch = lines[childLineIndex].match(TASK_ITEM_PATTERN);
   if (!childMatch) return;
 

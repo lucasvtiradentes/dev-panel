@@ -17,7 +17,7 @@ type FileWatcherHandlers = {
   onDelete?: (uri: vscode.Uri) => void;
 };
 
-export function attachFileWatcherHandlers(watcher: vscode.FileSystemWatcher, handlers: FileWatcherHandlers): void {
+export function attachFileWatcherHandlers(watcher: vscode.FileSystemWatcher, handlers: FileWatcherHandlers) {
   if (handlers.onChange) {
     watcher.onDidChange(handlers.onChange);
   }

@@ -37,11 +37,11 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     super(promptsState, PROMPTS_CONFIG, null, globalPromptsState);
   }
 
-  setTreeView(treeView: vscode.TreeView<TreePrompt | PromptGroupTreeItem>): void {
+  setTreeView(treeView: vscode.TreeView<TreePrompt | PromptGroupTreeItem>) {
     this._treeView = treeView;
   }
 
-  refresh(): void {
+  refresh() {
     log.info('refresh() called - tree will re-read config');
     this.updateContextKeys();
     super.refresh();
@@ -219,5 +219,5 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
   }
 
   // tscanner-ignore-next-line no-empty-function
-  dispose(): void {}
+  dispose() {}
 }

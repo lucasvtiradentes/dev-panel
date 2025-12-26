@@ -12,7 +12,7 @@ const manager = new KeybindingManager({
 export const getAllToolKeybindings = () => manager.getAllKeybindings();
 export const reloadToolKeybindings = () => manager.reload();
 
-export function registerToolKeybindings(context: vscode.ExtensionContext): void {
+export function registerToolKeybindings(context: vscode.ExtensionContext) {
   forEachWorkspaceConfig((folder, config) => {
     const tools = config.tools ?? [];
 

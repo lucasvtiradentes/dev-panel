@@ -84,11 +84,7 @@ export class BranchTasksDragAndDropController implements vscode.TreeDragAndDropC
 
   constructor(private readonly provider: BranchTasksProviderInterface) {}
 
-  handleDrag(
-    source: readonly BranchTreeItem[],
-    dataTransfer: vscode.DataTransfer,
-    _token: vscode.CancellationToken,
-  ): void {
+  handleDrag(source: readonly BranchTreeItem[], dataTransfer: vscode.DataTransfer, _token: vscode.CancellationToken) {
     const item = source[0];
     if (!item || !(item instanceof BranchTaskItem)) return;
 

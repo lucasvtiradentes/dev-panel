@@ -98,12 +98,12 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     this.handleStartup();
   }
 
-  private updateContextKeys(): void {
+  private updateContextKeys() {
     void setContextKey(ContextKey.ReplacementsGrouped, this._grouped);
     this.updateAllActiveContext();
   }
 
-  private updateAllActiveContext(): void {
+  private updateAllActiveContext() {
     const config = this.loadConfig();
     if (!config?.replacements || config.replacements.length === 0) {
       void setContextKey(ContextKey.ReplacementsAllActive, false);
@@ -115,7 +115,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     void setContextKey(ContextKey.ReplacementsAllActive, allActive);
   }
 
-  toggleGroupMode(): void {
+  toggleGroupMode() {
     this._grouped = !this._grouped;
     saveIsGrouped(this._grouped);
     this.updateContextKeys();
@@ -131,7 +131,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     this.syncReplacementState();
   }
 
-  private syncReplacementState(): void {
+  private syncReplacementState() {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
@@ -148,15 +148,15 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     setActiveReplacements(activeReplacements);
   }
 
-  handleBranchChange(currentBranch: string): void {
+  handleBranchChange(currentBranch: string) {
     setLastBranch(currentBranch);
     this.syncReplacementState();
   }
 
   // tscanner-ignore-next-line no-empty-function
-  dispose(): void {}
+  dispose() {}
 
-  refresh(): void {
+  refresh() {
     this.syncReplacementState();
     this.updateAllActiveContext();
     this._onDidChangeTreeData.fire(undefined);

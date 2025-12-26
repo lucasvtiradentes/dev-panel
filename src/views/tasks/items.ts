@@ -33,7 +33,7 @@ export class WorkspaceTreeItem extends vscode.TreeItem {
     super(label, vscode.TreeItemCollapsibleState.Expanded);
   }
 
-  public addChildren(child: TreeTask): void {
+  public addChildren(child: TreeTask) {
     const groupName = child.group ?? NO_GROUP_NAME;
     if (this.childrenObject[groupName] === undefined) {
       const group = new GroupTreeItem(groupName);
@@ -83,13 +83,13 @@ export class TreeTask extends vscode.TreeItem {
     return this.taskName;
   }
 
-  setFavorite(isFavorite: boolean): void {
+  setFavorite(isFavorite: boolean) {
     if (isFavorite) {
       this.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
     }
   }
 
-  private loadTaskMetadata(): void {
+  private loadTaskMetadata() {
     const multiRoot = isMultiRootWorkspace();
     const workspaceFolders = vscode.workspace.workspaceFolders;
 
@@ -129,7 +129,7 @@ export class TreeTask extends vscode.TreeItem {
     return loadTasksJson(tasksJsonPath);
   }
 
-  private applyTaskDefinition(taskDef: TaskDefinition): void {
+  private applyTaskDefinition(taskDef: TaskDefinition) {
     this.hide = taskDef.hide ?? false;
   }
 }

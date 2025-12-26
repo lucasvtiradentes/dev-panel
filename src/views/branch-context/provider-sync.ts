@@ -35,7 +35,7 @@ export class SyncManager {
     private updateLastSyncTimestamp: (timestamp: string) => void,
   ) {}
 
-  debouncedSync(syncFn: () => void): void {
+  debouncedSync(syncFn: () => void) {
     if (this.syncDebounceTimer) {
       clearTimeout(this.syncDebounceTimer);
     }
@@ -47,7 +47,7 @@ export class SyncManager {
     }, SYNC_DEBOUNCE_MS);
   }
 
-  syncRootToBranch(): void {
+  syncRootToBranch() {
     const currentBranch = this.getCurrentBranch();
     if (!currentBranch) {
       return;
@@ -86,7 +86,7 @@ export class SyncManager {
     }
   }
 
-  syncBranchToRoot(): void {
+  syncBranchToRoot() {
     const currentBranch = this.getCurrentBranch();
     if (!currentBranch) {
       return;
@@ -277,7 +277,7 @@ export class SyncManager {
     return this.isWritingMarkdown;
   }
 
-  dispose(): void {
+  dispose() {
     if (this.syncDebounceTimer) {
       clearTimeout(this.syncDebounceTimer);
       this.syncDebounceTimer = null;

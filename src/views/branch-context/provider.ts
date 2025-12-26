@@ -69,7 +69,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     );
   }
 
-  setTreeView(treeView: vscode.TreeView<vscode.TreeItem>): void {
+  setTreeView(treeView: vscode.TreeView<vscode.TreeItem>) {
     this.treeView = treeView;
     this.updateDescription();
     this.descriptionInterval = setInterval(() => {
@@ -77,7 +77,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }, 60000);
   }
 
-  private updateDescription(): void {
+  private updateDescription() {
     if (!this.treeView) {
       logger.info('[updateDescription] No treeView, skipping');
       return;
@@ -101,13 +101,13 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
   }
 
-  handleTemplateChange(): void {
+  handleTemplateChange() {
     if (!this.currentBranch) return;
     logger.info('[BranchContextProvider] Template changed, syncing branch context');
     void this.syncBranchContext();
   }
 
-  handleMarkdownChange(uri?: vscode.Uri): void {
+  handleMarkdownChange(uri?: vscode.Uri) {
     if (this.syncManager.getIsWritingMarkdown() || this.syncManager.getIsSyncing()) {
       return;
     }
@@ -124,7 +124,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     this.syncManager.debouncedSync(() => this.syncManager.syncBranchToRoot());
   }
 
-  handleRootMarkdownChange(): void {
+  handleRootMarkdownChange() {
     if (this.syncManager.getIsWritingMarkdown() || this.syncManager.getIsSyncing()) {
       return;
     }
@@ -159,7 +159,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
   }
 
-  private addToGitExclude(workspace: string): void {
+  private addToGitExclude(workspace: string) {
     const excludePath = path.join(workspace, '.git', 'info', 'exclude');
     if (!fs.existsSync(excludePath)) return;
 
@@ -177,7 +177,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
   }
 
-  setBranch(branchName: string, shouldRefresh = true): void {
+  setBranch(branchName: string, shouldRefresh = true) {
     logger.info(`[BranchContextProvider] setBranch called: ${branchName} (current: ${this.currentBranch})`);
 
     if (branchName !== this.currentBranch) {
@@ -189,7 +189,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
   }
 
-  refresh(): void {
+  refresh() {
     void setContextKey(ContextKey.BranchContextHideEmptySections, branchContextState.getHideEmptySections());
     this.updateDescription();
     this._onDidChangeTreeData.fire(undefined);
@@ -308,7 +308,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     await this.syncManager.syncBranchContext();
   }
 
-  dispose(): void {
+  dispose() {
     if (this.descriptionInterval) {
       clearInterval(this.descriptionInterval);
       this.descriptionInterval = null;

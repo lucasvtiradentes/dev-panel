@@ -4,7 +4,7 @@ import { forEachWorkspaceConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { Command, executeCommand } from '../../common/lib/vscode-utils';
 
-export function registerReplacementKeybindings(context: vscode.ExtensionContext): void {
+export function registerReplacementKeybindings(context: vscode.ExtensionContext) {
   forEachWorkspaceConfig((_folder, config) => {
     const replacements = config.replacements ?? [];
 

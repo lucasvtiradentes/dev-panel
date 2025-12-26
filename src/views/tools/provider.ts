@@ -43,11 +43,11 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     this.initializeActiveTools();
   }
 
-  setTreeView(treeView: vscode.TreeView<TreeTool | ToolGroupTreeItem>): void {
+  setTreeView(treeView: vscode.TreeView<TreeTool | ToolGroupTreeItem>) {
     this._treeView = treeView;
   }
 
-  private initializeActiveTools(): void {
+  private initializeActiveTools() {
     const existingActiveTools = getActiveTools();
     if (existingActiveTools.length > 0) return;
 
@@ -68,7 +68,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     setActiveTools(allTools);
   }
 
-  toggleTool(tool: TreeTool): void {
+  toggleTool(tool: TreeTool) {
     logger.info(`toggleTool called for: ${tool?.toolName ?? 'null'}`);
 
     if (!tool || !tool.toolName) {
@@ -92,7 +92,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     this.refresh();
   }
 
-  refresh(): void {
+  refresh() {
     this.updateContextKeys();
     super.refresh();
   }
@@ -306,15 +306,15 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   }
 
   // tscanner-ignore-next-line no-empty-function
-  dispose(): void {}
+  dispose() {}
 }
 
 let providerInstance: ToolTreeDataProvider | null = null;
 
-export function setToolProviderInstance(instance: ToolTreeDataProvider): void {
+export function setToolProviderInstance(instance: ToolTreeDataProvider) {
   providerInstance = instance;
 }
 
-export function toggleTool(tool: TreeTool): void {
+export function toggleTool(tool: TreeTool) {
   providerInstance?.toggleTool(tool);
 }

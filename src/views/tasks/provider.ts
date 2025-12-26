@@ -47,17 +47,17 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     this.updateContextKeys();
   }
 
-  setTreeView(treeView: vscode.TreeView<TreeTask | GroupTreeItem | WorkspaceTreeItem>): void {
+  setTreeView(treeView: vscode.TreeView<TreeTask | GroupTreeItem | WorkspaceTreeItem>) {
     this._treeView = treeView;
     this.updateViewTitle();
   }
 
-  refresh(): void {
+  refresh() {
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
   }
 
-  switchSource(): void {
+  switchSource() {
     const currentIndex = TASK_SOURCES.findIndex((s) => s.id === this._source);
     const nextIndex = (currentIndex + 1) % TASK_SOURCES.length;
     const nextSource = TASK_SOURCES[nextIndex];
@@ -71,7 +71,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     this._onDidChangeTreeData.fire(null);
   }
 
-  private updateViewTitle(): void {
+  private updateViewTitle() {
     if (!this._treeView) return;
     const source = TASK_SOURCES.find((s) => s.id === this._source);
     if (source) {
@@ -105,28 +105,28 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     void setContextKey(ContextKey.TasksShowOnlyFavorites, this._showOnlyFavorites);
   }
 
-  toggleGroupMode(): void {
+  toggleGroupMode() {
     this._grouped = !this._grouped;
     saveIsGrouped(this._grouped);
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
   }
 
-  toggleShowHidden(): void {
+  toggleShowHidden() {
     this._showHidden = !this._showHidden;
     saveShowHidden(this._source, this._showHidden);
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
   }
 
-  toggleShowOnlyFavorites(): void {
+  toggleShowOnlyFavorites() {
     this._showOnlyFavorites = !this._showOnlyFavorites;
     saveShowOnlyFavorites(this._source, this._showOnlyFavorites);
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
   }
 
-  toggleFavorite(item: TreeTask): void {
+  toggleFavorite(item: TreeTask) {
     if (item?.taskName) {
       toggleFavoriteState(this._source, item.taskName);
       this.updateContextKeys();
@@ -134,7 +134,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     }
   }
 
-  toggleHide(item: TreeTask): void {
+  toggleHide(item: TreeTask) {
     if (item?.taskName) {
       toggleHidden(this._source, item.taskName);
       this.updateContextKeys();
@@ -226,5 +226,5 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
   }
 
   // tscanner-ignore-next-line no-empty-function
-  dispose(): void {}
+  dispose() {}
 }

@@ -74,7 +74,7 @@ export function getCurrentConfigDir(): string | null {
   return extensionStore.get(StoreKey.ConfigDir);
 }
 
-export function setConfigDir(configDir: string | null): void {
+export function setConfigDir(configDir: string | null) {
   extensionStore.set(StoreKey.ConfigDir, configDir);
 }
 
@@ -189,9 +189,7 @@ export function loadWorkspaceConfig(folder: vscode.WorkspaceFolder): DevPanelCon
   return loadConfigFromPath(configPath);
 }
 
-export function forEachWorkspaceConfig(
-  callback: (folder: vscode.WorkspaceFolder, config: DevPanelConfig) => void,
-): void {
+export function forEachWorkspaceConfig(callback: (folder: vscode.WorkspaceFolder, config: DevPanelConfig) => void) {
   const folders = getWorkspaceFolders();
   if (folders.length === 0) return;
 
@@ -214,24 +212,24 @@ type ConfigArrayItem =
   | NonNullable<DevPanelConfig['tasks']>[number]
   | NonNullable<DevPanelConfig['tools']>[number];
 
-export function ensureDirectoryExists(dirPath: string): void {
+export function ensureDirectoryExists(dirPath: string) {
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath, { recursive: true });
   }
 }
 
-export function saveConfigToPath(configPath: string, config: DevPanelConfig): void {
+export function saveConfigToPath(configPath: string, config: DevPanelConfig) {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
 }
 
-export function saveGlobalConfig(config: DevPanelConfig): void {
+export function saveGlobalConfig(config: DevPanelConfig) {
   const globalConfigDir = getGlobalConfigDir();
   const globalConfigPath = getGlobalConfigPath();
   ensureDirectoryExists(globalConfigDir);
   saveConfigToPath(globalConfigPath, config);
 }
 
-export function saveWorkspaceConfig(folder: vscode.WorkspaceFolder, config: DevPanelConfig): void {
+export function saveWorkspaceConfig(folder: vscode.WorkspaceFolder, config: DevPanelConfig) {
   const workspaceConfigDir = getWorkspaceConfigDirPath(folder);
   const workspaceConfigPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
   ensureDirectoryExists(workspaceConfigDir);

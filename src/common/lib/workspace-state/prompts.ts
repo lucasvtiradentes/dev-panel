@@ -6,7 +6,7 @@ export const promptsState = {
   load(): PromptsState {
     return getState().prompts ?? { ...DEFAULT_PROMPTS_STATE };
   },
-  save(newPromptsState: PromptsState): void {
+  save(newPromptsState: PromptsState) {
     const state = getState();
     state.prompts = newPromptsState;
     saveState(state);
@@ -14,7 +14,7 @@ export const promptsState = {
   getIsGrouped(): boolean {
     return this.load().isGrouped ?? false;
   },
-  saveIsGrouped(isGrouped: boolean): void {
+  saveIsGrouped(isGrouped: boolean) {
     const prompts = this.load();
     prompts.isGrouped = isGrouped;
     this.save(prompts);
@@ -22,7 +22,7 @@ export const promptsState = {
   getShowHidden(): boolean {
     return this.load().showHidden ?? false;
   },
-  saveShowHidden(showHidden: boolean): void {
+  saveShowHidden(showHidden: boolean) {
     const prompts = this.load();
     prompts.showHidden = showHidden;
     this.save(prompts);
@@ -33,7 +33,7 @@ export const promptsState = {
   getShowOnlyFavorites(): boolean {
     return this.load().showOnlyFavorites ?? false;
   },
-  saveShowOnlyFavorites(showOnlyFavorites: boolean): void {
+  saveShowOnlyFavorites(showOnlyFavorites: boolean) {
     const prompts = this.load();
     prompts.showOnlyFavorites = showOnlyFavorites;
     this.save(prompts);
@@ -44,7 +44,7 @@ export const promptsState = {
   getSourceState(): SourceState {
     return this.load()[TaskSource.DevPanel] ?? { ...DEFAULT_SOURCE_STATE };
   },
-  saveSourceState(sourceState: SourceState): void {
+  saveSourceState(sourceState: SourceState) {
     const prompts = this.load();
     prompts[TaskSource.DevPanel] = sourceState;
     this.save(prompts);
@@ -53,7 +53,7 @@ export const promptsState = {
     const sourceState = this.getSourceState();
     return isGrouped ? sourceState.groupOrder : sourceState.flatOrder;
   },
-  saveOrder(isGrouped: boolean, order: string[]): void {
+  saveOrder(isGrouped: boolean, order: string[]) {
     const sourceState = this.getSourceState();
     if (isGrouped) {
       sourceState.groupOrder = order;

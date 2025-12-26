@@ -13,7 +13,7 @@ const manager = new KeybindingManager({
 export const getAllPromptKeybindings = () => manager.getAllKeybindings();
 export const reloadPromptKeybindings = () => manager.reload();
 
-export function registerPromptKeybindings(context: vscode.ExtensionContext): void {
+export function registerPromptKeybindings(context: vscode.ExtensionContext) {
   forEachWorkspaceConfig((folder, config) => {
     const prompts = config.prompts ?? [];
 

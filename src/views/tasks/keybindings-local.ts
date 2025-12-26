@@ -19,7 +19,7 @@ const manager = new KeybindingManager({
 export const getAllTaskKeybindings = () => manager.getAllKeybindings();
 export const reloadTaskKeybindings = () => manager.reload();
 
-export function registerTaskKeybindings(context: vscode.ExtensionContext): void {
+export function registerTaskKeybindings(context: vscode.ExtensionContext) {
   forEachWorkspaceConfig((folder, config) => {
     const tasks = config.tasks ?? [];
 

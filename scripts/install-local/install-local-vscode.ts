@@ -221,7 +221,7 @@ function getEditorExtensionsPath(editor: Editor): string {
   return paths[editor];
 }
 
-function copyRecursive(src: string, dest: string): void {
+function copyRecursive(src: string, dest: string) {
   const stat = statSync(src);
 
   if (stat.isDirectory()) {

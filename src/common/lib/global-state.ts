@@ -15,11 +15,11 @@ import { TaskSource } from '../schemas/types';
 
 let _context: vscode.ExtensionContext | null = null;
 
-export function initGlobalState(context: vscode.ExtensionContext): void {
+export function initGlobalState(context: vscode.ExtensionContext) {
   _context = context;
 }
 
-export function migrateGlobalState(): void {
+export function migrateGlobalState() {
   return;
 }
 
@@ -39,7 +39,7 @@ function getState(): GlobalUIState {
   );
 }
 
-function saveState(state: GlobalUIState): void {
+function saveState(state: GlobalUIState) {
   if (!_context) return;
   void _context.globalState.update(GLOBAL_STATE_KEY, state);
 }
@@ -48,7 +48,7 @@ export const globalToolsState = {
   load(): ToolsState {
     return getState().tools ?? { ...DEFAULT_TOOLS_STATE };
   },
-  save(newToolsState: ToolsState): void {
+  save(newToolsState: ToolsState) {
     const state = getState();
     state.tools = newToolsState;
     saveState(state);
@@ -56,7 +56,7 @@ export const globalToolsState = {
   getSourceState(): SourceState {
     return this.load()[TaskSource.DevPanel] ?? { ...DEFAULT_SOURCE_STATE };
   },
-  saveSourceState(sourceState: SourceState): void {
+  saveSourceState(sourceState: SourceState) {
     const tools = this.load();
     tools[TaskSource.DevPanel] = sourceState;
     this.save(tools);
@@ -95,7 +95,7 @@ export const globalTasksState = {
   load(): TasksGlobalState {
     return getState().tasks ?? { ...DEFAULT_TASKS_GLOBAL_STATE };
   },
-  save(newTasksState: TasksGlobalState): void {
+  save(newTasksState: TasksGlobalState) {
     const state = getState();
     state.tasks = newTasksState;
     saveState(state);
@@ -103,7 +103,7 @@ export const globalTasksState = {
   getSourceState(): SourceState {
     return this.load()[TaskSource.DevPanel] ?? { ...DEFAULT_SOURCE_STATE };
   },
-  saveSourceState(sourceState: SourceState): void {
+  saveSourceState(sourceState: SourceState) {
     const tasks = this.load();
     tasks[TaskSource.DevPanel] = sourceState;
     this.save(tasks);
@@ -142,7 +142,7 @@ export const globalPromptsState = {
   load(): PromptsState {
     return getState().prompts ?? { ...DEFAULT_PROMPTS_STATE };
   },
-  save(newPromptsState: PromptsState): void {
+  save(newPromptsState: PromptsState) {
     const state = getState();
     state.prompts = newPromptsState;
     saveState(state);
@@ -150,7 +150,7 @@ export const globalPromptsState = {
   getSourceState(): SourceState {
     return this.load()[TaskSource.DevPanel] ?? { ...DEFAULT_SOURCE_STATE };
   },
-  saveSourceState(sourceState: SourceState): void {
+  saveSourceState(sourceState: SourceState) {
     const prompts = this.load();
     prompts[TaskSource.DevPanel] = sourceState;
     this.save(prompts);

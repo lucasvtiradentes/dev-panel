@@ -7,7 +7,7 @@ import { getAllVariableKeybindings } from '../../views/variables/keybindings-loc
 import { getPromptCommandId, getTaskCommandId, getToolCommandId, getVariableCommandId } from '../constants/functions';
 import { getVSCodeKeybindingsPath, loadKeybindings } from './vscode-keybindings-utils';
 
-export function syncKeybindings(): void {
+export function syncKeybindings() {
   const folders = vscode.workspace.workspaceFolders ?? [];
   if (!folders || folders.length === 0) return;
 

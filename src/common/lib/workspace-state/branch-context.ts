@@ -5,7 +5,7 @@ export const branchContextState = {
   load(): BranchContextState {
     return getState().branchContext ?? { ...DEFAULT_BRANCH_CONTEXT_STATE };
   },
-  save(newBranchContextState: BranchContextState): void {
+  save(newBranchContextState: BranchContextState) {
     const state = getState();
     state.branchContext = newBranchContextState;
     saveState(state);
@@ -13,7 +13,7 @@ export const branchContextState = {
   getHideEmptySections(): boolean {
     return this.load().hideEmptySections ?? false;
   },
-  saveHideEmptySections(hideEmptySections: boolean): void {
+  saveHideEmptySections(hideEmptySections: boolean) {
     const branchContext = this.load();
     branchContext.hideEmptySections = hideEmptySections;
     this.save(branchContext);

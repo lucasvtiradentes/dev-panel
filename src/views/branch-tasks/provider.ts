@@ -61,13 +61,13 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     return loadWorkspaceConfigFromPath(workspace);
   }
 
-  toggleShowOnlyTodo(): void {
+  toggleShowOnlyTodo() {
     this.showOnlyTodo = !this.showOnlyTodo;
     void setContextKey(ContextKey.BranchTasksShowOnlyTodo, this.showOnlyTodo);
     this.refresh();
   }
 
-  toggleGroupMode(): void {
+  toggleGroupMode() {
     this.grouped = !this.grouped;
     void setContextKey(ContextKey.BranchTasksGrouped, this.grouped);
     this.refresh();
@@ -109,7 +109,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     this.refresh();
   }
 
-  handleMarkdownChange(uri: vscode.Uri): void {
+  handleMarkdownChange(uri: vscode.Uri) {
     if (extensionStore.get(StoreKey.IsWritingBranchContext)) {
       logger.info(`[BranchTasksProvider] Ignoring file change during sync: ${uri.fsPath}`);
       return;
@@ -127,7 +127,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     }, FILE_WATCHER_DEBOUNCE_MS);
   }
 
-  setBranch(branchName: string): void {
+  setBranch(branchName: string) {
     if (branchName !== this.currentBranch) {
       logger.info(`[BranchTasksProvider] Branch changed from '${this.currentBranch}' to '${branchName}'`);
       this.currentBranch = branchName;
@@ -135,7 +135,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     }
   }
 
-  private loadBranchTasks(): void {
+  private loadBranchTasks() {
     const filePath = getBranchContextFilePath(this.currentBranch);
 
     if (!filePath || !fs.existsSync(filePath)) {
@@ -172,7 +172,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     });
   }
 
-  refresh(): void {
+  refresh() {
     logger.info(`[BranchTasksProvider] Refreshing tasks for branch: ${this.currentBranch}`);
     this.loadBranchTasks();
     this._onDidChangeTreeData.fire(undefined);
@@ -225,7 +225,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     return result;
   }
 
-  toggleTodo(lineIndex: number): void {
+  toggleTodo(lineIndex: number) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
@@ -377,7 +377,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     return new BranchTasksDragAndDropController(this);
   }
 
-  dispose(): void {
+  dispose() {
     if (this.fileChangeDebounce) {
       clearTimeout(this.fileChangeDebounce);
     }

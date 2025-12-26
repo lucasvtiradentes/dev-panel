@@ -229,6 +229,6 @@ let currentWorkspaceId = '';
 export function getWorkspaceId(): string {
   return currentWorkspaceId;
 }
-export function setWorkspaceId(id: string): void {
+export function setWorkspaceId(id: string) {
   currentWorkspaceId = id;
 }

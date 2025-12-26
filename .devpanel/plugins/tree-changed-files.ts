@@ -21,7 +21,7 @@ function getPluginContext(): PluginContext {
   return JSON.parse(process.env.PLUGIN_CONTEXT ?? '{}');
 }
 
-function outputWithMetadata(content: string, metadata: Metadata): void {
+function outputWithMetadata(content: string, metadata: Metadata) {
   console.log(`${content}\n`);
   console.log(`<!-- SECTION_METADATA: ${JSON.stringify(metadata)} -->`);
 }
@@ -68,7 +68,7 @@ function generateTreeOutput(dirs: string[], files: string[], workspacePath: stri
   }
 }
 
-function main(): void {
+function main() {
   const context = getPluginContext();
   const workspacePath = context.workspacePath;
 

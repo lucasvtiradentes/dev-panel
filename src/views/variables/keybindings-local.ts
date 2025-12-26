@@ -12,7 +12,7 @@ const manager = new KeybindingManager({
 
 export const getAllVariableKeybindings = () => manager.getAllKeybindings();
 
-export function registerVariableKeybindings(context: vscode.ExtensionContext): void {
+export function registerVariableKeybindings(context: vscode.ExtensionContext) {
   forEachWorkspaceConfig((_folder, config) => {
     const variables = config.variables ?? [];
 

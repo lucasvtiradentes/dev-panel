@@ -24,7 +24,7 @@ class ExtensionStore {
   private context: vscode.ExtensionContext | null = null;
   private listeners = new Map<StoreKey, Set<AnyStateListener>>();
 
-  initialize(context: vscode.ExtensionContext): void {
+  initialize(context: vscode.ExtensionContext) {
     this.context = context;
     const stored = context.workspaceState.get<string | null>(WORKSPACE_STATE_CONFIG_DIR_KEY);
     this.state[StoreKey.ConfigDir] = stored ?? null;
@@ -38,7 +38,7 @@ class ExtensionStore {
     return this.state[key];
   }
 
-  set<K extends StoreKey>(key: K, value: ExtensionState[K]): void {
+  set<K extends StoreKey>(key: K, value: ExtensionState[K]) {
     const oldValue = this.state[key];
     if (oldValue === value) return;
 
@@ -59,7 +59,7 @@ class ExtensionStore {
     };
   }
 
-  private persist<K extends StoreKey>(key: K, value: ExtensionState[K]): void {
+  private persist<K extends StoreKey>(key: K, value: ExtensionState[K]) {
     if (!this.context) return;
 
     switch (key) {
@@ -69,7 +69,7 @@ class ExtensionStore {
     }
   }
 
-  private notify<K extends StoreKey>(key: K, value: ExtensionState[K], oldValue: ExtensionState[K]): void {
+  private notify<K extends StoreKey>(key: K, value: ExtensionState[K], oldValue: ExtensionState[K]) {
     const keyListeners = this.listeners.get(key);
     if (!keyListeners) return;
 

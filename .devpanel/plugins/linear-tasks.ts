@@ -13,7 +13,7 @@ import { getPluginRequest, runPlugin } from './task-plugin-base';
 
 const LOG_FILE = join(tmpdir(), 'dev-panel-dev.log');
 
-function log(message: string): void {
+function log(message: string) {
   const timestamp = new Date().toISOString();
   appendFileSync(LOG_FILE, `[${timestamp}] [linear-tasks    ] [DEBUG] ${message}\n`);
 }
@@ -247,7 +247,7 @@ const customStateMapping = options.stateMapping as Record<string, TaskStatus> | 
 
 const taskCache = new Map<number, string>();
 
-function ensureTaskCache(): void {
+function ensureTaskCache() {
   if (taskCache.size > 0) return;
 
   log('ensureTaskCache: rebuilding cache');

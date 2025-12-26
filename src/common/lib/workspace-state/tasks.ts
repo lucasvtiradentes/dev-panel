@@ -6,7 +6,7 @@ export const tasksState = {
   load(): TasksState {
     return getState().tasks ?? { ...DEFAULT_TASKS_STATE };
   },
-  save(newTasksState: TasksState): void {
+  save(newTasksState: TasksState) {
     const state = getState();
     state.tasks = newTasksState;
     saveState(state);
@@ -15,7 +15,7 @@ export const tasksState = {
     const tasks = this.load();
     return (tasks.current as TaskSource) ?? TaskSource.VSCode;
   },
-  saveCurrentSource(source: TaskSource): void {
+  saveCurrentSource(source: TaskSource) {
     const tasks = this.load();
     tasks.current = source;
     this.save(tasks);
@@ -23,7 +23,7 @@ export const tasksState = {
   getIsGrouped(): boolean {
     return this.load().isGrouped ?? false;
   },
-  saveIsGrouped(isGrouped: boolean): void {
+  saveIsGrouped(isGrouped: boolean) {
     const tasks = this.load();
     tasks.isGrouped = isGrouped;
     this.save(tasks);
@@ -32,7 +32,7 @@ export const tasksState = {
     const tasks = this.load();
     return tasks[source] ?? { ...DEFAULT_SOURCE_STATE };
   },
-  saveSourceState(source: TaskSource, sourceState: SourceState): void {
+  saveSourceState(source: TaskSource, sourceState: SourceState) {
     const tasks = this.load();
     tasks[source] = sourceState;
     this.save(tasks);
@@ -41,7 +41,7 @@ export const tasksState = {
     const sourceState = this.getSourceState(source);
     return isGrouped ? sourceState.groupOrder : sourceState.flatOrder;
   },
-  saveOrder(source: TaskSource, isGrouped: boolean, order: string[]): void {
+  saveOrder(source: TaskSource, isGrouped: boolean, order: string[]) {
     const sourceState = this.getSourceState(source);
     if (isGrouped) {
       sourceState.groupOrder = order;
@@ -81,7 +81,7 @@ export const tasksState = {
   getShowHidden(source: TaskSource): boolean {
     return this.getSourceState(source).showHidden ?? false;
   },
-  saveShowHidden(source: TaskSource, showHidden: boolean): void {
+  saveShowHidden(source: TaskSource, showHidden: boolean) {
     const sourceState = this.getSourceState(source);
     sourceState.showHidden = showHidden;
     this.saveSourceState(source, sourceState);
@@ -92,7 +92,7 @@ export const tasksState = {
   getShowOnlyFavorites(source: TaskSource): boolean {
     return this.getSourceState(source).showOnlyFavorites ?? false;
   },
-  saveShowOnlyFavorites(source: TaskSource, showOnlyFavorites: boolean): void {
+  saveShowOnlyFavorites(source: TaskSource, showOnlyFavorites: boolean) {
     const sourceState = this.getSourceState(source);
     sourceState.showOnlyFavorites = showOnlyFavorites;
     this.saveSourceState(source, sourceState);

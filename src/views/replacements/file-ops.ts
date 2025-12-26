@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
 
-export function applyFileReplacement(workspace: string, source: string, target: string): void {
+export function applyFileReplacement(workspace: string, source: string, target: string) {
   const sourcePath = path.join(workspace, source);
   const targetPath = path.join(workspace, target);
   fs.copyFileSync(sourcePath, targetPath);
@@ -12,7 +12,7 @@ function normalizeSearchReplace(value: string[]): string {
   return value.join('\n');
 }
 
-export function applyPatches(workspace: string, target: string, patches: NormalizedPatchItem[]): void {
+export function applyPatches(workspace: string, target: string, patches: NormalizedPatchItem[]) {
   const targetPath = path.join(workspace, target);
   let content = fs.readFileSync(targetPath, 'utf-8');
 

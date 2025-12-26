@@ -323,7 +323,7 @@ async function syncToSkills(workspaceFolder: vscode.WorkspaceFolder): Promise<nu
   return syncedCount;
 }
 
-function syncToAiSpecs(xml: string, workspaceFolder: vscode.WorkspaceFolder): void {
+function syncToAiSpecs(xml: string, workspaceFolder: vscode.WorkspaceFolder) {
   const foundFiles: string[] = [];
 
   for (const specFile of AI_SPEC_FILES) {

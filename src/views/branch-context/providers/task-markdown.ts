@@ -45,7 +45,7 @@ export function fromMarkdown(content: string): TaskNode[] {
 export function toMarkdown(tasks: TaskNode[]): string {
   const lines: string[] = [];
 
-  const renderNode = (node: TaskNode, indent = 0): void => {
+  const renderNode = (node: TaskNode, indent = 0) => {
     const prefix = '  '.repeat(indent);
     const marker = statusToMarker(node.status);
     const taskContent = formatTaskLine(node.text, node.meta);

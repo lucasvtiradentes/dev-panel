@@ -6,7 +6,7 @@ export const toolsState = {
   load(): ToolsState {
     return getState().tools ?? { ...DEFAULT_TOOLS_STATE };
   },
-  save(newToolsState: ToolsState): void {
+  save(newToolsState: ToolsState) {
     const state = getState();
     state.tools = newToolsState;
     saveState(state);
@@ -14,7 +14,7 @@ export const toolsState = {
   getIsGrouped(): boolean {
     return this.load().isGrouped ?? false;
   },
-  saveIsGrouped(isGrouped: boolean): void {
+  saveIsGrouped(isGrouped: boolean) {
     const tools = this.load();
     tools.isGrouped = isGrouped;
     this.save(tools);
@@ -22,7 +22,7 @@ export const toolsState = {
   getShowHidden(): boolean {
     return this.load().showHidden ?? false;
   },
-  saveShowHidden(showHidden: boolean): void {
+  saveShowHidden(showHidden: boolean) {
     const tools = this.load();
     tools.showHidden = showHidden;
     this.save(tools);
@@ -33,7 +33,7 @@ export const toolsState = {
   getShowOnlyFavorites(): boolean {
     return this.load().showOnlyFavorites ?? false;
   },
-  saveShowOnlyFavorites(showOnlyFavorites: boolean): void {
+  saveShowOnlyFavorites(showOnlyFavorites: boolean) {
     const tools = this.load();
     tools.showOnlyFavorites = showOnlyFavorites;
     this.save(tools);
@@ -44,7 +44,7 @@ export const toolsState = {
   getSourceState(): SourceState {
     return this.load()[TaskSource.DevPanel] ?? { ...DEFAULT_SOURCE_STATE };
   },
-  saveSourceState(sourceState: SourceState): void {
+  saveSourceState(sourceState: SourceState) {
     const tools = this.load();
     tools[TaskSource.DevPanel] = sourceState;
     this.save(tools);
@@ -53,7 +53,7 @@ export const toolsState = {
     const sourceState = this.getSourceState();
     return isGrouped ? sourceState.groupOrder : sourceState.flatOrder;
   },
-  saveOrder(isGrouped: boolean, order: string[]): void {
+  saveOrder(isGrouped: boolean, order: string[]) {
     const sourceState = this.getSourceState();
     if (isGrouped) {
       sourceState.groupOrder = order;
@@ -93,12 +93,12 @@ export const toolsState = {
   getActiveTools(): string[] {
     return this.load().activeTools ?? [];
   },
-  setActiveTools(active: string[]): void {
+  setActiveTools(active: string[]) {
     const tools = this.load();
     tools.activeTools = active;
     this.save(tools);
   },
-  addActiveTool(name: string): void {
+  addActiveTool(name: string) {
     const tools = this.load();
     if (!tools.activeTools) {
       tools.activeTools = [];
@@ -108,7 +108,7 @@ export const toolsState = {
       this.save(tools);
     }
   },
-  removeActiveTool(name: string): void {
+  removeActiveTool(name: string) {
     const tools = this.load();
     if (tools.activeTools) {
       tools.activeTools = tools.activeTools.filter((n) => n !== name);
