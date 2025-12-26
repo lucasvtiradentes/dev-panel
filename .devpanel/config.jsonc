@@ -4,13 +4,18 @@
     "exclude": [
       "**/.devpanel/**",
       "**/.changeset/**",
+      "**/.claude/**",
       "**/.ignore/**",
       "**/.github/**",
       "**/.husky/**",
       "**/dist-dev/**",
       "**/.tscanner/**",
       "**/.vscode/**",
-      "**/out/**"
+      "**/out/**",
+      "**/registry/**",
+      "**/resources/**",
+      "**/scripts/**",
+      "**/docs/**"
     ]
   },
   "branchContext": {
@@ -157,6 +162,22 @@
       "description": "Review constants and suggest centralizing hardcoded values",
       "group": "Analysis",
       "inputs": [],
+      "saveOutput": true
+    },
+    {
+      "name": "TypeSafety Review",
+      "file": "prompts/typesafety-review.md",
+      "description": "Analyze type safety issues and suspicious code patterns",
+      "group": "Analysis",
+      "inputs": [
+        {
+          "name": "FOLDERS",
+          "label": "Folders to analyze (comma-separated)",
+          "type": "folder",
+          "multiSelect": true,
+          "placeholder": "select folders"
+        }
+      ],
       "saveOutput": true
     }
   ]
