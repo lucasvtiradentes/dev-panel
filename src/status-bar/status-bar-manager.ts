@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
 import { EXTENSION_DISPLAY_NAME, getCommandId } from '../common/constants';
 import { Command } from '../common/lib/vscode-utils';
+import type { StatusBarItem } from '../common/vscode/vscode-types';
 
 export class StatusBarManager {
-  private readonly statusBarItem: vscode.StatusBarItem;
+  private readonly statusBarItem: StatusBarItem;
   private hasConfig = true;
 
   constructor(hasConfig = true) {

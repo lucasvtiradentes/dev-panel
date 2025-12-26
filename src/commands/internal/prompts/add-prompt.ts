@@ -14,6 +14,7 @@ import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath, parseConfig } fr
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
+import type { Disposable } from '../../../common/vscode/vscode-types';
 
 async function handleAddPrompt() {
   const workspaceFolder = requireWorkspaceFolder();
@@ -162,6 +163,6 @@ Example command or code
   await vscode.window.showTextDocument(uri);
 }
 
-export function createAddPromptCommand(): vscode.Disposable {
+export function createAddPromptCommand(): Disposable {
   return registerCommand(Command.AddPrompt, handleAddPrompt);
 }

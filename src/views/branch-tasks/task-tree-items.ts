@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { CONTEXT_VALUES, DND_MIME_TYPE_BRANCH_TASKS, getCommandId } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
+import type { CancellationToken, DataTransfer } from '../../common/vscode/vscode-types';
 import type { MilestoneNode, TaskNode } from '../branch-context/providers';
 import { formatTaskDescription, formatTaskTooltip, getStatusIcon } from './task-item-utils';
 
@@ -85,7 +86,7 @@ export class BranchTasksDragAndDropController implements vscode.TreeDragAndDropC
 
   constructor(private readonly provider: BranchTasksProviderInterface) {}
 
-  handleDrag(source: readonly BranchTreeItem[], dataTransfer: vscode.DataTransfer, _token: vscode.CancellationToken) {
+  handleDrag(source: readonly BranchTreeItem[], dataTransfer: DataTransfer, _token: CancellationToken) {
     const item = source[0];
     if (!item || !(item instanceof BranchTaskItem)) return;
 
@@ -97,11 +98,7 @@ export class BranchTasksDragAndDropController implements vscode.TreeDragAndDropC
     dataTransfer.set(DND_MIME_TYPE_BRANCH_TASKS, new vscode.DataTransferItem(JSON.stringify(data)));
   }
 
-  async handleDrop(
-    target: BranchTreeItem | undefined,
-    dataTransfer: vscode.DataTransfer,
-    _token: vscode.CancellationToken,
-  ) {
+  async handleDrop(target: BranchTreeItem | undefined, dataTransfer: DataTransfer, _token: CancellationToken) {
     const transferItem = dataTransfer.get(DND_MIME_TYPE_BRANCH_TASKS);
     if (!transferItem || !target) return;
 

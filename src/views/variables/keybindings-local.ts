@@ -3,6 +3,7 @@ import { getVariableCommandId, getVariableCommandPrefix } from '../../common/con
 import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { Command, executeCommand } from '../../common/lib/vscode-utils';
+import type { ExtensionContext } from '../../common/vscode/vscode-types';
 import { KeybindingManager } from '../_base';
 
 const manager = new KeybindingManager({
@@ -12,7 +13,7 @@ const manager = new KeybindingManager({
 
 export const getAllVariableKeybindings = () => manager.getAllKeybindings();
 
-export function registerVariableKeybindings(context: vscode.ExtensionContext) {
+export function registerVariableKeybindings(context: ExtensionContext) {
   forEachWorkspaceConfig((_folder, config) => {
     const variables = config.variables ?? [];
 

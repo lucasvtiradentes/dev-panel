@@ -1,7 +1,6 @@
 import * as fs from 'node:fs';
 import * as https from 'node:https';
 import * as path from 'node:path';
-import type * as vscode from 'vscode';
 import {
   PLUGINS_DIR_NAME,
   PROMPTS_DIR_NAME,
@@ -16,6 +15,7 @@ import {
   TOOLS_DIR,
 } from '../constants';
 import { type RegistryIndex, RegistryIndexSchema, type RegistryItemEntry, RegistryItemKind } from '../schemas';
+import type { WorkspaceFolder } from '../vscode/vscode-types';
 import { getConfigDirPathFromWorkspacePath, getWorkspaceConfigDirPath } from './config-manager';
 import { logger } from './logger';
 
@@ -117,7 +117,7 @@ export function getInstalledItems(workspacePath: string, kind: RegistryItemKind)
 }
 
 export async function installItem(
-  workspaceFolder: vscode.WorkspaceFolder,
+  workspaceFolder: WorkspaceFolder,
   kind: RegistryItemKind,
   item: RegistryItemEntry,
   force = false,

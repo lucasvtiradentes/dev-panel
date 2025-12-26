@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { DEFAULT_EXCLUDES, DEFAULT_INCLUDES, ROOT_FOLDER_LABEL } from '../constants';
+import type { QuickPickItem, WorkspaceFolder } from '../vscode/vscode-types';
 import { createLogger } from './logger';
 
 const log = createLogger('file-selection');
@@ -12,7 +13,7 @@ export type FileSelectionOptions = {
 };
 
 type InternalSelectionOptions = {
-  workspaceFolder: vscode.WorkspaceFolder;
+  workspaceFolder: WorkspaceFolder;
   label: string;
   multiSelect: boolean;
   includes: string[];
@@ -25,7 +26,7 @@ function buildGlob(patterns: string[]): string {
 }
 
 export async function selectFiles(
-  workspaceFolder: vscode.WorkspaceFolder,
+  workspaceFolder: WorkspaceFolder,
   options: FileSelectionOptions,
 ): Promise<string | undefined> {
   const includes = options.includes ?? DEFAULT_INCLUDES;
@@ -49,7 +50,7 @@ async function selectFilesFlat(opts: InternalSelectionOptions): Promise<string |
   const files = await vscode.workspace.findFiles(new vscode.RelativePattern(workspaceFolder, includeGlob), excludeGlob);
   log.info(`selectFilesFlat - found ${files.length} files`);
 
-  const items: vscode.QuickPickItem[] = files.map((uri) => ({
+  const items: QuickPickItem[] = files.map((uri) => ({
     label: vscode.workspace.asRelativePath(uri, false),
     description: uri.fsPath,
   }));
@@ -80,7 +81,7 @@ async function selectFilesFlat(opts: InternalSelectionOptions): Promise<string |
 }
 
 export async function selectFolders(
-  workspaceFolder: vscode.WorkspaceFolder,
+  workspaceFolder: WorkspaceFolder,
   options: FileSelectionOptions,
 ): Promise<string | undefined> {
   const includes = options.includes ?? DEFAULT_INCLUDES;
@@ -113,7 +114,7 @@ async function selectFoldersFlat(opts: InternalSelectionOptions): Promise<string
   }
 
   const folders = Array.from(folderSet).sort();
-  const items: vscode.QuickPickItem[] = folders.map((folder) => ({
+  const items: QuickPickItem[] = folders.map((folder) => ({
     label: folder,
     description: `${workspaceFolder.uri.fsPath}/${folder}`,
   }));

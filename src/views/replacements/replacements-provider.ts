@@ -17,6 +17,7 @@ import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '.
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
+import type { TreeItem } from '../../common/vscode/vscode-types';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { fileExistsInGit, getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
 import {
@@ -86,8 +87,8 @@ class ReplacementTreeItem extends vscode.TreeItem {
 
 let providerInstance: ReplacementsProvider | null = null;
 
-export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
-  private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined>();
+export class ReplacementsProvider implements vscode.TreeDataProvider<TreeItem> {
+  private _onDidChangeTreeData = new vscode.EventEmitter<TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private _grouped: boolean;
@@ -163,11 +164,11 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     this._onDidChangeTreeData.fire(undefined);
   }
 
-  getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
+  getTreeItem(element: TreeItem): TreeItem {
     return element;
   }
 
-  getChildren(element?: vscode.TreeItem): Thenable<vscode.TreeItem[]> {
+  getChildren(element?: TreeItem): Thenable<TreeItem[]> {
     const config = this.loadConfig();
     if (!config?.replacements || config.replacements.length === 0) {
       return Promise.resolve([]);
@@ -200,7 +201,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       }
     }
 
-    const items: vscode.TreeItem[] = [];
+    const items: TreeItem[] = [];
 
     for (const [groupName, replacements] of grouped) {
       items.push(new ReplacementGroupTreeItem(groupName, replacements));

@@ -1,10 +1,10 @@
-import type * as vscode from 'vscode';
 import { WORKSPACE_STATE_KEY } from '../../constants/scripts-constants';
 import { DEFAULT_WORKSPACE_UI_STATE, type WorkspaceUIState } from '../../schemas';
+import type { ExtensionContext } from '../../vscode/vscode-types';
 
-let _context: vscode.ExtensionContext | null = null;
+let _context: ExtensionContext | null = null;
 
-export function initWorkspaceState(context: vscode.ExtensionContext) {
+export function initWorkspaceState(context: ExtensionContext) {
   _context = context;
 }
 

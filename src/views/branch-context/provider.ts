@@ -24,6 +24,7 @@ import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { branchContextState } from '../../common/lib/workspace-state';
 import { formatRelativeTime } from '../../common/utils/time-formatter';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import type { TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { validateBranchContext } from './config-validator';
 import { formatChangedFilesSummary } from './git-changed-files';
@@ -37,13 +38,13 @@ import { ValidationIndicator } from './validation-indicator';
 
 const logger = createLogger('BranchContext');
 
-export class BranchContextProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
-  private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined>();
+export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> {
+  private _onDidChangeTreeData = new vscode.EventEmitter<TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private currentBranch = '';
   private validationIndicator: ValidationIndicator;
-  private treeView: vscode.TreeView<vscode.TreeItem> | null = null;
+  private treeView: TreeView<TreeItem> | null = null;
   private descriptionInterval: NodeJS.Timeout | null = null;
   private lastSyncTimestamp: string | null = null;
   private helpers: ProviderHelpers;
@@ -69,7 +70,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     );
   }
 
-  setTreeView(treeView: vscode.TreeView<vscode.TreeItem>) {
+  setTreeView(treeView: TreeView<TreeItem>) {
     this.treeView = treeView;
     this.updateDescription();
     this.descriptionInterval = setInterval(() => {
@@ -107,7 +108,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     void this.syncBranchContext();
   }
 
-  handleMarkdownChange(uri?: vscode.Uri) {
+  handleMarkdownChange(uri?: Uri) {
     if (this.syncManager.getIsWritingMarkdown() || this.syncManager.getIsSyncing()) {
       return;
     }
@@ -195,11 +196,11 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     this._onDidChangeTreeData.fire(undefined);
   }
 
-  getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
+  getTreeItem(element: TreeItem): TreeItem {
     return element;
   }
 
-  async getChildren(element?: vscode.TreeItem): Promise<vscode.TreeItem[]> {
+  async getChildren(element?: TreeItem): Promise<TreeItem[]> {
     if (element) return [];
 
     const workspace = getFirstWorkspacePath();
@@ -241,7 +242,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     const taskStats = await this.taskProvider.getTaskStats(syncContext);
     const tasksValue = taskStats.total > 0 ? `${taskStats.completed}/${taskStats.total}` : undefined;
 
-    const items: vscode.TreeItem[] = [];
+    const items: TreeItem[] = [];
     for (const section of registry.getAllSections()) {
       const value = this.helpers.getSectionValue({
         context,

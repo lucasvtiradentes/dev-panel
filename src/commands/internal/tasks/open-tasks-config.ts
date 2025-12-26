@@ -16,10 +16,11 @@ import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import { TaskSource } from '../../../common/schemas/types';
 import { TypeGuards } from '../../../common/utils/type-utils';
 import { getFirstWorkspaceFolder } from '../../../common/utils/workspace-utils';
+import type { WorkspaceFolder } from '../../../common/vscode/vscode-types';
 import { getExcludedDirs } from '../../../views/tasks/package-json';
 import { getCurrentSource } from '../../../views/tasks/state';
 
-async function findAllPackageJsons(folder: vscode.WorkspaceFolder): Promise<string[]> {
+async function findAllPackageJsons(folder: WorkspaceFolder): Promise<string[]> {
   const packageJsons: string[] = [];
   const excludedDirs = getExcludedDirs(folder.uri.fsPath);
 

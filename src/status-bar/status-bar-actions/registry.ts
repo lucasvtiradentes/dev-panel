@@ -5,6 +5,7 @@ import { fetchRegistryIndex, getInstalledItems, getItemsForKind, installItem } f
 import { type RegistryItemEntry, RegistryItemKind } from '../../common/schemas';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { VscodeIcon } from '../../common/vscode/vscode-constants';
+import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
 
 type QuickPickItemWithId<T> = vscode.QuickPickItem & { id: T };
 
@@ -37,7 +38,7 @@ export async function showRegistryMenu() {
   await showItemsForKind(workspaceFolder, selectedKind.id);
 }
 
-async function showItemsForKind(workspaceFolder: vscode.WorkspaceFolder, kind: RegistryItemKind) {
+async function showItemsForKind(workspaceFolder: WorkspaceFolder, kind: RegistryItemKind) {
   const kindLabel = KIND_LABELS[kind].label;
 
   await vscode.window.withProgress(
@@ -101,11 +102,7 @@ async function showItemsForKind(workspaceFolder: vscode.WorkspaceFolder, kind: R
   );
 }
 
-async function installItems(
-  workspaceFolder: vscode.WorkspaceFolder,
-  kind: RegistryItemKind,
-  items: RegistryItemEntry[],
-) {
+async function installItems(workspaceFolder: WorkspaceFolder, kind: RegistryItemKind, items: RegistryItemEntry[]) {
   const kindLabel = KIND_LABELS[kind].label.toLowerCase();
 
   await vscode.window.withProgress(

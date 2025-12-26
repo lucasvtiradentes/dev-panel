@@ -16,6 +16,7 @@ import { logger } from './common/lib/logger';
 import { ContextKey, generateWorkspaceId, setContextKey, setWorkspaceId } from './common/lib/vscode-utils';
 import { initWorkspaceState } from './common/lib/workspace-state';
 import { getFirstWorkspacePath } from './common/utils/workspace-utils';
+import type { ExtensionContext } from './common/vscode/vscode-types';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import { BranchContextProvider } from './views/branch-context';
 import { ensureTemplateExists } from './views/branch-context/template-initializer';
@@ -45,7 +46,7 @@ type Providers = {
   branchTasksProvider: BranchTasksProvider;
 };
 
-function setupStatesAndContext(context: vscode.ExtensionContext) {
+function setupStatesAndContext(context: ExtensionContext) {
   initWorkspaceState(context);
   initGlobalState(context);
   migrateGlobalState();
@@ -63,7 +64,7 @@ function setupInitialKeybindings() {
   reloadTaskKeybindings();
 }
 
-function setupProviders(context: vscode.ExtensionContext, activateStart: number): Providers {
+function setupProviders(context: ExtensionContext, activateStart: number): Providers {
   const statusBarManager = new StatusBarManager();
   const taskTreeDataProvider = new TaskTreeDataProvider(context);
   const variablesProvider = new VariablesProvider();
@@ -124,7 +125,7 @@ function setupTreeViews(providers: Providers) {
   vscode.window.registerTreeDataProvider(getViewIdTodos(), providers.branchTasksProvider);
 }
 
-function setupDisposables(context: vscode.ExtensionContext, providers: Providers) {
+function setupDisposables(context: ExtensionContext, providers: Providers) {
   context.subscriptions.push({ dispose: () => providers.statusBarManager.dispose() });
   context.subscriptions.push({ dispose: () => providers.taskTreeDataProvider.dispose() });
   context.subscriptions.push({ dispose: () => providers.variablesProvider.dispose() });
@@ -135,7 +136,7 @@ function setupDisposables(context: vscode.ExtensionContext, providers: Providers
   context.subscriptions.push({ dispose: () => providers.branchTasksProvider.dispose() });
 }
 
-function setupWatchers(context: vscode.ExtensionContext, providers: Providers, activateStart: number) {
+function setupWatchers(context: ExtensionContext, providers: Providers, activateStart: number) {
   const configWatcher = createConfigWatcher(() => {
     logger.info('Config changed, refreshing views');
     providers.variablesProvider.refresh();
@@ -173,7 +174,7 @@ function setupWatchers(context: vscode.ExtensionContext, providers: Providers, a
   logger.info(`[activate] branchWatcher created (+${Date.now() - activateStart}ms)`);
 }
 
-function setupCommands(context: vscode.ExtensionContext, providers: Providers) {
+function setupCommands(context: ExtensionContext, providers: Providers) {
   const commandDisposables = registerAllCommands({
     context,
     taskTreeDataProvider: providers.taskTreeDataProvider,
@@ -193,7 +194,7 @@ function setupCommands(context: vscode.ExtensionContext, providers: Providers) {
   registerTaskKeybindings(context);
 }
 
-export function activate(context: vscode.ExtensionContext): object {
+export function activate(context: ExtensionContext): object {
   const activateStart = Date.now();
   logger.clear();
   logger.info('=== EXTENSION ACTIVATE START ===');

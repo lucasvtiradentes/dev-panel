@@ -17,6 +17,7 @@ import {
 } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
+import type { Uri } from '../../common/vscode/vscode-types';
 
 type QuickPickItemWithId<T> = vscode.QuickPickItem & { id: T };
 
@@ -75,7 +76,7 @@ async function askToMoveConfig(fromDir: string | null, toDir: string | null): Pr
   return result === 'Move';
 }
 
-async function getSubfolders(dirUri: vscode.Uri): Promise<string[]> {
+async function getSubfolders(dirUri: Uri): Promise<string[]> {
   try {
     const entries = await vscode.workspace.fs.readDirectory(dirUri);
     return entries.filter(([_, type]) => type === vscode.FileType.Directory).map(([name]) => name);
@@ -84,7 +85,7 @@ async function getSubfolders(dirUri: vscode.Uri): Promise<string[]> {
   }
 }
 
-async function showFolderPicker(workspaceRoot: vscode.Uri, currentPath: string): Promise<string | null> {
+async function showFolderPicker(workspaceRoot: Uri, currentPath: string): Promise<string | null> {
   const currentUri = isRootPath(currentPath) ? workspaceRoot : vscode.Uri.joinPath(workspaceRoot, currentPath);
 
   const subfolders = await getSubfolders(currentUri);

@@ -3,6 +3,7 @@ import { type TaskPriority, TaskStatus } from '../../common/schemas';
 import { VscodeColor, VscodeIcon } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
+import type { MarkdownString, ThemeIcon } from '../../common/vscode/vscode-types';
 import type { TaskMeta } from '../branch-context/providers/interfaces';
 
 export function formatTaskDescription(meta: TaskMeta, status: TaskStatus): string {
@@ -62,7 +63,7 @@ export function isOverdue(meta: TaskMeta): boolean {
   return date < today;
 }
 
-export function getStatusIcon(status: TaskStatus, meta: TaskMeta): vscode.ThemeIcon {
+export function getStatusIcon(status: TaskStatus, meta: TaskMeta): ThemeIcon {
   const overdue = isOverdue(meta);
 
   switch (status) {
@@ -103,7 +104,7 @@ function getPriorityColor(priority: TaskPriority | undefined): VscodeColor | und
   }
 }
 
-export function formatTaskTooltip(text: string, status: TaskStatus, meta: TaskMeta): vscode.MarkdownString {
+export function formatTaskTooltip(text: string, status: TaskStatus, meta: TaskMeta): MarkdownString {
   const md = new vscode.MarkdownString();
   md.supportHtml = true;
 

@@ -1,4 +1,3 @@
-import type * as vscode from 'vscode';
 import { GLOBAL_STATE_KEY } from '../constants';
 import {
   DEFAULT_PROMPTS_STATE,
@@ -12,10 +11,11 @@ import {
   type ToolsState,
 } from '../schemas';
 import { TaskSource } from '../schemas/types';
+import type { ExtensionContext } from '../vscode/vscode-types';
 
-let _context: vscode.ExtensionContext | null = null;
+let _context: ExtensionContext | null = null;
 
-export function initGlobalState(context: vscode.ExtensionContext) {
+export function initGlobalState(context: ExtensionContext) {
   _context = context;
 }
 

@@ -15,6 +15,7 @@ import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath, parseConfig } fr
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
+import type { Disposable } from '../../../common/vscode/vscode-types';
 
 async function handleAddTool() {
   const workspaceFolder = requireWorkspaceFolder();
@@ -185,6 +186,6 @@ ${command}
   }
 }
 
-export function createAddToolCommand(): vscode.Disposable {
+export function createAddToolCommand(): Disposable {
   return registerCommand(Command.AddTool, handleAddTool);
 }

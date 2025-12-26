@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { createLogger } from '../common/lib/logger';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
+import type { Disposable, FileSystemWatcher } from '../common/vscode/vscode-types';
 import { getCurrentBranch, isGitRepository } from '../views/replacements/git-utils';
 import type { BranchChangeCallback, GitAPI, GitRepository } from './types';
 import { GIT_CONSTANTS, WATCHER_CONSTANTS } from './utils';
@@ -18,10 +19,10 @@ async function getGitAPI(): Promise<GitAPI | null> {
   return gitExtension.exports.getAPI(GIT_CONSTANTS.API_VERSION);
 }
 
-export function createBranchWatcher(onBranchChange: BranchChangeCallback): vscode.Disposable {
-  const disposables: vscode.Disposable[] = [];
+export function createBranchWatcher(onBranchChange: BranchChangeCallback): Disposable {
+  const disposables: Disposable[] = [];
   let currentBranch = '';
-  let headWatcher: vscode.FileSystemWatcher | null = null;
+  let headWatcher: FileSystemWatcher | null = null;
   let pollInterval: ReturnType<typeof setInterval> | null = null;
 
   const handleBranchChange = async () => {

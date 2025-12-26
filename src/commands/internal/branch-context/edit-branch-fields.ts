@@ -1,4 +1,3 @@
-import type * as vscode from 'vscode';
 import {
   SECTION_NAME_BRANCH,
   SECTION_NAME_LINEAR_LINK,
@@ -9,12 +8,13 @@ import {
   SECTION_NAME_TASKS,
 } from '../../../common/constants';
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
+import type { Disposable } from '../../../common/vscode/vscode-types';
 import type { BranchContextProvider } from '../../../views/branch-context';
 
 export type EditBranchFieldParams = { branchName: string; value?: string };
 export type OpenBranchContextFileAtLineParams = { branchName: string; sectionName: string };
 
-export function createEditBranchFieldsCommands(branchContextProvider: BranchContextProvider): vscode.Disposable[] {
+export function createEditBranchFieldsCommands(branchContextProvider: BranchContextProvider): Disposable[] {
   return [
     registerCommand(Command.EditBranchName, ({ branchName, value }: EditBranchFieldParams) =>
       branchContextProvider.editField(branchName, SECTION_NAME_BRANCH, value),

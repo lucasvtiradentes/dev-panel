@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { getCommandId } from '../constants/functions';
 import { CONTEXT_PREFIX } from '../constants/scripts-constants';
+import type { Disposable, Uri } from '../vscode/vscode-types';
 import type { CommandParams } from './command-params';
 
 export enum Command {
@@ -127,7 +128,7 @@ export enum Command {
 }
 
 // tscanner-ignore-next-line no-explicit-any
-export function registerCommand(command: Command, callback: (...args: any[]) => any): vscode.Disposable {
+export function registerCommand(command: Command, callback: (...args: any[]) => any): Disposable {
   return vscode.commands.registerCommand(getCommandId(command), callback);
 }
 
@@ -164,7 +165,7 @@ export function isMultiRootWorkspace(): boolean {
   return folders != null && folders.length > 1;
 }
 
-export async function openDocumentAtLine(uri: vscode.Uri, line: number) {
+export async function openDocumentAtLine(uri: Uri, line: number) {
   await vscode.window.showTextDocument(uri, {
     selection: new vscode.Range(line, 0, line, 0),
   });

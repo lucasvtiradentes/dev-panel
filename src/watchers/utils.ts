@@ -1,4 +1,4 @@
-import type * as vscode from 'vscode';
+import type { FileSystemWatcher, Uri } from '../common/vscode/vscode-types';
 
 export const WATCHER_CONSTANTS = {
   BRANCH_POLL_INTERVAL_MS: 2000,
@@ -12,12 +12,12 @@ export const GIT_CONSTANTS = {
 } as const;
 
 type FileWatcherHandlers = {
-  onChange?: (uri: vscode.Uri) => void;
-  onCreate?: (uri: vscode.Uri) => void;
-  onDelete?: (uri: vscode.Uri) => void;
+  onChange?: (uri: Uri) => void;
+  onCreate?: (uri: Uri) => void;
+  onDelete?: (uri: Uri) => void;
 };
 
-export function attachFileWatcherHandlers(watcher: vscode.FileSystemWatcher, handlers: FileWatcherHandlers) {
+export function attachFileWatcherHandlers(watcher: FileSystemWatcher, handlers: FileWatcherHandlers) {
   if (handlers.onChange) {
     watcher.onDidChange(handlers.onChange);
   }

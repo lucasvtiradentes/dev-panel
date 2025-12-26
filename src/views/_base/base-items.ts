@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
 import { CONTEXT_VALUES } from '../../common/constants';
+import type { Command, TreeItemCollapsibleState } from '../../common/vscode/vscode-types';
 import type { GroupTreeItem as IGroupTreeItem, NamedTreeItem } from './types';
 
 export abstract class BaseNamedTreeItem extends vscode.TreeItem implements NamedTreeItem {
-  constructor(label: string, collapsibleState: vscode.TreeItemCollapsibleState, command?: vscode.Command) {
+  constructor(label: string, collapsibleState: TreeItemCollapsibleState, command?: Command) {
     super(label, collapsibleState);
     this.command = command;
   }

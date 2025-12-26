@@ -17,6 +17,7 @@ import { Command } from '../../common/lib/vscode-utils';
 import { TaskSource } from '../../common/schemas/types';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
+import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
@@ -28,7 +29,7 @@ type PackageLocation = {
   relativePath: string;
   absolutePath: string;
   scripts: Record<string, string>;
-  folder: vscode.WorkspaceFolder;
+  folder: WorkspaceFolder;
 };
 
 function extractDirNamesFromGlobs(patterns: string[]): string[] {
@@ -128,7 +129,7 @@ export async function getPackageScripts(
   return getGroupedByLocation(allPackages, showHidden, showOnlyFavorites, sortFn);
 }
 
-async function findAllPackageJsons(folder: vscode.WorkspaceFolder): Promise<PackageLocation[]> {
+async function findAllPackageJsons(folder: WorkspaceFolder): Promise<PackageLocation[]> {
   const packages: PackageLocation[] = [];
   const rootPath = folder.uri.fsPath;
   const excludedDirs = getExcludedDirs(rootPath);
@@ -267,7 +268,7 @@ function readPackageScripts(packageJsonPath: string): Record<string, string> {
 function createNpmTask(options: {
   name: string;
   command: string;
-  folder: vscode.WorkspaceFolder;
+  folder: WorkspaceFolder;
   cwd: string;
   useDisplayName: boolean;
   showHidden: boolean;

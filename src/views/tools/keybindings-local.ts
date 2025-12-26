@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { TOOL_TASK_TYPE, getGlobalConfigDir, getToolCommandId, getToolCommandPrefix } from '../../common/constants';
 import { forEachWorkspaceConfig, getWorkspaceConfigDirPath, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
+import type { ExtensionContext } from '../../common/vscode/vscode-types';
 import { KeybindingManager } from '../_base';
 
 const manager = new KeybindingManager({
@@ -12,7 +13,7 @@ const manager = new KeybindingManager({
 export const getAllToolKeybindings = () => manager.getAllKeybindings();
 export const reloadToolKeybindings = () => manager.reload();
 
-export function registerToolKeybindings(context: vscode.ExtensionContext) {
+export function registerToolKeybindings(context: ExtensionContext) {
   forEachWorkspaceConfig((folder, config) => {
     const tools = config.tools ?? [];
 

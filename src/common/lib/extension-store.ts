@@ -1,5 +1,5 @@
-import type * as vscode from 'vscode';
 import { WORKSPACE_STATE_CONFIG_DIR_KEY } from '../constants/scripts-constants';
+import type { ExtensionContext, Uri } from '../vscode/vscode-types';
 import { logger } from './logger';
 
 export enum StoreKey {
@@ -21,16 +21,16 @@ class ExtensionStore {
     [StoreKey.IsWritingBranchContext]: false,
   };
 
-  private context: vscode.ExtensionContext | null = null;
+  private context: ExtensionContext | null = null;
   private listeners = new Map<StoreKey, Set<AnyStateListener>>();
 
-  initialize(context: vscode.ExtensionContext) {
+  initialize(context: ExtensionContext) {
     this.context = context;
     const stored = context.workspaceState.get<string | null>(WORKSPACE_STATE_CONFIG_DIR_KEY);
     this.state[StoreKey.ConfigDir] = stored ?? null;
   }
 
-  getExtensionUri(): vscode.Uri | null {
+  getExtensionUri(): Uri | null {
     return this.context?.extensionUri ?? null;
   }
 

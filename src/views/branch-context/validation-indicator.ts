@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
 import { getCommandId } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
+import type { StatusBarItem } from '../../common/vscode/vscode-types';
 import type { ValidationIssue } from './config-validator';
 
 export class ValidationIndicator {
-  private statusBarItem: vscode.StatusBarItem;
+  private statusBarItem: StatusBarItem;
 
   constructor() {
     this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);

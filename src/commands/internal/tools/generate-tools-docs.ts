@@ -18,6 +18,7 @@ import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import { toolsState } from '../../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
+import type { Disposable, WorkspaceFolder } from '../../../common/vscode/vscode-types';
 
 type ToolInstruction = {
   id: string;
@@ -137,7 +138,7 @@ function getGlobalTools(): NonNullable<DevPanelConfig['tools']> {
   return config?.tools ?? [];
 }
 
-function generateToolsXml(workspaceFolder: vscode.WorkspaceFolder): string {
+function generateToolsXml(workspaceFolder: WorkspaceFolder): string {
   const config = loadWorkspaceConfig(workspaceFolder);
   const localTools = config?.tools ?? [];
 
@@ -248,7 +249,7 @@ ${contentLines.join('\n').trim()}
   return skillContent;
 }
 
-async function syncToSkills(workspaceFolder: vscode.WorkspaceFolder): Promise<number> {
+async function syncToSkills(workspaceFolder: WorkspaceFolder): Promise<number> {
   const config = loadWorkspaceConfig(workspaceFolder);
   const localTools = config?.tools ?? [];
 
@@ -323,7 +324,7 @@ async function syncToSkills(workspaceFolder: vscode.WorkspaceFolder): Promise<nu
   return syncedCount;
 }
 
-function syncToAiSpecs(xml: string, workspaceFolder: vscode.WorkspaceFolder) {
+function syncToAiSpecs(xml: string, workspaceFolder: WorkspaceFolder) {
   const foundFiles: string[] = [];
 
   for (const specFile of AI_SPEC_FILES) {
@@ -370,6 +371,6 @@ async function handleGenerateToolsDocs() {
   }
 }
 
-export function createGenerateToolsDocsCommand(): vscode.Disposable {
+export function createGenerateToolsDocsCommand(): Disposable {
   return registerCommand(Command.GenerateToolsDocs, handleGenerateToolsDocs);
 }

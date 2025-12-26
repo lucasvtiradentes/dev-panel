@@ -11,9 +11,10 @@ import {
   PROMPTS_DIR_NAME,
 } from '../constants/scripts-constants';
 import type { DevPanelConfig } from '../schemas';
+import type { Uri, WorkspaceFolder } from '../vscode/vscode-types';
 import { StoreKey, extensionStore } from './extension-store';
 
-function getConfigDir(workspacePath: string, configDir: string | null): vscode.Uri {
+function getConfigDir(workspacePath: string, configDir: string | null): Uri {
   const baseDir = vscode.Uri.file(workspacePath);
 
   if (!configDir) {
@@ -42,7 +43,7 @@ export async function hasConfig(workspacePath: string, configDir: string | null,
   }
 }
 
-async function copyDirectoryRecursive(source: vscode.Uri, target: vscode.Uri) {
+async function copyDirectoryRecursive(source: Uri, target: Uri) {
   await vscode.workspace.fs.createDirectory(target);
 
   const entries = await vscode.workspace.fs.readDirectory(source);
@@ -78,17 +79,17 @@ export function setConfigDir(configDir: string | null) {
   extensionStore.set(StoreKey.ConfigDir, configDir);
 }
 
-export function getWorkspaceConfigDirPath(folder: vscode.WorkspaceFolder): string {
+export function getWorkspaceConfigDirPath(folder: WorkspaceFolder): string {
   const configDir = getCurrentConfigDir();
   return getConfigDirPath(folder.uri.fsPath, configDir);
 }
 
-export function getWorkspaceConfigFilePath(folder: vscode.WorkspaceFolder, fileName: string): string {
+export function getWorkspaceConfigFilePath(folder: WorkspaceFolder, fileName: string): string {
   const configDir = getCurrentConfigDir();
   return getConfigPath(folder.uri.fsPath, configDir, fileName);
 }
 
-export function joinConfigPath(folder: vscode.WorkspaceFolder, ...segments: string[]): string {
+export function joinConfigPath(folder: WorkspaceFolder, ...segments: string[]): string {
   const configDir = getCurrentConfigDir();
   const basePath = getConfigDirPath(folder.uri.fsPath, configDir);
   return join(basePath, ...segments);
@@ -184,12 +185,12 @@ export function loadWorkspaceConfigFromPath(workspacePath: string): DevPanelConf
   return loadConfigFromPath(configPath);
 }
 
-export function loadWorkspaceConfig(folder: vscode.WorkspaceFolder): DevPanelConfig | null {
+export function loadWorkspaceConfig(folder: WorkspaceFolder): DevPanelConfig | null {
   const configPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
   return loadConfigFromPath(configPath);
 }
 
-export function forEachWorkspaceConfig(callback: (folder: vscode.WorkspaceFolder, config: DevPanelConfig) => void) {
+export function forEachWorkspaceConfig(callback: (folder: WorkspaceFolder, config: DevPanelConfig) => void) {
   const folders = getWorkspaceFolders();
   if (folders.length === 0) return;
 
@@ -229,7 +230,7 @@ export function saveGlobalConfig(config: DevPanelConfig) {
   saveConfigToPath(globalConfigPath, config);
 }
 
-export function saveWorkspaceConfig(folder: vscode.WorkspaceFolder, config: DevPanelConfig) {
+export function saveWorkspaceConfig(folder: WorkspaceFolder, config: DevPanelConfig) {
   const workspaceConfigDir = getWorkspaceConfigDirPath(folder);
   const workspaceConfigPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
   ensureDirectoryExists(workspaceConfigDir);

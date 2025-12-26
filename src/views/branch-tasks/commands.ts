@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import { TaskPriority, TaskStatus } from '../../common/schemas';
+import type { Disposable, QuickPickItem } from '../../common/vscode/vscode-types';
 import type { BranchTasksProvider } from './provider';
 import type { BranchTaskItem } from './task-tree-items';
 
@@ -10,7 +11,7 @@ function extractLineIndex(itemOrLineIndex: ItemOrLineIndex): number {
   return typeof itemOrLineIndex === 'number' ? itemOrLineIndex : itemOrLineIndex.node.lineIndex;
 }
 
-export function createBranchTaskCommands(provider: BranchTasksProvider): vscode.Disposable[] {
+export function createBranchTaskCommands(provider: BranchTasksProvider): Disposable[] {
   return [
     registerCommand(Command.SetTaskStatus, async (item: ItemOrLineIndex) => {
       const lineIndex = extractLineIndex(item);
@@ -185,7 +186,7 @@ export function createBranchTaskCommands(provider: BranchTasksProvider): vscode.
 }
 
 async function pickStatus(): Promise<TaskStatus | undefined> {
-  const items: vscode.QuickPickItem[] = [
+  const items: QuickPickItem[] = [
     { label: '$(circle-large-outline) Todo', description: 'Not started' },
     { label: '$(play-circle) Doing', description: 'In progress' },
     { label: '$(pass-filled) Done', description: 'Completed' },
@@ -209,7 +210,7 @@ async function pickStatus(): Promise<TaskStatus | undefined> {
 }
 
 async function pickPriority(): Promise<TaskPriority | undefined> {
-  const items: vscode.QuickPickItem[] = [
+  const items: QuickPickItem[] = [
     { label: '🔴 Urgent', description: 'Critical priority' },
     { label: '🟠 High', description: 'High priority' },
     { label: '🟡 Medium', description: 'Medium priority' },

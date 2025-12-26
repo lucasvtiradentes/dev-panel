@@ -1,6 +1,6 @@
-import type * as vscode from 'vscode';
 import { CONTEXT_VALUES } from '../../common/constants';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
+import type { Command, TreeItemCollapsibleState } from '../../common/vscode/vscode-types';
 import { BaseGroupTreeItem, BaseNamedTreeItem } from '../_base';
 
 export class ToolGroupTreeItem extends BaseGroupTreeItem<TreeTool> {}
@@ -13,8 +13,8 @@ export class TreeTool extends BaseNamedTreeItem {
   constructor(
     label: string,
     file: string,
-    collapsibleState: vscode.TreeItemCollapsibleState,
-    command?: vscode.Command,
+    collapsibleState: TreeItemCollapsibleState,
+    command?: Command,
     group?: string,
   ) {
     super(label, collapsibleState, command);

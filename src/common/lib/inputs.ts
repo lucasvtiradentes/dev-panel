@@ -8,6 +8,7 @@ import {
 } from '../constants/scripts-constants';
 import { type DevPanelInput, type DevPanelSettings, PromptInputType } from '../schemas';
 import { getFirstWorkspaceFolder } from '../utils/workspace-utils';
+import type { WorkspaceFolder } from '../vscode/vscode-types';
 import { type FileSelectionOptions, selectFiles, selectFolders } from './file-selection';
 import { createLogger } from './logger';
 
@@ -17,7 +18,7 @@ type InputValues = Record<string, string>;
 
 export async function collectInputs(
   inputs: DevPanelInput[],
-  workspaceFolder: vscode.WorkspaceFolder | null,
+  workspaceFolder: WorkspaceFolder | null,
   settings?: DevPanelSettings,
 ): Promise<InputValues | null> {
   const values: InputValues = {};
@@ -33,7 +34,7 @@ export async function collectInputs(
 
 async function collectSingleInput(
   input: DevPanelInput,
-  workspaceFolder: vscode.WorkspaceFolder | null,
+  workspaceFolder: WorkspaceFolder | null,
   settings?: DevPanelSettings,
 ): Promise<string | undefined> {
   switch (input.type) {
@@ -94,7 +95,7 @@ function getExcludePatterns(input: DevPanelInput, settings: DevPanelSettings | u
 
 async function collectFileInput(
   input: DevPanelInput,
-  workspaceFolder: vscode.WorkspaceFolder | null,
+  workspaceFolder: WorkspaceFolder | null,
   multiple: boolean,
   settings?: DevPanelSettings,
 ): Promise<string | undefined> {
@@ -123,7 +124,7 @@ async function collectFileInput(
 
 async function collectFolderInput(
   input: DevPanelInput,
-  workspaceFolder: vscode.WorkspaceFolder | null,
+  workspaceFolder: WorkspaceFolder | null,
   multiple: boolean,
   settings?: DevPanelSettings,
 ): Promise<string | undefined> {

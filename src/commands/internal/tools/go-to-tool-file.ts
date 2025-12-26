@@ -3,11 +3,12 @@ import { GLOBAL_ITEM_PREFIX, TOOLS_DIR, TOOL_INSTRUCTIONS_FILE, getGlobalConfigD
 import { joinConfigPath } from '../../../common/lib/config-manager';
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import { getFirstWorkspaceFolder } from '../../../common/utils/workspace-utils';
+import type { Disposable } from '../../../common/vscode/vscode-types';
 import type { TreeTool } from '../../../views/tools';
 
 export type GoToToolFileParams = TreeTool;
 
-export function createGoToToolFileCommand(): vscode.Disposable {
+export function createGoToToolFileCommand(): Disposable {
   return registerCommand(Command.GoToToolFile, async (item: GoToToolFileParams) => {
     if (item?.toolName) {
       const isGlobal = item.toolName.startsWith(GLOBAL_ITEM_PREFIX);

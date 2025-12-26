@@ -20,6 +20,7 @@ import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../common/schemas';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
+import type { TreeItem, TreeView, WorkspaceFolder } from '../../common/vscode/vscode-types';
 import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../_base';
 import { ToolGroupTreeItem, TreeTool } from './items';
 import { addActiveTool, getActiveTools, isFavorite, isHidden, removeActiveTool, setActiveTools } from './state';
@@ -37,14 +38,14 @@ const TOOLS_CONFIG: ProviderConfig = {
 };
 
 export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGroupTreeItem, void> {
-  private _treeView: vscode.TreeView<TreeTool | ToolGroupTreeItem> | null = null;
+  private _treeView: TreeView<TreeTool | ToolGroupTreeItem> | null = null;
 
   constructor() {
     super(toolsState, TOOLS_CONFIG, null, globalToolsState);
     this.initializeActiveTools();
   }
 
-  setTreeView(treeView: vscode.TreeView<TreeTool | ToolGroupTreeItem>) {
+  setTreeView(treeView: TreeView<TreeTool | ToolGroupTreeItem>) {
     this._treeView = treeView;
   }
 
@@ -173,7 +174,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     return this.sortElements(toolElements);
   }
 
-  private readDevPanelTools(folder: vscode.WorkspaceFolder): NonNullable<DevPanelConfig['tools']> {
+  private readDevPanelTools(folder: WorkspaceFolder): NonNullable<DevPanelConfig['tools']> {
     const config = loadWorkspaceConfig(folder);
     return config?.tools ?? [];
   }
@@ -219,7 +220,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
 
   private createDevPanelTool(
     tool: NonNullable<DevPanelConfig['tools']>[number],
-    folder: vscode.WorkspaceFolder,
+    folder: WorkspaceFolder,
   ): TreeTool | null {
     const hidden = isHidden(tool.name);
     const favorite = isFavorite(tool.name);
@@ -302,7 +303,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     return treeTool;
   }
 
-  getTreeItem(item: TreeTool | ToolGroupTreeItem): vscode.TreeItem {
+  getTreeItem(item: TreeTool | ToolGroupTreeItem): TreeItem {
     return item;
   }
 

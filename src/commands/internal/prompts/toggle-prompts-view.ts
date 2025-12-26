@@ -1,11 +1,11 @@
-import type * as vscode from 'vscode';
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
+import type { Disposable } from '../../../common/vscode/vscode-types';
 import type { PromptTreeDataProvider, TreePrompt } from '../../../views/prompts';
 
 export type TogglePromptFavoriteParams = TreePrompt;
 export type TogglePromptHideParams = TreePrompt;
 
-export function createTogglePromptsViewCommands(promptTreeDataProvider: PromptTreeDataProvider): vscode.Disposable[] {
+export function createTogglePromptsViewCommands(promptTreeDataProvider: PromptTreeDataProvider): Disposable[] {
   return [
     registerCommand(Command.TogglePromptsGroupMode, () => promptTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.TogglePromptsGroupModeGrouped, () => promptTreeDataProvider.toggleGroupMode()),

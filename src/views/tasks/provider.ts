@@ -4,6 +4,7 @@ import { ExtensionConfigKey, getExtensionConfig } from '../../common/lib/extensi
 import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { tasksState } from '../../common/lib/workspace-state';
 import { TASK_SOURCES, TaskSource } from '../../common/schemas/types';
+import type { Event, EventEmitter, ExtensionContext, TreeItem, TreeView } from '../../common/vscode/vscode-types';
 import { createSourcedDragAndDropController } from '../_base';
 import { getDevPanelTasks, hasDevPanelGroups } from './devpanel-tasks';
 import { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
@@ -26,19 +27,18 @@ import {
 import { getVSCodeTasks, hasVSCodeGroups } from './vscode-tasks';
 
 export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | GroupTreeItem | WorkspaceTreeItem> {
-  private readonly _onDidChangeTreeData: vscode.EventEmitter<TreeTask | null> =
-    new vscode.EventEmitter<TreeTask | null>();
+  private readonly _onDidChangeTreeData: EventEmitter<TreeTask | null> = new vscode.EventEmitter<TreeTask | null>();
 
-  readonly onDidChangeTreeData: vscode.Event<TreeTask | null> = this._onDidChangeTreeData.event;
+  readonly onDidChangeTreeData: Event<TreeTask | null> = this._onDidChangeTreeData.event;
 
   private readonly autoRefresh: boolean;
   private _source: TaskSource;
   private _grouped: boolean;
   private _showHidden: boolean;
   private _showOnlyFavorites: boolean;
-  private _treeView: vscode.TreeView<TreeTask | GroupTreeItem | WorkspaceTreeItem> | null = null;
+  private _treeView: TreeView<TreeTask | GroupTreeItem | WorkspaceTreeItem> | null = null;
 
-  constructor(_context: vscode.ExtensionContext) {
+  constructor(_context: ExtensionContext) {
     this.autoRefresh = getExtensionConfig(ExtensionConfigKey.AutoRefresh);
     this._source = getCurrentSource();
     this._grouped = getIsGrouped();
@@ -47,7 +47,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     this.updateContextKeys();
   }
 
-  setTreeView(treeView: vscode.TreeView<TreeTask | GroupTreeItem | WorkspaceTreeItem>) {
+  setTreeView(treeView: TreeView<TreeTask | GroupTreeItem | WorkspaceTreeItem>) {
     this._treeView = treeView;
     this.updateViewTitle();
   }
@@ -221,7 +221,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     }
   }
 
-  getTreeItem(task: TreeTask | WorkspaceTreeItem | GroupTreeItem): vscode.TreeItem {
+  getTreeItem(task: TreeTask | WorkspaceTreeItem | GroupTreeItem): TreeItem {
     return task;
   }
 

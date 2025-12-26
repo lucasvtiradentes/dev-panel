@@ -5,8 +5,9 @@ import { getWorkspaceConfigDirPath } from '../../common/lib/config-manager';
 import { extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
+import type { Uri } from '../../common/vscode/vscode-types';
 
-async function copyDirectoryRecursive(sourceUri: vscode.Uri, targetUri: vscode.Uri) {
+async function copyDirectoryRecursive(sourceUri: Uri, targetUri: Uri) {
   await vscode.workspace.fs.createDirectory(targetUri);
 
   const entries = await vscode.workspace.fs.readDirectory(sourceUri);

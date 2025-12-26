@@ -15,6 +15,7 @@ import type { DevPanelConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
+import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
@@ -92,7 +93,7 @@ export async function getDevPanelTasks(
   return sortFn(taskElements);
 }
 
-function readDevPanelTasks(folder: vscode.WorkspaceFolder): NonNullable<DevPanelConfig['tasks']> {
+function readDevPanelTasks(folder: WorkspaceFolder): NonNullable<DevPanelConfig['tasks']> {
   const config = loadWorkspaceConfig(folder);
   return config?.tasks ?? [];
 }
@@ -104,7 +105,7 @@ function readGlobalTasks(): NonNullable<DevPanelConfig['tasks']> {
 
 function createDevPanelTask(
   task: NonNullable<DevPanelConfig['tasks']>[number],
-  folder: vscode.WorkspaceFolder,
+  folder: WorkspaceFolder,
   showHidden: boolean,
   showOnlyFavorites: boolean,
 ): TreeTask | null {

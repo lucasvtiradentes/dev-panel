@@ -3,6 +3,7 @@ import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../common/constants/scripts-const
 import { getBranchContextGlobPattern, getBranchContextTemplatePath } from '../common/lib/config-manager';
 import { createLogger } from '../common/lib/logger';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
+import type { Disposable, FileSystemWatcher, Uri } from '../common/vscode/vscode-types';
 import type { RefreshCallback, UriChangeCallback } from './types';
 import { attachFileWatcherHandlers } from './utils';
 
@@ -14,9 +15,9 @@ type MarkdownWatcherCallbacks = {
   onTemplateChange: RefreshCallback;
 };
 
-export function createMarkdownWatcher(callbacks: MarkdownWatcherCallbacks): vscode.Disposable {
+export function createMarkdownWatcher(callbacks: MarkdownWatcherCallbacks): Disposable {
   logger.info('[createMarkdownWatcher] START');
-  const disposables: vscode.Disposable[] = [];
+  const disposables: Disposable[] = [];
   const workspace = getFirstWorkspacePath();
 
   if (!workspace) {
@@ -56,10 +57,7 @@ export function createMarkdownWatcher(callbacks: MarkdownWatcherCallbacks): vsco
   };
 }
 
-function createBranchMarkdownWatcher(
-  workspace: string,
-  onChange: (uri: vscode.Uri) => void,
-): vscode.FileSystemWatcher | null {
+function createBranchMarkdownWatcher(workspace: string, onChange: (uri: Uri) => void): FileSystemWatcher | null {
   const globPattern = getBranchContextGlobPattern();
   logger.info(`Setting up branch markdown watcher with pattern: ${globPattern}`);
 
@@ -73,7 +71,7 @@ function createBranchMarkdownWatcher(
   return watcher;
 }
 
-function createRootMarkdownWatcher(workspace: string, onChange: RefreshCallback): vscode.FileSystemWatcher | null {
+function createRootMarkdownWatcher(workspace: string, onChange: RefreshCallback): FileSystemWatcher | null {
   logger.info(`Setting up root markdown watcher for: ${ROOT_BRANCH_CONTEXT_FILE_NAME}`);
 
   const watcher = vscode.workspace.createFileSystemWatcher(
@@ -88,7 +86,7 @@ function createRootMarkdownWatcher(workspace: string, onChange: RefreshCallback)
   return watcher;
 }
 
-function createTemplateWatcher(workspace: string, onChange: RefreshCallback): vscode.FileSystemWatcher | null {
+function createTemplateWatcher(workspace: string, onChange: RefreshCallback): FileSystemWatcher | null {
   const templatePath = getBranchContextTemplatePath(workspace);
   logger.info(`Setting up template watcher for: ${templatePath}`);
 

@@ -1,12 +1,12 @@
-import type * as vscode from 'vscode';
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
+import type { Disposable } from '../../../common/vscode/vscode-types';
 import { type ToolTreeDataProvider, type TreeTool, toggleTool } from '../../../views/tools';
 
 export type ToggleToolFavoriteParams = TreeTool;
 export type ToggleToolHideParams = TreeTool;
 export type ToggleToolParams = TreeTool;
 
-export function createToggleToolsViewCommands(toolTreeDataProvider: ToolTreeDataProvider): vscode.Disposable[] {
+export function createToggleToolsViewCommands(toolTreeDataProvider: ToolTreeDataProvider): Disposable[] {
   return [
     registerCommand(Command.ToggleToolsGroupMode, () => toolTreeDataProvider.toggleGroupMode()),
     registerCommand(Command.ToggleToolsGroupModeGrouped, () => toolTreeDataProvider.toggleGroupMode()),

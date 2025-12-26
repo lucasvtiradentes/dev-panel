@@ -1,7 +1,7 @@
-import type * as vscode from 'vscode';
+import type { Terminal } from '../../../common/vscode/vscode-types';
 
 export type PromptProvider = {
   name: string;
-  executeInteractive: (terminal: vscode.Terminal, promptContent: string) => void;
+  executeInteractive: (terminal: Terminal, promptContent: string) => void;
   getExecuteCommand: (tempFile: string, outputFile: string) => string;
 };

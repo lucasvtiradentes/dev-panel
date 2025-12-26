@@ -9,6 +9,7 @@ import {
 import { syncKeybindings } from '../common/lib/keybindings-sync';
 import { Command, registerCommand } from '../common/lib/vscode-utils';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
+import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
 import type { BranchContextProvider } from '../views/branch-context';
 import { validateBranchContext } from '../views/branch-context/config-validator';
@@ -76,7 +77,7 @@ import { createToggleVariablesViewCommands } from './internal/variables/toggle-v
 import { createShowLogsCommand } from './public/show-logs';
 
 export function registerAllCommands(options: {
-  context: vscode.ExtensionContext;
+  context: ExtensionContext;
   taskTreeDataProvider: TaskTreeDataProvider;
   toolTreeDataProvider: ToolTreeDataProvider;
   promptTreeDataProvider: PromptTreeDataProvider;
@@ -84,7 +85,7 @@ export function registerAllCommands(options: {
   replacementsProvider: ReplacementsProvider;
   branchContextProvider: BranchContextProvider;
   branchTasksProvider: BranchTasksProvider;
-}): vscode.Disposable[] {
+}): Disposable[] {
   const {
     context,
     taskTreeDataProvider,

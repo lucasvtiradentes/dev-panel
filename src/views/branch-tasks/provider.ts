@@ -8,6 +8,7 @@ import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { TaskPriority, TaskStatus } from '../../common/schemas';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import type { TreeItem, Uri } from '../../common/vscode/vscode-types';
 import { loadBranchContextFromFile } from '../branch-context/file-storage';
 import { getBranchContextFilePath } from '../branch-context/markdown-parser';
 import {
@@ -109,7 +110,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     this.refresh();
   }
 
-  handleMarkdownChange(uri: vscode.Uri) {
+  handleMarkdownChange(uri: Uri) {
     if (extensionStore.get(StoreKey.IsWritingBranchContext)) {
       logger.info(`[BranchTasksProvider] Ignoring file change during sync: ${uri.fsPath}`);
       return;
@@ -178,7 +179,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     this._onDidChangeTreeData.fire(undefined);
   }
 
-  getTreeItem(element: BranchTreeItem): vscode.TreeItem {
+  getTreeItem(element: BranchTreeItem): TreeItem {
     return element;
   }
 

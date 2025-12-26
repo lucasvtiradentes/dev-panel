@@ -20,6 +20,7 @@ import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-util
 import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspaceFolder, getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import type { TreeItem } from '../../common/vscode/vscode-types';
 import { getIsGrouped, saveIsGrouped } from './state';
 
 const execAsync = promisify(exec);
@@ -95,8 +96,8 @@ export class VariableTreeItem extends vscode.TreeItem {
 
 let providerInstance: VariablesProvider | null = null;
 
-export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
-  private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined>();
+export class VariablesProvider implements vscode.TreeDataProvider<TreeItem> {
+  private _onDidChangeTreeData = new vscode.EventEmitter<TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
   private _grouped: boolean;
 
@@ -124,11 +125,11 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     this._onDidChangeTreeData.fire(undefined);
   }
 
-  getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
+  getTreeItem(element: TreeItem): TreeItem {
     return element;
   }
 
-  getChildren(element?: vscode.TreeItem): Thenable<vscode.TreeItem[]> {
+  getChildren(element?: TreeItem): Thenable<TreeItem[]> {
     const config = this.loadConfig();
     if (!config) return Promise.resolve([]);
 
@@ -155,7 +156,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
       }
     }
 
-    const items: vscode.TreeItem[] = [];
+    const items: TreeItem[] = [];
 
     for (const [groupName, variables] of grouped) {
       items.push(new GroupTreeItem(groupName, variables));

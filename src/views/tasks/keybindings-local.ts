@@ -9,6 +9,7 @@ import {
 import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
+import type { ExtensionContext } from '../../common/vscode/vscode-types';
 import { KeybindingManager } from '../_base';
 
 const manager = new KeybindingManager({
@@ -19,7 +20,7 @@ const manager = new KeybindingManager({
 export const getAllTaskKeybindings = () => manager.getAllKeybindings();
 export const reloadTaskKeybindings = () => manager.reload();
 
-export function registerTaskKeybindings(context: vscode.ExtensionContext) {
+export function registerTaskKeybindings(context: ExtensionContext) {
   forEachWorkspaceConfig((folder, config) => {
     const tasks = config.tasks ?? [];
 

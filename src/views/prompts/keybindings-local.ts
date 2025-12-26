@@ -3,6 +3,7 @@ import { getGlobalConfigDir, getPromptCommandId, getPromptCommandPrefix } from '
 import { forEachWorkspaceConfig, getWorkspaceConfigDirPath, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { Command, executeCommand } from '../../common/lib/vscode-utils';
+import type { ExtensionContext } from '../../common/vscode/vscode-types';
 import { KeybindingManager } from '../_base';
 
 const manager = new KeybindingManager({
@@ -13,7 +14,7 @@ const manager = new KeybindingManager({
 export const getAllPromptKeybindings = () => manager.getAllKeybindings();
 export const reloadPromptKeybindings = () => manager.reload();
 
-export function registerPromptKeybindings(context: vscode.ExtensionContext) {
+export function registerPromptKeybindings(context: ExtensionContext) {
   forEachWorkspaceConfig((folder, config) => {
     const prompts = config.prompts ?? [];
 

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { GLOBAL_ITEM_PREFIX, NO_GROUP_NAME } from '../../common/constants';
 import { type ContextKey, setContextKey } from '../../common/lib/vscode-utils';
+import type { Event, EventEmitter, TreeItem } from '../../common/vscode/vscode-types';
 import type { GlobalStateManager, GroupTreeItem, NamedTreeItem, SimpleStateManager, StateManager } from './types';
 
 export type ProviderConfig<TSource = void> = {
@@ -19,8 +20,8 @@ export abstract class BaseTreeDataProvider<
   TSource = void,
 > implements vscode.TreeDataProvider<TItem | TGroup>
 {
-  protected readonly _onDidChangeTreeData: vscode.EventEmitter<TItem | TGroup | null>;
-  readonly onDidChangeTreeData: vscode.Event<TItem | TGroup | null>;
+  protected readonly _onDidChangeTreeData: EventEmitter<TItem | TGroup | null>;
+  readonly onDidChangeTreeData: Event<TItem | TGroup | null>;
 
   protected _grouped: boolean;
   protected _showHidden: boolean;
@@ -227,7 +228,7 @@ export abstract class BaseTreeDataProvider<
     return typeof item.label === 'string' ? item.label : (item.label?.label ?? '');
   }
 
-  getTreeItem(item: TItem | TGroup): vscode.TreeItem {
+  getTreeItem(item: TItem | TGroup): TreeItem {
     return item;
   }
 

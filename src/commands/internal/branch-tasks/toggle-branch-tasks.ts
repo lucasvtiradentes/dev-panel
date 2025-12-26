@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
+import type { Disposable } from '../../../common/vscode/vscode-types';
 import type { BranchTaskItem, BranchTasksProvider } from '../../../views/branch-tasks';
 import { createBranchTaskCommands } from '../../../views/branch-tasks/commands';
 
@@ -10,7 +11,7 @@ function extractLineIndex(itemOrLineIndex: BranchTaskItem | number): number {
   return typeof itemOrLineIndex === 'number' ? itemOrLineIndex : itemOrLineIndex.node.lineIndex;
 }
 
-export function createToggleBranchTasksCommands(branchTasksProvider: BranchTasksProvider): vscode.Disposable[] {
+export function createToggleBranchTasksCommands(branchTasksProvider: BranchTasksProvider): Disposable[] {
   return [
     registerCommand(Command.ToggleBranchTasksShowOnlyTodo, () => branchTasksProvider.toggleShowOnlyTodo()),
     registerCommand(Command.ToggleBranchTasksShowOnlyTodoActive, () => branchTasksProvider.toggleShowOnlyTodo()),

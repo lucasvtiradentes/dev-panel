@@ -1,11 +1,11 @@
-import type * as vscode from 'vscode';
 import { Command, ContextKey, registerCommand, setContextKey } from '../../../common/lib/vscode-utils';
 import { branchContextState } from '../../../common/lib/workspace-state';
+import type { Disposable } from '../../../common/vscode/vscode-types';
 import type { BranchContextProvider } from '../../../views/branch-context';
 
 export function createToggleBranchContextHideEmptySectionsCommand(
   branchContextProvider: BranchContextProvider,
-): vscode.Disposable[] {
+): Disposable[] {
   return [
     registerCommand(Command.ToggleBranchContextHideEmptySections, () => {
       branchContextState.saveHideEmptySections(true);

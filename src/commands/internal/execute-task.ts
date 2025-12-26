@@ -3,6 +3,13 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { promisify } from 'node:util';
 import * as vscode from 'vscode';
+import type {
+  ExtensionContext,
+  ShellExecution,
+  Task,
+  TaskScope,
+  WorkspaceFolder,
+} from '../../common/vscode/vscode-types';
 
 const execAsync = promisify(exec);
 import { GLOBAL_ITEM_PREFIX, GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
@@ -41,7 +48,7 @@ const log = createLogger('execute-task');
 
 export type ExecutePromptParams = {
   promptFilePath: string;
-  folder: vscode.WorkspaceFolder | null;
+  folder: WorkspaceFolder | null;
   promptConfig?: DevPanelPrompt;
 };
 
@@ -58,18 +65,18 @@ function readDevPanelVariablesAsEnv(workspacePath: string): Record<string, strin
   return env;
 }
 
-function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscode.Task {
+function cloneTaskWithEnv(task: Task, env: Record<string, string>): Task {
   const execution = task.execution;
   if (!execution) return task;
 
-  let newTask: vscode.Task;
+  let newTask: Task;
 
   if (execution instanceof vscode.ShellExecution) {
     const mergedEnv = { ...execution.options?.env, ...env };
     const commandLine = execution.commandLine;
     const command = execution.command;
 
-    let newExecution: vscode.ShellExecution;
+    let newExecution: ShellExecution;
     if (commandLine) {
       newExecution = new vscode.ShellExecution(commandLine, { ...execution.options, env: mergedEnv });
     } else if (command) {
@@ -112,12 +119,12 @@ function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscod
   return task;
 }
 
-export function createExecuteTaskCommand(context: vscode.ExtensionContext) {
+export function createExecuteTaskCommand(context: ExtensionContext) {
   return registerCommand(
     Command.ExecuteTask,
     async (
-      task: vscode.Task,
-      scope: vscode.TaskScope | vscode.WorkspaceFolder | undefined,
+      task: Task,
+      scope: TaskScope | vscode.WorkspaceFolder | undefined,
       taskConfig?: NonNullable<DevPanelConfig['tasks']>[number],
     ) => {
       let modifiedTask = task;
@@ -178,7 +185,7 @@ export function createExecuteTaskCommand(context: vscode.ExtensionContext) {
   );
 }
 
-export function createExecuteToolCommand(context: vscode.ExtensionContext) {
+export function createExecuteToolCommand(context: ExtensionContext) {
   return registerCommand(Command.ExecuteTool, (item: TreeTool | vscode.Task) => {
     if (item instanceof TreeTool) {
       const toolName = item.toolName;
@@ -245,7 +252,7 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
   });
 }
 
-function readDevPanelSettings(folder: vscode.WorkspaceFolder): DevPanelSettings | undefined {
+function readDevPanelSettings(folder: WorkspaceFolder): DevPanelSettings | undefined {
   const config = loadWorkspaceConfig(folder);
   if (!config) {
     log.debug('readDevPanelSettings - config file not found or failed to parse');
@@ -255,7 +262,7 @@ function readDevPanelSettings(folder: vscode.WorkspaceFolder): DevPanelSettings 
   return config.settings;
 }
 
-function readDevPanelVariables(folder: vscode.WorkspaceFolder): Record<string, unknown> | null {
+function readDevPanelVariables(folder: WorkspaceFolder): Record<string, unknown> | null {
   const variablesPath = getWorkspaceConfigFilePath(folder, VARIABLES_FILE_NAME);
   log.debug(`readDevPanelVariables - variablesPath: ${variablesPath}`);
   const variables = loadVariablesFromPath(variablesPath);
@@ -350,7 +357,7 @@ export function createExecutePromptCommand() {
 
 async function executePromptWithSave(options: {
   promptContent: string;
-  folder: vscode.WorkspaceFolder;
+  folder: WorkspaceFolder;
   promptName: string;
   provider: PromptProvider;
   settings?: DevPanelSettings;

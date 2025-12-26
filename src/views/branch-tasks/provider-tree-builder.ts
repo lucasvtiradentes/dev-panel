@@ -6,6 +6,7 @@ import {
   getCommandId,
 } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
+import type { TreeItem } from '../../common/vscode/vscode-types';
 import type { MilestoneNode, TaskNode } from '../branch-context/providers';
 import { type TaskFilter, applyFilters, filterTodoNodes, flattenNodes } from './filter-operations';
 import { BranchMilestoneItem, BranchTaskItem, type BranchTreeItem, NO_MILESTONE_NAME } from './task-tree-items';
@@ -80,7 +81,7 @@ export function buildFlatTree(
   return processedNodes.map((node) => new BranchTaskItem(node, node.children.length > 0));
 }
 
-export function createEmptyStateItem(showOnlyTodo: boolean, hasActiveFilter: boolean): vscode.TreeItem {
+export function createEmptyStateItem(showOnlyTodo: boolean, hasActiveFilter: boolean): TreeItem {
   const message = showOnlyTodo || hasActiveFilter ? NO_PENDING_TASKS_MESSAGE : EMPTY_TASKS_MESSAGE;
   const openFileItem = new vscode.TreeItem(message);
   openFileItem.command = {
