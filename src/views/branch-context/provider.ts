@@ -186,6 +186,10 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
     }
   }
 
+  getCurrentBranch(): string {
+    return this.currentBranch;
+  }
+
   setBranch(branchName: string, shouldRefresh = true) {
     logger.info(
       `[BranchContextProvider] setBranch called: ${branchName} (current: ${this.currentBranch}, isInitializing: ${this.isInitializing})`,

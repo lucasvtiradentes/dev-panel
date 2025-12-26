@@ -180,9 +180,12 @@ function setupWatchers(context: ExtensionContext, providers: Providers, activate
   context.subscriptions.push(branchWatcher);
   logger.info(`[activate] branchWatcher created (+${Date.now() - activateStart}ms)`);
 
-  const branchMarkdownWatcher = createBranchMarkdownWatcher((uri) => {
-    providers.branchContextProvider.handleMarkdownChange(uri);
-    providers.branchTasksProvider.handleMarkdownChange(uri);
+  const branchMarkdownWatcher = createBranchMarkdownWatcher({
+    onChange: (uri) => {
+      providers.branchContextProvider.handleMarkdownChange(uri);
+      providers.branchTasksProvider.handleMarkdownChange(uri);
+    },
+    getCurrentBranch: () => providers.branchContextProvider.getCurrentBranch(),
   });
   context.subscriptions.push(branchMarkdownWatcher);
 
