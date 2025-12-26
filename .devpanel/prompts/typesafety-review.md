@@ -12,12 +12,13 @@ $FOLDERS
    - `as any` - Type assertions bypassing type checking
    - `: any` - Explicit any type annotations
    - `as unknown as Type` - Double casting patterns
+   - String literals in enum comparisons - Using `case 'value':` when parameter is enum type
    - Hardcoded values that should be constants
    - Union string types where enums would be better
 
 2. **Categorize findings:**
    - **Critical:** Unsafe type casts that could hide bugs
-   - **Moderate:** Hardcoded values and poor type definitions
+   - **Moderate:** Hardcoded values, poor type definitions, and enum misuse
    - **Improvement:** Union strings that should be enums
 
 ## Output Format
@@ -56,9 +57,30 @@ const data = response as unknown as ApiResponse;
 - `file:line` - What's being cast and safer alternatives
 - `file:line` - What's being cast and safer alternatives
 
+#### 4. String Literals Instead of Enum Values
+**Example:**
+```typescript
+enum TaskStatus {
+  Todo = 'todo',
+  Done = 'done'
+}
+
+function check(status: TaskStatus) {
+  switch (status) {
+    case 'todo':  // Should be TaskStatus.Todo
+      break;
+    case 'done':  // Should be TaskStatus.Done
+      break;
+  }
+}
+```
+**Issues found:**
+- `file:line` - Using string literal instead of enum member (defeats exhaustive checking)
+- `file:line` - Using string literal instead of enum member (defeats exhaustive checking)
+
 ### Code Quality Issues
 
-#### 4. Hardcoded Values
+#### 5. Hardcoded Values
 **Example:**
 ```typescript
 const tempFile = path.join(outputDir, '.prompt-temp.txt');
@@ -68,7 +90,7 @@ const timeout = setTimeout(fn, 5000);
 - `file:line` - Hardcoded value and suggested constant name/location
 - `file:line` - Hardcoded value and suggested constant name/location
 
-#### 5. Union Strings Instead of Enums
+#### 6. Union Strings Instead of Enums
 **Example:**
 ```typescript
 type Status = 'pending' | 'active' | 'completed';
@@ -98,6 +120,7 @@ Prioritized list of fixes:
 - `as any` should almost never be used; find proper types instead
 - `: any` defeats TypeScript's purpose; define proper interfaces
 - `as unknown as T` suggests type system fighting; reconsider architecture
+- String literals in enum comparisons defeat exhaustive checking; use enum members
 
 **Code Quality:**
 - Magic strings/numbers should be named constants
