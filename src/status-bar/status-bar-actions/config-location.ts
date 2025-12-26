@@ -17,6 +17,7 @@ import {
 } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
+import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { Uri } from '../../common/vscode/vscode-types';
 
 type QuickPickItemWithId<T> = vscode.QuickPickItem & { id: T };
@@ -59,14 +60,15 @@ export async function showConfigLocationMenu() {
 
   setConfigDir(newConfigDir);
   logger.info(`Config dir changed to: ${getConfigDirLabel(newConfigDir)}`);
-  void vscode.window.showInformationMessage(`Config location: ${getConfigDirLabel(newConfigDir)}`);
+  void VscodeHelper.showToastMessage(ToastKind.Info, `Config location: ${getConfigDirLabel(newConfigDir)}`);
 }
 
 async function askToMoveConfig(fromDir: string | null, toDir: string | null): Promise<boolean> {
   const fromLabel = getConfigDirLabel(fromDir);
   const toLabel = getConfigDirLabel(toDir);
 
-  const result = await vscode.window.showWarningMessage(
+  const result = await VscodeHelper.showToastMessage(
+    ToastKind.Warning,
     `Move config from "${fromLabel}" to "${toLabel}"?`,
     { modal: true },
     'Move',

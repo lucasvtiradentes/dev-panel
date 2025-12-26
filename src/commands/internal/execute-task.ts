@@ -3,6 +3,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { promisify } from 'node:util';
 import * as vscode from 'vscode';
+import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type {
   ExtensionContext,
   ShellExecution,
@@ -205,7 +206,7 @@ export function createExecuteToolCommand(context: ExtensionContext) {
         env = readDevPanelVariablesAsEnv(getGlobalConfigDir());
       } else {
         if (!folder) {
-          void vscode.window.showErrorMessage('No workspace folder found');
+          void VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
           return;
         }
         const config = loadWorkspaceConfig(folder);
@@ -216,7 +217,7 @@ export function createExecuteToolCommand(context: ExtensionContext) {
       }
 
       if (!toolConfig?.command) {
-        void vscode.window.showErrorMessage(`Tool "${actualName}" has no command configured`);
+        void VscodeHelper.showToastMessage(ToastKind.Error, `Tool "${actualName}" has no command configured`);
         return;
       }
 
@@ -301,7 +302,7 @@ export function createExecutePromptCommand() {
       }
 
       if (!fs.existsSync(resolvedPromptFilePath)) {
-        void vscode.window.showErrorMessage(`Prompt file not found: ${resolvedPromptFilePath}`);
+        void VscodeHelper.showToastMessage(ToastKind.Error, `Prompt file not found: ${resolvedPromptFilePath}`);
         return;
       }
 
@@ -325,7 +326,8 @@ export function createExecutePromptCommand() {
 
       const provider = getProvider(settings?.aiProvider);
       if (!provider) {
-        void vscode.window.showErrorMessage(
+        void VscodeHelper.showToastMessage(
+          ToastKind.Error,
           `AI provider not configured. Set "settings.aiProvider" in ${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME} (${getAIProvidersListFormatted()})`,
         );
         return;
@@ -334,7 +336,7 @@ export function createExecutePromptCommand() {
       if (promptConfig?.saveOutput) {
         const folderForOutput = folder ?? getFirstWorkspaceFolder();
         if (!folderForOutput) {
-          void vscode.window.showErrorMessage('No workspace folder available to save prompt output');
+          void VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder available to save prompt output');
           return;
         }
 
@@ -392,7 +394,7 @@ async function executePromptWithSave(options: {
         await vscode.window.showTextDocument(doc);
       } catch (error: unknown) {
         fs.unlinkSync(tempFile);
-        void vscode.window.showErrorMessage(`Prompt failed: ${TypeGuards.getErrorMessage(error)}`);
+        void VscodeHelper.showToastMessage(ToastKind.Error, `Prompt failed: ${TypeGuards.getErrorMessage(error)}`);
       }
     },
   );

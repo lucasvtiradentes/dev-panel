@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import { TaskPriority, TaskStatus } from '../../common/schemas';
+import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { Disposable, QuickPickItem } from '../../common/vscode/vscode-types';
 import type { BranchTasksProvider } from './provider';
 import type { BranchTaskItem } from './task-tree-items';
@@ -124,7 +125,12 @@ export function createBranchTaskCommands(provider: BranchTasksProvider): Disposa
 
     registerCommand(Command.DeleteBranchTask, async (item: ItemOrLineIndex) => {
       const lineIndex = extractLineIndex(item);
-      const confirm = await vscode.window.showWarningMessage('Delete this task?', { modal: true }, 'Delete');
+      const confirm = await VscodeHelper.showToastMessage(
+        ToastKind.Warning,
+        'Delete this task?',
+        { modal: true },
+        'Delete',
+      );
       if (confirm !== 'Delete') return;
       await provider.deleteTask(lineIndex);
     }),
@@ -134,7 +140,7 @@ export function createBranchTaskCommands(provider: BranchTasksProvider): Disposa
       const node = provider.findNodeByLineIndex(lineIndex);
       if (!node) return;
       await vscode.env.clipboard.writeText(node.text);
-      vscode.window.showInformationMessage('Task text copied');
+      VscodeHelper.showToastMessage(ToastKind.Info, 'Task text copied');
     }),
 
     registerCommand(Command.OpenTaskExternal, async (item: ItemOrLineIndex) => {

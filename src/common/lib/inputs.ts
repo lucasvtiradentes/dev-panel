@@ -8,6 +8,7 @@ import {
 } from '../constants/scripts-constants';
 import { type DevPanelInput, type DevPanelSettings, PromptInputType } from '../schemas';
 import { getFirstWorkspaceFolder } from '../utils/workspace-utils';
+import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
 import type { WorkspaceFolder } from '../vscode/vscode-types';
 import { type FileSelectionOptions, selectFiles, selectFolders } from './file-selection';
 import { createLogger } from './logger';
@@ -104,7 +105,7 @@ async function collectFileInput(
 
   const folder = workspaceFolder ?? getFirstWorkspaceFolder();
   if (!folder) {
-    void vscode.window.showErrorMessage(ERROR_MSG_WORKSPACE_REQUIRED);
+    void VscodeHelper.showToastMessage(ToastKind.Error, ERROR_MSG_WORKSPACE_REQUIRED);
     return undefined;
   }
 
@@ -130,7 +131,7 @@ async function collectFolderInput(
 ): Promise<string | undefined> {
   const folder = workspaceFolder ?? getFirstWorkspaceFolder();
   if (!folder) {
-    void vscode.window.showErrorMessage(ERROR_MSG_WORKSPACE_REQUIRED);
+    void VscodeHelper.showToastMessage(ToastKind.Error, ERROR_MSG_WORKSPACE_REQUIRED);
     return undefined;
   }
 

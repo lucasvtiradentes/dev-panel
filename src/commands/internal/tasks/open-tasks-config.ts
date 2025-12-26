@@ -16,6 +16,7 @@ import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import { TaskSource } from '../../../common/schemas/types';
 import { TypeGuards } from '../../../common/utils/type-utils';
 import { getFirstWorkspaceFolder } from '../../../common/utils/workspace-utils';
+import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { WorkspaceFolder } from '../../../common/vscode/vscode-types';
 import { getExcludedDirs } from '../../../views/tasks/package-json';
 import { getCurrentSource } from '../../../views/tasks/state';
@@ -78,7 +79,7 @@ export function createOpenTasksConfigCommand() {
           const uri = vscode.Uri.file(tasksJsonPath);
           await vscode.window.showTextDocument(uri);
         } else {
-          void vscode.window.showErrorMessage(`${VSCODE_TASKS_PATH} not found`);
+          void VscodeHelper.showToastMessage(ToastKind.Error, `${VSCODE_TASKS_PATH} not found`);
         }
         break;
       }
@@ -103,7 +104,7 @@ export function createOpenTasksConfigCommand() {
             selection: new vscode.Range(tasksLine, 0, tasksLine, 0),
           });
         } else {
-          void vscode.window.showErrorMessage(`${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME} not found`);
+          void VscodeHelper.showToastMessage(ToastKind.Error, `${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME} not found`);
         }
         break;
       }
@@ -112,7 +113,7 @@ export function createOpenTasksConfigCommand() {
         const packageJsons = await findAllPackageJsons(workspace);
 
         if (!TypeGuards.isNonEmptyArray(packageJsons)) {
-          void vscode.window.showErrorMessage(`No ${PACKAGE_JSON} found`);
+          void VscodeHelper.showToastMessage(ToastKind.Error, `No ${PACKAGE_JSON} found`);
         } else if (packageJsons.length === 1) {
           await openPackageJsonAtScripts(packageJsons[0]);
         } else {

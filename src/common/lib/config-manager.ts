@@ -11,6 +11,7 @@ import {
   PROMPTS_DIR_NAME,
 } from '../constants/scripts-constants';
 import type { DevPanelConfig } from '../schemas';
+import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
 import type { Uri, WorkspaceFolder } from '../vscode/vscode-types';
 import { StoreKey, extensionStore } from './extension-store';
 
@@ -238,7 +239,8 @@ export function saveWorkspaceConfig(folder: WorkspaceFolder, config: DevPanelCon
 }
 
 export async function confirmOverwrite(itemType: string, itemName: string): Promise<boolean> {
-  const choice = await vscode.window.showWarningMessage(
+  const choice = await VscodeHelper.showToastMessage(
+    ToastKind.Warning,
     `${itemType} "${itemName}" already exists. Overwrite?`,
     'Overwrite',
     'Cancel',
@@ -247,7 +249,8 @@ export async function confirmOverwrite(itemType: string, itemName: string): Prom
 }
 
 export async function confirmDelete(itemType: string, itemName: string, isGlobal: boolean): Promise<boolean> {
-  const choice = await vscode.window.showWarningMessage(
+  const choice = await VscodeHelper.showToastMessage(
+    ToastKind.Warning,
     `Are you sure you want to delete ${itemType} "${itemName}"${isGlobal ? ' (global)' : ''}?`,
     { modal: true },
     'Delete',

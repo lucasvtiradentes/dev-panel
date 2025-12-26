@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import * as vscode from 'vscode';
 import {
   AI_SPEC_AVAILABLE_TOOLS_REGEX,
   AI_SPEC_DEV_TOOLS_REGEX,
@@ -18,6 +17,7 @@ import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import { toolsState } from '../../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
+import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable, WorkspaceFolder } from '../../../common/vscode/vscode-types';
 
 type ToolInstruction = {
@@ -335,7 +335,7 @@ function syncToAiSpecs(xml: string, workspaceFolder: WorkspaceFolder) {
   }
 
   if (foundFiles.length === 0) {
-    vscode.window.showWarningMessage(`No AI specification files found (${AI_SPEC_FILES.join(', ')})`);
+    VscodeHelper.showToastMessage(ToastKind.Warning, `No AI specification files found (${AI_SPEC_FILES.join(', ')})`);
     return;
   }
 
@@ -353,7 +353,8 @@ function syncToAiSpecs(xml: string, workspaceFolder: WorkspaceFolder) {
     fs.writeFileSync(filePath, content, 'utf8');
   }
 
-  vscode.window.showInformationMessage(
+  VscodeHelper.showToastMessage(
+    ToastKind.Info,
     `Updated ${foundFiles.length} file(s) with tools documentation: ${foundFiles.map((f) => path.basename(f)).join(', ')}`,
   );
 }
@@ -367,7 +368,10 @@ async function handleGenerateToolsDocs() {
   syncToAiSpecs(xml, workspaceFolder);
 
   if (skillsCount > 0) {
-    vscode.window.showInformationMessage(`Synced ${skillsCount} tool(s) to ${CLAUDE_DIR_NAME}/${SKILLS_DIR_NAME}/`);
+    VscodeHelper.showToastMessage(
+      ToastKind.Info,
+      `Synced ${skillsCount} tool(s) to ${CLAUDE_DIR_NAME}/${SKILLS_DIR_NAME}/`,
+    );
   }
 }
 

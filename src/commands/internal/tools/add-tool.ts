@@ -15,6 +15,7 @@ import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath, parseConfig } fr
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
+import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 
 async function handleAddTool() {
@@ -52,14 +53,14 @@ async function handleAddTool() {
 
   const configPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
   if (!fs.existsSync(configPath)) {
-    vscode.window.showErrorMessage(`Config file not found: ${configPath}`);
+    VscodeHelper.showToastMessage(ToastKind.Error, `Config file not found: ${configPath}`);
     return;
   }
 
   const configContent = fs.readFileSync(configPath, 'utf8');
   const config = parseConfig(configContent);
   if (!config) {
-    vscode.window.showErrorMessage('Failed to parse config file');
+    VscodeHelper.showToastMessage(ToastKind.Error, 'Failed to parse config file');
     return;
   }
 
@@ -69,7 +70,7 @@ async function handleAddTool() {
 
   const existingTool = config.tools.find((t) => t.name === name);
   if (existingTool) {
-    vscode.window.showErrorMessage(`Tool "${name}" already exists`);
+    VscodeHelper.showToastMessage(ToastKind.Error, `Tool "${name}" already exists`);
     return;
   }
 
@@ -87,7 +88,7 @@ async function handleAddTool() {
   const toolsStartMatch = configContent.match(CONFIG_TOOLS_ARRAY_PATTERN);
 
   if (!toolsStartMatch || toolsStartMatch.index === undefined) {
-    vscode.window.showErrorMessage('Could not find "tools" array in config file');
+    VscodeHelper.showToastMessage(ToastKind.Error, 'Could not find "tools" array in config file');
     return;
   }
 
@@ -166,7 +167,7 @@ ${command}
 
   fs.writeFileSync(instructionsPath, instructionsContent, 'utf8');
 
-  vscode.window.showInformationMessage(`Tool "${name}" created successfully`);
+  VscodeHelper.showToastMessage(ToastKind.Info, `Tool "${name}" created successfully`);
 
   const openFile = await vscode.window.showQuickPick(
     [

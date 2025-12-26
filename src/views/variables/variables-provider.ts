@@ -20,6 +20,7 @@ import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-util
 import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspaceFolder, getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeItem } from '../../common/vscode/vscode-types';
 import { getIsGrouped, saveIsGrouped } from './state';
 
@@ -213,7 +214,7 @@ async function runCommand(variable: DevPanelVariable, value: unknown) {
         await execAsync(command, { cwd: configDirPath });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        void vscode.window.showErrorMessage(`${ERROR_VARIABLE_COMMAND_FAILED}: ${errorMessage}`);
+        void VscodeHelper.showToastMessage(ToastKind.Error, `${ERROR_VARIABLE_COMMAND_FAILED}: ${errorMessage}`);
       }
     },
   );

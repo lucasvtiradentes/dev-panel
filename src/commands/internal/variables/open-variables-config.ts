@@ -4,6 +4,7 @@ import { CONFIG_FILE_NAME } from '../../../common/constants';
 import { getWorkspaceConfigFilePath } from '../../../common/lib/config-manager';
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import { getFirstWorkspaceFolder } from '../../../common/utils/workspace-utils';
+import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 
 export function createOpenVariablesConfigCommand() {
   return registerCommand(Command.OpenVariablesConfig, async () => {
@@ -12,7 +13,7 @@ export function createOpenVariablesConfigCommand() {
 
     const configPath = getWorkspaceConfigFilePath(workspace, CONFIG_FILE_NAME);
     if (!fs.existsSync(configPath)) {
-      void vscode.window.showErrorMessage(`${CONFIG_FILE_NAME} not found`);
+      void VscodeHelper.showToastMessage(ToastKind.Error, `${CONFIG_FILE_NAME} not found`);
       return;
     }
 

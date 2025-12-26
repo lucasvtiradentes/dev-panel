@@ -139,23 +139,6 @@ export function executeCommand<T extends Command>(
   return vscode.commands.executeCommand(getCommandId(command), ...args);
 }
 
-export enum ToastKind {
-  Info = 'info',
-  Warning = 'warning',
-  Error = 'error',
-}
-
-export function showToastMessage(kind: ToastKind, message: string, ...items: string[]): Thenable<string | undefined> {
-  switch (kind) {
-    case ToastKind.Info:
-      return vscode.window.showInformationMessage(message, ...items);
-    case ToastKind.Warning:
-      return vscode.window.showWarningMessage(message, ...items);
-    case ToastKind.Error:
-      return vscode.window.showErrorMessage(message, ...items);
-  }
-}
-
 export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] | undefined {
   return vscode.workspace.workspaceFolders;
 }

@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { registerAllCommands } from './commands/register-all';
 import {
   GLOBAL_STATE_WORKSPACE_SOURCE,
@@ -16,6 +15,7 @@ import { logger } from './common/lib/logger';
 import { ContextKey, generateWorkspaceId, setContextKey, setWorkspaceId } from './common/lib/vscode-utils';
 import { initWorkspaceState } from './common/lib/workspace-state';
 import { getFirstWorkspacePath } from './common/utils/workspace-utils';
+import { VscodeHelper } from './common/vscode/vscode-helper';
 import type { ExtensionContext } from './common/vscode/vscode-types';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import { BranchContextProvider } from './views/branch-context';
@@ -77,7 +77,7 @@ function setupProviders(context: ExtensionContext, activateStart: number): Provi
 
   logger.info(`[activate] Calling branchContextProvider.initialize (+${Date.now() - activateStart}ms)`);
   void branchContextProvider.initialize();
-  void vscode.tasks.fetchTasks();
+  void VscodeHelper.fetchTasks();
 
   const workspace = getFirstWorkspacePath();
   if (workspace) {
@@ -97,32 +97,32 @@ function setupProviders(context: ExtensionContext, activateStart: number): Provi
 }
 
 function setupTreeViews(providers: Providers) {
-  const tasksTreeView = vscode.window.createTreeView(getViewIdTasks(), {
+  const tasksTreeView = VscodeHelper.createTreeView(getViewIdTasks(), {
     treeDataProvider: providers.taskTreeDataProvider,
     dragAndDropController: providers.taskTreeDataProvider.dragAndDropController,
   });
   providers.taskTreeDataProvider.setTreeView(tasksTreeView);
 
-  const toolsTreeView = vscode.window.createTreeView(getViewIdTools(), {
+  const toolsTreeView = VscodeHelper.createTreeView(getViewIdTools(), {
     treeDataProvider: providers.toolTreeDataProvider,
     dragAndDropController: providers.toolTreeDataProvider.dragAndDropController,
   });
   providers.toolTreeDataProvider.setTreeView(toolsTreeView);
 
-  const promptsTreeView = vscode.window.createTreeView(getViewIdPrompts(), {
+  const promptsTreeView = VscodeHelper.createTreeView(getViewIdPrompts(), {
     treeDataProvider: providers.promptTreeDataProvider,
     dragAndDropController: providers.promptTreeDataProvider.dragAndDropController,
   });
   providers.promptTreeDataProvider.setTreeView(promptsTreeView);
 
-  const branchContextTreeView = vscode.window.createTreeView(getViewIdBranchContext(), {
+  const branchContextTreeView = VscodeHelper.createTreeView(getViewIdBranchContext(), {
     treeDataProvider: providers.branchContextProvider,
   });
   providers.branchContextProvider.setTreeView(branchContextTreeView);
 
-  vscode.window.registerTreeDataProvider(getViewIdConfigs(), providers.variablesProvider);
-  vscode.window.registerTreeDataProvider(getViewIdReplacements(), providers.replacementsProvider);
-  vscode.window.registerTreeDataProvider(getViewIdTodos(), providers.branchTasksProvider);
+  VscodeHelper.registerTreeDataProvider(getViewIdConfigs(), providers.variablesProvider);
+  VscodeHelper.registerTreeDataProvider(getViewIdReplacements(), providers.replacementsProvider);
+  VscodeHelper.registerTreeDataProvider(getViewIdTodos(), providers.branchTasksProvider);
 }
 
 function setupDisposables(context: ExtensionContext, providers: Providers) {

@@ -14,6 +14,7 @@ import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath, parseConfig } fr
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
+import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 
 async function handleAddPrompt() {
@@ -56,14 +57,14 @@ async function handleAddPrompt() {
 
   const configPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
   if (!fs.existsSync(configPath)) {
-    vscode.window.showErrorMessage(`Config file not found: ${configPath}`);
+    VscodeHelper.showToastMessage(ToastKind.Error, `Config file not found: ${configPath}`);
     return;
   }
 
   const configContent = fs.readFileSync(configPath, 'utf8');
   const config = parseConfig(configContent);
   if (!config) {
-    vscode.window.showErrorMessage('Failed to parse config file');
+    VscodeHelper.showToastMessage(ToastKind.Error, 'Failed to parse config file');
     return;
   }
 
@@ -73,7 +74,7 @@ async function handleAddPrompt() {
 
   const existingPrompt = config.prompts.find((p) => p.name === name);
   if (existingPrompt) {
-    vscode.window.showErrorMessage(`Prompt "${name}" already exists`);
+    VscodeHelper.showToastMessage(ToastKind.Error, `Prompt "${name}" already exists`);
     return;
   }
 
@@ -95,7 +96,7 @@ async function handleAddPrompt() {
   const promptsStartMatch = configContent.match(CONFIG_PROMPTS_ARRAY_PATTERN);
 
   if (!promptsStartMatch || promptsStartMatch.index === undefined) {
-    vscode.window.showErrorMessage('Could not find "prompts" array in config file');
+    VscodeHelper.showToastMessage(ToastKind.Error, 'Could not find "prompts" array in config file');
     return;
   }
 
@@ -157,7 +158,7 @@ Example command or code
 
   fs.writeFileSync(promptFilePath, promptContent, 'utf8');
 
-  vscode.window.showInformationMessage(`Prompt "${name}" created successfully`);
+  VscodeHelper.showToastMessage(ToastKind.Info, `Prompt "${name}" created successfully`);
 
   const uri = vscode.Uri.file(promptFilePath);
   await vscode.window.showTextDocument(uri);

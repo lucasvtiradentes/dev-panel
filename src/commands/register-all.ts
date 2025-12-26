@@ -9,6 +9,7 @@ import {
 import { syncKeybindings } from '../common/lib/keybindings-sync';
 import { Command, registerCommand } from '../common/lib/vscode-utils';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
+import { ToastKind, VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
 import type { BranchContextProvider } from '../views/branch-context';
@@ -154,20 +155,20 @@ export function registerAllCommands(options: {
 
       const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
       if (!fs.existsSync(configPath)) {
-        await vscode.window.showInformationMessage('No config file found');
+        await VscodeHelper.showToastMessage(ToastKind.Info, 'No config file found');
         return;
       }
 
       const configContent = fs.readFileSync(configPath, 'utf-8');
       const config = parseConfig(configContent);
       if (!config) {
-        await vscode.window.showErrorMessage('Failed to parse config file');
+        await VscodeHelper.showToastMessage(ToastKind.Error, 'Failed to parse config file');
         return;
       }
       const issues = validateBranchContext(workspace, config.branchContext);
 
       if (issues.length === 0) {
-        await vscode.window.showInformationMessage('No validation issues found');
+        await VscodeHelper.showToastMessage(ToastKind.Info, 'No validation issues found');
         return;
       }
 

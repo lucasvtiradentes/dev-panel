@@ -5,6 +5,7 @@ import { fetchRegistryIndex, getInstalledItems, getItemsForKind, installItem } f
 import { type RegistryItemEntry, RegistryItemKind } from '../../common/schemas';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { VscodeIcon } from '../../common/vscode/vscode-constants';
+import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
 
 type QuickPickItemWithId<T> = vscode.QuickPickItem & { id: T };
@@ -53,7 +54,7 @@ async function showItemsForKind(workspaceFolder: WorkspaceFolder, kind: Registry
         const items = getItemsForKind(index, kind);
 
         if (items.length === 0) {
-          void vscode.window.showInformationMessage(`No ${kindLabel.toLowerCase()} available in registry`);
+          void VscodeHelper.showToastMessage(ToastKind.Info, `No ${kindLabel.toLowerCase()} available in registry`);
           return;
         }
 
@@ -96,7 +97,7 @@ async function showItemsForKind(workspaceFolder: WorkspaceFolder, kind: Registry
         await installItems(workspaceFolder, kind, itemsToInstall);
       } catch (error) {
         logger.error(`Failed to fetch registry: ${error}`);
-        void vscode.window.showErrorMessage(`Failed to fetch registry: ${error}`);
+        void VscodeHelper.showToastMessage(ToastKind.Error, `Failed to fetch registry: ${error}`);
       }
     },
   );
@@ -127,7 +128,8 @@ async function installItems(workspaceFolder: WorkspaceFolder, kind: RegistryItem
         } catch (error) {
           logger.error(`Failed to install ${item.name}: ${error}`);
 
-          const overwrite = await vscode.window.showWarningMessage(
+          const overwrite = await VscodeHelper.showToastMessage(
+            ToastKind.Warning,
             `"${item.name}" already exists. Overwrite?`,
             'Overwrite',
             'Skip',
@@ -147,7 +149,8 @@ async function installItems(workspaceFolder: WorkspaceFolder, kind: RegistryItem
       }
 
       if (installed > 0) {
-        void vscode.window.showInformationMessage(
+        void VscodeHelper.showToastMessage(
+          ToastKind.Info,
           `${EXTENSION_DISPLAY_NAME}: Installed ${installed} ${kindLabel}${failed > 0 ? ` (${failed} failed)` : ''}`,
         );
       }

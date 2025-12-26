@@ -16,6 +16,7 @@ import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-util
 import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { TreeItem } from '../../common/vscode/vscode-types';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
@@ -250,17 +251,17 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<TreeItem> {
     if (!workspace) return;
 
     if (!(await isGitRepository(workspace))) {
-      vscode.window.showErrorMessage(ERROR_REPLACEMENTS_REQUIRE_GIT);
+      VscodeHelper.showToastMessage(ToastKind.Error, ERROR_REPLACEMENTS_REQUIRE_GIT);
       return;
     }
 
     if (replacement.type === 'patch' && !fileExists(workspace, replacement.target)) {
-      vscode.window.showErrorMessage(`${ERROR_TARGET_FILE_NOT_FOUND}: ${replacement.target}`);
+      VscodeHelper.showToastMessage(ToastKind.Error, `${ERROR_TARGET_FILE_NOT_FOUND}: ${replacement.target}`);
       return;
     }
 
     if (replacement.type === 'file' && !fileExists(workspace, replacement.source)) {
-      vscode.window.showErrorMessage(`${ERROR_SOURCE_FILE_NOT_FOUND}: ${replacement.source}`);
+      VscodeHelper.showToastMessage(ToastKind.Error, `${ERROR_SOURCE_FILE_NOT_FOUND}: ${replacement.source}`);
       return;
     }
 

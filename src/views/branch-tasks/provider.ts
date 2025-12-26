@@ -8,6 +8,7 @@ import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { TaskPriority, TaskStatus } from '../../common/schemas';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeItem, Uri } from '../../common/vscode/vscode-types';
 import { loadBranchContextFromFile } from '../branch-context/file-storage';
 import { getBranchContextFilePath } from '../branch-context/markdown-parser';
@@ -89,15 +90,16 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     try {
       const result = await this.taskProvider.onSync(syncContext);
       if (result.added > 0 || result.updated > 0 || result.deleted > 0) {
-        vscode.window.showInformationMessage(
+        VscodeHelper.showToastMessage(
+          ToastKind.Info,
           `Synced: ${result.added} added, ${result.updated} updated, ${result.deleted} deleted`,
         );
       } else {
-        vscode.window.showInformationMessage('Tasks are up to date');
+        VscodeHelper.showToastMessage(ToastKind.Info, 'Tasks are up to date');
       }
       this.refresh();
     } catch (error) {
-      vscode.window.showErrorMessage(`Sync failed: ${error}`);
+      VscodeHelper.showToastMessage(ToastKind.Error, `Sync failed: ${error}`);
     }
   }
 
