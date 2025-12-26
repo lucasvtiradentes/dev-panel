@@ -1,5 +1,5 @@
 import type { TaskPriority, TaskStatus } from '../../common/schemas';
-import type { TaskNode } from '../_branch_context';
+import type { TaskNode } from '../_branch_base';
 
 export type TaskFilter = {
   status?: TaskStatus[];

@@ -16,7 +16,7 @@ import { promptsState } from '../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../common/schemas';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { TreeItem, TreeView, WorkspaceFolder } from '../../common/vscode/vscode-types';
-import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../_base';
+import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../_view_base';
 import { PromptGroupTreeItem, TreePrompt } from './items';
 import { isFavorite, isHidden } from './state';
 

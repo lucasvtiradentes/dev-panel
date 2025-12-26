@@ -18,7 +18,7 @@ import {
   createTaskProvider,
   getBranchContextFilePath,
   loadBranchContextFromFile,
-} from '../_branch_context';
+} from '../_branch_base';
 import type { TaskFilter } from './filter-operations';
 import { showFilterQuickPick as showFilterQuickPickDialog } from './filter-quick-pick';
 import {

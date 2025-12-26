@@ -1,5 +1,5 @@
 import type { BranchContextConfig } from '../../common/schemas/config-schema';
-import { loadTemplate, parseTemplate } from '../_branch_context/storage/template-parser';
+import { loadTemplate, parseTemplate } from '../_branch_base/storage/template-parser';
 
 export type ValidationIssue = {
   type: 'missing-in-template' | 'unknown-in-template' | 'invalid-provider' | 'type-mismatch';

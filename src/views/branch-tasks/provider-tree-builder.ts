@@ -7,7 +7,7 @@ import {
 } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
 import type { TreeItem } from '../../common/vscode/vscode-types';
-import type { MilestoneNode, TaskNode } from '../_branch_context';
+import type { MilestoneNode, TaskNode } from '../_branch_base';
 import { type TaskFilter, applyFilters, filterTodoNodes, flattenNodes } from './filter-operations';
 import { BranchMilestoneItem, BranchTaskItem, type BranchTreeItem, NO_MILESTONE_NAME } from './task-tree-items';
 

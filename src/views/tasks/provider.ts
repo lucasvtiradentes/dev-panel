@@ -5,7 +5,7 @@ import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { tasksState } from '../../common/lib/workspace-state';
 import { TASK_SOURCES, TaskSource } from '../../common/schemas/types';
 import type { Event, EventEmitter, ExtensionContext, TreeItem, TreeView } from '../../common/vscode/vscode-types';
-import { createSourcedDragAndDropController } from '../_base';
+import { createSourcedDragAndDropController } from '../_view_base';
 import { getDevPanelTasks, hasDevPanelGroups } from './devpanel-tasks';
 import { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
 import { getPackageScripts, hasPackageGroups } from './package-json';

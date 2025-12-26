@@ -1,7 +1,7 @@
 import { CONTEXT_VALUES } from '../../common/constants';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { Command, TreeItemCollapsibleState } from '../../common/vscode/vscode-types';
-import { BaseGroupTreeItem, BaseNamedTreeItem } from '../_base';
+import { BaseGroupTreeItem, BaseNamedTreeItem } from '../_view_base';
 
 export class ToolGroupTreeItem extends BaseGroupTreeItem<TreeTool> {}
 

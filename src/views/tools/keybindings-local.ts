@@ -3,7 +3,7 @@ import { TOOL_TASK_TYPE, getGlobalConfigDir, getToolCommandId, getToolCommandPre
 import { forEachWorkspaceConfig, getWorkspaceConfigDirPath, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import type { ExtensionContext } from '../../common/vscode/vscode-types';
-import { KeybindingManager } from '../_base';
+import { KeybindingManager } from '../_view_base';
 
 const manager = new KeybindingManager({
   commandPrefix: getToolCommandPrefix(),

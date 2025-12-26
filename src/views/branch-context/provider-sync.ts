@@ -14,9 +14,9 @@ import { getBranchContextFilePath as getBranchContextFilePathUtil } from '../../
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { createLogger } from '../../common/lib/logger';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
-import { getChangedFilesWithSummary } from '../_branch_context/providers/default/file-changes-utils';
-import type { SyncContext } from '../_branch_context/providers/interfaces';
-import { generateBranchContextMarkdown, loadBranchContext } from '../_branch_context/storage';
+import { getChangedFilesWithSummary } from '../_branch_base/providers/default/file-changes-utils';
+import type { SyncContext } from '../_branch_base/providers/interfaces';
+import { generateBranchContextMarkdown, loadBranchContext } from '../_branch_base/storage';
 import type { ProviderHelpers } from './provider-helpers';
 
 const logger = createLogger('BranchContextSync');

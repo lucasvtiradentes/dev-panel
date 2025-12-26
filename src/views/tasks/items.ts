@@ -6,7 +6,7 @@ import { isMultiRootWorkspace } from '../../common/lib/vscode-utils';
 import type { CodeWorkspaceFile, TaskDefinition, TasksJson } from '../../common/schemas/types';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { Command, TreeItemCollapsibleState, WorkspaceFolder } from '../../common/vscode/vscode-types';
-import { BaseGroupTreeItem } from '../_base';
+import { BaseGroupTreeItem } from '../_view_base';
 
 function loadCodeWorkspace(filePath: string): CodeWorkspaceFile | null {
   if (!fs.existsSync(filePath)) return null;

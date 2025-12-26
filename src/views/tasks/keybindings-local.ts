@@ -10,7 +10,7 @@ import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/lib/confi
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import type { ExtensionContext } from '../../common/vscode/vscode-types';
-import { KeybindingManager } from '../_base';
+import { KeybindingManager } from '../_view_base';
 
 const manager = new KeybindingManager({
   commandPrefix: getTaskCommandPrefix(),
