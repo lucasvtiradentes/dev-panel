@@ -1,5 +1,4 @@
-import { LocationScope } from '../../../common/constants';
-import { ConfigKey } from '../../../common/constants';
+import { ConfigKey, LocationScope } from '../../../common/constants';
 import {
   addOrUpdateConfigItem,
   confirmOverwrite,

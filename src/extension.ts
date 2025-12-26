@@ -219,4 +219,5 @@ export function activate(context: ExtensionContext): object {
   };
 }
 
+// tscanner-ignore-next-line no-empty-function
 export function deactivate() {}

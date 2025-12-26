@@ -114,7 +114,7 @@ export class VscodeHelper {
     items: readonly T[] | Thenable<readonly T[]>,
     options?: vscode.QuickPickOptions,
     token?: vscode.CancellationToken,
-    // @tscanner-disable-next-line union-with-array
+    // tscanner-ignore-next-line no-single-or-array-union
   ): Thenable<T | T[] | undefined> {
     return vscode.window.showQuickPick(items, options, token);
   }
