@@ -9,7 +9,6 @@ import {
   DEFAULT_EXCLUDES,
   DEFAULT_INCLUDES,
   DESCRIPTION_NOT_SET,
-  DISPLAY_PREFIX,
   ERROR_VARIABLE_COMMAND_FAILED,
   NO_GROUP_NAME,
   VARIABLES_FILE_NAME,
@@ -18,36 +17,15 @@ import {
 import { getConfigDirPathFromWorkspacePath, getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/lib/file-selection';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
-import type { DevPanelSettings } from '../../common/schemas';
+import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
+import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspaceFolder, getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { getIsGrouped, saveIsGrouped } from './state';
 
 const execAsync = promisify(exec);
 
-export enum VariableKind {
-  Choose = 'choose',
-  Input = 'input',
-  Toggle = 'toggle',
-  File = 'file',
-  Folder = 'folder',
-}
-
-export type VariableItem = {
-  name: string;
-  kind: VariableKind;
-  options?: string[];
-  command?: string;
-  description?: string;
-  default?: unknown;
-  group?: string;
-  showTerminal?: boolean;
-  multiSelect?: boolean;
-  includes?: string[];
-  excludes?: string[];
-};
-
 type PpVariables = {
-  variables: VariableItem[];
+  variables: DevPanelVariable[];
 };
 
 type PpState = {
@@ -73,7 +51,7 @@ function saveState(state: PpState): void {
   fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
 }
 
-function formatValue(value: unknown, variable: VariableItem): string {
+function formatValue(value: unknown, variable: DevPanelVariable): string {
   if (value === undefined) {
     if (variable.default !== undefined) {
       return formatValue(variable.default, variable);
@@ -88,7 +66,7 @@ function formatValue(value: unknown, variable: VariableItem): string {
 class GroupTreeItem extends vscode.TreeItem {
   constructor(
     public readonly groupName: string,
-    public readonly variables: VariableItem[],
+    public readonly variables: DevPanelVariable[],
   ) {
     super(groupName, vscode.TreeItemCollapsibleState.Expanded);
     this.contextValue = CONTEXT_VALUES.GROUP_ITEM;
@@ -97,7 +75,7 @@ class GroupTreeItem extends vscode.TreeItem {
 
 export class VariableTreeItem extends vscode.TreeItem {
   constructor(
-    public readonly variable: VariableItem,
+    public readonly variable: DevPanelVariable,
     currentValue?: unknown,
   ) {
     super(variable.name, vscode.TreeItemCollapsibleState.None);
@@ -164,7 +142,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
       return Promise.resolve(config.variables.map((v) => new VariableTreeItem(v, state[v.name])));
     }
 
-    const grouped = new Map<string, VariableItem[]>();
+    const grouped = new Map<string, DevPanelVariable[]>();
 
     for (const v of config.variables) {
       const groupName = v.group ?? NO_GROUP_NAME;
@@ -194,7 +172,9 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     if (!fs.existsSync(configPath)) return null;
 
     const content = fs.readFileSync(configPath, 'utf-8');
-    return json5.parse(content);
+    const rawConfig = json5.parse(content);
+    const validatedConfig = DevPanelConfigSchema.parse(rawConfig);
+    return { variables: validatedConfig.variables ?? [] };
   }
 
   public loadSettings(): DevPanelSettings | undefined {
@@ -210,7 +190,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
   }
 }
 
-async function runCommand(variable: VariableItem, value: unknown): Promise<void> {
+async function runCommand(variable: DevPanelVariable, value: unknown): Promise<void> {
   if (!variable.command) return;
 
   const workspace = getFirstWorkspacePath();
@@ -220,30 +200,24 @@ async function runCommand(variable: VariableItem, value: unknown): Promise<void>
   const command = `${variable.command} "${formattedValue}"`;
   const configDirPath = getConfigDirPathFromWorkspacePath(workspace);
 
-  if (variable.showTerminal) {
-    const terminal = vscode.window.createTerminal(`${DISPLAY_PREFIX} ${variable.name}`);
-    terminal.show();
-    terminal.sendText(`cd "${configDirPath}" && ${command}`);
-  } else {
-    await vscode.window.withProgress(
-      {
-        location: vscode.ProgressLocation.Notification,
-        title: `Running: ${variable.name}`,
-        cancellable: false,
-      },
-      async () => {
-        try {
-          await execAsync(command, { cwd: configDirPath });
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
-          void vscode.window.showErrorMessage(`${ERROR_VARIABLE_COMMAND_FAILED}: ${errorMessage}`);
-        }
-      },
-    );
-  }
+  await vscode.window.withProgress(
+    {
+      location: vscode.ProgressLocation.Notification,
+      title: `Running: ${variable.name}`,
+      cancellable: false,
+    },
+    async () => {
+      try {
+        await execAsync(command, { cwd: configDirPath });
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        void vscode.window.showErrorMessage(`${ERROR_VARIABLE_COMMAND_FAILED}: ${errorMessage}`);
+      }
+    },
+  );
 }
 
-export async function selectVariableOption(variable: VariableItem): Promise<void> {
+export async function selectVariableOption(variable: DevPanelVariable): Promise<void> {
   const state = loadState();
   let newValue: unknown;
 

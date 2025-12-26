@@ -1,8 +1,1 @@
-export {
-  VariablesProvider,
-  VariableTreeItem,
-  VariableKind,
-  selectVariableOption,
-  resetVariableOption,
-  type VariableItem,
-} from './variables-provider';
+export { VariablesProvider, VariableTreeItem, selectVariableOption, resetVariableOption } from './variables-provider';

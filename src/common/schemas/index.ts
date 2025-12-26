@@ -4,10 +4,12 @@ export {
   type DevPanelPrompt,
   type DevPanelInput,
   type DevPanelSettings,
+  type DevPanelVariable,
   DevPanelConfigSchema,
   AIProvider,
   PromptExecutionMode,
   PromptInputType,
+  VariableKind,
   getAIProvidersList,
   getAIProvidersListFormatted,
 } from './config-schema';
