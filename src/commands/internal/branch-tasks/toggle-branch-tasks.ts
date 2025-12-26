@@ -2,7 +2,12 @@ import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import type { BranchTaskItem, BranchTasksProvider } from '../../../views/branch-tasks';
-import { createBranchTaskCommands } from '../../../views/branch-tasks/commands';
+import { createSetTaskMetadataCommands } from './set-task-metadata';
+import { createSetTaskPriorityCommands } from './set-task-priority';
+import { createSetTaskStatusCommands } from './set-task-status';
+import { createTaskExternalCommands } from './task-external';
+import { createTaskMilestoneCommands } from './task-milestone';
+import { createTaskOperationsCommands } from './task-operations';
 
 export type ToggleTodoParams = number;
 export type CycleTaskStatusParams = BranchTaskItem | number;
@@ -38,6 +43,11 @@ export function createToggleBranchTasksCommands(branchTasksProvider: BranchTasks
     registerCommand(Command.FilterBranchTasksActive, async () => {
       await branchTasksProvider.showFilterQuickPick();
     }),
-    ...createBranchTaskCommands(branchTasksProvider),
+    ...createSetTaskStatusCommands(branchTasksProvider),
+    ...createSetTaskPriorityCommands(branchTasksProvider),
+    ...createSetTaskMetadataCommands(branchTasksProvider),
+    ...createTaskOperationsCommands(branchTasksProvider),
+    ...createTaskExternalCommands(branchTasksProvider),
+    ...createTaskMilestoneCommands(branchTasksProvider),
   ];
 }
