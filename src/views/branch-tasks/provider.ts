@@ -31,10 +31,7 @@ import {
   BranchTaskItem,
   BranchTasksDragAndDropController,
   type BranchTreeItem,
-  NO_MILESTONE_NAME,
 } from './task-tree-items';
-
-export { BranchMilestoneItem, BranchTaskItem, BranchTasksDragAndDropController, NO_MILESTONE_NAME };
 
 export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<BranchTreeItem | undefined>();

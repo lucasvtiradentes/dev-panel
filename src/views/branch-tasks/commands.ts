@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import { TaskPriority, TaskStatus } from '../../common/schemas';
-import type { BranchTaskItem, BranchTasksProvider } from './provider';
+import type { BranchTasksProvider } from './provider';
+import type { BranchTaskItem } from './task-tree-items';
 
 type ItemOrLineIndex = BranchTaskItem | number;
 

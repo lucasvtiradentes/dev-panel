@@ -1,9 +1,9 @@
-import type { SyncResult, TaskMeta, TaskNode, TaskStatus } from '../../src/views/branch-context/providers/interfaces';
+import type { PluginAction, TaskStatus } from '../../src/common/schemas';
+import type { SyncResult, TaskMeta, TaskNode } from '../../src/views/branch-context/providers/interfaces';
 import type {
   CreateTaskResponse,
   DeleteTaskResponse,
   GetTasksResponse,
-  PluginAction,
   PluginRequest,
   SetStatusResponse,
   SyncResponse,
