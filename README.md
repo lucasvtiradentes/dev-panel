@@ -45,16 +45,8 @@
 
 - [ ] botao de IA para a gente preencher os dados do markdown com ia 
 - [ ] adicionar inline link para abrir issue do linear
-
-## NAME 
-
-wharehouse
-repo center
-project center
-project lab
-project hub
-repo hub
-repo control center
-repo control panel
-
-
+- [ ] bug: ao mudar de branch ta dando erro na "branch tasks" -> nao ta mostrando as duas tasks default -> mas no branch context mostra -> ai tenho que ctrl+s no .branch-context.md para poder dar certo
+- [ ] adicionar project rules (endpoint create etc)
+- [ ] adicionar project agents 
+- [ ] ter codebase rules (tipo ter um arquivo para vscode utils)
+- [ ] ter um codebase patterns (swr, endpoints, etc)

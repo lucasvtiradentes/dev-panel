@@ -1,16 +1,18 @@
 import * as vscode from 'vscode';
 import { getCommandId } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
+import type { StatusBarItem } from '../../common/vscode/vscode-types';
 import type { ValidationIssue } from './config-validator';
 
 export class ValidationIndicator {
-  private statusBarItem: vscode.StatusBarItem;
+  private statusBarItem: StatusBarItem;
 
   constructor() {
-    this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+    this.statusBarItem = VscodeHelper.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
   }
 
-  show(issues: ValidationIssue[]): void {
+  show(issues: ValidationIssue[]) {
     if (issues.length === 0) {
       this.hide();
       return;
@@ -39,11 +41,11 @@ export class ValidationIndicator {
     this.statusBarItem.show();
   }
 
-  hide(): void {
+  hide() {
     this.statusBarItem.hide();
   }
 
-  dispose(): void {
+  dispose() {
     this.statusBarItem.dispose();
   }
 }

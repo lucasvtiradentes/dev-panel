@@ -1,6 +1,7 @@
-import * as vscode from 'vscode';
 import { CONTEXT_VALUES } from '../../common/constants';
-import { BaseGroupTreeItem, BaseNamedTreeItem } from '../common';
+import { VscodeIcons } from '../../common/vscode/vscode-icons';
+import type { Command, TreeItemCollapsibleState } from '../../common/vscode/vscode-types';
+import { BaseGroupTreeItem, BaseNamedTreeItem } from '../_view_base';
 
 export class PromptGroupTreeItem extends BaseGroupTreeItem<TreePrompt> {}
 
@@ -12,8 +13,8 @@ export class TreePrompt extends BaseNamedTreeItem {
   constructor(
     label: string,
     file: string,
-    collapsibleState: vscode.TreeItemCollapsibleState,
-    command?: vscode.Command,
+    collapsibleState: TreeItemCollapsibleState,
+    command?: Command,
     group?: string,
   ) {
     super(label, collapsibleState, command);
@@ -27,9 +28,9 @@ export class TreePrompt extends BaseNamedTreeItem {
     return this.promptName;
   }
 
-  setFavorite(isFavorite: boolean): void {
+  setFavorite(isFavorite: boolean) {
     if (isFavorite) {
-      this.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
+      this.iconPath = VscodeIcons.FavoriteItem;
     }
   }
 }

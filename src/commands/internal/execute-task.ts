@@ -3,6 +3,14 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { promisify } from 'node:util';
 import * as vscode from 'vscode';
+import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
+import type {
+  ExtensionContext,
+  ShellExecution,
+  Task,
+  TaskScope,
+  WorkspaceFolder,
+} from '../../common/vscode/vscode-types';
 
 const execAsync = promisify(exec);
 import { GLOBAL_ITEM_PREFIX, GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
@@ -30,6 +38,7 @@ import {
   PromptExecutionMode,
   getAIProvidersListFormatted,
 } from '../../common/schemas';
+import { TypeGuards } from '../../common/utils/type-utils';
 import { loadVariablesFromPath } from '../../common/utils/variables-env';
 import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
@@ -40,7 +49,7 @@ const log = createLogger('execute-task');
 
 export type ExecutePromptParams = {
   promptFilePath: string;
-  folder: vscode.WorkspaceFolder | null;
+  folder: WorkspaceFolder | null;
   promptConfig?: DevPanelPrompt;
 };
 
@@ -51,24 +60,24 @@ function readDevPanelVariablesAsEnv(workspacePath: string): Record<string, strin
 
   const env: Record<string, string> = {};
   for (const [key, value] of Object.entries(variables)) {
-    const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+    const stringValue = TypeGuards.isObject(value) ? JSON.stringify(value) : String(value);
     env[key] = stringValue;
   }
   return env;
 }
 
-function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscode.Task {
+function cloneTaskWithEnv(task: Task, env: Record<string, string>): Task {
   const execution = task.execution;
   if (!execution) return task;
 
-  let newTask: vscode.Task;
+  let newTask: Task;
 
   if (execution instanceof vscode.ShellExecution) {
     const mergedEnv = { ...execution.options?.env, ...env };
     const commandLine = execution.commandLine;
     const command = execution.command;
 
-    let newExecution: vscode.ShellExecution;
+    let newExecution: ShellExecution;
     if (commandLine) {
       newExecution = new vscode.ShellExecution(commandLine, { ...execution.options, env: mergedEnv });
     } else if (command) {
@@ -85,7 +94,11 @@ function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscod
       newExecution,
       task.problemMatchers,
     );
-  } else if (execution instanceof vscode.ProcessExecution) {
+    newTask.presentationOptions = task.presentationOptions;
+    return newTask;
+  }
+
+  if (execution instanceof vscode.ProcessExecution) {
     const mergedEnv = { ...execution.options?.env, ...env };
     const newExecution = new vscode.ProcessExecution(execution.process, execution.args, {
       ...execution.options,
@@ -100,20 +113,19 @@ function cloneTaskWithEnv(task: vscode.Task, env: Record<string, string>): vscod
       newExecution,
       task.problemMatchers,
     );
-  } else {
-    return task;
+    newTask.presentationOptions = task.presentationOptions;
+    return newTask;
   }
 
-  newTask.presentationOptions = task.presentationOptions;
-  return newTask;
+  return task;
 }
 
-export function createExecuteTaskCommand(context: vscode.ExtensionContext) {
+export function createExecuteTaskCommand(context: ExtensionContext) {
   return registerCommand(
     Command.ExecuteTask,
     async (
-      task: vscode.Task,
-      scope: vscode.TaskScope | vscode.WorkspaceFolder | undefined,
+      task: Task,
+      scope: TaskScope | vscode.WorkspaceFolder | undefined,
       taskConfig?: NonNullable<DevPanelConfig['tasks']>[number],
     ) => {
       let modifiedTask = task;
@@ -174,7 +186,7 @@ export function createExecuteTaskCommand(context: vscode.ExtensionContext) {
   );
 }
 
-export function createExecuteToolCommand(context: vscode.ExtensionContext) {
+export function createExecuteToolCommand(context: ExtensionContext) {
   return registerCommand(Command.ExecuteTool, (item: TreeTool | vscode.Task) => {
     if (item instanceof TreeTool) {
       const toolName = item.toolName;
@@ -194,7 +206,7 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
         env = readDevPanelVariablesAsEnv(getGlobalConfigDir());
       } else {
         if (!folder) {
-          void vscode.window.showErrorMessage('No workspace folder found');
+          void VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
           return;
         }
         const config = loadWorkspaceConfig(folder);
@@ -205,7 +217,7 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
       }
 
       if (!toolConfig?.command) {
-        void vscode.window.showErrorMessage(`Tool "${actualName}" has no command configured`);
+        void VscodeHelper.showToastMessage(ToastKind.Error, `Tool "${actualName}" has no command configured`);
         return;
       }
 
@@ -241,7 +253,7 @@ export function createExecuteToolCommand(context: vscode.ExtensionContext) {
   });
 }
 
-function readDevPanelSettings(folder: vscode.WorkspaceFolder): DevPanelSettings | undefined {
+function readDevPanelSettings(folder: WorkspaceFolder): DevPanelSettings | undefined {
   const config = loadWorkspaceConfig(folder);
   if (!config) {
     log.debug('readDevPanelSettings - config file not found or failed to parse');
@@ -251,7 +263,7 @@ function readDevPanelSettings(folder: vscode.WorkspaceFolder): DevPanelSettings 
   return config.settings;
 }
 
-function readDevPanelVariables(folder: vscode.WorkspaceFolder): Record<string, unknown> | null {
+function readDevPanelVariables(folder: WorkspaceFolder): Record<string, unknown> | null {
   const variablesPath = getWorkspaceConfigFilePath(folder, VARIABLES_FILE_NAME);
   log.debug(`readDevPanelVariables - variablesPath: ${variablesPath}`);
   const variables = loadVariablesFromPath(variablesPath);
@@ -266,7 +278,7 @@ function readDevPanelVariables(folder: vscode.WorkspaceFolder): Record<string, u
 function replaceVariablePlaceholders(content: string, variables: Record<string, unknown>): string {
   let result = content;
   for (const [key, value] of Object.entries(variables)) {
-    const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+    const stringValue = TypeGuards.isObject(value) ? JSON.stringify(value) : String(value);
     const pattern = new RegExp(`\\$${key}`, 'g');
     result = result.replace(pattern, stringValue);
   }
@@ -290,7 +302,7 @@ export function createExecutePromptCommand() {
       }
 
       if (!fs.existsSync(resolvedPromptFilePath)) {
-        void vscode.window.showErrorMessage(`Prompt file not found: ${resolvedPromptFilePath}`);
+        void VscodeHelper.showToastMessage(ToastKind.Error, `Prompt file not found: ${resolvedPromptFilePath}`);
         return;
       }
 
@@ -314,7 +326,8 @@ export function createExecutePromptCommand() {
 
       const provider = getProvider(settings?.aiProvider);
       if (!provider) {
-        void vscode.window.showErrorMessage(
+        void VscodeHelper.showToastMessage(
+          ToastKind.Error,
           `AI provider not configured. Set "settings.aiProvider" in ${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME} (${getAIProvidersListFormatted()})`,
         );
         return;
@@ -323,7 +336,7 @@ export function createExecutePromptCommand() {
       if (promptConfig?.saveOutput) {
         const folderForOutput = folder ?? getFirstWorkspaceFolder();
         if (!folderForOutput) {
-          void vscode.window.showErrorMessage('No workspace folder available to save prompt output');
+          void VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder available to save prompt output');
           return;
         }
 
@@ -337,7 +350,7 @@ export function createExecutePromptCommand() {
         return;
       }
 
-      const terminal = vscode.window.createTerminal({ name: provider.name });
+      const terminal = VscodeHelper.createTerminal({ name: provider.name });
       terminal.show();
       provider.executeInteractive(terminal, promptContent);
     },
@@ -346,11 +359,11 @@ export function createExecutePromptCommand() {
 
 async function executePromptWithSave(options: {
   promptContent: string;
-  folder: vscode.WorkspaceFolder;
+  folder: WorkspaceFolder;
   promptName: string;
   provider: PromptProvider;
   settings?: DevPanelSettings;
-}): Promise<void> {
+}) {
   const { promptContent, folder, promptName, provider, settings } = options;
   const workspacePath = folder.uri.fsPath;
   const branch = await getCurrentBranch(workspacePath).catch(() => 'unknown');
@@ -366,7 +379,7 @@ async function executePromptWithSave(options: {
 
   fs.writeFileSync(tempFile, promptContent);
 
-  await vscode.window.withProgress(
+  await VscodeHelper.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
       title: `Running prompt: ${promptName}`,
@@ -377,12 +390,10 @@ async function executePromptWithSave(options: {
         const command = provider.getExecuteCommand(tempFile, outputFile);
         await execAsync(command, { cwd: workspacePath });
         fs.unlinkSync(tempFile);
-        const doc = await vscode.workspace.openTextDocument(outputFile);
-        await vscode.window.showTextDocument(doc);
-      } catch (error) {
+        await VscodeHelper.openDocument(vscode.Uri.file(outputFile));
+      } catch (error: unknown) {
         fs.unlinkSync(tempFile);
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        void vscode.window.showErrorMessage(`Prompt failed: ${errorMessage}`);
+        void VscodeHelper.showToastMessage(ToastKind.Error, `Prompt failed: ${TypeGuards.getErrorMessage(error)}`);
       }
     },
   );

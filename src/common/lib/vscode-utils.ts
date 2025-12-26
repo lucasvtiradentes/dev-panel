@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { getCommandId } from '../constants/functions';
 import { CONTEXT_PREFIX } from '../constants/scripts-constants';
+import type { Disposable } from '../vscode/vscode-types';
 import type { CommandParams } from './command-params';
 
 export enum Command {
@@ -126,8 +127,14 @@ export enum Command {
   CopyTaskToWorkspace = 'copyTaskToWorkspace',
 }
 
-export function registerCommand(command: Command, callback: (...args: any[]) => any): vscode.Disposable {
+// tscanner-ignore-next-line no-explicit-any
+export function registerCommand(command: Command, callback: (...args: any[]) => any): Disposable {
   return vscode.commands.registerCommand(getCommandId(command), callback);
+}
+
+// tscanner-ignore-next-line no-explicit-any
+export function registerDynamicCommand(commandId: string, callback: (...args: any[]) => any): Disposable {
+  return vscode.commands.registerCommand(commandId, callback);
 }
 
 export function executeCommand<T extends Command>(
@@ -137,23 +144,6 @@ export function executeCommand<T extends Command>(
   return vscode.commands.executeCommand(getCommandId(command), ...args);
 }
 
-export enum ToastKind {
-  Info = 'info',
-  Warning = 'warning',
-  Error = 'error',
-}
-
-export function showToastMessage(kind: ToastKind, message: string, ...items: string[]): Thenable<string | undefined> {
-  switch (kind) {
-    case ToastKind.Info:
-      return vscode.window.showInformationMessage(message, ...items);
-    case ToastKind.Warning:
-      return vscode.window.showWarningMessage(message, ...items);
-    case ToastKind.Error:
-      return vscode.window.showErrorMessage(message, ...items);
-  }
-}
-
 export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] | undefined {
   return vscode.workspace.workspaceFolders;
 }
@@ -161,12 +151,6 @@ export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] | undef
 export function isMultiRootWorkspace(): boolean {
   const folders = vscode.workspace.workspaceFolders;
   return folders != null && folders.length > 1;
-}
-
-export async function openDocumentAtLine(uri: vscode.Uri, line: number): Promise<void> {
-  await vscode.window.showTextDocument(uri, {
-    selection: new vscode.Range(line, 0, line, 0),
-  });
 }
 
 export const ContextKey = {
@@ -228,6 +212,6 @@ let currentWorkspaceId = '';
 export function getWorkspaceId(): string {
   return currentWorkspaceId;
 }
-export function setWorkspaceId(id: string): void {
+export function setWorkspaceId(id: string) {
   currentWorkspaceId = id;
 }

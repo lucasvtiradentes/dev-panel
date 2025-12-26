@@ -599,6 +599,18 @@
         "command": "devPanel.openTasksKeybindings",
         "title": "Open Tasks Keybindings",
         "icon": "$(keyboard)"
+      },
+      {
+        "command": "devPanel.executeTask",
+        "title": "Execute Task"
+      },
+      {
+        "command": "devPanel.goToTask",
+        "title": "Go to Task"
+      },
+      {
+        "command": "devPanel.executePrompt",
+        "title": "Execute Prompt"
       }
     ],
     "keybindings": [],

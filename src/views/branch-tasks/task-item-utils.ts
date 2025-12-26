@@ -1,8 +1,13 @@
 import * as vscode from 'vscode';
-import type { TaskMeta, TaskPriority, TaskStatus } from '../branch-context/providers/interfaces';
+import { TaskPriority, TaskStatus } from '../../common/schemas';
+import { VscodeColor, VscodeIcon } from '../../common/vscode/vscode-constants';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
+import { VscodeIcons } from '../../common/vscode/vscode-icons';
+import type { MarkdownString, ThemeIcon } from '../../common/vscode/vscode-types';
+import type { TaskMeta } from '../_branch_base';
 
 export function formatTaskDescription(meta: TaskMeta, status: TaskStatus): string {
-  if (status === 'done') {
+  if (status === TaskStatus.Done) {
     return 'done';
   }
 
@@ -58,48 +63,48 @@ export function isOverdue(meta: TaskMeta): boolean {
   return date < today;
 }
 
-export function getStatusIcon(status: TaskStatus, meta: TaskMeta): vscode.ThemeIcon {
+export function getStatusIcon(status: TaskStatus, meta: TaskMeta): ThemeIcon {
   const overdue = isOverdue(meta);
 
   switch (status) {
-    case 'done':
-      return new vscode.ThemeIcon('pass-filled', new vscode.ThemeColor('testing.iconPassed'));
+    case TaskStatus.Done:
+      return VscodeIcons.TaskDone;
 
-    case 'doing':
-      return new vscode.ThemeIcon('play-circle', new vscode.ThemeColor('charts.blue'));
+    case TaskStatus.Doing:
+      return VscodeIcons.TaskDoing;
 
-    case 'blocked':
-      return new vscode.ThemeIcon('error', new vscode.ThemeColor('errorForeground'));
+    case TaskStatus.Blocked:
+      return VscodeIcons.TaskBlocked;
 
     default: {
       if (overdue) {
-        return new vscode.ThemeIcon('circle-large-outline', new vscode.ThemeColor('errorForeground'));
+        return VscodeIcons.TaskOverdue;
       }
 
       const priorityColor = getPriorityColor(meta.priority);
       if (priorityColor) {
-        return new vscode.ThemeIcon('circle-large-outline', new vscode.ThemeColor(priorityColor));
+        return VscodeHelper.createIcon(VscodeIcon.CircleLargeOutline, priorityColor);
       }
 
-      return new vscode.ThemeIcon('circle-large-outline');
+      return VscodeIcons.TaskDefault;
     }
   }
 }
 
-function getPriorityColor(priority: TaskPriority | undefined): string | undefined {
+function getPriorityColor(priority: TaskPriority | undefined): VscodeColor | undefined {
   switch (priority) {
-    case 'urgent':
-      return 'errorForeground';
-    case 'high':
-      return 'editorWarning.foreground';
-    case 'medium':
-      return 'editorInfo.foreground';
+    case TaskPriority.Urgent:
+      return VscodeColor.ErrorForeground;
+    case TaskPriority.High:
+      return VscodeColor.EditorWarningForeground;
+    case TaskPriority.Medium:
+      return VscodeColor.EditorInfoForeground;
     default:
       return undefined;
   }
 }
 
-export function formatTaskTooltip(text: string, status: TaskStatus, meta: TaskMeta): vscode.MarkdownString {
+export function formatTaskTooltip(text: string, status: TaskStatus, meta: TaskMeta): MarkdownString {
   const md = new vscode.MarkdownString();
   md.supportHtml = true;
 
@@ -138,13 +143,13 @@ export function formatTaskTooltip(text: string, status: TaskStatus, meta: TaskMe
 
 function getPriorityEmoji(priority: TaskPriority): string {
   switch (priority) {
-    case 'urgent':
+    case TaskPriority.Urgent:
       return '🔴';
-    case 'high':
+    case TaskPriority.High:
       return '🟠';
-    case 'medium':
+    case TaskPriority.Medium:
       return '🟡';
-    case 'low':
+    case TaskPriority.Low:
       return '🔵';
     default:
       return '⚪';

@@ -1,13 +1,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import type { DevPanelReplacement } from '../../common/schemas/config-schema';
+import type { DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
 
-type PatchItem = {
-  search: string[];
-  replace: string[];
-};
-
-export function applyFileReplacement(workspace: string, source: string, target: string): void {
+export function applyFileReplacement(workspace: string, source: string, target: string) {
   const sourcePath = path.join(workspace, source);
   const targetPath = path.join(workspace, target);
   fs.copyFileSync(sourcePath, targetPath);
@@ -17,7 +12,7 @@ function normalizeSearchReplace(value: string[]): string {
   return value.join('\n');
 }
 
-export function applyPatches(workspace: string, target: string, patches: PatchItem[]): void {
+export function applyPatches(workspace: string, target: string, patches: NormalizedPatchItem[]) {
   const targetPath = path.join(workspace, target);
   let content = fs.readFileSync(targetPath, 'utf-8');
 
@@ -44,7 +39,7 @@ export function isReplacementActive(workspace: string, replacement: DevPanelRepl
   const targetContent = fs.readFileSync(targetPath, 'utf-8');
 
   if (replacement.type === 'patch') {
-    const patches = replacement.patches as unknown as PatchItem[];
+    const patches = replacement.patches as unknown as NormalizedPatchItem[];
     if (!patches || patches.length === 0) return false;
 
     const firstReplace = normalizeSearchReplace(patches[0].replace);

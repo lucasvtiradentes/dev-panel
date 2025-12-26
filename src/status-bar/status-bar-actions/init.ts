@@ -5,8 +5,10 @@ import { getWorkspaceConfigDirPath } from '../../common/lib/config-manager';
 import { extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
+import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
+import type { Uri } from '../../common/vscode/vscode-types';
 
-async function copyDirectoryRecursive(sourceUri: vscode.Uri, targetUri: vscode.Uri): Promise<void> {
+async function copyDirectoryRecursive(sourceUri: Uri, targetUri: Uri) {
   await vscode.workspace.fs.createDirectory(targetUri);
 
   const entries = await vscode.workspace.fs.readDirectory(sourceUri);
@@ -24,7 +26,7 @@ async function copyDirectoryRecursive(sourceUri: vscode.Uri, targetUri: vscode.U
   }
 }
 
-export async function showInitMenu(): Promise<void> {
+export async function showInitMenu() {
   const workspaceFolder = requireWorkspaceFolder();
   if (!workspaceFolder) return;
 
@@ -41,11 +43,12 @@ export async function showInitMenu(): Promise<void> {
     await copyDirectoryRecursive(initResourcesUri, configDirUri);
 
     logger.info(`${EXTENSION_DISPLAY_NAME} initialized successfully`);
-    void vscode.window.showInformationMessage(
+    void VscodeHelper.showToastMessage(
+      ToastKind.Info,
       `${EXTENSION_DISPLAY_NAME} initialized! Config created at ${CONFIG_FILE_NAME}`,
     );
   } catch (error) {
     logger.error('Failed to initialize ${EXTENSION_DISPLAY_NAME}: ${error}');
-    void vscode.window.showErrorMessage(`Failed to initialize: ${error}`);
+    void VscodeHelper.showToastMessage(ToastKind.Error, `Failed to initialize: ${error}`);
   }
 }

@@ -2,15 +2,15 @@ import * as vscode from 'vscode';
 import { CONTEXT_VALUES, getCommandId } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
 import { TaskSource } from '../../common/schemas/types';
+import { VscodeIcons } from '../../common/vscode/vscode-icons';
+import type { ExtendedTask, Task } from '../../common/vscode/vscode-types';
 import { type GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
 export async function hasVSCodeGroups(): Promise<boolean> {
-  const tasks: vscode.Task[] = await vscode.tasks.fetchTasks();
+  const tasks: Task[] = await vscode.tasks.fetchTasks();
   const workspaceTasks = tasks.filter((t) => t.source === 'Workspace');
-  return workspaceTasks.some(
-    (task) => (task as unknown as { presentationOptions?: { group?: string } }).presentationOptions?.group != null,
-  );
+  return workspaceTasks.some((task) => (task as ExtendedTask).presentationOptions?.group != null);
 }
 
 export async function getVSCodeTasks(options: {
@@ -25,7 +25,7 @@ export async function getVSCodeTasks(options: {
   ) => Promise<Array<WorkspaceTreeItem | TreeTask | GroupTreeItem>>;
 }): Promise<Array<TreeTask | GroupTreeItem | WorkspaceTreeItem>> {
   const { grouped, showHidden, showOnlyFavorites, sortFn, getLowestLevel } = options;
-  let tasks: vscode.Task[] = await vscode.tasks.fetchTasks();
+  let tasks: Task[] = await vscode.tasks.fetchTasks();
   tasks = tasks.filter((t) => t.source === 'Workspace');
 
   const taskElements: Array<WorkspaceTreeItem | TreeTask> = [];
@@ -37,9 +37,7 @@ export async function getVSCodeTasks(options: {
     if (hidden && !showHidden) continue;
     if (showOnlyFavorites && !favorite) continue;
 
-    const group = grouped
-      ? (task as unknown as { presentationOptions?: { group?: string } }).presentationOptions?.group
-      : undefined;
+    const group = grouped ? (task as ExtendedTask).presentationOptions?.group : undefined;
 
     const _task = new TreeTask(
       task.definition.type,
@@ -61,10 +59,10 @@ export async function getVSCodeTasks(options: {
     }
 
     if (hidden) {
-      _task.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+      _task.iconPath = VscodeIcons.HiddenItem;
       _task.contextValue = CONTEXT_VALUES.TASK_HIDDEN;
     } else if (favorite) {
-      _task.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+      _task.iconPath = VscodeIcons.FavoriteItem;
       _task.contextValue = CONTEXT_VALUES.TASK_FAVORITE;
     }
 

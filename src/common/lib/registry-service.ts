@@ -1,7 +1,6 @@
 import * as fs from 'node:fs';
 import * as https from 'node:https';
 import * as path from 'node:path';
-import type * as vscode from 'vscode';
 import {
   PLUGINS_DIR_NAME,
   PROMPTS_DIR_NAME,
@@ -15,32 +14,36 @@ import {
   SCRIPTS_DIR_NAME,
   TOOLS_DIR,
 } from '../constants';
-import { type RegistryIndex, type RegistryItemEntry, RegistryItemKind } from '../schemas';
+import { ConfigKey } from '../constants/enums';
+import { type RegistryIndex, RegistryIndexSchema, type RegistryItemEntry, RegistryItemKind } from '../schemas';
+import type { WorkspaceFolder } from '../vscode/vscode-types';
 import { getConfigDirPathFromWorkspacePath, getWorkspaceConfigDirPath } from './config-manager';
 import { logger } from './logger';
+
+type RegistryConfigKey = Exclude<ConfigKey, ConfigKey.Tasks>;
 
 type KindConfig = {
   dirName: string;
   defaultFile: string;
-  configKey: 'plugins' | 'prompts' | 'tools' | 'scripts';
+  configKey: RegistryConfigKey;
 };
 
 const KIND_CONFIG: Record<RegistryItemKind, KindConfig> = {
   [RegistryItemKind.Plugin]: {
     dirName: PLUGINS_DIR_NAME,
     defaultFile: REGISTRY_DEFAULT_PLUGIN_FILE,
-    configKey: 'plugins',
+    configKey: ConfigKey.Plugins,
   },
   [RegistryItemKind.Prompt]: {
     dirName: PROMPTS_DIR_NAME,
     defaultFile: REGISTRY_DEFAULT_PROMPT_FILE,
-    configKey: 'prompts',
+    configKey: ConfigKey.Prompts,
   },
-  [RegistryItemKind.Tool]: { dirName: TOOLS_DIR, defaultFile: REGISTRY_DEFAULT_TOOL_FILE, configKey: 'tools' },
+  [RegistryItemKind.Tool]: { dirName: TOOLS_DIR, defaultFile: REGISTRY_DEFAULT_TOOL_FILE, configKey: ConfigKey.Tools },
   [RegistryItemKind.Script]: {
     dirName: SCRIPTS_DIR_NAME,
     defaultFile: REGISTRY_DEFAULT_SCRIPT_FILE,
-    configKey: 'scripts',
+    configKey: ConfigKey.Scripts,
   },
 };
 
@@ -66,7 +69,8 @@ export async function fetchRegistryIndex(): Promise<RegistryIndex> {
   const url = `${REGISTRY_BASE_URL}/${REGISTRY_INDEX_FILE}`;
   logger.info(`Fetching registry index from ${url}`);
   const content = await httpsGet(url);
-  return JSON.parse(content) as RegistryIndex;
+  const rawIndex = JSON.parse(content);
+  return RegistryIndexSchema.parse(rawIndex);
 }
 
 export function getItemsForKind(index: RegistryIndex, kind: RegistryItemKind): RegistryItemEntry[] {
@@ -87,10 +91,7 @@ export async function fetchItemFile(
   return { fileName: file, content };
 }
 
-export async function fetchItemConfig(
-  kind: RegistryItemKind,
-  itemName: string,
-): Promise<Record<string, unknown> | null> {
+async function fetchItemConfig(kind: RegistryItemKind, itemName: string): Promise<Record<string, unknown> | null> {
   const config = KIND_CONFIG[kind];
   const url = `${REGISTRY_BASE_URL}/${config.dirName}/${itemName}/${REGISTRY_CONFIG_FILE}`;
   try {
@@ -116,11 +117,11 @@ export function getInstalledItems(workspacePath: string, kind: RegistryItemKind)
 }
 
 export async function installItem(
-  workspaceFolder: vscode.WorkspaceFolder,
+  workspaceFolder: WorkspaceFolder,
   kind: RegistryItemKind,
   item: RegistryItemEntry,
   force = false,
-): Promise<void> {
+) {
   const config = KIND_CONFIG[kind];
   const configDirPath = getWorkspaceConfigDirPath(workspaceFolder);
   const targetDir = path.join(configDirPath, config.dirName);

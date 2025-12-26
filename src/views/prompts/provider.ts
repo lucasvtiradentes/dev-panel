@@ -14,7 +14,9 @@ import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { promptsState } from '../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../common/schemas';
-import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../common';
+import { VscodeIcons } from '../../common/vscode/vscode-icons';
+import type { TreeItem, TreeView, WorkspaceFolder } from '../../common/vscode/vscode-types';
+import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../_view_base';
 import { PromptGroupTreeItem, TreePrompt } from './items';
 import { isFavorite, isHidden } from './state';
 
@@ -31,17 +33,17 @@ const PROMPTS_CONFIG: ProviderConfig = {
 };
 
 export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, PromptGroupTreeItem, void> {
-  private _treeView: vscode.TreeView<TreePrompt | PromptGroupTreeItem> | null = null;
+  private _treeView: TreeView<TreePrompt | PromptGroupTreeItem> | null = null;
 
   constructor() {
     super(promptsState, PROMPTS_CONFIG, null, globalPromptsState);
   }
 
-  setTreeView(treeView: vscode.TreeView<TreePrompt | PromptGroupTreeItem>): void {
+  setTreeView(treeView: TreeView<TreePrompt | PromptGroupTreeItem>) {
     this._treeView = treeView;
   }
 
-  refresh(): void {
+  refresh() {
     log.info('refresh() called - tree will re-read config');
     this.updateContextKeys();
     super.refresh();
@@ -78,8 +80,8 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
 
       for (const folder of folders) {
         const prompts = this.readDevPanelPrompts(folder);
-        for (const prompt of prompts) {
-          const treePrompt = this.createDevPanelPrompt(prompt, folder);
+        for (const promptItem of prompts) {
+          const treePrompt = this.createDevPanelPrompt(promptItem, folder);
           if (treePrompt) promptElements.push(treePrompt);
         }
       }
@@ -105,11 +107,11 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
 
     for (const folder of folders) {
       const prompts = this.readDevPanelPrompts(folder);
-      for (const prompt of prompts) {
-        const treePrompt = this.createDevPanelPrompt(prompt, folder);
+      for (const promptItem of prompts) {
+        const treePrompt = this.createDevPanelPrompt(promptItem, folder);
         if (!treePrompt) continue;
 
-        const groupName = prompt.group ?? NO_GROUP_NAME;
+        const groupName = promptItem.group ?? NO_GROUP_NAME;
 
         if (!groups[groupName]) {
           groups[groupName] = new PromptGroupTreeItem(groupName);
@@ -122,7 +124,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     return this.sortElements(promptElements);
   }
 
-  private readDevPanelPrompts(folder: vscode.WorkspaceFolder): NonNullable<DevPanelConfig['prompts']> {
+  private readDevPanelPrompts(folder: WorkspaceFolder): NonNullable<DevPanelConfig['prompts']> {
     const config = loadWorkspaceConfig(folder);
     const prompts = config?.prompts ?? [];
     log.info(`readDevPanelPrompts - found ${prompts.length} prompts`);
@@ -143,7 +145,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
 
   private createDevPanelPrompt(
     prompt: NonNullable<DevPanelConfig['prompts']>[number],
-    folder: vscode.WorkspaceFolder,
+    folder: WorkspaceFolder,
   ): TreePrompt | null {
     const hidden = isHidden(prompt.name);
     const favorite = isFavorite(prompt.name);
@@ -164,10 +166,10 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     }
 
     if (hidden) {
-      treePrompt.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+      treePrompt.iconPath = VscodeIcons.HiddenItem;
       treePrompt.contextValue = CONTEXT_VALUES.PROMPT_HIDDEN;
     } else if (favorite) {
-      treePrompt.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+      treePrompt.iconPath = VscodeIcons.FavoriteItem;
       treePrompt.contextValue = CONTEXT_VALUES.PROMPT_FAVORITE;
     }
 
@@ -202,10 +204,10 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     }
 
     if (hidden) {
-      treePrompt.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+      treePrompt.iconPath = VscodeIcons.HiddenItem;
       treePrompt.contextValue = CONTEXT_VALUES.PROMPT_GLOBAL_HIDDEN;
     } else if (favorite) {
-      treePrompt.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+      treePrompt.iconPath = VscodeIcons.FavoriteItem;
       treePrompt.contextValue = CONTEXT_VALUES.PROMPT_GLOBAL_FAVORITE;
     } else {
       treePrompt.contextValue = CONTEXT_VALUES.PROMPT_GLOBAL;
@@ -214,9 +216,10 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     return treePrompt;
   }
 
-  getTreeItem(item: TreePrompt | PromptGroupTreeItem): vscode.TreeItem {
+  getTreeItem(item: TreePrompt | PromptGroupTreeItem): TreeItem {
     return item;
   }
 
-  dispose(): void {}
+  // tscanner-ignore-next-line no-empty-function
+  dispose() {}
 }

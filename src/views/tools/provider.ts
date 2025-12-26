@@ -19,7 +19,9 @@ import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../common/schemas';
-import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../common';
+import { VscodeIcons } from '../../common/vscode/vscode-icons';
+import type { TreeItem, TreeView, WorkspaceFolder } from '../../common/vscode/vscode-types';
+import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../_view_base';
 import { ToolGroupTreeItem, TreeTool } from './items';
 import { addActiveTool, getActiveTools, isFavorite, isHidden, removeActiveTool, setActiveTools } from './state';
 
@@ -36,18 +38,18 @@ const TOOLS_CONFIG: ProviderConfig = {
 };
 
 export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGroupTreeItem, void> {
-  private _treeView: vscode.TreeView<TreeTool | ToolGroupTreeItem> | null = null;
+  private _treeView: TreeView<TreeTool | ToolGroupTreeItem> | null = null;
 
   constructor() {
     super(toolsState, TOOLS_CONFIG, null, globalToolsState);
     this.initializeActiveTools();
   }
 
-  setTreeView(treeView: vscode.TreeView<TreeTool | ToolGroupTreeItem>): void {
+  setTreeView(treeView: TreeView<TreeTool | ToolGroupTreeItem>) {
     this._treeView = treeView;
   }
 
-  private initializeActiveTools(): void {
+  private initializeActiveTools() {
     const existingActiveTools = getActiveTools();
     if (existingActiveTools.length > 0) return;
 
@@ -60,15 +62,15 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     const folders = vscode.workspace.workspaceFolders ?? [];
     for (const folder of folders) {
       const tools = this.readDevPanelTools(folder);
-      for (const tool of tools) {
-        allTools.push(tool.name);
+      for (const toolItem of tools) {
+        allTools.push(toolItem.name);
       }
     }
 
     setActiveTools(allTools);
   }
 
-  async toggleTool(tool: TreeTool): Promise<void> {
+  toggleTool(tool: TreeTool) {
     logger.info(`toggleTool called for: ${tool?.toolName ?? 'null'}`);
 
     if (!tool || !tool.toolName) {
@@ -92,7 +94,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     this.refresh();
   }
 
-  refresh(): void {
+  refresh() {
     this.updateContextKeys();
     super.refresh();
   }
@@ -128,8 +130,8 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
 
       for (const folder of folders) {
         const tools = this.readDevPanelTools(folder);
-        for (const tool of tools) {
-          const treeTool = this.createDevPanelTool(tool, folder);
+        for (const toolItem of tools) {
+          const treeTool = this.createDevPanelTool(toolItem, folder);
           if (treeTool) toolElements.push(treeTool);
         }
       }
@@ -155,11 +157,11 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
 
     for (const folder of folders) {
       const tools = this.readDevPanelTools(folder);
-      for (const tool of tools) {
-        const treeTool = this.createDevPanelTool(tool, folder);
+      for (const toolItem of tools) {
+        const treeTool = this.createDevPanelTool(toolItem, folder);
         if (!treeTool) continue;
 
-        const groupName = tool.group ?? NO_GROUP_NAME;
+        const groupName = toolItem.group ?? NO_GROUP_NAME;
 
         if (!groups[groupName]) {
           groups[groupName] = new ToolGroupTreeItem(groupName);
@@ -172,7 +174,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     return this.sortElements(toolElements);
   }
 
-  private readDevPanelTools(folder: vscode.WorkspaceFolder): NonNullable<DevPanelConfig['tools']> {
+  private readDevPanelTools(folder: WorkspaceFolder): NonNullable<DevPanelConfig['tools']> {
     const config = loadWorkspaceConfig(folder);
     return config?.tools ?? [];
   }
@@ -218,7 +220,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
 
   private createDevPanelTool(
     tool: NonNullable<DevPanelConfig['tools']>[number],
-    folder: vscode.WorkspaceFolder,
+    folder: WorkspaceFolder,
   ): TreeTool | null {
     const hidden = isHidden(tool.name);
     const favorite = isFavorite(tool.name);
@@ -241,13 +243,13 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     }
 
     if (hidden) {
-      treeTool.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+      treeTool.iconPath = VscodeIcons.HiddenItem;
       treeTool.contextValue = CONTEXT_VALUES.TOOL_HIDDEN;
     } else if (favorite) {
-      treeTool.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+      treeTool.iconPath = VscodeIcons.FavoriteItem;
       treeTool.contextValue = CONTEXT_VALUES.TOOL_FAVORITE;
     } else if (isActive) {
-      treeTool.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.green'));
+      treeTool.iconPath = VscodeIcons.ActiveItem;
       treeTool.contextValue = CONTEXT_VALUES.TOOL;
     }
 
@@ -280,13 +282,13 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     treeTool.tooltip = description ? `Global: ${description}` : GLOBAL_TOOL_TOOLTIP;
 
     if (hidden) {
-      treeTool.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+      treeTool.iconPath = VscodeIcons.HiddenItem;
       treeTool.contextValue = CONTEXT_VALUES.TOOL_GLOBAL_HIDDEN;
     } else if (favorite) {
-      treeTool.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+      treeTool.iconPath = VscodeIcons.FavoriteItem;
       treeTool.contextValue = CONTEXT_VALUES.TOOL_GLOBAL_FAVORITE;
     } else if (isActive) {
-      treeTool.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.green'));
+      treeTool.iconPath = VscodeIcons.ActiveItem;
       treeTool.contextValue = CONTEXT_VALUES.TOOL_GLOBAL;
     } else {
       treeTool.contextValue = CONTEXT_VALUES.TOOL_GLOBAL;
@@ -301,19 +303,20 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     return treeTool;
   }
 
-  getTreeItem(item: TreeTool | ToolGroupTreeItem): vscode.TreeItem {
+  getTreeItem(item: TreeTool | ToolGroupTreeItem): TreeItem {
     return item;
   }
 
-  dispose(): void {}
+  // tscanner-ignore-next-line no-empty-function
+  dispose() {}
 }
 
 let providerInstance: ToolTreeDataProvider | null = null;
 
-export function setToolProviderInstance(instance: ToolTreeDataProvider): void {
+export function setToolProviderInstance(instance: ToolTreeDataProvider) {
   providerInstance = instance;
 }
 
-export async function toggleTool(tool: TreeTool): Promise<void> {
-  await providerInstance?.toggleTool(tool);
+export function toggleTool(tool: TreeTool) {
+  providerInstance?.toggleTool(tool);
 }

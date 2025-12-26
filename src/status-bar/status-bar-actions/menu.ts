@@ -4,6 +4,7 @@ import { getWorkspaceConfigDirPath } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { showConfigLocationMenu } from './config-location';
 import { showInitMenu } from './init';
 import { showRegistryMenu } from './registry';
@@ -55,7 +56,7 @@ export function createOpenSettingsMenuCommand() {
       );
     }
 
-    const selected = await vscode.window.showQuickPick(mainMenuItems, {
+    const selected = await VscodeHelper.showQuickPickItems(mainMenuItems, {
       placeHolder: `${EXTENSION_DISPLAY_NAME} Settings`,
       ignoreFocusOut: false,
     });

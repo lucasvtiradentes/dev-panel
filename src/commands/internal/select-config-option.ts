@@ -6,7 +6,7 @@ export type SelectConfigOptionParams = DevPanelVariable;
 
 export function createSelectConfigOptionCommand() {
   return registerCommand(Command.SelectConfigOption, (variable: SelectConfigOptionParams) =>
-    selectVariableOption(variable as any),
+    selectVariableOption(variable),
   );
 }
 

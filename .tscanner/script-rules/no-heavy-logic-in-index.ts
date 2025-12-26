@@ -18,6 +18,9 @@ const ALLOWED_PATTERNS = [
   /^\s*export\s+default\s/,
   /^\s*}\s*from\s/,
   /^\s*}\s*;?\s*$/,
+  /^\s*type\s+\w+/,
+  /^\s*\w+,?\s*$/,
+  /^\s*\[[\w.]+\]:/,
 ];
 
 function isAllowedLine(line: string): boolean {

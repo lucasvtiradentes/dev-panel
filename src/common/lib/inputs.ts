@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { DEFAULT_EXCLUDES, DEFAULT_INCLUDES } from '../constants';
 import {
   CONFIRM_OPTIONS,
@@ -8,6 +7,8 @@ import {
 } from '../constants/scripts-constants';
 import { type DevPanelInput, type DevPanelSettings, PromptInputType } from '../schemas';
 import { getFirstWorkspaceFolder } from '../utils/workspace-utils';
+import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
+import type { WorkspaceFolder } from '../vscode/vscode-types';
 import { type FileSelectionOptions, selectFiles, selectFolders } from './file-selection';
 import { createLogger } from './logger';
 
@@ -17,7 +18,7 @@ type InputValues = Record<string, string>;
 
 export async function collectInputs(
   inputs: DevPanelInput[],
-  workspaceFolder: vscode.WorkspaceFolder | null,
+  workspaceFolder: WorkspaceFolder | null,
   settings?: DevPanelSettings,
 ): Promise<InputValues | null> {
   const values: InputValues = {};
@@ -33,7 +34,7 @@ export async function collectInputs(
 
 async function collectSingleInput(
   input: DevPanelInput,
-  workspaceFolder: vscode.WorkspaceFolder | null,
+  workspaceFolder: WorkspaceFolder | null,
   settings?: DevPanelSettings,
 ): Promise<string | undefined> {
   switch (input.type) {
@@ -94,7 +95,7 @@ function getExcludePatterns(input: DevPanelInput, settings: DevPanelSettings | u
 
 async function collectFileInput(
   input: DevPanelInput,
-  workspaceFolder: vscode.WorkspaceFolder | null,
+  workspaceFolder: WorkspaceFolder | null,
   multiple: boolean,
   settings?: DevPanelSettings,
 ): Promise<string | undefined> {
@@ -103,7 +104,7 @@ async function collectFileInput(
 
   const folder = workspaceFolder ?? getFirstWorkspaceFolder();
   if (!folder) {
-    void vscode.window.showErrorMessage(ERROR_MSG_WORKSPACE_REQUIRED);
+    void VscodeHelper.showToastMessage(ToastKind.Error, ERROR_MSG_WORKSPACE_REQUIRED);
     return undefined;
   }
 
@@ -123,13 +124,13 @@ async function collectFileInput(
 
 async function collectFolderInput(
   input: DevPanelInput,
-  workspaceFolder: vscode.WorkspaceFolder | null,
+  workspaceFolder: WorkspaceFolder | null,
   multiple: boolean,
   settings?: DevPanelSettings,
 ): Promise<string | undefined> {
   const folder = workspaceFolder ?? getFirstWorkspaceFolder();
   if (!folder) {
-    void vscode.window.showErrorMessage(ERROR_MSG_WORKSPACE_REQUIRED);
+    void VscodeHelper.showToastMessage(ToastKind.Error, ERROR_MSG_WORKSPACE_REQUIRED);
     return undefined;
   }
 
@@ -147,7 +148,7 @@ async function collectFolderInput(
 }
 
 async function collectTextInput(input: DevPanelInput): Promise<string | undefined> {
-  return vscode.window.showInputBox({
+  return VscodeHelper.showInputBox({
     prompt: input.label,
     placeHolder: input.placeholder,
     ignoreFocusOut: true,
@@ -155,7 +156,7 @@ async function collectTextInput(input: DevPanelInput): Promise<string | undefine
 }
 
 async function collectNumberInput(input: DevPanelInput): Promise<string | undefined> {
-  return vscode.window.showInputBox({
+  return VscodeHelper.showInputBox({
     prompt: input.label,
     placeHolder: input.placeholder,
     ignoreFocusOut: true,
@@ -169,7 +170,7 @@ async function collectNumberInput(input: DevPanelInput): Promise<string | undefi
 }
 
 async function collectConfirmInput(input: DevPanelInput): Promise<string | undefined> {
-  const result = await vscode.window.showQuickPick(CONFIRM_OPTIONS, {
+  const result = await VscodeHelper.showQuickPick(CONFIRM_OPTIONS, {
     placeHolder: input.label,
     ignoreFocusOut: true,
   });
@@ -181,7 +182,7 @@ async function collectChoiceInput(input: DevPanelInput, multiple: boolean): Prom
   if (!input.options || input.options.length === 0) return undefined;
 
   if (multiple) {
-    const result = await vscode.window.showQuickPick(input.options, {
+    const result = await VscodeHelper.showQuickPick(input.options, {
       placeHolder: input.label,
       canPickMany: true,
       ignoreFocusOut: true,
@@ -190,7 +191,7 @@ async function collectChoiceInput(input: DevPanelInput, multiple: boolean): Prom
     return result.join('\n');
   }
 
-  return vscode.window.showQuickPick(input.options, {
+  return VscodeHelper.showQuickPick(input.options, {
     placeHolder: input.label,
     canPickMany: false,
     ignoreFocusOut: true,

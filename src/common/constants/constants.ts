@@ -1,3 +1,4 @@
+import { VscodeIcon } from '../vscode/vscode-constants';
 import { CONFIG_DIR_KEY, CONTEXT_PREFIX } from './scripts-constants';
 
 declare const __IS_DEV_BUILD__: boolean;
@@ -6,9 +7,6 @@ export const IS_DEV = typeof __IS_DEV_BUILD__ !== 'undefined' && __IS_DEV_BUILD_
 export const GLOBAL_STATE_WORKSPACE_SOURCE = `______${CONTEXT_PREFIX}WorkspaceSource______`;
 export const GLOBAL_STATE_KEY = `${CONFIG_DIR_KEY}.globalUIState`;
 export const GLOBAL_ITEM_PREFIX = '(G) ';
-
-export const LOG_CONTEXT_WIDTH = 20;
-export const LOG_TIMEZONE_OFFSET_HOURS = -3;
 
 export const BRANCH_FIELD_DESCRIPTION_MAX_LENGTH = 50;
 
@@ -74,7 +72,7 @@ export const CONFIG_INDENT = '    ';
 
 export const BASE_BRANCH = 'origin/main';
 
-export const BRANCH_CONTEXT_DEFAULT_ICON = 'symbol-field';
+export const BRANCH_CONTEXT_DEFAULT_ICON = VscodeIcon.SymbolField;
 
 export const DESCRIPTION_NOT_SET = '(not set)';
 export const DESCRIPTION_NOT_SYNCED = '(not synced)';

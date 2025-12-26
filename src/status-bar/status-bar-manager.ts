@@ -1,25 +1,27 @@
 import * as vscode from 'vscode';
 import { EXTENSION_DISPLAY_NAME, getCommandId } from '../common/constants';
 import { Command } from '../common/lib/vscode-utils';
+import { VscodeHelper } from '../common/vscode/vscode-helper';
+import type { StatusBarItem } from '../common/vscode/vscode-types';
 
 export class StatusBarManager {
-  private readonly statusBarItem: vscode.StatusBarItem;
+  private readonly statusBarItem: StatusBarItem;
   private hasConfig = true;
 
   constructor(hasConfig = true) {
     this.hasConfig = hasConfig;
-    this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+    this.statusBarItem = VscodeHelper.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
     this.statusBarItem.command = getCommandId(Command.OpenSettingsMenu);
     this.updateDisplay();
     this.statusBarItem.show();
   }
 
-  setHasConfig(hasConfig: boolean): void {
+  setHasConfig(hasConfig: boolean) {
     this.hasConfig = hasConfig;
     this.updateDisplay();
   }
 
-  private updateDisplay(): void {
+  private updateDisplay() {
     const icon = '$(settings-gear)';
     const text = this.hasConfig ? EXTENSION_DISPLAY_NAME : `${EXTENSION_DISPLAY_NAME} (No config)`;
     this.statusBarItem.text = `${icon} ${text}`;
@@ -30,11 +32,11 @@ export class StatusBarManager {
     return lines.join('\n');
   }
 
-  refresh(): void {
+  refresh() {
     this.updateDisplay();
   }
 
-  dispose(): void {
+  dispose() {
     this.statusBarItem.dispose();
   }
 }

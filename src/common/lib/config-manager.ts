@@ -3,6 +3,7 @@ import { isAbsolute, join } from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, getGlobalConfigDir, getGlobalConfigPath } from '../constants';
+import type { ConfigKey } from '../constants/enums';
 import { FILENAME_INVALID_CHARS_PATTERN } from '../constants/regex-constants';
 import {
   BRANCHES_DIR_NAME,
@@ -11,9 +12,11 @@ import {
   PROMPTS_DIR_NAME,
 } from '../constants/scripts-constants';
 import type { DevPanelConfig } from '../schemas';
+import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
+import type { Uri, WorkspaceFolder } from '../vscode/vscode-types';
 import { StoreKey, extensionStore } from './extension-store';
 
-function getConfigDir(workspacePath: string, configDir: string | null): vscode.Uri {
+function getConfigDir(workspacePath: string, configDir: string | null): Uri {
   const baseDir = vscode.Uri.file(workspacePath);
 
   if (!configDir) {
@@ -42,7 +45,7 @@ export async function hasConfig(workspacePath: string, configDir: string | null,
   }
 }
 
-async function copyDirectoryRecursive(source: vscode.Uri, target: vscode.Uri): Promise<void> {
+async function copyDirectoryRecursive(source: Uri, target: Uri) {
   await vscode.workspace.fs.createDirectory(target);
 
   const entries = await vscode.workspace.fs.readDirectory(source);
@@ -58,11 +61,7 @@ async function copyDirectoryRecursive(source: vscode.Uri, target: vscode.Uri): P
   }
 }
 
-export async function moveConfig(
-  workspacePath: string,
-  fromConfigDir: string | null,
-  toConfigDir: string | null,
-): Promise<void> {
+export async function moveConfig(workspacePath: string, fromConfigDir: string | null, toConfigDir: string | null) {
   const sourceDir = getConfigDir(workspacePath, fromConfigDir);
   const targetDir = getConfigDir(workspacePath, toConfigDir);
 
@@ -78,21 +77,21 @@ export function getCurrentConfigDir(): string | null {
   return extensionStore.get(StoreKey.ConfigDir);
 }
 
-export function setConfigDir(configDir: string | null): void {
+export function setConfigDir(configDir: string | null) {
   extensionStore.set(StoreKey.ConfigDir, configDir);
 }
 
-export function getWorkspaceConfigDirPath(folder: vscode.WorkspaceFolder): string {
+export function getWorkspaceConfigDirPath(folder: WorkspaceFolder): string {
   const configDir = getCurrentConfigDir();
   return getConfigDirPath(folder.uri.fsPath, configDir);
 }
 
-export function getWorkspaceConfigFilePath(folder: vscode.WorkspaceFolder, fileName: string): string {
+export function getWorkspaceConfigFilePath(folder: WorkspaceFolder, fileName: string): string {
   const configDir = getCurrentConfigDir();
   return getConfigPath(folder.uri.fsPath, configDir, fileName);
 }
 
-export function joinConfigPath(folder: vscode.WorkspaceFolder, ...segments: string[]): string {
+export function joinConfigPath(folder: WorkspaceFolder, ...segments: string[]): string {
   const configDir = getCurrentConfigDir();
   const basePath = getConfigDirPath(folder.uri.fsPath, configDir);
   return join(basePath, ...segments);
@@ -131,7 +130,7 @@ export function getBranchContextFilePath(workspace: string, branchName: string):
   return join(getBranchDirectory(workspace, branchName), BRANCH_CONTEXT_FILENAME);
 }
 
-export function getBranchContextGlobPattern(): string {
+function getBranchContextGlobPattern(): string {
   const configDirPattern = getConfigDirPattern();
   return `${configDirPattern}/${BRANCHES_DIR_NAME}/*/${BRANCH_CONTEXT_FILENAME}`;
 }
@@ -188,14 +187,12 @@ export function loadWorkspaceConfigFromPath(workspacePath: string): DevPanelConf
   return loadConfigFromPath(configPath);
 }
 
-export function loadWorkspaceConfig(folder: vscode.WorkspaceFolder): DevPanelConfig | null {
+export function loadWorkspaceConfig(folder: WorkspaceFolder): DevPanelConfig | null {
   const configPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
   return loadConfigFromPath(configPath);
 }
 
-export function forEachWorkspaceConfig(
-  callback: (folder: vscode.WorkspaceFolder, config: DevPanelConfig) => void,
-): void {
+export function forEachWorkspaceConfig(callback: (folder: WorkspaceFolder, config: DevPanelConfig) => void) {
   const folders = getWorkspaceFolders();
   if (folders.length === 0) return;
 
@@ -212,30 +209,30 @@ export function loadGlobalConfig(): DevPanelConfig | null {
   return loadConfigFromPath(configPath);
 }
 
-type ConfigArrayKey = 'prompts' | 'tasks' | 'tools';
+type ConfigArrayKey = ConfigKey.Prompts | ConfigKey.Tasks | ConfigKey.Tools;
 type ConfigArrayItem =
   | NonNullable<DevPanelConfig['prompts']>[number]
   | NonNullable<DevPanelConfig['tasks']>[number]
   | NonNullable<DevPanelConfig['tools']>[number];
 
-export function ensureDirectoryExists(dirPath: string): void {
+export function ensureDirectoryExists(dirPath: string) {
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath, { recursive: true });
   }
 }
 
-export function saveConfigToPath(configPath: string, config: DevPanelConfig): void {
+export function saveConfigToPath(configPath: string, config: DevPanelConfig) {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
 }
 
-export function saveGlobalConfig(config: DevPanelConfig): void {
+export function saveGlobalConfig(config: DevPanelConfig) {
   const globalConfigDir = getGlobalConfigDir();
   const globalConfigPath = getGlobalConfigPath();
   ensureDirectoryExists(globalConfigDir);
   saveConfigToPath(globalConfigPath, config);
 }
 
-export function saveWorkspaceConfig(folder: vscode.WorkspaceFolder, config: DevPanelConfig): void {
+export function saveWorkspaceConfig(folder: WorkspaceFolder, config: DevPanelConfig) {
   const workspaceConfigDir = getWorkspaceConfigDirPath(folder);
   const workspaceConfigPath = getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
   ensureDirectoryExists(workspaceConfigDir);
@@ -243,7 +240,8 @@ export function saveWorkspaceConfig(folder: vscode.WorkspaceFolder, config: DevP
 }
 
 export async function confirmOverwrite(itemType: string, itemName: string): Promise<boolean> {
-  const choice = await vscode.window.showWarningMessage(
+  const choice = await VscodeHelper.showToastMessage(
+    ToastKind.Warning,
     `${itemType} "${itemName}" already exists. Overwrite?`,
     'Overwrite',
     'Cancel',
@@ -252,7 +250,8 @@ export async function confirmOverwrite(itemType: string, itemName: string): Prom
 }
 
 export async function confirmDelete(itemType: string, itemName: string, isGlobal: boolean): Promise<boolean> {
-  const choice = await vscode.window.showWarningMessage(
+  const choice = await VscodeHelper.showToastMessage(
+    ToastKind.Warning,
     `Are you sure you want to delete ${itemType} "${itemName}"${isGlobal ? ' (global)' : ''}?`,
     { modal: true },
     'Delete',

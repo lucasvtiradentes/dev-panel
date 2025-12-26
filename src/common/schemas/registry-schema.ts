@@ -15,7 +15,7 @@ const RegistryItemSchema = z.object({
   file: z.string().optional().describe('Main file name if different from default'),
 });
 
-const RegistryIndexSchema = z.object({
+export const RegistryIndexSchema = z.object({
   version: z.string().optional().describe('Registry version'),
   plugins: z.array(RegistryItemSchema.omit({ kind: true })).optional(),
   prompts: z.array(RegistryItemSchema.omit({ kind: true })).optional(),

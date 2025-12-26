@@ -24,7 +24,7 @@ export class SimpleCache<T> {
     return entry.value;
   }
 
-  set(key: string, value: T, hash?: string): void {
+  set(key: string, value: T, hash?: string) {
     this.cache.set(key, {
       value,
       timestamp: Date.now(),
@@ -36,11 +36,11 @@ export class SimpleCache<T> {
     return this.get(key) !== undefined;
   }
 
-  invalidate(key: string): void {
+  invalidate(key: string) {
     this.cache.delete(key);
   }
 
-  clear(): void {
+  clear() {
     this.cache.clear();
   }
 }
@@ -64,7 +64,7 @@ export class FileHashCache<T> extends SimpleCache<T> {
     return entry.value;
   }
 
-  setWithFileHash(key: string, value: T, filePath: string): void {
+  setWithFileHash(key: string, value: T, filePath: string) {
     const hash = getFileHash(filePath);
     this.set(key, value, hash);
   }

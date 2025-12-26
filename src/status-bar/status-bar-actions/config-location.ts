@@ -17,6 +17,8 @@ import {
 } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
+import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
+import type { Uri } from '../../common/vscode/vscode-types';
 
 type QuickPickItemWithId<T> = vscode.QuickPickItem & { id: T };
 
@@ -28,7 +30,7 @@ function joinPath(base: string, segment: string): string {
   return isRootPath(base) ? segment : posix.join(base, segment);
 }
 
-export async function showConfigLocationMenu(): Promise<void> {
+export async function showConfigLocationMenu() {
   const workspaceFolder = requireWorkspaceFolder();
   if (!workspaceFolder) return;
 
@@ -58,14 +60,15 @@ export async function showConfigLocationMenu(): Promise<void> {
 
   setConfigDir(newConfigDir);
   logger.info(`Config dir changed to: ${getConfigDirLabel(newConfigDir)}`);
-  void vscode.window.showInformationMessage(`Config location: ${getConfigDirLabel(newConfigDir)}`);
+  void VscodeHelper.showToastMessage(ToastKind.Info, `Config location: ${getConfigDirLabel(newConfigDir)}`);
 }
 
 async function askToMoveConfig(fromDir: string | null, toDir: string | null): Promise<boolean> {
   const fromLabel = getConfigDirLabel(fromDir);
   const toLabel = getConfigDirLabel(toDir);
 
-  const result = await vscode.window.showWarningMessage(
+  const result = await VscodeHelper.showToastMessage(
+    ToastKind.Warning,
     `Move config from "${fromLabel}" to "${toLabel}"?`,
     { modal: true },
     'Move',
@@ -75,7 +78,7 @@ async function askToMoveConfig(fromDir: string | null, toDir: string | null): Pr
   return result === 'Move';
 }
 
-async function getSubfolders(dirUri: vscode.Uri): Promise<string[]> {
+async function getSubfolders(dirUri: Uri): Promise<string[]> {
   try {
     const entries = await vscode.workspace.fs.readDirectory(dirUri);
     return entries.filter(([_, type]) => type === vscode.FileType.Directory).map(([name]) => name);
@@ -84,7 +87,7 @@ async function getSubfolders(dirUri: vscode.Uri): Promise<string[]> {
   }
 }
 
-async function showFolderPicker(workspaceRoot: vscode.Uri, currentPath: string): Promise<string | null> {
+async function showFolderPicker(workspaceRoot: Uri, currentPath: string): Promise<string | null> {
   const currentUri = isRootPath(currentPath) ? workspaceRoot : vscode.Uri.joinPath(workspaceRoot, currentPath);
 
   const subfolders = await getSubfolders(currentUri);
@@ -122,7 +125,7 @@ async function showFolderPicker(workspaceRoot: vscode.Uri, currentPath: string):
     });
   }
 
-  const selected = await vscode.window.showQuickPick(items, {
+  const selected = await VscodeHelper.showQuickPickItems(items, {
     placeHolder: `Select folder for ${CONFIG_DIR_NAME}`,
     ignoreFocusOut: true,
   });

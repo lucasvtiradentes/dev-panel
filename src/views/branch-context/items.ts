@@ -10,6 +10,8 @@ import {
 } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
 import type { SectionMetadata } from '../../common/schemas/types';
+import { VscodeColor } from '../../common/vscode/vscode-constants';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { SectionDefinition } from './section-registry';
 
 function truncate(str: string, maxLen: number): string {
@@ -31,16 +33,16 @@ export class SectionItem extends vscode.TreeItem {
     this.contextValue = CONTEXT_VALUES.BRANCH_CONTEXT_FIELD;
 
     if (section.name === SECTION_NAME_BRANCH && branchType) {
-      const colorMap: Record<string, string> = {
-        feature: 'charts.blue',
-        bugfix: 'charts.red',
-        chore: 'charts.purple',
-        other: 'editorLineNumber.foreground',
+      const colorMap: Record<string, VscodeColor> = {
+        feature: VscodeColor.ChartsBlue,
+        bugfix: VscodeColor.ChartsRed,
+        chore: VscodeColor.ChartsPurple,
+        other: VscodeColor.EditorLineNumberForeground,
       };
-      const color = colorMap[branchType] || 'editorLineNumber.foreground';
-      this.iconPath = new vscode.ThemeIcon(section.icon, new vscode.ThemeColor(color));
+      const color = colorMap[branchType] || VscodeColor.EditorLineNumberForeground;
+      this.iconPath = VscodeHelper.createCustomIcon(section.icon, color);
     } else {
-      this.iconPath = new vscode.ThemeIcon(section.icon);
+      this.iconPath = VscodeHelper.createCustomIcon(section.icon);
     }
 
     this.description = this.getDescription();

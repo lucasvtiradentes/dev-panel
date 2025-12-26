@@ -9,7 +9,6 @@ import {
   DEFAULT_EXCLUDES,
   DEFAULT_INCLUDES,
   DESCRIPTION_NOT_SET,
-  DISPLAY_PREFIX,
   ERROR_VARIABLE_COMMAND_FAILED,
   NO_GROUP_NAME,
   VARIABLES_FILE_NAME,
@@ -18,36 +17,17 @@ import {
 import { getConfigDirPathFromWorkspacePath, getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/lib/file-selection';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
-import type { DevPanelSettings } from '../../common/schemas';
+import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
+import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspaceFolder, getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
+import type { TreeItem } from '../../common/vscode/vscode-types';
 import { getIsGrouped, saveIsGrouped } from './state';
 
 const execAsync = promisify(exec);
 
-enum VariableKind {
-  Choose = 'choose',
-  Input = 'input',
-  Toggle = 'toggle',
-  File = 'file',
-  Folder = 'folder',
-}
-
-type VariableItem = {
-  name: string;
-  kind: VariableKind;
-  options?: string[];
-  command?: string;
-  description?: string;
-  default?: unknown;
-  group?: string;
-  showTerminal?: boolean;
-  multiSelect?: boolean;
-  includes?: string[];
-  excludes?: string[];
-};
-
 type PpVariables = {
-  variables: VariableItem[];
+  variables: DevPanelVariable[];
 };
 
 type PpState = {
@@ -63,17 +43,25 @@ function getStatePath(): string | null {
 function loadState(): PpState {
   const statePath = getStatePath();
   if (!statePath || !fs.existsSync(statePath)) return {};
-  const content = fs.readFileSync(statePath, 'utf-8');
-  return JSON.parse(content);
+  try {
+    const content = fs.readFileSync(statePath, 'utf-8');
+    const parsed = JSON.parse(content);
+    if (typeof parsed !== 'object' || parsed === null) {
+      return {};
+    }
+    return parsed as PpState;
+  } catch {
+    return {};
+  }
 }
 
-function saveState(state: PpState): void {
+function saveState(state: PpState) {
   const statePath = getStatePath();
   if (!statePath) return;
   fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
 }
 
-function formatValue(value: unknown, variable: VariableItem): string {
+function formatValue(value: unknown, variable: DevPanelVariable): string {
   if (value === undefined) {
     if (variable.default !== undefined) {
       return formatValue(variable.default, variable);
@@ -88,7 +76,7 @@ function formatValue(value: unknown, variable: VariableItem): string {
 class GroupTreeItem extends vscode.TreeItem {
   constructor(
     public readonly groupName: string,
-    public readonly variables: VariableItem[],
+    public readonly variables: DevPanelVariable[],
   ) {
     super(groupName, vscode.TreeItemCollapsibleState.Expanded);
     this.contextValue = CONTEXT_VALUES.GROUP_ITEM;
@@ -97,7 +85,7 @@ class GroupTreeItem extends vscode.TreeItem {
 
 export class VariableTreeItem extends vscode.TreeItem {
   constructor(
-    public readonly variable: VariableItem,
+    public readonly variable: DevPanelVariable,
     currentValue?: unknown,
   ) {
     super(variable.name, vscode.TreeItemCollapsibleState.None);
@@ -117,8 +105,8 @@ export class VariableTreeItem extends vscode.TreeItem {
 
 let providerInstance: VariablesProvider | null = null;
 
-export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
-  private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined>();
+export class VariablesProvider implements vscode.TreeDataProvider<TreeItem> {
+  private _onDidChangeTreeData = new vscode.EventEmitter<TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
   private _grouped: boolean;
 
@@ -128,28 +116,29 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     this.updateContextKeys();
   }
 
-  private updateContextKeys(): void {
+  private updateContextKeys() {
     void setContextKey(ContextKey.ConfigsGrouped, this._grouped);
   }
 
-  toggleGroupMode(): void {
+  toggleGroupMode() {
     this._grouped = !this._grouped;
     saveIsGrouped(this._grouped);
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(undefined);
   }
 
-  dispose(): void {}
+  // tscanner-ignore-next-line no-empty-function
+  dispose() {}
 
-  refresh(): void {
+  refresh() {
     this._onDidChangeTreeData.fire(undefined);
   }
 
-  getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
+  getTreeItem(element: TreeItem): TreeItem {
     return element;
   }
 
-  getChildren(element?: vscode.TreeItem): Thenable<vscode.TreeItem[]> {
+  getChildren(element?: TreeItem): Thenable<TreeItem[]> {
     const config = this.loadConfig();
     if (!config) return Promise.resolve([]);
 
@@ -163,7 +152,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
       return Promise.resolve(config.variables.map((v) => new VariableTreeItem(v, state[v.name])));
     }
 
-    const grouped = new Map<string, VariableItem[]>();
+    const grouped = new Map<string, DevPanelVariable[]>();
 
     for (const v of config.variables) {
       const groupName = v.group ?? NO_GROUP_NAME;
@@ -176,7 +165,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
       }
     }
 
-    const items: vscode.TreeItem[] = [];
+    const items: TreeItem[] = [];
 
     for (const [groupName, variables] of grouped) {
       items.push(new GroupTreeItem(groupName, variables));
@@ -193,7 +182,9 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     if (!fs.existsSync(configPath)) return null;
 
     const content = fs.readFileSync(configPath, 'utf-8');
-    return json5.parse(content);
+    const rawConfig = json5.parse(content);
+    const validatedConfig = DevPanelConfigSchema.parse(rawConfig);
+    return { variables: validatedConfig.variables ?? [] };
   }
 
   public loadSettings(): DevPanelSettings | undefined {
@@ -204,12 +195,13 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     if (!fs.existsSync(configPath)) return undefined;
 
     const content = fs.readFileSync(configPath, 'utf-8');
-    const config = json5.parse(content);
-    return config.settings;
+    const rawConfig = json5.parse(content);
+    const validatedConfig = DevPanelConfigSchema.parse(rawConfig);
+    return validatedConfig.settings;
   }
 }
 
-async function runCommand(variable: VariableItem, value: unknown): Promise<void> {
+async function runCommand(variable: DevPanelVariable, value: unknown) {
   if (!variable.command) return;
 
   const workspace = getFirstWorkspacePath();
@@ -219,30 +211,24 @@ async function runCommand(variable: VariableItem, value: unknown): Promise<void>
   const command = `${variable.command} "${formattedValue}"`;
   const configDirPath = getConfigDirPathFromWorkspacePath(workspace);
 
-  if (variable.showTerminal) {
-    const terminal = vscode.window.createTerminal(`${DISPLAY_PREFIX} ${variable.name}`);
-    terminal.show();
-    terminal.sendText(`cd "${configDirPath}" && ${command}`);
-  } else {
-    await vscode.window.withProgress(
-      {
-        location: vscode.ProgressLocation.Notification,
-        title: `Running: ${variable.name}`,
-        cancellable: false,
-      },
-      async () => {
-        try {
-          await execAsync(command, { cwd: configDirPath });
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
-          void vscode.window.showErrorMessage(`${ERROR_VARIABLE_COMMAND_FAILED}: ${errorMessage}`);
-        }
-      },
-    );
-  }
+  await VscodeHelper.withProgress(
+    {
+      location: vscode.ProgressLocation.Notification,
+      title: `Running: ${variable.name}`,
+      cancellable: false,
+    },
+    async () => {
+      try {
+        await execAsync(command, { cwd: configDirPath });
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        void VscodeHelper.showToastMessage(ToastKind.Error, `${ERROR_VARIABLE_COMMAND_FAILED}: ${errorMessage}`);
+      }
+    },
+  );
 }
 
-export async function selectVariableOption(variable: VariableItem): Promise<void> {
+export async function selectVariableOption(variable: DevPanelVariable) {
   const state = loadState();
   let newValue: unknown;
 
@@ -254,26 +240,27 @@ export async function selectVariableOption(variable: VariableItem): Promise<void
           label: opt,
           picked: currentValue.includes(opt),
         }));
-        const selected = await vscode.window.showQuickPick(items, {
+        const selected = await VscodeHelper.showQuickPickItems(items, {
           canPickMany: true,
           placeHolder: `Select ${variable.name}`,
         });
         if (!selected) return;
         newValue = selected.map((s) => s.label);
-      } else {
-        const selected = await vscode.window.showQuickPick(variable.options || [], {
-          placeHolder: `Select ${variable.name}`,
-        });
-        if (!selected) return;
-        newValue = selected;
+        break;
       }
+
+      const selected = await VscodeHelper.showQuickPick(variable.options || [], {
+        placeHolder: `Select ${variable.name}`,
+      });
+      if (!selected) return;
+      newValue = selected;
       break;
     }
 
     case VariableKind.Input: {
       const currentValue = state[variable.name] as string | undefined;
       const defaultValue = variable.default as string | undefined;
-      const input = await vscode.window.showInputBox({
+      const input = await VscodeHelper.showInputBox({
         prompt: variable.description || `Enter value for ${variable.name}`,
         value: currentValue || defaultValue || '',
         placeHolder: `Enter ${variable.name}`,
@@ -298,20 +285,20 @@ export async function selectVariableOption(variable: VariableItem): Promise<void
       const settings = providerInstance?.loadSettings();
 
       const defaultIncludes = [...DEFAULT_INCLUDES];
-      const includes =
-        variable.includes && variable.includes.length > 0
-          ? [...defaultIncludes, ...variable.includes]
-          : settings?.include && settings.include.length > 0
-            ? [...defaultIncludes, ...settings.include]
-            : defaultIncludes;
+      let includes = defaultIncludes;
+      if (variable.includes && variable.includes.length > 0) {
+        includes = [...defaultIncludes, ...variable.includes];
+      } else if (settings?.include && settings.include.length > 0) {
+        includes = [...defaultIncludes, ...settings.include];
+      }
 
       const defaultExcludes = [...DEFAULT_EXCLUDES];
-      const excludes =
-        variable.excludes && variable.excludes.length > 0
-          ? [...defaultExcludes, ...variable.excludes]
-          : settings?.exclude && settings.exclude.length > 0
-            ? [...defaultExcludes, ...settings.exclude]
-            : defaultExcludes;
+      let excludes = defaultExcludes;
+      if (variable.excludes && variable.excludes.length > 0) {
+        excludes = [...defaultExcludes, ...variable.excludes];
+      } else if (settings?.exclude && settings.exclude.length > 0) {
+        excludes = [...defaultExcludes, ...settings.exclude];
+      }
 
       const options: FileSelectionOptions = {
         label: variable.description || `Select file for ${variable.name}`,
@@ -333,20 +320,20 @@ export async function selectVariableOption(variable: VariableItem): Promise<void
       const settings = providerInstance?.loadSettings();
 
       const defaultIncludes = [...DEFAULT_INCLUDES];
-      const includes =
-        variable.includes && variable.includes.length > 0
-          ? [...defaultIncludes, ...variable.includes]
-          : settings?.include && settings.include.length > 0
-            ? [...defaultIncludes, ...settings.include]
-            : defaultIncludes;
+      let includes = defaultIncludes;
+      if (variable.includes && variable.includes.length > 0) {
+        includes = [...defaultIncludes, ...variable.includes];
+      } else if (settings?.include && settings.include.length > 0) {
+        includes = [...defaultIncludes, ...settings.include];
+      }
 
       const defaultExcludes = [...DEFAULT_EXCLUDES];
-      const excludes =
-        variable.excludes && variable.excludes.length > 0
-          ? [...defaultExcludes, ...variable.excludes]
-          : settings?.exclude && settings.exclude.length > 0
-            ? [...defaultExcludes, ...settings.exclude]
-            : defaultExcludes;
+      let excludes = defaultExcludes;
+      if (variable.excludes && variable.excludes.length > 0) {
+        excludes = [...defaultExcludes, ...variable.excludes];
+      } else if (settings?.exclude && settings.exclude.length > 0) {
+        excludes = [...defaultExcludes, ...settings.exclude];
+      }
 
       const options: FileSelectionOptions = {
         label: variable.description || `Select folder for ${variable.name}`,
@@ -371,7 +358,7 @@ export async function selectVariableOption(variable: VariableItem): Promise<void
   await runCommand(variable, newValue);
 }
 
-export function resetVariableOption(item: VariableTreeItem): void {
+export function resetVariableOption(item: VariableTreeItem) {
   const state = loadState();
   delete state[item.variable.name];
   saveState(state);

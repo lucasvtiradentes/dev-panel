@@ -101,6 +101,14 @@ const DevPanelPromptSchema = z
   })
   .describe('A prompt that can be executed in Claude Code');
 
+export enum VariableKind {
+  Choose = 'choose',
+  Input = 'input',
+  Toggle = 'toggle',
+  File = 'file',
+  Folder = 'folder',
+}
+
 const DevPanelVariableBaseSchema = z.object({
   name: z.string().describe('Unique identifier for the variable'),
   command: z.string().optional().describe('Shell command to execute when value changes'),

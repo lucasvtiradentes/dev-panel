@@ -13,7 +13,7 @@ export async function getCurrentBranch(workspace: string): Promise<string> {
   return execGitCommand(workspace, ['rev-parse', '--abbrev-ref', 'HEAD']);
 }
 
-export async function setSkipWorktree(workspace: string, filePath: string, skip: boolean): Promise<void> {
+export async function setSkipWorktree(workspace: string, filePath: string, skip: boolean) {
   const flag = skip ? '--skip-worktree' : '--no-skip-worktree';
   await execGitCommand(workspace, ['update-index', flag, filePath]);
 }
@@ -27,7 +27,7 @@ export async function isGitRepository(workspace: string): Promise<boolean> {
   }
 }
 
-export async function restoreFileFromGit(workspace: string, filePath: string): Promise<void> {
+export async function restoreFileFromGit(workspace: string, filePath: string) {
   await execGitCommand(workspace, ['checkout', '--', filePath]);
 }
 

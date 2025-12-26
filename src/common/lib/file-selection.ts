@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import { DEFAULT_EXCLUDES, DEFAULT_INCLUDES, ROOT_FOLDER_LABEL } from '../constants';
+import { VscodeHelper } from '../vscode/vscode-helper';
+import type { QuickPickItem, WorkspaceFolder } from '../vscode/vscode-types';
 import { createLogger } from './logger';
 
 const log = createLogger('file-selection');
@@ -11,28 +13,37 @@ export type FileSelectionOptions = {
   excludes?: string[];
 };
 
+type InternalSelectionOptions = {
+  workspaceFolder: WorkspaceFolder;
+  label: string;
+  multiSelect: boolean;
+  includes: string[];
+  excludes: string[];
+};
+
 function buildGlob(patterns: string[]): string {
   if (patterns.length === 1) return patterns[0];
   return `{${patterns.join(',')}}`;
 }
 
 export async function selectFiles(
-  workspaceFolder: vscode.WorkspaceFolder,
+  workspaceFolder: WorkspaceFolder,
   options: FileSelectionOptions,
 ): Promise<string | undefined> {
   const includes = options.includes ?? DEFAULT_INCLUDES;
   const excludes = options.excludes ?? DEFAULT_EXCLUDES;
   log.info(`selectFiles - multiSelect: ${options.multiSelect ?? false}`);
-  return selectFilesFlat(workspaceFolder, options.label, options.multiSelect ?? false, includes, excludes);
+  return selectFilesFlat({
+    workspaceFolder,
+    label: options.label,
+    multiSelect: options.multiSelect ?? false,
+    includes,
+    excludes,
+  });
 }
 
-async function selectFilesFlat(
-  workspaceFolder: vscode.WorkspaceFolder,
-  label: string,
-  multiSelect: boolean,
-  includes: string[],
-  excludes: string[],
-): Promise<string | undefined> {
+async function selectFilesFlat(opts: InternalSelectionOptions): Promise<string | undefined> {
+  const { workspaceFolder, label, multiSelect, includes, excludes } = opts;
   log.info(`selectFilesFlat - workspaceFolder.name: ${workspaceFolder.name}`);
   log.info(`selectFilesFlat - workspaceFolder.uri.fsPath: ${workspaceFolder.uri.fsPath}`);
   const includeGlob = buildGlob(includes);
@@ -40,7 +51,7 @@ async function selectFilesFlat(
   const files = await vscode.workspace.findFiles(new vscode.RelativePattern(workspaceFolder, includeGlob), excludeGlob);
   log.info(`selectFilesFlat - found ${files.length} files`);
 
-  const items: vscode.QuickPickItem[] = files.map((uri) => ({
+  const items: QuickPickItem[] = files.map((uri) => ({
     label: vscode.workspace.asRelativePath(uri, false),
     description: uri.fsPath,
   }));
@@ -48,7 +59,7 @@ async function selectFilesFlat(
   items.sort((a, b) => a.label.localeCompare(b.label));
 
   if (multiSelect) {
-    const result = await vscode.window.showQuickPick(items, {
+    const result = await VscodeHelper.showQuickPickItems(items, {
       placeHolder: label,
       canPickMany: true,
       ignoreFocusOut: true,
@@ -61,7 +72,7 @@ async function selectFilesFlat(
       .join('\n');
   }
 
-  const result = await vscode.window.showQuickPick(items, {
+  const result = await VscodeHelper.showQuickPickItems(items, {
     placeHolder: label,
     canPickMany: false,
     ignoreFocusOut: true,
@@ -71,22 +82,23 @@ async function selectFilesFlat(
 }
 
 export async function selectFolders(
-  workspaceFolder: vscode.WorkspaceFolder,
+  workspaceFolder: WorkspaceFolder,
   options: FileSelectionOptions,
 ): Promise<string | undefined> {
   const includes = options.includes ?? DEFAULT_INCLUDES;
   const excludes = options.excludes ?? DEFAULT_EXCLUDES;
   log.info(`selectFolders - multiSelect: ${options.multiSelect ?? false}`);
-  return selectFoldersFlat(workspaceFolder, options.label, options.multiSelect ?? false, includes, excludes);
+  return selectFoldersFlat({
+    workspaceFolder,
+    label: options.label,
+    multiSelect: options.multiSelect ?? false,
+    includes,
+    excludes,
+  });
 }
 
-async function selectFoldersFlat(
-  workspaceFolder: vscode.WorkspaceFolder,
-  label: string,
-  multiSelect: boolean,
-  includes: string[],
-  excludes: string[],
-): Promise<string | undefined> {
+async function selectFoldersFlat(opts: InternalSelectionOptions): Promise<string | undefined> {
+  const { workspaceFolder, label, multiSelect, includes, excludes } = opts;
   const includeGlob = buildGlob(includes);
   const excludeGlob = buildGlob(excludes);
   const files = await vscode.workspace.findFiles(new vscode.RelativePattern(workspaceFolder, includeGlob), excludeGlob);
@@ -103,7 +115,7 @@ async function selectFoldersFlat(
   }
 
   const folders = Array.from(folderSet).sort();
-  const items: vscode.QuickPickItem[] = folders.map((folder) => ({
+  const items: QuickPickItem[] = folders.map((folder) => ({
     label: folder,
     description: `${workspaceFolder.uri.fsPath}/${folder}`,
   }));
@@ -114,7 +126,7 @@ async function selectFoldersFlat(
   });
 
   if (multiSelect) {
-    const result = await vscode.window.showQuickPick(items, {
+    const result = await VscodeHelper.showQuickPickItems(items, {
       placeHolder: label,
       canPickMany: true,
       ignoreFocusOut: true,
@@ -127,7 +139,7 @@ async function selectFoldersFlat(
       .join('\n');
   }
 
-  const result = await vscode.window.showQuickPick(items, {
+  const result = await VscodeHelper.showQuickPickItems(items, {
     placeHolder: label,
     canPickMany: false,
     ignoreFocusOut: true,

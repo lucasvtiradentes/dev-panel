@@ -1,5 +1,5 @@
-import type * as vscode from 'vscode';
 import { WORKSPACE_STATE_CONFIG_DIR_KEY } from '../constants/scripts-constants';
+import type { ExtensionContext, Uri } from '../vscode/vscode-types';
 import { logger } from './logger';
 
 export enum StoreKey {
@@ -21,24 +21,31 @@ class ExtensionStore {
     [StoreKey.IsWritingBranchContext]: false,
   };
 
-  private context: vscode.ExtensionContext | null = null;
+  private context: ExtensionContext | null = null;
   private listeners = new Map<StoreKey, Set<AnyStateListener>>();
 
-  initialize(context: vscode.ExtensionContext): void {
+  initialize(context: ExtensionContext) {
     this.context = context;
     const stored = context.workspaceState.get<string | null>(WORKSPACE_STATE_CONFIG_DIR_KEY);
     this.state[StoreKey.ConfigDir] = stored ?? null;
   }
 
-  getExtensionUri(): vscode.Uri | null {
+  getExtensionUri(): Uri | null {
     return this.context?.extensionUri ?? null;
+  }
+
+  getExtensionPath(): string {
+    if (!this.context) {
+      throw new Error('Extension context not initialized');
+    }
+    return this.context.extensionPath;
   }
 
   get<K extends StoreKey>(key: K): ExtensionState[K] {
     return this.state[key];
   }
 
-  set<K extends StoreKey>(key: K, value: ExtensionState[K]): void {
+  set<K extends StoreKey>(key: K, value: ExtensionState[K]) {
     const oldValue = this.state[key];
     if (oldValue === value) return;
 
@@ -59,7 +66,7 @@ class ExtensionStore {
     };
   }
 
-  private persist<K extends StoreKey>(key: K, value: ExtensionState[K]): void {
+  private persist<K extends StoreKey>(key: K, value: ExtensionState[K]) {
     if (!this.context) return;
 
     switch (key) {
@@ -69,7 +76,7 @@ class ExtensionStore {
     }
   }
 
-  private notify<K extends StoreKey>(key: K, value: ExtensionState[K], oldValue: ExtensionState[K]): void {
+  private notify<K extends StoreKey>(key: K, value: ExtensionState[K], oldValue: ExtensionState[K]) {
     const keyListeners = this.listeners.get(key);
     if (!keyListeners) return;
 

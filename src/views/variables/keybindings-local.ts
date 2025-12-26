@@ -1,9 +1,9 @@
-import * as vscode from 'vscode';
 import { getVariableCommandId, getVariableCommandPrefix } from '../../common/constants';
 import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
-import { Command, executeCommand } from '../../common/lib/vscode-utils';
-import { KeybindingManager } from '../common';
+import { Command, executeCommand, registerDynamicCommand } from '../../common/lib/vscode-utils';
+import type { ExtensionContext } from '../../common/vscode/vscode-types';
+import { KeybindingManager } from '../_view_base';
 
 const manager = new KeybindingManager({
   commandPrefix: getVariableCommandPrefix(),
@@ -12,13 +12,13 @@ const manager = new KeybindingManager({
 
 export const getAllVariableKeybindings = () => manager.getAllKeybindings();
 
-export function registerVariableKeybindings(context: vscode.ExtensionContext): void {
+export function registerVariableKeybindings(context: ExtensionContext) {
   forEachWorkspaceConfig((_folder, config) => {
     const variables = config.variables ?? [];
 
     for (const variable of variables) {
       const commandId = getVariableCommandId(variable.name);
-      const disposable = vscode.commands.registerCommand(commandId, () => {
+      const disposable = registerDynamicCommand(commandId, () => {
         void executeCommand(Command.SelectConfigOption, variable);
       });
       context.subscriptions.push(disposable);
@@ -31,7 +31,7 @@ export function registerVariableKeybindings(context: vscode.ExtensionContext): v
 
     for (const variable of globalVariables) {
       const commandId = getVariableCommandId(variable.name);
-      const disposable = vscode.commands.registerCommand(commandId, () => {
+      const disposable = registerDynamicCommand(commandId, () => {
         void executeCommand(Command.SelectConfigOption, variable);
       });
       context.subscriptions.push(disposable);

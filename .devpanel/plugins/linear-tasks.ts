@@ -2,18 +2,51 @@ import { execSync } from 'node:child_process';
 import { appendFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type {
-  SyncResult,
-  TaskMeta,
-  TaskNode,
-  TaskPriority,
-  TaskStatus,
-} from '../../src/views/branch-context/providers/interfaces';
 import { getPluginRequest, runPlugin } from './task-plugin-base';
+
+enum TaskStatus {
+  Todo = 'todo',
+  Doing = 'doing',
+  Done = 'done',
+  Blocked = 'blocked',
+}
+
+enum TaskPriority {
+  Urgent = 'urgent',
+  High = 'high',
+  Medium = 'medium',
+  Low = 'low',
+  None = 'none',
+}
+
+type TaskMeta = {
+  assignee?: string;
+  priority?: TaskPriority;
+  tags?: string[];
+  dueDate?: string;
+  estimate?: string;
+  externalId?: string;
+  externalUrl?: string;
+};
+
+type TaskNode = {
+  text: string;
+  status: TaskStatus;
+  lineIndex: number;
+  children: TaskNode[];
+  meta: TaskMeta;
+};
+
+type SyncResult = {
+  added: number;
+  updated: number;
+  deleted: number;
+  conflicts?: { taskId: string; reason: string }[];
+};
 
 const LOG_FILE = join(tmpdir(), 'dev-panel-dev.log');
 
-function log(message: string): void {
+function log(message: string) {
   const timestamp = new Date().toISOString();
   appendFileSync(LOG_FILE, `[${timestamp}] [linear-tasks    ] [DEBUG] ${message}\n`);
 }
@@ -48,12 +81,23 @@ type LinearIssue = {
   }[];
 };
 
+enum LinearStateType {
+  Backlog = 'backlog',
+  Unstarted = 'unstarted',
+  Started = 'started',
+  Completed = 'completed',
+  Canceled = 'canceled',
+}
+
 type LinearState = {
   name: string;
-  type: 'backlog' | 'unstarted' | 'started' | 'completed' | 'canceled';
+  type: LinearStateType;
 };
 
-type LinkKind = 'issue' | 'project';
+enum LinkKind {
+  Issue = 'issue',
+  Project = 'project',
+}
 
 type ParsedLink = {
   kind: LinkKind;
@@ -92,43 +136,43 @@ function parseJsonOutput(output: string): unknown {
 function parseLinearLink(linearLink: string): ParsedLink | null {
   const issueMatch = linearLink.match(/linear\.app\/[^/]+\/issue\/([A-Z]+-\d+)/);
   if (issueMatch) {
-    return { kind: 'issue', id: issueMatch[1] };
+    return { kind: LinkKind.Issue, id: issueMatch[1] };
   }
 
   const projectMatch = linearLink.match(/linear\.app\/[^/]+\/project\/([a-zA-Z0-9-]+)/);
   if (projectMatch) {
-    return { kind: 'project', id: projectMatch[1] };
+    return { kind: LinkKind.Project, id: projectMatch[1] };
   }
 
   return null;
 }
 
 function mapLinearStateToStatus(state?: LinearState, customMapping?: Record<string, TaskStatus>): TaskStatus {
-  if (!state) return 'todo';
+  if (!state) return TaskStatus.Todo;
 
   if (customMapping?.[state.name]) {
     return customMapping[state.name];
   }
 
   switch (state.type) {
-    case 'completed':
-    case 'canceled':
-      return 'done';
-    case 'started':
-      return 'doing';
+    case LinearStateType.Completed:
+    case LinearStateType.Canceled:
+      return TaskStatus.Done;
+    case LinearStateType.Started:
+      return TaskStatus.Doing;
     default:
-      return 'todo';
+      return TaskStatus.Todo;
   }
 }
 
 function mapStatusToLinearState(status: TaskStatus): string {
   switch (status) {
-    case 'done':
+    case TaskStatus.Done:
       return 'Done';
-    case 'doing':
+    case TaskStatus.Doing:
       return 'In Progress';
-    case 'blocked':
-    case 'todo':
+    case TaskStatus.Blocked:
+    case TaskStatus.Todo:
       return 'Todo';
   }
 }
@@ -136,29 +180,29 @@ function mapStatusToLinearState(status: TaskStatus): string {
 function mapLinearPriority(priority?: number): TaskPriority {
   switch (priority) {
     case 1:
-      return 'urgent';
+      return TaskPriority.Urgent;
     case 2:
-      return 'high';
+      return TaskPriority.High;
     case 3:
-      return 'medium';
+      return TaskPriority.Medium;
     case 4:
-      return 'low';
+      return TaskPriority.Low;
     default:
-      return 'none';
+      return TaskPriority.None;
   }
 }
 
 function mapPriorityToLinear(priority?: TaskPriority): number | undefined {
   switch (priority) {
-    case 'urgent':
+    case TaskPriority.Urgent:
       return 1;
-    case 'high':
+    case TaskPriority.High:
       return 2;
-    case 'medium':
+    case TaskPriority.Medium:
       return 3;
-    case 'low':
+    case TaskPriority.Low:
       return 4;
-    default:
+    case TaskPriority.None:
       return undefined;
   }
 }
@@ -205,12 +249,12 @@ function subIssueToTaskNode(
 ): TaskNode {
   return {
     text: subIssue.title,
-    status: subIssue.completed ? 'done' : 'todo',
+    status: subIssue.completed ? TaskStatus.Done : TaskStatus.Todo,
     lineIndex: index,
     children: [],
     meta: {
       externalId: subIssue.identifier,
-      priority: 'none',
+      priority: TaskPriority.None,
     },
   };
 }
@@ -247,17 +291,17 @@ const customStateMapping = options.stateMapping as Record<string, TaskStatus> | 
 
 const taskCache = new Map<number, string>();
 
-function ensureTaskCache(): void {
+function ensureTaskCache() {
   if (taskCache.size > 0) return;
 
   log('ensureTaskCache: rebuilding cache');
 
-  if (linkKind === 'project') {
+  if (linkKind === LinkKind.Project) {
     let issues = fetchProjectIssues();
     if (!includeCompleted) {
       issues = issues.filter((issue) => {
         const stateType = issue.state?.type;
-        return stateType !== 'completed' && stateType !== 'canceled';
+        return stateType !== LinearStateType.Completed && stateType !== LinearStateType.Canceled;
       });
     }
     issues.forEach((issue, index) => {
@@ -316,14 +360,14 @@ runPlugin({
     log(`getTasks called, linkKind: ${linkKind}`);
     taskCache.clear();
 
-    if (linkKind === 'project') {
+    if (linkKind === LinkKind.Project) {
       let issues = fetchProjectIssues();
       log(`getTasks: fetched ${issues.length} issues before filter`);
 
       if (!includeCompleted) {
         issues = issues.filter((issue) => {
           const stateType = issue.state?.type;
-          return stateType !== 'completed' && stateType !== 'canceled';
+          return stateType !== LinearStateType.Completed && stateType !== LinearStateType.Canceled;
         });
         log(`getTasks: ${issues.length} issues after filter`);
       }
@@ -350,19 +394,24 @@ runPlugin({
     });
   },
 
-  async setStatus(lineIndex: number, newStatus: TaskStatus): Promise<void> {
-    ensureTaskCache();
-    const issueId = taskCache.get(lineIndex);
-    if (!issueId) {
-      throw new Error(`No issue found for lineIndex ${lineIndex}`);
-    }
+  setStatus(lineIndex: number, newStatus: TaskStatus) {
+    try {
+      ensureTaskCache();
+      const issueId = taskCache.get(lineIndex);
+      if (!issueId) {
+        throw new Error(`No issue found for lineIndex ${lineIndex}`);
+      }
 
-    const linearState = mapStatusToLinearState(newStatus);
-    execLinear(`issue update ${issueId} --state "${linearState}"`);
+      const linearState = mapStatusToLinearState(newStatus);
+      execLinear(`issue update ${issueId} --state "${linearState}"`);
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
   },
 
   async createTask(text: string, _parentIndex?: number): Promise<TaskNode> {
-    if (linkKind === 'issue') {
+    if (linkKind === LinkKind.Issue) {
       throw new Error('Creating sub-issues is not supported via Linear CLI');
     }
 
@@ -376,55 +425,65 @@ runPlugin({
     return linearIssueToTaskNode(issue, index, customStateMapping);
   },
 
-  async updateMeta(lineIndex: number, meta: Partial<TaskMeta>): Promise<void> {
-    ensureTaskCache();
-    const issueId = taskCache.get(lineIndex);
-    if (!issueId) {
-      throw new Error(`No issue found for lineIndex ${lineIndex}`);
-    }
-
-    const args: string[] = [];
-
-    if (meta.priority !== undefined) {
-      const linearPriority = mapPriorityToLinear(meta.priority);
-      if (linearPriority !== undefined) {
-        args.push(`--priority ${linearPriority}`);
+  updateMeta(lineIndex: number, meta: Partial<TaskMeta>) {
+    try {
+      ensureTaskCache();
+      const issueId = taskCache.get(lineIndex);
+      if (!issueId) {
+        throw new Error(`No issue found for lineIndex ${lineIndex}`);
       }
-    }
 
-    if (meta.assignee !== undefined) {
-      args.push(`--assignee "${meta.assignee}"`);
-    }
+      const args: string[] = [];
 
-    if (meta.dueDate !== undefined) {
-      args.push(`--due-date "${meta.dueDate}"`);
-    }
+      if (meta.priority !== undefined) {
+        const linearPriority = mapPriorityToLinear(meta.priority);
+        if (linearPriority !== undefined) {
+          args.push(`--priority ${linearPriority}`);
+        }
+      }
 
-    if (args.length > 0) {
-      execLinear(`issue update ${issueId} ${args.join(' ')}`);
+      if (meta.assignee !== undefined) {
+        args.push(`--assignee "${meta.assignee}"`);
+      }
+
+      if (meta.dueDate !== undefined) {
+        args.push(`--due-date "${meta.dueDate}"`);
+      }
+
+      if (args.length > 0) {
+        execLinear(`issue update ${issueId} ${args.join(' ')}`);
+      }
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
     }
   },
 
-  async deleteTask(lineIndex: number): Promise<void> {
-    ensureTaskCache();
-    const issueId = taskCache.get(lineIndex);
-    if (!issueId) {
-      throw new Error(`No issue found for lineIndex ${lineIndex}`);
-    }
+  deleteTask(lineIndex: number) {
+    try {
+      ensureTaskCache();
+      const issueId = taskCache.get(lineIndex);
+      if (!issueId) {
+        throw new Error(`No issue found for lineIndex ${lineIndex}`);
+      }
 
-    execLinear(`issue update ${issueId} --state "Canceled"`);
+      execLinear(`issue update ${issueId} --state "Canceled"`);
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
   },
 
-  async sync(): Promise<SyncResult> {
+  sync(): Promise<SyncResult> {
     taskCache.clear();
 
-    if (linkKind === 'project') {
+    if (linkKind === LinkKind.Project) {
       let issues = fetchProjectIssues();
 
       if (!includeCompleted) {
         issues = issues.filter((issue) => {
           const stateType = issue.state?.type;
-          return stateType !== 'completed' && stateType !== 'canceled';
+          return stateType !== LinearStateType.Completed && stateType !== LinearStateType.Canceled;
         });
       }
 
@@ -432,11 +491,11 @@ runPlugin({
         taskCache.set(index, issue.identifier);
       });
 
-      return {
+      return Promise.resolve({
         added: 0,
         updated: issues.length,
         deleted: 0,
-      };
+      });
     }
 
     const subIssues = fetchIssueSubIssues();
@@ -450,10 +509,10 @@ runPlugin({
       taskCache.set(index, subIssue.identifier);
     });
 
-    return {
+    return Promise.resolve({
       added: 0,
       updated: filtered.length,
       deleted: 0,
-    };
+    });
   },
 });

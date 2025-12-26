@@ -1,13 +1,8 @@
-import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
 import {
-  CONFIG_CACHE_TTL_MS,
-  ChangedFilesStyle,
-  GIT_LOG_LAST_COMMIT_MESSAGE,
-  GIT_REV_PARSE_HEAD,
-  METADATA_FIELD_IS_EMPTY,
+  BRANCH_CONTEXT_NO_CHANGES,
   NOT_GIT_REPO_MESSAGE,
   SECTION_NAME_BRANCH,
   SECTION_NAME_BRANCH_INFO,
@@ -17,68 +12,65 @@ import {
   SECTION_NAME_OBJECTIVE,
   SECTION_NAME_PR_LINK,
   SECTION_NAME_REQUIREMENTS,
-  SECTION_NAME_TASKS,
-  SYNC_DEBOUNCE_MS,
-  WRITING_MARKDOWN_TIMEOUT_MS,
 } from '../../common/constants';
-import {
-  BRANCH_CONTEXT_NA,
-  BRANCH_CONTEXT_NO_CHANGES,
-  ROOT_BRANCH_CONTEXT_FILE_NAME,
-} from '../../common/constants/scripts-constants';
+import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-constants';
 import {
   configDirExists,
   getBranchContextFilePath as getBranchContextFilePathUtil,
   loadWorkspaceConfigFromPath,
 } from '../../common/lib/config-manager';
-import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { createLogger } from '../../common/lib/logger';
 import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { branchContextState } from '../../common/lib/workspace-state';
-import type { DevPanelConfig } from '../../common/schemas/config-schema';
-import { SimpleCache } from '../../common/utils/cache';
 import { formatRelativeTime } from '../../common/utils/time-formatter';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
+import type { TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
+import { createTaskProvider, loadBranchContext } from '../_branch_base';
+import { formatChangedFilesSummary } from '../_branch_base/providers/default/file-changes-utils';
+import { getFieldLineNumber } from '../_branch_base/storage/markdown-parser';
 import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { validateBranchContext } from './config-validator';
-import { formatChangedFilesSummary, getChangedFilesWithSummary } from './git-changed-files';
 import { SectionItem } from './items';
-import { generateBranchContextMarkdown } from './markdown-generator';
-import { getFieldLineNumber } from './markdown-parser';
-import { type SyncContext, type TaskSyncProvider, createTaskProvider } from './providers';
-import { SectionRegistry } from './section-registry';
-import { loadBranchContext } from './state';
+import { ProviderHelpers } from './provider-helpers';
+import { SyncManager } from './provider-sync';
 import { ValidationIndicator } from './validation-indicator';
 
 const logger = createLogger('BranchContext');
 
-export class BranchContextProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
-  private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined>();
+export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> {
+  private _onDidChangeTreeData = new vscode.EventEmitter<TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private currentBranch = '';
-  private isWritingMarkdown = false;
-  private isSyncing = false;
-  private syncDebounceTimer: NodeJS.Timeout | null = null;
-  private lastSyncDirection: 'root-to-branch' | 'branch-to-root' | null = null;
   private validationIndicator: ValidationIndicator;
-  private treeView: vscode.TreeView<vscode.TreeItem> | null = null;
+  private treeView: TreeView<TreeItem> | null = null;
   private descriptionInterval: NodeJS.Timeout | null = null;
-  private sectionRegistryCache: SectionRegistry | null = null;
-  private configHashCache: string | null = null;
-  private configCache = new SimpleCache<DevPanelConfig | null>(CONFIG_CACHE_TTL_MS);
   private lastSyncTimestamp: string | null = null;
-  private taskProvider: TaskSyncProvider;
+  private helpers: ProviderHelpers;
+  private syncManager: SyncManager;
+  private taskProvider;
 
   constructor() {
     this.validationIndicator = new ValidationIndicator();
+    this.helpers = new ProviderHelpers();
+
     const workspace = getFirstWorkspacePath();
     const config = workspace ? loadWorkspaceConfigFromPath(workspace) : null;
     const tasksConfig = config?.branchContext?.builtinSections?.tasks;
     this.taskProvider = createTaskProvider(tasksConfig, workspace ?? undefined);
+
+    this.syncManager = new SyncManager(
+      () => this.currentBranch,
+      this.helpers,
+      () => this.refresh(),
+      (timestamp) => {
+        this.lastSyncTimestamp = timestamp;
+      },
+    );
   }
 
-  setTreeView(treeView: vscode.TreeView<vscode.TreeItem>): void {
+  setTreeView(treeView: TreeView<TreeItem>) {
     this.treeView = treeView;
     this.updateDescription();
     this.descriptionInterval = setInterval(() => {
@@ -86,7 +78,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }, 60000);
   }
 
-  private updateDescription(): void {
+  private updateDescription() {
     if (!this.treeView) {
       logger.info('[updateDescription] No treeView, skipping');
       return;
@@ -110,14 +102,14 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
   }
 
-  handleTemplateChange(): void {
+  handleTemplateChange() {
     if (!this.currentBranch) return;
     logger.info('[BranchContextProvider] Template changed, syncing branch context');
     void this.syncBranchContext();
   }
 
-  handleMarkdownChange(uri?: vscode.Uri): void {
-    if (this.isWritingMarkdown || this.isSyncing) {
+  handleMarkdownChange(uri?: Uri) {
+    if (this.syncManager.getIsWritingMarkdown() || this.syncManager.getIsSyncing()) {
       return;
     }
 
@@ -130,18 +122,18 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
       return;
     }
 
-    this.debouncedSync(() => this.syncBranchToRoot());
+    this.syncManager.debouncedSync(() => this.syncManager.syncBranchToRoot());
   }
 
-  handleRootMarkdownChange(): void {
-    if (this.isWritingMarkdown || this.isSyncing) {
+  handleRootMarkdownChange() {
+    if (this.syncManager.getIsWritingMarkdown() || this.syncManager.getIsSyncing()) {
       return;
     }
 
-    this.debouncedSync(() => this.syncRootToBranch());
+    this.syncManager.debouncedSync(() => this.syncManager.syncRootToBranch());
   }
 
-  async initialize(): Promise<void> {
+  async initialize() {
     logger.info('[BranchContextProvider] initialize called');
 
     const workspace = getFirstWorkspacePath();
@@ -168,7 +160,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
   }
 
-  private addToGitExclude(workspace: string): void {
+  private addToGitExclude(workspace: string) {
     const excludePath = path.join(workspace, '.git', 'info', 'exclude');
     if (!fs.existsSync(excludePath)) return;
 
@@ -181,12 +173,13 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
         ? `${content}${ROOT_BRANCH_CONTEXT_FILE_NAME}\n`
         : `${content}\n${ROOT_BRANCH_CONTEXT_FILE_NAME}\n`;
       fs.writeFileSync(excludePath, newContent);
-    } catch (error) {
-      logger.error(`Failed to update .git/info/exclude: ${error}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error(`Failed to update .git/info/exclude: ${message}`);
     }
   }
 
-  setBranch(branchName: string, shouldRefresh = true): void {
+  setBranch(branchName: string, shouldRefresh = true) {
     logger.info(`[BranchContextProvider] setBranch called: ${branchName} (current: ${this.currentBranch})`);
 
     if (branchName !== this.currentBranch) {
@@ -198,105 +191,17 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
   }
 
-  private debouncedSync(syncFn: () => void): void {
-    if (this.syncDebounceTimer) {
-      clearTimeout(this.syncDebounceTimer);
-    }
-
-    this.syncDebounceTimer = setTimeout(() => {
-      syncFn();
-      this.refresh();
-      this.syncDebounceTimer = null;
-    }, SYNC_DEBOUNCE_MS);
-  }
-
-  private syncRootToBranch(): void {
-    if (!this.currentBranch) {
-      return;
-    }
-
-    if (this.lastSyncDirection === 'root-to-branch') {
-      this.lastSyncDirection = null;
-      return;
-    }
-
-    const workspace = getFirstWorkspacePath();
-    if (!workspace) return;
-
-    const rootPath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
-    const branchPath = getBranchContextFilePathUtil(workspace, this.currentBranch);
-
-    if (!fs.existsSync(rootPath)) {
-      return;
-    }
-
-    this.isSyncing = true;
-    this.lastSyncDirection = 'root-to-branch';
-
-    try {
-      const content = fs.readFileSync(rootPath, 'utf-8');
-      fs.writeFileSync(branchPath, content, 'utf-8');
-    } catch (error) {
-      logger.error(`Error syncing root to branch: ${error}`);
-    } finally {
-      setTimeout(() => {
-        this.isSyncing = false;
-        setTimeout(() => {
-          this.lastSyncDirection = null;
-        }, 300);
-      }, 200);
-    }
-  }
-
-  private syncBranchToRoot(): void {
-    if (!this.currentBranch) {
-      return;
-    }
-
-    if (this.lastSyncDirection === 'branch-to-root') {
-      this.lastSyncDirection = null;
-      return;
-    }
-
-    const workspace = getFirstWorkspacePath();
-    if (!workspace) return;
-
-    const rootPath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
-    const branchPath = getBranchContextFilePathUtil(workspace, this.currentBranch);
-
-    if (!fs.existsSync(branchPath)) {
-      return;
-    }
-
-    this.isSyncing = true;
-    this.lastSyncDirection = 'branch-to-root';
-
-    try {
-      const content = fs.readFileSync(branchPath, 'utf-8');
-      fs.writeFileSync(rootPath, content, 'utf-8');
-    } catch (error) {
-      logger.error(`Error syncing branch to root: ${error}`);
-    } finally {
-      setTimeout(() => {
-        this.isSyncing = false;
-        setTimeout(() => {
-          this.lastSyncDirection = null;
-        }, 300);
-      }, 200);
-    }
-  }
-
-  refresh(): void {
+  refresh() {
     void setContextKey(ContextKey.BranchContextHideEmptySections, branchContextState.getHideEmptySections());
     this.updateDescription();
     this._onDidChangeTreeData.fire(undefined);
   }
 
-  getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
+  getTreeItem(element: TreeItem): TreeItem {
     return element;
   }
 
-  async getChildren(element?: vscode.TreeItem): Promise<vscode.TreeItem[]> {
+  async getChildren(element?: TreeItem): Promise<TreeItem[]> {
     if (element) return [];
 
     const workspace = getFirstWorkspacePath();
@@ -311,11 +216,11 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
 
     const context = loadBranchContext(this.currentBranch);
-    const config = this.loadConfig(workspace);
+    const config = this.helpers.loadConfig(workspace);
     const hideEmpty = branchContextState.getHideEmptySections();
     const showChangedFiles = config?.branchContext?.builtinSections?.changedFiles ?? true;
 
-    const registry = this.getSectionRegistry(workspace, config ?? undefined, showChangedFiles);
+    const registry = this.helpers.getSectionRegistry(workspace, config ?? undefined, showChangedFiles);
 
     const changedFilesSectionMetadata = context.metadata?.sections?.[SECTION_NAME_CHANGED_FILES];
     let changedFilesValue = BRANCH_CONTEXT_NO_CHANGES;
@@ -329,7 +234,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     }
 
     const markdownPath = getBranchContextFilePathUtil(workspace, this.currentBranch);
-    const syncContext: SyncContext = {
+    const syncContext = {
       branchName: this.currentBranch,
       workspacePath: workspace,
       markdownPath,
@@ -338,12 +243,18 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     const taskStats = await this.taskProvider.getTaskStats(syncContext);
     const tasksValue = taskStats.total > 0 ? `${taskStats.completed}/${taskStats.total}` : undefined;
 
-    const items: vscode.TreeItem[] = [];
+    const items: TreeItem[] = [];
     for (const section of registry.getAllSections()) {
-      const value = this.getSectionValue(context, section.name, this.currentBranch, changedFilesValue, tasksValue);
+      const value = this.helpers.getSectionValue({
+        context,
+        sectionName: section.name,
+        currentBranch: this.currentBranch,
+        changedFilesValue,
+        tasksValue,
+      });
       const sectionMetadata = context.metadata?.sections?.[section.name];
 
-      if (hideEmpty && this.isSectionEmpty(value, section.type, sectionMetadata)) {
+      if (hideEmpty && this.helpers.isSectionEmpty(value, section.type, sectionMetadata)) {
         continue;
       }
 
@@ -353,72 +264,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     return items;
   }
 
-  private isSectionEmpty(value: string | undefined, sectionType: string, metadata?: Record<string, unknown>): boolean {
-    if (sectionType === 'auto') {
-      if (metadata && metadata[METADATA_FIELD_IS_EMPTY] === true) return true;
-      return false;
-    }
-
-    if (!value) return true;
-    const trimmed = value.trim();
-    if (trimmed === '' || trimmed === BRANCH_CONTEXT_NA) return true;
-    return false;
-  }
-
-  private getSectionValue(
-    context: Record<string, unknown>,
-    sectionName: string,
-    currentBranch: string,
-    changedFilesValue?: string,
-    tasksValue?: string,
-  ): string | undefined {
-    const valueMap: Record<string, string | undefined> = {
-      [SECTION_NAME_BRANCH]: currentBranch,
-      [SECTION_NAME_PR_LINK]: context.prLink as string | undefined,
-      [SECTION_NAME_LINEAR_LINK]: context.linearLink as string | undefined,
-      [SECTION_NAME_OBJECTIVE]: context.objective as string | undefined,
-      [SECTION_NAME_REQUIREMENTS]: context.requirements as string | undefined,
-      [SECTION_NAME_NOTES]: context.notes as string | undefined,
-      [SECTION_NAME_TASKS]: tasksValue,
-      [SECTION_NAME_CHANGED_FILES]: changedFilesValue,
-    };
-
-    if (sectionName in valueMap) {
-      return valueMap[sectionName];
-    }
-
-    const value = context[sectionName];
-    return typeof value === 'string' ? value : undefined;
-  }
-
-  private loadConfig(workspace: string): DevPanelConfig | null {
-    const cached = this.configCache.get(workspace);
-    if (cached !== undefined) {
-      return cached;
-    }
-
-    const config = loadWorkspaceConfigFromPath(workspace);
-    this.configCache.set(workspace, config);
-    return config;
-  }
-
-  private getSectionRegistry(
-    workspace: string,
-    config?: DevPanelConfig,
-    showChangedFiles: boolean | { provider: string } = true,
-  ): SectionRegistry {
-    const configHash = config ? JSON.stringify(config.branchContext) : '';
-
-    if (this.sectionRegistryCache && this.configHashCache === configHash) {
-      return this.sectionRegistryCache;
-    }
-
-    this.sectionRegistryCache = new SectionRegistry(workspace, config?.branchContext, showChangedFiles);
-    this.configHashCache = configHash;
-    return this.sectionRegistryCache;
-  }
-
-  async editField(_branchName: string, sectionName: string, _currentValue: string | undefined): Promise<void> {
+  async editField(_branchName: string, sectionName: string, _currentValue: string | undefined) {
     const lineKeyMap: Record<string, string> = {
       [SECTION_NAME_BRANCH]: SECTION_NAME_BRANCH_INFO,
       [SECTION_NAME_PR_LINK]: SECTION_NAME_BRANCH_INFO,
@@ -432,182 +278,41 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     await this.openMarkdownFileAtLine(lineKey);
   }
 
-  async openMarkdownFile(): Promise<void> {
+  async openMarkdownFile() {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     const filePath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
     const uri = vscode.Uri.file(filePath);
-    await vscode.window.showTextDocument(uri);
+    await VscodeHelper.openDocument(uri);
   }
 
-  async openMarkdownFileAtLine(fieldName: string): Promise<void> {
+  async openMarkdownFileAtLine(fieldName: string) {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     const filePath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
     const lineNumber = getFieldLineNumber(filePath, fieldName);
     const uri = vscode.Uri.file(filePath);
-    const doc = await vscode.workspace.openTextDocument(uri);
-    await vscode.window.showTextDocument(doc, {
-      selection: new vscode.Range(lineNumber, 0, lineNumber, 0),
-    });
+    await VscodeHelper.openDocumentAtLine(uri, lineNumber);
   }
 
-  async syncBranchContext(): Promise<void> {
-    const startTime = Date.now();
-    logger.info(`[syncBranchContext] START for branch: ${this.currentBranch}`);
-
-    if (!this.currentBranch) {
-      logger.warn('[syncBranchContext] No current branch, skipping');
-      return;
-    }
-
+  async syncBranchContext() {
     const workspace = getFirstWorkspacePath();
-    if (!workspace) {
-      logger.warn('[syncBranchContext] No workspace, skipping');
-      return;
-    }
-
-    if (!configDirExists(workspace)) {
+    if (!workspace || !configDirExists(workspace)) {
       logger.info('[syncBranchContext] No config directory, skipping');
       return;
     }
 
-    logger.info(`[syncBranchContext] Loading context (+${Date.now() - startTime}ms)`);
-    const context = loadBranchContext(this.currentBranch);
-    const config = this.loadConfig(workspace);
-    this.isWritingMarkdown = true;
-    extensionStore.set(StoreKey.IsWritingBranchContext, true);
-
-    try {
-      const syncContext: SyncContext = {
-        branchName: this.currentBranch,
-        workspacePath: workspace,
-        markdownPath: getBranchContextFilePathUtil(workspace, this.currentBranch),
-        branchContext: context,
-      };
-
-      let changedFiles: string | undefined;
-      let changedFilesSectionMetadata: Record<string, unknown> | undefined;
-      const changedFilesConfig = config?.branchContext?.builtinSections?.changedFiles;
-
-      if (changedFilesConfig !== false) {
-        logger.info(`[syncBranchContext] Fetching changedFiles (+${Date.now() - startTime}ms)`);
-
-        if (typeof changedFilesConfig === 'object' && changedFilesConfig.provider) {
-          const registry = this.getSectionRegistry(workspace, config, changedFilesConfig);
-          const changedFilesSection = registry.get(SECTION_NAME_CHANGED_FILES);
-
-          if (changedFilesSection?.provider) {
-            logger.info(`[syncBranchContext] Using custom provider for changedFiles: ${changedFilesConfig.provider}`);
-            const data = await changedFilesSection.provider.fetch(syncContext);
-            changedFiles = data;
-
-            const metadataMatch = data.match(/<!--\s*SECTION_METADATA:\s*(.+?)\s*-->/);
-            if (metadataMatch) {
-              try {
-                changedFilesSectionMetadata = JSON.parse(metadataMatch[1]) as Record<string, unknown>;
-                changedFiles = data.replace(/<!--\s*SECTION_METADATA:.*?-->/g, '').trim();
-              } catch (error) {
-                logger.error(`Failed to parse changedFiles metadata: ${error}`);
-              }
-            }
-          }
-        } else {
-          const result = await getChangedFilesWithSummary(workspace, ChangedFilesStyle.List);
-          changedFiles = result.content;
-          changedFilesSectionMetadata = result.sectionMetadata;
-        }
-
-        logger.info(`[syncBranchContext] changedFiles done (+${Date.now() - startTime}ms)`);
-      }
-
-      const customAutoData: Record<string, string> = {};
-      if (config?.branchContext?.customSections) {
-        const registry = this.getSectionRegistry(workspace, config);
-        const autoSections = registry.getAutoSections();
-        logger.info(
-          `[syncBranchContext] Fetching ${autoSections.length} auto sections in PARALLEL (+${Date.now() - startTime}ms)`,
-        );
-
-        const fetchPromises = autoSections
-          .filter((section) => section.provider)
-          .map(async (section) => {
-            logger.info(`[syncBranchContext] Starting "${section.name}" (+${Date.now() - startTime}ms)`);
-            try {
-              const sectionContext: SyncContext = {
-                ...syncContext,
-                sectionOptions: section.options,
-              };
-              const data = await section.provider!.fetch(sectionContext);
-              logger.info(`[syncBranchContext] "${section.name}" done (+${Date.now() - startTime}ms)`);
-              return { name: section.name, data };
-            } catch (error) {
-              logger.error(`[syncBranchContext] "${section.name}" FAILED (+${Date.now() - startTime}ms): ${error}`);
-              return { name: section.name, data: `Error: ${error}` };
-            }
-          });
-
-        const results = await Promise.all(fetchPromises);
-        for (const { name, data } of results) {
-          customAutoData[name] = data;
-        }
-        logger.info(`[syncBranchContext] All auto sections done (+${Date.now() - startTime}ms)`);
-      }
-
-      logger.info(`[syncBranchContext] Generating markdown (+${Date.now() - startTime}ms)`);
-      const sectionMetadataMap: Record<string, Record<string, unknown>> = {};
-      if (changedFilesSectionMetadata) {
-        sectionMetadataMap[SECTION_NAME_CHANGED_FILES] = changedFilesSectionMetadata;
-      }
-
-      let lastCommitHash: string | undefined;
-      let lastCommitMessage: string | undefined;
-      try {
-        lastCommitHash = execSync(GIT_REV_PARSE_HEAD, { cwd: workspace, encoding: 'utf-8' }).trim();
-        lastCommitMessage = execSync(GIT_LOG_LAST_COMMIT_MESSAGE, { cwd: workspace, encoding: 'utf-8' }).trim();
-      } catch (error) {
-        logger.error(`Failed to get git commit info: ${error}`);
-      }
-
-      await generateBranchContextMarkdown(
-        this.currentBranch,
-        {
-          ...context,
-          changedFiles,
-          ...customAutoData,
-          metadata: {
-            lastSyncedTime: new Date().toISOString(),
-            lastCommitMessage,
-            lastCommitHash,
-          },
-        },
-        Object.keys(sectionMetadataMap).length > 0 ? sectionMetadataMap : undefined,
-      );
-
-      logger.info(`[syncBranchContext] Syncing to root (+${Date.now() - startTime}ms)`);
-      this.syncBranchToRoot();
-    } finally {
-      this.lastSyncTimestamp = new Date().toISOString();
-      this.refresh();
-      setTimeout(() => {
-        this.isWritingMarkdown = false;
-        extensionStore.set(StoreKey.IsWritingBranchContext, false);
-      }, WRITING_MARKDOWN_TIMEOUT_MS);
-      logger.info(`[syncBranchContext] END total time: ${Date.now() - startTime}ms`);
-    }
+    await this.syncManager.syncBranchContext();
   }
 
-  dispose(): void {
-    if (this.syncDebounceTimer) {
-      clearTimeout(this.syncDebounceTimer);
-      this.syncDebounceTimer = null;
-    }
+  dispose() {
     if (this.descriptionInterval) {
       clearInterval(this.descriptionInterval);
       this.descriptionInterval = null;
     }
     this.validationIndicator.dispose();
+    this.syncManager.dispose();
   }
 }

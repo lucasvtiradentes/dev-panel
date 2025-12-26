@@ -9,6 +9,8 @@ import {
 import { syncKeybindings } from '../common/lib/keybindings-sync';
 import { Command, registerCommand } from '../common/lib/vscode-utils';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
+import { ToastKind, VscodeHelper } from '../common/vscode/vscode-helper';
+import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
 import type { BranchContextProvider } from '../views/branch-context';
 import { validateBranchContext } from '../views/branch-context/config-validator';
@@ -18,60 +20,65 @@ import type { ReplacementsProvider } from '../views/replacements';
 import type { TaskTreeDataProvider } from '../views/tasks';
 import type { ToolTreeDataProvider } from '../views/tools';
 import type { VariablesProvider } from '../views/variables';
-import { createAddPromptCommand } from './internal/add-prompt';
-import { createAddToolCommand } from './internal/add-tool';
-import { createCopyPromptToGlobalCommand } from './internal/copy-prompt-to-global';
-import { createCopyPromptToWorkspaceCommand } from './internal/copy-prompt-to-workspace';
-import { createCopyTaskToGlobalCommand } from './internal/copy-task-to-global';
-import { createCopyTaskToWorkspaceCommand } from './internal/copy-task-to-workspace';
-import { createCopyToolToGlobalCommand } from './internal/copy-tool-to-global';
-import { createCopyToolToWorkspaceCommand } from './internal/copy-tool-to-workspace';
-import { createDeletePromptCommand } from './internal/delete-prompt';
-import { createDeleteTaskCommand } from './internal/delete-task';
-import { createDeleteToolCommand } from './internal/delete-tool';
-import { createEditBranchFieldsCommands } from './internal/edit-branch-fields';
+import { createEditBranchFieldsCommands } from './internal/branch-context/edit-branch-fields';
+import { createOpenBranchContextFileCommand } from './internal/branch-context/open-branch-context-file';
+import { createSyncBranchContextCommand } from './internal/branch-context/sync-branch-context';
+import { createToggleBranchContextHideEmptySectionsCommand } from './internal/branch-context/toggle-branch-context-hide-empty-sections';
+import { createToggleBranchTasksCommands } from './internal/branch-tasks/toggle-branch-tasks';
 import {
   createExecutePromptCommand,
   createExecuteTaskCommand,
   createExecuteToolCommand,
 } from './internal/execute-task';
-import { createGenerateToolsDocsCommand } from './internal/generate-tools-docs';
-import { createGoToPromptFileCommand } from './internal/go-to-prompt-file';
-import { createGoToReplacementTargetFileCommand } from './internal/go-to-replacement-target-file';
-import { createGoToTaskCommand } from './internal/go-to-task';
-import { createGoToToolFileCommand } from './internal/go-to-tool-file';
-import { createOpenBranchContextFileCommand } from './internal/open-branch-context-file';
-import { createOpenTasksConfigCommand } from './internal/open-tasks-config';
-import { createOpenVariablesConfigCommand } from './internal/open-variables-config';
-import { createRefreshCommand } from './internal/refresh';
-import { createResetConfigOptionCommand, createSelectConfigOptionCommand } from './internal/select-config-option';
+import { createAddPromptCommand } from './internal/prompts/add-prompt';
+import { createCopyPromptToGlobalCommand } from './internal/prompts/copy-prompt-to-global';
+import { createCopyPromptToWorkspaceCommand } from './internal/prompts/copy-prompt-to-workspace';
+import { createDeletePromptCommand } from './internal/prompts/delete-prompt';
+import { createGoToPromptFileCommand } from './internal/prompts/go-to-prompt-file';
+import { createRefreshPromptsCommand } from './internal/prompts/refresh-prompts';
 import {
   createOpenPromptsKeybindingsCommand,
   createSetPromptKeybindingCommand,
-} from './internal/set-prompt-keybinding';
-import { createOpenTasksKeybindingsCommand, createSetTaskKeybindingCommand } from './internal/set-task-keybinding';
-import {
-  createOpenVariablesKeybindingsCommand,
-  createSetVariableKeybindingCommand,
-} from './internal/set-variable-keybinding';
-import { createSwitchTaskSourceCommands } from './internal/switch-task-source';
-import { createSyncBranchContextCommand } from './internal/sync-branch-context';
+} from './internal/prompts/set-prompt-keybinding';
+import { createTogglePromptsViewCommands } from './internal/prompts/toggle-prompts-view';
+import { createGoToReplacementTargetFileCommand } from './internal/replacements/go-to-replacement-target-file';
 import {
   createToggleAllReplacementsActivateCommand,
   createToggleAllReplacementsDeactivateCommand,
-} from './internal/toggle-all-replacements';
-import { createToggleBranchContextHideEmptySectionsCommand } from './internal/toggle-branch-context-hide-empty-sections';
-import { createToggleBranchTasksCommands } from './internal/toggle-branch-tasks';
-import { createTogglePromptsViewCommands } from './internal/toggle-prompts-view';
-import { createToggleReplacementCommand } from './internal/toggle-replacement';
-import { createToggleReplacementsViewCommands } from './internal/toggle-replacements-view';
-import { createToggleTasksViewCommands } from './internal/toggle-tasks-view';
-import { createToggleToolsViewCommands } from './internal/toggle-tools-view';
-import { createToggleVariablesViewCommands } from './internal/toggle-variables-view';
+} from './internal/replacements/toggle-all-replacements';
+import { createToggleReplacementCommand } from './internal/replacements/toggle-replacement';
+import { createToggleReplacementsViewCommands } from './internal/replacements/toggle-replacements-view';
+import { createResetConfigOptionCommand, createSelectConfigOptionCommand } from './internal/select-config-option';
+import { createCopyTaskToGlobalCommand } from './internal/tasks/copy-task-to-global';
+import { createCopyTaskToWorkspaceCommand } from './internal/tasks/copy-task-to-workspace';
+import { createDeleteTaskCommand } from './internal/tasks/delete-task';
+import { createGoToTaskCommand } from './internal/tasks/go-to-task';
+import { createOpenTasksConfigCommand } from './internal/tasks/open-tasks-config';
+import { createRefreshCommand } from './internal/tasks/refresh-tasks';
+import {
+  createOpenTasksKeybindingsCommand,
+  createSetTaskKeybindingCommand,
+} from './internal/tasks/set-task-keybinding';
+import { createSwitchTaskSourceCommands } from './internal/tasks/switch-task-source';
+import { createToggleTasksViewCommands } from './internal/tasks/toggle-tasks-view';
+import { createAddToolCommand } from './internal/tools/add-tool';
+import { createCopyToolToGlobalCommand } from './internal/tools/copy-tool-to-global';
+import { createCopyToolToWorkspaceCommand } from './internal/tools/copy-tool-to-workspace';
+import { createDeleteToolCommand } from './internal/tools/delete-tool';
+import { createGenerateToolsDocsCommand } from './internal/tools/generate-tools-docs';
+import { createGoToToolFileCommand } from './internal/tools/go-to-tool-file';
+import { createRefreshToolsCommand } from './internal/tools/refresh-tools';
+import { createToggleToolsViewCommands } from './internal/tools/toggle-tools-view';
+import { createOpenVariablesConfigCommand } from './internal/variables/open-variables-config';
+import {
+  createOpenVariablesKeybindingsCommand,
+  createSetVariableKeybindingCommand,
+} from './internal/variables/set-variable-keybinding';
+import { createToggleVariablesViewCommands } from './internal/variables/toggle-variables-view';
 import { createShowLogsCommand } from './public/show-logs';
 
 export function registerAllCommands(options: {
-  context: vscode.ExtensionContext;
+  context: ExtensionContext;
   taskTreeDataProvider: TaskTreeDataProvider;
   toolTreeDataProvider: ToolTreeDataProvider;
   promptTreeDataProvider: PromptTreeDataProvider;
@@ -79,7 +86,7 @@ export function registerAllCommands(options: {
   replacementsProvider: ReplacementsProvider;
   branchContextProvider: BranchContextProvider;
   branchTasksProvider: BranchTasksProvider;
-}): vscode.Disposable[] {
+}): Disposable[] {
   const {
     context,
     taskTreeDataProvider,
@@ -110,6 +117,7 @@ export function registerAllCommands(options: {
     ...createToggleReplacementsViewCommands(replacementsProvider),
     createGoToReplacementTargetFileCommand(),
     ...createToggleToolsViewCommands(toolTreeDataProvider),
+    createRefreshToolsCommand(toolTreeDataProvider),
     createExecuteToolCommand(context),
     createGoToToolFileCommand(),
     createGenerateToolsDocsCommand(),
@@ -118,6 +126,7 @@ export function registerAllCommands(options: {
     createCopyToolToWorkspaceCommand(),
     createDeleteToolCommand(),
     ...createTogglePromptsViewCommands(promptTreeDataProvider),
+    createRefreshPromptsCommand(promptTreeDataProvider),
     createExecutePromptCommand(),
     createAddPromptCommand(),
     createCopyPromptToGlobalCommand(),
@@ -146,20 +155,20 @@ export function registerAllCommands(options: {
 
       const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
       if (!fs.existsSync(configPath)) {
-        await vscode.window.showInformationMessage('No config file found');
+        await VscodeHelper.showToastMessage(ToastKind.Info, 'No config file found');
         return;
       }
 
       const configContent = fs.readFileSync(configPath, 'utf-8');
       const config = parseConfig(configContent);
       if (!config) {
-        await vscode.window.showErrorMessage('Failed to parse config file');
+        await VscodeHelper.showToastMessage(ToastKind.Error, 'Failed to parse config file');
         return;
       }
       const issues = validateBranchContext(workspace, config.branchContext);
 
       if (issues.length === 0) {
-        await vscode.window.showInformationMessage('No validation issues found');
+        await VscodeHelper.showToastMessage(ToastKind.Info, 'No validation issues found');
         return;
       }
 
@@ -170,7 +179,7 @@ export function registerAllCommands(options: {
         issue,
       }));
 
-      const selected = await vscode.window.showQuickPick(items, {
+      const selected = await VscodeHelper.showQuickPickItems(items, {
         placeHolder: 'Select an issue to view details',
       });
 

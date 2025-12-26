@@ -1,11 +1,12 @@
 import * as fs from 'node:fs';
 import { getBranchContextTemplatePath, getConfigDirPathFromWorkspacePath } from '../../common/lib/config-manager';
+import { extensionStore } from '../../common/lib/extension-store';
 import { createLogger } from '../../common/lib/logger';
-import { DEFAULT_TEMPLATE } from './default-template';
+import { getDefaultTemplate } from '../_branch_base/storage/default-template';
 
 const logger = createLogger('TemplateInitializer');
 
-export function ensureTemplateExists(workspace: string): void {
+export function ensureTemplateExists(workspace: string) {
   const templatePath = getBranchContextTemplatePath(workspace);
 
   if (fs.existsSync(templatePath)) {
@@ -21,5 +22,7 @@ export function ensureTemplateExists(workspace: string): void {
   }
 
   logger.info(`[ensureTemplateExists] Creating default template at ${templatePath}`);
-  fs.writeFileSync(templatePath, DEFAULT_TEMPLATE, 'utf-8');
+  const extensionPath = extensionStore.getExtensionPath();
+  const defaultTemplate = getDefaultTemplate(extensionPath);
+  fs.writeFileSync(templatePath, defaultTemplate, 'utf-8');
 }

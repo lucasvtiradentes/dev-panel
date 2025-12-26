@@ -14,6 +14,8 @@ import { Command } from '../../common/lib/vscode-utils';
 import type { DevPanelConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
+import { VscodeIcons } from '../../common/vscode/vscode-icons';
+import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
@@ -47,8 +49,8 @@ export async function getDevPanelTasks(
 
     for (const folder of folders) {
       const tasks = readDevPanelTasks(folder);
-      for (const task of tasks) {
-        const treeTask = createDevPanelTask(task, folder, showHidden, showOnlyFavorites);
+      for (const taskItem of tasks) {
+        const treeTask = createDevPanelTask(taskItem, folder, showHidden, showOnlyFavorites);
         if (treeTask) taskElements.push(treeTask);
       }
     }
@@ -74,11 +76,11 @@ export async function getDevPanelTasks(
 
   for (const folder of folders) {
     const tasks = readDevPanelTasks(folder);
-    for (const task of tasks) {
-      const treeTask = createDevPanelTask(task, folder, showHidden, showOnlyFavorites);
+    for (const taskItem of tasks) {
+      const treeTask = createDevPanelTask(taskItem, folder, showHidden, showOnlyFavorites);
       if (!treeTask) continue;
 
-      const groupName = task.group ?? NO_GROUP_NAME;
+      const groupName = taskItem.group ?? NO_GROUP_NAME;
 
       if (!groups[groupName]) {
         groups[groupName] = new GroupTreeItem(groupName);
@@ -91,7 +93,7 @@ export async function getDevPanelTasks(
   return sortFn(taskElements);
 }
 
-function readDevPanelTasks(folder: vscode.WorkspaceFolder): NonNullable<DevPanelConfig['tasks']> {
+function readDevPanelTasks(folder: WorkspaceFolder): NonNullable<DevPanelConfig['tasks']> {
   const config = loadWorkspaceConfig(folder);
   return config?.tasks ?? [];
 }
@@ -103,7 +105,7 @@ function readGlobalTasks(): NonNullable<DevPanelConfig['tasks']> {
 
 function createDevPanelTask(
   task: NonNullable<DevPanelConfig['tasks']>[number],
-  folder: vscode.WorkspaceFolder,
+  folder: WorkspaceFolder,
   showHidden: boolean,
   showOnlyFavorites: boolean,
 ): TreeTask | null {
@@ -149,10 +151,10 @@ function createDevPanelTask(
   }
 
   if (hidden) {
-    treeTask.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+    treeTask.iconPath = VscodeIcons.HiddenItem;
     treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_HIDDEN;
   } else if (favorite) {
-    treeTask.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+    treeTask.iconPath = VscodeIcons.FavoriteItem;
     treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_FAVORITE;
   } else {
     treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL;
@@ -211,10 +213,10 @@ function createGlobalTask(
   }
 
   if (hidden) {
-    treeTask.iconPath = new vscode.ThemeIcon('eye-closed', new vscode.ThemeColor('disabledForeground'));
+    treeTask.iconPath = VscodeIcons.HiddenItem;
     treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_GLOBAL_HIDDEN;
   } else if (favorite) {
-    treeTask.iconPath = new vscode.ThemeIcon('heart-filled', new vscode.ThemeColor('charts.red'));
+    treeTask.iconPath = VscodeIcons.FavoriteItem;
     treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_GLOBAL_FAVORITE;
   } else {
     treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_GLOBAL;

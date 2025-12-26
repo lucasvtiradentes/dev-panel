@@ -13,8 +13,12 @@ import {
 } from '../../common/constants';
 import { getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
-import type { DevPanelConfig, DevPanelReplacement } from '../../common/schemas/config-schema';
+import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
+import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
+import { VscodeIcons } from '../../common/vscode/vscode-icons';
+import type { TreeItem } from '../../common/vscode/vscode-types';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { fileExistsInGit, getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
 import {
@@ -27,12 +31,16 @@ import {
   setLastBranch,
 } from './state';
 
-type PatchItem = {
-  search: string[];
-  replace: string[];
+type NormalizedPatchReplacement = {
+  type: 'patch';
+  name: string;
+  target: string;
+  description?: string;
+  group?: string;
+  patches: NormalizedPatchItem[];
 };
 
-function normalizePatchItem(item: { search: unknown; replace: unknown }): PatchItem {
+function normalizePatchItem(item: { search: unknown; replace: unknown }): NormalizedPatchItem {
   const normalizeValue = (value: unknown): string[] => {
     if (Array.isArray(value)) return value;
     if (typeof value === 'string') return [value];
@@ -67,7 +75,7 @@ class ReplacementTreeItem extends vscode.TreeItem {
     this.contextValue = CONTEXT_VALUES.REPLACEMENT_ITEM;
 
     if (isActive) {
-      this.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.green'));
+      this.iconPath = VscodeIcons.ActiveItem;
     }
 
     this.command = {
@@ -80,8 +88,8 @@ class ReplacementTreeItem extends vscode.TreeItem {
 
 let providerInstance: ReplacementsProvider | null = null;
 
-export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
-  private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined>();
+export class ReplacementsProvider implements vscode.TreeDataProvider<TreeItem> {
+  private _onDidChangeTreeData = new vscode.EventEmitter<TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private _grouped: boolean;
@@ -93,12 +101,12 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     this.handleStartup();
   }
 
-  private updateContextKeys(): void {
+  private updateContextKeys() {
     void setContextKey(ContextKey.ReplacementsGrouped, this._grouped);
     this.updateAllActiveContext();
   }
 
-  private updateAllActiveContext(): void {
+  private updateAllActiveContext() {
     const config = this.loadConfig();
     if (!config?.replacements || config.replacements.length === 0) {
       void setContextKey(ContextKey.ReplacementsAllActive, false);
@@ -110,14 +118,14 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     void setContextKey(ContextKey.ReplacementsAllActive, allActive);
   }
 
-  toggleGroupMode(): void {
+  toggleGroupMode() {
     this._grouped = !this._grouped;
     saveIsGrouped(this._grouped);
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(undefined);
   }
 
-  private async handleStartup(): Promise<void> {
+  private async handleStartup() {
     const workspace = getFirstWorkspacePath();
     if (workspace && (await isGitRepository(workspace))) {
       const currentBranch = await getCurrentBranch(workspace);
@@ -126,7 +134,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     this.syncReplacementState();
   }
 
-  private syncReplacementState(): void {
+  private syncReplacementState() {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
@@ -143,24 +151,25 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     setActiveReplacements(activeReplacements);
   }
 
-  async handleBranchChange(currentBranch: string): Promise<void> {
+  handleBranchChange(currentBranch: string) {
     setLastBranch(currentBranch);
     this.syncReplacementState();
   }
 
-  dispose(): void {}
+  // tscanner-ignore-next-line no-empty-function
+  dispose() {}
 
-  refresh(): void {
+  refresh() {
     this.syncReplacementState();
     this.updateAllActiveContext();
     this._onDidChangeTreeData.fire(undefined);
   }
 
-  getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
+  getTreeItem(element: TreeItem): TreeItem {
     return element;
   }
 
-  getChildren(element?: vscode.TreeItem): Thenable<vscode.TreeItem[]> {
+  getChildren(element?: TreeItem): Thenable<TreeItem[]> {
     const config = this.loadConfig();
     if (!config?.replacements || config.replacements.length === 0) {
       return Promise.resolve([]);
@@ -193,7 +202,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
       }
     }
 
-    const items: vscode.TreeItem[] = [];
+    const items: TreeItem[] = [];
 
     for (const [groupName, replacements] of grouped) {
       items.push(new ReplacementGroupTreeItem(groupName, replacements));
@@ -210,12 +219,13 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     if (!fs.existsSync(configPath)) return null;
 
     const content = fs.readFileSync(configPath, 'utf-8');
-    const config = json5.parse(content) as DevPanelConfig;
+    const rawConfig = json5.parse(content);
+    const config = DevPanelConfigSchema.parse(rawConfig);
 
     if (config.replacements) {
       for (const replacement of config.replacements) {
         if (replacement.type === 'patch') {
-          (replacement as any).patches = replacement.patches.map(normalizePatchItem);
+          (replacement as unknown as NormalizedPatchReplacement).patches = replacement.patches.map(normalizePatchItem);
         }
       }
     }
@@ -223,7 +233,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     return config;
   }
 
-  async toggleReplacement(replacement: DevPanelReplacement): Promise<void> {
+  async toggleReplacement(replacement: DevPanelReplacement) {
     const activeReplacements = getActiveReplacements();
     const isActive = activeReplacements.includes(replacement.name);
 
@@ -236,22 +246,22 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     this.refresh();
   }
 
-  private async activateReplacement(replacement: DevPanelReplacement): Promise<void> {
+  private async activateReplacement(replacement: DevPanelReplacement) {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
     if (!(await isGitRepository(workspace))) {
-      vscode.window.showErrorMessage(ERROR_REPLACEMENTS_REQUIRE_GIT);
+      VscodeHelper.showToastMessage(ToastKind.Error, ERROR_REPLACEMENTS_REQUIRE_GIT);
       return;
     }
 
     if (replacement.type === 'patch' && !fileExists(workspace, replacement.target)) {
-      vscode.window.showErrorMessage(`${ERROR_TARGET_FILE_NOT_FOUND}: ${replacement.target}`);
+      VscodeHelper.showToastMessage(ToastKind.Error, `${ERROR_TARGET_FILE_NOT_FOUND}: ${replacement.target}`);
       return;
     }
 
     if (replacement.type === 'file' && !fileExists(workspace, replacement.source)) {
-      vscode.window.showErrorMessage(`${ERROR_SOURCE_FILE_NOT_FOUND}: ${replacement.source}`);
+      VscodeHelper.showToastMessage(ToastKind.Error, `${ERROR_SOURCE_FILE_NOT_FOUND}: ${replacement.source}`);
       return;
     }
 
@@ -263,13 +273,13 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     if (replacement.type === 'file') {
       applyFileReplacement(workspace, replacement.source, replacement.target);
     } else {
-      applyPatches(workspace, replacement.target, (replacement as any).patches);
+      applyPatches(workspace, replacement.target, (replacement as unknown as NormalizedPatchReplacement).patches);
     }
 
     addActiveReplacement(replacement.name);
   }
 
-  private async deactivateReplacement(replacement: DevPanelReplacement): Promise<void> {
+  private async deactivateReplacement(replacement: DevPanelReplacement) {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
@@ -290,7 +300,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     removeActiveReplacement(replacement.name);
   }
 
-  async toggleAllReplacements(): Promise<void> {
+  async toggleAllReplacements() {
     const config = this.loadConfig();
     if (!config?.replacements) return;
 
@@ -313,10 +323,10 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
   }
 }
 
-export async function toggleReplacement(replacement: DevPanelReplacement): Promise<void> {
+export async function toggleReplacement(replacement: DevPanelReplacement) {
   await providerInstance?.toggleReplacement(replacement);
 }
 
-export async function toggleAllReplacements(): Promise<void> {
+export async function toggleAllReplacements() {
   await providerInstance?.toggleAllReplacements();
 }

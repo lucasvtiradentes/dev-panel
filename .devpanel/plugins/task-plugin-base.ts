@@ -1,9 +1,9 @@
-import type { SyncResult, TaskMeta, TaskNode, TaskStatus } from '../../src/views/branch-context/providers/interfaces';
+import type { PluginAction, TaskStatus } from '../../src/common/schemas';
+import type { SyncResult, TaskMeta, TaskNode } from '../../src/views/branch-context/providers/interfaces';
 import type {
   CreateTaskResponse,
   DeleteTaskResponse,
   GetTasksResponse,
-  PluginAction,
   PluginRequest,
   SetStatusResponse,
   SyncResponse,
@@ -36,11 +36,11 @@ export function getAction(): PluginAction {
   return actionArg.split('=')[1] as PluginAction;
 }
 
-export function outputResponse(response: unknown): void {
+export function outputResponse(response: unknown) {
   console.log(JSON.stringify(response));
 }
 
-export async function runPlugin(handler: TaskPluginHandler): Promise<void> {
+export async function runPlugin(handler: TaskPluginHandler) {
   const action = getAction();
   const request = getPluginRequest();
 

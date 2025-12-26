@@ -4,17 +4,20 @@ import { logger } from '../../common/lib/logger';
 import { fetchRegistryIndex, getInstalledItems, getItemsForKind, installItem } from '../../common/lib/registry-service';
 import { type RegistryItemEntry, RegistryItemKind } from '../../common/schemas';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
+import { VscodeIcon } from '../../common/vscode/vscode-constants';
+import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
+import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
 
 type QuickPickItemWithId<T> = vscode.QuickPickItem & { id: T };
 
-const KIND_LABELS: Record<RegistryItemKind, { label: string; icon: string }> = {
-  [RegistryItemKind.Plugin]: { label: 'Plugins', icon: 'extensions' },
-  [RegistryItemKind.Prompt]: { label: 'Prompts', icon: 'comment-discussion' },
-  [RegistryItemKind.Tool]: { label: 'Tools', icon: 'tools' },
-  [RegistryItemKind.Script]: { label: 'Scripts', icon: 'terminal' },
+const KIND_LABELS: Record<RegistryItemKind, { label: string; icon: VscodeIcon }> = {
+  [RegistryItemKind.Plugin]: { label: 'Plugins', icon: VscodeIcon.Extensions },
+  [RegistryItemKind.Prompt]: { label: 'Prompts', icon: VscodeIcon.CommentDiscussion },
+  [RegistryItemKind.Tool]: { label: 'Tools', icon: VscodeIcon.Tools },
+  [RegistryItemKind.Script]: { label: 'Scripts', icon: VscodeIcon.Terminal },
 };
 
-export async function showRegistryMenu(): Promise<void> {
+export async function showRegistryMenu() {
   const workspaceFolder = requireWorkspaceFolder();
   if (!workspaceFolder) return;
 
@@ -26,7 +29,7 @@ export async function showRegistryMenu(): Promise<void> {
     }),
   );
 
-  const selectedKind = await vscode.window.showQuickPick(kindItems, {
+  const selectedKind = await VscodeHelper.showQuickPickItems(kindItems, {
     placeHolder: 'Select category to browse',
     ignoreFocusOut: false,
   });
@@ -36,10 +39,10 @@ export async function showRegistryMenu(): Promise<void> {
   await showItemsForKind(workspaceFolder, selectedKind.id);
 }
 
-async function showItemsForKind(workspaceFolder: vscode.WorkspaceFolder, kind: RegistryItemKind): Promise<void> {
+async function showItemsForKind(workspaceFolder: WorkspaceFolder, kind: RegistryItemKind) {
   const kindLabel = KIND_LABELS[kind].label;
 
-  await vscode.window.withProgress(
+  await VscodeHelper.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
       title: `Fetching ${kindLabel.toLowerCase()} from registry...`,
@@ -51,7 +54,7 @@ async function showItemsForKind(workspaceFolder: vscode.WorkspaceFolder, kind: R
         const items = getItemsForKind(index, kind);
 
         if (items.length === 0) {
-          void vscode.window.showInformationMessage(`No ${kindLabel.toLowerCase()} available in registry`);
+          void VscodeHelper.showToastMessage(ToastKind.Info, `No ${kindLabel.toLowerCase()} available in registry`);
           return;
         }
 
@@ -74,7 +77,7 @@ async function showItemsForKind(workspaceFolder: vscode.WorkspaceFolder, kind: R
           detail: 'Return to category selection',
         });
 
-        const selected = await vscode.window.showQuickPick(quickPickItems, {
+        const selected = await VscodeHelper.showQuickPickItems(quickPickItems, {
           placeHolder: `Select ${kindLabel.toLowerCase()} to install`,
           ignoreFocusOut: false,
           canPickMany: true,
@@ -94,20 +97,16 @@ async function showItemsForKind(workspaceFolder: vscode.WorkspaceFolder, kind: R
         await installItems(workspaceFolder, kind, itemsToInstall);
       } catch (error) {
         logger.error(`Failed to fetch registry: ${error}`);
-        void vscode.window.showErrorMessage(`Failed to fetch registry: ${error}`);
+        void VscodeHelper.showToastMessage(ToastKind.Error, `Failed to fetch registry: ${error}`);
       }
     },
   );
 }
 
-async function installItems(
-  workspaceFolder: vscode.WorkspaceFolder,
-  kind: RegistryItemKind,
-  items: RegistryItemEntry[],
-): Promise<void> {
+async function installItems(workspaceFolder: WorkspaceFolder, kind: RegistryItemKind, items: RegistryItemEntry[]) {
   const kindLabel = KIND_LABELS[kind].label.toLowerCase();
 
-  await vscode.window.withProgress(
+  await VscodeHelper.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
       title: `Installing ${items.length} ${kindLabel}...`,
@@ -129,7 +128,8 @@ async function installItems(
         } catch (error) {
           logger.error(`Failed to install ${item.name}: ${error}`);
 
-          const overwrite = await vscode.window.showWarningMessage(
+          const overwrite = await VscodeHelper.showToastMessage(
+            ToastKind.Warning,
             `"${item.name}" already exists. Overwrite?`,
             'Overwrite',
             'Skip',
@@ -149,7 +149,8 @@ async function installItems(
       }
 
       if (installed > 0) {
-        void vscode.window.showInformationMessage(
+        void VscodeHelper.showToastMessage(
+          ToastKind.Info,
           `${EXTENSION_DISPLAY_NAME}: Installed ${installed} ${kindLabel}${failed > 0 ? ` (${failed} failed)` : ''}`,
         );
       }

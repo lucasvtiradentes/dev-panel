@@ -4,7 +4,9 @@ import * as vscode from 'vscode';
 import { CONTEXT_VALUES, NO_GROUP_NAME, VSCODE_TASKS_PATH } from '../../common/constants';
 import { isMultiRootWorkspace } from '../../common/lib/vscode-utils';
 import type { CodeWorkspaceFile, TaskDefinition, TasksJson } from '../../common/schemas/types';
-import { BaseGroupTreeItem } from '../common';
+import { VscodeIcons } from '../../common/vscode/vscode-icons';
+import type { Command, TreeItemCollapsibleState, WorkspaceFolder } from '../../common/vscode/vscode-types';
+import { BaseGroupTreeItem } from '../_view_base';
 
 function loadCodeWorkspace(filePath: string): CodeWorkspaceFile | null {
   if (!fs.existsSync(filePath)) return null;
@@ -33,7 +35,7 @@ export class WorkspaceTreeItem extends vscode.TreeItem {
     super(label, vscode.TreeItemCollapsibleState.Expanded);
   }
 
-  public addChildren(child: TreeTask): void {
+  public addChildren(child: TreeTask) {
     const groupName = child.group ?? NO_GROUP_NAME;
     if (this.childrenObject[groupName] === undefined) {
       const group = new GroupTreeItem(groupName);
@@ -57,9 +59,9 @@ export class TreeTask extends vscode.TreeItem {
   constructor(
     type: string,
     label: string,
-    collapsibleState: vscode.TreeItemCollapsibleState,
-    command?: vscode.Command,
-    workspace?: vscode.WorkspaceFolder | vscode.TaskScope,
+    collapsibleState: TreeItemCollapsibleState,
+    command?: Command,
+    workspace?: WorkspaceFolder | vscode.TaskScope,
     group?: string,
   ) {
     super(label, collapsibleState);
@@ -83,13 +85,13 @@ export class TreeTask extends vscode.TreeItem {
     return this.taskName;
   }
 
-  setFavorite(isFavorite: boolean): void {
+  setFavorite(isFavorite: boolean) {
     if (isFavorite) {
-      this.iconPath = new vscode.ThemeIcon('circle-filled', new vscode.ThemeColor('charts.red'));
+      this.iconPath = VscodeIcons.FavoriteItem;
     }
   }
 
-  private loadTaskMetadata(): void {
+  private loadTaskMetadata() {
     const multiRoot = isMultiRootWorkspace();
     const workspaceFolders = vscode.workspace.workspaceFolders;
 
@@ -107,7 +109,7 @@ export class TreeTask extends vscode.TreeItem {
     }
   }
 
-  private loadTasksJsonForWorkspace(workspaceFolder: vscode.WorkspaceFolder, multiRoot: boolean): TasksJson | null {
+  private loadTasksJsonForWorkspace(workspaceFolder: WorkspaceFolder, multiRoot: boolean): TasksJson | null {
     const basePath = workspaceFolder.uri.fsPath;
     const codeWorkspacePath = `${basePath}/${workspaceFolder.name}.code-workspace`;
     const tasksJsonPath = `${basePath}/${VSCODE_TASKS_PATH}`;
@@ -129,7 +131,7 @@ export class TreeTask extends vscode.TreeItem {
     return loadTasksJson(tasksJsonPath);
   }
 
-  private applyTaskDefinition(taskDef: TaskDefinition): void {
+  private applyTaskDefinition(taskDef: TaskDefinition) {
     this.hide = taskDef.hide ?? false;
   }
 }

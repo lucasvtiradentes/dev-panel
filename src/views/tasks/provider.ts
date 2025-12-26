@@ -4,7 +4,8 @@ import { ExtensionConfigKey, getExtensionConfig } from '../../common/lib/extensi
 import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { tasksState } from '../../common/lib/workspace-state';
 import { TASK_SOURCES, TaskSource } from '../../common/schemas/types';
-import { createSourcedDragAndDropController } from '../common';
+import type { Event, EventEmitter, ExtensionContext, TreeItem, TreeView } from '../../common/vscode/vscode-types';
+import { createSourcedDragAndDropController } from '../_view_base';
 import { getDevPanelTasks, hasDevPanelGroups } from './devpanel-tasks';
 import { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
 import { getPackageScripts, hasPackageGroups } from './package-json';
@@ -26,19 +27,18 @@ import {
 import { getVSCodeTasks, hasVSCodeGroups } from './vscode-tasks';
 
 export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | GroupTreeItem | WorkspaceTreeItem> {
-  private readonly _onDidChangeTreeData: vscode.EventEmitter<TreeTask | null> =
-    new vscode.EventEmitter<TreeTask | null>();
+  private readonly _onDidChangeTreeData: EventEmitter<TreeTask | null> = new vscode.EventEmitter<TreeTask | null>();
 
-  readonly onDidChangeTreeData: vscode.Event<TreeTask | null> = this._onDidChangeTreeData.event;
+  readonly onDidChangeTreeData: Event<TreeTask | null> = this._onDidChangeTreeData.event;
 
   private readonly autoRefresh: boolean;
   private _source: TaskSource;
   private _grouped: boolean;
   private _showHidden: boolean;
   private _showOnlyFavorites: boolean;
-  private _treeView: vscode.TreeView<TreeTask | GroupTreeItem | WorkspaceTreeItem> | null = null;
+  private _treeView: TreeView<TreeTask | GroupTreeItem | WorkspaceTreeItem> | null = null;
 
-  constructor(_context: vscode.ExtensionContext) {
+  constructor(_context: ExtensionContext) {
     this.autoRefresh = getExtensionConfig(ExtensionConfigKey.AutoRefresh);
     this._source = getCurrentSource();
     this._grouped = getIsGrouped();
@@ -47,17 +47,17 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     this.updateContextKeys();
   }
 
-  setTreeView(treeView: vscode.TreeView<TreeTask | GroupTreeItem | WorkspaceTreeItem>): void {
+  setTreeView(treeView: TreeView<TreeTask | GroupTreeItem | WorkspaceTreeItem>) {
     this._treeView = treeView;
     this.updateViewTitle();
   }
 
-  refresh(): void {
+  refresh() {
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
   }
 
-  switchSource(): void {
+  switchSource() {
     const currentIndex = TASK_SOURCES.findIndex((s) => s.id === this._source);
     const nextIndex = (currentIndex + 1) % TASK_SOURCES.length;
     const nextSource = TASK_SOURCES[nextIndex];
@@ -71,7 +71,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     this._onDidChangeTreeData.fire(null);
   }
 
-  private updateViewTitle(): void {
+  private updateViewTitle() {
     if (!this._treeView) return;
     const source = TASK_SOURCES.find((s) => s.id === this._source);
     if (source) {
@@ -90,7 +90,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     }
   }
 
-  private async updateContextKeys(): Promise<void> {
+  private async updateContextKeys() {
     const hiddenItems = getHiddenItems(this._source);
     const favoriteItems = getFavoriteItems(this._source);
     const hasGroups = await this.checkHasGroups();
@@ -105,28 +105,28 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     void setContextKey(ContextKey.TasksShowOnlyFavorites, this._showOnlyFavorites);
   }
 
-  toggleGroupMode(): void {
+  toggleGroupMode() {
     this._grouped = !this._grouped;
     saveIsGrouped(this._grouped);
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
   }
 
-  toggleShowHidden(): void {
+  toggleShowHidden() {
     this._showHidden = !this._showHidden;
     saveShowHidden(this._source, this._showHidden);
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
   }
 
-  toggleShowOnlyFavorites(): void {
+  toggleShowOnlyFavorites() {
     this._showOnlyFavorites = !this._showOnlyFavorites;
     saveShowOnlyFavorites(this._source, this._showOnlyFavorites);
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
   }
 
-  toggleFavorite(item: TreeTask): void {
+  toggleFavorite(item: TreeTask) {
     if (item?.taskName) {
       toggleFavoriteState(this._source, item.taskName);
       this.updateContextKeys();
@@ -134,7 +134,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     }
   }
 
-  toggleHide(item: TreeTask): void {
+  toggleHide(item: TreeTask) {
     if (item?.taskName) {
       toggleHidden(this._source, item.taskName);
       this.updateContextKeys();
@@ -221,9 +221,10 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     }
   }
 
-  getTreeItem(task: TreeTask | WorkspaceTreeItem | GroupTreeItem): vscode.TreeItem {
+  getTreeItem(task: TreeTask | WorkspaceTreeItem | GroupTreeItem): TreeItem {
     return task;
   }
 
-  dispose(): void {}
+  // tscanner-ignore-next-line no-empty-function
+  dispose() {}
 }

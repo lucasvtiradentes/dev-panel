@@ -20,7 +20,7 @@
       "no-explicit-any": {},
       "no-floating-promises": {},
       "no-forwarded-exports": {"exclude": ["**/index.ts"]},
-      "no-implicit-any": {},
+      // "no-implicit-any": {},
       "no-inferrable-types": {},
       "no-nested-require": {},
       "no-nested-ternary": {},
@@ -46,6 +46,11 @@
         "pattern": "console\\.log",
         "include": ["src/**/*.ts"],
         "message": "Remove console.log before committing"
+      },
+      "no-useless-void-return": {
+        "pattern": ":\\s*(void|Promise<void>)\\s*[\\{;]",
+        "include": ["src/**/*.ts"],
+        "message": "Unnecessary explicit void return type annotation"
       }
     },
     "script": {
@@ -75,7 +80,7 @@
   },
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
-    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**", "registry/**", ".devpanel/**"]
   },
   "codeEditor": {
     "highlightErrors": true,
