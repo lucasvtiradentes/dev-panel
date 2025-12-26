@@ -75,7 +75,7 @@ export function createBranchTaskCommands(provider: BranchTasksProvider): Disposa
 
     registerCommand(Command.SetTaskAssignee, async (item: ItemOrLineIndex) => {
       const lineIndex = extractLineIndex(item);
-      const assignee = await vscode.window.showInputBox({
+      const assignee = await VscodeHelper.showInputBox({
         prompt: 'Enter assignee name',
         placeHolder: 'e.g., lucas',
       });
@@ -85,7 +85,7 @@ export function createBranchTaskCommands(provider: BranchTasksProvider): Disposa
 
     registerCommand(Command.SetTaskDueDate, async (item: ItemOrLineIndex) => {
       const lineIndex = extractLineIndex(item);
-      const dueDate = await vscode.window.showInputBox({
+      const dueDate = await VscodeHelper.showInputBox({
         prompt: 'Enter due date (YYYY-MM-DD)',
         placeHolder: 'e.g., 2025-01-15',
         validateInput: (value) => {
@@ -102,7 +102,7 @@ export function createBranchTaskCommands(provider: BranchTasksProvider): Disposa
 
     registerCommand(Command.AddSubtask, async (item: ItemOrLineIndex) => {
       const lineIndex = extractLineIndex(item);
-      const text = await vscode.window.showInputBox({
+      const text = await VscodeHelper.showInputBox({
         prompt: 'Enter subtask text',
         placeHolder: 'New subtask',
       });
@@ -115,7 +115,7 @@ export function createBranchTaskCommands(provider: BranchTasksProvider): Disposa
       const node = provider.findNodeByLineIndex(lineIndex);
       if (!node) return;
 
-      const text = await vscode.window.showInputBox({
+      const text = await VscodeHelper.showInputBox({
         prompt: 'Edit task text',
         value: node.text,
       });
@@ -169,14 +169,14 @@ export function createBranchTaskCommands(provider: BranchTasksProvider): Disposa
         }
       }
 
-      const picked = await vscode.window.showQuickPick(items, {
+      const picked = await VscodeHelper.showQuickPickItems(items, {
         placeHolder: 'Move to milestone',
       });
 
       if (picked === undefined) return;
 
       if (picked.value === NEW_MILESTONE) {
-        const name = await vscode.window.showInputBox({
+        const name = await VscodeHelper.showInputBox({
           prompt: 'Enter milestone name',
           placeHolder: 'e.g., Sprint 1',
         });
@@ -199,7 +199,7 @@ async function pickStatus(): Promise<TaskStatus | undefined> {
     { label: '$(error) Blocked', description: 'Blocked by something' },
   ];
 
-  const picked = await vscode.window.showQuickPick(items, {
+  const picked = await VscodeHelper.showQuickPickItems(items, {
     placeHolder: 'Select status',
   });
 
@@ -224,7 +224,7 @@ async function pickPriority(): Promise<TaskPriority | undefined> {
     { label: '○ None', description: 'No priority' },
   ];
 
-  const picked = await vscode.window.showQuickPick(items, {
+  const picked = await VscodeHelper.showQuickPickItems(items, {
     placeHolder: 'Select priority',
   });
 

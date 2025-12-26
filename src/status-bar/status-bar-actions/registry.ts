@@ -29,7 +29,7 @@ export async function showRegistryMenu() {
     }),
   );
 
-  const selectedKind = await vscode.window.showQuickPick(kindItems, {
+  const selectedKind = await VscodeHelper.showQuickPickItems(kindItems, {
     placeHolder: 'Select category to browse',
     ignoreFocusOut: false,
   });
@@ -77,7 +77,7 @@ async function showItemsForKind(workspaceFolder: WorkspaceFolder, kind: Registry
           detail: 'Return to category selection',
         });
 
-        const selected = await vscode.window.showQuickPick(quickPickItems, {
+        const selected = await VscodeHelper.showQuickPickItems(quickPickItems, {
           placeHolder: `Select ${kindLabel.toLowerCase()} to install`,
           ignoreFocusOut: false,
           canPickMany: true,

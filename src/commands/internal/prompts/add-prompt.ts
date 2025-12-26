@@ -21,7 +21,7 @@ async function handleAddPrompt() {
   const workspaceFolder = requireWorkspaceFolder();
   if (!workspaceFolder) return;
 
-  const name = await vscode.window.showInputBox({
+  const name = await VscodeHelper.showInputBox({
     prompt: 'Prompt name (used as identifier)',
     placeHolder: 'My Prompt',
     validateInput: (value) => {
@@ -32,7 +32,7 @@ async function handleAddPrompt() {
 
   if (!name) return;
 
-  const fileName = await vscode.window.showInputBox({
+  const fileName = await VscodeHelper.showInputBox({
     prompt: 'File name (without extension)',
     placeHolder: name,
     value: name,
@@ -45,12 +45,12 @@ async function handleAddPrompt() {
 
   if (!fileName) return;
 
-  const description = await vscode.window.showInputBox({
+  const description = await VscodeHelper.showInputBox({
     prompt: 'Description (optional)',
     placeHolder: 'What does this prompt do?',
   });
 
-  const group = await vscode.window.showInputBox({
+  const group = await VscodeHelper.showInputBox({
     prompt: 'Group name (optional)',
     placeHolder: 'Development',
   });

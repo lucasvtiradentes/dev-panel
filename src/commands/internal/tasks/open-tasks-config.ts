@@ -122,7 +122,7 @@ export function createOpenTasksConfigCommand() {
             path: pkgPath,
           }));
 
-          const selected = await vscode.window.showQuickPick(items, {
+          const selected = await VscodeHelper.showQuickPickItems(items, {
             placeHolder: `Select ${PACKAGE_JSON} to open`,
           });
 

@@ -232,7 +232,7 @@ export async function selectVariableOption(variable: DevPanelVariable) {
           label: opt,
           picked: currentValue.includes(opt),
         }));
-        const selected = await vscode.window.showQuickPick(items, {
+        const selected = await VscodeHelper.showQuickPickItems(items, {
           canPickMany: true,
           placeHolder: `Select ${variable.name}`,
         });
@@ -241,7 +241,7 @@ export async function selectVariableOption(variable: DevPanelVariable) {
         break;
       }
 
-      const selected = await vscode.window.showQuickPick(variable.options || [], {
+      const selected = await VscodeHelper.showQuickPick(variable.options || [], {
         placeHolder: `Select ${variable.name}`,
       });
       if (!selected) return;
@@ -252,7 +252,7 @@ export async function selectVariableOption(variable: DevPanelVariable) {
     case VariableKind.Input: {
       const currentValue = state[variable.name] as string | undefined;
       const defaultValue = variable.default as string | undefined;
-      const input = await vscode.window.showInputBox({
+      const input = await VscodeHelper.showInputBox({
         prompt: variable.description || `Enter value for ${variable.name}`,
         value: currentValue || defaultValue || '',
         placeHolder: `Enter ${variable.name}`,

@@ -125,7 +125,7 @@ async function showFolderPicker(workspaceRoot: Uri, currentPath: string): Promis
     });
   }
 
-  const selected = await vscode.window.showQuickPick(items, {
+  const selected = await VscodeHelper.showQuickPickItems(items, {
     placeHolder: `Select folder for ${CONFIG_DIR_NAME}`,
     ignoreFocusOut: true,
   });

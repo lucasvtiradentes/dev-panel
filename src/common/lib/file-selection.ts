@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { DEFAULT_EXCLUDES, DEFAULT_INCLUDES, ROOT_FOLDER_LABEL } from '../constants';
+import { VscodeHelper } from '../vscode/vscode-helper';
 import type { QuickPickItem, WorkspaceFolder } from '../vscode/vscode-types';
 import { createLogger } from './logger';
 
@@ -58,7 +59,7 @@ async function selectFilesFlat(opts: InternalSelectionOptions): Promise<string |
   items.sort((a, b) => a.label.localeCompare(b.label));
 
   if (multiSelect) {
-    const result = await vscode.window.showQuickPick(items, {
+    const result = await VscodeHelper.showQuickPickItems(items, {
       placeHolder: label,
       canPickMany: true,
       ignoreFocusOut: true,
@@ -71,7 +72,7 @@ async function selectFilesFlat(opts: InternalSelectionOptions): Promise<string |
       .join('\n');
   }
 
-  const result = await vscode.window.showQuickPick(items, {
+  const result = await VscodeHelper.showQuickPickItems(items, {
     placeHolder: label,
     canPickMany: false,
     ignoreFocusOut: true,
@@ -125,7 +126,7 @@ async function selectFoldersFlat(opts: InternalSelectionOptions): Promise<string
   });
 
   if (multiSelect) {
-    const result = await vscode.window.showQuickPick(items, {
+    const result = await VscodeHelper.showQuickPickItems(items, {
       placeHolder: label,
       canPickMany: true,
       ignoreFocusOut: true,
@@ -138,7 +139,7 @@ async function selectFoldersFlat(opts: InternalSelectionOptions): Promise<string
       .join('\n');
   }
 
-  const result = await vscode.window.showQuickPick(items, {
+  const result = await VscodeHelper.showQuickPickItems(items, {
     placeHolder: label,
     canPickMany: false,
     ignoreFocusOut: true,

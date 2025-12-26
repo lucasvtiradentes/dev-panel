@@ -63,4 +63,49 @@ export class VscodeHelper {
   static fetchTasks(filter?: vscode.TaskFilter): Thenable<vscode.Task[]> {
     return vscode.tasks.fetchTasks(filter);
   }
+
+  static showInputBox(
+    options?: vscode.InputBoxOptions,
+    token?: vscode.CancellationToken,
+  ): Thenable<string | undefined> {
+    return vscode.window.showInputBox(options, token);
+  }
+
+  static showQuickPick(
+    items: readonly string[] | Thenable<readonly string[]>,
+    options: vscode.QuickPickOptions & { canPickMany: true },
+    token?: vscode.CancellationToken,
+  ): Thenable<string[] | undefined>;
+  static showQuickPick(
+    items: readonly string[] | Thenable<readonly string[]>,
+    options?: vscode.QuickPickOptions,
+    token?: vscode.CancellationToken,
+  ): Thenable<string | undefined>;
+  static showQuickPick(
+    items: readonly string[] | Thenable<readonly string[]>,
+    options?: vscode.QuickPickOptions,
+    token?: vscode.CancellationToken,
+    // tscanner-ignore-next-line no-single-or-array-union
+  ): Thenable<string | string[] | undefined> {
+    return vscode.window.showQuickPick(items, options, token);
+  }
+
+  static showQuickPickItems<T extends vscode.QuickPickItem>(
+    items: readonly T[] | Thenable<readonly T[]>,
+    options: vscode.QuickPickOptions & { canPickMany: true },
+    token?: vscode.CancellationToken,
+  ): Thenable<T[] | undefined>;
+  static showQuickPickItems<T extends vscode.QuickPickItem>(
+    items: readonly T[] | Thenable<readonly T[]>,
+    options?: vscode.QuickPickOptions,
+    token?: vscode.CancellationToken,
+  ): Thenable<T | undefined>;
+  static showQuickPickItems<T extends vscode.QuickPickItem>(
+    items: readonly T[] | Thenable<readonly T[]>,
+    options?: vscode.QuickPickOptions,
+    token?: vscode.CancellationToken,
+    // tscanner-ignore-next-line no-single-or-array-union
+  ): Thenable<T | T[] | undefined> {
+    return vscode.window.showQuickPick(items, options, token);
+  }
 }

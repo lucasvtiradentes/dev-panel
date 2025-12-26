@@ -1,5 +1,5 @@
-import * as vscode from 'vscode';
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
+import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import type { BranchTaskItem, BranchTasksProvider } from '../../../views/branch-tasks';
 import { createBranchTaskCommands } from '../../../views/branch-tasks/commands';
@@ -22,7 +22,7 @@ export function createToggleBranchTasksCommands(branchTasksProvider: BranchTasks
       branchTasksProvider.toggleTodo(extractLineIndex(itemOrLineIndex)),
     ),
     registerCommand(Command.AddBranchTask, async () => {
-      const text = await vscode.window.showInputBox({
+      const text = await VscodeHelper.showInputBox({
         prompt: 'Enter task text',
         placeHolder: 'New task',
       });

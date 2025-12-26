@@ -22,7 +22,7 @@ async function handleAddTool() {
   const workspaceFolder = requireWorkspaceFolder();
   if (!workspaceFolder) return;
 
-  const name = await vscode.window.showInputBox({
+  const name = await VscodeHelper.showInputBox({
     prompt: 'Tool name (used as identifier)',
     placeHolder: 'my-tool',
     validateInput: (value) => {
@@ -34,19 +34,19 @@ async function handleAddTool() {
 
   if (!name) return;
 
-  const command = await vscode.window.showInputBox({
+  const command = await VscodeHelper.showInputBox({
     prompt: 'Command to execute',
     placeHolder: 'bash script.sh',
   });
 
   if (!command) return;
 
-  const description = await vscode.window.showInputBox({
+  const description = await VscodeHelper.showInputBox({
     prompt: 'Description (optional)',
     placeHolder: 'What does this tool do?',
   });
 
-  const group = await vscode.window.showInputBox({
+  const group = await VscodeHelper.showInputBox({
     prompt: 'Group name (optional)',
     placeHolder: 'Development',
   });
@@ -169,7 +169,7 @@ ${command}
 
   VscodeHelper.showToastMessage(ToastKind.Info, `Tool "${name}" created successfully`);
 
-  const openFile = await vscode.window.showQuickPick(
+  const openFile = await VscodeHelper.showQuickPickItems(
     [
       { label: `Open ${TOOL_INSTRUCTIONS_FILE}`, value: 'instructions' },
       { label: `Open ${CONFIG_FILE_NAME}`, value: 'config' },

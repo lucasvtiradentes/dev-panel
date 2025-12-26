@@ -31,6 +31,6 @@ export async function selectWorkspaceFolder(placeholder: string): Promise<Worksp
   }
 
   const items = folders.map((f) => ({ label: f.name, folder: f }));
-  const selected = await vscode.window.showQuickPick(items, { placeHolder: placeholder });
+  const selected = await VscodeHelper.showQuickPickItems(items, { placeHolder: placeholder });
   return selected?.folder ?? null;
 }

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { TaskPriority, TaskStatus } from '../../common/schemas';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { QuickPickItem } from '../../common/vscode/vscode-types';
 import type { TaskFilter } from './filter-operations';
 
@@ -16,7 +17,7 @@ export async function showFilterQuickPick(): Promise<TaskFilter | null> {
     { label: '$(close) Clear filters', description: 'Show all tasks' },
   ];
 
-  const picked = await vscode.window.showQuickPick(items, {
+  const picked = await VscodeHelper.showQuickPickItems(items, {
     placeHolder: 'Select filter',
   });
 
@@ -32,7 +33,7 @@ export async function showFilterQuickPick(): Promise<TaskFilter | null> {
     case '$(warning) Overdue only':
       return { overdue: true };
     case '$(account) By assignee...': {
-      const assignee = await vscode.window.showInputBox({
+      const assignee = await VscodeHelper.showInputBox({
         prompt: 'Enter assignee name',
         placeHolder: 'e.g., lucas',
       });
