@@ -42,8 +42,9 @@ export function loadBranchContextFromFile(workspace: string, branchName: string)
   try {
     const content = fs.readFileSync(filePath, 'utf-8');
     return parseBranchContext(content);
-  } catch (error) {
-    logger.error(`Failed to load branch context for ${branchName}: ${error}`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error(`Failed to load branch context for ${branchName}: ${message}`);
     return {};
   }
 }
@@ -144,9 +145,13 @@ function extractSectionMetadata(content: string): { cleanContent: string; metada
   if (!match) return { cleanContent: content };
 
   try {
-    const metadata = JSON.parse(match[1]) as SectionMetadata;
-    const cleanContent = content.replace(metadataRegex, '').trim();
-    return { cleanContent, metadata };
+    const parsed = JSON.parse(match[1]);
+    if (typeof parsed === 'object' && parsed !== null) {
+      const metadata = parsed as SectionMetadata;
+      const cleanContent = content.replace(metadataRegex, '').trim();
+      return { cleanContent, metadata };
+    }
+    return { cleanContent: content };
   } catch {
     return { cleanContent: content };
   }
@@ -165,9 +170,13 @@ function extractAllCodeBlockSections(content: string): Record<string, CodeBlockS
     let metadata: SectionMetadata | undefined;
     if (externalMetadataJson) {
       try {
-        metadata = JSON.parse(externalMetadataJson) as SectionMetadata;
-      } catch (error) {
-        logger.error(`[extractAllCodeBlockSections] Failed to parse metadata for ${sectionName}: ${error}`);
+        const parsed = JSON.parse(externalMetadataJson);
+        if (typeof parsed === 'object' && parsed !== null) {
+          metadata = parsed as SectionMetadata;
+        }
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        logger.error(`[extractAllCodeBlockSections] Failed to parse metadata for ${sectionName}: ${message}`);
       }
     }
 
@@ -222,7 +231,11 @@ function extractMetadata(content: string): BranchContextMetadata | undefined {
   if (!match) return undefined;
 
   try {
-    return JSON.parse(match[1]) as BranchContextMetadata;
+    const parsed = JSON.parse(match[1]);
+    if (typeof parsed === 'object' && parsed !== null) {
+      return parsed as BranchContextMetadata;
+    }
+    return undefined;
   } catch {
     return undefined;
   }

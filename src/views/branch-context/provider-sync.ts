@@ -73,8 +73,9 @@ export class SyncManager {
     try {
       const content = fs.readFileSync(rootPath, 'utf-8');
       fs.writeFileSync(branchPath, content, 'utf-8');
-    } catch (error) {
-      logger.error(`Error syncing root to branch: ${error}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error(`Error syncing root to branch: ${message}`);
     } finally {
       setTimeout(() => {
         this.isSyncing = false;
@@ -112,8 +113,9 @@ export class SyncManager {
     try {
       const content = fs.readFileSync(branchPath, 'utf-8');
       fs.writeFileSync(rootPath, content, 'utf-8');
-    } catch (error) {
-      logger.error(`Error syncing branch to root: ${error}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error(`Error syncing branch to root: ${message}`);
     } finally {
       setTimeout(() => {
         this.isSyncing = false;
@@ -173,10 +175,14 @@ export class SyncManager {
             const metadataMatch = data.match(/<!--\s*SECTION_METADATA:\s*(.+?)\s*-->/);
             if (metadataMatch) {
               try {
-                changedFilesSectionMetadata = JSON.parse(metadataMatch[1]) as Record<string, unknown>;
-                changedFiles = data.replace(/<!--\s*SECTION_METADATA:.*?-->/g, '').trim();
-              } catch (error) {
-                logger.error(`Failed to parse changedFiles metadata: ${error}`);
+                const parsed = JSON.parse(metadataMatch[1]);
+                if (typeof parsed === 'object' && parsed !== null) {
+                  changedFilesSectionMetadata = parsed as Record<string, unknown>;
+                  changedFiles = data.replace(/<!--\s*SECTION_METADATA:.*?-->/g, '').trim();
+                }
+              } catch (error: unknown) {
+                const message = error instanceof Error ? error.message : String(error);
+                logger.error(`Failed to parse changedFiles metadata: ${message}`);
               }
             }
           }
@@ -212,9 +218,10 @@ export class SyncManager {
               const data = await section.provider.fetch(sectionContext);
               logger.info(`[syncBranchContext] "${section.name}" done (+${Date.now() - startTime}ms)`);
               return { name: section.name, data };
-            } catch (error) {
-              logger.error(`[syncBranchContext] "${section.name}" FAILED (+${Date.now() - startTime}ms): ${error}`);
-              return { name: section.name, data: `Error: ${error}` };
+            } catch (error: unknown) {
+              const message = error instanceof Error ? error.message : String(error);
+              logger.error(`[syncBranchContext] "${section.name}" FAILED (+${Date.now() - startTime}ms): ${message}`);
+              return { name: section.name, data: `Error: ${message}` };
             }
           });
 
@@ -236,8 +243,9 @@ export class SyncManager {
       try {
         lastCommitHash = execSync(GIT_REV_PARSE_HEAD, { cwd: workspace, encoding: 'utf-8' }).trim();
         lastCommitMessage = execSync(GIT_LOG_LAST_COMMIT_MESSAGE, { cwd: workspace, encoding: 'utf-8' }).trim();
-      } catch (error) {
-        logger.error(`Failed to get git commit info: ${error}`);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        logger.error(`Failed to get git commit info: ${message}`);
       }
 
       await generateBranchContextMarkdown(

@@ -3,16 +3,14 @@ import { CONTEXT_VALUES, getCommandId } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
 import { TaskSource } from '../../common/schemas/types';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
-import type { Task } from '../../common/vscode/vscode-types';
+import type { ExtendedTask, Task } from '../../common/vscode/vscode-types';
 import { type GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
 export async function hasVSCodeGroups(): Promise<boolean> {
   const tasks: Task[] = await vscode.tasks.fetchTasks();
   const workspaceTasks = tasks.filter((t) => t.source === 'Workspace');
-  return workspaceTasks.some(
-    (task) => (task as unknown as { presentationOptions?: { group?: string } }).presentationOptions?.group != null,
-  );
+  return workspaceTasks.some((task) => (task as ExtendedTask).presentationOptions?.group != null);
 }
 
 export async function getVSCodeTasks(options: {
@@ -39,9 +37,7 @@ export async function getVSCodeTasks(options: {
     if (hidden && !showHidden) continue;
     if (showOnlyFavorites && !favorite) continue;
 
-    const group = grouped
-      ? (task as unknown as { presentationOptions?: { group?: string } }).presentationOptions?.group
-      : undefined;
+    const group = grouped ? (task as ExtendedTask).presentationOptions?.group : undefined;
 
     const _task = new TreeTask(
       task.definition.type,

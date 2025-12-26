@@ -43,8 +43,16 @@ function getStatePath(): string | null {
 function loadState(): PpState {
   const statePath = getStatePath();
   if (!statePath || !fs.existsSync(statePath)) return {};
-  const content = fs.readFileSync(statePath, 'utf-8');
-  return JSON.parse(content);
+  try {
+    const content = fs.readFileSync(statePath, 'utf-8');
+    const parsed = JSON.parse(content);
+    if (typeof parsed !== 'object' || parsed === null) {
+      return {};
+    }
+    return parsed as PpState;
+  } catch {
+    return {};
+  }
 }
 
 function saveState(state: PpState) {
@@ -212,7 +220,7 @@ async function runCommand(variable: DevPanelVariable, value: unknown) {
     async () => {
       try {
         await execAsync(command, { cwd: configDirPath });
-      } catch (error) {
+      } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         void VscodeHelper.showToastMessage(ToastKind.Error, `${ERROR_VARIABLE_COMMAND_FAILED}: ${errorMessage}`);
       }

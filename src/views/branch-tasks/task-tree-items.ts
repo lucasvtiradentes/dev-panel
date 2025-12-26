@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { CONTEXT_VALUES, DND_MIME_TYPE_BRANCH_TASKS, getCommandId } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
-import type { CancellationToken, DataTransfer } from '../../common/vscode/vscode-types';
+import type { CancellationToken, DataTransfer, TreeItem } from '../../common/vscode/vscode-types';
 import type { MilestoneNode, TaskNode } from '../_branch_base';
 import { formatTaskDescription, formatTaskTooltip, getStatusIcon } from './task-item-utils';
 
@@ -71,7 +71,7 @@ export class BranchMilestoneItem extends vscode.TreeItem {
   }
 }
 
-export type BranchTreeItem = BranchTaskItem | BranchMilestoneItem;
+export type BranchTreeItem = BranchTaskItem | BranchMilestoneItem | TreeItem;
 
 type BranchTasksProviderInterface = {
   findMilestoneForTask(lineIndex: number): string | undefined;
@@ -102,7 +102,16 @@ export class BranchTasksDragAndDropController implements vscode.TreeDragAndDropC
     const transferItem = dataTransfer.get(DND_MIME_TYPE_BRANCH_TASKS);
     if (!transferItem || !target) return;
 
-    const dragData = JSON.parse(transferItem.value as string) as DragData;
+    let dragData: DragData;
+    try {
+      const parsed = JSON.parse(transferItem.value as string);
+      if (typeof parsed !== 'object' || parsed === null || parsed.type !== 'task') {
+        return;
+      }
+      dragData = parsed as DragData;
+    } catch {
+      return;
+    }
     if (dragData.type !== 'task') return;
 
     if (target instanceof BranchMilestoneItem) {

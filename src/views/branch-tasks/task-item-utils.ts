@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { type TaskPriority, TaskStatus } from '../../common/schemas';
+import { TaskPriority, TaskStatus } from '../../common/schemas';
 import { VscodeColor, VscodeIcon } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
@@ -67,13 +67,13 @@ export function getStatusIcon(status: TaskStatus, meta: TaskMeta): ThemeIcon {
   const overdue = isOverdue(meta);
 
   switch (status) {
-    case 'done':
+    case TaskStatus.Done:
       return VscodeIcons.TaskDone;
 
-    case 'doing':
+    case TaskStatus.Doing:
       return VscodeIcons.TaskDoing;
 
-    case 'blocked':
+    case TaskStatus.Blocked:
       return VscodeIcons.TaskBlocked;
 
     default: {
@@ -93,11 +93,11 @@ export function getStatusIcon(status: TaskStatus, meta: TaskMeta): ThemeIcon {
 
 function getPriorityColor(priority: TaskPriority | undefined): VscodeColor | undefined {
   switch (priority) {
-    case 'urgent':
+    case TaskPriority.Urgent:
       return VscodeColor.ErrorForeground;
-    case 'high':
+    case TaskPriority.High:
       return VscodeColor.EditorWarningForeground;
-    case 'medium':
+    case TaskPriority.Medium:
       return VscodeColor.EditorInfoForeground;
     default:
       return undefined;
@@ -143,13 +143,13 @@ export function formatTaskTooltip(text: string, status: TaskStatus, meta: TaskMe
 
 function getPriorityEmoji(priority: TaskPriority): string {
   switch (priority) {
-    case 'urgent':
+    case TaskPriority.Urgent:
       return '🔴';
-    case 'high':
+    case TaskPriority.High:
       return '🟠';
-    case 'medium':
+    case TaskPriority.Medium:
       return '🟡';
-    case 'low':
+    case TaskPriority.Low:
       return '🔵';
     default:
       return '⚪';

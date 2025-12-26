@@ -98,8 +98,9 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
         VscodeHelper.showToastMessage(ToastKind.Info, 'Tasks are up to date');
       }
       this.refresh();
-    } catch (error) {
-      VscodeHelper.showToastMessage(ToastKind.Error, `Sync failed: ${error}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      VscodeHelper.showToastMessage(ToastKind.Error, `Sync failed: ${message}`);
     }
   }
 
@@ -213,7 +214,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
       });
 
       if (result.length === 0) {
-        return [createEmptyStateItem(this.showOnlyTodo, hasActiveFilter) as unknown as BranchTreeItem];
+        return [createEmptyStateItem(this.showOnlyTodo, hasActiveFilter)];
       }
 
       return result;
@@ -222,7 +223,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     const result = buildFlatTree(this.cachedNodes, this.showOnlyTodo, this.activeFilters, this.grouped);
 
     if (result.length === 0) {
-      return [createEmptyStateItem(this.showOnlyTodo, hasActiveFilter) as unknown as BranchTreeItem];
+      return [createEmptyStateItem(this.showOnlyTodo, hasActiveFilter)];
     }
 
     return result;

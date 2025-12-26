@@ -59,8 +59,9 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
         });
 
         return stdout.trim();
-      } catch (error) {
-        logger.error(`[loadAutoProvider] Script error: ${error}`);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        logger.error(`[loadAutoProvider] Script error: ${message}`);
         throw error;
       }
     },
@@ -107,9 +108,14 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
         throw new Error(`Invalid plugin response: ${stdout}`);
       }
 
-      return JSON.parse(jsonMatch[0]) as T;
-    } catch (error) {
-      logger.error(`[loadTaskProvider] Plugin error: ${error}`);
+      const parsed = JSON.parse(jsonMatch[0]);
+      if (typeof parsed !== 'object' || parsed === null) {
+        throw new Error('Invalid plugin response: expected object');
+      }
+      return parsed as T;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error(`[loadTaskProvider] Plugin error: ${message}`);
       throw error;
     }
   }

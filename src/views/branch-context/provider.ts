@@ -173,8 +173,9 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
         ? `${content}${ROOT_BRANCH_CONTEXT_FILE_NAME}\n`
         : `${content}\n${ROOT_BRANCH_CONTEXT_FILE_NAME}\n`;
       fs.writeFileSync(excludePath, newContent);
-    } catch (error) {
-      logger.error(`Failed to update .git/info/exclude: ${error}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error(`Failed to update .git/info/exclude: ${message}`);
     }
   }
 

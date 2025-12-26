@@ -221,8 +221,9 @@ async function getChangedFilesListFormat(workspacePath: string): Promise<string>
     }
 
     return lines.join('\n');
-  } catch (error) {
-    logger.error(`[getChangedFilesListFormat] Error executing git commands: ${error}`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error(`[getChangedFilesListFormat] Error executing git commands: ${message}`);
     return NOT_GIT_REPO_MESSAGE;
   }
 }

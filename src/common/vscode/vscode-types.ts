@@ -15,6 +15,12 @@ export type QuickPickItemKind = vscode.QuickPickItemKind;
 export type ShellExecution = vscode.ShellExecution;
 export type StatusBarItem = vscode.StatusBarItem;
 export type Task = vscode.Task;
+
+export type ExtendedTask = Task & {
+  presentationOptions?: {
+    group?: string;
+  };
+};
 export type TaskPanelKind = vscode.TaskPanelKind;
 export type TaskRevealKind = vscode.TaskRevealKind;
 export type TaskScope = vscode.TaskScope;
