@@ -164,7 +164,7 @@ export function isMultiRootWorkspace(): boolean {
   return folders != null && folders.length > 1;
 }
 
-export async function openDocumentAtLine(uri: vscode.Uri, line: number): Promise<void> {
+export async function openDocumentAtLine(uri: vscode.Uri, line: number) {
   await vscode.window.showTextDocument(uri, {
     selection: new vscode.Range(line, 0, line, 0),
   });

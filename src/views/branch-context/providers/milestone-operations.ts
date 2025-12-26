@@ -66,11 +66,7 @@ export function getMilestones(context: SyncContext): Promise<{ orphanTasks: Task
   return Promise.resolve({ orphanTasks, milestones });
 }
 
-export function moveTaskToMilestone(
-  taskLineIndex: number,
-  targetMilestoneName: string | null,
-  context: SyncContext,
-): Promise<void> {
+export function moveTaskToMilestone(taskLineIndex: number, targetMilestoneName: string | null, context: SyncContext) {
   if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
 
   const content = fs.readFileSync(context.markdownPath, 'utf-8');
@@ -165,7 +161,7 @@ export function moveTaskToMilestone(
   return Promise.resolve();
 }
 
-export function createMilestone(name: string, context: SyncContext): Promise<void> {
+export function createMilestone(name: string, context: SyncContext) {
   if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
 
   const content = fs.readFileSync(context.markdownPath, 'utf-8');
@@ -197,7 +193,7 @@ export function reorderTask(
   targetLineIndex: number,
   position: 'before' | 'after',
   context: SyncContext,
-): Promise<void> {
+) {
   if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
   if (taskLineIndex === targetLineIndex) return Promise.resolve();
 

@@ -21,7 +21,7 @@ function createEmptyTaskNode(text: string): TaskNode {
   };
 }
 
-export function onStatusChange(lineIndex: number, newStatus: TaskStatus, context: SyncContext): Promise<void> {
+export function onStatusChange(lineIndex: number, newStatus: TaskStatus, context: SyncContext) {
   if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
 
   const content = fs.readFileSync(context.markdownPath, 'utf-8');
@@ -107,7 +107,7 @@ export function onCreateTask(task: NewTask, parentIndex: number | undefined, con
   return Promise.resolve(taskNode);
 }
 
-export function onUpdateMeta(lineIndex: number, metaUpdate: Partial<TaskMeta>, context: SyncContext): Promise<void> {
+export function onUpdateMeta(lineIndex: number, metaUpdate: Partial<TaskMeta>, context: SyncContext) {
   if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
 
   const content = fs.readFileSync(context.markdownPath, 'utf-8');
@@ -137,7 +137,7 @@ export function onUpdateMeta(lineIndex: number, metaUpdate: Partial<TaskMeta>, c
   return Promise.resolve();
 }
 
-export function onEditText(lineIndex: number, newText: string, context: SyncContext): Promise<void> {
+export function onEditText(lineIndex: number, newText: string, context: SyncContext) {
   if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
 
   const content = fs.readFileSync(context.markdownPath, 'utf-8');
@@ -166,7 +166,7 @@ export function onEditText(lineIndex: number, newText: string, context: SyncCont
   return Promise.resolve();
 }
 
-export function onDeleteTask(lineIndex: number, context: SyncContext): Promise<void> {
+export function onDeleteTask(lineIndex: number, context: SyncContext) {
   if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
 
   const content = fs.readFileSync(context.markdownPath, 'utf-8');

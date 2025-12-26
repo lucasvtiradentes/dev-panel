@@ -353,7 +353,7 @@ async function executePromptWithSave(options: {
   promptName: string;
   provider: PromptProvider;
   settings?: DevPanelSettings;
-}): Promise<void> {
+}) {
   const { promptContent, folder, promptName, provider, settings } = options;
   const workspacePath = folder.uri.fsPath;
   const branch = await getCurrentBranch(workspacePath).catch(() => 'unknown');

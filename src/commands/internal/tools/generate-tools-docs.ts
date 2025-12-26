@@ -357,7 +357,7 @@ function syncToAiSpecs(xml: string, workspaceFolder: vscode.WorkspaceFolder): vo
   );
 }
 
-async function handleGenerateToolsDocs(): Promise<void> {
+async function handleGenerateToolsDocs() {
   const workspaceFolder = requireWorkspaceFolder();
   if (!workspaceFolder) return;
 

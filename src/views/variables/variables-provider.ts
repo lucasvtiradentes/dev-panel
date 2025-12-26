@@ -191,7 +191,7 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
   }
 }
 
-async function runCommand(variable: DevPanelVariable, value: unknown): Promise<void> {
+async function runCommand(variable: DevPanelVariable, value: unknown) {
   if (!variable.command) return;
 
   const workspace = getFirstWorkspacePath();
@@ -218,7 +218,7 @@ async function runCommand(variable: DevPanelVariable, value: unknown): Promise<v
   );
 }
 
-export async function selectVariableOption(variable: DevPanelVariable): Promise<void> {
+export async function selectVariableOption(variable: DevPanelVariable) {
   const state = loadState();
   let newValue: unknown;
 

@@ -138,7 +138,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       return Promise.resolve({ completed: 0, total: 0 });
     },
 
-    async onStatusChange(lineIndex: number, newStatus: TaskStatus, context: SyncContext): Promise<void> {
+    async onStatusChange(lineIndex: number, newStatus: TaskStatus, context: SyncContext) {
       const payload: SetStatusPayload = { lineIndex, newStatus };
       const response = await executePlugin<SetStatusResponse>(PluginAction.SetStatus, context, payload);
 
@@ -158,7 +158,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       return response.task;
     },
 
-    async onUpdateMeta(lineIndex: number, meta: Partial<TaskMeta>, context: SyncContext): Promise<void> {
+    async onUpdateMeta(lineIndex: number, meta: Partial<TaskMeta>, context: SyncContext) {
       const payload: UpdateMetaPayload = { lineIndex, meta };
       const response = await executePlugin<UpdateMetaResponse>(PluginAction.UpdateMeta, context, payload);
 
@@ -167,11 +167,11 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       }
     },
 
-    onEditText(_lineIndex: number, _newText: string, _context: SyncContext): Promise<void> {
+    onEditText(_lineIndex: number, _newText: string, _context: SyncContext) {
       return Promise.reject(new Error('Edit text not supported by plugin providers'));
     },
 
-    async onDeleteTask(lineIndex: number, context: SyncContext): Promise<void> {
+    async onDeleteTask(lineIndex: number, context: SyncContext) {
       const payload: DeleteTaskPayload = { lineIndex };
       const response = await executePlugin<DeleteTaskResponse>(PluginAction.DeleteTask, context, payload);
 
@@ -184,11 +184,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       return Promise.resolve({ orphanTasks: [], milestones: [] });
     },
 
-    moveTaskToMilestone(
-      _taskLineIndex: number,
-      _targetMilestoneName: string | null,
-      _context: SyncContext,
-    ): Promise<void> {
+    moveTaskToMilestone(_taskLineIndex: number, _targetMilestoneName: string | null, _context: SyncContext) {
       return Promise.reject(new Error('Move task to milestone not supported by plugin providers'));
     },
 
@@ -197,11 +193,11 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       _targetLineIndex: number,
       _position: 'before' | 'after',
       _context: SyncContext,
-    ): Promise<void> {
+    ) {
       return Promise.reject(new Error('Reorder task not supported by plugin providers'));
     },
 
-    createMilestone(_name: string, _context: SyncContext): Promise<void> {
+    createMilestone(_name: string, _context: SyncContext) {
       return Promise.reject(new Error('Create milestone not supported by plugin providers'));
     },
 

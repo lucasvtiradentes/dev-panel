@@ -25,7 +25,7 @@ export async function generateBranchContextMarkdown(
   branchName: string,
   context: BranchContext,
   sectionMetadata?: SectionMetadataMap,
-): Promise<void> {
+) {
   logger.info(`[generateBranchContextMarkdown] Called for branch: ${branchName}`);
 
   const workspace = getFirstWorkspacePath();

@@ -23,7 +23,7 @@ import {
 import { selectWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import type { TreeTool } from '../../../views/tools/items';
 
-async function handleCopyToolToWorkspace(treeTool: TreeTool): Promise<void> {
+async function handleCopyToolToWorkspace(treeTool: TreeTool) {
   if (!treeTool?.toolName) {
     showInvalidItemError('tool');
     return;

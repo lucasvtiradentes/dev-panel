@@ -40,7 +40,7 @@ export function outputResponse(response: unknown): void {
   console.log(JSON.stringify(response));
 }
 
-export async function runPlugin(handler: TaskPluginHandler): Promise<void> {
+export async function runPlugin(handler: TaskPluginHandler) {
   const action = getAction();
   const request = getPluginRequest();
 

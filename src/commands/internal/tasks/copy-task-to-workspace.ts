@@ -18,7 +18,7 @@ import {
 import { selectWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import type { TreeTask } from '../../../views/tasks/items';
 
-async function handleCopyTaskToWorkspace(treeTask: TreeTask): Promise<void> {
+async function handleCopyTaskToWorkspace(treeTask: TreeTask) {
   if (!treeTask?.taskName) {
     showInvalidItemError('task');
     return;

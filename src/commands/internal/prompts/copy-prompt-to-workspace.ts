@@ -23,7 +23,7 @@ import {
 import { selectWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import type { TreePrompt } from '../../../views/prompts/items';
 
-async function handleCopyPromptToWorkspace(treePrompt: TreePrompt): Promise<void> {
+async function handleCopyPromptToWorkspace(treePrompt: TreePrompt) {
   if (!treePrompt?.promptName) {
     showInvalidItemError('prompt');
     return;

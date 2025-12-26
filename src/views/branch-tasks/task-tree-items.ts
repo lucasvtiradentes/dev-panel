@@ -104,7 +104,7 @@ export class BranchTasksDragAndDropController implements vscode.TreeDragAndDropC
     target: BranchTreeItem | undefined,
     dataTransfer: vscode.DataTransfer,
     _token: vscode.CancellationToken,
-  ): Promise<void> {
+  ) {
     const transferItem = dataTransfer.get(DND_MIME_TYPE_BRANCH_TASKS);
     if (!transferItem || !target) return;
 

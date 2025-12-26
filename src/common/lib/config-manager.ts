@@ -42,7 +42,7 @@ export async function hasConfig(workspacePath: string, configDir: string | null,
   }
 }
 
-async function copyDirectoryRecursive(source: vscode.Uri, target: vscode.Uri): Promise<void> {
+async function copyDirectoryRecursive(source: vscode.Uri, target: vscode.Uri) {
   await vscode.workspace.fs.createDirectory(target);
 
   const entries = await vscode.workspace.fs.readDirectory(source);
@@ -58,11 +58,7 @@ async function copyDirectoryRecursive(source: vscode.Uri, target: vscode.Uri): P
   }
 }
 
-export async function moveConfig(
-  workspacePath: string,
-  fromConfigDir: string | null,
-  toConfigDir: string | null,
-): Promise<void> {
+export async function moveConfig(workspacePath: string, fromConfigDir: string | null, toConfigDir: string | null) {
   const sourceDir = getConfigDir(workspacePath, fromConfigDir);
   const targetDir = getConfigDir(workspacePath, toConfigDir);
 

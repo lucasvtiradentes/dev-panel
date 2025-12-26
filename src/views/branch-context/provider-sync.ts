@@ -125,7 +125,7 @@ export class SyncManager {
     }
   }
 
-  async syncBranchContext(): Promise<void> {
+  async syncBranchContext() {
     const startTime = Date.now();
     const currentBranch = this.getCurrentBranch();
     logger.info(`[syncBranchContext] START for branch: ${currentBranch}`);

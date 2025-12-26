@@ -90,7 +90,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | 
     }
   }
 
-  private async updateContextKeys(): Promise<void> {
+  private async updateContextKeys() {
     const hiddenItems = getHiddenItems(this._source);
     const favoriteItems = getFavoriteItems(this._source);
     const hasGroups = await this.checkHasGroups();

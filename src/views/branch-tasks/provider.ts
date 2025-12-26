@@ -73,7 +73,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     this.refresh();
   }
 
-  async addRootTask(text: string): Promise<void> {
+  async addRootTask(text: string) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
@@ -81,7 +81,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     this.refresh();
   }
 
-  async syncTasks(): Promise<void> {
+  async syncTasks() {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
@@ -100,7 +100,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     }
   }
 
-  async showFilterQuickPick(): Promise<void> {
+  async showFilterQuickPick() {
     const filter = await showFilterQuickPickDialog();
     if (filter === null) return;
 
@@ -239,7 +239,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     });
   }
 
-  async setStatus(lineIndex: number, status: TaskStatus): Promise<void> {
+  async setStatus(lineIndex: number, status: TaskStatus) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
@@ -247,7 +247,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     this.refresh();
   }
 
-  async setPriority(lineIndex: number, priority: TaskPriority): Promise<void> {
+  async setPriority(lineIndex: number, priority: TaskPriority) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
@@ -255,7 +255,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     this.refresh();
   }
 
-  async setAssignee(lineIndex: number, assignee: string | undefined): Promise<void> {
+  async setAssignee(lineIndex: number, assignee: string | undefined) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
@@ -263,7 +263,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     this.refresh();
   }
 
-  async setDueDate(lineIndex: number, dueDate: string | undefined): Promise<void> {
+  async setDueDate(lineIndex: number, dueDate: string | undefined) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
@@ -271,7 +271,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     this.refresh();
   }
 
-  async addSubtask(parentLineIndex: number, text: string): Promise<void> {
+  async addSubtask(parentLineIndex: number, text: string) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
@@ -279,7 +279,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     this.refresh();
   }
 
-  async editTaskText(lineIndex: number, text: string): Promise<void> {
+  async editTaskText(lineIndex: number, text: string) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
@@ -287,7 +287,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     this.refresh();
   }
 
-  async deleteTask(lineIndex: number): Promise<void> {
+  async deleteTask(lineIndex: number) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
@@ -328,7 +328,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     return this.cachedMilestones.map((m) => m.name);
   }
 
-  async moveTaskToMilestone(lineIndex: number, milestoneName: string | null): Promise<void> {
+  async moveTaskToMilestone(lineIndex: number, milestoneName: string | null) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
@@ -336,7 +336,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     this.refresh();
   }
 
-  async createMilestone(name: string): Promise<void> {
+  async createMilestone(name: string) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
@@ -344,7 +344,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     this.refresh();
   }
 
-  async reorderTask(taskLineIndex: number, targetLineIndex: number): Promise<void> {
+  async reorderTask(taskLineIndex: number, targetLineIndex: number) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 

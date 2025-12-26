@@ -15,7 +15,7 @@ import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 
-async function handleAddPrompt(): Promise<void> {
+async function handleAddPrompt() {
   const workspaceFolder = requireWorkspaceFolder();
   if (!workspaceFolder) return;
 

@@ -34,7 +34,7 @@ import { createBranchWatcher } from './watchers/branch-watcher';
 import { createConfigWatcher } from './watchers/config-watcher';
 import { createKeybindingsWatcher } from './watchers/keybindings-watcher';
 
-interface Providers {
+type Providers = {
   statusBarManager: StatusBarManager;
   taskTreeDataProvider: TaskTreeDataProvider;
   variablesProvider: VariablesProvider;
@@ -43,7 +43,7 @@ interface Providers {
   promptTreeDataProvider: PromptTreeDataProvider;
   branchContextProvider: BranchContextProvider;
   branchTasksProvider: BranchTasksProvider;
-}
+};
 
 function setupStatesAndContext(context: vscode.ExtensionContext): void {
   initWorkspaceState(context);
@@ -68,11 +68,11 @@ function setupProviders(context: vscode.ExtensionContext, activateStart: number)
   const taskTreeDataProvider = new TaskTreeDataProvider(context);
   const variablesProvider = new VariablesProvider();
   const replacementsProvider = new ReplacementsProvider();
-  const toolTreeDataProvider = new ToolTreeDataProvider();
-  setToolProviderInstance(toolTreeDataProvider);
   const promptTreeDataProvider = new PromptTreeDataProvider();
   const branchContextProvider = new BranchContextProvider();
   const branchTasksProvider = new BranchTasksProvider();
+  const toolTreeDataProvider = new ToolTreeDataProvider();
+  setToolProviderInstance(toolTreeDataProvider);
 
   logger.info(`[activate] Calling branchContextProvider.initialize (+${Date.now() - activateStart}ms)`);
   void branchContextProvider.initialize();

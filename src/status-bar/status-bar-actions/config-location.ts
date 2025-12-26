@@ -28,7 +28,7 @@ function joinPath(base: string, segment: string): string {
   return isRootPath(base) ? segment : posix.join(base, segment);
 }
 
-export async function showConfigLocationMenu(): Promise<void> {
+export async function showConfigLocationMenu() {
   const workspaceFolder = requireWorkspaceFolder();
   if (!workspaceFolder) return;
 

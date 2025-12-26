@@ -24,7 +24,7 @@ import {
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import type { TreePrompt } from '../../../views/prompts/items';
 
-async function handleDeletePrompt(treePrompt: TreePrompt): Promise<void> {
+async function handleDeletePrompt(treePrompt: TreePrompt) {
   if (!treePrompt?.promptName) {
     showInvalidItemError('prompt');
     return;

@@ -14,7 +14,7 @@ const KIND_LABELS: Record<RegistryItemKind, { label: string; icon: string }> = {
   [RegistryItemKind.Script]: { label: 'Scripts', icon: 'terminal' },
 };
 
-export async function showRegistryMenu(): Promise<void> {
+export async function showRegistryMenu() {
   const workspaceFolder = requireWorkspaceFolder();
   if (!workspaceFolder) return;
 
@@ -36,7 +36,7 @@ export async function showRegistryMenu(): Promise<void> {
   await showItemsForKind(workspaceFolder, selectedKind.id);
 }
 
-async function showItemsForKind(workspaceFolder: vscode.WorkspaceFolder, kind: RegistryItemKind): Promise<void> {
+async function showItemsForKind(workspaceFolder: vscode.WorkspaceFolder, kind: RegistryItemKind) {
   const kindLabel = KIND_LABELS[kind].label;
 
   await vscode.window.withProgress(
@@ -104,7 +104,7 @@ async function installItems(
   workspaceFolder: vscode.WorkspaceFolder,
   kind: RegistryItemKind,
   items: RegistryItemEntry[],
-): Promise<void> {
+) {
   const kindLabel = KIND_LABELS[kind].label.toLowerCase();
 
   await vscode.window.withProgress(

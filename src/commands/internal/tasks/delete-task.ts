@@ -19,7 +19,7 @@ import {
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import type { TreeTask } from '../../../views/tasks/items';
 
-async function handleDeleteTask(treeTask: TreeTask): Promise<void> {
+async function handleDeleteTask(treeTask: TreeTask) {
   if (!treeTask?.taskName) {
     showInvalidItemError('task');
     return;

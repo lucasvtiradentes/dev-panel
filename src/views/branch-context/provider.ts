@@ -132,7 +132,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     this.syncManager.debouncedSync(() => this.syncManager.syncRootToBranch());
   }
 
-  async initialize(): Promise<void> {
+  async initialize() {
     logger.info('[BranchContextProvider] initialize called');
 
     const workspace = getFirstWorkspacePath();
@@ -262,7 +262,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     return items;
   }
 
-  async editField(_branchName: string, sectionName: string, _currentValue: string | undefined): Promise<void> {
+  async editField(_branchName: string, sectionName: string, _currentValue: string | undefined) {
     const lineKeyMap: Record<string, string> = {
       [SECTION_NAME_BRANCH]: SECTION_NAME_BRANCH_INFO,
       [SECTION_NAME_PR_LINK]: SECTION_NAME_BRANCH_INFO,
@@ -276,7 +276,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     await this.openMarkdownFileAtLine(lineKey);
   }
 
-  async openMarkdownFile(): Promise<void> {
+  async openMarkdownFile() {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
@@ -285,7 +285,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     await vscode.window.showTextDocument(uri);
   }
 
-  async openMarkdownFileAtLine(fieldName: string): Promise<void> {
+  async openMarkdownFileAtLine(fieldName: string) {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
@@ -298,7 +298,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<vscode.Tre
     });
   }
 
-  async syncBranchContext(): Promise<void> {
+  async syncBranchContext() {
     const workspace = getFirstWorkspacePath();
     if (!workspace || !configDirExists(workspace)) {
       logger.info('[syncBranchContext] No config directory, skipping');

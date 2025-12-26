@@ -122,7 +122,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     this._onDidChangeTreeData.fire(undefined);
   }
 
-  private async handleStartup(): Promise<void> {
+  private async handleStartup() {
     const workspace = getFirstWorkspacePath();
     if (workspace && (await isGitRepository(workspace))) {
       const currentBranch = await getCurrentBranch(workspace);
@@ -230,7 +230,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     return config;
   }
 
-  async toggleReplacement(replacement: DevPanelReplacement): Promise<void> {
+  async toggleReplacement(replacement: DevPanelReplacement) {
     const activeReplacements = getActiveReplacements();
     const isActive = activeReplacements.includes(replacement.name);
 
@@ -243,7 +243,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     this.refresh();
   }
 
-  private async activateReplacement(replacement: DevPanelReplacement): Promise<void> {
+  private async activateReplacement(replacement: DevPanelReplacement) {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
@@ -276,7 +276,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     addActiveReplacement(replacement.name);
   }
 
-  private async deactivateReplacement(replacement: DevPanelReplacement): Promise<void> {
+  private async deactivateReplacement(replacement: DevPanelReplacement) {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
@@ -297,7 +297,7 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     removeActiveReplacement(replacement.name);
   }
 
-  async toggleAllReplacements(): Promise<void> {
+  async toggleAllReplacements() {
     const config = this.loadConfig();
     if (!config?.replacements) return;
 
@@ -320,10 +320,10 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
   }
 }
 
-export async function toggleReplacement(replacement: DevPanelReplacement): Promise<void> {
+export async function toggleReplacement(replacement: DevPanelReplacement) {
   await providerInstance?.toggleReplacement(replacement);
 }
 
-export async function toggleAllReplacements(): Promise<void> {
+export async function toggleAllReplacements() {
   await providerInstance?.toggleAllReplacements();
 }

@@ -22,7 +22,7 @@ async function findAllPackageJsons(folder: vscode.WorkspaceFolder): Promise<stri
   const packageJsons: string[] = [];
   const excludedDirs = getExcludedDirs(folder.uri.fsPath);
 
-  async function scan(dir: string): Promise<void> {
+  async function scan(dir: string) {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
 
     for (const entry of entries) {
@@ -42,7 +42,7 @@ async function findAllPackageJsons(folder: vscode.WorkspaceFolder): Promise<stri
   return packageJsons;
 }
 
-async function openPackageJsonAtScripts(packageJsonPath: string): Promise<void> {
+async function openPackageJsonAtScripts(packageJsonPath: string) {
   const content = fs.readFileSync(packageJsonPath, 'utf-8');
   const lines = content.split('\n');
   let scriptsLine = 0;

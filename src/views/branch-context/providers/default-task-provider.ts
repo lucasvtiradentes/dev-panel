@@ -67,24 +67,19 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     return milestoneOps.getMilestones(context);
   }
 
-  moveTaskToMilestone(taskLineIndex: number, targetMilestoneName: string | null, context: SyncContext): Promise<void> {
+  moveTaskToMilestone(taskLineIndex: number, targetMilestoneName: string | null, context: SyncContext) {
     return milestoneOps.moveTaskToMilestone(taskLineIndex, targetMilestoneName, context);
   }
 
-  createMilestone(name: string, context: SyncContext): Promise<void> {
+  createMilestone(name: string, context: SyncContext) {
     return milestoneOps.createMilestone(name, context);
   }
 
-  reorderTask(
-    taskLineIndex: number,
-    targetLineIndex: number,
-    position: 'before' | 'after',
-    context: SyncContext,
-  ): Promise<void> {
+  reorderTask(taskLineIndex: number, targetLineIndex: number, position: 'before' | 'after', context: SyncContext) {
     return milestoneOps.reorderTask(taskLineIndex, targetLineIndex, position, context);
   }
 
-  onStatusChange(lineIndex: number, newStatus: TaskStatus, context: SyncContext): Promise<void> {
+  onStatusChange(lineIndex: number, newStatus: TaskStatus, context: SyncContext) {
     return taskCrud.onStatusChange(lineIndex, newStatus, context);
   }
 
@@ -92,15 +87,15 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     return taskCrud.onCreateTask(task, parentIndex, context);
   }
 
-  onUpdateMeta(lineIndex: number, metaUpdate: Partial<TaskMeta>, context: SyncContext): Promise<void> {
+  onUpdateMeta(lineIndex: number, metaUpdate: Partial<TaskMeta>, context: SyncContext) {
     return taskCrud.onUpdateMeta(lineIndex, metaUpdate, context);
   }
 
-  onEditText(lineIndex: number, newText: string, context: SyncContext): Promise<void> {
+  onEditText(lineIndex: number, newText: string, context: SyncContext) {
     return taskCrud.onEditText(lineIndex, newText, context);
   }
 
-  onDeleteTask(lineIndex: number, context: SyncContext): Promise<void> {
+  onDeleteTask(lineIndex: number, context: SyncContext) {
     return taskCrud.onDeleteTask(lineIndex, context);
   }
 

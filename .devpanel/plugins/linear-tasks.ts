@@ -350,7 +350,7 @@ runPlugin({
     });
   },
 
-  setStatus(lineIndex: number, newStatus: TaskStatus): Promise<void> {
+  setStatus(lineIndex: number, newStatus: TaskStatus) {
     try {
       ensureTaskCache();
       const issueId = taskCache.get(lineIndex);
@@ -381,7 +381,7 @@ runPlugin({
     return linearIssueToTaskNode(issue, index, customStateMapping);
   },
 
-  updateMeta(lineIndex: number, meta: Partial<TaskMeta>): Promise<void> {
+  updateMeta(lineIndex: number, meta: Partial<TaskMeta>) {
     try {
       ensureTaskCache();
       const issueId = taskCache.get(lineIndex);
@@ -415,7 +415,7 @@ runPlugin({
     }
   },
 
-  deleteTask(lineIndex: number): Promise<void> {
+  deleteTask(lineIndex: number) {
     try {
       ensureTaskCache();
       const issueId = taskCache.get(lineIndex);

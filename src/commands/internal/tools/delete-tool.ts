@@ -23,7 +23,7 @@ import {
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import type { TreeTool } from '../../../views/tools/items';
 
-async function handleDeleteTool(treeTool: TreeTool): Promise<void> {
+async function handleDeleteTool(treeTool: TreeTool) {
   if (!treeTool?.toolName) {
     showInvalidItemError('tool');
     return;

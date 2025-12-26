@@ -121,7 +121,7 @@ export async function installItem(
   kind: RegistryItemKind,
   item: RegistryItemEntry,
   force = false,
-): Promise<void> {
+) {
   const config = KIND_CONFIG[kind];
   const configDirPath = getWorkspaceConfigDirPath(workspaceFolder);
   const targetDir = path.join(configDirPath, config.dirName);
