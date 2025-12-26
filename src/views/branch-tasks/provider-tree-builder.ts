@@ -28,13 +28,14 @@ export function buildTaskChildren(taskNode: TaskNode): BranchTaskItem[] {
   return taskNode.children.map((child) => new BranchTaskItem(child, child.children.length > 0));
 }
 
-export function buildMilestonesTree(
-  orphanTasks: TaskNode[],
-  milestones: MilestoneNode[],
-  showOnlyTodo: boolean,
-  activeFilters: TaskFilter,
-  grouped: boolean,
-): BranchTreeItem[] {
+export function buildMilestonesTree(options: {
+  orphanTasks: TaskNode[];
+  milestones: MilestoneNode[];
+  showOnlyTodo: boolean;
+  activeFilters: TaskFilter;
+  grouped: boolean;
+}): BranchTreeItem[] {
+  const { orphanTasks, milestones, showOnlyTodo, activeFilters, grouped } = options;
   const result: BranchTreeItem[] = [];
 
   let processedOrphanTasks = filterTodoNodes(orphanTasks, showOnlyTodo);

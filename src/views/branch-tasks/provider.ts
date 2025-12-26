@@ -201,13 +201,13 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     const hasActiveFilter = Object.keys(this.activeFilters).length > 0;
 
     if (hasMilestones) {
-      const result = buildMilestonesTree(
-        this.cachedOrphanTasks,
-        this.cachedMilestones,
-        this.showOnlyTodo,
-        this.activeFilters,
-        this.grouped,
-      );
+      const result = buildMilestonesTree({
+        orphanTasks: this.cachedOrphanTasks,
+        milestones: this.cachedMilestones,
+        showOnlyTodo: this.showOnlyTodo,
+        activeFilters: this.activeFilters,
+        grouped: this.grouped,
+      });
 
       if (result.length === 0) {
         return [createEmptyStateItem(this.showOnlyTodo, hasActiveFilter) as unknown as BranchTreeItem];

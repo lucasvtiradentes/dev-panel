@@ -71,12 +71,12 @@ export class BranchMilestoneItem extends vscode.TreeItem {
 
 export type BranchTreeItem = BranchTaskItem | BranchMilestoneItem;
 
-interface BranchTasksProviderInterface {
+type BranchTasksProviderInterface = {
   findMilestoneForTask(lineIndex: number): string | undefined;
   moveTaskToMilestone(lineIndex: number, milestoneName: string | null): Promise<void>;
   reorderTask(taskLineIndex: number, targetLineIndex: number): Promise<void>;
   refresh(): void;
-}
+};
 
 export class BranchTasksDragAndDropController implements vscode.TreeDragAndDropController<BranchTreeItem> {
   readonly dropMimeTypes = [DND_MIME_TYPE_BRANCH_TASKS];
