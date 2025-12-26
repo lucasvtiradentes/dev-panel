@@ -123,9 +123,13 @@ function setupTreeViews(providers: Providers) {
   });
   providers.branchContextProvider.setTreeView(branchContextTreeView);
 
+  VscodeHelper.createTreeView(getViewIdTodos(), {
+    treeDataProvider: providers.branchTasksProvider,
+    dragAndDropController: providers.branchTasksProvider.dragAndDropController,
+  });
+
   VscodeHelper.registerTreeDataProvider(getViewIdConfigs(), providers.variablesProvider);
   VscodeHelper.registerTreeDataProvider(getViewIdReplacements(), providers.replacementsProvider);
-  VscodeHelper.registerTreeDataProvider(getViewIdTodos(), providers.branchTasksProvider);
 }
 
 function setupDisposables(context: ExtensionContext, providers: Providers) {

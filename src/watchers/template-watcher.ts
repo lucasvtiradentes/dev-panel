@@ -4,8 +4,7 @@ import { createLogger } from '../common/lib/logger';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable } from '../common/vscode/vscode-types';
-import type { RefreshCallback } from './utils';
-import { attachFileWatcherHandlers } from './utils';
+import { type RefreshCallback, attachFileWatcherHandlers } from './utils';
 
 const logger = createLogger('TemplateWatcher');
 
@@ -26,6 +25,10 @@ export function createTemplateWatcher(onChange: RefreshCallback): Disposable {
   attachFileWatcherHandlers(watcher, {
     onChange: () => onChange(),
     onCreate: () => onChange(),
+    onDelete: () => {
+      logger.info('Template file deleted');
+      onChange();
+    },
   });
 
   return watcher;

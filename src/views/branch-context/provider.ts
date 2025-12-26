@@ -50,6 +50,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
   private helpers: ProviderHelpers;
   private syncManager: SyncManager;
   private taskProvider;
+  private isInitializing = true;
 
   constructor(onSyncComplete?: () => void) {
     this.validationIndicator = new ValidationIndicator();
@@ -111,6 +112,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
 
   handleMarkdownChange(uri?: Uri) {
     if (this.syncManager.getIsWritingMarkdown() || this.syncManager.getIsSyncing()) {
+      logger.info('[handleMarkdownChange] Ignoring - currently writing/syncing');
       return;
     }
 
@@ -120,18 +122,22 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
     const currentBranchPath = getBranchContextFilePathUtil(workspace, this.currentBranch);
 
     if (uri.fsPath !== currentBranchPath) {
+      logger.info(`[handleMarkdownChange] Ignoring - path mismatch: ${uri.fsPath} !== ${currentBranchPath}`);
       return;
     }
 
-    this.syncManager.debouncedSync(() => this.syncManager.syncBranchToRoot());
+    logger.info(`[handleMarkdownChange] Syncing branch to root: ${uri.fsPath}`);
+    this.syncManager.debouncedSync(() => this.syncManager.syncBranchToRoot(), true);
   }
 
   handleRootMarkdownChange() {
     if (this.syncManager.getIsWritingMarkdown() || this.syncManager.getIsSyncing()) {
+      logger.info('[handleRootMarkdownChange] Ignoring - currently writing/syncing');
       return;
     }
 
-    this.syncManager.debouncedSync(() => this.syncManager.syncRootToBranch());
+    logger.info('[handleRootMarkdownChange] Syncing root to branch');
+    this.syncManager.debouncedSync(() => this.syncManager.syncRootToBranch(), true);
   }
 
   async initialize() {
@@ -181,11 +187,13 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
   }
 
   setBranch(branchName: string, shouldRefresh = true) {
-    logger.info(`[BranchContextProvider] setBranch called: ${branchName} (current: ${this.currentBranch})`);
+    logger.info(
+      `[BranchContextProvider] setBranch called: ${branchName} (current: ${this.currentBranch}, isInitializing: ${this.isInitializing})`,
+    );
 
     if (branchName !== this.currentBranch) {
       this.currentBranch = branchName;
-      if (shouldRefresh) {
+      if (shouldRefresh && !this.isInitializing) {
         logger.info('[BranchContextProvider] Branch changed, refreshing');
         this.refresh();
       }
@@ -306,6 +314,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
     }
 
     await this.syncManager.syncBranchContext();
+    this.isInitializing = false;
   }
 
   dispose() {

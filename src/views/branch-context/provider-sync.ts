@@ -16,7 +16,11 @@ import { createLogger } from '../../common/lib/logger';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { getChangedFilesWithSummary } from '../_branch_base/providers/default/file-changes-utils';
 import type { SyncContext } from '../_branch_base/providers/interfaces';
-import { generateBranchContextMarkdown, loadBranchContext } from '../_branch_base/storage';
+import {
+  generateBranchContextMarkdown,
+  invalidateBranchContextCache,
+  loadBranchContext,
+} from '../_branch_base/storage';
 import type { ProviderHelpers } from './provider-helpers';
 
 const logger = createLogger('BranchContextSync');
@@ -32,6 +36,8 @@ export class SyncManager {
   private lastSyncDirection: SyncDirection | null = null;
   private isWritingMarkdown = false;
 
+  private isInitializing = true;
+
   constructor(
     private getCurrentBranch: () => string,
     private helpers: ProviderHelpers,
@@ -40,14 +46,17 @@ export class SyncManager {
     private onSyncComplete?: () => void,
   ) {}
 
-  debouncedSync(syncFn: () => void) {
+  debouncedSync(syncFn: () => void, shouldRefresh = true) {
     if (this.syncDebounceTimer) {
       clearTimeout(this.syncDebounceTimer);
     }
 
     this.syncDebounceTimer = setTimeout(() => {
       syncFn();
-      this.refresh();
+      if (shouldRefresh) {
+        this.refresh();
+        this.onSyncComplete?.();
+      }
       this.syncDebounceTimer = null;
     }, SYNC_DEBOUNCE_MS);
   }
@@ -89,8 +98,6 @@ export class SyncManager {
         this.isSyncing = false;
         this.isWritingMarkdown = false;
         extensionStore.set(StoreKey.IsWritingBranchContext, false);
-        this.refresh();
-        this.onSyncComplete?.();
         setTimeout(() => {
           this.lastSyncDirection = null;
         }, 300);
@@ -135,8 +142,6 @@ export class SyncManager {
         this.isSyncing = false;
         this.isWritingMarkdown = false;
         extensionStore.set(StoreKey.IsWritingBranchContext, false);
-        this.refresh();
-        this.onSyncComplete?.();
         setTimeout(() => {
           this.lastSyncDirection = null;
         }, 300);
@@ -281,6 +286,9 @@ export class SyncManager {
         Object.keys(sectionMetadataMap).length > 0 ? sectionMetadataMap : undefined,
       );
 
+      logger.info(`[syncBranchContext] Invalidating cache after write (+${Date.now() - startTime}ms)`);
+      invalidateBranchContextCache(currentBranch);
+
       logger.info(`[syncBranchContext] Syncing to root (+${Date.now() - startTime}ms)`);
       this.syncBranchToRoot();
     } finally {
@@ -289,6 +297,12 @@ export class SyncManager {
       setTimeout(() => {
         this.isWritingMarkdown = false;
         extensionStore.set(StoreKey.IsWritingBranchContext, false);
+        const wasInitializing = this.isInitializing;
+        this.isInitializing = false;
+        if (wasInitializing) {
+          logger.info('[syncBranchContext] First sync complete, calling onSyncComplete');
+          this.onSyncComplete?.();
+        }
       }, WRITING_MARKDOWN_TIMEOUT_MS);
       logger.info(`[syncBranchContext] END total time: ${Date.now() - startTime}ms`);
     }
