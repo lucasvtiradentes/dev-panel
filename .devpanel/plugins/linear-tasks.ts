@@ -2,14 +2,47 @@ import { execSync } from 'node:child_process';
 import { appendFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type {
-  SyncResult,
-  TaskMeta,
-  TaskNode,
-  TaskPriority,
-  TaskStatus,
-} from '../../src/views/branch-context/providers/interfaces';
 import { getPluginRequest, runPlugin } from './task-plugin-base';
+
+enum TaskStatus {
+  Todo = 'todo',
+  Doing = 'doing',
+  Done = 'done',
+  Blocked = 'blocked',
+}
+
+enum TaskPriority {
+  Urgent = 'urgent',
+  High = 'high',
+  Medium = 'medium',
+  Low = 'low',
+  None = 'none',
+}
+
+type TaskMeta = {
+  assignee?: string;
+  priority?: TaskPriority;
+  tags?: string[];
+  dueDate?: string;
+  estimate?: string;
+  externalId?: string;
+  externalUrl?: string;
+};
+
+type TaskNode = {
+  text: string;
+  status: TaskStatus;
+  lineIndex: number;
+  children: TaskNode[];
+  meta: TaskMeta;
+};
+
+type SyncResult = {
+  added: number;
+  updated: number;
+  deleted: number;
+  conflicts?: { taskId: string; reason: string }[];
+};
 
 const LOG_FILE = join(tmpdir(), 'dev-panel-dev.log');
 
@@ -115,7 +148,7 @@ function parseLinearLink(linearLink: string): ParsedLink | null {
 }
 
 function mapLinearStateToStatus(state?: LinearState, customMapping?: Record<string, TaskStatus>): TaskStatus {
-  if (!state) return 'todo';
+  if (!state) return TaskStatus.Todo;
 
   if (customMapping?.[state.name]) {
     return customMapping[state.name];
@@ -124,22 +157,22 @@ function mapLinearStateToStatus(state?: LinearState, customMapping?: Record<stri
   switch (state.type) {
     case LinearStateType.Completed:
     case LinearStateType.Canceled:
-      return 'done';
+      return TaskStatus.Done;
     case LinearStateType.Started:
-      return 'doing';
+      return TaskStatus.Doing;
     default:
-      return 'todo';
+      return TaskStatus.Todo;
   }
 }
 
 function mapStatusToLinearState(status: TaskStatus): string {
   switch (status) {
-    case 'done':
+    case TaskStatus.Done:
       return 'Done';
-    case 'doing':
+    case TaskStatus.Doing:
       return 'In Progress';
-    case 'blocked':
-    case 'todo':
+    case TaskStatus.Blocked:
+    case TaskStatus.Todo:
       return 'Todo';
   }
 }
@@ -147,29 +180,29 @@ function mapStatusToLinearState(status: TaskStatus): string {
 function mapLinearPriority(priority?: number): TaskPriority {
   switch (priority) {
     case 1:
-      return 'urgent';
+      return TaskPriority.Urgent;
     case 2:
-      return 'high';
+      return TaskPriority.High;
     case 3:
-      return 'medium';
+      return TaskPriority.Medium;
     case 4:
-      return 'low';
+      return TaskPriority.Low;
     default:
-      return 'none';
+      return TaskPriority.None;
   }
 }
 
 function mapPriorityToLinear(priority?: TaskPriority): number | undefined {
   switch (priority) {
-    case 'urgent':
+    case TaskPriority.Urgent:
       return 1;
-    case 'high':
+    case TaskPriority.High:
       return 2;
-    case 'medium':
+    case TaskPriority.Medium:
       return 3;
-    case 'low':
+    case TaskPriority.Low:
       return 4;
-    default:
+    case TaskPriority.None:
       return undefined;
   }
 }
@@ -216,12 +249,12 @@ function subIssueToTaskNode(
 ): TaskNode {
   return {
     text: subIssue.title,
-    status: subIssue.completed ? 'done' : 'todo',
+    status: subIssue.completed ? TaskStatus.Done : TaskStatus.Todo,
     lineIndex: index,
     children: [],
     meta: {
       externalId: subIssue.identifier,
-      priority: 'none',
+      priority: TaskPriority.None,
     },
   };
 }
