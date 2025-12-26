@@ -7,29 +7,30 @@ import {
   TASK_META_PRIORITY_PATTERN,
   TASK_META_TAG_PATTERN,
 } from '../../../common/constants';
-import type { TaskMeta, TaskPriority, TaskStatus } from './interfaces';
+import { TaskPriority, TaskStatus } from '../../../common/schemas';
+import type { TaskMeta } from './interfaces';
 
 export function parseStatusMarker(marker: string): TaskStatus {
   const char = marker.toLowerCase();
   switch (char) {
     case 'x':
-      return 'done';
+      return TaskStatus.Done;
     case '>':
-      return 'doing';
+      return TaskStatus.Doing;
     case '!':
-      return 'blocked';
+      return TaskStatus.Blocked;
     default:
-      return 'todo';
+      return TaskStatus.Todo;
   }
 }
 
 export function statusToMarker(status: TaskStatus): string {
   switch (status) {
-    case 'done':
+    case TaskStatus.Done:
       return 'x';
-    case 'doing':
+    case TaskStatus.Doing:
       return '>';
-    case 'blocked':
+    case TaskStatus.Blocked:
       return '!';
     default:
       return ' ';
@@ -41,9 +42,9 @@ export function createEmptyMeta(): TaskMeta {
 }
 
 export function cycleStatus(currentStatus: TaskStatus): TaskStatus {
-  const cycle: TaskStatus[] = ['todo', 'doing', 'done'];
+  const cycle: TaskStatus[] = [TaskStatus.Todo, TaskStatus.Doing, TaskStatus.Done];
   const idx = cycle.indexOf(currentStatus);
-  if (idx === -1) return 'todo';
+  if (idx === -1) return TaskStatus.Todo;
   return cycle[(idx + 1) % cycle.length];
 }
 
@@ -108,7 +109,7 @@ export function serializeTaskMeta(meta: TaskMeta): string {
     parts.push(`@${meta.assignee}`);
   }
 
-  if (meta.priority && meta.priority !== 'none') {
+  if (meta.priority && meta.priority !== TaskPriority.None) {
     parts.push(`!${meta.priority}`);
   }
 

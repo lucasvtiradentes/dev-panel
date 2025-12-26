@@ -19,13 +19,12 @@ import {
 } from '../../common/constants';
 import { createLogger } from '../../common/lib/logger';
 import { Command } from '../../common/lib/vscode-utils';
+import { SectionType } from '../../common/schemas';
 import type { BranchContextConfig } from '../../common/schemas/config-schema';
 import type { AutoSectionProvider } from './providers/interfaces';
 import { loadAutoProvider } from './providers/plugin-loader';
 
 const logger = createLogger('SectionRegistry');
-
-export type SectionType = 'field' | 'text' | 'auto' | 'special';
 
 export type SectionDefinition = {
   name: string;
@@ -60,7 +59,7 @@ export class SectionRegistry {
     this.register({
       name: SECTION_NAME_BRANCH,
       label: SECTION_LABEL_BRANCH,
-      type: 'field',
+      type: SectionType.Field,
       icon: 'git-branch',
       isBuiltin: true,
       command: Command.EditBranchName,
@@ -69,7 +68,7 @@ export class SectionRegistry {
     this.register({
       name: SECTION_NAME_PR_LINK,
       label: SECTION_LABEL_PR_LINK,
-      type: 'field',
+      type: SectionType.Field,
       icon: 'git-pull-request',
       isBuiltin: true,
       command: Command.EditBranchPrLink,
@@ -78,7 +77,7 @@ export class SectionRegistry {
     this.register({
       name: SECTION_NAME_LINEAR_LINK,
       label: SECTION_LABEL_LINEAR_LINK,
-      type: 'field',
+      type: SectionType.Field,
       icon: 'link',
       isBuiltin: true,
       command: Command.EditBranchLinearLink,
@@ -87,7 +86,7 @@ export class SectionRegistry {
     this.register({
       name: SECTION_NAME_OBJECTIVE,
       label: SECTION_LABEL_OBJECTIVE,
-      type: 'text',
+      type: SectionType.Text,
       icon: 'target',
       isBuiltin: true,
       command: Command.EditBranchObjective,
@@ -96,7 +95,7 @@ export class SectionRegistry {
     this.register({
       name: SECTION_NAME_REQUIREMENTS,
       label: SECTION_LABEL_REQUIREMENTS,
-      type: 'text',
+      type: SectionType.Text,
       icon: 'checklist',
       isBuiltin: true,
       command: Command.EditBranchRequirements,
@@ -105,7 +104,7 @@ export class SectionRegistry {
     this.register({
       name: SECTION_NAME_NOTES,
       label: SECTION_LABEL_NOTES,
-      type: 'text',
+      type: SectionType.Text,
       icon: 'note',
       isBuiltin: true,
       command: Command.EditBranchNotes,
@@ -115,7 +114,7 @@ export class SectionRegistry {
       this.register({
         name: SECTION_NAME_TASKS,
         label: SECTION_LABEL_TASKS,
-        type: 'text',
+        type: SectionType.Text,
         icon: 'tasklist',
         isBuiltin: true,
       });
@@ -127,7 +126,7 @@ export class SectionRegistry {
         this.register({
           name: SECTION_NAME_CHANGED_FILES,
           label: SECTION_LABEL_CHANGED_FILES,
-          type: 'auto',
+          type: SectionType.Auto,
           icon: 'diff',
           isBuiltin: true,
           provider,
@@ -136,7 +135,7 @@ export class SectionRegistry {
         this.register({
           name: SECTION_NAME_CHANGED_FILES,
           label: SECTION_LABEL_CHANGED_FILES,
-          type: 'auto',
+          type: SectionType.Auto,
           icon: 'diff',
           isBuiltin: true,
         });
@@ -156,7 +155,7 @@ export class SectionRegistry {
       logger.info(`[registerCustom] Processing section: ${section.name}, type: ${section.type}`);
 
       let provider: AutoSectionProvider | undefined;
-      if (section.type === 'auto' && section.provider) {
+      if (section.type === SectionType.Auto && section.provider) {
         logger.info(`[registerCustom] Loading provider for ${section.name}: ${section.provider}`);
         provider = loadAutoProvider(workspace, section.provider);
         logger.info(`[registerCustom] Provider loaded successfully for ${section.name}`);
@@ -165,7 +164,7 @@ export class SectionRegistry {
       this.register({
         name: section.name,
         label: section.label ?? section.name,
-        type: section.type,
+        type: section.type as SectionType,
         icon: section.icon ?? BRANCH_CONTEXT_DEFAULT_ICON,
         isBuiltin: false,
         provider,

@@ -1,6 +1,7 @@
-import type { SyncResult, TaskMeta, TaskNode, TaskStatus } from './interfaces';
+import type { PluginAction, TaskStatus } from '../../../common/schemas';
+import type { SyncResult, TaskMeta, TaskNode } from './interfaces';
 
-export type PluginAction = 'getTasks' | 'setStatus' | 'createTask' | 'updateMeta' | 'deleteTask' | 'sync';
+export type { PluginAction, TaskStatus };
 
 export type PluginRequest = {
   action: PluginAction;

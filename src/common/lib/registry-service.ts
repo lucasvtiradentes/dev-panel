@@ -15,7 +15,7 @@ import {
   SCRIPTS_DIR_NAME,
   TOOLS_DIR,
 } from '../constants';
-import { type RegistryIndex, type RegistryItemEntry, RegistryItemKind } from '../schemas';
+import { type RegistryIndex, RegistryIndexSchema, type RegistryItemEntry, RegistryItemKind } from '../schemas';
 import { getConfigDirPathFromWorkspacePath, getWorkspaceConfigDirPath } from './config-manager';
 import { logger } from './logger';
 
@@ -66,7 +66,8 @@ export async function fetchRegistryIndex(): Promise<RegistryIndex> {
   const url = `${REGISTRY_BASE_URL}/${REGISTRY_INDEX_FILE}`;
   logger.info(`Fetching registry index from ${url}`);
   const content = await httpsGet(url);
-  return JSON.parse(content) as RegistryIndex;
+  const rawIndex = JSON.parse(content);
+  return RegistryIndexSchema.parse(rawIndex);
 }
 
 export function getItemsForKind(index: RegistryIndex, kind: RegistryItemKind): RegistryItemEntry[] {

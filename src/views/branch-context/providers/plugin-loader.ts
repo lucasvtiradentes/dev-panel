@@ -2,6 +2,7 @@ import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
 import { getConfigDirPathFromWorkspacePath } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
+import { PluginAction, TaskStatus } from '../../../common/schemas';
 import type {
   AutoSectionProvider,
   NewTask,
@@ -9,7 +10,6 @@ import type {
   SyncResult,
   TaskMeta,
   TaskNode,
-  TaskStatus,
   TaskSyncProvider,
 } from './interfaces';
 import type {
@@ -18,7 +18,6 @@ import type {
   DeleteTaskPayload,
   DeleteTaskResponse,
   GetTasksResponse,
-  PluginAction,
   PluginRequest,
   SetStatusPayload,
   SetStatusResponse,
@@ -125,7 +124,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
     },
 
     async getTasks(context: SyncContext): Promise<TaskNode[]> {
-      const response = await executePlugin<GetTasksResponse>('getTasks', context);
+      const response = await executePlugin<GetTasksResponse>(PluginAction.GetTasks, context);
 
       if (!response.success) {
         logger.error(`[loadTaskProvider] getTasks failed: ${response.error}`);
@@ -141,7 +140,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
 
     async onStatusChange(lineIndex: number, newStatus: TaskStatus, context: SyncContext): Promise<void> {
       const payload: SetStatusPayload = { lineIndex, newStatus };
-      const response = await executePlugin<SetStatusResponse>('setStatus', context, payload);
+      const response = await executePlugin<SetStatusResponse>(PluginAction.SetStatus, context, payload);
 
       if (!response.success) {
         throw new Error(response.error ?? 'Failed to set status');
@@ -150,7 +149,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
 
     async onCreateTask(task: NewTask, parentIndex: number | undefined, context: SyncContext): Promise<TaskNode> {
       const payload: CreateTaskPayload = { text: task.text, parentIndex };
-      const response = await executePlugin<CreateTaskResponse>('createTask', context, payload);
+      const response = await executePlugin<CreateTaskResponse>(PluginAction.CreateTask, context, payload);
 
       if (!response.success || !response.task) {
         throw new Error(response.error ?? 'Failed to create task');
@@ -161,7 +160,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
 
     async onUpdateMeta(lineIndex: number, meta: Partial<TaskMeta>, context: SyncContext): Promise<void> {
       const payload: UpdateMetaPayload = { lineIndex, meta };
-      const response = await executePlugin<UpdateMetaResponse>('updateMeta', context, payload);
+      const response = await executePlugin<UpdateMetaResponse>(PluginAction.UpdateMeta, context, payload);
 
       if (!response.success) {
         throw new Error(response.error ?? 'Failed to update meta');
@@ -174,7 +173,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
 
     async onDeleteTask(lineIndex: number, context: SyncContext): Promise<void> {
       const payload: DeleteTaskPayload = { lineIndex };
-      const response = await executePlugin<DeleteTaskResponse>('deleteTask', context, payload);
+      const response = await executePlugin<DeleteTaskResponse>(PluginAction.DeleteTask, context, payload);
 
       if (!response.success) {
         throw new Error(response.error ?? 'Failed to delete task');
@@ -207,7 +206,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
     },
 
     async onSync(context: SyncContext): Promise<SyncResult> {
-      const response = await executePlugin<SyncResponse>('sync', context);
+      const response = await executePlugin<SyncResponse>(PluginAction.Sync, context);
 
       if (!response.success || !response.result) {
         throw new Error(response.error ?? 'Sync failed');
@@ -217,9 +216,9 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
     },
 
     cycleStatus(currentStatus: TaskStatus): TaskStatus {
-      const cycle: TaskStatus[] = ['todo', 'doing', 'done'];
+      const cycle: TaskStatus[] = [TaskStatus.Todo, TaskStatus.Doing, TaskStatus.Done];
       const idx = cycle.indexOf(currentStatus);
-      if (idx === -1) return 'todo';
+      if (idx === -1) return TaskStatus.Todo;
       return cycle[(idx + 1) % cycle.length];
     },
   };

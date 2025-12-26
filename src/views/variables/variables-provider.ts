@@ -185,8 +185,9 @@ export class VariablesProvider implements vscode.TreeDataProvider<vscode.TreeIte
     if (!fs.existsSync(configPath)) return undefined;
 
     const content = fs.readFileSync(configPath, 'utf-8');
-    const config = json5.parse(content);
-    return config.settings;
+    const rawConfig = json5.parse(content);
+    const validatedConfig = DevPanelConfigSchema.parse(rawConfig);
+    return validatedConfig.settings;
   }
 }
 

@@ -13,7 +13,8 @@ import {
 } from '../../common/constants';
 import { getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
 import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
-import type { DevPanelConfig, DevPanelReplacement } from '../../common/schemas/config-schema';
+import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
+import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { fileExistsInGit, getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
@@ -26,11 +27,6 @@ import {
   setActiveReplacements,
   setLastBranch,
 } from './state';
-
-type NormalizedPatchItem = {
-  search: string[];
-  replace: string[];
-};
 
 type NormalizedPatchReplacement = {
   type: 'patch';
@@ -220,7 +216,8 @@ export class ReplacementsProvider implements vscode.TreeDataProvider<vscode.Tree
     if (!fs.existsSync(configPath)) return null;
 
     const content = fs.readFileSync(configPath, 'utf-8');
-    const config = json5.parse(content) as DevPanelConfig;
+    const rawConfig = json5.parse(content);
+    const config = DevPanelConfigSchema.parse(rawConfig);
 
     if (config.replacements) {
       for (const replacement of config.replacements) {

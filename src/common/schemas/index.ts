@@ -5,6 +5,7 @@ export {
   type DevPanelInput,
   type DevPanelSettings,
   type DevPanelVariable,
+  type DevPanelReplacement,
   DevPanelConfigSchema,
   AIProvider,
   PromptExecutionMode,
@@ -15,7 +16,13 @@ export {
 } from './config-schema';
 
 // Registry schema exports (for registry items)
-export { RegistryItemKind, type RegistryItem, type RegistryIndex, type RegistryItemEntry } from './registry-schema';
+export {
+  RegistryItemKind,
+  type RegistryItem,
+  type RegistryIndex,
+  type RegistryItemEntry,
+  RegistryIndexSchema,
+} from './registry-schema';
 
 // VSCode workspace schema exports (for VSCode workspace state)
 export {
@@ -39,3 +46,22 @@ export {
   DEFAULT_BRANCH_CONTEXT_STATE,
   DEFAULT_WORKSPACE_UI_STATE,
 } from './vscode-workspace-schema';
+
+// Common types and enums
+export {
+  type NormalizedPatchItem,
+  type SectionMetadata,
+  type BranchContextMetadata,
+  type BranchContext,
+  type TaskSourceInfo,
+  type TaskDefinition,
+  type TasksJson,
+  type CodeWorkspaceFile,
+  TaskSource,
+  TaskStatus,
+  TaskPriority,
+  SectionType,
+  PluginAction,
+  TASK_SOURCE_VALUES,
+  TASK_SOURCES,
+} from './types';

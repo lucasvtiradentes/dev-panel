@@ -1,5 +1,6 @@
 import * as fs from 'node:fs';
 import { MARKDOWN_SECTION_HEADER_PATTERN, TODO_SECTION_HEADER_PATTERN } from '../../../common/constants';
+import type { TaskStatus } from '../../../common/schemas';
 import type {
   MilestoneNode,
   NewTask,
@@ -7,7 +8,6 @@ import type {
   SyncResult,
   TaskMeta,
   TaskNode,
-  TaskStatus,
   TaskSyncProvider,
 } from './interfaces';
 import * as milestoneOps from './milestone-operations';

@@ -1,3 +1,39 @@
+export type NormalizedPatchItem = {
+  search: string[];
+  replace: string[];
+};
+
+export enum TaskStatus {
+  Todo = 'todo',
+  Doing = 'doing',
+  Done = 'done',
+  Blocked = 'blocked',
+}
+
+export enum TaskPriority {
+  Urgent = 'urgent',
+  High = 'high',
+  Medium = 'medium',
+  Low = 'low',
+  None = 'none',
+}
+
+export enum SectionType {
+  Field = 'field',
+  Text = 'text',
+  Auto = 'auto',
+  Special = 'special',
+}
+
+export enum PluginAction {
+  GetTasks = 'getTasks',
+  SetStatus = 'setStatus',
+  CreateTask = 'createTask',
+  UpdateMeta = 'updateMeta',
+  DeleteTask = 'deleteTask',
+  Sync = 'sync',
+}
+
 export type SectionMetadata = Record<string, unknown>;
 
 export type BranchContextMetadata = {

@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
-import type { TaskMeta, TaskPriority, TaskStatus } from '../branch-context/providers/interfaces';
+import { type TaskPriority, TaskStatus } from '../../common/schemas';
+import type { TaskMeta } from '../branch-context/providers/interfaces';
 
 export function formatTaskDescription(meta: TaskMeta, status: TaskStatus): string {
-  if (status === 'done') {
+  if (status === TaskStatus.Done) {
     return 'done';
   }
 

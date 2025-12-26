@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { TaskPriority, TaskStatus } from '../../common/schemas';
 import type { TaskFilter } from './filter-operations';
 
 export async function showFilterQuickPick(): Promise<TaskFilter | null> {
@@ -22,11 +23,11 @@ export async function showFilterQuickPick(): Promise<TaskFilter | null> {
 
   switch (picked.label) {
     case '$(circle-large-outline) Todo only':
-      return { status: ['todo'] };
+      return { status: [TaskStatus.Todo] };
     case '$(play-circle) Doing only':
-      return { status: ['doing'] };
+      return { status: [TaskStatus.Doing] };
     case '$(error) Blocked only':
-      return { status: ['blocked'] };
+      return { status: [TaskStatus.Blocked] };
     case '$(warning) Overdue only':
       return { overdue: true };
     case '$(account) By assignee...': {
@@ -37,7 +38,7 @@ export async function showFilterQuickPick(): Promise<TaskFilter | null> {
       return assignee ? { assignee } : null;
     }
     case '$(flame) High priority+':
-      return { priority: ['urgent', 'high'] };
+      return { priority: [TaskPriority.Urgent, TaskPriority.High] };
     case '$(link-external) With external link':
       return { hasExternalLink: true };
     case '$(close) Clear filters':

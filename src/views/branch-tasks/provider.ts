@@ -5,6 +5,7 @@ import { loadWorkspaceConfigFromPath } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
 import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
+import type { TaskPriority, TaskStatus } from '../../common/schemas';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { loadBranchContextFromFile } from '../branch-context/file-storage';
@@ -13,8 +14,6 @@ import {
   type MilestoneNode,
   type SyncContext,
   type TaskNode,
-  type TaskPriority,
-  type TaskStatus,
   type TaskSyncProvider,
   createTaskProvider,
 } from '../branch-context/providers';

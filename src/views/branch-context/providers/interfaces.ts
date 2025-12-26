@@ -1,4 +1,4 @@
-import type { BranchContext } from '../../../common/schemas/types';
+import type { BranchContext, TaskPriority, TaskStatus } from '../../../common/schemas';
 
 export type SyncContext = {
   branchName: string;
@@ -7,9 +7,6 @@ export type SyncContext = {
   branchContext: BranchContext;
   sectionOptions?: Record<string, unknown>;
 };
-
-export type TaskStatus = 'todo' | 'doing' | 'done' | 'blocked';
-export type TaskPriority = 'urgent' | 'high' | 'medium' | 'low' | 'none';
 
 export type TaskMeta = {
   assignee?: string;

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
-import type { TaskPriority, TaskStatus } from '../branch-context/providers/interfaces';
+import { TaskPriority, TaskStatus } from '../../common/schemas';
 import type { BranchTaskItem, BranchTasksProvider } from './provider';
 
 type ItemOrLineIndex = BranchTaskItem | number;
@@ -20,22 +20,22 @@ export function createBranchTaskCommands(provider: BranchTasksProvider): vscode.
 
     registerCommand(Command.SetTaskStatusTodo, async (item: ItemOrLineIndex) => {
       const lineIndex = extractLineIndex(item);
-      await provider.setStatus(lineIndex, 'todo');
+      await provider.setStatus(lineIndex, TaskStatus.Todo);
     }),
 
     registerCommand(Command.SetTaskStatusDoing, async (item: ItemOrLineIndex) => {
       const lineIndex = extractLineIndex(item);
-      await provider.setStatus(lineIndex, 'doing');
+      await provider.setStatus(lineIndex, TaskStatus.Doing);
     }),
 
     registerCommand(Command.SetTaskStatusDone, async (item: ItemOrLineIndex) => {
       const lineIndex = extractLineIndex(item);
-      await provider.setStatus(lineIndex, 'done');
+      await provider.setStatus(lineIndex, TaskStatus.Done);
     }),
 
     registerCommand(Command.SetTaskStatusBlocked, async (item: ItemOrLineIndex) => {
       const lineIndex = extractLineIndex(item);
-      await provider.setStatus(lineIndex, 'blocked');
+      await provider.setStatus(lineIndex, TaskStatus.Blocked);
     }),
 
     registerCommand(Command.SetTaskPriority, async (item: ItemOrLineIndex) => {
@@ -47,27 +47,27 @@ export function createBranchTaskCommands(provider: BranchTasksProvider): vscode.
 
     registerCommand(Command.SetTaskPriorityUrgent, async (item: ItemOrLineIndex) => {
       const lineIndex = extractLineIndex(item);
-      await provider.setPriority(lineIndex, 'urgent');
+      await provider.setPriority(lineIndex, TaskPriority.Urgent);
     }),
 
     registerCommand(Command.SetTaskPriorityHigh, async (item: ItemOrLineIndex) => {
       const lineIndex = extractLineIndex(item);
-      await provider.setPriority(lineIndex, 'high');
+      await provider.setPriority(lineIndex, TaskPriority.High);
     }),
 
     registerCommand(Command.SetTaskPriorityMedium, async (item: ItemOrLineIndex) => {
       const lineIndex = extractLineIndex(item);
-      await provider.setPriority(lineIndex, 'medium');
+      await provider.setPriority(lineIndex, TaskPriority.Medium);
     }),
 
     registerCommand(Command.SetTaskPriorityLow, async (item: ItemOrLineIndex) => {
       const lineIndex = extractLineIndex(item);
-      await provider.setPriority(lineIndex, 'low');
+      await provider.setPriority(lineIndex, TaskPriority.Low);
     }),
 
     registerCommand(Command.SetTaskPriorityNone, async (item: ItemOrLineIndex) => {
       const lineIndex = extractLineIndex(item);
-      await provider.setPriority(lineIndex, 'none');
+      await provider.setPriority(lineIndex, TaskPriority.None);
     }),
 
     registerCommand(Command.SetTaskAssignee, async (item: ItemOrLineIndex) => {
@@ -198,10 +198,10 @@ async function pickStatus(): Promise<TaskStatus | undefined> {
   if (!picked) return undefined;
 
   const statusMap: Record<string, TaskStatus> = {
-    '$(circle-large-outline) Todo': 'todo',
-    '$(play-circle) Doing': 'doing',
-    '$(pass-filled) Done': 'done',
-    '$(error) Blocked': 'blocked',
+    '$(circle-large-outline) Todo': TaskStatus.Todo,
+    '$(play-circle) Doing': TaskStatus.Doing,
+    '$(pass-filled) Done': TaskStatus.Done,
+    '$(error) Blocked': TaskStatus.Blocked,
   };
 
   return statusMap[picked.label];
@@ -223,11 +223,11 @@ async function pickPriority(): Promise<TaskPriority | undefined> {
   if (!picked) return undefined;
 
   const priorityMap: Record<string, TaskPriority> = {
-    '🔴 Urgent': 'urgent',
-    '🟠 High': 'high',
-    '🟡 Medium': 'medium',
-    '🔵 Low': 'low',
-    '○ None': 'none',
+    '🔴 Urgent': TaskPriority.Urgent,
+    '🟠 High': TaskPriority.High,
+    '🟡 Medium': TaskPriority.Medium,
+    '🔵 Low': TaskPriority.Low,
+    '○ None': TaskPriority.None,
   };
 
   return priorityMap[picked.label];
