@@ -379,7 +379,7 @@ async function executePromptWithSave(options: {
 
   fs.writeFileSync(tempFile, promptContent);
 
-  await vscode.window.withProgress(
+  await VscodeHelper.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
       title: `Running prompt: ${promptName}`,

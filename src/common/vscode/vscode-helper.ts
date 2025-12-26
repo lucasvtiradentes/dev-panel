@@ -114,8 +114,18 @@ export class VscodeHelper {
     items: readonly T[] | Thenable<readonly T[]>,
     options?: vscode.QuickPickOptions,
     token?: vscode.CancellationToken,
-    // tscanner-ignore-next-line no-single-or-array-union
+    // @tscanner-disable-next-line union-with-array
   ): Thenable<T | T[] | undefined> {
     return vscode.window.showQuickPick(items, options, token);
+  }
+
+  static withProgress<R>(
+    options: vscode.ProgressOptions,
+    task: (
+      progress: vscode.Progress<{ message?: string; increment?: number }>,
+      token: vscode.CancellationToken,
+    ) => Thenable<R>,
+  ): Thenable<R> {
+    return vscode.window.withProgress(options, task);
   }
 }

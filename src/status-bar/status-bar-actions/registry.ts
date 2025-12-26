@@ -42,7 +42,7 @@ export async function showRegistryMenu() {
 async function showItemsForKind(workspaceFolder: WorkspaceFolder, kind: RegistryItemKind) {
   const kindLabel = KIND_LABELS[kind].label;
 
-  await vscode.window.withProgress(
+  await VscodeHelper.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
       title: `Fetching ${kindLabel.toLowerCase()} from registry...`,
@@ -106,7 +106,7 @@ async function showItemsForKind(workspaceFolder: WorkspaceFolder, kind: Registry
 async function installItems(workspaceFolder: WorkspaceFolder, kind: RegistryItemKind, items: RegistryItemEntry[]) {
   const kindLabel = KIND_LABELS[kind].label.toLowerCase();
 
-  await vscode.window.withProgress(
+  await VscodeHelper.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
       title: `Installing ${items.length} ${kindLabel}...`,

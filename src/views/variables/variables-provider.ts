@@ -203,7 +203,7 @@ async function runCommand(variable: DevPanelVariable, value: unknown) {
   const command = `${variable.command} "${formattedValue}"`;
   const configDirPath = getConfigDirPathFromWorkspacePath(workspace);
 
-  await vscode.window.withProgress(
+  await VscodeHelper.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
       title: `Running: ${variable.name}`,
