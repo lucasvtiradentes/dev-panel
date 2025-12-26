@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { CONTEXT_VALUES } from '../../common/constants';
-import { BaseGroupTreeItem, BaseNamedTreeItem } from '../common';
+import { BaseGroupTreeItem, BaseNamedTreeItem } from '../_base';
 
 export class ToolGroupTreeItem extends BaseGroupTreeItem<TreeTool> {}
 

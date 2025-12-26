@@ -9,7 +9,7 @@ import {
 import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
-import { KeybindingManager } from '../common';
+import { KeybindingManager } from '../_base';
 
 const manager = new KeybindingManager({
   commandPrefix: getTaskCommandPrefix(),

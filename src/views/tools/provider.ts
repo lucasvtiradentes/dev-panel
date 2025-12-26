@@ -19,7 +19,7 @@ import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../common/schemas';
-import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../common';
+import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../_base';
 import { ToolGroupTreeItem, TreeTool } from './items';
 import { addActiveTool, getActiveTools, isFavorite, isHidden, removeActiveTool, setActiveTools } from './state';
 

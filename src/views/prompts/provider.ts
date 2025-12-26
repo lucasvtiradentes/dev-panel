@@ -14,7 +14,7 @@ import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { promptsState } from '../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../common/schemas';
-import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../common';
+import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../_base';
 import { PromptGroupTreeItem, TreePrompt } from './items';
 import { isFavorite, isHidden } from './state';
 

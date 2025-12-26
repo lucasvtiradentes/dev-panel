@@ -3,7 +3,7 @@ import { getVariableCommandId, getVariableCommandPrefix } from '../../common/con
 import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { Command, executeCommand } from '../../common/lib/vscode-utils';
-import { KeybindingManager } from '../common';
+import { KeybindingManager } from '../_base';
 
 const manager = new KeybindingManager({
   commandPrefix: getVariableCommandPrefix(),
