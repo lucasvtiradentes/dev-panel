@@ -18,7 +18,7 @@ import {
   type TaskSyncProvider,
   createTaskProvider,
   getBranchContextFilePath,
-  loadBranchContextFromFile,
+  loadBranchContext,
 } from '../_branch_base';
 import type { TaskFilter } from './filter-operations';
 import { showFilterQuickPick as showFilterQuickPickDialog } from './filter-quick-pick';
@@ -49,6 +49,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
   private activeFilters: TaskFilter = {};
   private taskProvider: TaskSyncProvider;
   private fileChangeDebounce: NodeJS.Timeout | null = null;
+  private isInitializing = true;
 
   constructor() {
     const workspace = getFirstWorkspacePath();
@@ -134,9 +135,17 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
 
   setBranch(branchName: string) {
     if (branchName !== this.currentBranch) {
-      logger.info(`[BranchTasksProvider] Branch changed from '${this.currentBranch}' to '${branchName}'`);
+      logger.info(
+        `[BranchTasksProvider] Branch changed from '${this.currentBranch}' to '${branchName}' (isInitializing: ${this.isInitializing})`,
+      );
       this.currentBranch = branchName;
-      this.refresh();
+      const wasInitializing = this.isInitializing;
+      this.isInitializing = false;
+      if (!wasInitializing) {
+        this.refresh();
+      }
+    } else {
+      this.isInitializing = false;
     }
   }
 
@@ -158,7 +167,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
       return;
     }
 
-    const branchContext = loadBranchContextFromFile(workspace, this.currentBranch);
+    const branchContext = loadBranchContext(this.currentBranch);
 
     const syncContext: SyncContext = {
       branchName: this.currentBranch,
@@ -319,7 +328,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     const workspace = getFirstWorkspacePath();
     if (!workspace) return null;
 
-    const branchContext = loadBranchContextFromFile(workspace, this.currentBranch);
+    const branchContext = loadBranchContext(this.currentBranch);
 
     return {
       branchName: this.currentBranch,

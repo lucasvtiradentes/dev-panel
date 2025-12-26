@@ -1,10 +1,13 @@
 import * as vscode from 'vscode';
 import { CONTEXT_VALUES, DND_MIME_TYPE_BRANCH_TASKS, getCommandId } from '../../common/constants';
+import { createLogger } from '../../common/lib/logger';
 import { Command } from '../../common/lib/vscode-utils';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { CancellationToken, DataTransfer, TreeItem } from '../../common/vscode/vscode-types';
 import type { MilestoneNode, TaskNode } from '../_branch_base';
 import { formatTaskDescription, formatTaskTooltip, getStatusIcon } from './task-item-utils';
+
+const logger = createLogger('BranchTasksDnD');
 
 export const NO_MILESTONE_NAME = 'No Milestone';
 
@@ -93,47 +96,71 @@ export class BranchTasksDragAndDropController implements vscode.TreeDragAndDropC
 
   handleDrag(source: readonly BranchTreeItem[], dataTransfer: DataTransfer, _token: CancellationToken) {
     const item = source[0];
-    if (!item || !(item instanceof BranchTaskItem)) return;
+    if (!item || !(item instanceof BranchTaskItem)) {
+      logger.info('[handleDrag] Ignoring drag - not a BranchTaskItem');
+      return;
+    }
 
     const data: DragData = {
       type: DragItemType.Task,
       lineIndex: item.node.lineIndex,
       milestoneName: this.provider.findMilestoneForTask(item.node.lineIndex),
     };
+    logger.info(`[handleDrag] Dragging task at line ${data.lineIndex}, milestone: ${data.milestoneName ?? 'none'}`);
     dataTransfer.set(DND_MIME_TYPE_BRANCH_TASKS, new vscode.DataTransferItem(JSON.stringify(data)));
   }
 
   async handleDrop(target: BranchTreeItem | undefined, dataTransfer: DataTransfer, _token: CancellationToken) {
     const transferItem = dataTransfer.get(DND_MIME_TYPE_BRANCH_TASKS);
-    if (!transferItem || !target) return;
+    if (!transferItem || !target) {
+      logger.info('[handleDrop] Ignoring drop - no transfer item or target');
+      return;
+    }
 
     let dragData: DragData;
     try {
       const parsed = JSON.parse(transferItem.value as string);
       if (typeof parsed !== 'object' || parsed === null || parsed.type !== DragItemType.Task) {
+        logger.info('[handleDrop] Ignoring drop - invalid drag data');
         return;
       }
       dragData = parsed as DragData;
-    } catch {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.error(`[handleDrop] Failed to parse drag data: ${message}`);
       return;
     }
-    if (dragData.type !== DragItemType.Task) return;
+    if (dragData.type !== DragItemType.Task) {
+      logger.info('[handleDrop] Ignoring drop - not a task drag');
+      return;
+    }
 
     if (target instanceof BranchMilestoneItem) {
       const targetMilestone = target.isNoMilestone ? null : target.milestone.name;
       if (dragData.milestoneName !== targetMilestone) {
+        logger.info(
+          `[handleDrop] Moving task ${dragData.lineIndex} from milestone "${dragData.milestoneName ?? 'none'}" to "${targetMilestone ?? 'none'}"`,
+        );
         await this.provider.moveTaskToMilestone(dragData.lineIndex, targetMilestone);
+      } else {
+        logger.info('[handleDrop] Same milestone, ignoring');
       }
     } else if (target instanceof BranchTaskItem) {
       const targetMilestone = this.provider.findMilestoneForTask(target.node.lineIndex);
 
       if (dragData.milestoneName !== targetMilestone) {
+        logger.info(
+          `[handleDrop] Moving task ${dragData.lineIndex} from milestone "${dragData.milestoneName ?? 'none'}" to "${targetMilestone ?? 'none'}"`,
+        );
         await this.provider.moveTaskToMilestone(dragData.lineIndex, targetMilestone ?? null);
         await new Promise((resolve) => setTimeout(resolve, 100));
         this.provider.refresh();
       } else {
+        logger.info(`[handleDrop] Reordering task ${dragData.lineIndex} to position of task ${target.node.lineIndex}`);
         await this.provider.reorderTask(dragData.lineIndex, target.node.lineIndex);
       }
+    } else {
+      logger.info('[handleDrop] Ignoring drop - unknown target type');
     }
   }
 }
