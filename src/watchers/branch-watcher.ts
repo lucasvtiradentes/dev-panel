@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { createLogger } from '../common/lib/logger';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
+import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable, FileSystemWatcher } from '../common/vscode/vscode-types';
 import { getCurrentBranch, isGitRepository } from '../views/replacements/git-utils';
 import type { BranchChangeCallback, GitAPI, GitRepository } from './types';
@@ -69,7 +70,7 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
-    headWatcher = vscode.workspace.createFileSystemWatcher(
+    headWatcher = VscodeHelper.createFileSystemWatcher(
       new vscode.RelativePattern(workspace, GIT_CONSTANTS.HEAD_FILE_PATH),
     );
 

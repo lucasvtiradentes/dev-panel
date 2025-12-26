@@ -5,6 +5,7 @@ import { CONTEXT_PREFIX, KEYBINDINGS_FILE } from '../common/constants';
 import { createLogger } from '../common/lib/logger';
 import { getVSCodeKeybindingsPath, parseKeybindings } from '../common/lib/vscode-keybindings-utils';
 import { getWorkspaceId } from '../common/lib/vscode-utils';
+import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable } from '../common/vscode/vscode-types';
 import type { RefreshCallback } from './types';
 import { WATCHER_CONSTANTS, attachFileWatcherHandlers } from './utils';
@@ -70,7 +71,7 @@ export function createKeybindingsWatcher(onKeybindingsChange: RefreshCallback): 
 
   const updater = createKeybindingsUpdater();
 
-  const watcher = vscode.workspace.createFileSystemWatcher(
+  const watcher = VscodeHelper.createFileSystemWatcher(
     new vscode.RelativePattern(path.dirname(keybindingsPath), KEYBINDINGS_FILE),
   );
 

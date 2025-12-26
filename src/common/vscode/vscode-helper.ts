@@ -136,4 +136,18 @@ export class VscodeHelper {
   static createTerminal(options: vscode.TerminalOptions): vscode.Terminal {
     return vscode.window.createTerminal(options);
   }
+
+  static createFileSystemWatcher(
+    globPattern: vscode.GlobPattern,
+    ignoreCreateEvents?: boolean,
+    ignoreChangeEvents?: boolean,
+    ignoreDeleteEvents?: boolean,
+  ): vscode.FileSystemWatcher {
+    return vscode.workspace.createFileSystemWatcher(
+      globPattern,
+      ignoreCreateEvents,
+      ignoreChangeEvents,
+      ignoreDeleteEvents,
+    );
+  }
 }

@@ -3,6 +3,7 @@ import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../common/constants/scripts-const
 import { getBranchContextGlobPattern, getBranchContextTemplatePath } from '../common/lib/config-manager';
 import { createLogger } from '../common/lib/logger';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
+import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable, FileSystemWatcher, Uri } from '../common/vscode/vscode-types';
 import type { RefreshCallback, UriChangeCallback } from './types';
 import { attachFileWatcherHandlers } from './utils';
@@ -61,7 +62,7 @@ function createBranchMarkdownWatcher(workspace: string, onChange: (uri: Uri) => 
   const globPattern = getBranchContextGlobPattern();
   logger.info(`Setting up branch markdown watcher with pattern: ${globPattern}`);
 
-  const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(workspace, globPattern));
+  const watcher = VscodeHelper.createFileSystemWatcher(new vscode.RelativePattern(workspace, globPattern));
 
   attachFileWatcherHandlers(watcher, {
     onChange,
@@ -74,7 +75,7 @@ function createBranchMarkdownWatcher(workspace: string, onChange: (uri: Uri) => 
 function createRootMarkdownWatcher(workspace: string, onChange: RefreshCallback): FileSystemWatcher | null {
   logger.info(`Setting up root markdown watcher for: ${ROOT_BRANCH_CONTEXT_FILE_NAME}`);
 
-  const watcher = vscode.workspace.createFileSystemWatcher(
+  const watcher = VscodeHelper.createFileSystemWatcher(
     new vscode.RelativePattern(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME),
   );
 
@@ -90,7 +91,7 @@ function createTemplateWatcher(workspace: string, onChange: RefreshCallback): Fi
   const templatePath = getBranchContextTemplatePath(workspace);
   logger.info(`Setting up template watcher for: ${templatePath}`);
 
-  const watcher = vscode.workspace.createFileSystemWatcher(templatePath);
+  const watcher = VscodeHelper.createFileSystemWatcher(templatePath);
 
   attachFileWatcherHandlers(watcher, {
     onChange: () => onChange(),
