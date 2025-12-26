@@ -6,12 +6,12 @@ import {
   RESOURCES_DIR_NAME,
 } from '../../../common/constants/scripts-constants';
 
-const templatePath = path.join(
-  __dirname,
-  '..',
-  '..',
-  RESOURCES_DIR_NAME,
-  INIT_RESOURCES_DIR_NAME,
-  BRANCH_CONTEXT_TEMPLATE_FILENAME,
-);
-export const DEFAULT_TEMPLATE = fs.readFileSync(templatePath, 'utf-8');
+export function getDefaultTemplate(extensionPath: string): string {
+  const templatePath = path.join(
+    extensionPath,
+    RESOURCES_DIR_NAME,
+    INIT_RESOURCES_DIR_NAME,
+    BRANCH_CONTEXT_TEMPLATE_FILENAME,
+  );
+  return fs.readFileSync(templatePath, 'utf-8');
+}

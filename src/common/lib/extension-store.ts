@@ -34,6 +34,13 @@ class ExtensionStore {
     return this.context?.extensionUri ?? null;
   }
 
+  getExtensionPath(): string {
+    if (!this.context) {
+      throw new Error('Extension context not initialized');
+    }
+    return this.context.extensionPath;
+  }
+
   get<K extends StoreKey>(key: K): ExtensionState[K] {
     return this.state[key];
   }

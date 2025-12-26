@@ -1,6 +1,7 @@
 import * as fs from 'node:fs';
 import { getBranchContextTemplatePath } from '../../../common/lib/config-manager';
-import { DEFAULT_TEMPLATE } from './default-template';
+import { extensionStore } from '../../../common/lib/extension-store';
+import { getDefaultTemplate } from './default-template';
 
 export type TemplateSection = {
   name: string;
@@ -16,7 +17,8 @@ export function loadTemplate(workspace: string): string {
     return fs.readFileSync(templatePath, 'utf-8');
   }
 
-  return DEFAULT_TEMPLATE;
+  const extensionPath = extensionStore.getExtensionPath();
+  return getDefaultTemplate(extensionPath);
 }
 
 export function parseTemplate(templateContent: string): TemplateSection[] {
