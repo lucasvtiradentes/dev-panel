@@ -46,6 +46,11 @@
         "pattern": "console\\.log",
         "include": ["src/**/*.ts"],
         "message": "Remove console.log before committing"
+      },
+      "no-useless-void-return": {
+        "pattern": ":\\s*(void|Promise<void>)\\s*[\\{;]",
+        "include": ["src/**/*.ts"],
+        "message": "Unnecessary explicit void return type annotation"
       }
     },
     "script": {
