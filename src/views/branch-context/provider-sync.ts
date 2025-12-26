@@ -37,6 +37,7 @@ export class SyncManager {
     private helpers: ProviderHelpers,
     private refresh: () => void,
     private updateLastSyncTimestamp: (timestamp: string) => void,
+    private onSyncComplete?: () => void,
   ) {}
 
   debouncedSync(syncFn: () => void) {
@@ -73,6 +74,8 @@ export class SyncManager {
     }
 
     this.isSyncing = true;
+    this.isWritingMarkdown = true;
+    extensionStore.set(StoreKey.IsWritingBranchContext, true);
     this.lastSyncDirection = SyncDirection.RootToBranch;
 
     try {
@@ -84,6 +87,10 @@ export class SyncManager {
     } finally {
       setTimeout(() => {
         this.isSyncing = false;
+        this.isWritingMarkdown = false;
+        extensionStore.set(StoreKey.IsWritingBranchContext, false);
+        this.refresh();
+        this.onSyncComplete?.();
         setTimeout(() => {
           this.lastSyncDirection = null;
         }, 300);
@@ -113,6 +120,8 @@ export class SyncManager {
     }
 
     this.isSyncing = true;
+    this.isWritingMarkdown = true;
+    extensionStore.set(StoreKey.IsWritingBranchContext, true);
     this.lastSyncDirection = SyncDirection.BranchToRoot;
 
     try {
@@ -124,6 +133,10 @@ export class SyncManager {
     } finally {
       setTimeout(() => {
         this.isSyncing = false;
+        this.isWritingMarkdown = false;
+        extensionStore.set(StoreKey.IsWritingBranchContext, false);
+        this.refresh();
+        this.onSyncComplete?.();
         setTimeout(() => {
           this.lastSyncDirection = null;
         }, 300);

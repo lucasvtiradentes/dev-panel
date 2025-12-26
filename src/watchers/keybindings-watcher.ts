@@ -7,8 +7,7 @@ import { getVSCodeKeybindingsPath, parseKeybindings } from '../common/lib/vscode
 import { getWorkspaceId } from '../common/lib/vscode-utils';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable } from '../common/vscode/vscode-types';
-import type { RefreshCallback } from './types';
-import { WATCHER_CONSTANTS, attachFileWatcherHandlers } from './utils';
+import { type RefreshCallback, WATCHER_CONSTANTS, attachFileWatcherHandlers } from './utils';
 
 const logger = createLogger('KeybindingsWatcher');
 

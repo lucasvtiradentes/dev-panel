@@ -2,10 +2,23 @@ import * as vscode from 'vscode';
 import { createLogger } from '../common/lib/logger';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
-import type { Disposable, FileSystemWatcher } from '../common/vscode/vscode-types';
+import type { Disposable, Event, FileSystemWatcher } from '../common/vscode/vscode-types';
 import { getCurrentBranch, isGitRepository } from '../views/replacements/git-utils';
-import type { BranchChangeCallback, GitAPI, GitRepository } from './types';
 import { GIT_CONSTANTS, WATCHER_CONSTANTS } from './utils';
+
+type GitAPI = {
+  repositories: GitRepository[];
+  onDidOpenRepository: Event<GitRepository>;
+};
+
+type GitRepository = {
+  state: {
+    HEAD?: { name?: string };
+  };
+  onDidCheckout: Event<void>;
+};
+
+type BranchChangeCallback = (newBranch: string) => void;
 
 const logger = createLogger('BranchWatcher');
 

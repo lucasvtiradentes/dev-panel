@@ -1,5 +1,8 @@
 import type { FileSystemWatcher, Uri } from '../common/vscode/vscode-types';
 
+export type RefreshCallback = () => void;
+export type UriChangeCallback = (uri: Uri) => void;
+
 export const WATCHER_CONSTANTS = {
   BRANCH_POLL_INTERVAL_MS: 2000,
   KEYBINDING_UPDATE_DEBOUNCE_MS: 100,

@@ -51,7 +51,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
   private syncManager: SyncManager;
   private taskProvider;
 
-  constructor() {
+  constructor(onSyncComplete?: () => void) {
     this.validationIndicator = new ValidationIndicator();
     this.helpers = new ProviderHelpers();
 
@@ -67,6 +67,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
       (timestamp) => {
         this.lastSyncTimestamp = timestamp;
       },
+      onSyncComplete,
     );
   }
 

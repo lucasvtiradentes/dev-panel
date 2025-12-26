@@ -31,9 +31,12 @@ import { ToolTreeDataProvider, setToolProviderInstance } from './views/tools';
 import { registerToolKeybindings, reloadToolKeybindings } from './views/tools/keybindings-local';
 import { VariablesProvider } from './views/variables';
 import { registerVariableKeybindings } from './views/variables/keybindings-local';
+import { createBranchMarkdownWatcher } from './watchers/branch-markdown-watcher';
 import { createBranchWatcher } from './watchers/branch-watcher';
 import { createConfigWatcher } from './watchers/config-watcher';
 import { createKeybindingsWatcher } from './watchers/keybindings-watcher';
+import { createRootMarkdownWatcher } from './watchers/root-markdown-watcher';
+import { createTemplateWatcher } from './watchers/template-watcher';
 
 type Providers = {
   statusBarManager: StatusBarManager;
@@ -70,8 +73,8 @@ function setupProviders(context: ExtensionContext, activateStart: number): Provi
   const variablesProvider = new VariablesProvider();
   const replacementsProvider = new ReplacementsProvider();
   const promptTreeDataProvider = new PromptTreeDataProvider();
-  const branchContextProvider = new BranchContextProvider();
   const branchTasksProvider = new BranchTasksProvider();
+  const branchContextProvider = new BranchContextProvider(() => branchTasksProvider.refresh());
   const toolTreeDataProvider = new ToolTreeDataProvider();
   setToolProviderInstance(toolTreeDataProvider);
 
@@ -172,6 +175,22 @@ function setupWatchers(context: ExtensionContext, providers: Providers, activate
   });
   context.subscriptions.push(branchWatcher);
   logger.info(`[activate] branchWatcher created (+${Date.now() - activateStart}ms)`);
+
+  const branchMarkdownWatcher = createBranchMarkdownWatcher((uri) => {
+    providers.branchContextProvider.handleMarkdownChange(uri);
+    providers.branchTasksProvider.handleMarkdownChange(uri);
+  });
+  context.subscriptions.push(branchMarkdownWatcher);
+
+  const rootMarkdownWatcher = createRootMarkdownWatcher(() => {
+    providers.branchContextProvider.handleRootMarkdownChange();
+  });
+  context.subscriptions.push(rootMarkdownWatcher);
+
+  const templateWatcher = createTemplateWatcher(() => {
+    providers.branchContextProvider.handleTemplateChange();
+  });
+  context.subscriptions.push(templateWatcher);
 }
 
 function setupCommands(context: ExtensionContext, providers: Providers) {
