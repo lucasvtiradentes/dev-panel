@@ -2,8 +2,8 @@ import { CONTEXT_PREFIX } from '../../common/constants';
 import {
   type VSCodeKeybinding,
   loadKeybindings as loadVSCodeKeybindings,
-} from '../../common/lib/vscode-keybindings-utils';
-import { getWorkspaceId } from '../../common/lib/vscode-utils';
+} from '../../common/vscode/vscode-keybindings-utils';
+import { getWorkspaceId } from '../../common/vscode/vscode-utils';
 import type { KeybindingConfig } from './types';
 
 export class KeybindingManager {

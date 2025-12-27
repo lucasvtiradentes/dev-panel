@@ -1,8 +1,7 @@
-import * as vscode from 'vscode';
 import { VSCODE_TASKS_PATH } from '../../../common/constants';
-import { Command, getWorkspaceFolders, isMultiRootWorkspace, registerCommand } from '../../../common/lib/vscode-utils';
 import { TypeGuards } from '../../../common/utils/type-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
+import { Command, isMultiRootWorkspace, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { TreeTask } from '../../../views/tasks';
 
 export function createGoToTaskCommand() {
@@ -12,14 +11,14 @@ export function createGoToTaskCommand() {
       return;
     }
 
-    const folders = getWorkspaceFolders();
-    if (!folders || !TypeGuards.isNonEmptyArray(folders)) {
+    const folders = VscodeHelper.getWorkspaceFolders();
+    if (!TypeGuards.isNonEmptyArray(folders)) {
       VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
       return;
     }
 
-    const tasksFileUri = vscode.Uri.parse(`${folders[0].uri.fsPath}/${VSCODE_TASKS_PATH}`);
-    const tasksFileContent = await vscode.workspace.fs.readFile(tasksFileUri);
+    const tasksFileUri = VscodeHelper.parseUri(`${folders[0].uri.fsPath}/${VSCODE_TASKS_PATH}`);
+    const tasksFileContent = await VscodeHelper.readFile(tasksFileUri);
     const lines = Buffer.from(tasksFileContent).toString('utf-8').split('\n');
 
     for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {

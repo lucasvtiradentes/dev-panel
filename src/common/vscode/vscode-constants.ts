@@ -1,3 +1,33 @@
+export const VscodeConstants = {
+  get TreeItemCollapsibleState() {
+    return require('vscode').TreeItemCollapsibleState;
+  },
+  get TaskScope() {
+    return require('vscode').TaskScope;
+  },
+  get ProgressLocation() {
+    return require('vscode').ProgressLocation;
+  },
+  get TaskRevealKind() {
+    return require('vscode').TaskRevealKind;
+  },
+  get TaskPanelKind() {
+    return require('vscode').TaskPanelKind;
+  },
+  get QuickPickItemKind() {
+    return require('vscode').QuickPickItemKind;
+  },
+  get FileType() {
+    return require('vscode').FileType;
+  },
+  get ViewColumn() {
+    return require('vscode').ViewColumn;
+  },
+  get StatusBarAlignment() {
+    return require('vscode').StatusBarAlignment;
+  },
+};
+
 export enum VscodeIcon {
   EyeClosed = 'eye-closed',
   HeartFilled = 'heart-filled',

@@ -1,9 +1,16 @@
-import * as vscode from 'vscode';
 import { CONTEXT_VALUES, DND_MIME_TYPE_BRANCH_TASKS, getCommandId } from '../../common/constants';
 import { createLogger } from '../../common/lib/logger';
-import { Command } from '../../common/lib/vscode-utils';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
-import type { CancellationToken, DataTransfer, TreeItem } from '../../common/vscode/vscode-types';
+import {
+  type CancellationToken,
+  type DataTransfer,
+  type TreeDragAndDropController,
+  type TreeItem,
+  TreeItemClass,
+} from '../../common/vscode/vscode-types';
+import { Command } from '../../common/vscode/vscode-utils';
 import type { MilestoneNode, TaskNode } from '../_branch_base';
 import { formatTaskDescription, formatTaskTooltip, getStatusIcon } from './task-item-utils';
 
@@ -22,13 +29,16 @@ type DragData = {
   milestoneName?: string;
 };
 
-export class BranchTaskItem extends vscode.TreeItem {
+export class BranchTaskItem extends TreeItemClass {
   constructor(
     public readonly node: TaskNode,
     hasChildren: boolean,
   ) {
     const label = node.text;
-    super(label, hasChildren ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
+    super(
+      label,
+      hasChildren ? VscodeConstants.TreeItemCollapsibleState.Expanded : VscodeConstants.TreeItemCollapsibleState.None,
+    );
 
     if (node.meta.externalUrl || node.meta.externalId) {
       this.contextValue = CONTEXT_VALUES.TODO_ITEM_WITH_EXTERNAL;
@@ -47,12 +57,12 @@ export class BranchTaskItem extends vscode.TreeItem {
   }
 }
 
-export class BranchMilestoneItem extends vscode.TreeItem {
+export class BranchMilestoneItem extends TreeItemClass {
   constructor(
     public readonly milestone: MilestoneNode,
     public readonly isNoMilestone = false,
   ) {
-    super(milestone.name, vscode.TreeItemCollapsibleState.Expanded);
+    super(milestone.name, VscodeConstants.TreeItemCollapsibleState.Expanded);
     this.contextValue = CONTEXT_VALUES.MILESTONE_ITEM;
     this.iconPath = isNoMilestone ? VscodeIcons.Inbox : VscodeIcons.Milestone;
 
@@ -88,7 +98,7 @@ type BranchTasksProviderInterface = {
   refresh(): void;
 };
 
-export class BranchTasksDragAndDropController implements vscode.TreeDragAndDropController<BranchTreeItem> {
+export class BranchTasksDragAndDropController implements TreeDragAndDropController<BranchTreeItem> {
   readonly dropMimeTypes = [DND_MIME_TYPE_BRANCH_TASKS];
   readonly dragMimeTypes = [DND_MIME_TYPE_BRANCH_TASKS];
 
@@ -107,7 +117,7 @@ export class BranchTasksDragAndDropController implements vscode.TreeDragAndDropC
       milestoneName: this.provider.findMilestoneForTask(item.node.lineIndex),
     };
     logger.info(`[handleDrag] Dragging task at line ${data.lineIndex}, milestone: ${data.milestoneName ?? 'none'}`);
-    dataTransfer.set(DND_MIME_TYPE_BRANCH_TASKS, new vscode.DataTransferItem(JSON.stringify(data)));
+    dataTransfer.set(DND_MIME_TYPE_BRANCH_TASKS, VscodeHelper.createDataTransferItem(JSON.stringify(data)));
   }
 
   async handleDrop(target: BranchTreeItem | undefined, dataTransfer: DataTransfer, _token: CancellationToken) {

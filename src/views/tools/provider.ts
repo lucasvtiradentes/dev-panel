@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import * as vscode from 'vscode';
 import {
   CONTEXT_VALUES,
   DND_MIME_TYPE_TOOLS,
@@ -20,11 +19,13 @@ import {
 } from '../../common/lib/config-manager';
 import { globalToolsState } from '../../common/lib/global-state';
 import { createLogger } from '../../common/lib/logger';
-import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../common/schemas';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { TreeItem, TreeView, WorkspaceFolder } from '../../common/vscode/vscode-types';
+import { Command, ContextKey } from '../../common/vscode/vscode-utils';
 import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../_view_base';
 import { ToolGroupTreeItem, TreeTool } from './items';
 import { addActiveTool, getActiveTools, isFavorite, isHidden, removeActiveTool, setActiveTools } from './state';
@@ -63,7 +64,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
       allTools.push(`${GLOBAL_ITEM_PREFIX}${tool.name}`);
     }
 
-    const folders = vscode.workspace.workspaceFolders ?? [];
+    const folders = VscodeHelper.getWorkspaceFolders();
     for (const folder of folders) {
       const tools = this.readDevPanelTools(folder);
       for (const toolItem of tools) {
@@ -121,7 +122,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   }
 
   private async getDevPanelTools(): Promise<Array<TreeTool | ToolGroupTreeItem>> {
-    const folders = vscode.workspace.workspaceFolders ?? [];
+    const folders = VscodeHelper.getWorkspaceFolders();
 
     if (!this._grouped) {
       const toolElements: TreeTool[] = [];
@@ -237,7 +238,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     const toolFilePath = tool.command ? this.extractFileFromCommand(tool.command) : '';
     const fullToolFilePath = toolFilePath ? path.join(configDirPath, toolFilePath) : '';
 
-    const treeTool = new TreeTool(tool.name, fullToolFilePath, vscode.TreeItemCollapsibleState.None);
+    const treeTool = new TreeTool(tool.name, fullToolFilePath, VscodeConstants.TreeItemCollapsibleState.None);
 
     const instructionsPath = getWorkspaceToolInstructionsPath(folder, tool.name);
     const description = this.readToolDescription(tool.name, instructionsPath);
@@ -279,7 +280,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     const toolFilePath = tool.command ? this.extractFileFromCommand(tool.command) : '';
     const fullToolFilePath = toolFilePath ? path.join(globalConfigDir, toolFilePath) : '';
 
-    const treeTool = new TreeTool(globalToolName, fullToolFilePath, vscode.TreeItemCollapsibleState.None);
+    const treeTool = new TreeTool(globalToolName, fullToolFilePath, VscodeConstants.TreeItemCollapsibleState.None);
 
     const instructionsPath = getGlobalToolInstructionsPath(tool.name);
     const description = this.readToolDescription(tool.name, instructionsPath);

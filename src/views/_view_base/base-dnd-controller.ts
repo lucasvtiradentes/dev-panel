@@ -1,9 +1,9 @@
-import * as vscode from 'vscode';
-import type { CancellationToken, DataTransfer } from '../../common/vscode/vscode-types';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
+import type { CancellationToken, DataTransfer, TreeDragAndDropController } from '../../common/vscode/vscode-types';
 import type { NamedTreeItem, SimpleStateManager, StateManager } from './types';
 
 export class BaseDragAndDropController<TItem extends NamedTreeItem, TSource = void>
-  implements vscode.TreeDragAndDropController<TItem>
+  implements TreeDragAndDropController<TItem>
 {
   readonly dropMimeTypes: string[];
   readonly dragMimeTypes: string[];
@@ -24,7 +24,7 @@ export class BaseDragAndDropController<TItem extends NamedTreeItem, TSource = vo
     if (!item) return;
 
     const label = this.getItemLabel(item);
-    dataTransfer.set(this.mimeType, new vscode.DataTransferItem(label));
+    dataTransfer.set(this.mimeType, VscodeHelper.createDataTransferItem(label));
   }
 
   handleDrop(target: TItem | undefined, dataTransfer: DataTransfer, _token: CancellationToken) {

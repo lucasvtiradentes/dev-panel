@@ -1,15 +1,9 @@
-import * as vscode from 'vscode';
-import { Command, registerCommand } from '../../../common/lib/vscode-utils';
+import { type ItemOrLineIndex, extractLineIndex } from '../../../common/utils/item-utils';
+import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
-import type { Disposable } from '../../../common/vscode/vscode-types';
+import type { Disposable, QuickPickItem } from '../../../common/vscode/vscode-types';
+import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { BranchTasksProvider } from '../../../views/branch-tasks/provider';
-import type { BranchTaskItem } from '../../../views/branch-tasks/task-tree-items';
-
-type ItemOrLineIndex = BranchTaskItem | number;
-
-function extractLineIndex(itemOrLineIndex: ItemOrLineIndex): number {
-  return typeof itemOrLineIndex === 'number' ? itemOrLineIndex : itemOrLineIndex.node.lineIndex;
-}
 
 export function createTaskMilestoneCommands(provider: BranchTasksProvider): Disposable[] {
   return [
@@ -18,7 +12,7 @@ export function createTaskMilestoneCommands(provider: BranchTasksProvider): Disp
       const milestones = provider.getMilestoneNames();
 
       const NEW_MILESTONE = '__new__';
-      type MilestoneQuickPickItem = vscode.QuickPickItem & { value: string | null };
+      type MilestoneQuickPickItem = QuickPickItem & { value: string | null };
 
       const items: MilestoneQuickPickItem[] = [
         { label: '$(inbox) No Milestone', value: null },
@@ -26,7 +20,7 @@ export function createTaskMilestoneCommands(provider: BranchTasksProvider): Disp
       ];
 
       if (milestones.length > 0) {
-        items.push({ label: '', kind: vscode.QuickPickItemKind.Separator, value: null });
+        items.push({ label: '', kind: VscodeConstants.QuickPickItemKind.Separator, value: null });
         for (const m of milestones) {
           items.push({ label: `$(milestone) ${m}`, value: m });
         }

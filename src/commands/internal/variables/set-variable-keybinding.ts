@@ -1,7 +1,7 @@
 import { getVariableCommandId, getVariableCommandPrefix } from '../../../common/constants';
-import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import { openKeybindingsForCommand, openKeybindingsWithPrefix } from '../../../common/utils/keybinding-utils';
 import type { Disposable } from '../../../common/vscode/vscode-types';
+import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { VariableTreeItem } from '../../../views/variables';
 
 export function createSetVariableKeybindingCommand(): Disposable {

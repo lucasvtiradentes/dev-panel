@@ -678,7 +678,7 @@
         },
         {
           "command": "devPanel.switchTaskSourceFromPP",
-          "when": "view == devPanelTasks && taskSourcePP",
+          "when": "view == devPanelTasks && taskSourceDevPanel",
           "group": "navigation@2"
         },
         {
@@ -708,7 +708,7 @@
         },
         {
           "command": "devPanel.openTasksKeybindings",
-          "when": "view == devPanelTasks && taskSourcePP",
+          "when": "view == devPanelTasks && taskSourceDevPanel",
           "group": "navigation@6"
         },
         {
@@ -872,7 +872,7 @@
         },
         {
           "command": "devPanel.setTaskKeybinding",
-          "when": "view == devPanelTasks && viewItem =~ /^task/ && taskSourcePP"
+          "when": "view == devPanelTasks && viewItem =~ /^task/ && taskSourceDevPanel"
         },
         {
           "command": "devPanel.executeTask",
@@ -1140,7 +1140,7 @@
       },
       {
         "view": "devPanelTodos",
-        "contents": "No tasks in current branch.\n\nTasks are defined in the branch context file.",
+        "contents": "No tasks in current branch.",
         "when": "!extensionInitializing"
       },
       {

@@ -1,9 +1,9 @@
-import * as vscode from 'vscode';
 import { CONTEXT_VALUES } from '../../common/constants';
-import type { Command, TreeItemCollapsibleState } from '../../common/vscode/vscode-types';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { type Command, TreeItemClass, type TreeItemCollapsibleState } from '../../common/vscode/vscode-types';
 import type { GroupTreeItem as IGroupTreeItem, NamedTreeItem } from './types';
 
-export abstract class BaseNamedTreeItem extends vscode.TreeItem implements NamedTreeItem {
+export abstract class BaseNamedTreeItem extends TreeItemClass implements NamedTreeItem {
   constructor(label: string, collapsibleState: TreeItemCollapsibleState, command?: Command) {
     super(label, collapsibleState);
     this.command = command;
@@ -12,11 +12,11 @@ export abstract class BaseNamedTreeItem extends vscode.TreeItem implements Named
   abstract getName(): string;
 }
 
-export class BaseGroupTreeItem<T extends NamedTreeItem> extends vscode.TreeItem implements IGroupTreeItem<T> {
+export class BaseGroupTreeItem<T extends NamedTreeItem> extends TreeItemClass implements IGroupTreeItem<T> {
   children: T[] = [];
 
   constructor(groupName: string) {
-    super(groupName, vscode.TreeItemCollapsibleState.Expanded);
+    super(groupName, VscodeConstants.TreeItemCollapsibleState.Expanded);
     this.contextValue = CONTEXT_VALUES.GROUP;
   }
 

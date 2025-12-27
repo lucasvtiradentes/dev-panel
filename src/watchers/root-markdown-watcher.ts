@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../common/constants/scripts-constants';
 import { createLogger } from '../common/lib/logger';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
@@ -18,7 +17,7 @@ export function createRootMarkdownWatcher(onChange: RefreshCallback): Disposable
   }
 
   const watcher = VscodeHelper.createFileSystemWatcher(
-    new vscode.RelativePattern(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME),
+    VscodeHelper.createRelativePattern(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME),
   );
 
   attachFileWatcherHandlers(watcher, {

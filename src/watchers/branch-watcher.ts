@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { createLogger } from '../common/lib/logger';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
@@ -18,12 +17,16 @@ type GitRepository = {
   onDidCheckout: Event<void>;
 };
 
+type GitExtension = {
+  getAPI: (version: number) => GitAPI;
+};
+
 type BranchChangeCallback = (newBranch: string) => void;
 
 const logger = createLogger('BranchWatcher');
 
 async function getGitAPI(): Promise<GitAPI | null> {
-  const gitExtension = vscode.extensions.getExtension(GIT_CONSTANTS.EXTENSION_ID);
+  const gitExtension = VscodeHelper.getExtension<GitExtension>(GIT_CONSTANTS.EXTENSION_ID);
   if (!gitExtension) {
     return null;
   }
@@ -46,6 +49,7 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
     try {
       const newBranch = await getCurrentBranch(workspace);
       if (newBranch !== currentBranch) {
+        logger.info(`[branchWatcher] Branch changed from '${currentBranch}' to '${newBranch}'`);
         currentBranch = newBranch;
         onBranchChange(newBranch);
       }
@@ -84,7 +88,7 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
     if (!workspace) return;
 
     headWatcher = VscodeHelper.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, GIT_CONSTANTS.HEAD_FILE_PATH),
+      VscodeHelper.createRelativePattern(workspace, GIT_CONSTANTS.HEAD_FILE_PATH),
     );
 
     headWatcher.onDidChange(() => void handleBranchChange());

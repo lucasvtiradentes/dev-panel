@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { getBranchContextTemplatePath } from '../common/lib/config-manager';
 import { createLogger } from '../common/lib/logger';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
@@ -19,7 +18,7 @@ export function createTemplateWatcher(onChange: RefreshCallback): Disposable {
   logger.info(`Setting up template watcher for: ${templatePath}`);
 
   const watcher = VscodeHelper.createFileSystemWatcher(
-    new vscode.RelativePattern(workspace, templatePath.replace(workspace, '').replace(/^\//, '')),
+    VscodeHelper.createRelativePattern(workspace, templatePath.replace(workspace, '').replace(/^\//, '')),
   );
 
   attachFileWatcherHandlers(watcher, {

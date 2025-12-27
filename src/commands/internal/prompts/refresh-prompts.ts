@@ -1,4 +1,4 @@
-import { Command, registerCommand } from '../../../common/lib/vscode-utils';
+import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { PromptTreeDataProvider } from '../../../views/prompts';
 
 export function createRefreshPromptsCommand(promptTreeDataProvider: PromptTreeDataProvider) {

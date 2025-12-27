@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import {
   CONFIG_DIR_KEY,
   CONTEXT_VALUES,
@@ -10,17 +9,19 @@ import {
 } from '../../common/constants';
 import { getWorkspaceConfigDirPath, loadGlobalConfig, loadWorkspaceConfig } from '../../common/lib/config-manager';
 import { globalTasksState } from '../../common/lib/global-state';
-import { Command } from '../../common/lib/vscode-utils';
 import type { DevPanelConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
+import { Command } from '../../common/vscode/vscode-utils';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
 export function hasDevPanelGroups(): boolean {
-  const folders = vscode.workspace.workspaceFolders ?? [];
+  const folders = VscodeHelper.getWorkspaceFolders();
   for (const folder of folders) {
     const tasks = readDevPanelTasks(folder);
     if (tasks.some((task) => task.group != null)) return true;
@@ -36,7 +37,7 @@ export async function getDevPanelTasks(
     elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
   ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
 ): Promise<Array<TreeTask | GroupTreeItem | WorkspaceTreeItem>> {
-  const folders = vscode.workspace.workspaceFolders ?? [];
+  const folders = VscodeHelper.getWorkspaceFolders();
 
   if (!grouped) {
     const taskElements: TreeTask[] = [];
@@ -117,8 +118,8 @@ function createDevPanelTask(
   const configDirPath = getWorkspaceConfigDirPath(folder);
   const env = readDevPanelVariablesAsEnv(configDirPath);
   const cwd = task.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
-  const shellExec = new vscode.ShellExecution(task.command, { env, cwd });
-  const vsTask = new vscode.Task(
+  const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd });
+  const vsTask = VscodeHelper.createTask(
     { type: CONFIG_DIR_KEY, task: task.name },
     folder,
     task.name,
@@ -127,8 +128,8 @@ function createDevPanelTask(
   );
 
   vsTask.presentationOptions = {
-    reveal: vscode.TaskRevealKind.Always,
-    panel: vscode.TaskPanelKind.New,
+    reveal: VscodeConstants.TaskRevealKind.Always,
+    panel: VscodeConstants.TaskPanelKind.New,
     clear: false,
     focus: false,
     showReuseMessage: false,
@@ -137,7 +138,7 @@ function createDevPanelTask(
   const treeTask = new TreeTask(
     CONFIG_DIR_KEY,
     task.name,
-    vscode.TreeItemCollapsibleState.None,
+    VscodeConstants.TreeItemCollapsibleState.None,
     {
       command: getCommandId(Command.ExecuteTask),
       title: 'Execute',
@@ -177,19 +178,19 @@ function createGlobalTask(
   const globalConfigDir = getGlobalConfigDir();
   const env = readDevPanelVariablesAsEnv(globalConfigDir);
   const cwd = globalConfigDir;
-  const shellExec = new vscode.ShellExecution(task.command, { env, cwd });
+  const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd });
 
-  const vsTask = new vscode.Task(
+  const vsTask = VscodeHelper.createTask(
     { type: `${CONFIG_DIR_KEY}-global`, task: task.name },
-    vscode.TaskScope.Global,
+    VscodeConstants.TaskScope.Global,
     task.name,
     `${CONFIG_DIR_KEY}-global`,
     shellExec,
   );
 
   vsTask.presentationOptions = {
-    reveal: vscode.TaskRevealKind.Always,
-    panel: vscode.TaskPanelKind.New,
+    reveal: VscodeConstants.TaskRevealKind.Always,
+    panel: VscodeConstants.TaskPanelKind.New,
     clear: false,
     focus: false,
     showReuseMessage: false,
@@ -198,7 +199,7 @@ function createGlobalTask(
   const treeTask = new TreeTask(
     `${CONFIG_DIR_KEY}-global`,
     `${GLOBAL_ITEM_PREFIX}${task.name}`,
-    vscode.TreeItemCollapsibleState.None,
+    VscodeConstants.TreeItemCollapsibleState.None,
     {
       command: getCommandId(Command.ExecuteTask),
       title: 'Execute',

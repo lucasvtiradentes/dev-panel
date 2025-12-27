@@ -12,11 +12,11 @@ import {
 import { extensionStore } from './common/lib/extension-store';
 import { initGlobalState, migrateGlobalState } from './common/lib/global-state';
 import { logger } from './common/lib/logger';
-import { ContextKey, generateWorkspaceId, setContextKey, setWorkspaceId } from './common/lib/vscode-utils';
 import { initWorkspaceState } from './common/lib/workspace-state';
 import { getFirstWorkspacePath } from './common/utils/workspace-utils';
 import { VscodeHelper } from './common/vscode/vscode-helper';
 import type { ExtensionContext } from './common/vscode/vscode-types';
+import { ContextKey, generateWorkspaceId, setContextKey, setWorkspaceId } from './common/vscode/vscode-utils';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import { BranchContextProvider } from './views/branch-context';
 import { ensureTemplateExists } from './views/branch-context/template-initializer';
@@ -170,24 +170,31 @@ function setupWatchers(context: ExtensionContext, providers: Providers, activate
   context.subscriptions.push(keybindingsWatcher);
 
   logger.info(`[activate] Creating branchWatcher (+${Date.now() - activateStart}ms)`);
+
+  const branchMarkdownWatcher = createBranchMarkdownWatcher({
+    onChange: (uri) => {
+      logger.info(`[extension] [branchMarkdownWatcher onChange] File changed: ${uri.fsPath}`);
+      providers.branchContextProvider.handleMarkdownChange(uri);
+      providers.branchTasksProvider.handleMarkdownChange(uri);
+    },
+  });
+  context.subscriptions.push(branchMarkdownWatcher);
+
   const branchWatcher = createBranchWatcher((newBranch) => {
-    logger.info(`[branchWatcher] Branch changed to: ${newBranch}`);
+    logger.info(`[extension] [branchWatcher callback] Branch changed to: ${newBranch}`);
+    logger.info('[extension] [branchWatcher callback] Calling branchContextProvider.setBranch');
     providers.branchContextProvider.setBranch(newBranch, false);
+    logger.info('[extension] [branchWatcher callback] Calling branchTasksProvider.setBranch');
     providers.branchTasksProvider.setBranch(newBranch);
+    logger.info('[extension] [branchWatcher callback] Updating branchMarkdownWatcher');
+    branchMarkdownWatcher.updateWatcher(newBranch);
+    logger.info('[extension] [branchWatcher callback] Calling replacementsProvider.handleBranchChange');
     void providers.replacementsProvider.handleBranchChange(newBranch);
+    logger.info('[extension] [branchWatcher callback] Calling branchContextProvider.syncBranchContext');
     void providers.branchContextProvider.syncBranchContext();
   });
   context.subscriptions.push(branchWatcher);
   logger.info(`[activate] branchWatcher created (+${Date.now() - activateStart}ms)`);
-
-  const branchMarkdownWatcher = createBranchMarkdownWatcher({
-    onChange: (uri) => {
-      providers.branchContextProvider.handleMarkdownChange(uri);
-      providers.branchTasksProvider.handleMarkdownChange(uri);
-    },
-    getCurrentBranch: () => providers.branchContextProvider.getCurrentBranch(),
-  });
-  context.subscriptions.push(branchMarkdownWatcher);
 
   const rootMarkdownWatcher = createRootMarkdownWatcher(() => {
     providers.branchContextProvider.handleRootMarkdownChange();

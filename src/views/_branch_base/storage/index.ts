@@ -1,4 +1,4 @@
-export { invalidateBranchContextCache, loadBranchContext } from './state';
+export { invalidateBranchContextCache, loadBranchContext, updateBranchContextCache } from './state';
 export { loadBranchContextFromFile } from './file-storage';
 export { generateBranchContextMarkdown } from './markdown-generator';
 export { getBranchContextFilePath, getFieldLineNumber } from './markdown-parser';

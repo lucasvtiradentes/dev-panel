@@ -1,5 +1,5 @@
-import * as vscode from 'vscode';
 import { TaskPriority, TaskStatus } from '../../common/schemas';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { QuickPickItem } from '../../common/vscode/vscode-types';
 import type { TaskFilter } from './filter-operations';
@@ -13,7 +13,7 @@ export async function showFilterQuickPick(): Promise<TaskFilter | null> {
     { label: '$(account) By assignee...', description: 'Filter by assignee name' },
     { label: '$(flame) High priority+', description: 'Show urgent and high priority' },
     { label: '$(link-external) With external link', description: 'Show only linked tasks' },
-    { label: '', kind: vscode.QuickPickItemKind.Separator },
+    { label: '', kind: VscodeConstants.QuickPickItemKind.Separator },
     { label: '$(close) Clear filters', description: 'Show all tasks' },
   ];
 

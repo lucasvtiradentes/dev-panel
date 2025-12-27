@@ -1,9 +1,10 @@
-import * as vscode from 'vscode';
 import { TOOL_TASK_TYPE, getGlobalConfigDir, getToolCommandId, getToolCommandPrefix } from '../../common/constants';
 import { forEachWorkspaceConfig, getWorkspaceConfigDirPath, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
-import { registerDynamicCommand } from '../../common/lib/vscode-utils';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { ExtensionContext } from '../../common/vscode/vscode-types';
+import { registerDynamicCommand } from '../../common/vscode/vscode-utils';
 import { KeybindingManager } from '../_view_base';
 
 const manager = new KeybindingManager({
@@ -23,9 +24,9 @@ export function registerToolKeybindings(context: ExtensionContext) {
       const commandId = getToolCommandId(tool.name);
       const disposable = registerDynamicCommand(commandId, () => {
         const configDirPath = getWorkspaceConfigDirPath(folder);
-        const shellExec = new vscode.ShellExecution(tool.command as string, { cwd: configDirPath });
-        const task = new vscode.Task({ type: TOOL_TASK_TYPE }, folder, tool.name, TOOL_TASK_TYPE, shellExec);
-        void vscode.tasks.executeTask(task);
+        const shellExec = VscodeHelper.createShellExecution(tool.command as string, { cwd: configDirPath });
+        const task = VscodeHelper.createTask({ type: TOOL_TASK_TYPE }, folder, tool.name, TOOL_TASK_TYPE, shellExec);
+        void VscodeHelper.executeTask(task);
       });
       context.subscriptions.push(disposable);
     }
@@ -40,15 +41,15 @@ export function registerToolKeybindings(context: ExtensionContext) {
       if (!tool.command) continue;
       const commandId = getToolCommandId(tool.name);
       const disposable = registerDynamicCommand(commandId, () => {
-        const shellExec = new vscode.ShellExecution(tool.command as string, { cwd: globalConfigDir });
-        const task = new vscode.Task(
+        const shellExec = VscodeHelper.createShellExecution(tool.command as string, { cwd: globalConfigDir });
+        const task = VscodeHelper.createTask(
           { type: TOOL_TASK_TYPE },
-          vscode.TaskScope.Global,
+          VscodeConstants.TaskScope.Global,
           tool.name,
           TOOL_TASK_TYPE,
           shellExec,
         );
-        void vscode.tasks.executeTask(task);
+        void VscodeHelper.executeTask(task);
       });
       context.subscriptions.push(disposable);
     }

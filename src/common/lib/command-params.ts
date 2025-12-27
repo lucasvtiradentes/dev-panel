@@ -19,7 +19,12 @@ import type {
   ToggleToolHideParams,
   ToggleToolParams,
 } from '../../commands/internal/tools/toggle-tools-view';
-import { Command } from './vscode-utils';
+import type { Uri } from '../vscode/vscode-types';
+import { Command } from '../vscode/vscode-utils';
+
+export type VscodeOpenParams = { uri: Uri; viewColumn?: number };
+export type VscodeSetContextParams = { key: string; value: unknown };
+export type VscodeOpenGlobalKeybindingsParams = { query: string };
 
 export type CommandParams = {
   [Command.EditBranchName]: EditBranchFieldParams;
@@ -47,4 +52,7 @@ export type CommandParams = {
   [Command.ExecutePrompt]: ExecutePromptParams;
   [Command.ToggleReplacement]: ToggleReplacementParams;
   [Command.SelectConfigOption]: SelectConfigOptionParams;
+  [Command.VscodeOpen]: VscodeOpenParams;
+  [Command.VscodeSetContext]: VscodeSetContextParams;
+  [Command.VscodeOpenGlobalKeybindings]: VscodeOpenGlobalKeybindingsParams;
 };

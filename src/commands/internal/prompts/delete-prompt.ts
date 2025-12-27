@@ -9,7 +9,6 @@ import {
   saveGlobalConfig,
   saveWorkspaceConfig,
 } from '../../../common/lib/config-manager';
-import { Command, executeCommand, registerCommand } from '../../../common/lib/vscode-utils';
 import type { DevPanelPrompt } from '../../../common/schemas';
 import {
   isGlobalItem,
@@ -21,6 +20,7 @@ import {
   stripGlobalPrefix,
 } from '../../../common/utils/item-utils';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
+import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { TreePrompt } from '../../../views/prompts/items';
 
 async function handleDeletePrompt(treePrompt: TreePrompt) {

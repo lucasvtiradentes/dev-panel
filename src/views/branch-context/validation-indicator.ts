@@ -1,15 +1,15 @@
-import * as vscode from 'vscode';
 import { getCommandId } from '../../common/constants';
-import { Command } from '../../common/lib/vscode-utils';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { StatusBarItem } from '../../common/vscode/vscode-types';
+import { Command } from '../../common/vscode/vscode-utils';
 import type { ValidationIssue } from './config-validator';
 
 export class ValidationIndicator {
   private statusBarItem: StatusBarItem;
 
   constructor() {
-    this.statusBarItem = VscodeHelper.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+    this.statusBarItem = VscodeHelper.createStatusBarItem(VscodeConstants.StatusBarAlignment.Left, 100);
   }
 
   show(issues: ValidationIssue[]) {
@@ -26,7 +26,7 @@ export class ValidationIndicator {
         ? `$(error) Branch Context (${errorCount} errors)`
         : `$(warning) Branch Context (${warningCount} warnings)`;
 
-    const tooltip = new vscode.MarkdownString();
+    const tooltip = VscodeHelper.createMarkdownString();
     tooltip.appendMarkdown('### Branch Context Validation Issues\n\n');
 
     for (const issue of issues) {

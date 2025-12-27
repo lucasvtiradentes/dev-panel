@@ -6,7 +6,6 @@ import {
   loadWorkspaceConfig,
   saveWorkspaceConfig,
 } from '../../../common/lib/config-manager';
-import { Command, executeCommand, registerCommand } from '../../../common/lib/vscode-utils';
 import {
   isGlobalItem,
   showAlreadyWorkspaceMessage,
@@ -17,6 +16,7 @@ import {
   stripGlobalPrefix,
 } from '../../../common/utils/item-utils';
 import { selectWorkspaceFolder } from '../../../common/utils/workspace-utils';
+import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { TreeTask } from '../../../views/tasks/items';
 
 async function handleCopyTaskToWorkspace(treeTask: TreeTask) {

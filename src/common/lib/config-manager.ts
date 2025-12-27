@@ -1,7 +1,6 @@
 import * as fs from 'node:fs';
 import { isAbsolute, join } from 'node:path';
 import JSON5 from 'json5';
-import * as vscode from 'vscode';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
@@ -21,23 +20,26 @@ import {
   TOOL_INSTRUCTIONS_FILE,
 } from '../constants/scripts-constants';
 import type { DevPanelConfig } from '../schemas';
+import { VscodeConstants } from '../vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
 import type { Uri, WorkspaceFolder } from '../vscode/vscode-types';
 import { StoreKey, extensionStore } from './extension-store';
 
 function getConfigDir(workspacePath: string, configDir: string | null): Uri {
-  const baseDir = vscode.Uri.file(workspacePath);
+  const baseDir = VscodeHelper.createFileUri(workspacePath);
 
   if (!configDir) {
-    return vscode.Uri.joinPath(baseDir, CONFIG_DIR_NAME);
+    return VscodeHelper.joinPath(baseDir, CONFIG_DIR_NAME);
   }
 
-  const customDir = isAbsolute(configDir) ? vscode.Uri.file(configDir) : vscode.Uri.joinPath(baseDir, configDir);
-  return vscode.Uri.joinPath(customDir, CONFIG_DIR_NAME);
+  const customDir = isAbsolute(configDir)
+    ? VscodeHelper.createFileUri(configDir)
+    : VscodeHelper.joinPath(baseDir, configDir);
+  return VscodeHelper.joinPath(customDir, CONFIG_DIR_NAME);
 }
 
 export function getConfigPath(workspacePath: string, configDir: string | null, fileName: string): string {
-  return vscode.Uri.joinPath(getConfigDir(workspacePath, configDir), fileName).fsPath;
+  return VscodeHelper.joinPath(getConfigDir(workspacePath, configDir), fileName).fsPath;
 }
 
 export function getConfigDirPath(workspacePath: string, configDir: string | null): string {
@@ -45,9 +47,9 @@ export function getConfigDirPath(workspacePath: string, configDir: string | null
 }
 
 export async function hasConfig(workspacePath: string, configDir: string | null, fileName: string): Promise<boolean> {
-  const configPath = vscode.Uri.file(getConfigPath(workspacePath, configDir, fileName));
+  const configPath = VscodeHelper.createFileUri(getConfigPath(workspacePath, configDir, fileName));
   try {
-    await vscode.workspace.fs.stat(configPath);
+    await VscodeHelper.stat(configPath);
     return true;
   } catch {
     return false;
@@ -55,17 +57,17 @@ export async function hasConfig(workspacePath: string, configDir: string | null,
 }
 
 async function copyDirectoryRecursive(source: Uri, target: Uri) {
-  await vscode.workspace.fs.createDirectory(target);
+  await VscodeHelper.createDirectory(target);
 
-  const entries = await vscode.workspace.fs.readDirectory(source);
+  const entries = await VscodeHelper.readDirectory(source);
   for (const [name, type] of entries) {
-    const sourceEntry = vscode.Uri.joinPath(source, name);
-    const targetEntry = vscode.Uri.joinPath(target, name);
+    const sourceEntry = VscodeHelper.joinPath(source, name);
+    const targetEntry = VscodeHelper.joinPath(target, name);
 
-    if (type === vscode.FileType.Directory) {
+    if (type === VscodeConstants.FileType.Directory) {
       await copyDirectoryRecursive(sourceEntry, targetEntry);
     } else {
-      await vscode.workspace.fs.copy(sourceEntry, targetEntry, { overwrite: true });
+      await VscodeHelper.copy(sourceEntry, targetEntry, { overwrite: true });
     }
   }
 }
@@ -75,7 +77,7 @@ export async function moveConfig(workspacePath: string, fromConfigDir: string | 
   const targetDir = getConfigDir(workspacePath, toConfigDir);
 
   await copyDirectoryRecursive(sourceDir, targetDir);
-  await vscode.workspace.fs.delete(sourceDir, { recursive: true });
+  await VscodeHelper.delete(sourceDir, { recursive: true });
 }
 
 export function getConfigDirLabel(configDir: string | null): string {
@@ -104,10 +106,6 @@ export function joinConfigPath(folder: WorkspaceFolder, ...segments: string[]): 
   const configDir = getCurrentConfigDir();
   const basePath = getConfigDirPath(folder.uri.fsPath, configDir);
   return join(basePath, ...segments);
-}
-
-export function getWorkspaceToolsDir(folder: WorkspaceFolder): string {
-  return joinConfigPath(folder, TOOLS_DIR);
 }
 
 export function getWorkspaceToolDir(folder: WorkspaceFolder, toolName: string): string {
@@ -197,10 +195,6 @@ export function getBranchContextTemplatePath(workspace: string): string {
   return join(configDirPath, BRANCH_CONTEXT_TEMPLATE_FILENAME);
 }
 
-export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] {
-  return vscode.workspace.workspaceFolders ?? [];
-}
-
 export function parseConfig(content: string): DevPanelConfig | null {
   try {
     return JSON5.parse(content) as DevPanelConfig;
@@ -229,7 +223,7 @@ export function loadWorkspaceConfig(folder: WorkspaceFolder): DevPanelConfig | n
 }
 
 export function forEachWorkspaceConfig(callback: (folder: WorkspaceFolder, config: DevPanelConfig) => void) {
-  const folders = getWorkspaceFolders();
+  const folders = VscodeHelper.getWorkspaceFolders();
   if (folders.length === 0) return;
 
   for (const folder of folders) {

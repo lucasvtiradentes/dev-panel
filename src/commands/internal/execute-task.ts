@@ -2,8 +2,9 @@ import { exec } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { promisify } from 'node:util';
-import * as vscode from 'vscode';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
+import { ProcessExecutionClass, ShellExecutionClass } from '../../common/vscode/vscode-types';
 import type {
   ExtensionContext,
   ShellExecution,
@@ -31,7 +32,6 @@ import {
 } from '../../common/lib/config-manager';
 import { collectInputs, replaceInputPlaceholders } from '../../common/lib/inputs';
 import { createLogger } from '../../common/lib/logger';
-import { Command, isMultiRootWorkspace, registerCommand } from '../../common/lib/vscode-utils';
 import {
   type DevPanelConfig,
   type DevPanelPrompt,
@@ -42,6 +42,7 @@ import {
 import { TypeGuards } from '../../common/utils/type-utils';
 import { loadVariablesFromPath, readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
+import { Command, isMultiRootWorkspace, registerCommand } from '../../common/vscode/vscode-utils';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';
 import { TreeTool } from '../../views/tools/items';
@@ -60,23 +61,26 @@ function cloneTaskWithEnv(task: Task, env: Record<string, string>): Task {
 
   let newTask: Task;
 
-  if (execution instanceof vscode.ShellExecution) {
+  if (execution instanceof ShellExecutionClass) {
     const mergedEnv = { ...execution.options?.env, ...env };
     const commandLine = execution.commandLine;
     const command = execution.command;
 
     let newExecution: ShellExecution;
     if (commandLine) {
-      newExecution = new vscode.ShellExecution(commandLine, { ...execution.options, env: mergedEnv });
+      newExecution = VscodeHelper.createShellExecution(commandLine, { ...execution.options, env: mergedEnv });
     } else if (command) {
-      newExecution = new vscode.ShellExecution(command, execution.args ?? [], { ...execution.options, env: mergedEnv });
+      newExecution = VscodeHelper.createShellExecution(command, execution.args ?? [], {
+        ...execution.options,
+        env: mergedEnv,
+      });
     } else {
       return task;
     }
 
-    newTask = new vscode.Task(
+    newTask = VscodeHelper.createTask(
       task.definition,
-      task.scope ?? vscode.TaskScope.Workspace,
+      task.scope ?? VscodeConstants.TaskScope.Workspace,
       task.name,
       task.source,
       newExecution,
@@ -86,16 +90,16 @@ function cloneTaskWithEnv(task: Task, env: Record<string, string>): Task {
     return newTask;
   }
 
-  if (execution instanceof vscode.ProcessExecution) {
+  if (execution instanceof ProcessExecutionClass) {
     const mergedEnv = { ...execution.options?.env, ...env };
-    const newExecution = new vscode.ProcessExecution(execution.process, execution.args, {
+    const newExecution = VscodeHelper.createProcessExecution(execution.process, execution.args, {
       ...execution.options,
       env: mergedEnv,
     });
 
-    newTask = new vscode.Task(
+    newTask = VscodeHelper.createTask(
       task.definition,
-      task.scope ?? vscode.TaskScope.Workspace,
+      task.scope ?? VscodeConstants.TaskScope.Workspace,
       task.name,
       task.source,
       newExecution,
@@ -113,13 +117,13 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
     Command.ExecuteTask,
     async (
       task: Task,
-      scope: TaskScope | vscode.WorkspaceFolder | undefined,
+      scope: TaskScope | WorkspaceFolder | undefined,
       taskConfig?: NonNullable<DevPanelConfig['tasks']>[number],
     ) => {
       let modifiedTask = task;
 
       if (taskConfig?.inputs && taskConfig.inputs.length > 0) {
-        const folder = scope && typeof scope !== 'number' && 'uri' in scope ? (scope as vscode.WorkspaceFolder) : null;
+        const folder = scope && typeof scope !== 'number' && 'uri' in scope ? (scope as WorkspaceFolder) : null;
         const folderForSettings = folder ?? getFirstWorkspaceFolder();
         const settings = folderForSettings ? readDevPanelSettings(folderForSettings) : undefined;
 
@@ -127,14 +131,14 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
         if (inputValues === null) return;
 
         const execution = task.execution;
-        if (execution instanceof vscode.ShellExecution) {
+        if (execution instanceof ShellExecutionClass) {
           let commandToReplace = execution.commandLine ?? String(execution.command);
           commandToReplace = replaceInputPlaceholders(commandToReplace, inputValues);
 
-          const newExecution = new vscode.ShellExecution(commandToReplace, execution.options);
-          modifiedTask = new vscode.Task(
+          const newExecution = VscodeHelper.createShellExecution(commandToReplace, execution.options);
+          modifiedTask = VscodeHelper.createTask(
             task.definition,
-            task.scope ?? vscode.TaskScope.Workspace,
+            task.scope ?? VscodeConstants.TaskScope.Workspace,
             task.name,
             task.source,
             newExecution,
@@ -144,7 +148,7 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
       }
 
       if (scope && typeof scope !== 'number' && 'uri' in scope) {
-        const folder = scope as vscode.WorkspaceFolder;
+        const folder = scope as WorkspaceFolder;
         const variablesPath = getWorkspaceVariablesPath(folder);
         const env = readDevPanelVariablesAsEnv(variablesPath);
 
@@ -154,17 +158,17 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
       }
 
       if (isMultiRootWorkspace()) {
-        if (scope != null && (scope as vscode.WorkspaceFolder).name != null) {
-          await context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, (scope as vscode.WorkspaceFolder).name);
+        if (scope != null && (scope as WorkspaceFolder).name != null) {
+          await context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, (scope as WorkspaceFolder).name);
         }
       }
 
       log.info(`Executing task: ${modifiedTask.name}`);
       log.info(`Final presentation: ${JSON.stringify(modifiedTask.presentationOptions)}`);
 
-      void vscode.tasks.executeTask(modifiedTask).then((execution) => {
+      void VscodeHelper.executeTask(modifiedTask).then((execution) => {
         log.info(`Task started successfully: ${modifiedTask.name}`);
-        vscode.tasks.onDidEndTask((e) => {
+        VscodeHelper.onDidEndTask((e) => {
           if (e.execution === execution) {
             log.info(`Task ended: ${modifiedTask.name}`);
             void context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, null);
@@ -176,7 +180,7 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
 }
 
 export function createExecuteToolCommand(context: ExtensionContext) {
-  return registerCommand(Command.ExecuteTool, (item: TreeTool | vscode.Task) => {
+  return registerCommand(Command.ExecuteTool, (item: TreeTool | Task) => {
     if (item instanceof TreeTool) {
       const toolName = item.toolName;
       const isGlobal = toolName.startsWith(GLOBAL_ITEM_PREFIX);
@@ -210,30 +214,30 @@ export function createExecuteToolCommand(context: ExtensionContext) {
         return;
       }
 
-      const shellExec = new vscode.ShellExecution(toolConfig.command, { env, cwd });
-      const vsTask = new vscode.Task(
+      const shellExec = VscodeHelper.createShellExecution(toolConfig.command, { env, cwd });
+      const vsTask = VscodeHelper.createTask(
         { type: `${CONFIG_DIR_KEY}-tool`, task: actualName },
-        folder ?? vscode.TaskScope.Global,
+        folder ?? VscodeConstants.TaskScope.Global,
         actualName,
         `${CONFIG_DIR_KEY}-tool`,
         shellExec,
       );
 
       vsTask.presentationOptions = {
-        reveal: vscode.TaskRevealKind.Always,
-        panel: vscode.TaskPanelKind.New,
+        reveal: VscodeConstants.TaskRevealKind.Always,
+        panel: VscodeConstants.TaskPanelKind.New,
         clear: false,
         focus: false,
         showReuseMessage: false,
       };
 
-      void vscode.tasks.executeTask(vsTask);
+      void VscodeHelper.executeTask(vsTask);
       return;
     }
 
-    const task = item as vscode.Task;
-    void vscode.tasks.executeTask(task).then((execution) => {
-      vscode.tasks.onDidEndTask((e) => {
+    const task = item as Task;
+    void VscodeHelper.executeTask(task).then((execution) => {
+      VscodeHelper.onDidEndTask((e) => {
         if (e.execution === execution) {
           void context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, null);
         }
@@ -370,7 +374,7 @@ async function executePromptWithSave(options: {
 
   await VscodeHelper.withProgress(
     {
-      location: vscode.ProgressLocation.Notification,
+      location: VscodeConstants.ProgressLocation.Notification,
       title: `Running prompt: ${promptName}`,
       cancellable: false,
     },
@@ -379,7 +383,7 @@ async function executePromptWithSave(options: {
         const command = provider.getExecuteCommand(tempFile, outputFile);
         await execAsync(command, { cwd: workspacePath });
         fs.unlinkSync(tempFile);
-        await VscodeHelper.openDocument(vscode.Uri.file(outputFile));
+        await VscodeHelper.openDocument(VscodeHelper.createFileUri(outputFile));
       } catch (error: unknown) {
         fs.unlinkSync(tempFile);
         void VscodeHelper.showToastMessage(ToastKind.Error, `Prompt failed: ${TypeGuards.getErrorMessage(error)}`);

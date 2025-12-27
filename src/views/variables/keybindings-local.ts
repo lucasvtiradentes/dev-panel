@@ -1,8 +1,8 @@
 import { getVariableCommandId, getVariableCommandPrefix } from '../../common/constants';
 import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
-import { Command, executeCommand, registerDynamicCommand } from '../../common/lib/vscode-utils';
 import type { ExtensionContext } from '../../common/vscode/vscode-types';
+import { Command, executeCommand, registerDynamicCommand } from '../../common/vscode/vscode-utils';
 import { KeybindingManager } from '../_view_base';
 
 const manager = new KeybindingManager({

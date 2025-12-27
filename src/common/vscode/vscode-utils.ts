@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
 import { getCommandId } from '../constants/functions';
 import { CONTEXT_PREFIX } from '../constants/scripts-constants';
-import type { Disposable } from '../vscode/vscode-types';
-import type { CommandParams } from './command-params';
+import type { CommandParams } from '../lib/command-params';
+import { VscodeHelper } from './vscode-helper';
+import type { Disposable } from './vscode-types';
 
 export enum Command {
   Refresh = 'refresh',
@@ -125,6 +126,9 @@ export enum Command {
   DeleteTask = 'deleteTask',
   CopyTaskToGlobal = 'copyTaskToGlobal',
   CopyTaskToWorkspace = 'copyTaskToWorkspace',
+  VscodeOpen = 'vscode.open',
+  VscodeSetContext = 'setContext',
+  VscodeOpenGlobalKeybindings = 'workbench.action.openGlobalKeybindings',
 }
 
 // tscanner-ignore-next-line no-explicit-any
@@ -137,20 +141,41 @@ export function registerDynamicCommand(commandId: string, callback: (...args: an
   return vscode.commands.registerCommand(commandId, callback);
 }
 
+const VSCODE_NATIVE_COMMANDS = [
+  Command.VscodeOpen,
+  Command.VscodeSetContext,
+  Command.VscodeOpenGlobalKeybindings,
+] as const;
+
 export function executeCommand<T extends Command>(
   command: T,
   ...args: T extends keyof CommandParams ? [CommandParams[T]] : []
 ): Thenable<unknown> {
-  return vscode.commands.executeCommand(getCommandId(command), ...args);
-}
+  const isNativeCommand = (VSCODE_NATIVE_COMMANDS as readonly Command[]).includes(command);
+  const commandId = isNativeCommand ? command : getCommandId(command);
 
-export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] | undefined {
-  return vscode.workspace.workspaceFolders;
+  if (isNativeCommand && args.length > 0) {
+    const params = args[0];
+    if (command === Command.VscodeOpen && params && typeof params === 'object' && 'uri' in params) {
+      const vscodeOpenParams = params as CommandParams[Command.VscodeOpen];
+      return vscode.commands.executeCommand(commandId, vscodeOpenParams.uri, vscodeOpenParams.viewColumn);
+    }
+    if (command === Command.VscodeSetContext && params && typeof params === 'object' && 'key' in params) {
+      const setContextParams = params as CommandParams[Command.VscodeSetContext];
+      return vscode.commands.executeCommand(commandId, setContextParams.key, setContextParams.value);
+    }
+    if (command === Command.VscodeOpenGlobalKeybindings && params && typeof params === 'object' && 'query' in params) {
+      const openKeybindingsParams = params as CommandParams[Command.VscodeOpenGlobalKeybindings];
+      return vscode.commands.executeCommand(commandId, openKeybindingsParams.query);
+    }
+  }
+
+  return vscode.commands.executeCommand(commandId, ...args);
 }
 
 export function isMultiRootWorkspace(): boolean {
-  const folders = vscode.workspace.workspaceFolders;
-  return folders != null && folders.length > 1;
+  const folders = VscodeHelper.getWorkspaceFolders();
+  return folders.length > 1;
 }
 
 export const ContextKey = {
@@ -189,11 +214,11 @@ export const ContextKey = {
 export type ContextKey = (typeof ContextKey)[keyof typeof ContextKey];
 
 export function setContextKey(key: ContextKey, value: boolean | string): Thenable<unknown> {
-  return vscode.commands.executeCommand('setContext', key, value);
+  return executeCommand(Command.VscodeSetContext, { key, value });
 }
 
 export function generateWorkspaceId(): string {
-  const folders = vscode.workspace.workspaceFolders ?? [];
+  const folders = VscodeHelper.getWorkspaceFolders();
   if (folders.length === 0) return '';
   const paths = folders
     .map((f) => f.uri.fsPath)

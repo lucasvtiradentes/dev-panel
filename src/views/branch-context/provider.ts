@@ -1,5 +1,4 @@
 import * as fs from 'node:fs';
-import * as vscode from 'vscode';
 import {
   BRANCH_CONTEXT_NO_CHANGES,
   NOT_GIT_REPO_MESSAGE,
@@ -21,12 +20,12 @@ import {
   loadWorkspaceConfigFromPath,
 } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
-import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { branchContextState } from '../../common/lib/workspace-state';
 import { formatRelativeTime } from '../../common/utils/time-formatter';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
+import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
+import { ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
 import { createTaskProvider, loadBranchContext } from '../_branch_base';
 import { formatChangedFilesSummary } from '../_branch_base/providers/default/file-changes-utils';
 import { getFieldLineNumber } from '../_branch_base/storage/markdown-parser';
@@ -39,8 +38,8 @@ import { ValidationIndicator } from './validation-indicator';
 
 const logger = createLogger('BranchContext');
 
-export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> {
-  private _onDidChangeTreeData = new vscode.EventEmitter<TreeItem | undefined>();
+export class BranchContextProvider implements TreeDataProvider<TreeItem> {
+  private _onDidChangeTreeData = VscodeHelper.createEventEmitter<TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private currentBranch = '';
@@ -62,6 +61,13 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
     const tasksConfig = config?.branchContext?.builtinSections?.tasks;
     this.taskProvider = createTaskProvider(tasksConfig, workspace ?? undefined);
 
+    const wrappedOnSyncComplete = onSyncComplete
+      ? () => {
+          logger.info('[BranchContextProvider] onSyncComplete callback invoked, calling BranchTasksProvider.refresh()');
+          onSyncComplete();
+        }
+      : undefined;
+
     this.syncManager = new SyncManager(
       () => this.currentBranch,
       this.helpers,
@@ -69,7 +75,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
       (timestamp) => {
         this.lastSyncTimestamp = timestamp;
       },
-      onSyncComplete,
+      wrappedOnSyncComplete,
     );
   }
 
@@ -83,24 +89,32 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
 
   private updateDescription() {
     if (!this.treeView) {
-      logger.info('[updateDescription] No treeView, skipping');
+      logger.info('[BranchContext] [updateDescription] No treeView, skipping');
+      return;
+    }
+
+    if (!this.currentBranch) {
+      logger.info('[BranchContext] [updateDescription] No current branch set yet, skipping');
+      this.treeView.description = undefined;
       return;
     }
 
     if (!this.lastSyncTimestamp) {
-      logger.info('[updateDescription] Loading timestamp from cache (first time)');
+      logger.info(`[BranchContext] [updateDescription] Loading timestamp from cache for branch: ${this.currentBranch}`);
       const context = loadBranchContext(this.currentBranch);
       this.lastSyncTimestamp = (context.metadata?.lastSyncedTime as string) || null;
-      logger.info(`[updateDescription] Loaded timestamp: ${this.lastSyncTimestamp}`);
+      logger.info(`[BranchContext] [updateDescription] Loaded timestamp: ${this.lastSyncTimestamp}`);
     }
 
     if (this.lastSyncTimestamp) {
       const timestamp = new Date(this.lastSyncTimestamp).getTime();
       const description = formatRelativeTime(timestamp);
-      logger.info(`[updateDescription] Setting description: "${description}" (timestamp: ${this.lastSyncTimestamp})`);
+      logger.info(
+        `[BranchContext] [updateDescription] Setting description: "${description}" (timestamp: ${this.lastSyncTimestamp})`,
+      );
       this.treeView.description = description;
     } else {
-      logger.info('[updateDescription] No timestamp available, clearing description');
+      logger.info('[BranchContext] [updateDescription] No timestamp available, clearing description');
       this.treeView.description = undefined;
     }
   }
@@ -222,7 +236,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
     if (!workspace) return [];
 
     if (!(await isGitRepository(workspace))) {
-      return [new vscode.TreeItem(NOT_GIT_REPO_MESSAGE)];
+      return [VscodeHelper.createTreeItem(NOT_GIT_REPO_MESSAGE)];
     }
 
     if (!this.currentBranch) {
@@ -230,8 +244,12 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
     }
 
     const context = loadBranchContext(this.currentBranch);
+    logger.info(
+      `[BranchContext] [getChildren] Loaded context - metadata.sections keys: ${Object.keys(context.metadata?.sections || {}).join(', ') || 'none'}`,
+    );
     const config = this.helpers.loadConfig(workspace);
     const hideEmpty = branchContextState.getHideEmptySections();
+    logger.info(`[BranchContext] [getChildren] hideEmpty: ${hideEmpty}`);
     const showChangedFiles = config?.branchContext?.builtinSections?.changedFiles ?? true;
 
     const registry = this.helpers.getSectionRegistry(workspace, config ?? undefined, showChangedFiles);
@@ -268,10 +286,19 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
       });
       const sectionMetadata = context.metadata?.sections?.[section.name];
 
-      if (hideEmpty && this.helpers.isSectionEmpty(value, section.type, sectionMetadata)) {
+      logger.info(
+        `[BranchContext] [getChildren] Section "${section.name}": value="${value?.substring(0, 50)}", metadata=${JSON.stringify(sectionMetadata)}`,
+      );
+
+      const isEmpty = this.helpers.isSectionEmpty(value, section.type, sectionMetadata);
+      logger.info(`[BranchContext] [getChildren] Section "${section.name}": isEmpty=${isEmpty}`);
+
+      if (hideEmpty && isEmpty) {
+        logger.info(`[BranchContext] [getChildren] Section "${section.name}": HIDING (empty and hideEmpty=true)`);
         continue;
       }
 
+      logger.info(`[BranchContext] [getChildren] Section "${section.name}": SHOWING`);
       items.push(new SectionItem(section, value, this.currentBranch, sectionMetadata, context.branchType));
     }
 
@@ -297,7 +324,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
     if (!workspace) return;
 
     const filePath = getRootBranchContextFilePath(workspace);
-    const uri = vscode.Uri.file(filePath);
+    const uri = VscodeHelper.createFileUri(filePath);
     await VscodeHelper.openDocument(uri);
   }
 
@@ -307,7 +334,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
 
     const filePath = getRootBranchContextFilePath(workspace);
     const lineNumber = getFieldLineNumber(filePath, fieldName);
-    const uri = vscode.Uri.file(filePath);
+    const uri = VscodeHelper.createFileUri(filePath);
     await VscodeHelper.openDocumentAtLine(uri, lineNumber);
   }
 

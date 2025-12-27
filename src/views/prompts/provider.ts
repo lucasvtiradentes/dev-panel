@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import {
   CONTEXT_VALUES,
   DND_MIME_TYPE_PROMPTS,
@@ -11,11 +10,13 @@ import {
 import { getWorkspacePromptFilePath, loadGlobalConfig, loadWorkspaceConfig } from '../../common/lib/config-manager';
 import { globalPromptsState } from '../../common/lib/global-state';
 import { createLogger } from '../../common/lib/logger';
-import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { promptsState } from '../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../common/schemas';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { TreeItem, TreeView, WorkspaceFolder } from '../../common/vscode/vscode-types';
+import { Command, ContextKey } from '../../common/vscode/vscode-utils';
 import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../_view_base';
 import { PromptGroupTreeItem, TreePrompt } from './items';
 import { isFavorite, isHidden } from './state';
@@ -67,7 +68,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
   }
 
   private async getDevPanelPrompts(): Promise<Array<TreePrompt | PromptGroupTreeItem>> {
-    const folders = vscode.workspace.workspaceFolders ?? [];
+    const folders = VscodeHelper.getWorkspaceFolders();
 
     if (!this._grouped) {
       const promptElements: TreePrompt[] = [];
@@ -154,7 +155,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
 
     const promptFilePath = getWorkspacePromptFilePath(folder, prompt.file);
 
-    const treePrompt = new TreePrompt(prompt.name, promptFilePath, vscode.TreeItemCollapsibleState.None, {
+    const treePrompt = new TreePrompt(prompt.name, promptFilePath, VscodeConstants.TreeItemCollapsibleState.None, {
       command: getCommandId(Command.ExecutePrompt),
       title: 'Execute',
       arguments: [{ promptFilePath, folder, promptConfig: prompt }],
@@ -187,7 +188,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     const treePrompt = new TreePrompt(
       `${GLOBAL_ITEM_PREFIX}${prompt.name}`,
       promptFilePath,
-      vscode.TreeItemCollapsibleState.None,
+      VscodeConstants.TreeItemCollapsibleState.None,
       {
         command: getCommandId(Command.ExecutePrompt),
         title: 'Execute',

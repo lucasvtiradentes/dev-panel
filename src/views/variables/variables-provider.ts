@@ -2,7 +2,6 @@ import { exec } from 'node:child_process';
 import * as fs from 'node:fs';
 import { promisify } from 'node:util';
 import json5 from 'json5';
-import * as vscode from 'vscode';
 import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
@@ -16,12 +15,13 @@ import {
 } from '../../common/constants';
 import { getConfigDirPathFromWorkspacePath, getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/lib/file-selection';
-import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspaceFolder, getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { TreeItem } from '../../common/vscode/vscode-types';
+import { type TreeDataProvider, type TreeItem, TreeItemClass } from '../../common/vscode/vscode-types';
+import { Command, ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
 import { getIsGrouped, saveIsGrouped } from './state';
 
 const execAsync = promisify(exec);
@@ -73,22 +73,22 @@ function formatValue(value: unknown, variable: DevPanelVariable): string {
   return String(value);
 }
 
-class GroupTreeItem extends vscode.TreeItem {
+class GroupTreeItem extends TreeItemClass {
   constructor(
     public readonly groupName: string,
     public readonly variables: DevPanelVariable[],
   ) {
-    super(groupName, vscode.TreeItemCollapsibleState.Expanded);
+    super(groupName, VscodeConstants.TreeItemCollapsibleState.Expanded);
     this.contextValue = CONTEXT_VALUES.GROUP_ITEM;
   }
 }
 
-export class VariableTreeItem extends vscode.TreeItem {
+export class VariableTreeItem extends TreeItemClass {
   constructor(
     public readonly variable: DevPanelVariable,
     currentValue?: unknown,
   ) {
-    super(variable.name, vscode.TreeItemCollapsibleState.None);
+    super(variable.name, VscodeConstants.TreeItemCollapsibleState.None);
     this.contextValue = CONTEXT_VALUES.VARIABLE_ITEM;
     const value = formatValue(currentValue, variable);
     this.description = value;
@@ -105,8 +105,8 @@ export class VariableTreeItem extends vscode.TreeItem {
 
 let providerInstance: VariablesProvider | null = null;
 
-export class VariablesProvider implements vscode.TreeDataProvider<TreeItem> {
-  private _onDidChangeTreeData = new vscode.EventEmitter<TreeItem | undefined>();
+export class VariablesProvider implements TreeDataProvider<TreeItem> {
+  private _onDidChangeTreeData = VscodeHelper.createEventEmitter<TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
   private _grouped: boolean;
 
@@ -213,7 +213,7 @@ async function runCommand(variable: DevPanelVariable, value: unknown) {
 
   await VscodeHelper.withProgress(
     {
-      location: vscode.ProgressLocation.Notification,
+      location: VscodeConstants.ProgressLocation.Notification,
       title: `Running: ${variable.name}`,
       cancellable: false,
     },

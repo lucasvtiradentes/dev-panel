@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { getBranchContextFilePath } from '../common/lib/config-manager';
 import { createLogger } from '../common/lib/logger';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
@@ -10,64 +9,84 @@ const logger = createLogger('BranchMarkdownWatcher');
 
 type DynamicWatcherCallbacks = {
   onChange: UriChangeCallback;
-  getCurrentBranch: () => string;
 };
 
-export function createBranchMarkdownWatcher(callbacks: DynamicWatcherCallbacks): Disposable {
+type BranchMarkdownWatcherInstance = Disposable & {
+  updateWatcher: (branchName: string) => void;
+};
+
+export function createBranchMarkdownWatcher(callbacks: DynamicWatcherCallbacks): BranchMarkdownWatcherInstance {
   let currentWatcher: Disposable | null = null;
   let currentBranch = '';
 
   const setupWatcher = (branchName: string) => {
+    logger.info(
+      `[BranchMarkdownWatcher] [setupWatcher] Called with branch: "${branchName}" (current: "${currentBranch}")`,
+    );
+
+    if (currentWatcher && branchName === currentBranch) {
+      logger.info('[BranchMarkdownWatcher] [setupWatcher] Branch unchanged, keeping existing watcher');
+      return;
+    }
+
     if (currentWatcher) {
-      logger.info(`[setupWatcher] Disposing old watcher for branch: ${currentBranch}`);
+      logger.info(`[BranchMarkdownWatcher] [setupWatcher] Disposing old watcher for branch: "${currentBranch}"`);
       currentWatcher.dispose();
+      currentWatcher = null;
     }
 
     const workspace = getFirstWorkspacePath();
     if (!workspace || !branchName) {
-      logger.warn('[setupWatcher] No workspace or branch, skipping watcher setup');
+      logger.warn('[BranchMarkdownWatcher] [setupWatcher] No workspace or branch, skipping watcher setup');
+      currentBranch = branchName;
       return;
     }
 
     const filePath = getBranchContextFilePath(workspace, branchName);
     if (!filePath) {
-      logger.warn(`[setupWatcher] No file path for branch: ${branchName}`);
+      logger.warn(`[BranchMarkdownWatcher] [setupWatcher] No file path for branch: "${branchName}"`);
+      currentBranch = branchName;
       return;
     }
 
     const relativePath = filePath.replace(workspace, '').replace(/^\//, '');
-    logger.info(`[setupWatcher] Setting up watcher for branch "${branchName}": ${relativePath}`);
+    logger.info(
+      `[BranchMarkdownWatcher] [setupWatcher] Setting up watcher for branch "${branchName}": ${relativePath}`,
+    );
 
     currentBranch = branchName;
-    const watcher = VscodeHelper.createFileSystemWatcher(new vscode.RelativePattern(workspace, relativePath));
+    const watcher = VscodeHelper.createFileSystemWatcher(VscodeHelper.createRelativePattern(workspace, relativePath));
 
     attachFileWatcherHandlers(watcher, {
-      onChange: (uri: Uri) => callbacks.onChange(uri),
-      onCreate: (uri: Uri) => callbacks.onChange(uri),
+      onChange: (uri: Uri) => {
+        logger.info(`[BranchMarkdownWatcher] File changed: ${uri.fsPath}`);
+        callbacks.onChange(uri);
+      },
+      onCreate: (uri: Uri) => {
+        logger.info(`[BranchMarkdownWatcher] File created: ${uri.fsPath}`);
+        callbacks.onChange(uri);
+      },
       onDelete: (uri: Uri) => {
-        logger.info(`Branch markdown file deleted: ${uri.fsPath}`);
+        logger.info(`[BranchMarkdownWatcher] File deleted: ${uri.fsPath}`);
         callbacks.onChange(uri);
       },
     });
 
     currentWatcher = watcher;
+    logger.info(`[BranchMarkdownWatcher] [setupWatcher] Watcher setup complete for branch: "${branchName}"`);
   };
 
-  const checkAndUpdateWatcher = () => {
-    const newBranch = callbacks.getCurrentBranch();
-    if (newBranch !== currentBranch) {
-      setupWatcher(newBranch);
-    }
-  };
-
-  setupWatcher(callbacks.getCurrentBranch());
-
-  const pollInterval = setInterval(checkAndUpdateWatcher, 2000);
+  const initialBranch = '';
+  logger.info(`[BranchMarkdownWatcher] [createBranchMarkdownWatcher] Initial setup with branch: "${initialBranch}"`);
+  setupWatcher(initialBranch);
 
   return {
+    updateWatcher: (branchName: string) => {
+      logger.info(`[BranchMarkdownWatcher] [updateWatcher] External update request for branch: "${branchName}"`);
+      setupWatcher(branchName);
+    },
     dispose: () => {
-      logger.info('[dispose] Cleaning up branch markdown watcher');
-      clearInterval(pollInterval);
+      logger.info('[BranchMarkdownWatcher] [dispose] Cleaning up branch markdown watcher');
       if (currentWatcher) {
         currentWatcher.dispose();
       }

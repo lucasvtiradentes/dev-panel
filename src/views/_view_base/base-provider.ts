@@ -1,7 +1,7 @@
-import * as vscode from 'vscode';
 import { GLOBAL_ITEM_PREFIX, NO_GROUP_NAME } from '../../common/constants';
-import { type ContextKey, setContextKey } from '../../common/lib/vscode-utils';
-import type { Event, EventEmitter, TreeItem } from '../../common/vscode/vscode-types';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
+import type { Event, EventEmitter, TreeDataProvider, TreeItem } from '../../common/vscode/vscode-types';
+import { type ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
 import type { GlobalStateManager, GroupTreeItem, NamedTreeItem, SimpleStateManager, StateManager } from './types';
 
 export type ProviderConfig<TSource = void> = {
@@ -18,7 +18,7 @@ export abstract class BaseTreeDataProvider<
   TItem extends NamedTreeItem,
   TGroup extends GroupTreeItem<TItem>,
   TSource = void,
-> implements vscode.TreeDataProvider<TItem | TGroup>
+> implements TreeDataProvider<TItem | TGroup>
 {
   protected readonly _onDidChangeTreeData: EventEmitter<TItem | TGroup | null>;
   readonly onDidChangeTreeData: Event<TItem | TGroup | null>;
@@ -33,7 +33,7 @@ export abstract class BaseTreeDataProvider<
     protected readonly getSource: (() => TSource) | null,
     protected readonly globalStateManager?: GlobalStateManager,
   ) {
-    this._onDidChangeTreeData = new vscode.EventEmitter<TItem | TGroup | null>();
+    this._onDidChangeTreeData = VscodeHelper.createEventEmitter<TItem | TGroup | null>();
     this.onDidChangeTreeData = this._onDidChangeTreeData.event;
 
     this._grouped = stateManager.getIsGrouped();

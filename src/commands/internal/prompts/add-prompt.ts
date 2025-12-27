@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import * as vscode from 'vscode';
 import {
   CONFIG_FILE_NAME,
   CONFIG_INDENT,
@@ -11,11 +10,11 @@ import {
   TOOL_NAME_VALIDATION_MESSAGE,
 } from '../../../common/constants';
 import { getWorkspaceConfigFilePath, getWorkspacePromptsDir, parseConfig } from '../../../common/lib/config-manager';
-import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
+import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 
 async function handleAddPrompt() {
   const workspaceFolder = requireWorkspaceFolder();
@@ -159,7 +158,7 @@ Example command or code
 
   VscodeHelper.showToastMessage(ToastKind.Info, `Prompt "${name}" created successfully`);
 
-  const uri = vscode.Uri.file(promptFilePath);
+  const uri = VscodeHelper.createFileUri(promptFilePath);
   await VscodeHelper.openDocument(uri);
 }
 

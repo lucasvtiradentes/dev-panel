@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import * as vscode from 'vscode';
 import {
   CONFIG_FILE_NAME,
   CONFIG_TASKS_ARRAY_PATTERN,
@@ -11,12 +10,12 @@ import {
   getVscodeTasksFilePath,
 } from '../../../common/constants';
 import { getConfigDirLabel, getCurrentConfigDir, getWorkspaceConfigFilePath } from '../../../common/lib/config-manager';
-import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import { TaskSource } from '../../../common/schemas/types';
 import { TypeGuards } from '../../../common/utils/type-utils';
 import { getFirstWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { WorkspaceFolder } from '../../../common/vscode/vscode-types';
+import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 import { getExcludedDirs } from '../../../views/tasks/package-json';
 import { getCurrentSource } from '../../../views/tasks/state';
 
@@ -56,7 +55,7 @@ async function openPackageJsonAtScripts(packageJsonPath: string) {
     }
   }
 
-  const uri = vscode.Uri.file(packageJsonPath);
+  const uri = VscodeHelper.createFileUri(packageJsonPath);
   await VscodeHelper.openDocumentAtLine(uri, scriptsLine);
 }
 
@@ -72,7 +71,7 @@ export function createOpenTasksConfigCommand() {
       case TaskSource.VSCode: {
         const tasksJsonPath = getVscodeTasksFilePath(workspacePath);
         if (fs.existsSync(tasksJsonPath)) {
-          const uri = vscode.Uri.file(tasksJsonPath);
+          const uri = VscodeHelper.createFileUri(tasksJsonPath);
           await VscodeHelper.openDocument(uri);
         } else {
           void VscodeHelper.showToastMessage(ToastKind.Error, `${VSCODE_TASKS_PATH} not found`);
@@ -94,7 +93,7 @@ export function createOpenTasksConfigCommand() {
             }
           }
 
-          const uri = vscode.Uri.file(configPath);
+          const uri = VscodeHelper.createFileUri(configPath);
           await VscodeHelper.openDocumentAtLine(uri, tasksLine);
         } else {
           const configDirLabel = getConfigDirLabel(getCurrentConfigDir());

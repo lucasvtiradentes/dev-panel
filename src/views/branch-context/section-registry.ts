@@ -18,10 +18,10 @@ import {
   SECTION_NAME_TASKS,
 } from '../../common/constants';
 import { createLogger } from '../../common/lib/logger';
-import { Command } from '../../common/lib/vscode-utils';
 import { SectionType } from '../../common/schemas';
 import type { BranchContextConfig } from '../../common/schemas/config-schema';
 import { VscodeIcon, type VscodeIconString } from '../../common/vscode/vscode-constants';
+import { Command } from '../../common/vscode/vscode-utils';
 import type { AutoSectionProvider } from '../_branch_base/providers/interfaces';
 import { loadAutoProvider } from '../_branch_base/providers/plugin-loader';
 

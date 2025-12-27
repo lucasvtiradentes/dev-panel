@@ -1,5 +1,4 @@
 import * as fs from 'node:fs';
-import * as vscode from 'vscode';
 import { CONFIG_FILE_NAME } from '../common/constants';
 import {
   getBranchContextTemplatePath,
@@ -7,10 +6,11 @@ import {
   parseConfig,
 } from '../common/lib/config-manager';
 import { syncKeybindings } from '../common/lib/keybindings-sync';
-import { Command, registerCommand } from '../common/lib/vscode-utils';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
+import { VscodeConstants } from '../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
+import { Command, executeCommand, registerCommand } from '../common/vscode/vscode-utils';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
 import type { BranchContextProvider } from '../views/branch-context';
 import { validateBranchContext } from '../views/branch-context/config-validator';
@@ -184,12 +184,12 @@ export function registerAllCommands(options: {
       });
 
       if (selected) {
-        const configUri = vscode.Uri.file(configPath);
+        const configUri = VscodeHelper.createFileUri(configPath);
         const templatePath = getBranchContextTemplatePath(workspace);
-        const templateUri = vscode.Uri.file(templatePath);
+        const templateUri = VscodeHelper.createFileUri(templatePath);
 
-        await vscode.commands.executeCommand('vscode.open', configUri, vscode.ViewColumn.One);
-        await vscode.commands.executeCommand('vscode.open', templateUri, vscode.ViewColumn.Two);
+        await executeCommand(Command.VscodeOpen, { uri: configUri, viewColumn: VscodeConstants.ViewColumn.One });
+        await executeCommand(Command.VscodeOpen, { uri: templateUri, viewColumn: VscodeConstants.ViewColumn.Two });
       }
     }),
   ];

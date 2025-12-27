@@ -1,6 +1,6 @@
-import type * as vscode from 'vscode';
+import type { TreeItem } from '../../common/vscode/vscode-types';
 
-export type BaseTreeItem = vscode.TreeItem & {
+export type BaseTreeItem = TreeItem & {
   contextValue?: string;
 };
 

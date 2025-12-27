@@ -150,4 +150,152 @@ export class VscodeHelper {
       ignoreDeleteEvents,
     );
   }
+
+  static async openExternal(url: string): Promise<boolean> {
+    return vscode.env.openExternal(VscodeHelper.parseUri(url));
+  }
+
+  static async writeToClipboard(text: string) {
+    return vscode.env.clipboard.writeText(text);
+  }
+
+  static createRelativePattern(base: string | vscode.WorkspaceFolder, pattern: string): vscode.RelativePattern {
+    return new vscode.RelativePattern(base, pattern);
+  }
+
+  static createFileUri(path: string): vscode.Uri {
+    return vscode.Uri.file(path);
+  }
+
+  static createShellExecution(commandLine: string, options?: vscode.ShellExecutionOptions): vscode.ShellExecution;
+  static createShellExecution(
+    command: string | vscode.ShellQuotedString,
+    args: (string | vscode.ShellQuotedString)[],
+    options?: vscode.ShellExecutionOptions,
+  ): vscode.ShellExecution;
+  static createShellExecution(
+    commandOrCommandLine: string | vscode.ShellQuotedString,
+    argsOrOptions?: (string | vscode.ShellQuotedString)[] | vscode.ShellExecutionOptions,
+    options?: vscode.ShellExecutionOptions,
+  ): vscode.ShellExecution {
+    if (Array.isArray(argsOrOptions)) {
+      return new vscode.ShellExecution(commandOrCommandLine, argsOrOptions, options);
+    }
+    return new vscode.ShellExecution(commandOrCommandLine as string, argsOrOptions);
+  }
+
+  static async readDirectory(uri: vscode.Uri): Promise<[string, vscode.FileType][]> {
+    return vscode.workspace.fs.readDirectory(uri);
+  }
+
+  static async createDirectory(uri: vscode.Uri) {
+    return vscode.workspace.fs.createDirectory(uri);
+  }
+
+  static async readFile(uri: vscode.Uri) {
+    return vscode.workspace.fs.readFile(uri);
+  }
+
+  static async writeFile(uri: vscode.Uri, content: Uint8Array) {
+    return vscode.workspace.fs.writeFile(uri, content);
+  }
+
+  static async stat(uri: vscode.Uri) {
+    return vscode.workspace.fs.stat(uri);
+  }
+
+  static async copy(source: vscode.Uri, target: vscode.Uri, options?: { overwrite?: boolean }) {
+    return vscode.workspace.fs.copy(source, target, options);
+  }
+
+  static async delete(uri: vscode.Uri, options?: { recursive?: boolean; useTrash?: boolean }) {
+    return vscode.workspace.fs.delete(uri, options);
+  }
+
+  static getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] {
+    return vscode.workspace.workspaceFolders ?? [];
+  }
+
+  static getWorkspaceName(): string | undefined {
+    return vscode.workspace.name;
+  }
+
+  static findFiles(
+    include: vscode.GlobPattern,
+    exclude?: vscode.GlobPattern | null,
+    maxResults?: number,
+    token?: vscode.CancellationToken,
+  ): Thenable<vscode.Uri[]> {
+    return vscode.workspace.findFiles(include, exclude, maxResults, token);
+  }
+
+  static asRelativePath(pathOrUri: string | vscode.Uri, includeWorkspaceFolder?: boolean): string {
+    return vscode.workspace.asRelativePath(pathOrUri, includeWorkspaceFolder);
+  }
+
+  static getConfiguration(section?: string, scope?: vscode.ConfigurationScope | null): vscode.WorkspaceConfiguration {
+    return vscode.workspace.getConfiguration(section, scope);
+  }
+
+  static joinPath(base: vscode.Uri, ...pathSegments: string[]): vscode.Uri {
+    return vscode.Uri.joinPath(base, ...pathSegments);
+  }
+
+  static parseUri(value: string): vscode.Uri {
+    return vscode.Uri.parse(value);
+  }
+
+  static executeCommand<T = unknown>(command: string, ...args: unknown[]): Thenable<T> {
+    return vscode.commands.executeCommand<T>(command, ...args);
+  }
+
+  static getExtension<T = unknown>(extensionId: string): vscode.Extension<T> | undefined {
+    return vscode.extensions.getExtension<T>(extensionId);
+  }
+
+  static createTask(
+    definition: vscode.TaskDefinition,
+    scope: vscode.WorkspaceFolder | vscode.TaskScope.Global | vscode.TaskScope.Workspace,
+    name: string,
+    source: string,
+    execution?: vscode.ProcessExecution | vscode.ShellExecution | vscode.CustomExecution,
+    problemMatchers?: string | string[],
+  ): vscode.Task {
+    return new vscode.Task(definition, scope, name, source, execution, problemMatchers);
+  }
+
+  static createEventEmitter<T>(): vscode.EventEmitter<T> {
+    return new vscode.EventEmitter<T>();
+  }
+
+  static createMarkdownString(value?: string, supportThemeIcons?: boolean): vscode.MarkdownString {
+    return new vscode.MarkdownString(value, supportThemeIcons);
+  }
+
+  static createDataTransferItem(value: unknown): vscode.DataTransferItem {
+    return new vscode.DataTransferItem(value);
+  }
+
+  static createProcessExecution(
+    process: string,
+    args: string[],
+    options?: vscode.ProcessExecutionOptions,
+  ): vscode.ProcessExecution {
+    return new vscode.ProcessExecution(process, args, options);
+  }
+
+  static createTreeItem(
+    label: string | vscode.TreeItemLabel,
+    collapsibleState?: vscode.TreeItemCollapsibleState,
+  ): vscode.TreeItem {
+    return new vscode.TreeItem(label, collapsibleState);
+  }
+
+  static executeTask(task: vscode.Task): Thenable<vscode.TaskExecution> {
+    return vscode.tasks.executeTask(task);
+  }
+
+  static onDidEndTask(listener: (e: vscode.TaskEndEvent) => unknown): vscode.Disposable {
+    return vscode.tasks.onDidEndTask(listener);
+  }
 }

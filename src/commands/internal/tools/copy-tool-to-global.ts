@@ -9,7 +9,6 @@ import {
   loadWorkspaceConfig,
   saveGlobalConfig,
 } from '../../../common/lib/config-manager';
-import { Command, executeCommand, registerCommand } from '../../../common/lib/vscode-utils';
 import {
   isGlobalItem,
   showAlreadyGlobalMessage,
@@ -19,6 +18,7 @@ import {
   showNotFoundError,
 } from '../../../common/utils/item-utils';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
+import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { TreeTool } from '../../../views/tools/items';
 
 async function handleCopyToolToGlobal(treeTool: TreeTool) {

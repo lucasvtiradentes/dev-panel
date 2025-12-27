@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import * as vscode from 'vscode';
 import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
@@ -16,11 +15,13 @@ import {
   getWorkspaceVariablesPath,
   loadConfigFromPath,
 } from '../../common/lib/config-manager';
-import { Command } from '../../common/lib/vscode-utils';
 import { TaskSource } from '../../common/schemas/types';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
+import { Command } from '../../common/vscode/vscode-utils';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
@@ -66,7 +67,7 @@ export function getExcludedDirs(workspacePath: string): Set<string> {
 }
 
 export async function hasPackageGroups(): Promise<boolean> {
-  const folders = vscode.workspace.workspaceFolders ?? [];
+  const folders = VscodeHelper.getWorkspaceFolders();
   const allPackages: PackageLocation[] = [];
 
   for (const folder of folders) {
@@ -93,7 +94,7 @@ export async function getPackageScripts(
     elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
   ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
 ): Promise<Array<TreeTask | GroupTreeItem | WorkspaceTreeItem>> {
-  const folders = vscode.workspace.workspaceFolders ?? [];
+  const folders = VscodeHelper.getWorkspaceFolders();
   const allPackages: PackageLocation[] = [];
 
   for (const folder of folders) {
@@ -285,14 +286,14 @@ function createNpmTask(options: {
 
   const variablesPath = getWorkspaceVariablesPath(folder);
   const env = readDevPanelVariablesAsEnv(variablesPath);
-  const shellExec = new vscode.ShellExecution(`${NPM_RUN_COMMAND} ${name}`, { cwd, env });
-  const task = new vscode.Task({ type: 'npm' }, folder, name, 'npm', shellExec);
+  const shellExec = VscodeHelper.createShellExecution(`${NPM_RUN_COMMAND} ${name}`, { cwd, env });
+  const task = VscodeHelper.createTask({ type: 'npm' }, folder, name, 'npm', shellExec);
   const displayName = useDisplayName && name.includes(':') ? name.split(':').slice(1).join(':') : name;
 
   const treeTask = new TreeTask(
     'npm',
     displayName,
-    vscode.TreeItemCollapsibleState.None,
+    VscodeConstants.TreeItemCollapsibleState.None,
     {
       command: getCommandId(Command.ExecuteTask),
       title: 'Execute',

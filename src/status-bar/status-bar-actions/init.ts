@@ -1,27 +1,27 @@
-import * as vscode from 'vscode';
 import { CONFIG_FILE_NAME, EXTENSION_DISPLAY_NAME } from '../../common/constants';
 import { INIT_RESOURCES_DIR_NAME, RESOURCES_DIR_NAME } from '../../common/constants/scripts-constants';
 import { getWorkspaceConfigDirPath } from '../../common/lib/config-manager';
 import { extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { Uri } from '../../common/vscode/vscode-types';
 
 async function copyDirectoryRecursive(sourceUri: Uri, targetUri: Uri) {
-  await vscode.workspace.fs.createDirectory(targetUri);
+  await VscodeHelper.createDirectory(targetUri);
 
-  const entries = await vscode.workspace.fs.readDirectory(sourceUri);
+  const entries = await VscodeHelper.readDirectory(sourceUri);
 
   for (const [name, type] of entries) {
-    const sourceEntryUri = vscode.Uri.joinPath(sourceUri, name);
-    const targetEntryUri = vscode.Uri.joinPath(targetUri, name);
+    const sourceEntryUri = VscodeHelper.joinPath(sourceUri, name);
+    const targetEntryUri = VscodeHelper.joinPath(targetUri, name);
 
-    if (type === vscode.FileType.Directory) {
+    if (type === VscodeConstants.FileType.Directory) {
       await copyDirectoryRecursive(sourceEntryUri, targetEntryUri);
     } else {
-      const content = await vscode.workspace.fs.readFile(sourceEntryUri);
-      await vscode.workspace.fs.writeFile(targetEntryUri, content);
+      const content = await VscodeHelper.readFile(sourceEntryUri);
+      await VscodeHelper.writeFile(targetEntryUri, content);
     }
   }
 }
@@ -36,9 +36,9 @@ export async function showInitMenu() {
       throw new Error('Extension URI not available');
     }
 
-    const initResourcesUri = vscode.Uri.joinPath(extensionUri, RESOURCES_DIR_NAME, INIT_RESOURCES_DIR_NAME);
+    const initResourcesUri = VscodeHelper.joinPath(extensionUri, RESOURCES_DIR_NAME, INIT_RESOURCES_DIR_NAME);
     const configDirPath = getWorkspaceConfigDirPath(workspaceFolder);
-    const configDirUri = vscode.Uri.file(configDirPath);
+    const configDirUri = VscodeHelper.createFileUri(configDirPath);
 
     await copyDirectoryRecursive(initResourcesUri, configDirUri);
 

@@ -1,7 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import json5 from 'json5';
-import * as vscode from 'vscode';
 import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
@@ -12,13 +11,14 @@ import {
   getCommandId,
 } from '../../common/constants';
 import { getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
-import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
-import type { TreeItem } from '../../common/vscode/vscode-types';
+import { type TreeDataProvider, type TreeItem, TreeItemClass } from '../../common/vscode/vscode-types';
+import { Command, ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { fileExistsInGit, getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
 import {
@@ -53,22 +53,22 @@ function normalizePatchItem(item: { search: unknown; replace: unknown }): Normal
   };
 }
 
-class ReplacementGroupTreeItem extends vscode.TreeItem {
+class ReplacementGroupTreeItem extends TreeItemClass {
   constructor(
     public readonly groupName: string,
     public readonly replacements: DevPanelReplacement[],
   ) {
-    super(groupName, vscode.TreeItemCollapsibleState.Expanded);
+    super(groupName, VscodeConstants.TreeItemCollapsibleState.Expanded);
     this.contextValue = CONTEXT_VALUES.REPLACEMENT_GROUP;
   }
 }
 
-class ReplacementTreeItem extends vscode.TreeItem {
+class ReplacementTreeItem extends TreeItemClass {
   constructor(
     public readonly replacement: DevPanelReplacement,
     public readonly isActive: boolean,
   ) {
-    super(replacement.name, vscode.TreeItemCollapsibleState.None);
+    super(replacement.name, VscodeConstants.TreeItemCollapsibleState.None);
 
     this.description = '';
     this.tooltip = replacement.description || replacement.name;
@@ -88,8 +88,8 @@ class ReplacementTreeItem extends vscode.TreeItem {
 
 let providerInstance: ReplacementsProvider | null = null;
 
-export class ReplacementsProvider implements vscode.TreeDataProvider<TreeItem> {
-  private _onDidChangeTreeData = new vscode.EventEmitter<TreeItem | undefined>();
+export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
+  private _onDidChangeTreeData = VscodeHelper.createEventEmitter<TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private _grouped: boolean;

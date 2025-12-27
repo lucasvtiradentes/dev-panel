@@ -1,7 +1,8 @@
-import { Command, registerCommand } from '../../../common/lib/vscode-utils';
+import { type ItemOrLineIndex, extractLineIndex } from '../../../common/utils/item-utils';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import type { BranchTaskItem, BranchTasksProvider } from '../../../views/branch-tasks';
+import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
+import type { BranchTasksProvider } from '../../../views/branch-tasks';
 import { createSetTaskMetadataCommands } from './set-task-metadata';
 import { createSetTaskPriorityCommands } from './set-task-priority';
 import { createSetTaskStatusCommands } from './set-task-status';
@@ -10,11 +11,7 @@ import { createTaskMilestoneCommands } from './task-milestone';
 import { createTaskOperationsCommands } from './task-operations';
 
 export type ToggleTodoParams = number;
-export type CycleTaskStatusParams = BranchTaskItem | number;
-
-function extractLineIndex(itemOrLineIndex: BranchTaskItem | number): number {
-  return typeof itemOrLineIndex === 'number' ? itemOrLineIndex : itemOrLineIndex.node.lineIndex;
-}
+export type CycleTaskStatusParams = ItemOrLineIndex;
 
 export function createToggleBranchTasksCommands(branchTasksProvider: BranchTasksProvider): Disposable[] {
   return [

@@ -1,14 +1,8 @@
-import * as vscode from 'vscode';
-import { Command, registerCommand } from '../../../common/lib/vscode-utils';
+import { type ItemOrLineIndex, extractLineIndex } from '../../../common/utils/item-utils';
+import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
+import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { BranchTasksProvider } from '../../../views/branch-tasks/provider';
-import type { BranchTaskItem } from '../../../views/branch-tasks/task-tree-items';
-
-type ItemOrLineIndex = BranchTaskItem | number;
-
-function extractLineIndex(itemOrLineIndex: ItemOrLineIndex): number {
-  return typeof itemOrLineIndex === 'number' ? itemOrLineIndex : itemOrLineIndex.node.lineIndex;
-}
 
 export function createTaskExternalCommands(provider: BranchTasksProvider): Disposable[] {
   return [
@@ -16,7 +10,7 @@ export function createTaskExternalCommands(provider: BranchTasksProvider): Dispo
       const lineIndex = extractLineIndex(item);
       const node = provider.findNodeByLineIndex(lineIndex);
       if (!node?.meta.externalUrl) return;
-      await vscode.env.openExternal(vscode.Uri.parse(node.meta.externalUrl));
+      await VscodeHelper.openExternal(node.meta.externalUrl);
     }),
   ];
 }
