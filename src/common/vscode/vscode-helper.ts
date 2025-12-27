@@ -252,4 +252,15 @@ export class VscodeHelper {
   static getExtension<T = unknown>(extensionId: string): vscode.Extension<T> | undefined {
     return vscode.extensions.getExtension<T>(extensionId);
   }
+
+  static createTask(
+    definition: vscode.TaskDefinition,
+    scope: vscode.WorkspaceFolder | vscode.TaskScope.Global | vscode.TaskScope.Workspace,
+    name: string,
+    source: string,
+    execution?: vscode.ProcessExecution | vscode.ShellExecution | vscode.CustomExecution,
+    problemMatchers?: string | string[],
+  ): vscode.Task {
+    return new vscode.Task(definition, scope, name, source, execution, problemMatchers);
+  }
 }

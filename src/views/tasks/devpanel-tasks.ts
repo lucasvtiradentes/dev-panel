@@ -119,7 +119,7 @@ function createDevPanelTask(
   const env = readDevPanelVariablesAsEnv(configDirPath);
   const cwd = task.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
   const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd });
-  const vsTask = new vscode.Task(
+  const vsTask = VscodeHelper.createTask(
     { type: CONFIG_DIR_KEY, task: task.name },
     folder,
     task.name,
@@ -180,7 +180,7 @@ function createGlobalTask(
   const cwd = globalConfigDir;
   const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd });
 
-  const vsTask = new vscode.Task(
+  const vsTask = VscodeHelper.createTask(
     { type: `${CONFIG_DIR_KEY}-global`, task: task.name },
     vscode.TaskScope.Global,
     task.name,

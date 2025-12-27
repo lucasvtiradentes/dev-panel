@@ -77,7 +77,7 @@ function cloneTaskWithEnv(task: Task, env: Record<string, string>): Task {
       return task;
     }
 
-    newTask = new vscode.Task(
+    newTask = VscodeHelper.createTask(
       task.definition,
       task.scope ?? vscode.TaskScope.Workspace,
       task.name,
@@ -96,7 +96,7 @@ function cloneTaskWithEnv(task: Task, env: Record<string, string>): Task {
       env: mergedEnv,
     });
 
-    newTask = new vscode.Task(
+    newTask = VscodeHelper.createTask(
       task.definition,
       task.scope ?? vscode.TaskScope.Workspace,
       task.name,
@@ -135,7 +135,7 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
           commandToReplace = replaceInputPlaceholders(commandToReplace, inputValues);
 
           const newExecution = VscodeHelper.createShellExecution(commandToReplace, execution.options);
-          modifiedTask = new vscode.Task(
+          modifiedTask = VscodeHelper.createTask(
             task.definition,
             task.scope ?? vscode.TaskScope.Workspace,
             task.name,
@@ -214,7 +214,7 @@ export function createExecuteToolCommand(context: ExtensionContext) {
       }
 
       const shellExec = VscodeHelper.createShellExecution(toolConfig.command, { env, cwd });
-      const vsTask = new vscode.Task(
+      const vsTask = VscodeHelper.createTask(
         { type: `${CONFIG_DIR_KEY}-tool`, task: actualName },
         folder ?? vscode.TaskScope.Global,
         actualName,

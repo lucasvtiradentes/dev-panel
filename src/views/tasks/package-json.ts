@@ -287,7 +287,7 @@ function createNpmTask(options: {
   const variablesPath = getWorkspaceVariablesPath(folder);
   const env = readDevPanelVariablesAsEnv(variablesPath);
   const shellExec = VscodeHelper.createShellExecution(`${NPM_RUN_COMMAND} ${name}`, { cwd, env });
-  const task = new vscode.Task({ type: 'npm' }, folder, name, 'npm', shellExec);
+  const task = VscodeHelper.createTask({ type: 'npm' }, folder, name, 'npm', shellExec);
   const displayName = useDisplayName && name.includes(':') ? name.split(':').slice(1).join(':') : name;
 
   const treeTask = new TreeTask(

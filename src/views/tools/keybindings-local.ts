@@ -25,7 +25,7 @@ export function registerToolKeybindings(context: ExtensionContext) {
       const disposable = registerDynamicCommand(commandId, () => {
         const configDirPath = getWorkspaceConfigDirPath(folder);
         const shellExec = VscodeHelper.createShellExecution(tool.command as string, { cwd: configDirPath });
-        const task = new vscode.Task({ type: TOOL_TASK_TYPE }, folder, tool.name, TOOL_TASK_TYPE, shellExec);
+        const task = VscodeHelper.createTask({ type: TOOL_TASK_TYPE }, folder, tool.name, TOOL_TASK_TYPE, shellExec);
         void vscode.tasks.executeTask(task);
       });
       context.subscriptions.push(disposable);
@@ -42,7 +42,7 @@ export function registerToolKeybindings(context: ExtensionContext) {
       const commandId = getToolCommandId(tool.name);
       const disposable = registerDynamicCommand(commandId, () => {
         const shellExec = VscodeHelper.createShellExecution(tool.command as string, { cwd: globalConfigDir });
-        const task = new vscode.Task(
+        const task = VscodeHelper.createTask(
           { type: TOOL_TASK_TYPE },
           vscode.TaskScope.Global,
           tool.name,
