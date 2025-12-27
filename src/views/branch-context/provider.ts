@@ -1,3 +1,4 @@
+import { formatRelativeTime } from 'src/common/functions/format-relative-time';
 import {
   BRANCH_CONTEXT_NO_CHANGES,
   NOT_GIT_REPO_MESSAGE,
@@ -15,7 +16,6 @@ import { ConfigManager } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper } from '../../common/lib/node-helper';
 import { branchContextState } from '../../common/state';
-import { formatRelativeTime } from '../../common/utils/common-utils';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
