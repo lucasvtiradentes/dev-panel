@@ -360,6 +360,11 @@ export class SyncManager {
     return this.isWritingMarkdown;
   }
 
+  resetInitializing() {
+    logger.info('[SyncManager] [resetInitializing] Resetting isInitializing to true for new branch');
+    this.isInitializing = true;
+  }
+
   dispose() {
     if (this.syncDebounceTimer) {
       clearTimeout(this.syncDebounceTimer);

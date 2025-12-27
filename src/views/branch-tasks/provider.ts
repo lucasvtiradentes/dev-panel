@@ -129,15 +129,21 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
   setBranch(branchName: string) {
     if (branchName !== this.currentBranch) {
       logger.info(
-        `[BranchTasksProvider] Branch changed from '${this.currentBranch}' to '${branchName}' (isInitializing: ${this.isInitializing})`,
+        `[BranchTasksProvider] [setBranch] Branch changed from '${this.currentBranch}' to '${branchName}' (isInitializing: ${this.isInitializing})`,
       );
       this.currentBranch = branchName;
       const wasInitializing = this.isInitializing;
       this.isInitializing = false;
       if (!wasInitializing) {
+        logger.info('[BranchTasksProvider] [setBranch] NOT initializing, calling refresh immediately');
         this.refresh();
+      } else {
+        logger.info(
+          '[BranchTasksProvider] [setBranch] IS initializing, skipping immediate refresh - waiting for onSyncComplete',
+        );
       }
     } else {
+      logger.info(`[BranchTasksProvider] [setBranch] Branch unchanged: ${branchName}`);
       this.isInitializing = false;
     }
   }
@@ -203,7 +209,9 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
   }
 
   refresh() {
-    logger.info(`[BranchTasksProvider] [refresh] START - Refreshing tasks for branch: ${this.currentBranch}`);
+    logger.info(
+      `[BranchTasksProvider] [refresh] CALLED - Branch: ${this.currentBranch}, isInitializing: ${this.isInitializing}`,
+    );
     void this.loadBranchTasks().then(() => {
       logger.info('[BranchTasksProvider] [refresh] Tasks loaded, firing tree data change event');
       this._onDidChangeTreeData.fire(undefined);

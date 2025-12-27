@@ -206,6 +206,21 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
 
     if (branchName !== this.currentBranch) {
       this.currentBranch = branchName;
+
+      const workspace = getFirstWorkspacePath();
+      if (workspace) {
+        const branchFilePath = ConfigManager.getBranchContextFilePath(workspace, branchName);
+        const fileExists = fs.existsSync(branchFilePath);
+        logger.info(`[BranchContextProvider] setBranch - File exists: ${fileExists}, path: ${branchFilePath}`);
+
+        if (!fileExists) {
+          logger.info(
+            '[BranchContextProvider] setBranch - New branch without context file, resetting SyncManager.isInitializing',
+          );
+          this.syncManager.resetInitializing();
+        }
+      }
+
       if (shouldRefresh && !this.isInitializing) {
         logger.info('[BranchContextProvider] Branch changed, refreshing');
         this.refresh();
