@@ -9,6 +9,7 @@ import {
 import { ConfigManager } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper } from '../../common/lib/node-helper';
+import { NodePathHelper } from '../../common/lib/node-helper';
 import {
   type DevPanelConfig,
   type DevPanelPrompt,
@@ -18,7 +19,6 @@ import {
 } from '../../common/schemas';
 import { TypeGuards } from '../../common/utils/common-utils';
 import { ExecHelper } from '../../common/utils/exec-utils';
-import { PathHelper } from '../../common/utils/path-helper';
 import { loadVariablesFromPath, readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
@@ -280,7 +280,7 @@ export function createExecutePromptCommand() {
 
       let resolvedPromptFilePath = promptFilePath;
       if (promptConfig?.useWorkspaceRoot && folder) {
-        resolvedPromptFilePath = PathHelper.join(folder.uri.fsPath, promptConfig.file);
+        resolvedPromptFilePath = NodePathHelper.join(folder.uri.fsPath, promptConfig.file);
         log.info(`Resolved prompt path from workspace root: ${resolvedPromptFilePath}`);
       }
 
@@ -353,8 +353,8 @@ async function executePromptWithSave(options: {
 
   const timestamped = settings?.promptExecution !== PromptExecutionMode.Overwrite;
   const outputFile = ConfigManager.getPromptOutputFilePath(workspacePath, branch, promptName, timestamped);
-  const outputDir = PathHelper.dirname(outputFile);
-  const tempFile = PathHelper.join(outputDir, '.prompt-temp.txt');
+  const outputDir = NodePathHelper.dirname(outputFile);
+  const tempFile = NodePathHelper.join(outputDir, '.prompt-temp.txt');
 
   FileIOHelper.ensureDirectoryExists(outputDir);
 

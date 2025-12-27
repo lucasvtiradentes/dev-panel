@@ -1,5 +1,4 @@
 import JSON5 from 'json5';
-import { PathHelper } from '../../common/utils/path-helper';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
@@ -24,6 +23,7 @@ import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
 import type { Uri, WorkspaceFolder } from '../vscode/vscode-types';
 import { StoreKey, extensionStore } from './extension-store';
 import { FileIOHelper } from './node-helper';
+import { NodePathHelper } from './node-helper';
 
 type ConfigArrayKey = ConfigKey.Prompts | ConfigKey.Tasks | ConfigKey.Tools;
 type ConfigArrayItem =
@@ -39,7 +39,7 @@ export class ConfigManager {
       return VscodeHelper.joinPath(baseDir, CONFIG_DIR_NAME);
     }
 
-    const customDir = PathHelper.isAbsolute(configDir)
+    const customDir = NodePathHelper.isAbsolute(configDir)
       ? VscodeHelper.createFileUri(configDir)
       : VscodeHelper.joinPath(baseDir, configDir);
     return VscodeHelper.joinPath(customDir, CONFIG_DIR_NAME);
@@ -112,7 +112,7 @@ export class ConfigManager {
   static joinConfigPath(folder: WorkspaceFolder, ...segments: string[]): string {
     const configDir = ConfigManager.getCurrentConfigDir();
     const basePath = ConfigManager.getConfigDirPath(folder.uri.fsPath, configDir);
-    return PathHelper.join(basePath, ...segments);
+    return NodePathHelper.join(basePath, ...segments);
   }
 
   static getWorkspaceToolDir(folder: WorkspaceFolder, toolName: string): string {
@@ -136,11 +136,11 @@ export class ConfigManager {
   }
 
   static getRootBranchContextFilePath(workspacePath: string): string {
-    return PathHelper.join(workspacePath, ROOT_BRANCH_CONTEXT_FILE_NAME);
+    return NodePathHelper.join(workspacePath, ROOT_BRANCH_CONTEXT_FILE_NAME);
   }
 
   static getGitExcludeFilePath(workspacePath: string): string {
-    return PathHelper.join(workspacePath, '.git', 'info', 'exclude');
+    return NodePathHelper.join(workspacePath, '.git', 'info', 'exclude');
   }
 
   static getConfigDirPathFromWorkspacePath(workspacePath: string): string {
@@ -169,15 +169,15 @@ export class ConfigManager {
   static getBranchDirectory(workspace: string, branchName: string): string {
     const sanitized = branchName.replace(FILENAME_INVALID_CHARS_PATTERN, '_');
     const configDirPath = ConfigManager.getConfigDirPathFromWorkspacePath(workspace);
-    return PathHelper.join(configDirPath, BRANCHES_DIR_NAME, sanitized);
+    return NodePathHelper.join(configDirPath, BRANCHES_DIR_NAME, sanitized);
   }
 
   static getBranchContextFilePath(workspace: string, branchName: string): string {
-    return PathHelper.join(ConfigManager.getBranchDirectory(workspace, branchName), BRANCH_CONTEXT_FILENAME);
+    return NodePathHelper.join(ConfigManager.getBranchDirectory(workspace, branchName), BRANCH_CONTEXT_FILENAME);
   }
 
   static getBranchPromptsDirectory(workspace: string, branchName: string): string {
-    return PathHelper.join(ConfigManager.getBranchDirectory(workspace, branchName), PROMPTS_DIR_NAME);
+    return NodePathHelper.join(ConfigManager.getBranchDirectory(workspace, branchName), PROMPTS_DIR_NAME);
   }
 
   static getPromptOutputFilePath(
@@ -191,15 +191,15 @@ export class ConfigManager {
 
     if (timestamped) {
       const datetime = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-      return PathHelper.join(promptsDir, `${safePromptName}-${datetime}.md`);
+      return NodePathHelper.join(promptsDir, `${safePromptName}-${datetime}.md`);
     }
 
-    return PathHelper.join(promptsDir, `${safePromptName}.md`);
+    return NodePathHelper.join(promptsDir, `${safePromptName}.md`);
   }
 
   static getBranchContextTemplatePath(workspace: string): string {
     const configDirPath = ConfigManager.getConfigDirPathFromWorkspacePath(workspace);
-    return PathHelper.join(configDirPath, BRANCH_CONTEXT_TEMPLATE_FILENAME);
+    return NodePathHelper.join(configDirPath, BRANCH_CONTEXT_TEMPLATE_FILENAME);
   }
 
   static parseConfig(content: string): DevPanelConfig | null {

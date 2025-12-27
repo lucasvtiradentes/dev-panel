@@ -4,10 +4,10 @@ import {
   RESOURCES_DIR_NAME,
 } from '../../../common/constants/scripts-constants';
 import { FileIOHelper } from '../../../common/lib/node-helper';
-import { PathHelper } from '../../../common/utils/path-helper';
+import { NodePathHelper } from '../../../common/lib/node-helper';
 
 export function getDefaultTemplate(extensionPath: string): string {
-  const templatePath = PathHelper.join(
+  const templatePath = NodePathHelper.join(
     extensionPath,
     RESOURCES_DIR_NAME,
     INIT_RESOURCES_DIR_NAME,

@@ -9,9 +9,9 @@ import {
 } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { FileIOHelper } from '../../../common/lib/node-helper';
+import { NodePathHelper } from '../../../common/lib/node-helper';
 import { TaskSource } from '../../../common/schemas/types';
 import { TypeGuards } from '../../../common/utils/common-utils';
-import { PathHelper } from '../../../common/utils/path-helper';
 import { getFirstWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { WorkspaceFolder } from '../../../common/vscode/vscode-types';
@@ -29,7 +29,7 @@ async function findAllPackageJsons(folder: WorkspaceFolder): Promise<string[]> {
     for (const entry of entries) {
       if (excludedDirs.has(entry.name) || entry.name.startsWith(DIST_DIR_PREFIX)) continue;
 
-      const fullPath = PathHelper.join(dir, entry.name);
+      const fullPath = NodePathHelper.join(dir, entry.name);
 
       if (entry.isDirectory()) {
         await scan(fullPath);
@@ -111,7 +111,7 @@ export function createOpenTasksConfigCommand() {
           await openPackageJsonAtScripts(packageJsons[0]);
         } else {
           const items = packageJsons.map((pkgPath) => ({
-            label: PathHelper.relative(workspacePath, pkgPath),
+            label: NodePathHelper.relative(workspacePath, pkgPath),
             path: pkgPath,
           }));
 

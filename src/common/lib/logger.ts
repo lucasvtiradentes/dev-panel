@@ -1,12 +1,12 @@
 import { getLogFilename } from '../constants/functions';
 import { CONFIG_DIR_KEY } from '../constants/scripts-constants';
-import { PathHelper } from '../utils/path-helper';
 import { FileIOHelper } from './node-helper';
 import { NodeOsHelper } from './node-helper';
+import { NodePathHelper } from './node-helper';
 
 const LOG_CONTEXT_WIDTH = 8;
 const LOG_TIMEZONE_OFFSET_HOURS = -3;
-export const LOG_FILE_PATH = PathHelper.join(NodeOsHelper.tmpdir(), getLogFilename());
+export const LOG_FILE_PATH = NodePathHelper.join(NodeOsHelper.tmpdir(), getLogFilename());
 
 function formatTimestamp(): string {
   const now = new Date();
