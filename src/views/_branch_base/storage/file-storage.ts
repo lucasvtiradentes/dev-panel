@@ -18,12 +18,12 @@ import {
   SECTION_NAME_REQUIREMENTS,
   SECTION_NAME_TASKS,
 } from '../../../common/constants';
+import { extractSectionMetadata } from '../../../common/functions/extract-section-metadata';
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import { FileIOHelper } from '../../../common/lib/node-helper';
 import type { BranchContext, BranchContextMetadata, SectionMetadata } from '../../../common/schemas/types';
 import { StringUtils, TypeGuards } from '../../../common/utils/common-utils';
-import { extractSectionMetadata } from '../../../common/utils/metadata-extractor';
 import { parseBranchTypeCheckboxes } from './branch-type-utils';
 
 const logger = createLogger('BranchContext');
