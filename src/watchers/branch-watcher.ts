@@ -46,6 +46,7 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
     try {
       const newBranch = await getCurrentBranch(workspace);
       if (newBranch !== currentBranch) {
+        logger.info(`[branchWatcher] Branch changed from '${currentBranch}' to '${newBranch}'`);
         currentBranch = newBranch;
         onBranchChange(newBranch);
       }

@@ -62,6 +62,13 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
     const tasksConfig = config?.branchContext?.builtinSections?.tasks;
     this.taskProvider = createTaskProvider(tasksConfig, workspace ?? undefined);
 
+    const wrappedOnSyncComplete = onSyncComplete
+      ? () => {
+          logger.info('[BranchContextProvider] onSyncComplete callback invoked, calling BranchTasksProvider.refresh()');
+          onSyncComplete();
+        }
+      : undefined;
+
     this.syncManager = new SyncManager(
       () => this.currentBranch,
       this.helpers,
@@ -69,7 +76,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
       (timestamp) => {
         this.lastSyncTimestamp = timestamp;
       },
-      onSyncComplete,
+      wrappedOnSyncComplete,
     );
   }
 
