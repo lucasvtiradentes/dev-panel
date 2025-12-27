@@ -16,7 +16,6 @@ import {
   BUILTIN_SECTION_NAMES,
   METADATA_DEVPANEL_PREFIX,
   METADATA_DEVPANEL_REGEX,
-  METADATA_SECTION_PREFIX,
   METADATA_SEPARATOR_REGEX,
   METADATA_SUFFIX,
   SECTION_NAME_CHANGED_FILES,
@@ -28,6 +27,7 @@ import {
 import { getBranchContextFilePath } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext, BranchContextMetadata, SectionMetadata } from '../../../common/schemas/types';
+import { extractSectionMetadata } from '../../../common/utils/metadata-extractor';
 import { parseBranchTypeCheckboxes } from './branch-type-utils';
 
 const logger = createLogger('BranchContext');
@@ -137,26 +137,6 @@ type CodeBlockSection = {
   metadata?: SectionMetadata;
 };
 
-function extractSectionMetadata(content: string): { cleanContent: string; metadata?: SectionMetadata } {
-  const prefix = METADATA_SECTION_PREFIX.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const suffix = METADATA_SUFFIX.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const metadataRegex = new RegExp(`${prefix}(.+?)${suffix}`);
-  const match = content.match(metadataRegex);
-  if (!match) return { cleanContent: content };
-
-  try {
-    const parsed = JSON.parse(match[1]);
-    if (typeof parsed === 'object' && parsed !== null) {
-      const metadata = parsed as SectionMetadata;
-      const cleanContent = content.replace(metadataRegex, '').trim();
-      return { cleanContent, metadata };
-    }
-    return { cleanContent: content };
-  } catch {
-    return { cleanContent: content };
-  }
-}
-
 function extractAllCodeBlockSections(content: string): Record<string, CodeBlockSection> {
   const sections: Record<string, CodeBlockSection> = {};
   const sectionRegex = /^#\s+([A-Z][A-Z\s]+)\s*\n+```\s*\n([\s\S]*?)\n```(\s*\n+<!-- SECTION_METADATA: (.+?) -->)?/gm;
@@ -251,12 +231,28 @@ function parseBranchContext(content: string): BranchContext {
   logger.info(`[parseBranchContext] Found code block sections: ${Object.keys(codeBlockSections).join(', ')}`);
   logger.info(`[parseBranchContext] Found text sections: ${Object.keys(textSections).join(', ')}`);
 
-  const sectionsMetadata: Record<string, SectionMetadata> = {};
+  const inlineSectionsMetadata: Record<string, SectionMetadata> = {};
   for (const [name, section] of Object.entries(allCustomSections)) {
     if (section.metadata) {
-      sectionsMetadata[name] = section.metadata;
+      inlineSectionsMetadata[name] = section.metadata;
     }
   }
+
+  logger.info(
+    `[parseBranchContext] Inline metadata sections: ${Object.keys(inlineSectionsMetadata).join(', ') || 'none'}`,
+  );
+  logger.info(
+    `[parseBranchContext] Footer metadata sections: ${Object.keys(baseMetadata.sections || {}).join(', ') || 'none'}`,
+  );
+
+  const mergedSectionsMetadata = {
+    ...(baseMetadata.sections || {}),
+    ...inlineSectionsMetadata,
+  };
+
+  logger.info(
+    `[parseBranchContext] Merged metadata sections: ${Object.keys(mergedSectionsMetadata).join(', ') || 'none'}`,
+  );
 
   const context: BranchContext = {
     branchName: extractField(content, BRANCH_CONTEXT_FIELD_BRANCH.replace(':', '')),
@@ -270,7 +266,7 @@ function parseBranchContext(content: string): BranchContext {
     changedFiles: extractCodeBlockSection(content, SECTION_NAME_CHANGED_FILES),
     metadata: {
       ...baseMetadata,
-      sections: Object.keys(sectionsMetadata).length > 0 ? sectionsMetadata : undefined,
+      sections: Object.keys(mergedSectionsMetadata).length > 0 ? mergedSectionsMetadata : undefined,
     },
   };
 

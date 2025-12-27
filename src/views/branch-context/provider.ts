@@ -90,24 +90,32 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
 
   private updateDescription() {
     if (!this.treeView) {
-      logger.info('[updateDescription] No treeView, skipping');
+      logger.info('[BranchContext] [updateDescription] No treeView, skipping');
+      return;
+    }
+
+    if (!this.currentBranch) {
+      logger.info('[BranchContext] [updateDescription] No current branch set yet, skipping');
+      this.treeView.description = undefined;
       return;
     }
 
     if (!this.lastSyncTimestamp) {
-      logger.info('[updateDescription] Loading timestamp from cache (first time)');
+      logger.info(`[BranchContext] [updateDescription] Loading timestamp from cache for branch: ${this.currentBranch}`);
       const context = loadBranchContext(this.currentBranch);
       this.lastSyncTimestamp = (context.metadata?.lastSyncedTime as string) || null;
-      logger.info(`[updateDescription] Loaded timestamp: ${this.lastSyncTimestamp}`);
+      logger.info(`[BranchContext] [updateDescription] Loaded timestamp: ${this.lastSyncTimestamp}`);
     }
 
     if (this.lastSyncTimestamp) {
       const timestamp = new Date(this.lastSyncTimestamp).getTime();
       const description = formatRelativeTime(timestamp);
-      logger.info(`[updateDescription] Setting description: "${description}" (timestamp: ${this.lastSyncTimestamp})`);
+      logger.info(
+        `[BranchContext] [updateDescription] Setting description: "${description}" (timestamp: ${this.lastSyncTimestamp})`,
+      );
       this.treeView.description = description;
     } else {
-      logger.info('[updateDescription] No timestamp available, clearing description');
+      logger.info('[BranchContext] [updateDescription] No timestamp available, clearing description');
       this.treeView.description = undefined;
     }
   }
@@ -237,8 +245,12 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
     }
 
     const context = loadBranchContext(this.currentBranch);
+    logger.info(
+      `[BranchContext] [getChildren] Loaded context - metadata.sections keys: ${Object.keys(context.metadata?.sections || {}).join(', ') || 'none'}`,
+    );
     const config = this.helpers.loadConfig(workspace);
     const hideEmpty = branchContextState.getHideEmptySections();
+    logger.info(`[BranchContext] [getChildren] hideEmpty: ${hideEmpty}`);
     const showChangedFiles = config?.branchContext?.builtinSections?.changedFiles ?? true;
 
     const registry = this.helpers.getSectionRegistry(workspace, config ?? undefined, showChangedFiles);
@@ -275,10 +287,19 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
       });
       const sectionMetadata = context.metadata?.sections?.[section.name];
 
-      if (hideEmpty && this.helpers.isSectionEmpty(value, section.type, sectionMetadata)) {
+      logger.info(
+        `[BranchContext] [getChildren] Section "${section.name}": value="${value?.substring(0, 50)}", metadata=${JSON.stringify(sectionMetadata)}`,
+      );
+
+      const isEmpty = this.helpers.isSectionEmpty(value, section.type, sectionMetadata);
+      logger.info(`[BranchContext] [getChildren] Section "${section.name}": isEmpty=${isEmpty}`);
+
+      if (hideEmpty && isEmpty) {
+        logger.info(`[BranchContext] [getChildren] Section "${section.name}": HIDING (empty and hideEmpty=true)`);
         continue;
       }
 
+      logger.info(`[BranchContext] [getChildren] Section "${section.name}": SHOWING`);
       items.push(new SectionItem(section, value, this.currentBranch, sectionMetadata, context.branchType));
     }
 

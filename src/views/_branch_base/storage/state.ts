@@ -1,3 +1,4 @@
+import * as crypto from 'node:crypto';
 import { BRANCH_CONTEXT_CACHE_TTL_MS } from '../../../common/constants';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext } from '../../../common/schemas/types';
@@ -31,4 +32,13 @@ export const loadBranchContext = (branchName: string): BranchContext => {
 export const invalidateBranchContextCache = (branchName: string): void => {
   logger.info(`[invalidateBranchContextCache] Invalidating cache for ${branchName}`);
   contextCache.invalidate(branchName);
+};
+
+export const updateBranchContextCache = (branchName: string, context: BranchContext, markdownContent: string): void => {
+  const contentHash = crypto.createHash('sha1').update(markdownContent).digest('hex');
+  logger.info(
+    `[updateBranchContextCache] Updating cache for ${branchName} (hash: ${contentHash.substring(0, 8)}..., content: ${markdownContent.length} bytes)`,
+  );
+  contextCache.set(branchName, context, contentHash);
+  logger.info(`[updateBranchContextCache] ✅ Cache updated successfully for ${branchName}`);
 };

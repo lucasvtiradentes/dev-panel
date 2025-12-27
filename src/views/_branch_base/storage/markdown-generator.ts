@@ -25,7 +25,7 @@ export async function generateBranchContextMarkdown(
   branchName: string,
   context: BranchContext,
   sectionMetadata?: SectionMetadataMap,
-) {
+): Promise<string | undefined> {
   logger.info(`[generateBranchContextMarkdown] Called for branch: ${branchName}`);
 
   const workspace = getFirstWorkspacePath();
@@ -101,6 +101,9 @@ export async function generateBranchContextMarkdown(
   }
 
   fs.writeFileSync(mdPath, output);
+  logger.info(`[generateBranchContextMarkdown] Markdown written to: ${mdPath} (${output.length} bytes)`);
+
+  return output;
 }
 
 function appendSectionMetadata(content: string, sectionMetadata: SectionMetadataMap): string {

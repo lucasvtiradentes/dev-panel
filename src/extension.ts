@@ -170,12 +170,24 @@ function setupWatchers(context: ExtensionContext, providers: Providers, activate
   context.subscriptions.push(keybindingsWatcher);
 
   logger.info(`[activate] Creating branchWatcher (+${Date.now() - activateStart}ms)`);
+
+  const branchMarkdownWatcher = createBranchMarkdownWatcher({
+    onChange: (uri) => {
+      logger.info(`[extension] [branchMarkdownWatcher onChange] File changed: ${uri.fsPath}`);
+      providers.branchContextProvider.handleMarkdownChange(uri);
+      providers.branchTasksProvider.handleMarkdownChange(uri);
+    },
+  });
+  context.subscriptions.push(branchMarkdownWatcher);
+
   const branchWatcher = createBranchWatcher((newBranch) => {
     logger.info(`[extension] [branchWatcher callback] Branch changed to: ${newBranch}`);
     logger.info('[extension] [branchWatcher callback] Calling branchContextProvider.setBranch');
     providers.branchContextProvider.setBranch(newBranch, false);
     logger.info('[extension] [branchWatcher callback] Calling branchTasksProvider.setBranch');
     providers.branchTasksProvider.setBranch(newBranch);
+    logger.info('[extension] [branchWatcher callback] Updating branchMarkdownWatcher');
+    branchMarkdownWatcher.updateWatcher(newBranch);
     logger.info('[extension] [branchWatcher callback] Calling replacementsProvider.handleBranchChange');
     void providers.replacementsProvider.handleBranchChange(newBranch);
     logger.info('[extension] [branchWatcher callback] Calling branchContextProvider.syncBranchContext');
@@ -183,15 +195,6 @@ function setupWatchers(context: ExtensionContext, providers: Providers, activate
   });
   context.subscriptions.push(branchWatcher);
   logger.info(`[activate] branchWatcher created (+${Date.now() - activateStart}ms)`);
-
-  const branchMarkdownWatcher = createBranchMarkdownWatcher({
-    onChange: (uri) => {
-      providers.branchContextProvider.handleMarkdownChange(uri);
-      providers.branchTasksProvider.handleMarkdownChange(uri);
-    },
-    getCurrentBranch: () => providers.branchContextProvider.getCurrentBranch(),
-  });
-  context.subscriptions.push(branchMarkdownWatcher);
 
   const rootMarkdownWatcher = createRootMarkdownWatcher(() => {
     providers.branchContextProvider.handleRootMarkdownChange();

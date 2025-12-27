@@ -143,9 +143,10 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     }
   }
 
-  private loadBranchTasks() {
+  private async loadBranchTasks() {
+    const loadStartTime = Date.now();
     const filePath = getBranchContextFilePath(this.currentBranch);
-    logger.info(`[BranchTasksProvider] [loadBranchTasks] Branch: ${this.currentBranch}, FilePath: ${filePath}`);
+    logger.info(`[BranchTasksProvider] [loadBranchTasks] START - Branch: ${this.currentBranch}, FilePath: ${filePath}`);
 
     if (!filePath || !fs.existsSync(filePath)) {
       logger.warn(
@@ -154,6 +155,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
       this.cachedNodes = [];
       this.cachedOrphanTasks = [];
       this.cachedMilestones = [];
+      logger.info('[BranchTasksProvider] [loadBranchTasks] END - Cache cleared (no file)');
       return;
     }
 
@@ -163,12 +165,13 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
       this.cachedNodes = [];
       this.cachedOrphanTasks = [];
       this.cachedMilestones = [];
+      logger.info('[BranchTasksProvider] [loadBranchTasks] END - Cache cleared (no workspace)');
       return;
     }
 
     const branchContext = loadBranchContext(this.currentBranch);
     logger.info(
-      `[BranchTasksProvider] [loadBranchTasks] Loaded branchContext, todos section length: ${branchContext.todos?.length ?? 0}`,
+      `[BranchTasksProvider] [loadBranchTasks] Loaded branchContext, todos section length: ${branchContext.todos?.length ?? 0} (+${Date.now() - loadStartTime}ms)`,
     );
 
     const syncContext: SyncContext = {
@@ -178,24 +181,34 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
       branchContext,
     };
 
-    this.taskProvider.getTasks(syncContext).then((nodes) => {
-      logger.info(`[BranchTasksProvider] [loadBranchTasks] getTasks resolved with ${nodes.length} nodes`);
-      this.cachedNodes = nodes;
-    });
+    logger.info(
+      `[BranchTasksProvider] [loadBranchTasks] Fetching tasks and milestones in PARALLEL (+${Date.now() - loadStartTime}ms)`,
+    );
 
-    this.taskProvider.getMilestones(syncContext).then(({ orphanTasks, milestones }) => {
-      logger.info(
-        `[BranchTasksProvider] [loadBranchTasks] getMilestones resolved with ${milestones.length} milestones, ${orphanTasks.length} orphan tasks`,
-      );
-      this.cachedOrphanTasks = orphanTasks;
-      this.cachedMilestones = milestones;
-    });
+    const [nodes, { orphanTasks, milestones }] = await Promise.all([
+      this.taskProvider.getTasks(syncContext),
+      this.taskProvider.getMilestones(syncContext),
+    ]);
+
+    logger.info(
+      `[BranchTasksProvider] [loadBranchTasks] Promises resolved - ${nodes.length} nodes, ${milestones.length} milestones, ${orphanTasks.length} orphan tasks (+${Date.now() - loadStartTime}ms)`,
+    );
+
+    this.cachedNodes = nodes;
+    this.cachedOrphanTasks = orphanTasks;
+    this.cachedMilestones = milestones;
+
+    logger.info(
+      `[BranchTasksProvider] [loadBranchTasks] END - Cache updated successfully (${Date.now() - loadStartTime}ms total)`,
+    );
   }
 
   refresh() {
-    logger.info(`[BranchTasksProvider] Refreshing tasks for branch: ${this.currentBranch}`);
-    this.loadBranchTasks();
-    this._onDidChangeTreeData.fire(undefined);
+    logger.info(`[BranchTasksProvider] [refresh] START - Refreshing tasks for branch: ${this.currentBranch}`);
+    void this.loadBranchTasks().then(() => {
+      logger.info('[BranchTasksProvider] [refresh] Tasks loaded, firing tree data change event');
+      this._onDidChangeTreeData.fire(undefined);
+    });
   }
 
   getTreeItem(element: BranchTreeItem): TreeItem {
@@ -204,14 +217,18 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
 
   async getChildren(element?: BranchTreeItem): Promise<BranchTreeItem[]> {
     if (element instanceof BranchMilestoneItem) {
+      logger.info(`[BranchTasksProvider] [getChildren] Returning milestone children for: ${element.milestone.name}`);
       return buildMilestoneChildren(element.milestone, this.showOnlyTodo, this.activeFilters, this.grouped);
     }
 
     if (element instanceof BranchTaskItem) {
+      logger.info(`[BranchTasksProvider] [getChildren] Returning task children for line: ${element.node.lineIndex}`);
       return buildTaskChildren(element.node);
     }
 
-    this.loadBranchTasks();
+    logger.info(
+      `[BranchTasksProvider] [getChildren] ROOT CALL - Branch: ${this.currentBranch}, using CACHED data (nodes: ${this.cachedNodes.length}, milestones: ${this.cachedMilestones.length}, orphans: ${this.cachedOrphanTasks.length})`,
+    );
 
     if (!this.currentBranch) {
       logger.warn('[BranchTasksProvider] [getChildren] No current branch, returning empty array');
@@ -220,10 +237,6 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
 
     const hasMilestones = this.cachedMilestones.length > 0;
     const hasActiveFilter = Object.keys(this.activeFilters).length > 0;
-
-    logger.info(
-      `[BranchTasksProvider] [getChildren] Branch: ${this.currentBranch}, cachedNodes: ${this.cachedNodes.length}, cachedMilestones: ${this.cachedMilestones.length}, cachedOrphanTasks: ${this.cachedOrphanTasks.length}`,
-    );
 
     if (hasMilestones) {
       const result = buildMilestonesTree({
@@ -241,7 +254,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
         return [];
       }
 
-      logger.info(`[BranchTasksProvider] [getChildren] Returning ${result.length} milestone items`);
+      logger.info(`[BranchTasksProvider] [getChildren] Returning ${result.length} milestone items from cache`);
       return result;
     }
 
@@ -254,7 +267,7 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
       return [];
     }
 
-    logger.info(`[BranchTasksProvider] [getChildren] Returning ${result.length} task items`);
+    logger.info(`[BranchTasksProvider] [getChildren] Returning ${result.length} task items from cache`);
     return result;
   }
 

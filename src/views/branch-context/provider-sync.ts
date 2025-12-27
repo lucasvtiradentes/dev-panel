@@ -14,6 +14,7 @@ import {
 } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { createLogger } from '../../common/lib/logger';
+import { extractSectionMetadata } from '../../common/utils/metadata-extractor';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { getChangedFilesWithSummary } from '../_branch_base/providers/default/file-changes-utils';
 import type { SyncContext } from '../_branch_base/providers/interfaces';
@@ -21,6 +22,7 @@ import {
   generateBranchContextMarkdown,
   invalidateBranchContextCache,
   loadBranchContext,
+  updateBranchContextCache,
 } from '../_branch_base/storage';
 import type { ProviderHelpers } from './provider-helpers';
 
@@ -220,6 +222,8 @@ export class SyncManager {
       }
 
       const customAutoData: Record<string, string> = {};
+      const customSectionMetadata: Record<string, Record<string, unknown>> = {};
+
       if (config?.branchContext?.customSections) {
         const registry = this.helpers.getSectionRegistry(workspace, config);
         const autoSections = registry.getAutoSections();
@@ -251,7 +255,16 @@ export class SyncManager {
 
         const results = await Promise.all(fetchPromises);
         for (const { name, data } of results) {
-          customAutoData[name] = data;
+          const { cleanContent, metadata } = extractSectionMetadata(data);
+          if (metadata) {
+            customSectionMetadata[name] = metadata;
+            customAutoData[name] = cleanContent;
+            logger.info(
+              `[syncBranchContext] Extracted metadata from "${name}": ${JSON.stringify(metadata).substring(0, 100)}`,
+            );
+          } else {
+            customAutoData[name] = data;
+          }
         }
         logger.info(`[syncBranchContext] All auto sections done (+${Date.now() - startTime}ms)`);
       }
@@ -261,6 +274,12 @@ export class SyncManager {
       if (changedFilesSectionMetadata) {
         sectionMetadataMap[SECTION_NAME_CHANGED_FILES] = changedFilesSectionMetadata;
       }
+      for (const [name, metadata] of Object.entries(customSectionMetadata)) {
+        sectionMetadataMap[name] = metadata;
+      }
+      logger.info(
+        `[syncBranchContext] Section metadata map keys: ${Object.keys(sectionMetadataMap).join(', ') || 'none'}`,
+      );
 
       let lastCommitHash: string | undefined;
       let lastCommitMessage: string | undefined;
@@ -272,23 +291,46 @@ export class SyncManager {
         logger.error(`Failed to get git commit info: ${message}`);
       }
 
-      await generateBranchContextMarkdown(
-        currentBranch,
-        {
-          ...context,
-          changedFiles,
-          ...customAutoData,
-          metadata: {
-            lastSyncedTime: new Date().toISOString(),
-            lastCommitMessage,
-            lastCommitHash,
-          },
+      logger.info(`[syncBranchContext] Building updated context (+${Date.now() - startTime}ms)`);
+      logger.info(
+        `[syncBranchContext] Context before update - metadata.sections keys: ${Object.keys(context.metadata?.sections || {}).join(', ') || 'none'}`,
+      );
+
+      const updatedContext = {
+        ...context,
+        changedFiles,
+        ...customAutoData,
+        metadata: {
+          ...(context.metadata || {}),
+          sections: Object.keys(sectionMetadataMap).length > 0 ? sectionMetadataMap : undefined,
+          lastSyncedTime: new Date().toISOString(),
+          lastCommitMessage,
+          lastCommitHash,
         },
+      };
+
+      logger.info(
+        `[syncBranchContext] Updated context - metadata.sections keys: ${Object.keys(updatedContext.metadata?.sections || {}).join(', ') || 'none'}`,
+      );
+      if (updatedContext.metadata?.sections) {
+        for (const [name, metadata] of Object.entries(updatedContext.metadata.sections)) {
+          logger.info(`[syncBranchContext] Section "${name}" metadata: ${JSON.stringify(metadata)}`);
+        }
+      }
+
+      const markdownContent = await generateBranchContextMarkdown(
+        currentBranch,
+        updatedContext,
         Object.keys(sectionMetadataMap).length > 0 ? sectionMetadataMap : undefined,
       );
 
-      logger.info(`[syncBranchContext] Invalidating cache after write (+${Date.now() - startTime}ms)`);
-      invalidateBranchContextCache(currentBranch);
+      if (markdownContent) {
+        logger.info(`[syncBranchContext] Updating cache with new content (+${Date.now() - startTime}ms)`);
+        updateBranchContextCache(currentBranch, updatedContext, markdownContent);
+      } else {
+        logger.warn('[syncBranchContext] No markdown content returned, invalidating cache');
+        invalidateBranchContextCache(currentBranch);
+      }
 
       logger.info(`[syncBranchContext] Syncing to root (+${Date.now() - startTime}ms)`);
       this.syncBranchToRoot();
