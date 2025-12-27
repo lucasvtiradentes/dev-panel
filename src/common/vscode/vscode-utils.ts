@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
+import type { CommandParams } from '../../commands/command-params';
 import { getCommandId } from '../constants/functions';
 import { CONTEXT_PREFIX } from '../constants/scripts-constants';
-import type { CommandParams } from '../lib/command-params';
 import { VscodeHelper } from './vscode-helper';
 import type { Disposable } from './vscode-types';
 
