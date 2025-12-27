@@ -152,7 +152,7 @@ export class VscodeHelper {
   }
 
   static async openExternal(url: string): Promise<boolean> {
-    return vscode.env.openExternal(vscode.Uri.parse(url));
+    return vscode.env.openExternal(VscodeHelper.parseUri(url));
   }
 
   static async writeToClipboard(text: string) {
@@ -235,5 +235,13 @@ export class VscodeHelper {
 
   static getConfiguration(section?: string, scope?: vscode.ConfigurationScope | null): vscode.WorkspaceConfiguration {
     return vscode.workspace.getConfiguration(section, scope);
+  }
+
+  static joinPath(base: vscode.Uri, ...pathSegments: string[]): vscode.Uri {
+    return vscode.Uri.joinPath(base, ...pathSegments);
+  }
+
+  static parseUri(value: string): vscode.Uri {
+    return vscode.Uri.parse(value);
   }
 }

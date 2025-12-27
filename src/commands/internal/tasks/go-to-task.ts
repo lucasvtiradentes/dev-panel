@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { VSCODE_TASKS_PATH } from '../../../common/constants';
 import { Command, isMultiRootWorkspace, registerCommand } from '../../../common/lib/vscode-utils';
 import { TypeGuards } from '../../../common/utils/type-utils';
@@ -18,7 +17,7 @@ export function createGoToTaskCommand() {
       return;
     }
 
-    const tasksFileUri = vscode.Uri.parse(`${folders[0].uri.fsPath}/${VSCODE_TASKS_PATH}`);
+    const tasksFileUri = VscodeHelper.parseUri(`${folders[0].uri.fsPath}/${VSCODE_TASKS_PATH}`);
     const tasksFileContent = await VscodeHelper.readFile(tasksFileUri);
     const lines = Buffer.from(tasksFileContent).toString('utf-8').split('\n');
 

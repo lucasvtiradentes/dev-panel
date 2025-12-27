@@ -88,7 +88,7 @@ async function getSubfolders(dirUri: Uri): Promise<string[]> {
 }
 
 async function showFolderPicker(workspaceRoot: Uri, currentPath: string): Promise<string | null> {
-  const currentUri = isRootPath(currentPath) ? workspaceRoot : vscode.Uri.joinPath(workspaceRoot, currentPath);
+  const currentUri = isRootPath(currentPath) ? workspaceRoot : VscodeHelper.joinPath(workspaceRoot, currentPath);
 
   const subfolders = await getSubfolders(currentUri);
   const isRoot = isRootPath(currentPath);

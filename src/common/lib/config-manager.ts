@@ -29,17 +29,17 @@ function getConfigDir(workspacePath: string, configDir: string | null): Uri {
   const baseDir = VscodeHelper.createFileUri(workspacePath);
 
   if (!configDir) {
-    return vscode.Uri.joinPath(baseDir, CONFIG_DIR_NAME);
+    return VscodeHelper.joinPath(baseDir, CONFIG_DIR_NAME);
   }
 
   const customDir = isAbsolute(configDir)
     ? VscodeHelper.createFileUri(configDir)
-    : vscode.Uri.joinPath(baseDir, configDir);
-  return vscode.Uri.joinPath(customDir, CONFIG_DIR_NAME);
+    : VscodeHelper.joinPath(baseDir, configDir);
+  return VscodeHelper.joinPath(customDir, CONFIG_DIR_NAME);
 }
 
 export function getConfigPath(workspacePath: string, configDir: string | null, fileName: string): string {
-  return vscode.Uri.joinPath(getConfigDir(workspacePath, configDir), fileName).fsPath;
+  return VscodeHelper.joinPath(getConfigDir(workspacePath, configDir), fileName).fsPath;
 }
 
 export function getConfigDirPath(workspacePath: string, configDir: string | null): string {
@@ -61,8 +61,8 @@ async function copyDirectoryRecursive(source: Uri, target: Uri) {
 
   const entries = await VscodeHelper.readDirectory(source);
   for (const [name, type] of entries) {
-    const sourceEntry = vscode.Uri.joinPath(source, name);
-    const targetEntry = vscode.Uri.joinPath(target, name);
+    const sourceEntry = VscodeHelper.joinPath(source, name);
+    const targetEntry = VscodeHelper.joinPath(target, name);
 
     if (type === vscode.FileType.Directory) {
       await copyDirectoryRecursive(sourceEntry, targetEntry);

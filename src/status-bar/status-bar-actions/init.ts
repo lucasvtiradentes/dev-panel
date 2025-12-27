@@ -14,8 +14,8 @@ async function copyDirectoryRecursive(sourceUri: Uri, targetUri: Uri) {
   const entries = await VscodeHelper.readDirectory(sourceUri);
 
   for (const [name, type] of entries) {
-    const sourceEntryUri = vscode.Uri.joinPath(sourceUri, name);
-    const targetEntryUri = vscode.Uri.joinPath(targetUri, name);
+    const sourceEntryUri = VscodeHelper.joinPath(sourceUri, name);
+    const targetEntryUri = VscodeHelper.joinPath(targetUri, name);
 
     if (type === vscode.FileType.Directory) {
       await copyDirectoryRecursive(sourceEntryUri, targetEntryUri);
@@ -36,7 +36,7 @@ export async function showInitMenu() {
       throw new Error('Extension URI not available');
     }
 
-    const initResourcesUri = vscode.Uri.joinPath(extensionUri, RESOURCES_DIR_NAME, INIT_RESOURCES_DIR_NAME);
+    const initResourcesUri = VscodeHelper.joinPath(extensionUri, RESOURCES_DIR_NAME, INIT_RESOURCES_DIR_NAME);
     const configDirPath = getWorkspaceConfigDirPath(workspaceFolder);
     const configDirUri = VscodeHelper.createFileUri(configDirPath);
 
