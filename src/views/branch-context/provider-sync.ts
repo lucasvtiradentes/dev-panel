@@ -1,4 +1,3 @@
-import { execSync } from 'node:child_process';
 import {
   ChangedFilesStyle,
   GIT_LOG_LAST_COMMIT_MESSAGE,
@@ -11,6 +10,7 @@ import { ConfigManager } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { createLogger } from '../../common/lib/logger';
 import { StringUtils, TypeGuards } from '../../common/utils/common-utils';
+import { ExecHelper } from '../../common/utils/exec-utils';
 import { FileIOHelper } from '../../common/utils/file-io';
 import { extractSectionMetadata } from '../../common/utils/metadata-extractor';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
@@ -309,8 +309,8 @@ export class SyncManager {
       let lastCommitHash: string | undefined;
       let lastCommitMessage: string | undefined;
       try {
-        lastCommitHash = execSync(GIT_REV_PARSE_HEAD, { cwd: workspace, encoding: 'utf-8' }).trim();
-        lastCommitMessage = execSync(GIT_LOG_LAST_COMMIT_MESSAGE, { cwd: workspace, encoding: 'utf-8' }).trim();
+        lastCommitHash = ExecHelper.execSync(GIT_REV_PARSE_HEAD, { cwd: workspace }).trim();
+        lastCommitMessage = ExecHelper.execSync(GIT_LOG_LAST_COMMIT_MESSAGE, { cwd: workspace }).trim();
       } catch (error: unknown) {
         logger.error(`Failed to get git commit info: ${TypeGuards.getErrorMessage(error)}`);
       }

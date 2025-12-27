@@ -1,5 +1,3 @@
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
 import json5 from 'json5';
 import {
   CONFIG_FILE_NAME,
@@ -15,6 +13,7 @@ import {
 import { ConfigManager } from '../../common/lib/config-manager';
 import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
+import { ExecHelper } from '../../common/utils/exec-utils';
 import { FileIOHelper } from '../../common/utils/file-io';
 import { getFirstWorkspaceFolder, getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
@@ -23,8 +22,6 @@ import { type FileSelectionOptions, selectFiles, selectFolders } from '../../com
 import { type TreeDataProvider, type TreeItem, TreeItemClass } from '../../common/vscode/vscode-types';
 import { Command, ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
 import { getIsGrouped, saveIsGrouped } from './state';
-
-const execAsync = promisify(exec);
 
 type PpVariables = {
   variables: DevPanelVariable[];
@@ -219,7 +216,7 @@ async function runCommand(variable: DevPanelVariable, value: unknown) {
     },
     async () => {
       try {
-        await execAsync(command, { cwd: configDirPath });
+        await ExecHelper.execAsync(command, { cwd: configDirPath });
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         void VscodeHelper.showToastMessage(ToastKind.Error, `${ERROR_VARIABLE_COMMAND_FAILED}: ${errorMessage}`);

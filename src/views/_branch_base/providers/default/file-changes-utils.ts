@@ -1,5 +1,3 @@
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
 import {
   BRANCH_CONTEXT_NO_CHANGES,
   ChangedFilesStyle,
@@ -15,8 +13,7 @@ import {
   NOT_GIT_REPO_MESSAGE,
 } from '../../../../common/constants';
 import { createLogger } from '../../../../common/lib/logger';
-
-const execAsync = promisify(exec);
+import { ExecHelper } from '../../../../common/utils/exec-utils';
 const logger = createLogger('GitChangedFiles');
 
 type ChangedFilesSummary = {
@@ -82,7 +79,7 @@ async function getChangedFilesSummaryFromGit(workspacePath: string): Promise<Cha
     const commands = [GIT_DIFF_BASE_BRANCH_NAME_STATUS, GIT_DIFF_CACHED_NAME_STATUS, GIT_DIFF_NAME_STATUS];
 
     const results = await Promise.all(
-      commands.map((cmd) => execAsync(cmd, { cwd: workspacePath }).then((r) => r.stdout)),
+      commands.map((cmd) => ExecHelper.execAsync(cmd, { cwd: workspacePath }).then((r) => r.stdout)),
     );
 
     const statusMap = new Map<string, string>();
@@ -125,7 +122,7 @@ async function getChangedFilesTreeFormat(workspacePath: string): Promise<string>
     const commands = [GIT_DIFF_BASE_BRANCH_NAME_ONLY, GIT_DIFF_CACHED_NAME_ONLY, GIT_DIFF_NAME_ONLY];
 
     const results = await Promise.all(
-      commands.map((cmd) => execAsync(cmd, { cwd: workspacePath }).then((r) => r.stdout)),
+      commands.map((cmd) => ExecHelper.execAsync(cmd, { cwd: workspacePath }).then((r) => r.stdout)),
     );
 
     const allFiles = new Set<string>();
@@ -166,8 +163,8 @@ async function getChangedFilesListFormat(workspacePath: string): Promise<string>
     const results = await Promise.all(
       commands.map(async ({ status, num }) => {
         const [statusRes, numRes] = await Promise.all([
-          execAsync(status, { cwd: workspacePath }),
-          execAsync(num, { cwd: workspacePath }),
+          ExecHelper.execAsync(status, { cwd: workspacePath }),
+          ExecHelper.execAsync(num, { cwd: workspacePath }),
         ]);
         return { status: statusRes.stdout, num: numRes.stdout };
       }),
@@ -239,8 +236,8 @@ async function getChangedFilesListFormatWithSummary(workspacePath: string): Prom
     const results = await Promise.all(
       commands.map(async ({ status, num }) => {
         const [statusRes, numRes] = await Promise.all([
-          execAsync(status, { cwd: workspacePath }),
-          execAsync(num, { cwd: workspacePath }),
+          ExecHelper.execAsync(status, { cwd: workspacePath }),
+          ExecHelper.execAsync(num, { cwd: workspacePath }),
         ]);
         return { status: statusRes.stdout, num: numRes.stdout };
       }),

@@ -1,12 +1,8 @@
-import * as cp from 'node:child_process';
+import { ExecHelper } from '../../common/utils/exec-utils';
 
-function execGitCommand(workspace: string, args: string[]): Promise<string> {
-  return new Promise((resolve, reject) => {
-    cp.exec(`git ${args.join(' ')}`, { cwd: workspace }, (err, stdout, stderr) => {
-      if (err) reject(new Error(stderr ?? err.message));
-      else resolve(stdout.trim());
-    });
-  });
+async function execGitCommand(workspace: string, args: string[]): Promise<string> {
+  const { stdout } = await ExecHelper.execAsync(`git ${args.join(' ')}`, { cwd: workspace });
+  return stdout.trim();
 }
 
 export async function getCurrentBranch(workspace: string): Promise<string> {

@@ -1,9 +1,8 @@
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import { PluginAction, TaskStatus } from '../../../common/schemas';
 import { TypeGuards } from '../../../common/utils/common-utils';
+import { ExecHelper } from '../../../common/utils/exec-utils';
 import { FileIOHelper } from '../../../common/utils/file-io';
 import { extractAllFieldsRaw } from '../storage/file-storage';
 import type {
@@ -29,7 +28,6 @@ import type {
   UpdateMetaResponse,
 } from './plugin-protocol';
 
-const execAsync = promisify(exec);
 const logger = createLogger('PluginLoader');
 
 const PLUGIN_TIMEOUT = 60000;
@@ -59,8 +57,7 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
       logger.info(`[loadAutoProvider] Running: ${providerCommand}`);
 
       try {
-        const { stdout } = await execAsync(providerCommand, {
-          encoding: 'utf-8',
+        const { stdout } = await ExecHelper.execAsync(providerCommand, {
           timeout: PLUGIN_TIMEOUT,
           cwd: configDir,
           env: {
@@ -99,8 +96,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
     logger.info(`[loadTaskProvider] Executing: ${command}`);
 
     try {
-      const { stdout, stderr } = await execAsync(command, {
-        encoding: 'utf-8',
+      const { stdout, stderr } = await ExecHelper.execAsync(command, {
         timeout: PLUGIN_TIMEOUT,
         cwd: configDir,
         env: {

@@ -1,19 +1,3 @@
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
-import { FileIOHelper } from '../../common/utils/file-io';
-import { PathHelper } from '../../common/utils/path-helper';
-import { VscodeConstants } from '../../common/vscode/vscode-constants';
-import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
-import { ProcessExecutionClass, ShellExecutionClass } from '../../common/vscode/vscode-types';
-import type {
-  ExtensionContext,
-  ShellExecution,
-  Task,
-  TaskScope,
-  WorkspaceFolder,
-} from '../../common/vscode/vscode-types';
-
-const execAsync = promisify(exec);
 import { GLOBAL_ITEM_PREFIX, GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
 import {
   CONFIG_DIR_KEY,
@@ -32,9 +16,22 @@ import {
   getAIProvidersListFormatted,
 } from '../../common/schemas';
 import { TypeGuards } from '../../common/utils/common-utils';
+import { ExecHelper } from '../../common/utils/exec-utils';
+import { FileIOHelper } from '../../common/utils/file-io';
+import { PathHelper } from '../../common/utils/path-helper';
 import { loadVariablesFromPath, readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { collectInputs, replaceInputPlaceholders } from '../../common/vscode/vscode-inputs';
+import { ProcessExecutionClass, ShellExecutionClass } from '../../common/vscode/vscode-types';
+import type {
+  ExtensionContext,
+  ShellExecution,
+  Task,
+  TaskScope,
+  WorkspaceFolder,
+} from '../../common/vscode/vscode-types';
 import { Command, isMultiRootWorkspace, registerCommand } from '../../common/vscode/vscode-utils';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';
@@ -372,7 +369,7 @@ async function executePromptWithSave(options: {
     async () => {
       try {
         const command = provider.getExecuteCommand(tempFile, outputFile);
-        await execAsync(command, { cwd: workspacePath });
+        await ExecHelper.execAsync(command, { cwd: workspacePath });
         FileIOHelper.deleteFile(tempFile);
         await VscodeHelper.openDocument(VscodeHelper.createFileUri(outputFile));
       } catch (error: unknown) {
