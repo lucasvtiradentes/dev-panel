@@ -316,4 +316,22 @@ export class ConfigManager {
     const [item] = array.splice(index, 1);
     return item;
   }
+
+  static readSettings(folder: WorkspaceFolder): DevPanelConfig['settings'] | undefined {
+    const config = ConfigManager.loadWorkspaceConfig(folder);
+    if (!config) return undefined;
+    return config.settings;
+  }
+
+  static readVariables(folder: WorkspaceFolder): Record<string, unknown> | null {
+    const variablesPath = ConfigManager.getWorkspaceConfigFilePath(folder, VARIABLES_FILE_NAME);
+    if (!FileIOHelper.fileExists(variablesPath)) return null;
+
+    const content = FileIOHelper.readFile(variablesPath);
+    try {
+      return JSON5.parse(content) as Record<string, unknown>;
+    } catch {
+      return null;
+    }
+  }
 }

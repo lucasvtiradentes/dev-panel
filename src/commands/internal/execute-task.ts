@@ -4,7 +4,6 @@ import {
   CONFIG_DIR_KEY,
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
-  VARIABLES_FILE_NAME,
   getGlobalConfigDir,
 } from '../../common/constants/scripts-constants';
 import { GitHelper } from '../../common/lib/git-helper';
@@ -19,14 +18,13 @@ import {
 } from '../../common/schemas';
 import { TypeGuards } from '../../common/utils/common-utils';
 import { ConfigManager } from '../../common/utils/config-manager';
-import { loadVariablesFromPath, readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
+import { TaskUtils } from '../../common/utils/task-utils';
+import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { collectInputs, replaceInputPlaceholders } from '../../common/vscode/vscode-inputs';
 import {
   type ExtensionContext,
-  ProcessExecutionClass,
-  type ShellExecution,
   ShellExecutionClass,
   type Task,
   type TaskScope,
@@ -45,63 +43,6 @@ export type ExecutePromptParams = {
   promptConfig?: DevPanelPrompt;
 };
 
-function cloneTaskWithEnv(task: Task, env: Record<string, string>): Task {
-  const execution = task.execution;
-  if (!execution) return task;
-
-  let newTask: Task;
-
-  if (execution instanceof ShellExecutionClass) {
-    const mergedEnv = { ...execution.options?.env, ...env };
-    const commandLine = execution.commandLine;
-    const command = execution.command;
-
-    let newExecution: ShellExecution;
-    if (commandLine) {
-      newExecution = VscodeHelper.createShellExecution(commandLine, { ...execution.options, env: mergedEnv });
-    } else if (command) {
-      newExecution = VscodeHelper.createShellExecution(command, execution.args ?? [], {
-        ...execution.options,
-        env: mergedEnv,
-      });
-    } else {
-      return task;
-    }
-
-    newTask = VscodeHelper.createTask(
-      task.definition,
-      task.scope ?? VscodeConstants.TaskScope.Workspace,
-      task.name,
-      task.source,
-      newExecution,
-      task.problemMatchers,
-    );
-    newTask.presentationOptions = task.presentationOptions;
-    return newTask;
-  }
-
-  if (execution instanceof ProcessExecutionClass) {
-    const mergedEnv = { ...execution.options?.env, ...env };
-    const newExecution = VscodeHelper.createProcessExecution(execution.process, execution.args, {
-      ...execution.options,
-      env: mergedEnv,
-    });
-
-    newTask = VscodeHelper.createTask(
-      task.definition,
-      task.scope ?? VscodeConstants.TaskScope.Workspace,
-      task.name,
-      task.source,
-      newExecution,
-      task.problemMatchers,
-    );
-    newTask.presentationOptions = task.presentationOptions;
-    return newTask;
-  }
-
-  return task;
-}
-
 export function createExecuteTaskCommand(context: ExtensionContext) {
   return registerCommand(
     Command.ExecuteTask,
@@ -115,7 +56,7 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
       if (taskConfig?.inputs && taskConfig.inputs.length > 0) {
         const folder = scope && typeof scope !== 'number' && 'uri' in scope ? (scope as WorkspaceFolder) : null;
         const folderForSettings = folder ?? getFirstWorkspaceFolder();
-        const settings = folderForSettings ? readDevPanelSettings(folderForSettings) : undefined;
+        const settings = folderForSettings ? ConfigManager.readSettings(folderForSettings) : undefined;
 
         const inputValues = await collectInputs(taskConfig.inputs, folder, settings);
         if (inputValues === null) return;
@@ -143,7 +84,7 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
         const env = readDevPanelVariablesAsEnv(variablesPath);
 
         if (Object.keys(env).length > 0) {
-          modifiedTask = cloneTaskWithEnv(modifiedTask, env);
+          modifiedTask = TaskUtils.cloneWithEnv(modifiedTask, env);
         }
       }
 
@@ -236,38 +177,6 @@ export function createExecuteToolCommand(context: ExtensionContext) {
   });
 }
 
-function readDevPanelSettings(folder: WorkspaceFolder): DevPanelSettings | undefined {
-  const config = ConfigManager.loadWorkspaceConfig(folder);
-  if (!config) {
-    log.debug('readDevPanelSettings - config file not found or failed to parse');
-    return undefined;
-  }
-  log.info(`readDevPanelSettings - settings: ${JSON.stringify(config.settings)}`);
-  return config.settings;
-}
-
-function readDevPanelVariables(folder: WorkspaceFolder): Record<string, unknown> | null {
-  const variablesPath = ConfigManager.getWorkspaceConfigFilePath(folder, VARIABLES_FILE_NAME);
-  log.debug(`readDevPanelVariables - variablesPath: ${variablesPath}`);
-  const variables = loadVariablesFromPath(variablesPath);
-  if (!variables) {
-    log.debug('readDevPanelVariables - variables file not found or failed to parse');
-    return null;
-  }
-  log.info(`readDevPanelVariables - loaded ${Object.keys(variables).length} variables`);
-  return variables;
-}
-
-function replaceVariablePlaceholders(content: string, variables: Record<string, unknown>): string {
-  let result = content;
-  for (const [key, value] of Object.entries(variables)) {
-    const stringValue = TypeGuards.isObject(value) ? JSON.stringify(value) : String(value);
-    const pattern = new RegExp(`\\$${key}`, 'g');
-    result = result.replace(pattern, stringValue);
-  }
-  return result;
-}
-
 export function createExecutePromptCommand() {
   return registerCommand(
     Command.ExecutePrompt,
@@ -292,12 +201,12 @@ export function createExecutePromptCommand() {
       let promptContent = FileIOHelper.readFile(resolvedPromptFilePath);
 
       const folderForSettings = folder ?? getFirstWorkspaceFolder();
-      const settings = folderForSettings ? readDevPanelSettings(folderForSettings) : undefined;
+      const settings = folderForSettings ? ConfigManager.readSettings(folderForSettings) : undefined;
       log.info(`settings: ${JSON.stringify(settings)}`);
 
-      const variables = folder ? readDevPanelVariables(folder) : null;
+      const variables = folder ? ConfigManager.readVariables(folder) : null;
       if (variables) {
-        promptContent = replaceVariablePlaceholders(promptContent, variables);
+        promptContent = TaskUtils.replaceVariablePlaceholders(promptContent, variables);
       }
 
       if (promptConfig?.inputs && promptConfig.inputs.length > 0) {

@@ -1,9 +1,7 @@
 import {
   CONFIG_FILE_NAME,
   CONFIG_TASKS_ARRAY_PATTERN,
-  DIST_DIR_PREFIX,
   PACKAGE_JSON,
-  PACKAGE_JSON_SCRIPTS_PATTERN,
   VSCODE_TASKS_PATH,
   getVscodeTasksFilePath,
 } from '../../../common/constants';
@@ -11,52 +9,12 @@ import { FileIOHelper, NodePathHelper } from '../../../common/lib/node-helper';
 import { TaskSource } from '../../../common/schemas/types';
 import { TypeGuards } from '../../../common/utils/common-utils';
 import { ConfigManager } from '../../../common/utils/config-manager';
+import { FileOperations } from '../../../common/utils/file-operations';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
-import type { WorkspaceFolder } from '../../../common/vscode/vscode-types';
 import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 import { getFirstWorkspaceFolder } from '../../../common/vscode/workspace-utils';
 import { getExcludedDirs } from '../../../views/tasks/package-json';
 import { getCurrentSource } from '../../../views/tasks/state';
-
-async function findAllPackageJsons(folder: WorkspaceFolder): Promise<string[]> {
-  const packageJsons: string[] = [];
-  const excludedDirs = getExcludedDirs(folder.uri.fsPath);
-
-  async function scan(dir: string) {
-    const entries = FileIOHelper.readDirectory(dir, { withFileTypes: true });
-
-    for (const entry of entries) {
-      if (excludedDirs.has(entry.name) || entry.name.startsWith(DIST_DIR_PREFIX)) continue;
-
-      const fullPath = NodePathHelper.join(dir, entry.name);
-
-      if (entry.isDirectory()) {
-        await scan(fullPath);
-      } else if (entry.name === PACKAGE_JSON) {
-        packageJsons.push(fullPath);
-      }
-    }
-  }
-
-  await scan(folder.uri.fsPath);
-  return packageJsons;
-}
-
-async function openPackageJsonAtScripts(packageJsonPath: string) {
-  const content = FileIOHelper.readFile(packageJsonPath);
-  const lines = content.split('\n');
-  let scriptsLine = 0;
-
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].match(PACKAGE_JSON_SCRIPTS_PATTERN)) {
-      scriptsLine = i;
-      break;
-    }
-  }
-
-  const uri = VscodeHelper.createFileUri(packageJsonPath);
-  await VscodeHelper.openDocumentAtLine(uri, scriptsLine);
-}
 
 export function createOpenTasksConfigCommand() {
   return registerCommand(Command.OpenTasksConfig, async () => {
@@ -102,12 +60,13 @@ export function createOpenTasksConfigCommand() {
       }
 
       case TaskSource.Package: {
-        const packageJsons = await findAllPackageJsons(workspace);
+        const excludedDirs = getExcludedDirs(workspace.uri.fsPath);
+        const packageJsons = await FileOperations.findAllPackageJsons(workspace, excludedDirs);
 
         if (!TypeGuards.isNonEmptyArray(packageJsons)) {
           void VscodeHelper.showToastMessage(ToastKind.Error, `No ${PACKAGE_JSON} found`);
         } else if (packageJsons.length === 1) {
-          await openPackageJsonAtScripts(packageJsons[0]);
+          await FileOperations.openPackageJsonAtScripts(packageJsons[0]);
         } else {
           const items = packageJsons.map((pkgPath) => ({
             label: NodePathHelper.relative(workspacePath, pkgPath),
@@ -119,7 +78,7 @@ export function createOpenTasksConfigCommand() {
           });
 
           if (selected) {
-            await openPackageJsonAtScripts(selected.path);
+            await FileOperations.openPackageJsonAtScripts(selected.path);
           }
         }
         break;

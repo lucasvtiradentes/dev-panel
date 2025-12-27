@@ -6,7 +6,7 @@ import {
   ERROR_MSG_WORKSPACE_REQUIRED,
 } from '../constants/scripts-constants';
 import { createLogger } from '../lib/logger';
-import { type DevPanelInput, type DevPanelSettings, PromptInputType } from '../schemas';
+import { type DevPanelInput, type DevPanelSettings, PromptInputType, TaskPriority, TaskStatus } from '../schemas';
 import { ToastKind, VscodeHelper } from './vscode-helper';
 import type { QuickPickItem, WorkspaceFolder } from './vscode-types';
 import { getFirstWorkspaceFolder } from './workspace-utils';
@@ -351,4 +351,54 @@ export function replaceInputPlaceholders(content: string, values: InputValues): 
     result = result.replace(new RegExp(`\\$${name}`, 'g'), value);
   }
   return result;
+}
+
+export async function pickStatus(): Promise<TaskStatus | undefined> {
+  const items: QuickPickItem[] = [
+    { label: '$(circle-large-outline) Todo', description: 'Not started' },
+    { label: '$(play-circle) Doing', description: 'In progress' },
+    { label: '$(pass-filled) Done', description: 'Completed' },
+    { label: '$(error) Blocked', description: 'Blocked by something' },
+  ];
+
+  const picked = await VscodeHelper.showQuickPickItems(items, {
+    placeHolder: 'Select status',
+  });
+
+  if (!picked) return undefined;
+
+  const statusMap: Record<string, TaskStatus> = {
+    '$(circle-large-outline) Todo': TaskStatus.Todo,
+    '$(play-circle) Doing': TaskStatus.Doing,
+    '$(pass-filled) Done': TaskStatus.Done,
+    '$(error) Blocked': TaskStatus.Blocked,
+  };
+
+  return statusMap[picked.label];
+}
+
+export async function pickPriority(): Promise<TaskPriority | undefined> {
+  const items: QuickPickItem[] = [
+    { label: '🔴 Urgent', description: 'Critical priority' },
+    { label: '🟠 High', description: 'High priority' },
+    { label: '🟡 Medium', description: 'Medium priority' },
+    { label: '🔵 Low', description: 'Low priority' },
+    { label: '○ None', description: 'No priority' },
+  ];
+
+  const picked = await VscodeHelper.showQuickPickItems(items, {
+    placeHolder: 'Select priority',
+  });
+
+  if (!picked) return undefined;
+
+  const priorityMap: Record<string, TaskPriority> = {
+    '🔴 Urgent': TaskPriority.Urgent,
+    '🟠 High': TaskPriority.High,
+    '🟡 Medium': TaskPriority.Medium,
+    '🔵 Low': TaskPriority.Low,
+    '○ None': TaskPriority.None,
+  };
+
+  return priorityMap[picked.label];
 }
