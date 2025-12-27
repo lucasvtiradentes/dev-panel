@@ -23,6 +23,5 @@ export const RegistryIndexSchema = z.object({
   scripts: z.array(RegistryItemSchema.omit({ kind: true })).optional(),
 });
 
-export type RegistryItem = z.infer<typeof RegistryItemSchema>;
 export type RegistryIndex = z.infer<typeof RegistryIndexSchema>;
-export type RegistryItemEntry = Omit<RegistryItem, 'kind'>;
+export type RegistryItemEntry = z.infer<typeof RegistryItemSchema> extends infer T ? Omit<T, 'kind'> : never;

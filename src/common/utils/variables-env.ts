@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 
-export function parseVariables(content: string): Record<string, unknown> | null {
+function parseVariables(content: string): Record<string, unknown> | null {
   try {
     return JSON5.parse(content) as Record<string, unknown>;
   } catch {

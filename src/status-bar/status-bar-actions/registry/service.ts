@@ -82,7 +82,7 @@ export function getItemsForKind(index: RegistryIndex, kind: RegistryItemKind): R
   return (index[config.configKey] as RegistryItemEntry[] | undefined) ?? [];
 }
 
-export async function fetchItemFile(
+async function fetchItemFile(
   kind: RegistryItemKind,
   itemName: string,
   fileName?: string,

@@ -19,9 +19,9 @@ import type {
   ToggleToolParams,
 } from './internal/tools/toggle-tools-view';
 
-export type VscodeOpenParams = { uri: Uri; viewColumn?: number };
-export type VscodeSetContextParams = { key: string; value: unknown };
-export type VscodeOpenGlobalKeybindingsParams = { query: string };
+type VscodeOpenParams = { uri: Uri; viewColumn?: number };
+type VscodeSetContextParams = { key: string; value: unknown };
+type VscodeOpenGlobalKeybindingsParams = { query: string };
 
 export type CommandParams = {
   [Command.EditBranchName]: EditBranchFieldParams;

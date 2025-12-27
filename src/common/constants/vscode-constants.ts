@@ -35,8 +35,8 @@ export const CONTEXT_VALUES = {
   REPLACEMENT_ITEM: 'replacementItem',
 } as const;
 
-export const VSCODE_DIR = '.vscode';
-export const VSCODE_TASKS_FILE = 'tasks.json';
+const VSCODE_DIR = '.vscode';
+const VSCODE_TASKS_FILE = 'tasks.json';
 export const VSCODE_TASKS_PATH = `${VSCODE_DIR}/${VSCODE_TASKS_FILE}`;
 export const VSCODE_EXTENSIONS_FILE = 'extensions.json';
 export const PACKAGE_JSON = 'package.json';

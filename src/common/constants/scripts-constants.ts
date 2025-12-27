@@ -4,7 +4,7 @@ import * as path from 'node:path';
 export const TOOLS_DIR = 'tools';
 export const TOOL_INSTRUCTIONS_FILE = 'instructions.md';
 
-export const EXTENSION_PUBLISHER = 'lucasvtiradentes';
+const EXTENSION_PUBLISHER = 'lucasvtiradentes';
 export const EXTENSION_NAME = 'dev-panel';
 export const EXTENSION_DISPLAY_NAME = 'Dev Panel';
 
@@ -105,11 +105,11 @@ export function getGlobalConfigPath(): string {
   return path.join(getGlobalConfigDir(), CONFIG_FILE_NAME);
 }
 
-export function getGlobalToolsDir(): string {
+function getGlobalToolsDir(): string {
   return path.join(getGlobalConfigDir(), TOOLS_DIR);
 }
 
-export function getGlobalPromptsDir(): string {
+function getGlobalPromptsDir(): string {
   return path.join(getGlobalConfigDir(), PROMPTS_DIR_NAME);
 }
 
@@ -156,10 +156,10 @@ export const ERROR_MSG_WORKSPACE_REQUIRED = 'File/folder input requires a worksp
 export const ERROR_MSG_INVALID_NUMBER = 'Please enter a valid number';
 
 export const CONFIRM_YES = 'Yes';
-export const CONFIRM_NO = 'No';
+const CONFIRM_NO = 'No';
 export const CONFIRM_OPTIONS = [CONFIRM_YES, CONFIRM_NO] as const;
 
-export const GLOBAL_ITEM_TOOLTIP_SUFFIX = `from ~/.devpanel/${CONFIG_FILE_NAME}`;
+const GLOBAL_ITEM_TOOLTIP_SUFFIX = `from ~/.devpanel/${CONFIG_FILE_NAME}`;
 export const GLOBAL_PROMPT_TOOLTIP = `Global prompt ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
 export const GLOBAL_TASK_TOOLTIP = `Global task ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
 export const GLOBAL_TOOL_TOOLTIP = `Global tool ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;

@@ -1,7 +1,7 @@
 import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 
-export type CacheEntry<T> = {
+type CacheEntry<T> = {
   value: T;
   timestamp: number;
   hash?: string;

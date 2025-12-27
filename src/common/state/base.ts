@@ -5,8 +5,6 @@ import type { SourceState, WorkspaceUIState } from '../schemas/workspace-state.s
 import { DEFAULT_SOURCE_STATE } from '../schemas/workspace-state.schema';
 import type { ExtensionContext } from '../vscode/vscode-types';
 
-export type { SourceState };
-
 export enum StateKey {
   Tools = 'tools',
   Tasks = 'tasks',

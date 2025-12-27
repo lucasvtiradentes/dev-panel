@@ -24,7 +24,7 @@ export enum AIProvider {
   CursorAgent = 'cursor-agent',
 }
 
-export function getAIProvidersList(): string[] {
+function getAIProvidersList(): string[] {
   return Object.values(AIProvider);
 }
 

@@ -9,7 +9,7 @@ export enum TemplateSectionType {
   Code = 'code',
 }
 
-export type TemplateSection = {
+type TemplateSection = {
   name: string;
   type: TemplateSectionType;
   placeholder: string;
