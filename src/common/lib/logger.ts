@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { getLogFilename } from '../constants/functions';
 import { CONFIG_DIR_KEY } from '../constants/scripts-constants';
 
-export const LOG_CONTEXT_WIDTH = 20;
+export const LOG_CONTEXT_WIDTH = 8;
 export const LOG_TIMEZONE_OFFSET_HOURS = -3;
 export const LOG_FILE_PATH = join(tmpdir(), getLogFilename());
 
