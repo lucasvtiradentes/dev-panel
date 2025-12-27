@@ -158,4 +158,8 @@ export class VscodeHelper {
   static async writeToClipboard(text: string) {
     return vscode.env.clipboard.writeText(text);
   }
+
+  static createRelativePattern(base: string | vscode.WorkspaceFolder, pattern: string): vscode.RelativePattern {
+    return new vscode.RelativePattern(base, pattern);
+  }
 }

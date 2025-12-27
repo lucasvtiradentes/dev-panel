@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { getBranchContextFilePath } from '../common/lib/config-manager';
 import { createLogger } from '../common/lib/logger';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
@@ -56,7 +55,7 @@ export function createBranchMarkdownWatcher(callbacks: DynamicWatcherCallbacks):
     );
 
     currentBranch = branchName;
-    const watcher = VscodeHelper.createFileSystemWatcher(new vscode.RelativePattern(workspace, relativePath));
+    const watcher = VscodeHelper.createFileSystemWatcher(VscodeHelper.createRelativePattern(workspace, relativePath));
 
     attachFileWatcherHandlers(watcher, {
       onChange: (uri: Uri) => {

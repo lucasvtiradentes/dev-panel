@@ -85,7 +85,7 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
     if (!workspace) return;
 
     headWatcher = VscodeHelper.createFileSystemWatcher(
-      new vscode.RelativePattern(workspace, GIT_CONSTANTS.HEAD_FILE_PATH),
+      VscodeHelper.createRelativePattern(workspace, GIT_CONSTANTS.HEAD_FILE_PATH),
     );
 
     headWatcher.onDidChange(() => void handleBranchChange());

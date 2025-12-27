@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import * as vscode from 'vscode';
 import { CONTEXT_PREFIX, KEYBINDINGS_FILE } from '../common/constants';
 import { createLogger } from '../common/lib/logger';
 import { getVSCodeKeybindingsPath, parseKeybindings } from '../common/lib/vscode-keybindings-utils';
@@ -71,7 +70,7 @@ export function createKeybindingsWatcher(onKeybindingsChange: RefreshCallback): 
   const updater = createKeybindingsUpdater();
 
   const watcher = VscodeHelper.createFileSystemWatcher(
-    new vscode.RelativePattern(path.dirname(keybindingsPath), KEYBINDINGS_FILE),
+    VscodeHelper.createRelativePattern(path.dirname(keybindingsPath), KEYBINDINGS_FILE),
   );
 
   const handleChange = () => {

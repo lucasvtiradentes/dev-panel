@@ -48,7 +48,10 @@ async function selectFilesFlat(opts: InternalSelectionOptions): Promise<string |
   log.info(`selectFilesFlat - workspaceFolder.uri.fsPath: ${workspaceFolder.uri.fsPath}`);
   const includeGlob = buildGlob(includes);
   const excludeGlob = buildGlob(excludes);
-  const files = await vscode.workspace.findFiles(new vscode.RelativePattern(workspaceFolder, includeGlob), excludeGlob);
+  const files = await vscode.workspace.findFiles(
+    VscodeHelper.createRelativePattern(workspaceFolder, includeGlob),
+    excludeGlob,
+  );
   log.info(`selectFilesFlat - found ${files.length} files`);
 
   const items: QuickPickItem[] = files.map((uri) => ({
@@ -101,7 +104,10 @@ async function selectFoldersFlat(opts: InternalSelectionOptions): Promise<string
   const { workspaceFolder, label, multiSelect, includes, excludes } = opts;
   const includeGlob = buildGlob(includes);
   const excludeGlob = buildGlob(excludes);
-  const files = await vscode.workspace.findFiles(new vscode.RelativePattern(workspaceFolder, includeGlob), excludeGlob);
+  const files = await vscode.workspace.findFiles(
+    VscodeHelper.createRelativePattern(workspaceFolder, includeGlob),
+    excludeGlob,
+  );
 
   const folderSet = new Set<string>();
   for (const file of files) {
