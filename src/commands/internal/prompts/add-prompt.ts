@@ -10,7 +10,7 @@ import {
   TOOL_NAME_PATTERN,
   TOOL_NAME_VALIDATION_MESSAGE,
 } from '../../../common/constants';
-import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath, parseConfig } from '../../../common/lib/config-manager';
+import { getWorkspaceConfigFilePath, getWorkspacePromptsDir, parseConfig } from '../../../common/lib/config-manager';
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
@@ -129,8 +129,7 @@ async function handleAddPrompt() {
 
   fs.writeFileSync(configPath, updatedContent, 'utf8');
 
-  const workspaceConfigDir = getWorkspaceConfigDirPath(workspaceFolder);
-  const promptsDir = path.join(workspaceConfigDir, PROMPTS_DIR_NAME);
+  const promptsDir = getWorkspacePromptsDir(workspaceFolder);
   if (!fs.existsSync(promptsDir)) {
     fs.mkdirSync(promptsDir, { recursive: true });
   }

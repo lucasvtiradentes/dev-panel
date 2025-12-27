@@ -1,9 +1,8 @@
 import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { ConfigKey, LocationScope, getGlobalConfigDir } from '../../../common/constants';
+import { ConfigKey, LocationScope, getGlobalPromptFilePath } from '../../../common/constants';
 import {
   confirmDelete,
-  joinConfigPath,
+  getWorkspacePromptFilePath,
   loadGlobalConfig,
   loadWorkspaceConfig,
   removeConfigItem,
@@ -55,7 +54,7 @@ async function handleDeletePrompt(treePrompt: TreePrompt) {
 
     saveGlobalConfig(globalConfig);
 
-    const globalPromptFile = path.join(getGlobalConfigDir(), removed.file);
+    const globalPromptFile = getGlobalPromptFilePath(removed.file);
     if (fs.existsSync(globalPromptFile)) {
       fs.rmSync(globalPromptFile);
     }
@@ -87,7 +86,7 @@ async function handleDeletePrompt(treePrompt: TreePrompt) {
 
   saveWorkspaceConfig(workspaceFolder, workspaceConfig);
 
-  const workspacePromptFile = joinConfigPath(workspaceFolder, removed.file);
+  const workspacePromptFile = getWorkspacePromptFilePath(workspaceFolder, removed.file);
   if (fs.existsSync(workspacePromptFile)) {
     fs.rmSync(workspacePromptFile);
   }

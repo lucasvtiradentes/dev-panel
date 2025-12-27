@@ -2,6 +2,7 @@ import { homedir } from 'node:os';
 import * as path from 'node:path';
 
 export const TOOLS_DIR = 'tools';
+export const TOOL_INSTRUCTIONS_FILE = 'instructions.md';
 
 export const EXTENSION_PUBLISHER = 'lucasvtiradentes';
 export const EXTENSION_NAME = 'dev-panel';
@@ -113,6 +114,30 @@ export function getGlobalToolsDir(): string {
 
 export function getGlobalPromptsDir(): string {
   return path.join(getGlobalConfigDir(), PROMPTS_DIR_NAME);
+}
+
+export function getGlobalToolInstructionsPath(toolName: string): string {
+  return path.join(getGlobalToolsDir(), toolName, TOOL_INSTRUCTIONS_FILE);
+}
+
+export function getSkillDir(workspacePath: string, skillName: string): string {
+  return path.join(workspacePath, CLAUDE_DIR_NAME, SKILLS_DIR_NAME, skillName);
+}
+
+export function getSkillFilePath(workspacePath: string, skillName: string): string {
+  return path.join(getSkillDir(workspacePath, skillName), SKILL_FILE_NAME);
+}
+
+export function getGlobalToolDir(toolName: string): string {
+  return path.join(getGlobalToolsDir(), toolName);
+}
+
+export function getGlobalPromptFilePath(promptFile: string): string {
+  return path.join(getGlobalPromptsDir(), promptFile);
+}
+
+export function getVscodeTasksFilePath(workspacePath: string): string {
+  return path.join(workspacePath, '.vscode', 'tasks.json');
 }
 
 export const AI_SPEC_DEV_TOOLS_REGEX = /<dev_tools>[\s\S]*?<\/dev_tools>/;

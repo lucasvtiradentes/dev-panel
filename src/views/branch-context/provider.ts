@@ -1,5 +1,4 @@
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 import * as vscode from 'vscode';
 import {
   BRANCH_CONTEXT_NO_CHANGES,
@@ -17,6 +16,8 @@ import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-co
 import {
   configDirExists,
   getBranchContextFilePath as getBranchContextFilePathUtil,
+  getGitExcludeFilePath,
+  getRootBranchContextFilePath,
   loadWorkspaceConfigFromPath,
 } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
@@ -168,7 +169,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
   }
 
   private addToGitExclude(workspace: string) {
-    const excludePath = path.join(workspace, '.git', 'info', 'exclude');
+    const excludePath = getGitExcludeFilePath(workspace);
     if (!fs.existsSync(excludePath)) return;
 
     try {
@@ -295,7 +296,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
-    const filePath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
+    const filePath = getRootBranchContextFilePath(workspace);
     const uri = vscode.Uri.file(filePath);
     await VscodeHelper.openDocument(uri);
   }
@@ -304,7 +305,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
-    const filePath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
+    const filePath = getRootBranchContextFilePath(workspace);
     const lineNumber = getFieldLineNumber(filePath, fieldName);
     const uri = vscode.Uri.file(filePath);
     await VscodeHelper.openDocumentAtLine(uri, lineNumber);

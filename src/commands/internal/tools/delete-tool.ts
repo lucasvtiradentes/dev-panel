@@ -1,9 +1,8 @@
 import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { ConfigKey, LocationScope, TOOLS_DIR, getGlobalToolsDir } from '../../../common/constants';
+import { ConfigKey, LocationScope, getGlobalToolDir } from '../../../common/constants';
 import {
   confirmDelete,
-  getWorkspaceConfigDirPath,
+  getWorkspaceToolDir,
   loadGlobalConfig,
   loadWorkspaceConfig,
   removeConfigItem,
@@ -54,7 +53,7 @@ async function handleDeleteTool(treeTool: TreeTool) {
 
     saveGlobalConfig(globalConfig);
 
-    const globalToolsDir = path.join(getGlobalToolsDir(), toolName);
+    const globalToolsDir = getGlobalToolDir(toolName);
     if (fs.existsSync(globalToolsDir)) {
       fs.rmSync(globalToolsDir, { recursive: true });
     }
@@ -86,8 +85,7 @@ async function handleDeleteTool(treeTool: TreeTool) {
 
   saveWorkspaceConfig(workspaceFolder, workspaceConfig);
 
-  const workspaceConfigDirPath = getWorkspaceConfigDirPath(workspaceFolder);
-  const workspaceToolsDir = path.join(workspaceConfigDirPath, TOOLS_DIR, toolName);
+  const workspaceToolsDir = getWorkspaceToolDir(workspaceFolder, toolName);
   if (fs.existsSync(workspaceToolsDir)) {
     fs.rmSync(workspaceToolsDir, { recursive: true });
   }

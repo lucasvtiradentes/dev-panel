@@ -1,11 +1,10 @@
 import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { ConfigKey, LocationScope, TOOLS_DIR, getGlobalToolsDir } from '../../../common/constants';
+import { ConfigKey, LocationScope, getGlobalToolDir } from '../../../common/constants';
 import {
   addOrUpdateConfigItem,
   confirmOverwrite,
   ensureDirectoryExists,
-  joinConfigPath,
+  getWorkspaceToolDir,
   loadGlobalConfig,
   loadWorkspaceConfig,
   saveWorkspaceConfig,
@@ -59,11 +58,11 @@ async function handleCopyToolToWorkspace(treeTool: TreeTool) {
   addOrUpdateConfigItem(workspaceConfig, ConfigKey.Tools, tool);
   saveWorkspaceConfig(workspaceFolder, workspaceConfig);
 
-  const globalToolsDir = path.join(getGlobalToolsDir(), tool.name);
-  const workspaceToolsDir = joinConfigPath(workspaceFolder, TOOLS_DIR, tool.name);
+  const globalToolsDir = getGlobalToolDir(tool.name);
+  const workspaceToolsDir = getWorkspaceToolDir(workspaceFolder, tool.name);
 
   if (fs.existsSync(globalToolsDir)) {
-    ensureDirectoryExists(joinConfigPath(workspaceFolder, TOOLS_DIR));
+    ensureDirectoryExists(require('node:path').dirname(workspaceToolsDir));
     if (fs.existsSync(workspaceToolsDir)) {
       fs.rmSync(workspaceToolsDir, { recursive: true });
     }

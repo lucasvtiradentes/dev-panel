@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
-import { VARIABLES_FILE_NAME } from '../constants';
 
 export function parseVariables(content: string): Record<string, unknown> | null {
   try {
@@ -20,8 +19,7 @@ export function loadVariablesFromPath(variablesPath: string): Record<string, unk
   }
 }
 
-export function readDevPanelVariablesAsEnv(configDirPath: string): Record<string, string> {
-  const variablesPath = `${configDirPath}/${VARIABLES_FILE_NAME}`;
+export function readDevPanelVariablesAsEnv(variablesPath: string): Record<string, string> {
   const variables = loadVariablesFromPath(variablesPath);
   if (!variables) return {};
 

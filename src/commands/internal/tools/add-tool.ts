@@ -1,17 +1,20 @@
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 import * as vscode from 'vscode';
 import {
   CONFIG_FILE_NAME,
   CONFIG_INDENT,
   CONFIG_TOOLS_ARRAY_PATTERN,
   JSON_INDENT_SPACES,
-  TOOLS_DIR,
   TOOL_INSTRUCTIONS_FILE,
   TOOL_NAME_PATTERN,
   TOOL_NAME_VALIDATION_MESSAGE,
 } from '../../../common/constants';
-import { getWorkspaceConfigDirPath, getWorkspaceConfigFilePath, parseConfig } from '../../../common/lib/config-manager';
+import {
+  getWorkspaceConfigFilePath,
+  getWorkspaceToolDir,
+  getWorkspaceToolInstructionsPath,
+  parseConfig,
+} from '../../../common/lib/config-manager';
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
@@ -121,13 +124,12 @@ async function handleAddTool() {
 
   fs.writeFileSync(configPath, updatedContent, 'utf8');
 
-  const workspaceConfigDir = getWorkspaceConfigDirPath(workspaceFolder);
-  const toolDir = path.join(workspaceConfigDir, TOOLS_DIR, name);
+  const toolDir = getWorkspaceToolDir(workspaceFolder, name);
   if (!fs.existsSync(toolDir)) {
     fs.mkdirSync(toolDir, { recursive: true });
   }
 
-  const instructionsPath = path.join(toolDir, TOOL_INSTRUCTIONS_FILE);
+  const instructionsPath = getWorkspaceToolInstructionsPath(workspaceFolder, name);
   const instructionsContent = `# Description
 
 ${description || `Tool: ${name}`}
