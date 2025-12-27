@@ -1,14 +1,13 @@
-import * as vscode from 'vscode';
 import { EXTENSION_DISPLAY_NAME } from '../../common/constants';
 import { logger } from '../../common/lib/logger';
 import { fetchRegistryIndex, getInstalledItems, getItemsForKind, installItem } from '../../common/lib/registry-service';
 import { type RegistryItemEntry, RegistryItemKind } from '../../common/schemas';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
-import { VscodeIcon } from '../../common/vscode/vscode-constants';
+import { VscodeConstants, VscodeIcon } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
+import type { QuickPickItem, WorkspaceFolder } from '../../common/vscode/vscode-types';
 
-type QuickPickItemWithId<T> = vscode.QuickPickItem & { id: T };
+type QuickPickItemWithId<T> = QuickPickItem & { id: T };
 
 const KIND_LABELS: Record<RegistryItemKind, { label: string; icon: VscodeIcon }> = {
   [RegistryItemKind.Plugin]: { label: 'Plugins', icon: VscodeIcon.Extensions },
@@ -44,7 +43,7 @@ async function showItemsForKind(workspaceFolder: WorkspaceFolder, kind: Registry
 
   await VscodeHelper.withProgress(
     {
-      location: vscode.ProgressLocation.Notification,
+      location: VscodeConstants.ProgressLocation.Notification,
       title: `Fetching ${kindLabel.toLowerCase()} from registry...`,
       cancellable: false,
     },
@@ -108,7 +107,7 @@ async function installItems(workspaceFolder: WorkspaceFolder, kind: RegistryItem
 
   await VscodeHelper.withProgress(
     {
-      location: vscode.ProgressLocation.Notification,
+      location: VscodeConstants.ProgressLocation.Notification,
       title: `Installing ${items.length} ${kindLabel}...`,
       cancellable: false,
     },

@@ -17,6 +17,7 @@ import {
 } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { Uri } from '../../common/vscode/vscode-types';
 
@@ -113,7 +114,7 @@ async function showFolderPicker(workspaceRoot: Uri, currentPath: string): Promis
     items.push({
       id: QUICK_PICK_ACTION_SEPARATOR,
       label: '',
-      kind: vscode.QuickPickItemKind.Separator,
+      kind: VscodeConstants.QuickPickItemKind.Separator,
     });
   }
 

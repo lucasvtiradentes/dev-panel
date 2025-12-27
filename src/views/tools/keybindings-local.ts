@@ -1,8 +1,8 @@
-import * as vscode from 'vscode';
 import { TOOL_TASK_TYPE, getGlobalConfigDir, getToolCommandId, getToolCommandPrefix } from '../../common/constants';
 import { forEachWorkspaceConfig, getWorkspaceConfigDirPath, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { registerDynamicCommand } from '../../common/lib/vscode-utils';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { ExtensionContext } from '../../common/vscode/vscode-types';
 import { KeybindingManager } from '../_view_base';
@@ -44,7 +44,7 @@ export function registerToolKeybindings(context: ExtensionContext) {
         const shellExec = VscodeHelper.createShellExecution(tool.command as string, { cwd: globalConfigDir });
         const task = VscodeHelper.createTask(
           { type: TOOL_TASK_TYPE },
-          vscode.TaskScope.Global,
+          VscodeConstants.TaskScope.Global,
           tool.name,
           TOOL_TASK_TYPE,
           shellExec,

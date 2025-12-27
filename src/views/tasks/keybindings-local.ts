@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import {
   CONFIG_DIR_KEY,
   GLOBAL_TASK_TYPE,
@@ -10,6 +9,7 @@ import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/lib/confi
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { registerDynamicCommand } from '../../common/lib/vscode-utils';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { ExtensionContext } from '../../common/vscode/vscode-types';
 import { KeybindingManager } from '../_view_base';
@@ -50,7 +50,7 @@ export function registerTaskKeybindings(context: ExtensionContext) {
         const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd: globalConfigDir });
         const vsTask = VscodeHelper.createTask(
           { type: GLOBAL_TASK_TYPE },
-          vscode.TaskScope.Global,
+          VscodeConstants.TaskScope.Global,
           task.name,
           GLOBAL_TASK_TYPE,
           shellExec,

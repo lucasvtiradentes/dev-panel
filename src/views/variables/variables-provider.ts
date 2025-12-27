@@ -214,7 +214,7 @@ async function runCommand(variable: DevPanelVariable, value: unknown) {
 
   await VscodeHelper.withProgress(
     {
-      location: vscode.ProgressLocation.Notification,
+      location: VscodeConstants.ProgressLocation.Notification,
       title: `Running: ${variable.name}`,
       cancellable: false,
     },

@@ -3,6 +3,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { promisify } from 'node:util';
 import * as vscode from 'vscode';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type {
   ExtensionContext,
@@ -79,7 +80,7 @@ function cloneTaskWithEnv(task: Task, env: Record<string, string>): Task {
 
     newTask = VscodeHelper.createTask(
       task.definition,
-      task.scope ?? vscode.TaskScope.Workspace,
+      task.scope ?? VscodeConstants.TaskScope.Workspace,
       task.name,
       task.source,
       newExecution,
@@ -98,7 +99,7 @@ function cloneTaskWithEnv(task: Task, env: Record<string, string>): Task {
 
     newTask = VscodeHelper.createTask(
       task.definition,
-      task.scope ?? vscode.TaskScope.Workspace,
+      task.scope ?? VscodeConstants.TaskScope.Workspace,
       task.name,
       task.source,
       newExecution,
@@ -137,7 +138,7 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
           const newExecution = VscodeHelper.createShellExecution(commandToReplace, execution.options);
           modifiedTask = VscodeHelper.createTask(
             task.definition,
-            task.scope ?? vscode.TaskScope.Workspace,
+            task.scope ?? VscodeConstants.TaskScope.Workspace,
             task.name,
             task.source,
             newExecution,
@@ -216,15 +217,15 @@ export function createExecuteToolCommand(context: ExtensionContext) {
       const shellExec = VscodeHelper.createShellExecution(toolConfig.command, { env, cwd });
       const vsTask = VscodeHelper.createTask(
         { type: `${CONFIG_DIR_KEY}-tool`, task: actualName },
-        folder ?? vscode.TaskScope.Global,
+        folder ?? VscodeConstants.TaskScope.Global,
         actualName,
         `${CONFIG_DIR_KEY}-tool`,
         shellExec,
       );
 
       vsTask.presentationOptions = {
-        reveal: vscode.TaskRevealKind.Always,
-        panel: vscode.TaskPanelKind.New,
+        reveal: VscodeConstants.TaskRevealKind.Always,
+        panel: VscodeConstants.TaskPanelKind.New,
         clear: false,
         focus: false,
         showReuseMessage: false,
@@ -373,7 +374,7 @@ async function executePromptWithSave(options: {
 
   await VscodeHelper.withProgress(
     {
-      location: vscode.ProgressLocation.Notification,
+      location: VscodeConstants.ProgressLocation.Notification,
       title: `Running prompt: ${promptName}`,
       cancellable: false,
     },

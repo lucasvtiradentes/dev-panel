@@ -2,6 +2,21 @@ export const VscodeConstants = {
   get TreeItemCollapsibleState() {
     return require('vscode').TreeItemCollapsibleState;
   },
+  get TaskScope() {
+    return require('vscode').TaskScope;
+  },
+  get ProgressLocation() {
+    return require('vscode').ProgressLocation;
+  },
+  get TaskRevealKind() {
+    return require('vscode').TaskRevealKind;
+  },
+  get TaskPanelKind() {
+    return require('vscode').TaskPanelKind;
+  },
+  get QuickPickItemKind() {
+    return require('vscode').QuickPickItemKind;
+  },
 };
 
 export enum VscodeIcon {

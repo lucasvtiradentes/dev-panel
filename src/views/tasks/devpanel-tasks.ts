@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import {
   CONFIG_DIR_KEY,
   CONTEXT_VALUES,
@@ -129,8 +128,8 @@ function createDevPanelTask(
   );
 
   vsTask.presentationOptions = {
-    reveal: vscode.TaskRevealKind.Always,
-    panel: vscode.TaskPanelKind.New,
+    reveal: VscodeConstants.TaskRevealKind.Always,
+    panel: VscodeConstants.TaskPanelKind.New,
     clear: false,
     focus: false,
     showReuseMessage: false,
@@ -183,15 +182,15 @@ function createGlobalTask(
 
   const vsTask = VscodeHelper.createTask(
     { type: `${CONFIG_DIR_KEY}-global`, task: task.name },
-    vscode.TaskScope.Global,
+    VscodeConstants.TaskScope.Global,
     task.name,
     `${CONFIG_DIR_KEY}-global`,
     shellExec,
   );
 
   vsTask.presentationOptions = {
-    reveal: vscode.TaskRevealKind.Always,
-    panel: vscode.TaskPanelKind.New,
+    reveal: VscodeConstants.TaskRevealKind.Always,
+    panel: VscodeConstants.TaskPanelKind.New,
     clear: false,
     focus: false,
     showReuseMessage: false,
