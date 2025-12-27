@@ -211,4 +211,8 @@ export class VscodeHelper {
   static async delete(uri: vscode.Uri, options?: { recursive?: boolean; useTrash?: boolean }) {
     return vscode.workspace.fs.delete(uri, options);
   }
+
+  static getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] {
+    return vscode.workspace.workspaceFolders ?? [];
+  }
 }

@@ -21,7 +21,7 @@ import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
 export function hasDevPanelGroups(): boolean {
-  const folders = vscode.workspace.workspaceFolders ?? [];
+  const folders = VscodeHelper.getWorkspaceFolders();
   for (const folder of folders) {
     const tasks = readDevPanelTasks(folder);
     if (tasks.some((task) => task.group != null)) return true;
@@ -37,7 +37,7 @@ export async function getDevPanelTasks(
     elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
   ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
 ): Promise<Array<TreeTask | GroupTreeItem | WorkspaceTreeItem>> {
-  const folders = vscode.workspace.workspaceFolders ?? [];
+  const folders = VscodeHelper.getWorkspaceFolders();
 
   if (!grouped) {
     const taskElements: TreeTask[] = [];

@@ -67,7 +67,7 @@ export function getExcludedDirs(workspacePath: string): Set<string> {
 }
 
 export async function hasPackageGroups(): Promise<boolean> {
-  const folders = vscode.workspace.workspaceFolders ?? [];
+  const folders = VscodeHelper.getWorkspaceFolders();
   const allPackages: PackageLocation[] = [];
 
   for (const folder of folders) {
@@ -94,7 +94,7 @@ export async function getPackageScripts(
     elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
   ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
 ): Promise<Array<TreeTask | GroupTreeItem | WorkspaceTreeItem>> {
-  const folders = vscode.workspace.workspaceFolders ?? [];
+  const folders = VscodeHelper.getWorkspaceFolders();
   const allPackages: PackageLocation[] = [];
 
   for (const folder of folders) {

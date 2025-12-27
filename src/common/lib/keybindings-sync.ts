@@ -1,15 +1,15 @@
 import * as fs from 'node:fs';
-import * as vscode from 'vscode';
 import { getAllPromptKeybindings } from '../../views/prompts/keybindings-local';
 import { getAllTaskKeybindings } from '../../views/tasks/keybindings-local';
 import { getAllToolKeybindings } from '../../views/tools/keybindings-local';
 import { getAllVariableKeybindings } from '../../views/variables/keybindings-local';
 import { getPromptCommandId, getTaskCommandId, getToolCommandId, getVariableCommandId } from '../constants/functions';
+import { VscodeHelper } from '../vscode/vscode-helper';
 import { getVSCodeKeybindingsPath, loadKeybindings } from './vscode-keybindings-utils';
 
 export function syncKeybindings() {
-  const folders = vscode.workspace.workspaceFolders ?? [];
-  if (!folders || folders.length === 0) return;
+  const folders = VscodeHelper.getWorkspaceFolders();
+  if (folders.length === 0) return;
 
   const keybindingsToAdd: Array<{ command: string; key: string }> = [];
 

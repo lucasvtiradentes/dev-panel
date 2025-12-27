@@ -23,6 +23,7 @@ import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../common/schemas';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { TreeItem, TreeView, WorkspaceFolder } from '../../common/vscode/vscode-types';
 import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../_view_base';
@@ -63,7 +64,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
       allTools.push(`${GLOBAL_ITEM_PREFIX}${tool.name}`);
     }
 
-    const folders = vscode.workspace.workspaceFolders ?? [];
+    const folders = VscodeHelper.getWorkspaceFolders();
     for (const folder of folders) {
       const tools = this.readDevPanelTools(folder);
       for (const toolItem of tools) {
@@ -121,7 +122,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   }
 
   private async getDevPanelTools(): Promise<Array<TreeTool | ToolGroupTreeItem>> {
-    const folders = vscode.workspace.workspaceFolders ?? [];
+    const folders = VscodeHelper.getWorkspaceFolders();
 
     if (!this._grouped) {
       const toolElements: TreeTool[] = [];

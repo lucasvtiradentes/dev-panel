@@ -1,9 +1,8 @@
-import * as vscode from 'vscode';
 import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
 import type { WorkspaceFolder } from '../vscode/vscode-types';
 
 export function getFirstWorkspaceFolder(): WorkspaceFolder | undefined {
-  return vscode.workspace.workspaceFolders?.[0];
+  return VscodeHelper.getWorkspaceFolders()[0];
 }
 
 export function getFirstWorkspacePath(): string | null {
@@ -20,8 +19,8 @@ export function requireWorkspaceFolder(): WorkspaceFolder | null {
 }
 
 export async function selectWorkspaceFolder(placeholder: string): Promise<WorkspaceFolder | null> {
-  const folders = vscode.workspace.workspaceFolders;
-  if (!folders || folders.length === 0) {
+  const folders = VscodeHelper.getWorkspaceFolders();
+  if (folders.length === 0) {
     VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
     return null;
   }

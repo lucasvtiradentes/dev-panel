@@ -14,6 +14,7 @@ import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { promptsState } from '../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../common/schemas';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { TreeItem, TreeView, WorkspaceFolder } from '../../common/vscode/vscode-types';
 import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../_view_base';
@@ -67,7 +68,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
   }
 
   private async getDevPanelPrompts(): Promise<Array<TreePrompt | PromptGroupTreeItem>> {
-    const folders = vscode.workspace.workspaceFolders ?? [];
+    const folders = VscodeHelper.getWorkspaceFolders();
 
     if (!this._grouped) {
       const promptElements: TreePrompt[] = [];

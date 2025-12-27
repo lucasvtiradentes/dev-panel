@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { getCommandId } from '../constants/functions';
 import { CONTEXT_PREFIX } from '../constants/scripts-constants';
+import { VscodeHelper } from '../vscode/vscode-helper';
 import type { Disposable } from '../vscode/vscode-types';
 import type { CommandParams } from './command-params';
 
@@ -144,13 +145,9 @@ export function executeCommand<T extends Command>(
   return vscode.commands.executeCommand(getCommandId(command), ...args);
 }
 
-export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] | undefined {
-  return vscode.workspace.workspaceFolders;
-}
-
 export function isMultiRootWorkspace(): boolean {
-  const folders = vscode.workspace.workspaceFolders;
-  return folders != null && folders.length > 1;
+  const folders = VscodeHelper.getWorkspaceFolders();
+  return folders.length > 1;
 }
 
 export const ContextKey = {
@@ -193,7 +190,7 @@ export function setContextKey(key: ContextKey, value: boolean | string): Thenabl
 }
 
 export function generateWorkspaceId(): string {
-  const folders = vscode.workspace.workspaceFolders ?? [];
+  const folders = VscodeHelper.getWorkspaceFolders();
   if (folders.length === 0) return '';
   const paths = folders
     .map((f) => f.uri.fsPath)

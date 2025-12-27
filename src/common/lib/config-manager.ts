@@ -195,10 +195,6 @@ export function getBranchContextTemplatePath(workspace: string): string {
   return join(configDirPath, BRANCH_CONTEXT_TEMPLATE_FILENAME);
 }
 
-export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] {
-  return vscode.workspace.workspaceFolders ?? [];
-}
-
 export function parseConfig(content: string): DevPanelConfig | null {
   try {
     return JSON5.parse(content) as DevPanelConfig;
@@ -227,7 +223,7 @@ export function loadWorkspaceConfig(folder: WorkspaceFolder): DevPanelConfig | n
 }
 
 export function forEachWorkspaceConfig(callback: (folder: WorkspaceFolder, config: DevPanelConfig) => void) {
-  const folders = getWorkspaceFolders();
+  const folders = VscodeHelper.getWorkspaceFolders();
   if (folders.length === 0) return;
 
   for (const folder of folders) {
