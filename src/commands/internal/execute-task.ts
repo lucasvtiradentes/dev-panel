@@ -7,6 +7,7 @@ import {
   VARIABLES_FILE_NAME,
   getGlobalConfigDir,
 } from '../../common/constants/scripts-constants';
+import { getCurrentBranch } from '../../common/lib/git-utils';
 import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper, NodePathHelper } from '../../common/lib/node-helper';
 import {
@@ -34,7 +35,6 @@ import {
 import { Command, isMultiRootWorkspace, registerCommand } from '../../common/vscode/vscode-utils';
 import { getFirstWorkspaceFolder } from '../../common/vscode/workspace-utils';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
-import { getCurrentBranch } from '../../views/replacements/git-utils';
 import { TreeTool } from '../../views/tools/items';
 
 const log = createLogger('execute-task');

@@ -12,6 +12,7 @@ import {
   SECTION_NAME_REQUIREMENTS,
 } from '../../common/constants';
 import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-constants';
+import { getCurrentBranch, isGitRepository } from '../../common/lib/git-utils';
 import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper } from '../../common/lib/node-helper';
 import { branchContextState } from '../../common/state';
@@ -23,7 +24,6 @@ import { getFirstWorkspacePath } from '../../common/vscode/workspace-utils';
 import { createTaskProvider, loadBranchContext } from '../_branch_base';
 import { formatChangedFilesSummary } from '../_branch_base/providers/default/file-changes-utils';
 import { getFieldLineNumber } from '../_branch_base/storage/markdown-parser';
-import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { validateBranchContext } from './config-validator';
 import { SectionItem } from './items';
 import { ProviderHelpers } from './provider-helpers';

@@ -1,8 +1,8 @@
+import { getCurrentBranch, isGitRepository } from '../common/lib/git-utils';
 import { createLogger } from '../common/lib/logger';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable, Event, FileSystemWatcher } from '../common/vscode/vscode-types';
 import { getFirstWorkspacePath } from '../common/vscode/workspace-utils';
-import { getCurrentBranch, isGitRepository } from '../views/replacements/git-utils';
 import { GIT_CONSTANTS, WATCHER_CONSTANTS } from './utils';
 
 type GitAPI = {
