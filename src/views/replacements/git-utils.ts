@@ -1,7 +1,7 @@
-import { ExecHelper } from '../../common/utils/exec-utils';
+import { execAsync } from 'src/common/functions/exec-async';
 
 async function execGitCommand(workspace: string, args: string[]): Promise<string> {
-  const { stdout } = await ExecHelper.execAsync(`git ${args.join(' ')}`, { cwd: workspace });
+  const { stdout } = await execAsync(`git ${args.join(' ')}`, { cwd: workspace });
   return stdout.trim();
 }
 

@@ -1,3 +1,4 @@
+import { execAsync } from 'src/common/functions/exec-async';
 import {
   ChangedFilesStyle,
   GIT_LOG_LAST_COMMIT_MESSAGE,
@@ -11,7 +12,6 @@ import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper } from '../../common/lib/node-helper';
 import { StringUtils, TypeGuards } from '../../common/utils/common-utils';
-import { ExecHelper } from '../../common/utils/exec-utils';
 import { extractSectionMetadata } from '../../common/utils/metadata-extractor';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { getChangedFilesWithSummary } from '../_branch_base/providers/default/file-changes-utils';
@@ -309,8 +309,10 @@ export class SyncManager {
       let lastCommitHash: string | undefined;
       let lastCommitMessage: string | undefined;
       try {
-        lastCommitHash = ExecHelper.execSync(GIT_REV_PARSE_HEAD, { cwd: workspace }).trim();
-        lastCommitMessage = ExecHelper.execSync(GIT_LOG_LAST_COMMIT_MESSAGE, { cwd: workspace }).trim();
+        const hashResult = await execAsync(GIT_REV_PARSE_HEAD, { cwd: workspace });
+        lastCommitHash = hashResult.stdout.trim();
+        const msgResult = await execAsync(GIT_LOG_LAST_COMMIT_MESSAGE, { cwd: workspace });
+        lastCommitMessage = msgResult.stdout.trim();
       } catch (error: unknown) {
         logger.error(`Failed to get git commit info: ${TypeGuards.getErrorMessage(error)}`);
       }

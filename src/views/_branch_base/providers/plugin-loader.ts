@@ -1,9 +1,9 @@
+import { execAsync } from 'src/common/functions/exec-async';
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import { FileIOHelper } from '../../../common/lib/node-helper';
 import { PluginAction, TaskStatus } from '../../../common/schemas';
 import { TypeGuards } from '../../../common/utils/common-utils';
-import { ExecHelper } from '../../../common/utils/exec-utils';
 import { extractAllFieldsRaw } from '../storage/file-storage';
 import type {
   AutoSectionProvider,
@@ -57,7 +57,7 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
       logger.info(`[loadAutoProvider] Running: ${providerCommand}`);
 
       try {
-        const { stdout } = await ExecHelper.execAsync(providerCommand, {
+        const { stdout } = await execAsync(providerCommand, {
           timeout: PLUGIN_TIMEOUT,
           cwd: configDir,
           env: {
@@ -96,7 +96,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
     logger.info(`[loadTaskProvider] Executing: ${command}`);
 
     try {
-      const { stdout, stderr } = await ExecHelper.execAsync(command, {
+      const { stdout, stderr } = await execAsync(command, {
         timeout: PLUGIN_TIMEOUT,
         cwd: configDir,
         env: {

@@ -1,3 +1,4 @@
+import { execAsync } from 'src/common/functions/exec-async';
 import { GLOBAL_ITEM_PREFIX, GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
 import {
   CONFIG_DIR_KEY,
@@ -18,7 +19,6 @@ import {
   getAIProvidersListFormatted,
 } from '../../common/schemas';
 import { TypeGuards } from '../../common/utils/common-utils';
-import { ExecHelper } from '../../common/utils/exec-utils';
 import { loadVariablesFromPath, readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
@@ -369,7 +369,7 @@ async function executePromptWithSave(options: {
     async () => {
       try {
         const command = provider.getExecuteCommand(tempFile, outputFile);
-        await ExecHelper.execAsync(command, { cwd: workspacePath });
+        await execAsync(command, { cwd: workspacePath });
         FileIOHelper.deleteFile(tempFile);
         await VscodeHelper.openDocument(VscodeHelper.createFileUri(outputFile));
       } catch (error: unknown) {

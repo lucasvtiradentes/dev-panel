@@ -1,4 +1,5 @@
 import json5 from 'json5';
+import { execAsync } from 'src/common/functions/exec-async';
 import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
@@ -14,7 +15,6 @@ import { ConfigManager } from '../../common/lib/config-manager';
 import { FileIOHelper } from '../../common/lib/node-helper';
 import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
-import { ExecHelper } from '../../common/utils/exec-utils';
 import { getFirstWorkspaceFolder, getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -216,7 +216,7 @@ async function runCommand(variable: DevPanelVariable, value: unknown) {
     },
     async () => {
       try {
-        await ExecHelper.execAsync(command, { cwd: configDirPath });
+        await execAsync(command, { cwd: configDirPath });
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         void VscodeHelper.showToastMessage(ToastKind.Error, `${ERROR_VARIABLE_COMMAND_FAILED}: ${errorMessage}`);

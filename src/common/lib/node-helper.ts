@@ -1,3 +1,4 @@
+import { exec } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
   type Dirent,
@@ -28,8 +29,11 @@ import {
   resolve,
   sep,
 } from 'node:path';
+import { promisify } from 'node:util';
 
-const UTF_ENCODING: BufferEncoding = 'utf-8';
+export const execAsyncFn = promisify(exec);
+
+export const UTF_ENCODING: BufferEncoding = 'utf-8';
 
 export class NodePathHelper {
   static join(...paths: string[]): string {
