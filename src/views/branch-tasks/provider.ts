@@ -22,13 +22,7 @@ import {
 } from '../_branch_base';
 import type { TaskFilter } from './filter-operations';
 import { showFilterQuickPick as showFilterQuickPickDialog } from './filter-quick-pick';
-import {
-  buildFlatTree,
-  buildMilestoneChildren,
-  buildMilestonesTree,
-  buildTaskChildren,
-  createEmptyStateItem,
-} from './provider-tree-builder';
+import { buildFlatTree, buildMilestoneChildren, buildMilestonesTree, buildTaskChildren } from './provider-tree-builder';
 import {
   BranchMilestoneItem,
   BranchTaskItem,
@@ -241,8 +235,10 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
       });
 
       if (result.length === 0) {
-        logger.info('[BranchTasksProvider] [getChildren] Milestones tree is empty, showing empty state');
-        return [createEmptyStateItem(this.showOnlyTodo, hasActiveFilter)];
+        logger.info(
+          '[BranchTasksProvider] [getChildren] Milestones tree is empty, returning empty array (viewsWelcome will show)',
+        );
+        return [];
       }
 
       logger.info(`[BranchTasksProvider] [getChildren] Returning ${result.length} milestone items`);
@@ -252,8 +248,10 @@ export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeIt
     const result = buildFlatTree(this.cachedNodes, this.showOnlyTodo, this.activeFilters, this.grouped);
 
     if (result.length === 0) {
-      logger.info('[BranchTasksProvider] [getChildren] Flat tree is empty, showing empty state');
-      return [createEmptyStateItem(this.showOnlyTodo, hasActiveFilter)];
+      logger.info(
+        '[BranchTasksProvider] [getChildren] Flat tree is empty, returning empty array (viewsWelcome will show)',
+      );
+      return [];
     }
 
     logger.info(`[BranchTasksProvider] [getChildren] Returning ${result.length} task items`);

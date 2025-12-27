@@ -310,6 +310,12 @@ function applyDevTransformations(pkg: Record<string, unknown>): Record<string, u
       if (welcome.when) {
         welcome.when = transformContextKey(welcome.when);
       }
+      if (welcome.contents) {
+        welcome.contents = welcome.contents.replace(
+          /\(command:([^)]+)\)/g,
+          (_match, command: string) => `(command:${transformCommand(command)})`,
+        );
+      }
     }
   }
 

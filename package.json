@@ -1140,7 +1140,7 @@
       },
       {
         "view": "devPanelTodos",
-        "contents": "No tasks in current branch.\n\nTasks are defined in the branch context file.",
+        "contents": "No tasks in current branch.",
         "when": "!extensionInitializing"
       },
       {
