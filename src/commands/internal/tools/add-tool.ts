@@ -1,5 +1,4 @@
 import * as fs from 'node:fs';
-import * as vscode from 'vscode';
 import {
   CONFIG_FILE_NAME,
   CONFIG_INDENT,
@@ -181,10 +180,10 @@ ${command}
   );
 
   if (openFile?.value === 'instructions') {
-    const uri = vscode.Uri.file(instructionsPath);
+    const uri = VscodeHelper.createFileUri(instructionsPath);
     await VscodeHelper.openDocument(uri);
   } else if (openFile?.value === 'config') {
-    const uri = vscode.Uri.file(configPath);
+    const uri = VscodeHelper.createFileUri(configPath);
     await VscodeHelper.openDocument(uri);
   }
 }

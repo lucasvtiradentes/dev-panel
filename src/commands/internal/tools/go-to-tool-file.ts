@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { GLOBAL_ITEM_PREFIX, getGlobalToolInstructionsPath } from '../../../common/constants';
 import { getWorkspaceToolInstructionsPath } from '../../../common/lib/config-manager';
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
@@ -24,7 +23,7 @@ export function createGoToToolFileCommand(): Disposable {
         instructionsPath = getWorkspaceToolInstructionsPath(workspaceFolder, toolName);
       }
 
-      const uri = vscode.Uri.file(instructionsPath);
+      const uri = VscodeHelper.createFileUri(instructionsPath);
       await VscodeHelper.openDocument(uri);
     }
   });

@@ -26,13 +26,15 @@ import type { Uri, WorkspaceFolder } from '../vscode/vscode-types';
 import { StoreKey, extensionStore } from './extension-store';
 
 function getConfigDir(workspacePath: string, configDir: string | null): Uri {
-  const baseDir = vscode.Uri.file(workspacePath);
+  const baseDir = VscodeHelper.createFileUri(workspacePath);
 
   if (!configDir) {
     return vscode.Uri.joinPath(baseDir, CONFIG_DIR_NAME);
   }
 
-  const customDir = isAbsolute(configDir) ? vscode.Uri.file(configDir) : vscode.Uri.joinPath(baseDir, configDir);
+  const customDir = isAbsolute(configDir)
+    ? VscodeHelper.createFileUri(configDir)
+    : vscode.Uri.joinPath(baseDir, configDir);
   return vscode.Uri.joinPath(customDir, CONFIG_DIR_NAME);
 }
 
@@ -45,7 +47,7 @@ export function getConfigDirPath(workspacePath: string, configDir: string | null
 }
 
 export async function hasConfig(workspacePath: string, configDir: string | null, fileName: string): Promise<boolean> {
-  const configPath = vscode.Uri.file(getConfigPath(workspacePath, configDir, fileName));
+  const configPath = VscodeHelper.createFileUri(getConfigPath(workspacePath, configDir, fileName));
   try {
     await vscode.workspace.fs.stat(configPath);
     return true;

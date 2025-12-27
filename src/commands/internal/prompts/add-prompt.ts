@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import * as vscode from 'vscode';
 import {
   CONFIG_FILE_NAME,
   CONFIG_INDENT,
@@ -159,7 +158,7 @@ Example command or code
 
   VscodeHelper.showToastMessage(ToastKind.Info, `Prompt "${name}" created successfully`);
 
-  const uri = vscode.Uri.file(promptFilePath);
+  const uri = VscodeHelper.createFileUri(promptFilePath);
   await VscodeHelper.openDocument(uri);
 }
 

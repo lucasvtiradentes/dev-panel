@@ -38,7 +38,7 @@ export async function showInitMenu() {
 
     const initResourcesUri = vscode.Uri.joinPath(extensionUri, RESOURCES_DIR_NAME, INIT_RESOURCES_DIR_NAME);
     const configDirPath = getWorkspaceConfigDirPath(workspaceFolder);
-    const configDirUri = vscode.Uri.file(configDirPath);
+    const configDirUri = VscodeHelper.createFileUri(configDirPath);
 
     await copyDirectoryRecursive(initResourcesUri, configDirUri);
 

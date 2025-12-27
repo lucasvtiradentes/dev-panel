@@ -325,7 +325,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
     if (!workspace) return;
 
     const filePath = getRootBranchContextFilePath(workspace);
-    const uri = vscode.Uri.file(filePath);
+    const uri = VscodeHelper.createFileUri(filePath);
     await VscodeHelper.openDocument(uri);
   }
 
@@ -335,7 +335,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
 
     const filePath = getRootBranchContextFilePath(workspace);
     const lineNumber = getFieldLineNumber(filePath, fieldName);
-    const uri = vscode.Uri.file(filePath);
+    const uri = VscodeHelper.createFileUri(filePath);
     await VscodeHelper.openDocumentAtLine(uri, lineNumber);
   }
 

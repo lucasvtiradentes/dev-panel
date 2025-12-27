@@ -27,7 +27,7 @@ export function createOpenSettingsMenuCommand() {
     if (workspaceFolder) {
       const configDirPath = getWorkspaceConfigDirPath(workspaceFolder);
       try {
-        await vscode.workspace.fs.stat(vscode.Uri.file(configDirPath));
+        await vscode.workspace.fs.stat(VscodeHelper.createFileUri(configDirPath));
       } catch {
         showInit = true;
       }

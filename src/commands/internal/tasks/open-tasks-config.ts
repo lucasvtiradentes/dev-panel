@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import * as vscode from 'vscode';
 import {
   CONFIG_FILE_NAME,
   CONFIG_TASKS_ARRAY_PATTERN,
@@ -56,7 +55,7 @@ async function openPackageJsonAtScripts(packageJsonPath: string) {
     }
   }
 
-  const uri = vscode.Uri.file(packageJsonPath);
+  const uri = VscodeHelper.createFileUri(packageJsonPath);
   await VscodeHelper.openDocumentAtLine(uri, scriptsLine);
 }
 
@@ -72,7 +71,7 @@ export function createOpenTasksConfigCommand() {
       case TaskSource.VSCode: {
         const tasksJsonPath = getVscodeTasksFilePath(workspacePath);
         if (fs.existsSync(tasksJsonPath)) {
-          const uri = vscode.Uri.file(tasksJsonPath);
+          const uri = VscodeHelper.createFileUri(tasksJsonPath);
           await VscodeHelper.openDocument(uri);
         } else {
           void VscodeHelper.showToastMessage(ToastKind.Error, `${VSCODE_TASKS_PATH} not found`);
@@ -94,7 +93,7 @@ export function createOpenTasksConfigCommand() {
             }
           }
 
-          const uri = vscode.Uri.file(configPath);
+          const uri = VscodeHelper.createFileUri(configPath);
           await VscodeHelper.openDocumentAtLine(uri, tasksLine);
         } else {
           const configDirLabel = getConfigDirLabel(getCurrentConfigDir());

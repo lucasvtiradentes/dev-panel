@@ -184,9 +184,9 @@ export function registerAllCommands(options: {
       });
 
       if (selected) {
-        const configUri = vscode.Uri.file(configPath);
+        const configUri = VscodeHelper.createFileUri(configPath);
         const templatePath = getBranchContextTemplatePath(workspace);
-        const templateUri = vscode.Uri.file(templatePath);
+        const templateUri = VscodeHelper.createFileUri(templatePath);
 
         await vscode.commands.executeCommand('vscode.open', configUri, vscode.ViewColumn.One);
         await vscode.commands.executeCommand('vscode.open', templateUri, vscode.ViewColumn.Two);

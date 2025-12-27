@@ -162,4 +162,8 @@ export class VscodeHelper {
   static createRelativePattern(base: string | vscode.WorkspaceFolder, pattern: string): vscode.RelativePattern {
     return new vscode.RelativePattern(base, pattern);
   }
+
+  static createFileUri(path: string): vscode.Uri {
+    return vscode.Uri.file(path);
+  }
 }
