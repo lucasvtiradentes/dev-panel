@@ -6,7 +6,7 @@ import {
   parseConfig,
 } from '../common/lib/config-manager';
 import { syncKeybindings } from '../common/lib/keybindings-sync';
-import { Command, registerCommand } from '../common/lib/vscode-utils';
+import { Command, executeCommand, registerCommand } from '../common/lib/vscode-utils';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
 import { VscodeConstants } from '../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../common/vscode/vscode-helper';
@@ -188,8 +188,8 @@ export function registerAllCommands(options: {
         const templatePath = getBranchContextTemplatePath(workspace);
         const templateUri = VscodeHelper.createFileUri(templatePath);
 
-        await VscodeHelper.executeCommand('vscode.open', configUri, VscodeConstants.ViewColumn.One);
-        await VscodeHelper.executeCommand('vscode.open', templateUri, VscodeConstants.ViewColumn.Two);
+        await executeCommand(Command.VscodeOpen, { uri: configUri, viewColumn: VscodeConstants.ViewColumn.One });
+        await executeCommand(Command.VscodeOpen, { uri: templateUri, viewColumn: VscodeConstants.ViewColumn.Two });
       }
     }),
   ];
