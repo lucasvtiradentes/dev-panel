@@ -1,6 +1,13 @@
+import type { BranchTaskItem } from '../../views/branch-tasks/task-tree-items';
 import { GLOBAL_ITEM_PREFIX } from '../constants';
 import type { LocationScope } from '../constants/enums';
 import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
+
+export type ItemOrLineIndex = BranchTaskItem | number;
+
+export function extractLineIndex(itemOrLineIndex: ItemOrLineIndex): number {
+  return typeof itemOrLineIndex === 'number' ? itemOrLineIndex : itemOrLineIndex.node.lineIndex;
+}
 
 export function isGlobalItem(name: string): boolean {
   return name.startsWith(GLOBAL_ITEM_PREFIX);

@@ -1,15 +1,9 @@
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import { TaskStatus } from '../../../common/schemas';
+import { type ItemOrLineIndex, extractLineIndex } from '../../../common/utils/item-utils';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable, QuickPickItem } from '../../../common/vscode/vscode-types';
 import type { BranchTasksProvider } from '../../../views/branch-tasks/provider';
-import type { BranchTaskItem } from '../../../views/branch-tasks/task-tree-items';
-
-type ItemOrLineIndex = BranchTaskItem | number;
-
-function extractLineIndex(itemOrLineIndex: ItemOrLineIndex): number {
-  return typeof itemOrLineIndex === 'number' ? itemOrLineIndex : itemOrLineIndex.node.lineIndex;
-}
 
 async function pickStatus(): Promise<TaskStatus | undefined> {
   const items: QuickPickItem[] = [
