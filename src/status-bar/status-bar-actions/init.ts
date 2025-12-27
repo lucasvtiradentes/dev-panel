@@ -9,7 +9,7 @@ import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { Uri } from '../../common/vscode/vscode-types';
 
 async function copyDirectoryRecursive(sourceUri: Uri, targetUri: Uri) {
-  await vscode.workspace.fs.createDirectory(targetUri);
+  await VscodeHelper.createDirectory(targetUri);
 
   const entries = await VscodeHelper.readDirectory(sourceUri);
 
@@ -20,8 +20,8 @@ async function copyDirectoryRecursive(sourceUri: Uri, targetUri: Uri) {
     if (type === vscode.FileType.Directory) {
       await copyDirectoryRecursive(sourceEntryUri, targetEntryUri);
     } else {
-      const content = await vscode.workspace.fs.readFile(sourceEntryUri);
-      await vscode.workspace.fs.writeFile(targetEntryUri, content);
+      const content = await VscodeHelper.readFile(sourceEntryUri);
+      await VscodeHelper.writeFile(targetEntryUri, content);
     }
   }
 }

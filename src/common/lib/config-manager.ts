@@ -49,7 +49,7 @@ export function getConfigDirPath(workspacePath: string, configDir: string | null
 export async function hasConfig(workspacePath: string, configDir: string | null, fileName: string): Promise<boolean> {
   const configPath = VscodeHelper.createFileUri(getConfigPath(workspacePath, configDir, fileName));
   try {
-    await vscode.workspace.fs.stat(configPath);
+    await VscodeHelper.stat(configPath);
     return true;
   } catch {
     return false;
@@ -57,7 +57,7 @@ export async function hasConfig(workspacePath: string, configDir: string | null,
 }
 
 async function copyDirectoryRecursive(source: Uri, target: Uri) {
-  await vscode.workspace.fs.createDirectory(target);
+  await VscodeHelper.createDirectory(target);
 
   const entries = await VscodeHelper.readDirectory(source);
   for (const [name, type] of entries) {
@@ -67,7 +67,7 @@ async function copyDirectoryRecursive(source: Uri, target: Uri) {
     if (type === vscode.FileType.Directory) {
       await copyDirectoryRecursive(sourceEntry, targetEntry);
     } else {
-      await vscode.workspace.fs.copy(sourceEntry, targetEntry, { overwrite: true });
+      await VscodeHelper.copy(sourceEntry, targetEntry, { overwrite: true });
     }
   }
 }
@@ -77,7 +77,7 @@ export async function moveConfig(workspacePath: string, fromConfigDir: string | 
   const targetDir = getConfigDir(workspacePath, toConfigDir);
 
   await copyDirectoryRecursive(sourceDir, targetDir);
-  await vscode.workspace.fs.delete(sourceDir, { recursive: true });
+  await VscodeHelper.delete(sourceDir, { recursive: true });
 }
 
 export function getConfigDirLabel(configDir: string | null): string {

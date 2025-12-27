@@ -1,5 +1,5 @@
 import { EXTENSION_DISPLAY_NAME } from 'src/common/constants';
-import * as vscode from 'vscode';
+import type * as vscode from 'vscode';
 import { getWorkspaceConfigDirPath } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
@@ -27,7 +27,7 @@ export function createOpenSettingsMenuCommand() {
     if (workspaceFolder) {
       const configDirPath = getWorkspaceConfigDirPath(workspaceFolder);
       try {
-        await vscode.workspace.fs.stat(VscodeHelper.createFileUri(configDirPath));
+        await VscodeHelper.stat(VscodeHelper.createFileUri(configDirPath));
       } catch {
         showInit = true;
       }

@@ -187,4 +187,28 @@ export class VscodeHelper {
   static async readDirectory(uri: vscode.Uri): Promise<[string, vscode.FileType][]> {
     return vscode.workspace.fs.readDirectory(uri);
   }
+
+  static async createDirectory(uri: vscode.Uri) {
+    return vscode.workspace.fs.createDirectory(uri);
+  }
+
+  static async readFile(uri: vscode.Uri) {
+    return vscode.workspace.fs.readFile(uri);
+  }
+
+  static async writeFile(uri: vscode.Uri, content: Uint8Array) {
+    return vscode.workspace.fs.writeFile(uri, content);
+  }
+
+  static async stat(uri: vscode.Uri) {
+    return vscode.workspace.fs.stat(uri);
+  }
+
+  static async copy(source: vscode.Uri, target: vscode.Uri, options?: { overwrite?: boolean }) {
+    return vscode.workspace.fs.copy(source, target, options);
+  }
+
+  static async delete(uri: vscode.Uri, options?: { recursive?: boolean; useTrash?: boolean }) {
+    return vscode.workspace.fs.delete(uri, options);
+  }
 }

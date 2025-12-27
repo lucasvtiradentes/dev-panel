@@ -19,7 +19,7 @@ export function createGoToTaskCommand() {
     }
 
     const tasksFileUri = vscode.Uri.parse(`${folders[0].uri.fsPath}/${VSCODE_TASKS_PATH}`);
-    const tasksFileContent = await vscode.workspace.fs.readFile(tasksFileUri);
+    const tasksFileContent = await VscodeHelper.readFile(tasksFileUri);
     const lines = Buffer.from(tasksFileContent).toString('utf-8').split('\n');
 
     for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
