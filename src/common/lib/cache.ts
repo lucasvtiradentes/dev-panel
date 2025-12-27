@@ -46,6 +46,18 @@ export class SimpleCache<T> {
 }
 
 export class FileHashCache<T> extends SimpleCache<T> {
+  getFileHash(filePath: string): string {
+    try {
+      if (!fs.existsSync(filePath)) {
+        return '';
+      }
+      const content = fs.readFileSync(filePath, 'utf-8');
+      return crypto.createHash('sha1').update(content).digest('hex');
+    } catch {
+      return '';
+    }
+  }
+
   getWithFileHash(key: string, filePath: string): T | undefined {
     const entry = this.cache.get(key);
     if (!entry) return undefined;
@@ -55,7 +67,7 @@ export class FileHashCache<T> extends SimpleCache<T> {
       return undefined;
     }
 
-    const currentHash = getFileHash(filePath);
+    const currentHash = this.getFileHash(filePath);
     if (entry.hash !== currentHash) {
       this.cache.delete(key);
       return undefined;
@@ -65,19 +77,7 @@ export class FileHashCache<T> extends SimpleCache<T> {
   }
 
   setWithFileHash(key: string, value: T, filePath: string) {
-    const hash = getFileHash(filePath);
+    const hash = this.getFileHash(filePath);
     this.set(key, value, hash);
-  }
-}
-
-function getFileHash(filePath: string): string {
-  try {
-    if (!fs.existsSync(filePath)) {
-      return '';
-    }
-    const content = fs.readFileSync(filePath, 'utf-8');
-    return crypto.createHash('sha1').update(content).digest('hex');
-  } catch {
-    return '';
   }
 }
