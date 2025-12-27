@@ -248,4 +248,8 @@ export class VscodeHelper {
   static executeCommand<T = unknown>(command: string, ...args: unknown[]): Thenable<T> {
     return vscode.commands.executeCommand<T>(command, ...args);
   }
+
+  static getExtension<T = unknown>(extensionId: string): vscode.Extension<T> | undefined {
+    return vscode.extensions.getExtension<T>(extensionId);
+  }
 }

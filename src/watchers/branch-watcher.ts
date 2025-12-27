@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { createLogger } from '../common/lib/logger';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
@@ -18,12 +17,16 @@ type GitRepository = {
   onDidCheckout: Event<void>;
 };
 
+type GitExtension = {
+  getAPI: (version: number) => GitAPI;
+};
+
 type BranchChangeCallback = (newBranch: string) => void;
 
 const logger = createLogger('BranchWatcher');
 
 async function getGitAPI(): Promise<GitAPI | null> {
-  const gitExtension = vscode.extensions.getExtension(GIT_CONSTANTS.EXTENSION_ID);
+  const gitExtension = VscodeHelper.getExtension<GitExtension>(GIT_CONSTANTS.EXTENSION_ID);
   if (!gitExtension) {
     return null;
   }
