@@ -1,6 +1,5 @@
 import { IS_DEV } from '../constants/constants';
-import { CONTEXT_PREFIX, DEV_SUFFIX } from '../constants/scripts-constants';
-import { WORKSPACE_STATE_CONFIG_DIR_KEY } from '../constants/scripts-constants';
+import { CONTEXT_PREFIX, DEV_SUFFIX, WORKSPACE_STATE_CONFIG_DIR_KEY } from '../constants/scripts-constants';
 import { VscodeHelper } from '../vscode/vscode-helper';
 import type { ExtensionContext, Uri } from '../vscode/vscode-types';
 import { logger } from './logger';

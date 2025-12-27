@@ -14,12 +14,12 @@ import {
   getCommandId,
 } from '../../common/constants';
 import { ConfigManager } from '../../common/lib/config-manager';
-import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/lib/file-selection';
 import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspaceFolder, getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
+import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/vscode/vscode-inputs';
 import { type TreeDataProvider, type TreeItem, TreeItemClass } from '../../common/vscode/vscode-types';
 import { Command, ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
 import { getIsGrouped, saveIsGrouped } from './state';
