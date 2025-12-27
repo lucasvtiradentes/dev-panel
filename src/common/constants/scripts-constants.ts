@@ -169,8 +169,6 @@ export const GLOBAL_TASK_TOOLTIP = `Global task ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
 export const GLOBAL_TOOL_TOOLTIP = `Global tool ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
 
 export const NOT_GIT_REPO_MESSAGE = 'Not a git repository';
-export const EMPTY_TASKS_MESSAGE = 'Click to add tasks';
-export const NO_PENDING_TASKS_MESSAGE = 'No pending tasks';
 
 export const ERROR_REPLACEMENTS_REQUIRE_GIT = 'Replacements require a git repository';
 export const ERROR_TARGET_FILE_NOT_FOUND = 'Target file not found';

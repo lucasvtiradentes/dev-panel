@@ -106,10 +106,6 @@ export function joinConfigPath(folder: WorkspaceFolder, ...segments: string[]): 
   return join(basePath, ...segments);
 }
 
-export function getWorkspaceToolsDir(folder: WorkspaceFolder): string {
-  return joinConfigPath(folder, TOOLS_DIR);
-}
-
 export function getWorkspaceToolDir(folder: WorkspaceFolder, toolName: string): string {
   return joinConfigPath(folder, TOOLS_DIR, toolName);
 }
