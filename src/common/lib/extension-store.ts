@@ -1,6 +1,4 @@
-import { IS_DEV } from '../constants/constants';
-import { CONTEXT_PREFIX, DEV_SUFFIX, WORKSPACE_STATE_CONFIG_DIR_KEY } from '../constants/scripts-constants';
-import { VscodeHelper } from '../vscode/vscode-helper';
+import { WORKSPACE_STATE_CONFIG_DIR_KEY } from '../constants/scripts-constants';
 import type { ExtensionContext, Uri } from '../vscode/vscode-types';
 import { logger } from './logger';
 
@@ -93,24 +91,3 @@ class ExtensionStore {
 }
 
 export const extensionStore = new ExtensionStore();
-
-export enum ExtensionConfigKey {
-  AutoRefresh = 'autorefresh',
-}
-
-type ExtensionConfigSchema = {
-  [ExtensionConfigKey.AutoRefresh]: boolean;
-};
-
-const defaultValues: ExtensionConfigSchema = {
-  [ExtensionConfigKey.AutoRefresh]: true,
-};
-
-function getConfigSection(): string {
-  return IS_DEV ? `${CONTEXT_PREFIX}${DEV_SUFFIX}` : CONTEXT_PREFIX;
-}
-
-export function getExtensionConfig<K extends ExtensionConfigKey>(key: K): ExtensionConfigSchema[K] {
-  const config = VscodeHelper.getConfiguration(getConfigSection());
-  return config.get<ExtensionConfigSchema[K]>(key) ?? defaultValues[key];
-}
