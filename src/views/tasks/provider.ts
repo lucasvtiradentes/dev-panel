@@ -1,11 +1,17 @@
-import type * as vscode from 'vscode';
 import { DND_MIME_TYPE_TASKS, NO_GROUP_NAME } from '../../common/constants';
 import { ExtensionConfigKey, getExtensionConfig } from '../../common/lib/extension-config';
 import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { tasksState } from '../../common/lib/workspace-state';
 import { TASK_SOURCES, TaskSource } from '../../common/schemas/types';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { Event, EventEmitter, ExtensionContext, TreeItem, TreeView } from '../../common/vscode/vscode-types';
+import type {
+  Event,
+  EventEmitter,
+  ExtensionContext,
+  TreeDataProvider,
+  TreeItem,
+  TreeView,
+} from '../../common/vscode/vscode-types';
 import { createSourcedDragAndDropController } from '../_view_base';
 import { getDevPanelTasks, hasDevPanelGroups } from './devpanel-tasks';
 import { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
@@ -27,7 +33,7 @@ import {
 } from './state';
 import { getVSCodeTasks, hasVSCodeGroups } from './vscode-tasks';
 
-export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeTask | GroupTreeItem | WorkspaceTreeItem> {
+export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTreeItem | WorkspaceTreeItem> {
   private readonly _onDidChangeTreeData: EventEmitter<TreeTask | null> =
     VscodeHelper.createEventEmitter<TreeTask | null>();
 

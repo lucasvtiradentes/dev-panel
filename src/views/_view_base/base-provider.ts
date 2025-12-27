@@ -1,8 +1,7 @@
-import type * as vscode from 'vscode';
 import { GLOBAL_ITEM_PREFIX, NO_GROUP_NAME } from '../../common/constants';
 import { type ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { Event, EventEmitter, TreeItem } from '../../common/vscode/vscode-types';
+import type { Event, EventEmitter, TreeDataProvider, TreeItem } from '../../common/vscode/vscode-types';
 import type { GlobalStateManager, GroupTreeItem, NamedTreeItem, SimpleStateManager, StateManager } from './types';
 
 export type ProviderConfig<TSource = void> = {
@@ -19,7 +18,7 @@ export abstract class BaseTreeDataProvider<
   TItem extends NamedTreeItem,
   TGroup extends GroupTreeItem<TItem>,
   TSource = void,
-> implements vscode.TreeDataProvider<TItem | TGroup>
+> implements TreeDataProvider<TItem | TGroup>
 {
   protected readonly _onDidChangeTreeData: EventEmitter<TItem | TGroup | null>;
   readonly onDidChangeTreeData: Event<TItem | TGroup | null>;

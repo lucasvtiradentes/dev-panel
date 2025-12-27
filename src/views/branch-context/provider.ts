@@ -1,5 +1,4 @@
 import * as fs from 'node:fs';
-import type * as vscode from 'vscode';
 import {
   BRANCH_CONTEXT_NO_CHANGES,
   NOT_GIT_REPO_MESSAGE,
@@ -26,7 +25,7 @@ import { branchContextState } from '../../common/lib/workspace-state';
 import { formatRelativeTime } from '../../common/utils/time-formatter';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
+import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import { createTaskProvider, loadBranchContext } from '../_branch_base';
 import { formatChangedFilesSummary } from '../_branch_base/providers/default/file-changes-utils';
 import { getFieldLineNumber } from '../_branch_base/storage/markdown-parser';
@@ -39,7 +38,7 @@ import { ValidationIndicator } from './validation-indicator';
 
 const logger = createLogger('BranchContext');
 
-export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> {
+export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   private _onDidChangeTreeData = VscodeHelper.createEventEmitter<TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 

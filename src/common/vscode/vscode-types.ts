@@ -29,5 +29,7 @@ export type ThemeIcon = vscode.ThemeIcon;
 export type TreeItem = vscode.TreeItem;
 export type TreeItemCollapsibleState = vscode.TreeItemCollapsibleState;
 export type TreeView<T> = vscode.TreeView<T>;
+export type TreeDataProvider<T> = vscode.TreeDataProvider<T>;
+export type TreeDragAndDropController<T> = vscode.TreeDragAndDropController<T>;
 export type Uri = vscode.Uri;
 export type WorkspaceFolder = vscode.WorkspaceFolder;

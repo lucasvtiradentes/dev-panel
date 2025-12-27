@@ -5,7 +5,12 @@ import { Command } from '../../common/lib/vscode-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
-import type { CancellationToken, DataTransfer, TreeItem } from '../../common/vscode/vscode-types';
+import type {
+  CancellationToken,
+  DataTransfer,
+  TreeDragAndDropController,
+  TreeItem,
+} from '../../common/vscode/vscode-types';
 import type { MilestoneNode, TaskNode } from '../_branch_base';
 import { formatTaskDescription, formatTaskTooltip, getStatusIcon } from './task-item-utils';
 
@@ -93,7 +98,7 @@ type BranchTasksProviderInterface = {
   refresh(): void;
 };
 
-export class BranchTasksDragAndDropController implements vscode.TreeDragAndDropController<BranchTreeItem> {
+export class BranchTasksDragAndDropController implements TreeDragAndDropController<BranchTreeItem> {
   readonly dropMimeTypes = [DND_MIME_TYPE_BRANCH_TASKS];
   readonly dragMimeTypes = [DND_MIME_TYPE_BRANCH_TASKS];
 

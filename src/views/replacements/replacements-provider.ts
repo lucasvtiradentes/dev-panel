@@ -19,7 +19,7 @@ import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
-import type { TreeItem } from '../../common/vscode/vscode-types';
+import type { TreeDataProvider, TreeItem } from '../../common/vscode/vscode-types';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { fileExistsInGit, getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
 import {
@@ -89,7 +89,7 @@ class ReplacementTreeItem extends vscode.TreeItem {
 
 let providerInstance: ReplacementsProvider | null = null;
 
-export class ReplacementsProvider implements vscode.TreeDataProvider<TreeItem> {
+export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
   private _onDidChangeTreeData = VscodeHelper.createEventEmitter<TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 

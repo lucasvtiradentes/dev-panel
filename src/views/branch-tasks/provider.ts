@@ -1,5 +1,4 @@
 import * as fs from 'node:fs';
-import type * as vscode from 'vscode';
 import { FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
 import { Position } from '../../common/constants/enums';
 import { loadWorkspaceConfigFromPath } from '../../common/lib/config-manager';
@@ -10,7 +9,7 @@ import type { TaskPriority, TaskStatus } from '../../common/schemas';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { TreeItem, Uri } from '../../common/vscode/vscode-types';
+import type { TreeDataProvider, TreeItem, Uri } from '../../common/vscode/vscode-types';
 import {
   type MilestoneNode,
   type SyncContext,
@@ -30,7 +29,7 @@ import {
   type BranchTreeItem,
 } from './task-tree-items';
 
-export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeItem> {
+export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
   private _onDidChangeTreeData = VscodeHelper.createEventEmitter<BranchTreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 

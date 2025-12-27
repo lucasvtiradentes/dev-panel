@@ -1,10 +1,9 @@
-import type * as vscode from 'vscode';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { CancellationToken, DataTransfer } from '../../common/vscode/vscode-types';
+import type { CancellationToken, DataTransfer, TreeDragAndDropController } from '../../common/vscode/vscode-types';
 import type { NamedTreeItem, SimpleStateManager, StateManager } from './types';
 
 export class BaseDragAndDropController<TItem extends NamedTreeItem, TSource = void>
-  implements vscode.TreeDragAndDropController<TItem>
+  implements TreeDragAndDropController<TItem>
 {
   readonly dropMimeTypes: string[];
   readonly dragMimeTypes: string[];

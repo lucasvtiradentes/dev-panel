@@ -22,7 +22,7 @@ import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspaceFolder, getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { TreeItem } from '../../common/vscode/vscode-types';
+import type { TreeDataProvider, TreeItem } from '../../common/vscode/vscode-types';
 import { getIsGrouped, saveIsGrouped } from './state';
 
 const execAsync = promisify(exec);
@@ -106,7 +106,7 @@ export class VariableTreeItem extends vscode.TreeItem {
 
 let providerInstance: VariablesProvider | null = null;
 
-export class VariablesProvider implements vscode.TreeDataProvider<TreeItem> {
+export class VariablesProvider implements TreeDataProvider<TreeItem> {
   private _onDidChangeTreeData = VscodeHelper.createEventEmitter<TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
   private _grouped: boolean;
