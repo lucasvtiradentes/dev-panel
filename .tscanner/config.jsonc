@@ -86,7 +86,7 @@
   },
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
-    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**", "registry/**", ".devpanel/**"]
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/out/**", "**/.git/**", "registry/**", ".devpanel/**"]
   },
   "codeEditor": {
     "highlightErrors": true,
