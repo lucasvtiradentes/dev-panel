@@ -21,7 +21,6 @@ export type ExtensionContext = vscode.ExtensionContext;
 export type FileSystemWatcher = vscode.FileSystemWatcher;
 export type MarkdownString = vscode.MarkdownString;
 export type QuickPickItem = vscode.QuickPickItem;
-export type ShellExecution = vscode.ShellExecution;
 export type StatusBarItem = vscode.StatusBarItem;
 export type Task = vscode.Task;
 

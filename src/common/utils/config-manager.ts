@@ -322,16 +322,4 @@ export class ConfigManager {
     if (!config) return undefined;
     return config.settings;
   }
-
-  static readVariables(folder: WorkspaceFolder): Record<string, unknown> | null {
-    const variablesPath = ConfigManager.getWorkspaceConfigFilePath(folder, VARIABLES_FILE_NAME);
-    if (!FileIOHelper.fileExists(variablesPath)) return null;
-
-    const content = FileIOHelper.readFile(variablesPath);
-    try {
-      return JSON5.parse(content) as Record<string, unknown>;
-    } catch {
-      return null;
-    }
-  }
 }

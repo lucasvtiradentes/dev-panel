@@ -19,7 +19,7 @@ import {
 import { TypeGuards } from '../../common/utils/common-utils';
 import { ConfigManager } from '../../common/utils/config-manager';
 import { TaskUtils } from '../../common/utils/task-utils';
-import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
+import { loadVariablesFromPath, readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { collectInputs, replaceInputPlaceholders } from '../../common/vscode/vscode-inputs';
@@ -205,7 +205,7 @@ async function handleExecutePrompt({ promptFilePath, folder, promptConfig }: Exe
   const settings = folderForSettings ? ConfigManager.readSettings(folderForSettings) : undefined;
   log.info(`settings: ${JSON.stringify(settings)}`);
 
-  const variables = folder ? ConfigManager.readVariables(folder) : null;
+  const variables = folder ? loadVariablesFromPath(ConfigManager.getWorkspaceVariablesPath(folder)) : null;
   if (variables) {
     promptContent = TaskUtils.replaceVariablePlaceholders(promptContent, variables);
   }
@@ -248,10 +248,6 @@ async function handleExecutePrompt({ promptFilePath, folder, promptConfig }: Exe
   provider.executeInteractive(terminal, promptContent);
 }
 
-export function createExecutePromptCommand() {
-  return registerCommand(Command.ExecutePrompt, handleExecutePrompt);
-}
-
 async function executePromptWithSave(options: {
   promptContent: string;
   folder: WorkspaceFolder;
@@ -290,4 +286,8 @@ async function executePromptWithSave(options: {
       }
     },
   );
+}
+
+export function createExecutePromptCommand() {
+  return registerCommand(Command.ExecutePrompt, handleExecutePrompt);
 }
