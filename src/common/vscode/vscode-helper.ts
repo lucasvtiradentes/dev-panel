@@ -263,4 +263,8 @@ export class VscodeHelper {
   ): vscode.Task {
     return new vscode.Task(definition, scope, name, source, execution, problemMatchers);
   }
+
+  static createEventEmitter<T>(): vscode.EventEmitter<T> {
+    return new vscode.EventEmitter<T>();
+  }
 }

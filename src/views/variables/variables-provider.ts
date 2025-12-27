@@ -106,7 +106,7 @@ export class VariableTreeItem extends vscode.TreeItem {
 let providerInstance: VariablesProvider | null = null;
 
 export class VariablesProvider implements vscode.TreeDataProvider<TreeItem> {
-  private _onDidChangeTreeData = new vscode.EventEmitter<TreeItem | undefined>();
+  private _onDidChangeTreeData = VscodeHelper.createEventEmitter<TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
   private _grouped: boolean;
 

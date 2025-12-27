@@ -1,5 +1,5 @@
 import * as fs from 'node:fs';
-import * as vscode from 'vscode';
+import type * as vscode from 'vscode';
 import { FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
 import { Position } from '../../common/constants/enums';
 import { loadWorkspaceConfigFromPath } from '../../common/lib/config-manager';
@@ -31,7 +31,7 @@ import {
 } from './task-tree-items';
 
 export class BranchTasksProvider implements vscode.TreeDataProvider<BranchTreeItem> {
-  private _onDidChangeTreeData = new vscode.EventEmitter<BranchTreeItem | undefined>();
+  private _onDidChangeTreeData = VscodeHelper.createEventEmitter<BranchTreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private currentBranch = '';

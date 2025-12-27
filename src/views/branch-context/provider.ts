@@ -40,7 +40,7 @@ import { ValidationIndicator } from './validation-indicator';
 const logger = createLogger('BranchContext');
 
 export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> {
-  private _onDidChangeTreeData = new vscode.EventEmitter<TreeItem | undefined>();
+  private _onDidChangeTreeData = VscodeHelper.createEventEmitter<TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private currentBranch = '';

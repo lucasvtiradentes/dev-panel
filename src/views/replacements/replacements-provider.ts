@@ -89,7 +89,7 @@ class ReplacementTreeItem extends vscode.TreeItem {
 let providerInstance: ReplacementsProvider | null = null;
 
 export class ReplacementsProvider implements vscode.TreeDataProvider<TreeItem> {
-  private _onDidChangeTreeData = new vscode.EventEmitter<TreeItem | undefined>();
+  private _onDidChangeTreeData = VscodeHelper.createEventEmitter<TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private _grouped: boolean;
