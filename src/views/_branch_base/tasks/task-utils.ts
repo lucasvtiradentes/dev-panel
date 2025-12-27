@@ -37,10 +37,6 @@ export function statusToMarker(status: TaskStatus): string {
   }
 }
 
-function createEmptyMeta(): TaskMeta {
-  return {};
-}
-
 export function cycleStatus(currentStatus: TaskStatus): TaskStatus {
   const cycle: TaskStatus[] = [TaskStatus.Todo, TaskStatus.Doing, TaskStatus.Done];
   const idx = cycle.indexOf(currentStatus);

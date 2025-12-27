@@ -13,10 +13,10 @@ import {
 import { TaskSource } from '../schemas/types';
 import type { ExtensionContext } from '../vscode/vscode-types';
 
-let _context: ExtensionContext | null = null;
+let globalContext: ExtensionContext | null = null;
 
 export function initGlobalState(context: ExtensionContext) {
-  _context = context;
+  globalContext = context;
 }
 
 export function migrateGlobalState() {
@@ -24,14 +24,14 @@ export function migrateGlobalState() {
 }
 
 function getState(): GlobalUIState {
-  if (!_context)
+  if (!globalContext)
     return {
       tasks: { ...DEFAULT_TASKS_GLOBAL_STATE },
       tools: { ...DEFAULT_TOOLS_STATE },
       prompts: { ...DEFAULT_PROMPTS_STATE },
     };
   return (
-    _context.globalState.get<GlobalUIState>(GLOBAL_STATE_KEY) ?? {
+    globalContext.globalState.get<GlobalUIState>(GLOBAL_STATE_KEY) ?? {
       tasks: { ...DEFAULT_TASKS_GLOBAL_STATE },
       tools: { ...DEFAULT_TOOLS_STATE },
       prompts: { ...DEFAULT_PROMPTS_STATE },
@@ -40,8 +40,8 @@ function getState(): GlobalUIState {
 }
 
 function saveState(state: GlobalUIState) {
-  if (!_context) return;
-  void _context.globalState.update(GLOBAL_STATE_KEY, state);
+  if (!globalContext) return;
+  void globalContext.globalState.update(GLOBAL_STATE_KEY, state);
 }
 
 export const globalToolsState = {

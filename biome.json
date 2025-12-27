@@ -21,7 +21,7 @@
     "rules": {
       "correctness": {
         "noUnusedImports": "error",
-        "noUnusedVariables": "off"
+        "noUnusedVariables": "warn"
       },
       "suspicious": {
         "noExplicitAny": "off",

@@ -79,7 +79,7 @@ export class BaseDragAndDropController<TItem extends NamedTreeItem, TSource = vo
   }
 
   private isSimpleStateManager(manager: StateManager<TSource> | SimpleStateManager): manager is SimpleStateManager {
-    return this.getSource === null;
+    return this.getSource === null && manager === this.stateManager;
   }
 }
 

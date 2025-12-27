@@ -16,29 +16,15 @@ export type OpenBranchContextFileAtLineParams = { branchName: string; sectionNam
 
 export function createEditBranchFieldsCommands(branchContextProvider: BranchContextProvider): Disposable[] {
   return [
-    registerCommand(Command.EditBranchName, ({ branchName, value }: EditBranchFieldParams) =>
-      branchContextProvider.editField(branchName, SECTION_NAME_BRANCH, value),
-    ),
-    registerCommand(Command.EditBranchPrLink, ({ branchName, value }: EditBranchFieldParams) =>
-      branchContextProvider.editField(branchName, SECTION_NAME_PR_LINK, value),
-    ),
-    registerCommand(Command.EditBranchLinearLink, ({ branchName, value }: EditBranchFieldParams) =>
-      branchContextProvider.editField(branchName, SECTION_NAME_LINEAR_LINK, value),
-    ),
-    registerCommand(Command.EditBranchObjective, ({ branchName, value }: EditBranchFieldParams) =>
-      branchContextProvider.editField(branchName, SECTION_NAME_OBJECTIVE, value),
-    ),
-    registerCommand(Command.EditBranchRequirements, ({ branchName, value }: EditBranchFieldParams) =>
-      branchContextProvider.editField(branchName, SECTION_NAME_REQUIREMENTS, value),
-    ),
-    registerCommand(Command.EditBranchNotes, ({ branchName, value }: EditBranchFieldParams) =>
-      branchContextProvider.editField(branchName, SECTION_NAME_NOTES, value),
-    ),
+    registerCommand(Command.EditBranchName, () => branchContextProvider.editField(SECTION_NAME_BRANCH)),
+    registerCommand(Command.EditBranchPrLink, () => branchContextProvider.editField(SECTION_NAME_PR_LINK)),
+    registerCommand(Command.EditBranchLinearLink, () => branchContextProvider.editField(SECTION_NAME_LINEAR_LINK)),
+    registerCommand(Command.EditBranchObjective, () => branchContextProvider.editField(SECTION_NAME_OBJECTIVE)),
+    registerCommand(Command.EditBranchRequirements, () => branchContextProvider.editField(SECTION_NAME_REQUIREMENTS)),
+    registerCommand(Command.EditBranchNotes, () => branchContextProvider.editField(SECTION_NAME_NOTES)),
     registerCommand(Command.EditBranchTodos, () => branchContextProvider.openMarkdownFileAtLine(SECTION_NAME_TASKS)),
-    registerCommand(
-      Command.OpenBranchContextFileAtLine,
-      ({ branchName: _branchName, sectionName }: OpenBranchContextFileAtLineParams) =>
-        branchContextProvider.openMarkdownFileAtLine(sectionName),
+    registerCommand(Command.OpenBranchContextFileAtLine, ({ sectionName }: OpenBranchContextFileAtLineParams) =>
+      branchContextProvider.openMarkdownFileAtLine(sectionName),
     ),
   ];
 }

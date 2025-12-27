@@ -305,7 +305,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     return items;
   }
 
-  async editField(_branchName: string, sectionName: string, _currentValue: string | undefined) {
+  async editField(sectionName: string) {
     const lineKeyMap: Record<string, string> = {
       [SECTION_NAME_BRANCH]: SECTION_NAME_BRANCH_INFO,
       [SECTION_NAME_PR_LINK]: SECTION_NAME_BRANCH_INFO,

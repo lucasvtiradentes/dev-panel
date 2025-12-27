@@ -194,7 +194,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     return match ? match[1] : null;
   }
 
-  private readToolDescription(toolName: string, instructionsPath: string): string | null {
+  private readToolDescription(instructionsPath: string): string | null {
     if (!fs.existsSync(instructionsPath)) return null;
 
     const content = fs.readFileSync(instructionsPath, 'utf8');
@@ -241,7 +241,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     const treeTool = new TreeTool(tool.name, fullToolFilePath, VscodeConstants.TreeItemCollapsibleState.None);
 
     const instructionsPath = getWorkspaceToolInstructionsPath(folder, tool.name);
-    const description = this.readToolDescription(tool.name, instructionsPath);
+    const description = this.readToolDescription(instructionsPath);
     if (description) {
       treeTool.tooltip = description;
     }
@@ -283,7 +283,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     const treeTool = new TreeTool(globalToolName, fullToolFilePath, VscodeConstants.TreeItemCollapsibleState.None);
 
     const instructionsPath = getGlobalToolInstructionsPath(tool.name);
-    const description = this.readToolDescription(tool.name, instructionsPath);
+    const description = this.readToolDescription(instructionsPath);
     treeTool.tooltip = description ? `Global: ${description}` : GLOBAL_TOOL_TOOLTIP;
 
     if (hidden) {

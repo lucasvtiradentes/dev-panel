@@ -1,6 +1,5 @@
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
-import type { Position } from '../../../common/constants/enums';
 import { getConfigDirPathFromWorkspacePath } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import { PluginAction, TaskStatus } from '../../../common/schemas';
@@ -122,11 +121,11 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
   }
 
   return {
-    fromMarkdown(_content: string): TaskNode[] {
+    fromMarkdown(): TaskNode[] {
       return [];
     },
 
-    toMarkdown(_tasks: TaskNode[]): string {
+    toMarkdown(): string {
       return '';
     },
 
@@ -141,7 +140,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       return response.tasks;
     },
 
-    getTaskStats(_context: SyncContext): Promise<{ completed: number; total: number }> {
+    getTaskStats(): Promise<{ completed: number; total: number }> {
       return Promise.resolve({ completed: 0, total: 0 });
     },
 
@@ -174,7 +173,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       }
     },
 
-    onEditText(_lineIndex: number, _newText: string, _context: SyncContext) {
+    onEditText() {
       return Promise.reject(new Error('Edit text not supported by plugin providers'));
     },
 
@@ -187,19 +186,19 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       }
     },
 
-    getMilestones(_context: SyncContext) {
+    getMilestones() {
       return Promise.resolve({ orphanTasks: [], milestones: [] });
     },
 
-    moveTaskToMilestone(_taskLineIndex: number, _targetMilestoneName: string | null, _context: SyncContext) {
+    moveTaskToMilestone() {
       return Promise.reject(new Error('Move task to milestone not supported by plugin providers'));
     },
 
-    reorderTask(_taskLineIndex: number, _targetLineIndex: number, _position: Position, _context: SyncContext) {
+    reorderTask() {
       return Promise.reject(new Error('Reorder task not supported by plugin providers'));
     },
 
-    createMilestone(_name: string, _context: SyncContext) {
+    createMilestone() {
       return Promise.reject(new Error('Create milestone not supported by plugin providers'));
     },
 

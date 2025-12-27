@@ -1,3 +1,4 @@
+import { BRANCH_CONTEXT_TEMPLATE_FILENAME, CONFIG_FILE_NAME } from 'src/common/constants';
 import type { BranchContextConfig } from '../../common/schemas/config-schema';
 import { TemplateSectionType, loadTemplate, parseTemplate } from '../_branch_base/storage/template-parser';
 
@@ -36,7 +37,7 @@ export function validateBranchContext(workspace: string, config: BranchContextCo
       issues.push({
         type: ValidationIssueType.MissingInTemplate,
         section: configSection.name,
-        message: `Section "${configSection.name}" is defined in config.jsonc but not found in branch-context-template.md`,
+        message: `Section "${configSection.name}" is defined in ${CONFIG_FILE_NAME} but not found in ${BRANCH_CONTEXT_TEMPLATE_FILENAME}`,
         severity: ValidationSeverity.Error,
       });
       continue;

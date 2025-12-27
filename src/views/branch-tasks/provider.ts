@@ -235,7 +235,6 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
     }
 
     const hasMilestones = this.cachedMilestones.length > 0;
-    const hasActiveFilter = Object.keys(this.activeFilters).length > 0;
 
     if (hasMilestones) {
       const result = buildMilestonesTree({

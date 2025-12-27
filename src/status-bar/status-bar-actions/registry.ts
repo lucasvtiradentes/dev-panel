@@ -138,7 +138,7 @@ async function installItems(workspaceFolder: WorkspaceFolder, kind: RegistryItem
             try {
               await installItem(workspaceFolder, kind, item, true);
               installed++;
-            } catch (err) {
+            } catch {
               failed++;
             }
           } else {

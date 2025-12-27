@@ -5,13 +5,6 @@ export type NormalizedPatchItem = {
   replace: string[];
 };
 
-type NormalizedPatchReplacement = {
-  type: 'patch';
-  target: string;
-  patches: NormalizedPatchItem[];
-  active?: boolean;
-};
-
 export enum TaskStatus {
   Todo = 'todo',
   Doing = 'doing',

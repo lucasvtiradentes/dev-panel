@@ -100,7 +100,7 @@ export class DefaultTaskProvider implements TaskSyncProvider {
     return taskCrud.onDeleteTask(lineIndex, context);
   }
 
-  onSync(_context: SyncContext): Promise<SyncResult> {
+  onSync(): Promise<SyncResult> {
     return Promise.resolve({ added: 0, updated: 0, deleted: 0 });
   }
 

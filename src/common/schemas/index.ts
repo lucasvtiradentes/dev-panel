@@ -1,4 +1,3 @@
-// Config schema exports (for .devpanel/config.jsonc)
 export {
   type DevPanelConfig,
   type DevPanelPrompt,
@@ -15,7 +14,6 @@ export {
   getAIProvidersListFormatted,
 } from './config-schema';
 
-// Registry schema exports (for registry items)
 export {
   RegistryItemKind,
   type RegistryItem,
@@ -24,7 +22,6 @@ export {
   RegistryIndexSchema,
 } from './registry-schema';
 
-// VSCode workspace schema exports (for VSCode workspace state)
 export {
   type VariablesState,
   type PromptsState,
@@ -47,7 +44,6 @@ export {
   DEFAULT_WORKSPACE_UI_STATE,
 } from './vscode-workspace-schema';
 
-// Common types and enums
 export {
   type NormalizedPatchItem,
   type SectionMetadata,

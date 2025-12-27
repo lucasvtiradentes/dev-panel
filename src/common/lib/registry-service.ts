@@ -5,7 +5,6 @@ import {
   PLUGINS_DIR_NAME,
   PROMPTS_DIR_NAME,
   REGISTRY_BASE_URL,
-  REGISTRY_CONFIG_FILE,
   REGISTRY_DEFAULT_PLUGIN_FILE,
   REGISTRY_DEFAULT_PROMPT_FILE,
   REGISTRY_DEFAULT_SCRIPT_FILE,
@@ -89,17 +88,6 @@ export async function fetchItemFile(
   logger.info(`Fetching item file from ${url}`);
   const content = await httpsGet(url);
   return { fileName: file, content };
-}
-
-async function fetchItemConfig(kind: RegistryItemKind, itemName: string): Promise<Record<string, unknown> | null> {
-  const config = KIND_CONFIG[kind];
-  const url = `${REGISTRY_BASE_URL}/${config.dirName}/${itemName}/${REGISTRY_CONFIG_FILE}`;
-  try {
-    const content = await httpsGet(url);
-    return JSON.parse(content) as Record<string, unknown>;
-  } catch {
-    return null;
-  }
 }
 
 export function getInstalledItems(workspacePath: string, kind: RegistryItemKind): string[] {

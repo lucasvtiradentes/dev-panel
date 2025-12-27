@@ -130,8 +130,6 @@ const DevPanelVariableChooseMultiSchema = DevPanelVariableBaseSchema.extend({
   default: z.array(z.string()).optional().describe('Default values'),
 });
 
-const DevPanelVariableChooseSchema = z.union([DevPanelVariableChooseSingleSchema, DevPanelVariableChooseMultiSchema]);
-
 const DevPanelVariableToggleSchema = DevPanelVariableBaseSchema.extend({
   kind: z.literal('toggle').describe('Toggle between ON/OFF'),
   default: z.boolean().optional().describe('Default value'),
@@ -158,8 +156,6 @@ const DevPanelVariableFileMultiSchema = DevPanelVariableBaseSchema.extend({
   default: z.array(z.string()).optional().describe('Default values'),
 });
 
-const DevPanelVariableFileSchema = z.union([DevPanelVariableFileSingleSchema, DevPanelVariableFileMultiSchema]);
-
 const DevPanelVariableFolderSingleSchema = DevPanelVariableBaseSchema.extend({
   kind: z.literal('folder').describe('Folder selection'),
   multiSelect: z.literal(false).optional().describe('Single selection'),
@@ -175,8 +171,6 @@ const DevPanelVariableFolderMultiSchema = DevPanelVariableBaseSchema.extend({
   excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Extends global excludes'),
   default: z.array(z.string()).optional().describe('Default values'),
 });
-
-const DevPanelVariableFolderSchema = z.union([DevPanelVariableFolderSingleSchema, DevPanelVariableFolderMultiSchema]);
 
 const DevPanelVariableSchema = z
   .union([

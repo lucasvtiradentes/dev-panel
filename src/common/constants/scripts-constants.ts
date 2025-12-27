@@ -10,7 +10,6 @@ export const EXTENSION_DISPLAY_NAME = 'Dev Panel';
 
 export const CONFIG_DIR_KEY = 'devpanel';
 export const CONFIG_DIR_NAME = `.${CONFIG_DIR_KEY}`;
-const DISPLAY_PREFIX = 'Dev Panel:';
 export const CONFIG_FILE_NAME = 'config.jsonc';
 export const VARIABLES_FILE_NAME = 'variables.json';
 export const BRANCHES_DIR_NAME = 'branches';
@@ -26,8 +25,6 @@ export const ROOT_BRANCH_CONTEXT_FILE_NAME = '.branch-context.md';
 export const DEFAULT_INCLUDES = ['**/*'];
 export const DEFAULT_EXCLUDES = ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/out/**'];
 export const DEFAULT_EXCLUDED_DIRS = ['node_modules', 'dist', '.git'];
-const CONFIG_SCHEMA_PATH = '../resources/schema.json';
-const DEFAULT_AI_PROVIDER = 'claude';
 
 export const BRANCH_CONTEXT_NA = 'N/A';
 export const BRANCH_CONTEXT_NO_CHANGES = 'No changes';
@@ -151,7 +148,6 @@ export const REGISTRY_DEFAULT_PLUGIN_FILE = 'plugin.ts';
 export const REGISTRY_DEFAULT_PROMPT_FILE = 'prompt.md';
 export const REGISTRY_DEFAULT_TOOL_FILE = 'instructions.md';
 export const REGISTRY_DEFAULT_SCRIPT_FILE = 'script.sh';
-export const REGISTRY_CONFIG_FILE = 'config.json';
 export const AI_SPEC_AVAILABLE_TOOLS_REGEX = /<available_tools>[\s\S]*?<\/available_tools>/;
 
 export const WORKSPACE_STATE_CONFIG_DIR_KEY = `${CONFIG_DIR_KEY}.configDir`;
@@ -163,7 +159,7 @@ export const CONFIRM_YES = 'Yes';
 export const CONFIRM_NO = 'No';
 export const CONFIRM_OPTIONS = [CONFIRM_YES, CONFIRM_NO] as const;
 
-export const GLOBAL_ITEM_TOOLTIP_SUFFIX = 'from ~/.devpanel/config.jsonc';
+export const GLOBAL_ITEM_TOOLTIP_SUFFIX = `from ~/.devpanel/${CONFIG_FILE_NAME}`;
 export const GLOBAL_PROMPT_TOOLTIP = `Global prompt ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
 export const GLOBAL_TASK_TOOLTIP = `Global task ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
 export const GLOBAL_TOOL_TOOLTIP = `Global tool ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;

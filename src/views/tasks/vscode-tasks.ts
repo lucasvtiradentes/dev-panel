@@ -40,7 +40,7 @@ export async function getVSCodeTasks(options: {
 
     const group = grouped ? (task as ExtendedTask).presentationOptions?.group : undefined;
 
-    const _task = new TreeTask(
+    const treeTask = new TreeTask(
       task.definition.type,
       task.name,
       VscodeConstants.TreeItemCollapsibleState.None,
@@ -53,30 +53,30 @@ export async function getVSCodeTasks(options: {
       group,
     );
 
-    _task.taskName = task.name;
+    treeTask.taskName = task.name;
 
     if (task.detail != null) {
-      _task.tooltip = task.detail;
+      treeTask.tooltip = task.detail;
     }
 
     if (hidden) {
-      _task.iconPath = VscodeIcons.HiddenItem;
-      _task.contextValue = CONTEXT_VALUES.TASK_HIDDEN;
+      treeTask.iconPath = VscodeIcons.HiddenItem;
+      treeTask.contextValue = CONTEXT_VALUES.TASK_HIDDEN;
     } else if (favorite) {
-      _task.iconPath = VscodeIcons.FavoriteItem;
-      _task.contextValue = CONTEXT_VALUES.TASK_FAVORITE;
+      treeTask.iconPath = VscodeIcons.FavoriteItem;
+      treeTask.contextValue = CONTEXT_VALUES.TASK_FAVORITE;
     }
 
-    if (!_task.hide) {
-      if (_task.workspace !== null) {
-        if (taskFolders[_task.workspace] === undefined) {
-          const ws = new WorkspaceTreeItem(_task.workspace);
-          taskFolders[_task.workspace] = ws;
+    if (!treeTask.hide) {
+      if (treeTask.workspace !== null) {
+        if (taskFolders[treeTask.workspace] === undefined) {
+          const ws = new WorkspaceTreeItem(treeTask.workspace);
+          taskFolders[treeTask.workspace] = ws;
           taskElements.push(ws);
         }
-        taskFolders[_task.workspace].addChildren(_task);
+        taskFolders[treeTask.workspace].addChildren(treeTask);
       } else {
-        taskElements.push(_task);
+        taskElements.push(treeTask);
       }
     }
   }

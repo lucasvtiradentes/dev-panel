@@ -13,7 +13,7 @@ const manager = new KeybindingManager({
 export const getAllVariableKeybindings = () => manager.getAllKeybindings();
 
 export function registerVariableKeybindings(context: ExtensionContext) {
-  forEachWorkspaceConfig((_folder, config) => {
+  forEachWorkspaceConfig((_, config) => {
     const variables = config.variables ?? [];
 
     for (const variable of variables) {

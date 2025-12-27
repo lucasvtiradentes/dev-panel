@@ -2,14 +2,7 @@ import { DND_MIME_TYPE_TASKS, NO_GROUP_NAME } from '../../common/constants';
 import { ExtensionConfigKey, getExtensionConfig } from '../../common/lib/extension-config';
 import { TASK_SOURCES, TaskSource } from '../../common/schemas/types';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
-import type {
-  Event,
-  EventEmitter,
-  ExtensionContext,
-  TreeDataProvider,
-  TreeItem,
-  TreeView,
-} from '../../common/vscode/vscode-types';
+import type { Event, EventEmitter, TreeDataProvider, TreeItem, TreeView } from '../../common/vscode/vscode-types';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
 import { tasksState } from '../../common/workspace-state';
 import { createSourcedDragAndDropController } from '../_view_base';
@@ -46,7 +39,7 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
   private _showOnlyFavorites: boolean;
   private _treeView: TreeView<TreeTask | GroupTreeItem | WorkspaceTreeItem> | null = null;
 
-  constructor(_context: ExtensionContext) {
+  constructor() {
     this.autoRefresh = getExtensionConfig(ExtensionConfigKey.AutoRefresh);
     this._source = getCurrentSource();
     this._grouped = getIsGrouped();

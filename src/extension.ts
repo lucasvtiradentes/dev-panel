@@ -67,9 +67,9 @@ function setupInitialKeybindings() {
   reloadTaskKeybindings();
 }
 
-function setupProviders(context: ExtensionContext, activateStart: number): Providers {
+function setupProviders(activateStart: number): Providers {
   const statusBarManager = new StatusBarManager();
-  const taskTreeDataProvider = new TaskTreeDataProvider(context);
+  const taskTreeDataProvider = new TaskTreeDataProvider();
   const variablesProvider = new VariablesProvider();
   const replacementsProvider = new ReplacementsProvider();
   const promptTreeDataProvider = new PromptTreeDataProvider();
@@ -236,7 +236,7 @@ export function activate(context: ExtensionContext): object {
   setupStatesAndContext(context);
   setupInitialKeybindings();
 
-  const providers = setupProviders(context, activateStart);
+  const providers = setupProviders(activateStart);
   setupTreeViews(providers);
   setupDisposables(context, providers);
   setupWatchers(context, providers, activateStart);

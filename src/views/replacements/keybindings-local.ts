@@ -5,7 +5,7 @@ import type { ExtensionContext } from '../../common/vscode/vscode-types';
 import { Command, executeCommand, registerDynamicCommand } from '../../common/vscode/vscode-utils';
 
 export function registerReplacementKeybindings(context: ExtensionContext) {
-  forEachWorkspaceConfig((_folder, config) => {
+  forEachWorkspaceConfig((_, config) => {
     const replacements = config.replacements ?? [];
 
     for (const replacement of replacements) {
