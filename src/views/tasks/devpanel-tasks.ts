@@ -8,9 +8,9 @@ import {
   getGlobalConfigDir,
 } from '../../common/constants';
 import { ConfigManager } from '../../common/lib/config-manager';
-import { globalTasksState } from '../../common/lib/global-state';
 import type { DevPanelConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
+import { globalTasksState } from '../../common/state';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';

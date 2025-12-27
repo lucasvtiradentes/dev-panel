@@ -39,7 +39,7 @@ export enum PromptExecutionMode {
 const DevPanelInputSchema = z
   .object({
     name: z.string().describe('Variable name used in template as $name'),
-    type: z.nativeEnum(PromptInputType).describe('Input type'),
+    type: z.enum(PromptInputType).describe('Input type'),
     label: z.string().describe('Label shown in the input dialog'),
     placeholder: z.string().optional().describe('Placeholder text for text/number inputs'),
     options: z.array(z.string()).optional().describe('Available options for choice/multichoice types'),

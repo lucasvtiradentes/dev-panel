@@ -12,15 +12,14 @@ import {
   getGlobalToolInstructionsPath,
 } from '../../common/constants';
 import { ConfigManager } from '../../common/lib/config-manager';
-import { globalToolsState } from '../../common/lib/global-state';
 import { createLogger } from '../../common/lib/logger';
 import type { DevPanelConfig } from '../../common/schemas';
+import { globalToolsState, toolsState } from '../../common/state';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { TreeItem, TreeView, WorkspaceFolder } from '../../common/vscode/vscode-types';
 import { Command, ContextKey } from '../../common/vscode/vscode-utils';
-import { toolsState } from '../../common/workspace-state';
 import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../_view_base';
 import { ToolGroupTreeItem, TreeTool } from './items';
 import { addActiveTool, getActiveTools, isFavorite, isHidden, removeActiveTool, setActiveTools } from './state';

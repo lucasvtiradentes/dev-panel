@@ -58,19 +58,6 @@ const WorkspaceUIStateSchema = z.object({
   branchContext: BranchContextStateSchema.optional(),
 });
 
-const TasksGlobalStateSchema = z.object({
-  isGrouped: z.boolean(),
-  showHidden: z.boolean().optional(),
-  showOnlyFavorites: z.boolean().optional(),
-  devpanel: SourceStateSchema,
-});
-
-const GlobalUIStateSchema = z.object({
-  tasks: TasksGlobalStateSchema.optional(),
-  tools: ToolsStateSchema.optional(),
-  prompts: PromptsStateSchema.optional(),
-});
-
 export type SourceState = z.infer<typeof SourceStateSchema>;
 export type TasksState = z.infer<typeof TasksStateSchema>;
 export type ToolsState = z.infer<typeof ToolsStateSchema>;
@@ -78,6 +65,7 @@ export type PromptsState = z.infer<typeof PromptsStateSchema>;
 export type VariablesState = z.infer<typeof VariablesStateSchema>;
 export type ReplacementsState = z.infer<typeof ReplacementsStateSchema>;
 export type BranchContextState = z.infer<typeof BranchContextStateSchema>;
+export type WorkspaceUIState = z.infer<typeof WorkspaceUIStateSchema>;
 
 export const DEFAULT_SOURCE_STATE: SourceState = {
   flatOrder: [],

@@ -28,20 +28,15 @@ export {
   type ReplacementsState,
   type SourceState,
   type TasksState,
-  type TasksGlobalState,
   type ToolsState,
   type BranchContextState,
-  type WorkspaceUIState,
-  type GlobalUIState,
   DEFAULT_VARIABLES_STATE,
   DEFAULT_PROMPTS_STATE,
   DEFAULT_REPLACEMENTS_STATE,
   DEFAULT_SOURCE_STATE,
   DEFAULT_TASKS_STATE,
-  DEFAULT_TASKS_GLOBAL_STATE,
   DEFAULT_TOOLS_STATE,
   DEFAULT_BRANCH_CONTEXT_STATE,
-  DEFAULT_WORKSPACE_UI_STATE,
 } from './vscode-workspace-schema';
 
 export {

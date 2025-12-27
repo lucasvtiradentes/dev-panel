@@ -9,7 +9,7 @@ export enum RegistryItemKind {
 
 const RegistryItemSchema = z.object({
   name: z.string().describe('Unique identifier for the item'),
-  kind: z.nativeEnum(RegistryItemKind).describe('Type of registry item'),
+  kind: z.enum(RegistryItemKind).describe('Type of registry item'),
   category: z.string().describe('Category for organization'),
   description: z.string().describe('Human-readable description'),
   file: z.string().optional().describe('Main file name if different from default'),

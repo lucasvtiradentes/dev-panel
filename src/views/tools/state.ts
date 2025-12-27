@@ -1,5 +1,4 @@
-import { createStateHelpers, globalToolsState } from '../../common/lib/global-state';
-import { toolsState } from '../../common/workspace-state';
+import { createStateHelpers, globalToolsState, toolsState } from '../../common/state';
 
 const helpers = createStateHelpers(globalToolsState, toolsState);
 

@@ -14,12 +14,12 @@ import {
 import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-constants';
 import { ConfigManager } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
+import { branchContextState } from '../../common/state';
 import { formatRelativeTime } from '../../common/utils/common-utils';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
-import { branchContextState } from '../../common/workspace-state';
 import { createTaskProvider, loadBranchContext } from '../_branch_base';
 import { formatChangedFilesSummary } from '../_branch_base/providers/default/file-changes-utils';
 import { getFieldLineNumber } from '../_branch_base/storage/markdown-parser';

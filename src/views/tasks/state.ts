@@ -1,5 +1,5 @@
 import type { TaskSource } from '../../common/schemas/types';
-import { tasksState } from '../../common/workspace-state';
+import { tasksState } from '../../common/state';
 
 export const getOrder = (source: TaskSource, isGrouped: boolean) => tasksState.getOrder(source, isGrouped);
 export const toggleFavorite = (source: TaskSource, itemName: string) => tasksState.toggleFavorite(source, itemName);

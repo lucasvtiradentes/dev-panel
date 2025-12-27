@@ -1,9 +1,9 @@
 import { DND_MIME_TYPE_TASKS, NO_GROUP_NAME } from '../../common/constants';
 import { TASK_SOURCES, TaskSource } from '../../common/schemas/types';
+import { tasksState } from '../../common/state';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { Event, EventEmitter, TreeDataProvider, TreeItem, TreeView } from '../../common/vscode/vscode-types';
 import { ContextKey, ExtensionConfigKey, getExtensionConfig, setContextKey } from '../../common/vscode/vscode-utils';
-import { tasksState } from '../../common/workspace-state';
 import { createSourcedDragAndDropController } from '../_view_base';
 import { getDevPanelTasks, hasDevPanelGroups } from './devpanel-tasks';
 import { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
