@@ -43,210 +43,213 @@ export type ExecutePromptParams = {
   promptConfig?: DevPanelPrompt;
 };
 
-export function createExecuteTaskCommand(context: ExtensionContext) {
-  return registerCommand(
-    Command.ExecuteTask,
-    async (
-      task: Task,
-      scope: TaskScope | WorkspaceFolder | undefined,
-      taskConfig?: NonNullable<DevPanelConfig['tasks']>[number],
-    ) => {
-      let modifiedTask = task;
+async function handleExecuteTask(
+  context: ExtensionContext,
+  task: Task,
+  scope: TaskScope | WorkspaceFolder | undefined,
+  taskConfig?: NonNullable<DevPanelConfig['tasks']>[number],
+) {
+  let modifiedTask = task;
 
-      if (taskConfig?.inputs && taskConfig.inputs.length > 0) {
-        const folder = scope && typeof scope !== 'number' && 'uri' in scope ? (scope as WorkspaceFolder) : null;
-        const folderForSettings = folder ?? getFirstWorkspaceFolder();
-        const settings = folderForSettings ? ConfigManager.readSettings(folderForSettings) : undefined;
+  if (taskConfig?.inputs && taskConfig.inputs.length > 0) {
+    const folder = scope && typeof scope !== 'number' && 'uri' in scope ? (scope as WorkspaceFolder) : null;
+    const folderForSettings = folder ?? getFirstWorkspaceFolder();
+    const settings = folderForSettings ? ConfigManager.readSettings(folderForSettings) : undefined;
 
-        const inputValues = await collectInputs(taskConfig.inputs, folder, settings);
-        if (inputValues === null) return;
+    const inputValues = await collectInputs(taskConfig.inputs, folder, settings);
+    if (inputValues === null) return;
 
-        const execution = task.execution;
-        if (execution instanceof ShellExecutionClass) {
-          let commandToReplace = execution.commandLine ?? String(execution.command);
-          commandToReplace = replaceInputPlaceholders(commandToReplace, inputValues);
+    const execution = task.execution;
+    if (execution instanceof ShellExecutionClass) {
+      let commandToReplace = execution.commandLine ?? String(execution.command);
+      commandToReplace = replaceInputPlaceholders(commandToReplace, inputValues);
 
-          const newExecution = VscodeHelper.createShellExecution(commandToReplace, execution.options);
-          modifiedTask = VscodeHelper.createTask(
-            task.definition,
-            task.scope ?? VscodeConstants.TaskScope.Workspace,
-            task.name,
-            task.source,
-            newExecution,
-            task.problemMatchers,
-          );
-        }
-      }
-
-      if (scope && typeof scope !== 'number' && 'uri' in scope) {
-        const folder = scope as WorkspaceFolder;
-        const variablesPath = ConfigManager.getWorkspaceVariablesPath(folder);
-        const env = readDevPanelVariablesAsEnv(variablesPath);
-
-        if (Object.keys(env).length > 0) {
-          modifiedTask = TaskUtils.cloneWithEnv(modifiedTask, env);
-        }
-      }
-
-      if (isMultiRootWorkspace()) {
-        if (scope != null && (scope as WorkspaceFolder).name != null) {
-          await context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, (scope as WorkspaceFolder).name);
-        }
-      }
-
-      log.info(`Executing task: ${modifiedTask.name}`);
-      log.info(`Final presentation: ${JSON.stringify(modifiedTask.presentationOptions)}`);
-
-      void VscodeHelper.executeTask(modifiedTask).then((execution) => {
-        log.info(`Task started successfully: ${modifiedTask.name}`);
-        VscodeHelper.onDidEndTask((e) => {
-          if (e.execution === execution) {
-            log.info(`Task ended: ${modifiedTask.name}`);
-            void context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, null);
-          }
-        });
-      });
-    },
-  );
-}
-
-export function createExecuteToolCommand(context: ExtensionContext) {
-  return registerCommand(Command.ExecuteTool, (item: TreeTool | Task) => {
-    if (item instanceof TreeTool) {
-      const toolName = item.toolName;
-      const isGlobal = toolName.startsWith(GLOBAL_ITEM_PREFIX);
-      const actualName = isGlobal ? toolName.replace(GLOBAL_ITEM_PREFIX, '') : toolName;
-
-      let toolConfig: { command?: string; useWorkspaceRoot?: boolean } | undefined;
-      let cwd: string;
-      let env: Record<string, string> = {};
-
-      const globalConfig = ConfigManager.loadGlobalConfig();
-      const folder = getFirstWorkspaceFolder();
-
-      if (isGlobal) {
-        toolConfig = globalConfig?.tools?.find((t) => t.name === actualName);
-        cwd = folder ? folder.uri.fsPath : getGlobalConfigDir();
-        env = readDevPanelVariablesAsEnv(NodePathHelper.join(getGlobalConfigDir(), 'variables.json5'));
-      } else {
-        if (!folder) {
-          void VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
-          return;
-        }
-        const config = ConfigManager.loadWorkspaceConfig(folder);
-        toolConfig = config?.tools?.find((t) => t.name === actualName);
-        const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
-        cwd = toolConfig?.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
-        env = readDevPanelVariablesAsEnv(ConfigManager.getWorkspaceVariablesPath(folder));
-      }
-
-      if (!toolConfig?.command) {
-        void VscodeHelper.showToastMessage(ToastKind.Error, `Tool "${actualName}" has no command configured`);
-        return;
-      }
-
-      const shellExec = VscodeHelper.createShellExecution(toolConfig.command, { env, cwd });
-      const vsTask = VscodeHelper.createTask(
-        { type: `${CONFIG_DIR_KEY}-tool`, task: actualName },
-        folder ?? VscodeConstants.TaskScope.Global,
-        actualName,
-        `${CONFIG_DIR_KEY}-tool`,
-        shellExec,
+      const newExecution = VscodeHelper.createShellExecution(commandToReplace, execution.options);
+      modifiedTask = VscodeHelper.createTask(
+        task.definition,
+        task.scope ?? VscodeConstants.TaskScope.Workspace,
+        task.name,
+        task.source,
+        newExecution,
+        task.problemMatchers,
       );
-
-      vsTask.presentationOptions = {
-        reveal: VscodeConstants.TaskRevealKind.Always,
-        panel: VscodeConstants.TaskPanelKind.New,
-        clear: false,
-        focus: false,
-        showReuseMessage: false,
-      };
-
-      void VscodeHelper.executeTask(vsTask);
-      return;
     }
+  }
 
-    const task = item as Task;
-    void VscodeHelper.executeTask(task).then((execution) => {
-      VscodeHelper.onDidEndTask((e) => {
-        if (e.execution === execution) {
-          void context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, null);
-        }
-      });
+  if (scope && typeof scope !== 'number' && 'uri' in scope) {
+    const folder = scope as WorkspaceFolder;
+    const variablesPath = ConfigManager.getWorkspaceVariablesPath(folder);
+    const env = readDevPanelVariablesAsEnv(variablesPath);
+
+    if (Object.keys(env).length > 0) {
+      modifiedTask = TaskUtils.cloneWithEnv(modifiedTask, env);
+    }
+  }
+
+  if (isMultiRootWorkspace()) {
+    if (scope != null && (scope as WorkspaceFolder).name != null) {
+      await context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, (scope as WorkspaceFolder).name);
+    }
+  }
+
+  log.info(`Executing task: ${modifiedTask.name}`);
+  log.info(`Final presentation: ${JSON.stringify(modifiedTask.presentationOptions)}`);
+
+  void VscodeHelper.executeTask(modifiedTask).then((execution) => {
+    log.info(`Task started successfully: ${modifiedTask.name}`);
+    VscodeHelper.onDidEndTask((e) => {
+      if (e.execution === execution) {
+        log.info(`Task ended: ${modifiedTask.name}`);
+        void context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, null);
+      }
     });
   });
 }
 
-export function createExecutePromptCommand() {
-  return registerCommand(
-    Command.ExecutePrompt,
-    async ({ promptFilePath, folder, promptConfig }: ExecutePromptParams) => {
-      log.info('=== ExecutePrompt called ===');
-      log.info(`promptFilePath: ${promptFilePath}`);
-      log.info(`folder: ${folder ? folder.name : 'null (global)'}`);
-      log.info(`promptConfig (from tree): ${JSON.stringify(promptConfig)}`);
-      log.info(`useWorkspaceRoot: ${promptConfig?.useWorkspaceRoot}`);
-
-      let resolvedPromptFilePath = promptFilePath;
-      if (promptConfig?.useWorkspaceRoot && folder) {
-        resolvedPromptFilePath = NodePathHelper.join(folder.uri.fsPath, promptConfig.file);
-        log.info(`Resolved prompt path from workspace root: ${resolvedPromptFilePath}`);
-      }
-
-      if (!FileIOHelper.fileExists(resolvedPromptFilePath)) {
-        void VscodeHelper.showToastMessage(ToastKind.Error, `Prompt file not found: ${resolvedPromptFilePath}`);
-        return;
-      }
-
-      let promptContent = FileIOHelper.readFile(resolvedPromptFilePath);
-
-      const folderForSettings = folder ?? getFirstWorkspaceFolder();
-      const settings = folderForSettings ? ConfigManager.readSettings(folderForSettings) : undefined;
-      log.info(`settings: ${JSON.stringify(settings)}`);
-
-      const variables = folder ? ConfigManager.readVariables(folder) : null;
-      if (variables) {
-        promptContent = TaskUtils.replaceVariablePlaceholders(promptContent, variables);
-      }
-
-      if (promptConfig?.inputs && promptConfig.inputs.length > 0) {
-        log.info(`inputs from promptConfig: ${JSON.stringify(promptConfig.inputs)}`);
-        const inputValues = await collectInputs(promptConfig.inputs, folder, settings);
-        if (inputValues === null) return;
-        promptContent = replaceInputPlaceholders(promptContent, inputValues);
-      }
-
-      const provider = getProvider(settings?.aiProvider);
-      if (!provider) {
-        void VscodeHelper.showToastMessage(
-          ToastKind.Error,
-          `AI provider not configured. Set "settings.aiProvider" in ${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME} (${getAIProvidersListFormatted()})`,
-        );
-        return;
-      }
-
-      if (promptConfig?.saveOutput) {
-        const folderForOutput = folder ?? getFirstWorkspaceFolder();
-        if (!folderForOutput) {
-          void VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder available to save prompt output');
-          return;
-        }
-
-        await executePromptWithSave({
-          promptContent,
-          folder: folderForOutput,
-          promptName: promptConfig.name,
-          provider,
-          settings,
-        });
-        return;
-      }
-
-      const terminal = VscodeHelper.createTerminal({ name: provider.name });
-      terminal.show();
-      provider.executeInteractive(terminal, promptContent);
-    },
+export function createExecuteTaskCommand(context: ExtensionContext) {
+  return registerCommand(Command.ExecuteTask, (task, scope, taskConfig) =>
+    handleExecuteTask(context, task, scope, taskConfig),
   );
+}
+
+function handleExecuteTool(context: ExtensionContext, item: TreeTool | Task) {
+  if (item instanceof TreeTool) {
+    const toolName = item.toolName;
+    const isGlobal = toolName.startsWith(GLOBAL_ITEM_PREFIX);
+    const actualName = isGlobal ? toolName.replace(GLOBAL_ITEM_PREFIX, '') : toolName;
+
+    let toolConfig: { command?: string; useWorkspaceRoot?: boolean } | undefined;
+    let cwd: string;
+    let env: Record<string, string> = {};
+
+    const globalConfig = ConfigManager.loadGlobalConfig();
+    const folder = getFirstWorkspaceFolder();
+
+    if (isGlobal) {
+      toolConfig = globalConfig?.tools?.find((t) => t.name === actualName);
+      cwd = folder ? folder.uri.fsPath : getGlobalConfigDir();
+      env = readDevPanelVariablesAsEnv(NodePathHelper.join(getGlobalConfigDir(), 'variables.json5'));
+    } else {
+      if (!folder) {
+        void VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
+        return;
+      }
+      const config = ConfigManager.loadWorkspaceConfig(folder);
+      toolConfig = config?.tools?.find((t) => t.name === actualName);
+      const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
+      cwd = toolConfig?.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
+      env = readDevPanelVariablesAsEnv(ConfigManager.getWorkspaceVariablesPath(folder));
+    }
+
+    if (!toolConfig?.command) {
+      void VscodeHelper.showToastMessage(ToastKind.Error, `Tool "${actualName}" has no command configured`);
+      return;
+    }
+
+    const shellExec = VscodeHelper.createShellExecution(toolConfig.command, { env, cwd });
+    const vsTask = VscodeHelper.createTask(
+      { type: `${CONFIG_DIR_KEY}-tool`, task: actualName },
+      folder ?? VscodeConstants.TaskScope.Global,
+      actualName,
+      `${CONFIG_DIR_KEY}-tool`,
+      shellExec,
+    );
+
+    vsTask.presentationOptions = {
+      reveal: VscodeConstants.TaskRevealKind.Always,
+      panel: VscodeConstants.TaskPanelKind.New,
+      clear: false,
+      focus: false,
+      showReuseMessage: false,
+    };
+
+    void VscodeHelper.executeTask(vsTask);
+    return;
+  }
+
+  const task = item as Task;
+  void VscodeHelper.executeTask(task).then((execution) => {
+    VscodeHelper.onDidEndTask((e) => {
+      if (e.execution === execution) {
+        void context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, null);
+      }
+    });
+  });
+}
+
+export function createExecuteToolCommand(context: ExtensionContext) {
+  return registerCommand(Command.ExecuteTool, (item) => handleExecuteTool(context, item));
+}
+
+async function handleExecutePrompt({ promptFilePath, folder, promptConfig }: ExecutePromptParams) {
+  log.info('=== ExecutePrompt called ===');
+  log.info(`promptFilePath: ${promptFilePath}`);
+  log.info(`folder: ${folder ? folder.name : 'null (global)'}`);
+  log.info(`promptConfig (from tree): ${JSON.stringify(promptConfig)}`);
+  log.info(`useWorkspaceRoot: ${promptConfig?.useWorkspaceRoot}`);
+
+  let resolvedPromptFilePath = promptFilePath;
+  if (promptConfig?.useWorkspaceRoot && folder) {
+    resolvedPromptFilePath = NodePathHelper.join(folder.uri.fsPath, promptConfig.file);
+    log.info(`Resolved prompt path from workspace root: ${resolvedPromptFilePath}`);
+  }
+
+  if (!FileIOHelper.fileExists(resolvedPromptFilePath)) {
+    void VscodeHelper.showToastMessage(ToastKind.Error, `Prompt file not found: ${resolvedPromptFilePath}`);
+    return;
+  }
+
+  let promptContent = FileIOHelper.readFile(resolvedPromptFilePath);
+
+  const folderForSettings = folder ?? getFirstWorkspaceFolder();
+  const settings = folderForSettings ? ConfigManager.readSettings(folderForSettings) : undefined;
+  log.info(`settings: ${JSON.stringify(settings)}`);
+
+  const variables = folder ? ConfigManager.readVariables(folder) : null;
+  if (variables) {
+    promptContent = TaskUtils.replaceVariablePlaceholders(promptContent, variables);
+  }
+
+  if (promptConfig?.inputs && promptConfig.inputs.length > 0) {
+    log.info(`inputs from promptConfig: ${JSON.stringify(promptConfig.inputs)}`);
+    const inputValues = await collectInputs(promptConfig.inputs, folder, settings);
+    if (inputValues === null) return;
+    promptContent = replaceInputPlaceholders(promptContent, inputValues);
+  }
+
+  const provider = getProvider(settings?.aiProvider);
+  if (!provider) {
+    void VscodeHelper.showToastMessage(
+      ToastKind.Error,
+      `AI provider not configured. Set "settings.aiProvider" in ${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME} (${getAIProvidersListFormatted()})`,
+    );
+    return;
+  }
+
+  if (promptConfig?.saveOutput) {
+    const folderForOutput = folder ?? getFirstWorkspaceFolder();
+    if (!folderForOutput) {
+      void VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder available to save prompt output');
+      return;
+    }
+
+    await executePromptWithSave({
+      promptContent,
+      folder: folderForOutput,
+      promptName: promptConfig.name,
+      provider,
+      settings,
+    });
+    return;
+  }
+
+  const terminal = VscodeHelper.createTerminal({ name: provider.name });
+  terminal.show();
+  provider.executeInteractive(terminal, promptContent);
+}
+
+export function createExecutePromptCommand() {
+  return registerCommand(Command.ExecutePrompt, handleExecutePrompt);
 }
 
 async function executePromptWithSave(options: {
