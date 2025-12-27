@@ -1,5 +1,5 @@
 import { CONFIG_FILE_NAME } from '../../../common/constants';
-import { FileIOHelper } from '../../../common/lib/node-helper';
+import { BranchContextUtils } from '../../../common/utils/branch-context-utils';
 import { ConfigManager } from '../../../common/utils/config-manager';
 import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
@@ -8,48 +8,46 @@ import { Command, executeCommand, registerCommand } from '../../../common/vscode
 import { getFirstWorkspacePath } from '../../../common/vscode/workspace-utils';
 import { validateBranchContext } from '../../../views/branch-context/config-validator';
 
-export function createShowBranchContextValidationCommand(): Disposable {
-  return registerCommand(Command.ShowBranchContextValidation, async () => {
-    const workspace = getFirstWorkspacePath();
-    if (!workspace) return;
+async function handleShowValidation() {
+  const workspace = getFirstWorkspacePath();
+  if (!workspace) return;
 
-    const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
-    if (!FileIOHelper.fileExists(configPath)) {
-      await VscodeHelper.showToastMessage(ToastKind.Info, 'No config file found');
-      return;
-    }
+  const result = BranchContextUtils.getValidationIssues(workspace, validateBranchContext);
 
-    const configContent = FileIOHelper.readFile(configPath);
-    const config = ConfigManager.parseConfig(configContent);
-    if (!config) {
-      await VscodeHelper.showToastMessage(ToastKind.Error, 'Failed to parse config file');
-      return;
-    }
-    const issues = validateBranchContext(workspace, config.branchContext);
+  if (!result.success) {
+    const message = result.error === 'no-config' ? 'No config file found' : 'Failed to parse config file';
+    const kind = result.error === 'no-config' ? ToastKind.Info : ToastKind.Error;
+    await VscodeHelper.showToastMessage(kind, message);
+    return;
+  }
 
-    if (issues.length === 0) {
-      await VscodeHelper.showToastMessage(ToastKind.Info, 'No validation issues found');
-      return;
-    }
+  if (result.issues.length === 0) {
+    await VscodeHelper.showToastMessage(ToastKind.Info, 'No validation issues found');
+    return;
+  }
 
-    const items = issues.map((issue) => ({
-      label: issue.section,
-      description: issue.message,
-      detail: `Severity: ${issue.severity}`,
-      issue,
-    }));
+  const items = result.issues.map((issue) => ({
+    label: issue.section,
+    description: issue.message,
+    detail: `Severity: ${issue.severity}`,
+    issue,
+  }));
 
-    const selected = await VscodeHelper.showQuickPickItems(items, {
-      placeHolder: 'Select an issue to view details',
-    });
-
-    if (selected) {
-      const configUri = VscodeHelper.createFileUri(configPath);
-      const templatePath = ConfigManager.getBranchContextTemplatePath(workspace);
-      const templateUri = VscodeHelper.createFileUri(templatePath);
-
-      await executeCommand(Command.VscodeOpen, { uri: configUri, viewColumn: VscodeConstants.ViewColumn.One });
-      await executeCommand(Command.VscodeOpen, { uri: templateUri, viewColumn: VscodeConstants.ViewColumn.Two });
-    }
+  const selected = await VscodeHelper.showQuickPickItems(items, {
+    placeHolder: 'Select an issue to view details',
   });
+
+  if (selected) {
+    const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
+    const configUri = VscodeHelper.createFileUri(configPath);
+    const templatePath = ConfigManager.getBranchContextTemplatePath(workspace);
+    const templateUri = VscodeHelper.createFileUri(templatePath);
+
+    await executeCommand(Command.VscodeOpen, { uri: configUri, viewColumn: VscodeConstants.ViewColumn.One });
+    await executeCommand(Command.VscodeOpen, { uri: templateUri, viewColumn: VscodeConstants.ViewColumn.Two });
+  }
+}
+
+export function createShowBranchContextValidationCommand(): Disposable {
+  return registerCommand(Command.ShowBranchContextValidation, handleShowValidation);
 }
