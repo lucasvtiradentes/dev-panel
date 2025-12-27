@@ -8,12 +8,6 @@ export const WATCHER_CONSTANTS = {
   KEYBINDING_UPDATE_DEBOUNCE_MS: 100,
 } as const;
 
-export const GIT_CONSTANTS = {
-  EXTENSION_ID: 'vscode.git',
-  API_VERSION: 1,
-  HEAD_FILE_PATH: '.git/HEAD',
-} as const;
-
 type FileWatcherHandlers = {
   onChange?: (uri: Uri) => void;
   onCreate?: (uri: Uri) => void;

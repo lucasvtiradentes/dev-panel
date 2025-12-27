@@ -12,7 +12,7 @@ import {
   SECTION_NAME_REQUIREMENTS,
 } from '../../common/constants';
 import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-constants';
-import { getCurrentBranch, isGitRepository } from '../../common/lib/git-utils';
+import { GitHelper } from '../../common/lib/git-helper';
 import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper } from '../../common/lib/node-helper';
 import { branchContextState } from '../../common/state';
@@ -22,7 +22,6 @@ import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vsc
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
 import { getFirstWorkspacePath } from '../../common/vscode/workspace-utils';
 import { createTaskProvider, loadBranchContext } from '../_branch_base';
-import { formatChangedFilesSummary } from '../_branch_base/providers/default/file-changes-utils';
 import { getFieldLineNumber } from '../_branch_base/storage/markdown-parser';
 import { validateBranchContext } from './config-validator';
 import { SectionItem } from './items';
@@ -158,7 +157,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
       return;
     }
 
-    if (await isGitRepository(workspace)) {
+    if (await GitHelper.isRepository(workspace)) {
       logger.info('[BranchContextProvider] Adding to git exclude');
       this.addToGitExclude(workspace);
     }
@@ -244,12 +243,12 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return [];
 
-    if (!(await isGitRepository(workspace))) {
+    if (!(await GitHelper.isRepository(workspace))) {
       return [VscodeHelper.createTreeItem(NOT_GIT_REPO_MESSAGE)];
     }
 
     if (!this.currentBranch) {
-      this.currentBranch = await getCurrentBranch(workspace);
+      this.currentBranch = await GitHelper.getCurrentBranch(workspace);
     }
 
     const context = loadBranchContext(this.currentBranch);
@@ -271,7 +270,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
         modified: (changedFilesSectionMetadata.modified as number) || 0,
         deleted: (changedFilesSectionMetadata.deleted as number) || 0,
       };
-      changedFilesValue = formatChangedFilesSummary(summary);
+      changedFilesValue = GitHelper.formatChangedFilesSummary(summary);
     }
 
     const markdownPath = ConfigManager.getBranchContextFilePath(workspace, this.currentBranch);

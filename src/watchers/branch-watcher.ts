@@ -1,40 +1,13 @@
-import { getCurrentBranch, isGitRepository } from '../common/lib/git-utils';
+import { GitHelper, type GitRepository } from '../common/lib/git-helper';
 import { createLogger } from '../common/lib/logger';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
-import type { Disposable, Event, FileSystemWatcher } from '../common/vscode/vscode-types';
+import type { Disposable, FileSystemWatcher } from '../common/vscode/vscode-types';
 import { getFirstWorkspacePath } from '../common/vscode/workspace-utils';
-import { GIT_CONSTANTS, WATCHER_CONSTANTS } from './utils';
-
-type GitAPI = {
-  repositories: GitRepository[];
-  onDidOpenRepository: Event<GitRepository>;
-};
-
-type GitRepository = {
-  state: {
-    HEAD?: { name?: string };
-  };
-  onDidCheckout: Event<void>;
-};
-
-type GitExtension = {
-  getAPI: (version: number) => GitAPI;
-};
+import { WATCHER_CONSTANTS } from './utils';
 
 type BranchChangeCallback = (newBranch: string) => void;
 
 const logger = createLogger('BranchWatcher');
-
-async function getGitAPI(): Promise<GitAPI | null> {
-  const gitExtension = VscodeHelper.getExtension<GitExtension>(GIT_CONSTANTS.EXTENSION_ID);
-  if (!gitExtension) {
-    return null;
-  }
-  if (!gitExtension.isActive) {
-    await gitExtension.activate();
-  }
-  return gitExtension.exports.getAPI(GIT_CONSTANTS.API_VERSION);
-}
 
 export function createBranchWatcher(onBranchChange: BranchChangeCallback): Disposable {
   const disposables: Disposable[] = [];
@@ -47,7 +20,7 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
     if (!workspace) return;
 
     try {
-      const newBranch = await getCurrentBranch(workspace);
+      const newBranch = await GitHelper.getCurrentBranch(workspace);
       if (newBranch !== currentBranch) {
         logger.info(`[branchWatcher] Branch changed from '${currentBranch}' to '${newBranch}'`);
         currentBranch = newBranch;
@@ -59,7 +32,7 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
   };
 
   const setupGitWatcher = async () => {
-    const gitAPI = await getGitAPI();
+    const gitAPI = await GitHelper.getAPI();
     if (!gitAPI) return;
 
     for (const repo of gitAPI.repositories) {
@@ -88,7 +61,7 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
     if (!workspace) return;
 
     headWatcher = VscodeHelper.createFileSystemWatcher(
-      VscodeHelper.createRelativePattern(workspace, GIT_CONSTANTS.HEAD_FILE_PATH),
+      VscodeHelper.createRelativePattern(workspace, GitHelper.INTEGRATION.HEAD_FILE_PATH),
     );
 
     headWatcher.onDidChange(() => void handleBranchChange());
@@ -105,8 +78,8 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
-    if (await isGitRepository(workspace)) {
-      currentBranch = await getCurrentBranch(workspace);
+    if (await GitHelper.isRepository(workspace)) {
+      currentBranch = await GitHelper.getCurrentBranch(workspace);
       onBranchChange(currentBranch);
     }
   };

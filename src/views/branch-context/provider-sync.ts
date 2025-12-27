@@ -1,7 +1,5 @@
 import {
   ChangedFilesStyle,
-  GIT_LOG_LAST_COMMIT_MESSAGE,
-  GIT_REV_PARSE_HEAD,
   METADATA_SECTION_REGEX_CAPTURE,
   METADATA_SECTION_REGEX_GLOBAL,
   SECTION_NAME_CHANGED_FILES,
@@ -10,13 +8,13 @@ import {
 } from '../../common/constants';
 import { execAsync } from '../../common/functions/exec-async';
 import { extractSectionMetadata } from '../../common/functions/extract-section-metadata';
+import { GitHelper } from '../../common/lib/git-helper';
 import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper } from '../../common/lib/node-helper';
 import { StringUtils, TypeGuards } from '../../common/utils/common-utils';
 import { ConfigManager } from '../../common/utils/config-manager';
 import { StoreKey, extensionStore } from '../../common/utils/extension-store';
 import { getFirstWorkspacePath } from '../../common/vscode/workspace-utils';
-import { getChangedFilesWithSummary } from '../_branch_base/providers/default/file-changes-utils';
 import type { SyncContext } from '../_branch_base/providers/interfaces';
 import {
   extractAllFieldsRaw,
@@ -211,7 +209,7 @@ export class SyncManager {
             }
           }
         } else {
-          const result = await getChangedFilesWithSummary(workspace, ChangedFilesStyle.List);
+          const result = await GitHelper.getChangedFilesWithSummary(workspace, ChangedFilesStyle.List);
           changedFiles = result.content;
           changedFilesSectionMetadata = result.sectionMetadata;
         }
@@ -311,9 +309,9 @@ export class SyncManager {
       let lastCommitHash: string | undefined;
       let lastCommitMessage: string | undefined;
       try {
-        const hashResult = await execAsync(GIT_REV_PARSE_HEAD, { cwd: workspace });
+        const hashResult = await execAsync(GitHelper.COMMANDS.REV_PARSE_HEAD, { cwd: workspace });
         lastCommitHash = hashResult.stdout.trim();
-        const msgResult = await execAsync(GIT_LOG_LAST_COMMIT_MESSAGE, { cwd: workspace });
+        const msgResult = await execAsync(GitHelper.COMMANDS.LOG_LAST_COMMIT_MESSAGE, { cwd: workspace });
         lastCommitMessage = msgResult.stdout.trim();
       } catch (error: unknown) {
         logger.error(`Failed to get git commit info: ${TypeGuards.getErrorMessage(error)}`);

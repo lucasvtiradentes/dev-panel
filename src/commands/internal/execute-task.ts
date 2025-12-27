@@ -7,7 +7,7 @@ import {
   VARIABLES_FILE_NAME,
   getGlobalConfigDir,
 } from '../../common/constants/scripts-constants';
-import { getCurrentBranch } from '../../common/lib/git-utils';
+import { GitHelper } from '../../common/lib/git-helper';
 import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper, NodePathHelper } from '../../common/lib/node-helper';
 import {
@@ -349,7 +349,7 @@ async function executePromptWithSave(options: {
 }) {
   const { promptContent, folder, promptName, provider, settings } = options;
   const workspacePath = folder.uri.fsPath;
-  const branch = await getCurrentBranch(workspacePath).catch(() => 'unknown');
+  const branch = await GitHelper.getCurrentBranch(workspacePath).catch(() => 'unknown');
 
   const timestamped = settings?.promptExecution !== PromptExecutionMode.Overwrite;
   const outputFile = ConfigManager.getPromptOutputFilePath(workspacePath, branch, promptName, timestamped);

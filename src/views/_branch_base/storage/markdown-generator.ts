@@ -8,12 +8,12 @@ import {
   METADATA_SEPARATOR,
   METADATA_SUFFIX,
 } from '../../../common/constants';
+import { GitHelper } from '../../../common/lib/git-helper';
 import { createLogger } from '../../../common/lib/logger';
 import { FileIOHelper } from '../../../common/lib/node-helper';
 import type { BranchContext } from '../../../common/schemas/types';
 import { ConfigManager } from '../../../common/utils/config-manager';
 import { getFirstWorkspacePath } from '../../../common/vscode/workspace-utils';
-import { getChangedFilesTree } from '../providers/default/file-changes-utils';
 import { detectBranchType, generateBranchTypeCheckboxes } from './branch-type-utils';
 import { loadTemplate } from './template-parser';
 
@@ -55,7 +55,8 @@ export async function generateBranchContextMarkdown(
   const useExistingChanges = !!context.changedFiles;
   logger.info(`[generateBranchContextMarkdown] Using existing changed files: ${useExistingChanges}`);
 
-  const changedFilesTree = context.changedFiles || (await getChangedFilesTree(workspace, ChangedFilesStyle.List));
+  const changedFilesTree =
+    context.changedFiles || (await GitHelper.getChangedFilesTree(workspace, ChangedFilesStyle.List));
   logger.info(
     `[generateBranchContextMarkdown] Changed files result (first 100 chars): ${changedFilesTree.substring(0, 100)}`,
   );
