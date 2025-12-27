@@ -1,19 +1,8 @@
-import * as fs from 'node:fs';
-import { CONFIG_FILE_NAME } from '../common/constants';
-import {
-  getBranchContextTemplatePath,
-  getConfigFilePathFromWorkspacePath,
-  parseConfig,
-} from '../common/lib/config-manager';
 import { syncKeybindings } from '../common/lib/keybindings-sync';
-import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
-import { VscodeConstants } from '../common/vscode/vscode-constants';
-import { ToastKind, VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
-import { Command, executeCommand, registerCommand } from '../common/vscode/vscode-utils';
+import { Command, registerCommand } from '../common/vscode/vscode-utils';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
 import type { BranchContextProvider } from '../views/branch-context';
-import { validateBranchContext } from '../views/branch-context/config-validator';
 import type { BranchTasksProvider } from '../views/branch-tasks';
 import type { PromptTreeDataProvider } from '../views/prompts';
 import type { ReplacementsProvider } from '../views/replacements';
@@ -22,6 +11,7 @@ import type { ToolTreeDataProvider } from '../views/tools';
 import type { VariablesProvider } from '../views/variables';
 import { createEditBranchFieldsCommands } from './internal/branch-context/edit-branch-fields';
 import { createOpenBranchContextFileCommand } from './internal/branch-context/open-branch-context-file';
+import { createShowBranchContextValidationCommand } from './internal/branch-context/show-validation';
 import { createSyncBranchContextCommand } from './internal/branch-context/sync-branch-context';
 import { createToggleBranchContextHideEmptySectionsCommand } from './internal/branch-context/toggle-branch-context-hide-empty-sections';
 import { createToggleBranchTasksCommands } from './internal/branch-tasks/toggle-branch-tasks';
@@ -149,48 +139,6 @@ export function registerAllCommands(options: {
     registerCommand(Command.SyncTaskKeybindings, () => syncKeybindings()),
     createSetTaskKeybindingCommand(),
     createOpenTasksKeybindingsCommand(),
-    registerCommand(Command.ShowBranchContextValidation, async () => {
-      const workspace = getFirstWorkspacePath();
-      if (!workspace) return;
-
-      const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
-      if (!fs.existsSync(configPath)) {
-        await VscodeHelper.showToastMessage(ToastKind.Info, 'No config file found');
-        return;
-      }
-
-      const configContent = fs.readFileSync(configPath, 'utf-8');
-      const config = parseConfig(configContent);
-      if (!config) {
-        await VscodeHelper.showToastMessage(ToastKind.Error, 'Failed to parse config file');
-        return;
-      }
-      const issues = validateBranchContext(workspace, config.branchContext);
-
-      if (issues.length === 0) {
-        await VscodeHelper.showToastMessage(ToastKind.Info, 'No validation issues found');
-        return;
-      }
-
-      const items = issues.map((issue) => ({
-        label: issue.section,
-        description: issue.message,
-        detail: `Severity: ${issue.severity}`,
-        issue,
-      }));
-
-      const selected = await VscodeHelper.showQuickPickItems(items, {
-        placeHolder: 'Select an issue to view details',
-      });
-
-      if (selected) {
-        const configUri = VscodeHelper.createFileUri(configPath);
-        const templatePath = getBranchContextTemplatePath(workspace);
-        const templateUri = VscodeHelper.createFileUri(templatePath);
-
-        await executeCommand(Command.VscodeOpen, { uri: configUri, viewColumn: VscodeConstants.ViewColumn.One });
-        await executeCommand(Command.VscodeOpen, { uri: templateUri, viewColumn: VscodeConstants.ViewColumn.Two });
-      }
-    }),
+    createShowBranchContextValidationCommand(),
   ];
 }

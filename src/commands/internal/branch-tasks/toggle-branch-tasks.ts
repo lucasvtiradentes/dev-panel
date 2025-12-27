@@ -13,6 +13,15 @@ import { createTaskOperationsCommands } from './task-operations';
 export type ToggleTodoParams = number;
 export type CycleTaskStatusParams = ItemOrLineIndex;
 
+async function handleAddBranchTask(branchTasksProvider: BranchTasksProvider) {
+  const text = await VscodeHelper.showInputBox({
+    prompt: 'Enter task text',
+    placeHolder: 'New task',
+  });
+  if (!text) return;
+  await branchTasksProvider.addRootTask(text);
+}
+
 export function createToggleBranchTasksCommands(branchTasksProvider: BranchTasksProvider): Disposable[] {
   return [
     registerCommand(Command.ToggleBranchTasksShowOnlyTodo, () => branchTasksProvider.toggleShowOnlyTodo()),
@@ -23,14 +32,7 @@ export function createToggleBranchTasksCommands(branchTasksProvider: BranchTasks
     registerCommand(Command.CycleTaskStatus, (itemOrLineIndex: CycleTaskStatusParams) =>
       branchTasksProvider.toggleTodo(extractLineIndex(itemOrLineIndex)),
     ),
-    registerCommand(Command.AddBranchTask, async () => {
-      const text = await VscodeHelper.showInputBox({
-        prompt: 'Enter task text',
-        placeHolder: 'New task',
-      });
-      if (!text) return;
-      await branchTasksProvider.addRootTask(text);
-    }),
+    registerCommand(Command.AddBranchTask, () => handleAddBranchTask(branchTasksProvider)),
     registerCommand(Command.SyncBranchTasks, async () => {
       await branchTasksProvider.syncTasks();
     }),

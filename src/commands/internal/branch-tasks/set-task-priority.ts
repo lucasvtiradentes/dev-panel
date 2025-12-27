@@ -31,38 +31,37 @@ async function pickPriority(): Promise<TaskPriority | undefined> {
   return priorityMap[picked.label];
 }
 
+async function handleSetTaskPriority(provider: BranchTasksProvider, item: ItemOrLineIndex, priority: TaskPriority) {
+  const lineIndex = extractLineIndex(item);
+  await provider.setPriority(lineIndex, priority);
+}
+
+async function handleSetTaskPriorityWithPicker(provider: BranchTasksProvider, item: ItemOrLineIndex) {
+  const lineIndex = extractLineIndex(item);
+  const priority = await pickPriority();
+  if (!priority) return;
+  await provider.setPriority(lineIndex, priority);
+}
+
 export function createSetTaskPriorityCommands(provider: BranchTasksProvider): Disposable[] {
   return [
-    registerCommand(Command.SetTaskPriority, async (item: ItemOrLineIndex) => {
-      const lineIndex = extractLineIndex(item);
-      const priority = await pickPriority();
-      if (!priority) return;
-      await provider.setPriority(lineIndex, priority);
-    }),
-
-    registerCommand(Command.SetTaskPriorityUrgent, async (item: ItemOrLineIndex) => {
-      const lineIndex = extractLineIndex(item);
-      await provider.setPriority(lineIndex, TaskPriority.Urgent);
-    }),
-
-    registerCommand(Command.SetTaskPriorityHigh, async (item: ItemOrLineIndex) => {
-      const lineIndex = extractLineIndex(item);
-      await provider.setPriority(lineIndex, TaskPriority.High);
-    }),
-
-    registerCommand(Command.SetTaskPriorityMedium, async (item: ItemOrLineIndex) => {
-      const lineIndex = extractLineIndex(item);
-      await provider.setPriority(lineIndex, TaskPriority.Medium);
-    }),
-
-    registerCommand(Command.SetTaskPriorityLow, async (item: ItemOrLineIndex) => {
-      const lineIndex = extractLineIndex(item);
-      await provider.setPriority(lineIndex, TaskPriority.Low);
-    }),
-
-    registerCommand(Command.SetTaskPriorityNone, async (item: ItemOrLineIndex) => {
-      const lineIndex = extractLineIndex(item);
-      await provider.setPriority(lineIndex, TaskPriority.None);
-    }),
+    registerCommand(Command.SetTaskPriority, (item: ItemOrLineIndex) =>
+      handleSetTaskPriorityWithPicker(provider, item),
+    ),
+    registerCommand(Command.SetTaskPriorityUrgent, (item: ItemOrLineIndex) =>
+      handleSetTaskPriority(provider, item, TaskPriority.Urgent),
+    ),
+    registerCommand(Command.SetTaskPriorityHigh, (item: ItemOrLineIndex) =>
+      handleSetTaskPriority(provider, item, TaskPriority.High),
+    ),
+    registerCommand(Command.SetTaskPriorityMedium, (item: ItemOrLineIndex) =>
+      handleSetTaskPriority(provider, item, TaskPriority.Medium),
+    ),
+    registerCommand(Command.SetTaskPriorityLow, (item: ItemOrLineIndex) =>
+      handleSetTaskPriority(provider, item, TaskPriority.Low),
+    ),
+    registerCommand(Command.SetTaskPriorityNone, (item: ItemOrLineIndex) =>
+      handleSetTaskPriority(provider, item, TaskPriority.None),
+    ),
   ];
 }

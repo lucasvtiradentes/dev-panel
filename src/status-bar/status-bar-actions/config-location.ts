@@ -7,13 +7,7 @@ import {
   QUICK_PICK_ACTION_SEPARATOR,
   ROOT_FOLDER_LABEL,
 } from '../../common/constants';
-import {
-  getConfigDirLabel,
-  getCurrentConfigDir,
-  hasConfig,
-  moveConfig,
-  setConfigDir,
-} from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
@@ -35,8 +29,8 @@ export async function showConfigLocationMenu() {
   if (!workspaceFolder) return;
 
   const workspacePath = workspaceFolder.uri.fsPath;
-  const currentConfigDir = getCurrentConfigDir();
-  const currentHasConfig = await hasConfig(workspacePath, currentConfigDir, CONFIG_FILE_NAME);
+  const currentConfigDir = ConfigManager.getCurrentConfigDir();
+  const currentHasConfig = await ConfigManager.hasConfig(workspacePath, currentConfigDir, CONFIG_FILE_NAME);
 
   const startPath = currentConfigDir ?? ROOT_FOLDER_LABEL;
   const selectedPath = await showFolderPicker(workspaceFolder.uri, startPath);
@@ -49,23 +43,26 @@ export async function showConfigLocationMenu() {
     return;
   }
 
-  const newHasConfig = await hasConfig(workspacePath, newConfigDir, CONFIG_FILE_NAME);
+  const newHasConfig = await ConfigManager.hasConfig(workspacePath, newConfigDir, CONFIG_FILE_NAME);
 
   if (currentHasConfig && !newHasConfig) {
     const shouldMove = await askToMoveConfig(currentConfigDir, newConfigDir);
     if (shouldMove) {
-      await moveConfig(workspacePath, currentConfigDir, newConfigDir);
+      await ConfigManager.moveConfig(workspacePath, currentConfigDir, newConfigDir);
     }
   }
 
-  setConfigDir(newConfigDir);
-  logger.info(`Config dir changed to: ${getConfigDirLabel(newConfigDir)}`);
-  void VscodeHelper.showToastMessage(ToastKind.Info, `Config location: ${getConfigDirLabel(newConfigDir)}`);
+  ConfigManager.setConfigDir(newConfigDir);
+  logger.info(`Config dir changed to: ${ConfigManager.getConfigDirLabel(newConfigDir)}`);
+  void VscodeHelper.showToastMessage(
+    ToastKind.Info,
+    `Config location: ${ConfigManager.getConfigDirLabel(newConfigDir)}`,
+  );
 }
 
 async function askToMoveConfig(fromDir: string | null, toDir: string | null): Promise<boolean> {
-  const fromLabel = getConfigDirLabel(fromDir);
-  const toLabel = getConfigDirLabel(toDir);
+  const fromLabel = ConfigManager.getConfigDirLabel(fromDir);
+  const toLabel = ConfigManager.getConfigDirLabel(toDir);
 
   const result = await VscodeHelper.showToastMessage(
     ToastKind.Warning,

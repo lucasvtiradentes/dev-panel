@@ -1,11 +1,11 @@
-import { EXTENSION_DISPLAY_NAME } from '../../common/constants';
-import { logger } from '../../common/lib/logger';
-import { fetchRegistryIndex, getInstalledItems, getItemsForKind, installItem } from '../../common/lib/registry-service';
-import { type RegistryItemEntry, RegistryItemKind } from '../../common/schemas';
-import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
-import { VscodeConstants, VscodeIcon } from '../../common/vscode/vscode-constants';
-import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { QuickPickItem, WorkspaceFolder } from '../../common/vscode/vscode-types';
+import { EXTENSION_DISPLAY_NAME } from '../../../common/constants';
+import { logger } from '../../../common/lib/logger';
+import { type RegistryItemEntry, RegistryItemKind } from '../../../common/schemas';
+import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
+import { VscodeConstants, VscodeIcon } from '../../../common/vscode/vscode-constants';
+import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
+import type { QuickPickItem, WorkspaceFolder } from '../../../common/vscode/vscode-types';
+import { fetchRegistryIndex, getInstalledItems, getItemsForKind, installItem } from './service';
 
 type QuickPickItemWithId<T> = QuickPickItem & { id: T };
 
@@ -138,7 +138,7 @@ async function installItems(workspaceFolder: WorkspaceFolder, kind: RegistryItem
             try {
               await installItem(workspaceFolder, kind, item, true);
               installed++;
-            } catch (err) {
+            } catch {
               failed++;
             }
           } else {

@@ -10,9 +10,8 @@ import {
   getViewIdTools,
 } from './common/constants';
 import { extensionStore } from './common/lib/extension-store';
-import { initGlobalState, migrateGlobalState } from './common/lib/global-state';
 import { logger } from './common/lib/logger';
-import { initWorkspaceState } from './common/lib/workspace-state';
+import { initGlobalState, initWorkspaceState, migrateGlobalState } from './common/state';
 import { getFirstWorkspacePath } from './common/utils/workspace-utils';
 import { VscodeHelper } from './common/vscode/vscode-helper';
 import type { ExtensionContext } from './common/vscode/vscode-types';
@@ -67,9 +66,9 @@ function setupInitialKeybindings() {
   reloadTaskKeybindings();
 }
 
-function setupProviders(context: ExtensionContext, activateStart: number): Providers {
+function setupProviders(activateStart: number): Providers {
   const statusBarManager = new StatusBarManager();
-  const taskTreeDataProvider = new TaskTreeDataProvider(context);
+  const taskTreeDataProvider = new TaskTreeDataProvider();
   const variablesProvider = new VariablesProvider();
   const replacementsProvider = new ReplacementsProvider();
   const promptTreeDataProvider = new PromptTreeDataProvider();
@@ -236,7 +235,7 @@ export function activate(context: ExtensionContext): object {
   setupStatesAndContext(context);
   setupInitialKeybindings();
 
-  const providers = setupProviders(context, activateStart);
+  const providers = setupProviders(activateStart);
   setupTreeViews(providers);
   setupDisposables(context, providers);
   setupWatchers(context, providers, activateStart);

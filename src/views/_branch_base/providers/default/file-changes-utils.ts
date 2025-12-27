@@ -19,13 +19,13 @@ import { createLogger } from '../../../../common/lib/logger';
 const execAsync = promisify(exec);
 const logger = createLogger('GitChangedFiles');
 
-export type ChangedFilesSummary = {
+type ChangedFilesSummary = {
   added: number;
   modified: number;
   deleted: number;
 };
 
-export type ChangedFilesResult = {
+type ChangedFilesResult = {
   content: string;
   summary: string;
   sectionMetadata?: Record<string, unknown>;

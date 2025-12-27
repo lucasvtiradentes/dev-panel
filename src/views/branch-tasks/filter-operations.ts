@@ -17,7 +17,7 @@ export function applyFilters(nodes: TaskNode[], activeFilters: TaskFilter): Task
   return nodes.map((node) => filterNode(node, activeFilters)).filter((node): node is TaskNode => node !== null);
 }
 
-export function filterNode(node: TaskNode, activeFilters: TaskFilter): TaskNode | null {
+function filterNode(node: TaskNode, activeFilters: TaskFilter): TaskNode | null {
   if (!matchesFilter(node, activeFilters)) {
     const filteredChildren = node.children
       .map((c) => filterNode(c, activeFilters))
@@ -37,7 +37,7 @@ export function filterNode(node: TaskNode, activeFilters: TaskFilter): TaskNode 
   return { ...node, children: filteredChildren };
 }
 
-export function matchesFilter(node: TaskNode, activeFilters: TaskFilter): boolean {
+function matchesFilter(node: TaskNode, activeFilters: TaskFilter): boolean {
   const f = activeFilters;
 
   if (f.status && !f.status.includes(node.status)) {

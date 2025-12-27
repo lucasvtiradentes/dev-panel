@@ -37,10 +37,6 @@ export function statusToMarker(status: TaskStatus): string {
   }
 }
 
-function createEmptyMeta(): TaskMeta {
-  return {};
-}
-
 export function cycleStatus(currentStatus: TaskStatus): TaskStatus {
   const cycle: TaskStatus[] = [TaskStatus.Todo, TaskStatus.Doing, TaskStatus.Done];
   const idx = cycle.indexOf(currentStatus);
@@ -48,7 +44,7 @@ export function cycleStatus(currentStatus: TaskStatus): TaskStatus {
   return cycle[(idx + 1) % cycle.length];
 }
 
-export type ParsedTaskText = {
+type ParsedTaskText = {
   text: string;
   meta: TaskMeta;
 };
@@ -102,7 +98,7 @@ export function parseTaskText(rawText: string): ParsedTaskText {
   return { text, meta };
 }
 
-export function serializeTaskMeta(meta: TaskMeta): string {
+function serializeTaskMeta(meta: TaskMeta): string {
   const parts: string[] = [];
 
   if (meta.assignee) {

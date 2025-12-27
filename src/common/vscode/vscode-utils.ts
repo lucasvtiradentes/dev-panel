@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
+import type { CommandParams } from '../../commands/command-params';
+import { IS_DEV } from '../constants/constants';
 import { getCommandId } from '../constants/functions';
-import { CONTEXT_PREFIX } from '../constants/scripts-constants';
-import type { CommandParams } from '../lib/command-params';
+import { CONTEXT_PREFIX, DEV_SUFFIX } from '../constants/scripts-constants';
 import { VscodeHelper } from './vscode-helper';
 import type { Disposable } from './vscode-types';
 
@@ -239,4 +240,25 @@ export function getWorkspaceId(): string {
 }
 export function setWorkspaceId(id: string) {
   currentWorkspaceId = id;
+}
+
+export enum ExtensionConfigKey {
+  AutoRefresh = 'autorefresh',
+}
+
+type ExtensionConfigSchema = {
+  [ExtensionConfigKey.AutoRefresh]: boolean;
+};
+
+const extensionConfigDefaults: ExtensionConfigSchema = {
+  [ExtensionConfigKey.AutoRefresh]: true,
+};
+
+function getExtensionConfigSection(): string {
+  return IS_DEV ? `${CONTEXT_PREFIX}${DEV_SUFFIX}` : CONTEXT_PREFIX;
+}
+
+export function getExtensionConfig<K extends ExtensionConfigKey>(key: K): ExtensionConfigSchema[K] {
+  const config = VscodeHelper.getConfiguration(getExtensionConfigSection());
+  return config.get<ExtensionConfigSchema[K]>(key) ?? extensionConfigDefaults[key];
 }

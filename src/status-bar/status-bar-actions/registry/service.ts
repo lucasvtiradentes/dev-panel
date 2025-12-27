@@ -5,7 +5,6 @@ import {
   PLUGINS_DIR_NAME,
   PROMPTS_DIR_NAME,
   REGISTRY_BASE_URL,
-  REGISTRY_CONFIG_FILE,
   REGISTRY_DEFAULT_PLUGIN_FILE,
   REGISTRY_DEFAULT_PROMPT_FILE,
   REGISTRY_DEFAULT_SCRIPT_FILE,
@@ -13,12 +12,17 @@ import {
   REGISTRY_INDEX_FILE,
   SCRIPTS_DIR_NAME,
   TOOLS_DIR,
-} from '../constants';
-import { ConfigKey } from '../constants/enums';
-import { type RegistryIndex, RegistryIndexSchema, type RegistryItemEntry, RegistryItemKind } from '../schemas';
-import type { WorkspaceFolder } from '../vscode/vscode-types';
-import { getConfigDirPathFromWorkspacePath, getWorkspaceConfigDirPath } from './config-manager';
-import { logger } from './logger';
+} from '../../../common/constants';
+import { ConfigKey } from '../../../common/constants/enums';
+import { ConfigManager } from '../../../common/lib/config-manager';
+import { logger } from '../../../common/lib/logger';
+import {
+  type RegistryIndex,
+  RegistryIndexSchema,
+  type RegistryItemEntry,
+  RegistryItemKind,
+} from '../../../common/schemas';
+import type { WorkspaceFolder } from '../../../common/vscode/vscode-types';
 
 type RegistryConfigKey = Exclude<ConfigKey, ConfigKey.Tasks>;
 
@@ -78,7 +82,7 @@ export function getItemsForKind(index: RegistryIndex, kind: RegistryItemKind): R
   return (index[config.configKey] as RegistryItemEntry[] | undefined) ?? [];
 }
 
-export async function fetchItemFile(
+async function fetchItemFile(
   kind: RegistryItemKind,
   itemName: string,
   fileName?: string,
@@ -91,20 +95,9 @@ export async function fetchItemFile(
   return { fileName: file, content };
 }
 
-async function fetchItemConfig(kind: RegistryItemKind, itemName: string): Promise<Record<string, unknown> | null> {
-  const config = KIND_CONFIG[kind];
-  const url = `${REGISTRY_BASE_URL}/${config.dirName}/${itemName}/${REGISTRY_CONFIG_FILE}`;
-  try {
-    const content = await httpsGet(url);
-    return JSON.parse(content) as Record<string, unknown>;
-  } catch {
-    return null;
-  }
-}
-
 export function getInstalledItems(workspacePath: string, kind: RegistryItemKind): string[] {
   const config = KIND_CONFIG[kind];
-  const dirPath = path.join(getConfigDirPathFromWorkspacePath(workspacePath), config.dirName);
+  const dirPath = path.join(ConfigManager.getConfigDirPathFromWorkspacePath(workspacePath), config.dirName);
 
   if (!fs.existsSync(dirPath)) return [];
 
@@ -123,7 +116,7 @@ export async function installItem(
   force = false,
 ) {
   const config = KIND_CONFIG[kind];
-  const configDirPath = getWorkspaceConfigDirPath(workspaceFolder);
+  const configDirPath = ConfigManager.getWorkspaceConfigDirPath(workspaceFolder);
   const targetDir = path.join(configDirPath, config.dirName);
 
   if (!fs.existsSync(targetDir)) {

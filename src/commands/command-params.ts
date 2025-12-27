@@ -1,30 +1,27 @@
+import type { Uri } from '../common/vscode/vscode-types';
+import { Command } from '../common/vscode/vscode-utils';
 import type {
   EditBranchFieldParams,
   OpenBranchContextFileAtLineParams,
-} from '../../commands/internal/branch-context/edit-branch-fields';
-import type { CycleTaskStatusParams, ToggleTodoParams } from '../../commands/internal/branch-tasks/toggle-branch-tasks';
-import type { ExecutePromptParams } from '../../commands/internal/execute-task';
-import type { GoToPromptFileParams } from '../../commands/internal/prompts/go-to-prompt-file';
-import type {
-  TogglePromptFavoriteParams,
-  TogglePromptHideParams,
-} from '../../commands/internal/prompts/toggle-prompts-view';
-import type { GoToReplacementTargetFileParams } from '../../commands/internal/replacements/go-to-replacement-target-file';
-import type { ToggleReplacementParams } from '../../commands/internal/replacements/toggle-replacement';
-import type { SelectConfigOptionParams } from '../../commands/internal/select-config-option';
-import type { ToggleTaskFavoriteParams, ToggleTaskHideParams } from '../../commands/internal/tasks/toggle-tasks-view';
-import type { GoToToolFileParams } from '../../commands/internal/tools/go-to-tool-file';
+} from './internal/branch-context/edit-branch-fields';
+import type { CycleTaskStatusParams, ToggleTodoParams } from './internal/branch-tasks/toggle-branch-tasks';
+import type { ExecutePromptParams } from './internal/execute-task';
+import type { GoToPromptFileParams } from './internal/prompts/go-to-prompt-file';
+import type { TogglePromptFavoriteParams, TogglePromptHideParams } from './internal/prompts/toggle-prompts-view';
+import type { GoToReplacementTargetFileParams } from './internal/replacements/go-to-replacement-target-file';
+import type { ToggleReplacementParams } from './internal/replacements/toggle-replacement';
+import type { SelectConfigOptionParams } from './internal/select-config-option';
+import type { ToggleTaskFavoriteParams, ToggleTaskHideParams } from './internal/tasks/toggle-tasks-view';
+import type { GoToToolFileParams } from './internal/tools/go-to-tool-file';
 import type {
   ToggleToolFavoriteParams,
   ToggleToolHideParams,
   ToggleToolParams,
-} from '../../commands/internal/tools/toggle-tools-view';
-import type { Uri } from '../vscode/vscode-types';
-import { Command } from '../vscode/vscode-utils';
+} from './internal/tools/toggle-tools-view';
 
-export type VscodeOpenParams = { uri: Uri; viewColumn?: number };
-export type VscodeSetContextParams = { key: string; value: unknown };
-export type VscodeOpenGlobalKeybindingsParams = { query: string };
+type VscodeOpenParams = { uri: Uri; viewColumn?: number };
+type VscodeSetContextParams = { key: string; value: unknown };
+type VscodeOpenGlobalKeybindingsParams = { query: string };
 
 export type CommandParams = {
   [Command.EditBranchName]: EditBranchFieldParams;

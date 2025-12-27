@@ -1,14 +1,6 @@
 import * as fs from 'node:fs';
 import { ConfigKey, LocationScope, getGlobalPromptFilePath } from '../../../common/constants';
-import {
-  confirmDelete,
-  getWorkspacePromptFilePath,
-  loadGlobalConfig,
-  loadWorkspaceConfig,
-  removeConfigItem,
-  saveGlobalConfig,
-  saveWorkspaceConfig,
-} from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/lib/config-manager';
 import type { DevPanelPrompt } from '../../../common/schemas';
 import {
   isGlobalItem,
@@ -32,10 +24,10 @@ async function handleDeletePrompt(treePrompt: TreePrompt) {
   const isGlobal = isGlobalItem(treePrompt.promptName);
   const promptName = stripGlobalPrefix(treePrompt.promptName);
 
-  if (!(await confirmDelete('prompt', promptName, isGlobal))) return;
+  if (!(await ConfigManager.confirmDelete('prompt', promptName, isGlobal))) return;
 
   if (isGlobal) {
-    const globalConfig = loadGlobalConfig();
+    const globalConfig = ConfigManager.loadGlobalConfig();
     if (!globalConfig) {
       showConfigNotFoundError(LocationScope.Global);
       return;
@@ -46,13 +38,17 @@ async function handleDeletePrompt(treePrompt: TreePrompt) {
       return;
     }
 
-    const removed = removeConfigItem(globalConfig, ConfigKey.Prompts, promptName) as DevPanelPrompt | null;
+    const removed = ConfigManager.removeConfigItem(
+      globalConfig,
+      ConfigKey.Prompts,
+      promptName,
+    ) as DevPanelPrompt | null;
     if (!removed) {
       showNotFoundError('Prompt', promptName, LocationScope.Global);
       return;
     }
 
-    saveGlobalConfig(globalConfig);
+    ConfigManager.saveGlobalConfig(globalConfig);
 
     const globalPromptFile = getGlobalPromptFilePath(removed.file);
     if (fs.existsSync(globalPromptFile)) {
@@ -67,7 +63,7 @@ async function handleDeletePrompt(treePrompt: TreePrompt) {
   const workspaceFolder = requireWorkspaceFolder();
   if (!workspaceFolder) return;
 
-  const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
+  const workspaceConfig = ConfigManager.loadWorkspaceConfig(workspaceFolder);
   if (!workspaceConfig) {
     showConfigNotFoundError(LocationScope.Workspace);
     return;
@@ -78,15 +74,19 @@ async function handleDeletePrompt(treePrompt: TreePrompt) {
     return;
   }
 
-  const removed = removeConfigItem(workspaceConfig, ConfigKey.Prompts, promptName) as DevPanelPrompt | null;
+  const removed = ConfigManager.removeConfigItem(
+    workspaceConfig,
+    ConfigKey.Prompts,
+    promptName,
+  ) as DevPanelPrompt | null;
   if (!removed) {
     showNotFoundError('Prompt', promptName, LocationScope.Workspace);
     return;
   }
 
-  saveWorkspaceConfig(workspaceFolder, workspaceConfig);
+  ConfigManager.saveWorkspaceConfig(workspaceFolder, workspaceConfig);
 
-  const workspacePromptFile = getWorkspacePromptFilePath(workspaceFolder, removed.file);
+  const workspacePromptFile = ConfigManager.getWorkspacePromptFilePath(workspaceFolder, removed.file);
   if (fs.existsSync(workspacePromptFile)) {
     fs.rmSync(workspacePromptFile);
   }

@@ -12,13 +12,9 @@ import {
   getSkillDir,
   getSkillFilePath,
 } from '../../../common/constants';
-import {
-  getWorkspaceToolInstructionsPath,
-  loadGlobalConfig,
-  loadWorkspaceConfig,
-} from '../../../common/lib/config-manager';
-import { toolsState } from '../../../common/lib/workspace-state';
+import { ConfigManager } from '../../../common/lib/config-manager';
 import type { DevPanelConfig } from '../../../common/schemas';
+import { toolsState } from '../../../common/state';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable, WorkspaceFolder } from '../../../common/vscode/vscode-types';
@@ -138,12 +134,12 @@ function parseInstructionsMd(content: string, toolName: string): ToolInstruction
 }
 
 function getGlobalTools(): NonNullable<DevPanelConfig['tools']> {
-  const config = loadGlobalConfig();
+  const config = ConfigManager.loadGlobalConfig();
   return config?.tools ?? [];
 }
 
 function generateToolsXml(workspaceFolder: WorkspaceFolder): string {
-  const config = loadWorkspaceConfig(workspaceFolder);
+  const config = ConfigManager.loadWorkspaceConfig(workspaceFolder);
   const localTools = config?.tools ?? [];
 
   const globalTools = getGlobalTools();
@@ -161,7 +157,7 @@ function generateToolsXml(workspaceFolder: WorkspaceFolder): string {
   toolsXml.push('  Custom CLI tools installed (execute via Bash tool):');
 
   for (const tool of activeLocalTools) {
-    const instructionsPath = getWorkspaceToolInstructionsPath(workspaceFolder, tool.name);
+    const instructionsPath = ConfigManager.getWorkspaceToolInstructionsPath(workspaceFolder, tool.name);
 
     let description = '';
     if (fs.existsSync(instructionsPath)) {
@@ -253,7 +249,7 @@ ${contentLines.join('\n').trim()}
 }
 
 async function syncToSkills(workspaceFolder: WorkspaceFolder): Promise<number> {
-  const config = loadWorkspaceConfig(workspaceFolder);
+  const config = ConfigManager.loadWorkspaceConfig(workspaceFolder);
   const localTools = config?.tools ?? [];
 
   const globalTools = getGlobalTools();
@@ -282,7 +278,7 @@ async function syncToSkills(workspaceFolder: WorkspaceFolder): Promise<number> {
   let syncedCount = 0;
 
   for (const tool of activeLocalTools) {
-    const instructionsPath = getWorkspaceToolInstructionsPath(workspaceFolder, tool.name);
+    const instructionsPath = ConfigManager.getWorkspaceToolInstructionsPath(workspaceFolder, tool.name);
 
     if (!fs.existsSync(instructionsPath)) {
       continue;

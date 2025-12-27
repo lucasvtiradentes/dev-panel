@@ -12,16 +12,10 @@ import {
   SECTION_NAME_REQUIREMENTS,
 } from '../../common/constants';
 import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-constants';
-import {
-  configDirExists,
-  getBranchContextFilePath as getBranchContextFilePathUtil,
-  getGitExcludeFilePath,
-  getRootBranchContextFilePath,
-  loadWorkspaceConfigFromPath,
-} from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
-import { branchContextState } from '../../common/lib/workspace-state';
-import { formatRelativeTime } from '../../common/utils/time-formatter';
+import { branchContextState } from '../../common/state';
+import { formatRelativeTime } from '../../common/utils/common-utils';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
@@ -57,7 +51,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     this.helpers = new ProviderHelpers();
 
     const workspace = getFirstWorkspacePath();
-    const config = workspace ? loadWorkspaceConfigFromPath(workspace) : null;
+    const config = workspace ? ConfigManager.loadWorkspaceConfigFromPath(workspace) : null;
     const tasksConfig = config?.branchContext?.builtinSections?.tasks;
     this.taskProvider = createTaskProvider(tasksConfig, workspace ?? undefined);
 
@@ -134,7 +128,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     const workspace = getFirstWorkspacePath();
     if (!workspace || !uri) return;
 
-    const currentBranchPath = getBranchContextFilePathUtil(workspace, this.currentBranch);
+    const currentBranchPath = ConfigManager.getBranchContextFilePath(workspace, this.currentBranch);
 
     if (uri.fsPath !== currentBranchPath) {
       logger.info(`[handleMarkdownChange] Ignoring - path mismatch: ${uri.fsPath} !== ${currentBranchPath}`);
@@ -169,7 +163,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
       this.addToGitExclude(workspace);
     }
 
-    const config = loadWorkspaceConfigFromPath(workspace);
+    const config = ConfigManager.loadWorkspaceConfigFromPath(workspace);
     if (config) {
       const issues = validateBranchContext(workspace, config.branchContext);
       if (issues.length > 0) {
@@ -183,7 +177,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   }
 
   private addToGitExclude(workspace: string) {
-    const excludePath = getGitExcludeFilePath(workspace);
+    const excludePath = ConfigManager.getGitExcludeFilePath(workspace);
     if (!fs.existsSync(excludePath)) return;
 
     try {
@@ -265,7 +259,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
       changedFilesValue = formatChangedFilesSummary(summary);
     }
 
-    const markdownPath = getBranchContextFilePathUtil(workspace, this.currentBranch);
+    const markdownPath = ConfigManager.getBranchContextFilePath(workspace, this.currentBranch);
     const syncContext = {
       branchName: this.currentBranch,
       workspacePath: workspace,
@@ -305,7 +299,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     return items;
   }
 
-  async editField(_branchName: string, sectionName: string, _currentValue: string | undefined) {
+  async editField(sectionName: string) {
     const lineKeyMap: Record<string, string> = {
       [SECTION_NAME_BRANCH]: SECTION_NAME_BRANCH_INFO,
       [SECTION_NAME_PR_LINK]: SECTION_NAME_BRANCH_INFO,
@@ -323,7 +317,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
-    const filePath = getRootBranchContextFilePath(workspace);
+    const filePath = ConfigManager.getRootBranchContextFilePath(workspace);
     const uri = VscodeHelper.createFileUri(filePath);
     await VscodeHelper.openDocument(uri);
   }
@@ -332,7 +326,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
-    const filePath = getRootBranchContextFilePath(workspace);
+    const filePath = ConfigManager.getRootBranchContextFilePath(workspace);
     const lineNumber = getFieldLineNumber(filePath, fieldName);
     const uri = VscodeHelper.createFileUri(filePath);
     await VscodeHelper.openDocumentAtLine(uri, lineNumber);
@@ -340,7 +334,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
 
   async syncBranchContext() {
     const workspace = getFirstWorkspacePath();
-    if (!workspace || !configDirExists(workspace)) {
+    if (!workspace || !ConfigManager.configDirExists(workspace)) {
       logger.info('[syncBranchContext] No config directory, skipping');
       return;
     }

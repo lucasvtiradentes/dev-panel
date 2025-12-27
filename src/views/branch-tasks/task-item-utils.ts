@@ -54,7 +54,7 @@ function formatDueDate(dateStr: string): string {
   return `📅 ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
 }
 
-export function isOverdue(meta: TaskMeta): boolean {
+function isOverdue(meta: TaskMeta): boolean {
   if (!meta.dueDate) return false;
   const date = new Date(meta.dueDate);
   const today = new Date();

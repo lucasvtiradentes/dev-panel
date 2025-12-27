@@ -11,16 +11,10 @@ import {
   getGlobalConfigDir,
   getGlobalToolInstructionsPath,
 } from '../../common/constants';
-import {
-  getWorkspaceConfigDirPath,
-  getWorkspaceToolInstructionsPath,
-  loadGlobalConfig,
-  loadWorkspaceConfig,
-} from '../../common/lib/config-manager';
-import { globalToolsState } from '../../common/lib/global-state';
+import { ConfigManager } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
-import { toolsState } from '../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../common/schemas';
+import { globalToolsState, toolsState } from '../../common/state';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
@@ -180,12 +174,12 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   }
 
   private readDevPanelTools(folder: WorkspaceFolder): NonNullable<DevPanelConfig['tools']> {
-    const config = loadWorkspaceConfig(folder);
+    const config = ConfigManager.loadWorkspaceConfig(folder);
     return config?.tools ?? [];
   }
 
   private readGlobalTools(): NonNullable<DevPanelConfig['tools']> {
-    const config = loadGlobalConfig();
+    const config = ConfigManager.loadGlobalConfig();
     return config?.tools ?? [];
   }
 
@@ -194,7 +188,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     return match ? match[1] : null;
   }
 
-  private readToolDescription(toolName: string, instructionsPath: string): string | null {
+  private readToolDescription(instructionsPath: string): string | null {
     if (!fs.existsSync(instructionsPath)) return null;
 
     const content = fs.readFileSync(instructionsPath, 'utf8');
@@ -234,14 +228,14 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     if (hidden && !this._showHidden) return null;
     if (this._showOnlyFavorites && !favorite) return null;
 
-    const configDirPath = getWorkspaceConfigDirPath(folder);
+    const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
     const toolFilePath = tool.command ? this.extractFileFromCommand(tool.command) : '';
     const fullToolFilePath = toolFilePath ? path.join(configDirPath, toolFilePath) : '';
 
     const treeTool = new TreeTool(tool.name, fullToolFilePath, VscodeConstants.TreeItemCollapsibleState.None);
 
-    const instructionsPath = getWorkspaceToolInstructionsPath(folder, tool.name);
-    const description = this.readToolDescription(tool.name, instructionsPath);
+    const instructionsPath = ConfigManager.getWorkspaceToolInstructionsPath(folder, tool.name);
+    const description = this.readToolDescription(instructionsPath);
     if (description) {
       treeTool.tooltip = description;
     }
@@ -283,7 +277,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     const treeTool = new TreeTool(globalToolName, fullToolFilePath, VscodeConstants.TreeItemCollapsibleState.None);
 
     const instructionsPath = getGlobalToolInstructionsPath(tool.name);
-    const description = this.readToolDescription(tool.name, instructionsPath);
+    const description = this.readToolDescription(instructionsPath);
     treeTool.tooltip = description ? `Global: ${description}` : GLOBAL_TOOL_TOOLTIP;
 
     if (hidden) {

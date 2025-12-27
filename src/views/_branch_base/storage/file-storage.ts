@@ -1,18 +1,11 @@
 import * as fs from 'node:fs';
 import {
-  BRANCH_CONTEXT_DEFAULT_TODOS,
   BRANCH_CONTEXT_FIELD_BRANCH,
   BRANCH_CONTEXT_FIELD_LINEAR_LINK,
   BRANCH_CONTEXT_FIELD_PR_LINK,
   BRANCH_CONTEXT_FIELD_TYPE,
   BRANCH_CONTEXT_NA,
   BRANCH_CONTEXT_NO_CHANGES,
-  BRANCH_CONTEXT_SECTION_BRANCH_INFO,
-  BRANCH_CONTEXT_SECTION_CHANGED_FILES,
-  BRANCH_CONTEXT_SECTION_NOTES,
-  BRANCH_CONTEXT_SECTION_OBJECTIVE,
-  BRANCH_CONTEXT_SECTION_REQUIREMENTS,
-  BRANCH_CONTEXT_SECTION_TODO,
   BUILTIN_SECTION_NAMES,
   METADATA_DEVPANEL_PREFIX,
   METADATA_DEVPANEL_REGEX,
@@ -24,7 +17,7 @@ import {
   SECTION_NAME_REQUIREMENTS,
   SECTION_NAME_TASKS,
 } from '../../../common/constants';
-import { getBranchContextFilePath } from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext, BranchContextMetadata, SectionMetadata } from '../../../common/schemas/types';
 import { extractSectionMetadata } from '../../../common/utils/metadata-extractor';
@@ -33,7 +26,7 @@ import { parseBranchTypeCheckboxes } from './branch-type-utils';
 const logger = createLogger('BranchContext');
 
 export function loadBranchContextFromFile(workspace: string, branchName: string): BranchContext {
-  const filePath = getBranchContextFilePath(workspace, branchName);
+  const filePath = ConfigManager.getBranchContextFilePath(workspace, branchName);
 
   if (!fs.existsSync(filePath)) {
     return {};
@@ -47,40 +40,6 @@ export function loadBranchContextFromFile(workspace: string, branchName: string)
     logger.error(`Failed to load branch context for ${branchName}: ${message}`);
     return {};
   }
-}
-
-function generateMarkdown(branchName: string, context: BranchContext): string {
-  const lines = [
-    BRANCH_CONTEXT_SECTION_BRANCH_INFO,
-    '',
-    `${BRANCH_CONTEXT_FIELD_BRANCH} ${branchName}`,
-    `${BRANCH_CONTEXT_FIELD_PR_LINK} ${context.prLink ?? BRANCH_CONTEXT_NA}`,
-    `${BRANCH_CONTEXT_FIELD_LINEAR_LINK} ${context.linearLink ?? BRANCH_CONTEXT_NA}`,
-    '',
-    BRANCH_CONTEXT_SECTION_OBJECTIVE,
-    '',
-    context.objective ?? BRANCH_CONTEXT_NA,
-    '',
-    BRANCH_CONTEXT_SECTION_REQUIREMENTS,
-    '',
-    context.requirements ?? BRANCH_CONTEXT_NA,
-    '',
-    BRANCH_CONTEXT_SECTION_NOTES,
-    '',
-    context.notes ?? BRANCH_CONTEXT_NA,
-    '',
-    BRANCH_CONTEXT_SECTION_TODO,
-    '',
-    context.todos ?? BRANCH_CONTEXT_DEFAULT_TODOS,
-    '',
-    BRANCH_CONTEXT_SECTION_CHANGED_FILES,
-    '',
-    '```',
-    context.changedFiles ?? BRANCH_CONTEXT_NO_CHANGES,
-    '```',
-    '',
-  ];
-  return lines.join('\n');
 }
 
 function extractField(content: string, fieldName: string): string | undefined {

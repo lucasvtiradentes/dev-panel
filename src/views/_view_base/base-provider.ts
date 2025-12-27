@@ -4,7 +4,7 @@ import type { Event, EventEmitter, TreeDataProvider, TreeItem } from '../../comm
 import { type ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
 import type { GlobalStateManager, GroupTreeItem, NamedTreeItem, SimpleStateManager, StateManager } from './types';
 
-export type ProviderConfig<TSource = void> = {
+export type ProviderConfig = {
   contextKeys: {
     grouped: ContextKey;
     hasHidden: ContextKey;
@@ -29,7 +29,7 @@ export abstract class BaseTreeDataProvider<
 
   constructor(
     protected readonly stateManager: StateManager<TSource> | SimpleStateManager,
-    protected readonly config: ProviderConfig<TSource>,
+    protected readonly config: ProviderConfig,
     protected readonly getSource: (() => TSource) | null,
     protected readonly globalStateManager?: GlobalStateManager,
   ) {
@@ -54,7 +54,7 @@ export abstract class BaseTreeDataProvider<
   }
 
   protected isSimpleStateManager(manager: StateManager<TSource> | SimpleStateManager): manager is SimpleStateManager {
-    return this.getSource === null;
+    return this.getSource === null && manager === this.stateManager;
   }
 
   protected updateContextKeys() {

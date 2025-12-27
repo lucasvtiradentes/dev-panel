@@ -24,7 +24,7 @@ export enum AIProvider {
   CursorAgent = 'cursor-agent',
 }
 
-export function getAIProvidersList(): string[] {
+function getAIProvidersList(): string[] {
   return Object.values(AIProvider);
 }
 
@@ -39,7 +39,7 @@ export enum PromptExecutionMode {
 const DevPanelInputSchema = z
   .object({
     name: z.string().describe('Variable name used in template as $name'),
-    type: z.nativeEnum(PromptInputType).describe('Input type'),
+    type: z.enum(PromptInputType).describe('Input type'),
     label: z.string().describe('Label shown in the input dialog'),
     placeholder: z.string().optional().describe('Placeholder text for text/number inputs'),
     options: z.array(z.string()).optional().describe('Available options for choice/multichoice types'),
@@ -130,8 +130,6 @@ const DevPanelVariableChooseMultiSchema = DevPanelVariableBaseSchema.extend({
   default: z.array(z.string()).optional().describe('Default values'),
 });
 
-const DevPanelVariableChooseSchema = z.union([DevPanelVariableChooseSingleSchema, DevPanelVariableChooseMultiSchema]);
-
 const DevPanelVariableToggleSchema = DevPanelVariableBaseSchema.extend({
   kind: z.literal('toggle').describe('Toggle between ON/OFF'),
   default: z.boolean().optional().describe('Default value'),
@@ -158,8 +156,6 @@ const DevPanelVariableFileMultiSchema = DevPanelVariableBaseSchema.extend({
   default: z.array(z.string()).optional().describe('Default values'),
 });
 
-const DevPanelVariableFileSchema = z.union([DevPanelVariableFileSingleSchema, DevPanelVariableFileMultiSchema]);
-
 const DevPanelVariableFolderSingleSchema = DevPanelVariableBaseSchema.extend({
   kind: z.literal('folder').describe('Folder selection'),
   multiSelect: z.literal(false).optional().describe('Single selection'),
@@ -175,8 +171,6 @@ const DevPanelVariableFolderMultiSchema = DevPanelVariableBaseSchema.extend({
   excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Extends global excludes'),
   default: z.array(z.string()).optional().describe('Default values'),
 });
-
-const DevPanelVariableFolderSchema = z.union([DevPanelVariableFolderSingleSchema, DevPanelVariableFolderMultiSchema]);
 
 const DevPanelVariableSchema = z
   .union([

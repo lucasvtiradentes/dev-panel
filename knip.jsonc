@@ -6,5 +6,5 @@
   "ignoreBinaries": ["vsce"],
   "ignoreDependencies": ["tscanner"],
   "biome": { "config": "biome.json" },
-  "ignoreExportsUsedInFile": true
+  "ignoreExportsUsedInFile": false
 }

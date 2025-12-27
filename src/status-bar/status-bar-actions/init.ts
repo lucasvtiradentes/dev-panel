@@ -1,6 +1,6 @@
 import { CONFIG_FILE_NAME, EXTENSION_DISPLAY_NAME } from '../../common/constants';
 import { INIT_RESOURCES_DIR_NAME, RESOURCES_DIR_NAME } from '../../common/constants/scripts-constants';
-import { getWorkspaceConfigDirPath } from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/lib/config-manager';
 import { extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
@@ -37,7 +37,7 @@ export async function showInitMenu() {
     }
 
     const initResourcesUri = VscodeHelper.joinPath(extensionUri, RESOURCES_DIR_NAME, INIT_RESOURCES_DIR_NAME);
-    const configDirPath = getWorkspaceConfigDirPath(workspaceFolder);
+    const configDirPath = ConfigManager.getWorkspaceConfigDirPath(workspaceFolder);
     const configDirUri = VscodeHelper.createFileUri(configDirPath);
 
     await copyDirectoryRecursive(initResourcesUri, configDirUri);

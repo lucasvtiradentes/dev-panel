@@ -10,7 +10,7 @@ import {
   NO_GROUP_NAME,
   getCommandId,
 } from '../../common/constants';
-import { getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/lib/config-manager';
 import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
@@ -215,7 +215,7 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return null;
 
-    const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
+    const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
     if (!fs.existsSync(configPath)) return null;
 
     const content = fs.readFileSync(configPath, 'utf-8');

@@ -9,7 +9,7 @@ import {
   TOOL_NAME_PATTERN,
   TOOL_NAME_VALIDATION_MESSAGE,
 } from '../../../common/constants';
-import { getWorkspaceConfigFilePath, getWorkspacePromptsDir, parseConfig } from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/lib/config-manager';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
@@ -54,14 +54,14 @@ async function handleAddPrompt() {
     placeHolder: 'Development',
   });
 
-  const configPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
+  const configPath = ConfigManager.getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
   if (!fs.existsSync(configPath)) {
     VscodeHelper.showToastMessage(ToastKind.Error, `Config file not found: ${configPath}`);
     return;
   }
 
   const configContent = fs.readFileSync(configPath, 'utf8');
-  const config = parseConfig(configContent);
+  const config = ConfigManager.parseConfig(configContent);
   if (!config) {
     VscodeHelper.showToastMessage(ToastKind.Error, 'Failed to parse config file');
     return;
@@ -128,7 +128,7 @@ async function handleAddPrompt() {
 
   fs.writeFileSync(configPath, updatedContent, 'utf8');
 
-  const promptsDir = getWorkspacePromptsDir(workspaceFolder);
+  const promptsDir = ConfigManager.getWorkspacePromptsDir(workspaceFolder);
   if (!fs.existsSync(promptsDir)) {
     fs.mkdirSync(promptsDir, { recursive: true });
   }

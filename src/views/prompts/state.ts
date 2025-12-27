@@ -1,6 +1,4 @@
-import { globalPromptsState } from '../../common/lib/global-state';
-import { createStateHelpers } from '../../common/lib/state-helpers';
-import { promptsState } from '../../common/lib/workspace-state';
+import { createStateHelpers, globalPromptsState, promptsState } from '../../common/state';
 
 const helpers = createStateHelpers(globalPromptsState, promptsState);
 

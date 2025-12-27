@@ -7,11 +7,10 @@ import {
   getCommandId,
   getGlobalPromptFilePath,
 } from '../../common/constants';
-import { getWorkspacePromptFilePath, loadGlobalConfig, loadWorkspaceConfig } from '../../common/lib/config-manager';
-import { globalPromptsState } from '../../common/lib/global-state';
+import { ConfigManager } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
-import { promptsState } from '../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../common/schemas';
+import { globalPromptsState, promptsState } from '../../common/state';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
@@ -126,7 +125,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
   }
 
   private readDevPanelPrompts(folder: WorkspaceFolder): NonNullable<DevPanelConfig['prompts']> {
-    const config = loadWorkspaceConfig(folder);
+    const config = ConfigManager.loadWorkspaceConfig(folder);
     const prompts = config?.prompts ?? [];
     log.info(`readDevPanelPrompts - found ${prompts.length} prompts`);
     for (const p of prompts) {
@@ -138,7 +137,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
   }
 
   private readGlobalPrompts(): NonNullable<DevPanelConfig['prompts']> {
-    const config = loadGlobalConfig();
+    const config = ConfigManager.loadGlobalConfig();
     const prompts = config?.prompts ?? [];
     log.info(`readGlobalPrompts - found ${prompts.length} prompts`);
     return prompts;
@@ -153,7 +152,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     if (hidden && !this._showHidden) return null;
     if (this._showOnlyFavorites && !favorite) return null;
 
-    const promptFilePath = getWorkspacePromptFilePath(folder, prompt.file);
+    const promptFilePath = ConfigManager.getWorkspacePromptFilePath(folder, prompt.file);
 
     const treePrompt = new TreePrompt(prompt.name, promptFilePath, VscodeConstants.TreeItemCollapsibleState.None, {
       command: getCommandId(Command.ExecutePrompt),

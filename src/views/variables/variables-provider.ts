@@ -13,13 +13,13 @@ import {
   VARIABLES_FILE_NAME,
   getCommandId,
 } from '../../common/constants';
-import { getConfigDirPathFromWorkspacePath, getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
-import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/lib/file-selection';
+import { ConfigManager } from '../../common/lib/config-manager';
 import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspaceFolder, getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
+import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/vscode/vscode-inputs';
 import { type TreeDataProvider, type TreeItem, TreeItemClass } from '../../common/vscode/vscode-types';
 import { Command, ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
 import { getIsGrouped, saveIsGrouped } from './state';
@@ -37,7 +37,7 @@ type PpState = {
 function getStatePath(): string | null {
   const workspace = getFirstWorkspacePath();
   if (!workspace) return null;
-  return getConfigFilePathFromWorkspacePath(workspace, VARIABLES_FILE_NAME);
+  return ConfigManager.getConfigFilePathFromWorkspacePath(workspace, VARIABLES_FILE_NAME);
 }
 
 function loadState(): PpState {
@@ -178,7 +178,7 @@ export class VariablesProvider implements TreeDataProvider<TreeItem> {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return null;
 
-    const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
+    const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
     if (!fs.existsSync(configPath)) return null;
 
     const content = fs.readFileSync(configPath, 'utf-8');
@@ -191,7 +191,7 @@ export class VariablesProvider implements TreeDataProvider<TreeItem> {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return undefined;
 
-    const configPath = getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
+    const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
     if (!fs.existsSync(configPath)) return undefined;
 
     const content = fs.readFileSync(configPath, 'utf-8');
@@ -209,7 +209,7 @@ async function runCommand(variable: DevPanelVariable, value: unknown) {
 
   const formattedValue = Array.isArray(value) ? value.join(',') : String(value);
   const command = `${variable.command} "${formattedValue}"`;
-  const configDirPath = getConfigDirPathFromWorkspacePath(workspace);
+  const configDirPath = ConfigManager.getConfigDirPathFromWorkspacePath(workspace);
 
   await VscodeHelper.withProgress(
     {

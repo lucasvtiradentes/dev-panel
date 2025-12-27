@@ -1,12 +1,5 @@
 import { ConfigKey, LocationScope } from '../../../common/constants';
-import {
-  confirmDelete,
-  loadGlobalConfig,
-  loadWorkspaceConfig,
-  removeConfigItem,
-  saveGlobalConfig,
-  saveWorkspaceConfig,
-} from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/lib/config-manager';
 import {
   isGlobalItem,
   showConfigNotFoundError,
@@ -29,10 +22,10 @@ async function handleDeleteTask(treeTask: TreeTask) {
   const isGlobal = isGlobalItem(treeTask.taskName);
   const taskName = stripGlobalPrefix(treeTask.taskName);
 
-  if (!(await confirmDelete('task', taskName, isGlobal))) return;
+  if (!(await ConfigManager.confirmDelete('task', taskName, isGlobal))) return;
 
   if (isGlobal) {
-    const globalConfig = loadGlobalConfig();
+    const globalConfig = ConfigManager.loadGlobalConfig();
     if (!globalConfig) {
       showConfigNotFoundError(LocationScope.Global);
       return;
@@ -43,13 +36,13 @@ async function handleDeleteTask(treeTask: TreeTask) {
       return;
     }
 
-    const removed = removeConfigItem(globalConfig, ConfigKey.Tasks, taskName);
+    const removed = ConfigManager.removeConfigItem(globalConfig, ConfigKey.Tasks, taskName);
     if (!removed) {
       showNotFoundError('Task', taskName, LocationScope.Global);
       return;
     }
 
-    saveGlobalConfig(globalConfig);
+    ConfigManager.saveGlobalConfig(globalConfig);
     showDeleteSuccessMessage('task', taskName, true);
     void executeCommand(Command.Refresh);
     return;
@@ -58,7 +51,7 @@ async function handleDeleteTask(treeTask: TreeTask) {
   const workspaceFolder = requireWorkspaceFolder();
   if (!workspaceFolder) return;
 
-  const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
+  const workspaceConfig = ConfigManager.loadWorkspaceConfig(workspaceFolder);
   if (!workspaceConfig) {
     showConfigNotFoundError(LocationScope.Workspace);
     return;
@@ -69,13 +62,13 @@ async function handleDeleteTask(treeTask: TreeTask) {
     return;
   }
 
-  const removed = removeConfigItem(workspaceConfig, ConfigKey.Tasks, taskName);
+  const removed = ConfigManager.removeConfigItem(workspaceConfig, ConfigKey.Tasks, taskName);
   if (!removed) {
     showNotFoundError('Task', taskName, LocationScope.Workspace);
     return;
   }
 
-  saveWorkspaceConfig(workspaceFolder, workspaceConfig);
+  ConfigManager.saveWorkspaceConfig(workspaceFolder, workspaceConfig);
   showDeleteSuccessMessage('task', taskName, false);
   void executeCommand(Command.Refresh);
 }

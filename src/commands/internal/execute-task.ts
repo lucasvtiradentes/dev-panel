@@ -22,15 +22,7 @@ import {
   VARIABLES_FILE_NAME,
   getGlobalConfigDir,
 } from '../../common/constants/scripts-constants';
-import {
-  getPromptOutputFilePath,
-  getWorkspaceConfigDirPath,
-  getWorkspaceConfigFilePath,
-  getWorkspaceVariablesPath,
-  loadGlobalConfig,
-  loadWorkspaceConfig,
-} from '../../common/lib/config-manager';
-import { collectInputs, replaceInputPlaceholders } from '../../common/lib/inputs';
+import { ConfigManager } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import {
   type DevPanelConfig,
@@ -39,9 +31,10 @@ import {
   PromptExecutionMode,
   getAIProvidersListFormatted,
 } from '../../common/schemas';
-import { TypeGuards } from '../../common/utils/type-utils';
+import { TypeGuards } from '../../common/utils/common-utils';
 import { loadVariablesFromPath, readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
+import { collectInputs, replaceInputPlaceholders } from '../../common/vscode/vscode-inputs';
 import { Command, isMultiRootWorkspace, registerCommand } from '../../common/vscode/vscode-utils';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';
@@ -149,7 +142,7 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
 
       if (scope && typeof scope !== 'number' && 'uri' in scope) {
         const folder = scope as WorkspaceFolder;
-        const variablesPath = getWorkspaceVariablesPath(folder);
+        const variablesPath = ConfigManager.getWorkspaceVariablesPath(folder);
         const env = readDevPanelVariablesAsEnv(variablesPath);
 
         if (Object.keys(env).length > 0) {
@@ -190,7 +183,7 @@ export function createExecuteToolCommand(context: ExtensionContext) {
       let cwd: string;
       let env: Record<string, string> = {};
 
-      const globalConfig = loadGlobalConfig();
+      const globalConfig = ConfigManager.loadGlobalConfig();
       const folder = getFirstWorkspaceFolder();
 
       if (isGlobal) {
@@ -202,11 +195,11 @@ export function createExecuteToolCommand(context: ExtensionContext) {
           void VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
           return;
         }
-        const config = loadWorkspaceConfig(folder);
+        const config = ConfigManager.loadWorkspaceConfig(folder);
         toolConfig = config?.tools?.find((t) => t.name === actualName);
-        const configDirPath = getWorkspaceConfigDirPath(folder);
+        const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
         cwd = toolConfig?.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
-        env = readDevPanelVariablesAsEnv(getWorkspaceVariablesPath(folder));
+        env = readDevPanelVariablesAsEnv(ConfigManager.getWorkspaceVariablesPath(folder));
       }
 
       if (!toolConfig?.command) {
@@ -247,7 +240,7 @@ export function createExecuteToolCommand(context: ExtensionContext) {
 }
 
 function readDevPanelSettings(folder: WorkspaceFolder): DevPanelSettings | undefined {
-  const config = loadWorkspaceConfig(folder);
+  const config = ConfigManager.loadWorkspaceConfig(folder);
   if (!config) {
     log.debug('readDevPanelSettings - config file not found or failed to parse');
     return undefined;
@@ -257,7 +250,7 @@ function readDevPanelSettings(folder: WorkspaceFolder): DevPanelSettings | undef
 }
 
 function readDevPanelVariables(folder: WorkspaceFolder): Record<string, unknown> | null {
-  const variablesPath = getWorkspaceConfigFilePath(folder, VARIABLES_FILE_NAME);
+  const variablesPath = ConfigManager.getWorkspaceConfigFilePath(folder, VARIABLES_FILE_NAME);
   log.debug(`readDevPanelVariables - variablesPath: ${variablesPath}`);
   const variables = loadVariablesFromPath(variablesPath);
   if (!variables) {
@@ -362,7 +355,7 @@ async function executePromptWithSave(options: {
   const branch = await getCurrentBranch(workspacePath).catch(() => 'unknown');
 
   const timestamped = settings?.promptExecution !== PromptExecutionMode.Overwrite;
-  const outputFile = getPromptOutputFilePath(workspacePath, branch, promptName, timestamped);
+  const outputFile = ConfigManager.getPromptOutputFilePath(workspacePath, branch, promptName, timestamped);
   const outputDir = path.dirname(outputFile);
   const tempFile = path.join(outputDir, '.prompt-temp.txt');
 

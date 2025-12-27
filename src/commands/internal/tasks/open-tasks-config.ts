@@ -9,9 +9,9 @@ import {
   VSCODE_TASKS_PATH,
   getVscodeTasksFilePath,
 } from '../../../common/constants';
-import { getConfigDirLabel, getCurrentConfigDir, getWorkspaceConfigFilePath } from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/lib/config-manager';
 import { TaskSource } from '../../../common/schemas/types';
-import { TypeGuards } from '../../../common/utils/type-utils';
+import { TypeGuards } from '../../../common/utils/common-utils';
 import { getFirstWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { WorkspaceFolder } from '../../../common/vscode/vscode-types';
@@ -80,7 +80,7 @@ export function createOpenTasksConfigCommand() {
       }
 
       case TaskSource.DevPanel: {
-        const configPath = getWorkspaceConfigFilePath(workspace, CONFIG_FILE_NAME);
+        const configPath = ConfigManager.getWorkspaceConfigFilePath(workspace, CONFIG_FILE_NAME);
         if (fs.existsSync(configPath)) {
           const content = fs.readFileSync(configPath, 'utf-8');
           const lines = content.split('\n');
@@ -96,7 +96,7 @@ export function createOpenTasksConfigCommand() {
           const uri = VscodeHelper.createFileUri(configPath);
           await VscodeHelper.openDocumentAtLine(uri, tasksLine);
         } else {
-          const configDirLabel = getConfigDirLabel(getCurrentConfigDir());
+          const configDirLabel = ConfigManager.getConfigDirLabel(ConfigManager.getCurrentConfigDir());
           void VscodeHelper.showToastMessage(ToastKind.Error, `${configDirLabel}/${CONFIG_FILE_NAME} not found`);
         }
         break;

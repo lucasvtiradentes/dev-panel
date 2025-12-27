@@ -6,7 +6,7 @@ import { EDITOR_NAMES, KEYBINDINGS_FILE, USER_CONFIG_DIR, USER_SETTINGS_DIR } fr
 
 export type VSCodeKeybinding = { key: string; command: string; when?: string };
 
-export function detectEditor(): string {
+function detectEditor(): string {
   if (vscode.env.appName.includes(EDITOR_NAMES.CURSOR)) return EDITOR_NAMES.CURSOR;
   if (vscode.env.appName.includes(EDITOR_NAMES.WINDSURF)) return EDITOR_NAMES.WINDSURF;
   return EDITOR_NAMES.CODE;

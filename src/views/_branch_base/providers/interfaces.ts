@@ -45,7 +45,7 @@ export type SyncResult = {
   conflicts?: { taskId: string; reason: string }[];
 };
 
-export type TaskStats = {
+type TaskStats = {
   completed: number;
   total: number;
 };

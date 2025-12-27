@@ -1,5 +1,5 @@
 import { TOOL_TASK_TYPE, getGlobalConfigDir, getToolCommandId, getToolCommandPrefix } from '../../common/constants';
-import { forEachWorkspaceConfig, getWorkspaceConfigDirPath, loadGlobalConfig } from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -16,14 +16,14 @@ export const getAllToolKeybindings = () => manager.getAllKeybindings();
 export const reloadToolKeybindings = () => manager.reload();
 
 export function registerToolKeybindings(context: ExtensionContext) {
-  forEachWorkspaceConfig((folder, config) => {
+  ConfigManager.forEachWorkspaceConfig((folder, config) => {
     const tools = config.tools ?? [];
 
     for (const tool of tools) {
       if (!tool.command) continue;
       const commandId = getToolCommandId(tool.name);
       const disposable = registerDynamicCommand(commandId, () => {
-        const configDirPath = getWorkspaceConfigDirPath(folder);
+        const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
         const shellExec = VscodeHelper.createShellExecution(tool.command as string, { cwd: configDirPath });
         const task = VscodeHelper.createTask({ type: TOOL_TASK_TYPE }, folder, tool.name, TOOL_TASK_TYPE, shellExec);
         void VscodeHelper.executeTask(task);
@@ -32,7 +32,7 @@ export function registerToolKeybindings(context: ExtensionContext) {
     }
   });
 
-  const globalConfig = loadGlobalConfig();
+  const globalConfig = ConfigManager.loadGlobalConfig();
   if (globalConfig) {
     const globalTools = globalConfig.tools ?? [];
     const globalConfigDir = getGlobalConfigDir();

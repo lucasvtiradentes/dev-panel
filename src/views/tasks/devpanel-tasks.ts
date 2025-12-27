@@ -7,10 +7,10 @@ import {
   getCommandId,
   getGlobalConfigDir,
 } from '../../common/constants';
-import { getWorkspaceConfigDirPath, loadGlobalConfig, loadWorkspaceConfig } from '../../common/lib/config-manager';
-import { globalTasksState } from '../../common/lib/global-state';
+import { ConfigManager } from '../../common/lib/config-manager';
 import type { DevPanelConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
+import { globalTasksState } from '../../common/state';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -95,12 +95,12 @@ export async function getDevPanelTasks(
 }
 
 function readDevPanelTasks(folder: WorkspaceFolder): NonNullable<DevPanelConfig['tasks']> {
-  const config = loadWorkspaceConfig(folder);
+  const config = ConfigManager.loadWorkspaceConfig(folder);
   return config?.tasks ?? [];
 }
 
 function readGlobalTasks(): NonNullable<DevPanelConfig['tasks']> {
-  const config = loadGlobalConfig();
+  const config = ConfigManager.loadGlobalConfig();
   return config?.tasks ?? [];
 }
 
@@ -115,7 +115,7 @@ function createDevPanelTask(
   if (hidden && !showHidden) return null;
   if (showOnlyFavorites && !favorite) return null;
 
-  const configDirPath = getWorkspaceConfigDirPath(folder);
+  const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
   const env = readDevPanelVariablesAsEnv(configDirPath);
   const cwd = task.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
   const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd });

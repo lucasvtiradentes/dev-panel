@@ -1,5 +1,5 @@
 import { getVariableCommandId, getVariableCommandPrefix } from '../../common/constants';
-import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import type { ExtensionContext } from '../../common/vscode/vscode-types';
 import { Command, executeCommand, registerDynamicCommand } from '../../common/vscode/vscode-utils';
@@ -13,7 +13,7 @@ const manager = new KeybindingManager({
 export const getAllVariableKeybindings = () => manager.getAllKeybindings();
 
 export function registerVariableKeybindings(context: ExtensionContext) {
-  forEachWorkspaceConfig((_folder, config) => {
+  ConfigManager.forEachWorkspaceConfig((_, config) => {
     const variables = config.variables ?? [];
 
     for (const variable of variables) {
@@ -25,7 +25,7 @@ export function registerVariableKeybindings(context: ExtensionContext) {
     }
   });
 
-  const globalConfig = loadGlobalConfig();
+  const globalConfig = ConfigManager.loadGlobalConfig();
   if (globalConfig) {
     const globalVariables = globalConfig.variables ?? [];
 

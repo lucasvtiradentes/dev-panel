@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import { FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
 import { Position } from '../../common/constants/enums';
-import { loadWorkspaceConfigFromPath } from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
 import type { TaskPriority, TaskStatus } from '../../common/schemas';
@@ -55,7 +55,7 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
   }
 
   private loadConfig(workspace: string): DevPanelConfig | null {
-    return loadWorkspaceConfigFromPath(workspace);
+    return ConfigManager.loadWorkspaceConfigFromPath(workspace);
   }
 
   toggleShowOnlyTodo() {
@@ -235,7 +235,6 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
     }
 
     const hasMilestones = this.cachedMilestones.length > 0;
-    const hasActiveFilter = Object.keys(this.activeFilters).length > 0;
 
     if (hasMilestones) {
       const result = buildMilestonesTree({
