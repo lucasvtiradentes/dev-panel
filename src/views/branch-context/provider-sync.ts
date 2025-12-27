@@ -16,6 +16,7 @@ import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { getChangedFilesWithSummary } from '../_branch_base/providers/default/file-changes-utils';
 import type { SyncContext } from '../_branch_base/providers/interfaces';
 import {
+  extractAllFieldsRaw,
   generateBranchContextMarkdown,
   invalidateBranchContextCache,
   loadBranchContext,
@@ -224,31 +225,58 @@ export class SyncManager {
       if (config?.branchContext?.customSections) {
         const registry = this.helpers.getSectionRegistry(workspace, config);
         const autoSections = registry.getAutoSections();
+
+        let markdownFields: Record<string, string> = {};
+        const markdownPath = ConfigManager.getBranchContextFilePath(workspace, currentBranch);
+        if (fs.existsSync(markdownPath)) {
+          const markdownContent = fs.readFileSync(markdownPath, 'utf-8');
+          markdownFields = extractAllFieldsRaw(markdownContent);
+        }
+
+        const sectionsToFetch = autoSections.filter((section) => {
+          if (!section.provider) return false;
+
+          const customSection = config.branchContext?.customSections?.find((cs) => cs.name === section.name);
+          if (customSection?.skipIfEmpty && customSection.skipIfEmpty.length > 0) {
+            for (const fieldName of customSection.skipIfEmpty) {
+              const fieldValue = markdownFields[fieldName];
+              if (!fieldValue || fieldValue.trim() === '') {
+                logger.info(
+                  `[syncBranchContext] Skipping "${section.name}" - field "${fieldName}" is empty (+${Date.now() - startTime}ms)`,
+                );
+                customAutoData[section.name] = `No ${fieldName.toLowerCase()} set`;
+                customSectionMetadata[section.name] = { isEmpty: true, description: 'Skipped - field empty' };
+                return false;
+              }
+            }
+          }
+
+          return true;
+        });
+
         logger.info(
-          `[syncBranchContext] Fetching ${autoSections.length} auto sections in PARALLEL (+${Date.now() - startTime}ms)`,
+          `[syncBranchContext] Fetching ${sectionsToFetch.length}/${autoSections.length} auto sections in PARALLEL (+${Date.now() - startTime}ms)`,
         );
 
-        const fetchPromises = autoSections
-          .filter((section) => section.provider)
-          .map(async (section) => {
-            logger.info(`[syncBranchContext] Starting "${section.name}" (+${Date.now() - startTime}ms)`);
-            try {
-              if (!section.provider) {
-                throw new Error('Provider is not defined');
-              }
-              const sectionContext: SyncContext = {
-                ...syncContext,
-                sectionOptions: section.options,
-              };
-              const data = await section.provider.fetch(sectionContext);
-              logger.info(`[syncBranchContext] "${section.name}" done (+${Date.now() - startTime}ms)`);
-              return { name: section.name, data };
-            } catch (error: unknown) {
-              const message = error instanceof Error ? error.message : String(error);
-              logger.error(`[syncBranchContext] "${section.name}" FAILED (+${Date.now() - startTime}ms): ${message}`);
-              return { name: section.name, data: `Error: ${message}` };
+        const fetchPromises = sectionsToFetch.map(async (section) => {
+          logger.info(`[syncBranchContext] Starting "${section.name}" (+${Date.now() - startTime}ms)`);
+          try {
+            if (!section.provider) {
+              throw new Error('Provider is not defined');
             }
-          });
+            const sectionContext: SyncContext = {
+              ...syncContext,
+              sectionOptions: section.options,
+            };
+            const data = await section.provider.fetch(sectionContext);
+            logger.info(`[syncBranchContext] "${section.name}" done (+${Date.now() - startTime}ms)`);
+            return { name: section.name, data };
+          } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            logger.error(`[syncBranchContext] "${section.name}" FAILED (+${Date.now() - startTime}ms): ${message}`);
+            return { name: section.name, data: `Error: ${message}` };
+          }
+        });
 
         const results = await Promise.all(fetchPromises);
         for (const { name, data } of results) {

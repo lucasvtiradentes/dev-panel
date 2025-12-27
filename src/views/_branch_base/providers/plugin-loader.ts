@@ -1,8 +1,10 @@
 import { exec } from 'node:child_process';
+import * as fs from 'node:fs';
 import { promisify } from 'node:util';
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import { PluginAction, TaskStatus } from '../../../common/schemas';
+import { extractAllFieldsRaw } from '../storage/file-storage';
 import type {
   AutoSectionProvider,
   NewTask,
@@ -37,11 +39,17 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
 
   return {
     async fetch(context: SyncContext): Promise<string> {
+      let fields: Record<string, string> = {};
+      if (context.markdownPath && fs.existsSync(context.markdownPath)) {
+        const markdownContent = fs.readFileSync(context.markdownPath, 'utf-8');
+        fields = extractAllFieldsRaw(markdownContent);
+      }
+
       const contextJson = JSON.stringify({
         branchName: context.branchName,
         workspacePath: context.workspacePath,
         markdownPath: context.markdownPath,
-        branchContext: context.branchContext,
+        fields,
         sectionOptions: context.sectionOptions,
       });
 

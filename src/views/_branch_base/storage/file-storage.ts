@@ -238,3 +238,49 @@ function parseBranchContext(content: string): BranchContext {
 
   return context;
 }
+
+export function extractAllFieldsRaw(content: string): Record<string, string> {
+  const fields: Record<string, string> = {};
+
+  const fieldRegex = /^([A-Z][A-Z\s]+):\s*(.*)$/gm;
+  const fieldMatches = content.matchAll(fieldRegex);
+  for (const match of fieldMatches) {
+    const fieldName = match[1].trim();
+    const fieldValue = match[2].trim();
+    if (fieldValue && fieldValue !== BRANCH_CONTEXT_NA) {
+      fields[fieldName] = fieldValue;
+    }
+  }
+
+  const sectionRegex = /^#\s+([A-Z][A-Z\s]+)\s*$/gm;
+  const matches = [...content.matchAll(sectionRegex)];
+  for (let i = 0; i < matches.length; i++) {
+    const match = matches[i];
+    const sectionName = match[1].trim();
+
+    if (match.index === undefined) continue;
+
+    const startIndex = match.index + match[0].length;
+    const nextMatch = matches[i + 1];
+    const endIndex = nextMatch?.index ?? content.length;
+    let sectionContent = content.slice(startIndex, endIndex).trim();
+
+    sectionContent = sectionContent
+      .replace(METADATA_DEVPANEL_REGEX, '')
+      .replace(METADATA_SEPARATOR_REGEX, '')
+      .replace(/<!--\s*SECTION_METADATA:.*?-->/g, '')
+      .trim();
+
+    const codeBlockMatch = sectionContent.match(/^```\s*\n([\s\S]*?)\n```/);
+    if (codeBlockMatch) {
+      const codeContent = codeBlockMatch[1].trim();
+      if (codeContent && codeContent !== BRANCH_CONTEXT_NO_CHANGES) {
+        fields[sectionName] = codeContent;
+      }
+    } else if (sectionContent && sectionContent !== BRANCH_CONTEXT_NA && !sectionContent.startsWith('```')) {
+      fields[sectionName] = sectionContent;
+    }
+  }
+
+  return fields;
+}

@@ -254,6 +254,12 @@ const BranchContextSectionSchema = z.object({
     .record(z.string(), z.any())
     .optional()
     .describe('Custom options passed to the provider (e.g., { includeReviewComments: true })'),
+  skipIfEmpty: z
+    .array(z.string())
+    .optional()
+    .describe(
+      'Skip plugin execution if these field names are empty/N/A (e.g., ["PR LINK", "LINEAR LINK"]). Improves performance by avoiding unnecessary plugin spawns.',
+    ),
 });
 
 const BranchContextProviderSchema = z.object({

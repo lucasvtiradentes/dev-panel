@@ -7,9 +7,7 @@ const CONSTANTS = {
 };
 
 type PluginContext = {
-  branchContext: {
-    prLink: string;
-  };
+  fields: Record<string, string>;
   sectionOptions?: {
     includeRegularComments?: boolean;
     includeReviewComments?: boolean;
@@ -114,7 +112,7 @@ function formatReviewComments(comments: ReviewComment[]): string[] {
 
 function main() {
   const context = getPluginContext();
-  const prLink = context.branchContext.prLink;
+  const prLink = context.fields['PR LINK'];
   const options = context.sectionOptions ?? {};
   const includeRegularComments = options.includeRegularComments !== false;
   const includeReviewComments = options.includeReviewComments !== false;

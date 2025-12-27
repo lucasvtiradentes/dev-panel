@@ -2,14 +2,14 @@ import { BRANCH_CONTEXT_TEMPLATE_FILENAME, CONFIG_FILE_NAME } from 'src/common/c
 import type { BranchContextConfig } from '../../common/schemas/config-schema';
 import { TemplateSectionType, loadTemplate, parseTemplate } from '../_branch_base/storage/template-parser';
 
-export enum ValidationIssueType {
+enum ValidationIssueType {
   MissingInTemplate = 'missing-in-template',
   UnknownInTemplate = 'unknown-in-template',
   InvalidProvider = 'invalid-provider',
   TypeMismatch = 'type-mismatch',
 }
 
-export enum ValidationSeverity {
+enum ValidationSeverity {
   Error = 'error',
   Warning = 'warning',
 }
