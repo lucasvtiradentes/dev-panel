@@ -186,7 +186,7 @@ export const ContextKey = {
 export type ContextKey = (typeof ContextKey)[keyof typeof ContextKey];
 
 export function setContextKey(key: ContextKey, value: boolean | string): Thenable<unknown> {
-  return vscode.commands.executeCommand('setContext', key, value);
+  return VscodeHelper.executeCommand('setContext', key, value);
 }
 
 export function generateWorkspaceId(): string {

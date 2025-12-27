@@ -1,9 +1,9 @@
-import * as vscode from 'vscode';
+import { VscodeHelper } from '../vscode/vscode-helper';
 
 export async function openKeybindingsForCommand(commandId: string) {
-  await vscode.commands.executeCommand('workbench.action.openGlobalKeybindings', `@command:${commandId}`);
+  await VscodeHelper.executeCommand('workbench.action.openGlobalKeybindings', `@command:${commandId}`);
 }
 
 export async function openKeybindingsWithPrefix(prefix: string) {
-  await vscode.commands.executeCommand('workbench.action.openGlobalKeybindings', prefix);
+  await VscodeHelper.executeCommand('workbench.action.openGlobalKeybindings', prefix);
 }

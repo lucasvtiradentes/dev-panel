@@ -244,4 +244,8 @@ export class VscodeHelper {
   static parseUri(value: string): vscode.Uri {
     return vscode.Uri.parse(value);
   }
+
+  static executeCommand<T = unknown>(command: string, ...args: unknown[]): Thenable<T> {
+    return vscode.commands.executeCommand<T>(command, ...args);
+  }
 }
