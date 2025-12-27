@@ -1,6 +1,20 @@
-import { CONFIG_FILE_NAME } from '../constants';
-import { FileIOHelper } from '../lib/node-helper';
-import { ConfigManager } from './config-manager';
+import { BRANCH_CONTEXT_NA, CONFIG_FILE_NAME } from '../constants';
+import { ConfigManager } from '../utils/config-manager';
+import { FileIOHelper } from './node-helper';
+
+export class BranchContextMarkdownHelper {
+  static isFieldEmpty(value: string | undefined, customNaValue?: string): boolean {
+    if (!value) return true;
+    const trimmed = value.trim();
+    return (
+      trimmed === '' || trimmed === BRANCH_CONTEXT_NA || (customNaValue !== undefined && trimmed === customNaValue)
+    );
+  }
+
+  static isFieldValid(value: string | undefined, customNaValue?: string): boolean {
+    return !BranchContextMarkdownHelper.isFieldEmpty(value, customNaValue);
+  }
+}
 
 type ValidationIssue = {
   section: string;

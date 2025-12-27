@@ -1,8 +1,8 @@
 import { execAsync } from 'src/common/functions/exec-async';
 import { createLogger } from '../../../common/lib/logger';
 import { FileIOHelper } from '../../../common/lib/node-helper';
+import { TypeGuardsHelper } from '../../../common/lib/type-guards-helper';
 import { PluginAction, TaskStatus } from '../../../common/schemas';
-import { TypeGuards } from '../../../common/utils/common-utils';
 import { ConfigManager } from '../../../common/utils/config-manager';
 import { extractAllFieldsRaw } from '../storage/file-storage';
 import type {
@@ -68,7 +68,7 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
 
         return stdout.trim();
       } catch (error: unknown) {
-        logger.error(`[loadAutoProvider] Script error: ${TypeGuards.getErrorMessage(error)}`);
+        logger.error(`[loadAutoProvider] Script error: ${TypeGuardsHelper.getErrorMessage(error)}`);
         throw error;
       }
     },
@@ -120,7 +120,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       }
       return parsed as T;
     } catch (error: unknown) {
-      logger.error(`[loadTaskProvider] Plugin error: ${TypeGuards.getErrorMessage(error)}`);
+      logger.error(`[loadTaskProvider] Plugin error: ${TypeGuardsHelper.getErrorMessage(error)}`);
       throw error;
     }
   }

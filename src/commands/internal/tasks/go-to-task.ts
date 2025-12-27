@@ -1,6 +1,6 @@
 import { VSCODE_TASKS_PATH } from '../../../common/constants';
 import { FileIOHelper, NodePathHelper } from '../../../common/lib/node-helper';
-import { TypeGuards } from '../../../common/utils/common-utils';
+import { TypeGuardsHelper } from '../../../common/lib/type-guards-helper';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import { Command, isMultiRootWorkspace, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { TreeTask } from '../../../views/tasks';
@@ -13,7 +13,7 @@ export function createGoToTaskCommand() {
     }
 
     const folders = VscodeHelper.getWorkspaceFolders();
-    if (!TypeGuards.isNonEmptyArray(folders)) {
+    if (!TypeGuardsHelper.isNonEmptyArray(folders)) {
       VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
       return;
     }

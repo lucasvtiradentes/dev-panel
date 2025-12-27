@@ -1,7 +1,7 @@
+import { TypeGuardsHelper } from '../lib/type-guards-helper';
 import { VscodeConstants } from '../vscode/vscode-constants';
 import { VscodeHelper } from '../vscode/vscode-helper';
 import { ProcessExecutionClass, ShellExecutionClass, type Task } from '../vscode/vscode-types';
-import { TypeGuards } from './common-utils';
 
 export class TaskUtils {
   static cloneWithEnv(task: Task, env: Record<string, string>): Task {
@@ -71,7 +71,7 @@ export class TaskUtils {
   static replaceVariablePlaceholders(content: string, variables: Record<string, unknown>): string {
     let result = content;
     for (const [key, value] of Object.entries(variables)) {
-      const stringValue = TypeGuards.isObject(value) ? JSON.stringify(value) : String(value);
+      const stringValue = TypeGuardsHelper.isObject(value) ? JSON.stringify(value) : String(value);
       const pattern = new RegExp(`\\$${key}`, 'g');
       result = result.replace(pattern, stringValue);
     }

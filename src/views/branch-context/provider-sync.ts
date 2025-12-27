@@ -1,3 +1,4 @@
+import { BranchContextMarkdownHelper } from 'src/common/lib/branch-context-helper';
 import {
   ChangedFilesStyle,
   METADATA_SECTION_REGEX_CAPTURE,
@@ -11,7 +12,7 @@ import { extractSectionMetadata } from '../../common/functions/extract-section-m
 import { GitHelper } from '../../common/lib/git-helper';
 import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper } from '../../common/lib/node-helper';
-import { StringUtils, TypeGuards } from '../../common/utils/common-utils';
+import { TypeGuardsHelper } from '../../common/lib/type-guards-helper';
 import { ConfigManager } from '../../common/utils/config-manager';
 import { StoreKey, extensionStore } from '../../common/utils/extension-store';
 import { getFirstWorkspacePath } from '../../common/vscode/workspace-utils';
@@ -93,7 +94,7 @@ export class SyncManager {
       const content = FileIOHelper.readFile(rootPath);
       FileIOHelper.writeFile(branchPath, content);
     } catch (error: unknown) {
-      logger.error(`Error syncing root to branch: ${TypeGuards.getErrorMessage(error)}`);
+      logger.error(`Error syncing root to branch: ${TypeGuardsHelper.getErrorMessage(error)}`);
     } finally {
       setTimeout(() => {
         this.isSyncing = false;
@@ -136,7 +137,7 @@ export class SyncManager {
       const content = FileIOHelper.readFile(branchPath);
       FileIOHelper.writeFile(rootPath, content);
     } catch (error: unknown) {
-      logger.error(`Error syncing branch to root: ${TypeGuards.getErrorMessage(error)}`);
+      logger.error(`Error syncing branch to root: ${TypeGuardsHelper.getErrorMessage(error)}`);
     } finally {
       setTimeout(() => {
         this.isSyncing = false;
@@ -204,7 +205,7 @@ export class SyncManager {
                   changedFiles = data.replace(METADATA_SECTION_REGEX_GLOBAL, '').trim();
                 }
               } catch (error: unknown) {
-                logger.error(`Failed to parse changedFiles metadata: ${TypeGuards.getErrorMessage(error)}`);
+                logger.error(`Failed to parse changedFiles metadata: ${TypeGuardsHelper.getErrorMessage(error)}`);
               }
             }
           }
@@ -238,7 +239,7 @@ export class SyncManager {
           if (customSection?.skipIfEmpty && customSection.skipIfEmpty.length > 0) {
             for (const fieldName of customSection.skipIfEmpty) {
               const fieldValue = markdownFields[fieldName];
-              if (StringUtils.isFieldEmpty(fieldValue)) {
+              if (BranchContextMarkdownHelper.isFieldEmpty(fieldValue)) {
                 logger.info(
                   `[syncBranchContext] Skipping "${section.name}" - field "${fieldName}" is empty (+${Date.now() - startTime}ms)`,
                 );
@@ -270,7 +271,7 @@ export class SyncManager {
             logger.info(`[syncBranchContext] "${section.name}" done (+${Date.now() - startTime}ms)`);
             return { name: section.name, data };
           } catch (error: unknown) {
-            const errorMessage = TypeGuards.getErrorMessage(error);
+            const errorMessage = TypeGuardsHelper.getErrorMessage(error);
             logger.error(
               `[syncBranchContext] "${section.name}" FAILED (+${Date.now() - startTime}ms): ${errorMessage}`,
             );
@@ -314,7 +315,7 @@ export class SyncManager {
         const msgResult = await execAsync(GitHelper.COMMANDS.LOG_LAST_COMMIT_MESSAGE, { cwd: workspace });
         lastCommitMessage = msgResult.stdout.trim();
       } catch (error: unknown) {
-        logger.error(`Failed to get git commit info: ${TypeGuards.getErrorMessage(error)}`);
+        logger.error(`Failed to get git commit info: ${TypeGuardsHelper.getErrorMessage(error)}`);
       }
 
       logger.info(`[syncBranchContext] Building updated context (+${Date.now() - startTime}ms)`);

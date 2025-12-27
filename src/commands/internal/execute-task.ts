@@ -9,6 +9,7 @@ import {
 import { GitHelper } from '../../common/lib/git-helper';
 import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper, NodePathHelper } from '../../common/lib/node-helper';
+import { TypeGuardsHelper } from '../../common/lib/type-guards-helper';
 import {
   type DevPanelConfig,
   type DevPanelPrompt,
@@ -16,7 +17,6 @@ import {
   PromptExecutionMode,
   getAIProvidersListFormatted,
 } from '../../common/schemas';
-import { TypeGuards } from '../../common/utils/common-utils';
 import { ConfigManager } from '../../common/utils/config-manager';
 import { TaskUtils } from '../../common/utils/task-utils';
 import { loadVariablesFromPath, readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
@@ -282,7 +282,10 @@ async function executePromptWithSave(options: {
         await VscodeHelper.openDocument(VscodeHelper.createFileUri(outputFile));
       } catch (error: unknown) {
         FileIOHelper.deleteFile(tempFile);
-        void VscodeHelper.showToastMessage(ToastKind.Error, `Prompt failed: ${TypeGuards.getErrorMessage(error)}`);
+        void VscodeHelper.showToastMessage(
+          ToastKind.Error,
+          `Prompt failed: ${TypeGuardsHelper.getErrorMessage(error)}`,
+        );
       }
     },
   );

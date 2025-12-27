@@ -6,8 +6,8 @@ import {
   getVscodeTasksFilePath,
 } from '../../../common/constants';
 import { FileIOHelper, NodePathHelper } from '../../../common/lib/node-helper';
+import { TypeGuardsHelper } from '../../../common/lib/type-guards-helper';
 import { TaskSource } from '../../../common/schemas/types';
-import { TypeGuards } from '../../../common/utils/common-utils';
 import { ConfigManager } from '../../../common/utils/config-manager';
 import { FileOperations } from '../../../common/utils/file-operations';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
@@ -62,7 +62,7 @@ async function handleOpenTasksConfig() {
       const excludedDirs = getExcludedDirs(workspace.uri.fsPath);
       const packageJsons = await FileOperations.findAllPackageJsons(workspace, excludedDirs);
 
-      if (!TypeGuards.isNonEmptyArray(packageJsons)) {
+      if (!TypeGuardsHelper.isNonEmptyArray(packageJsons)) {
         void VscodeHelper.showToastMessage(ToastKind.Error, `No ${PACKAGE_JSON} found`);
       } else if (packageJsons.length === 1) {
         await FileOperations.openPackageJsonAtScripts(packageJsons[0]);
