@@ -150,4 +150,8 @@ export class VscodeHelper {
       ignoreDeleteEvents,
     );
   }
+
+  static async openExternal(url: string): Promise<boolean> {
+    return vscode.env.openExternal(vscode.Uri.parse(url));
+  }
 }
