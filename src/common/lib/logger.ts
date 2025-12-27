@@ -1,7 +1,7 @@
 import { getLogFilename } from '../constants/functions';
 import { CONFIG_DIR_KEY } from '../constants/scripts-constants';
-import { FileIOHelper } from '../utils/file-io';
 import { PathHelper } from '../utils/path-helper';
+import { FileIOHelper } from './node-helper';
 import { NodeOsHelper } from './node-helper';
 
 const LOG_CONTEXT_WIDTH = 8;

@@ -11,9 +11,9 @@ import {
 } from '../../common/constants';
 import { ConfigManager } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
+import { FileIOHelper } from '../../common/lib/node-helper';
 import type { DevPanelConfig } from '../../common/schemas';
 import { globalToolsState, toolsState } from '../../common/state';
-import { FileIOHelper } from '../../common/utils/file-io';
 import { PathHelper } from '../../common/utils/path-helper';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';

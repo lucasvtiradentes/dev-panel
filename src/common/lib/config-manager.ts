@@ -1,5 +1,4 @@
 import JSON5 from 'json5';
-import { FileIOHelper } from '../../common/utils/file-io';
 import { PathHelper } from '../../common/utils/path-helper';
 import {
   CONFIG_DIR_NAME,
@@ -24,6 +23,7 @@ import { VscodeConstants } from '../vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
 import type { Uri, WorkspaceFolder } from '../vscode/vscode-types';
 import { StoreKey, extensionStore } from './extension-store';
+import { FileIOHelper } from './node-helper';
 
 type ConfigArrayKey = ConfigKey.Prompts | ConfigKey.Tasks | ConfigKey.Tools;
 type ConfigArrayItem =

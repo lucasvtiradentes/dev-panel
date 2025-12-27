@@ -1,6 +1,6 @@
 import { ConfigKey, LocationScope, getGlobalToolDir } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
-import { FileIOHelper } from '../../../common/utils/file-io';
+import { FileIOHelper } from '../../../common/lib/node-helper';
 import {
   isGlobalItem,
   showConfigNotFoundError,

@@ -10,8 +10,8 @@ import {
 } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
+import { FileIOHelper } from '../../../common/lib/node-helper';
 import type { BranchContext } from '../../../common/schemas/types';
-import { FileIOHelper } from '../../../common/utils/file-io';
 import { getFirstWorkspacePath } from '../../../common/utils/workspace-utils';
 import { getChangedFilesTree } from '../providers/default/file-changes-utils';
 import { detectBranchType, generateBranchTypeCheckboxes } from './branch-type-utils';

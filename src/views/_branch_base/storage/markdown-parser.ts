@@ -1,5 +1,5 @@
 import { ConfigManager } from '../../../common/lib/config-manager';
-import { FileIOHelper } from '../../../common/utils/file-io';
+import { FileIOHelper } from '../../../common/lib/node-helper';
 import { getFirstWorkspacePath } from '../../../common/utils/workspace-utils';
 
 export function getBranchContextFilePath(branchName: string): string | null {

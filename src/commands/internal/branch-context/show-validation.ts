@@ -1,6 +1,6 @@
 import { CONFIG_FILE_NAME } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
-import { FileIOHelper } from '../../../common/utils/file-io';
+import { FileIOHelper } from '../../../common/lib/node-helper';
 import { getFirstWorkspacePath } from '../../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';

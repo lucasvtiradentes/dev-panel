@@ -1,4 +1,3 @@
-import { FileIOHelper } from '../../common/utils/file-io';
 import { getAllPromptKeybindings } from '../../views/prompts/keybindings-local';
 import { getAllTaskKeybindings } from '../../views/tasks/keybindings-local';
 import { getAllToolKeybindings } from '../../views/tools/keybindings-local';
@@ -7,6 +6,7 @@ import { getPromptCommandId, getTaskCommandId, getToolCommandId, getVariableComm
 import { VscodeHelper } from '../vscode/vscode-helper';
 import { getVSCodeKeybindingsPath, loadKeybindings } from '../vscode/vscode-keybindings-utils';
 import { Command, executeCommand } from '../vscode/vscode-utils';
+import { FileIOHelper } from './node-helper';
 
 export function syncKeybindings() {
   const folders = VscodeHelper.getWorkspaceFolders();

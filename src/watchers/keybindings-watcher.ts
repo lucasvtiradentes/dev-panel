@@ -1,6 +1,6 @@
 import { CONTEXT_PREFIX, KEYBINDINGS_FILE } from '../common/constants';
 import { createLogger } from '../common/lib/logger';
-import { FileIOHelper } from '../common/utils/file-io';
+import { FileIOHelper } from '../common/lib/node-helper';
 import { PathHelper } from '../common/utils/path-helper';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import { getVSCodeKeybindingsPath, parseKeybindings } from '../common/vscode/vscode-keybindings-utils';

@@ -1,5 +1,5 @@
 import JSON5 from 'json5';
-import { FileIOHelper } from '../../common/utils/file-io';
+import { FileIOHelper } from '../../common/lib/node-helper';
 
 function parseVariables(content: string): Record<string, unknown> | null {
   try {

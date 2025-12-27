@@ -1,7 +1,7 @@
 import { MARKDOWN_SECTION_HEADER_PATTERN, TODO_SECTION_HEADER_PATTERN } from '../../../../common/constants';
 import type { Position } from '../../../../common/constants/enums';
+import { FileIOHelper } from '../../../../common/lib/node-helper';
 import type { TaskStatus } from '../../../../common/schemas';
-import { FileIOHelper } from '../../../../common/utils/file-io';
 import * as milestoneOps from '../../tasks/milestone-operations';
 import * as taskCrud from '../../tasks/task-crud';
 import { fromMarkdown, toMarkdown } from '../../tasks/task-markdown';
@@ -27,13 +27,15 @@ export class DefaultTaskProvider implements TaskSyncProvider {
 
     const content = FileIOHelper.readFile(context.markdownPath);
     const lines = content.split('\n');
-    const taskIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+    const taskIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
 
     if (taskIndex === -1) {
       return [];
     }
 
-    const nextSectionIndex = lines.findIndex((l, i) => i > taskIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
+    const nextSectionIndex = lines.findIndex(
+      (l: string, i: number) => i > taskIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
+    );
     const endIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
     const taskContent = lines
       .slice(taskIndex + 1, endIndex)

@@ -9,9 +9,9 @@ import {
 import { ConfigManager } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { createLogger } from '../../common/lib/logger';
+import { FileIOHelper } from '../../common/lib/node-helper';
 import { StringUtils, TypeGuards } from '../../common/utils/common-utils';
 import { ExecHelper } from '../../common/utils/exec-utils';
-import { FileIOHelper } from '../../common/utils/file-io';
 import { extractSectionMetadata } from '../../common/utils/metadata-extractor';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { getChangedFilesWithSummary } from '../_branch_base/providers/default/file-changes-utils';

@@ -13,9 +13,9 @@ import {
 import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-constants';
 import { ConfigManager } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
+import { FileIOHelper } from '../../common/lib/node-helper';
 import { branchContextState } from '../../common/state';
 import { formatRelativeTime } from '../../common/utils/common-utils';
-import { FileIOHelper } from '../../common/utils/file-io';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';

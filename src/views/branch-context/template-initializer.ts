@@ -1,7 +1,7 @@
 import { ConfigManager } from '../../common/lib/config-manager';
 import { extensionStore } from '../../common/lib/extension-store';
 import { createLogger } from '../../common/lib/logger';
-import { FileIOHelper } from '../../common/utils/file-io';
+import { FileIOHelper } from '../../common/lib/node-helper';
 import { getDefaultTemplate } from '../_branch_base/storage/default-template';
 
 const logger = createLogger('TemplateInitializer');

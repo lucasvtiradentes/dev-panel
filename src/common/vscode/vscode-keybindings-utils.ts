@@ -1,6 +1,6 @@
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { FileIOHelper } from '../../common/utils/file-io';
+import { FileIOHelper } from '../../common/lib/node-helper';
 import { PathHelper } from '../../common/utils/path-helper';
 import { EDITOR_NAMES, KEYBINDINGS_FILE, USER_CONFIG_DIR, USER_SETTINGS_DIR } from '../constants';
 

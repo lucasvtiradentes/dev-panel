@@ -1,9 +1,9 @@
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
+import { FileIOHelper } from '../../../common/lib/node-helper';
 import { PluginAction, TaskStatus } from '../../../common/schemas';
 import { TypeGuards } from '../../../common/utils/common-utils';
 import { ExecHelper } from '../../../common/utils/exec-utils';
-import { FileIOHelper } from '../../../common/utils/file-io';
 import { extractAllFieldsRaw } from '../storage/file-storage';
 import type {
   AutoSectionProvider,

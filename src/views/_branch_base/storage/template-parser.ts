@@ -1,6 +1,6 @@
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { extensionStore } from '../../../common/lib/extension-store';
-import { FileIOHelper } from '../../../common/utils/file-io';
+import { FileIOHelper } from '../../../common/lib/node-helper';
 import { getDefaultTemplate } from './default-template';
 
 export enum TemplateSectionType {

@@ -9,9 +9,9 @@ import {
   getCommandId,
 } from '../../common/constants';
 import { ConfigManager } from '../../common/lib/config-manager';
+import { FileIOHelper } from '../../common/lib/node-helper';
 import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
-import { FileIOHelper } from '../../common/utils/file-io';
 import { PathHelper } from '../../common/utils/path-helper';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';

@@ -9,8 +9,8 @@ import {
   getCommandId,
 } from '../../common/constants';
 import { ConfigManager } from '../../common/lib/config-manager';
+import { FileIOHelper } from '../../common/lib/node-helper';
 import { TaskSource } from '../../common/schemas/types';
-import { FileIOHelper } from '../../common/utils/file-io';
 import { PathHelper } from '../../common/utils/path-helper';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';

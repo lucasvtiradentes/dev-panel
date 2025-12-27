@@ -18,9 +18,9 @@ import {
 } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
+import { FileIOHelper } from '../../../common/lib/node-helper';
 import type { BranchContext, BranchContextMetadata, SectionMetadata } from '../../../common/schemas/types';
 import { StringUtils, TypeGuards } from '../../../common/utils/common-utils';
-import { FileIOHelper } from '../../../common/utils/file-io';
 import { extractSectionMetadata } from '../../../common/utils/metadata-extractor';
 import { parseBranchTypeCheckboxes } from './branch-type-utils';
 

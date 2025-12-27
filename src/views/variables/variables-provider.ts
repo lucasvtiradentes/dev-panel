@@ -11,10 +11,10 @@ import {
   getCommandId,
 } from '../../common/constants';
 import { ConfigManager } from '../../common/lib/config-manager';
+import { FileIOHelper } from '../../common/lib/node-helper';
 import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { ExecHelper } from '../../common/utils/exec-utils';
-import { FileIOHelper } from '../../common/utils/file-io';
 import { getFirstWorkspaceFolder, getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';

@@ -5,7 +5,7 @@ import {
   TODO_SECTION_HEADER_PATTERN,
 } from '../../../common/constants';
 import type { Position } from '../../../common/constants/enums';
-import { FileIOHelper } from '../../../common/utils/file-io';
+import { FileIOHelper } from '../../../common/lib/node-helper';
 import type { MilestoneNode, SyncContext, TaskNode } from '../providers/interfaces';
 import { fromMarkdownWithOffset } from './task-markdown';
 
@@ -16,13 +16,15 @@ export function getMilestones(context: SyncContext): Promise<{ orphanTasks: Task
 
   const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
-  const taskSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const taskSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
 
   if (taskSectionIndex === -1) {
     return Promise.resolve({ orphanTasks: [], milestones: [] });
   }
 
-  const nextSectionIndex = lines.findIndex((l, i) => i > taskSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
+  const nextSectionIndex = lines.findIndex(
+    (l: string, i: number) => i > taskSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
+  );
   const endIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
 
   const orphanTasks: TaskNode[] = [];
@@ -73,10 +75,12 @@ export function moveTaskToMilestone(taskLineIndex: number, targetMilestoneName: 
   const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
   if (todoSectionIndex === -1) return Promise.resolve();
 
-  const nextSectionIndex = lines.findIndex((l, i) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
+  const nextSectionIndex = lines.findIndex(
+    (l: string, i: number) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
+  );
   const sectionEndIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
 
   const actualLineIndex = todoSectionIndex + 1 + taskLineIndex + 1;
@@ -168,10 +172,12 @@ export function createMilestone(name: string, context: SyncContext) {
   const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
   if (todoSectionIndex === -1) return Promise.resolve();
 
-  const nextSectionIndex = lines.findIndex((l, i) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
+  const nextSectionIndex = lines.findIndex(
+    (l: string, i: number) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
+  );
   const sectionEndIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
 
   let insertIndex = sectionEndIndex;
@@ -196,10 +202,12 @@ export function reorderTask(taskLineIndex: number, targetLineIndex: number, posi
   const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
   if (todoSectionIndex === -1) return Promise.resolve();
 
-  const nextSectionIndex = lines.findIndex((l, i) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
+  const nextSectionIndex = lines.findIndex(
+    (l: string, i: number) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
+  );
   const sectionEndIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
 
   const actualTaskIndex = todoSectionIndex + 1 + taskLineIndex + 1;
@@ -249,7 +257,7 @@ export function reorderTask(taskLineIndex: number, targetLineIndex: number, posi
   }
 
   const indentDiff = targetIndent - taskIndent;
-  const adjustedTaskLines = taskLines.map((line) => {
+  const adjustedTaskLines = taskLines.map((line: string) => {
     const match = line.match(TASK_ITEM_PATTERN);
     if (!match) return line;
 

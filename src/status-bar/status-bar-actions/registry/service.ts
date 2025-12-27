@@ -14,13 +14,13 @@ import {
 import { ConfigKey } from '../../../common/constants/enums';
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { logger } from '../../../common/lib/logger';
+import { FileIOHelper } from '../../../common/lib/node-helper';
 import {
   type RegistryIndex,
   RegistryIndexSchema,
   type RegistryItemEntry,
   RegistryItemKind,
 } from '../../../common/schemas';
-import { FileIOHelper } from '../../../common/utils/file-io';
 import { PathHelper } from '../../../common/utils/path-helper';
 import type { WorkspaceFolder } from '../../../common/vscode/vscode-types';
 

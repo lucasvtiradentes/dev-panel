@@ -8,6 +8,7 @@ import {
 } from '../../common/constants/scripts-constants';
 import { ConfigManager } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
+import { FileIOHelper } from '../../common/lib/node-helper';
 import {
   type DevPanelConfig,
   type DevPanelPrompt,
@@ -17,7 +18,6 @@ import {
 } from '../../common/schemas';
 import { TypeGuards } from '../../common/utils/common-utils';
 import { ExecHelper } from '../../common/utils/exec-utils';
-import { FileIOHelper } from '../../common/utils/file-io';
 import { PathHelper } from '../../common/utils/path-helper';
 import { loadVariablesFromPath, readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
