@@ -10,6 +10,7 @@ import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/lib/confi
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { registerDynamicCommand } from '../../common/lib/vscode-utils';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { ExtensionContext } from '../../common/vscode/vscode-types';
 import { KeybindingManager } from '../_view_base';
 
@@ -28,7 +29,7 @@ export function registerTaskKeybindings(context: ExtensionContext) {
     for (const task of tasks) {
       const commandId = getTaskCommandId(task.name);
       const disposable = registerDynamicCommand(commandId, () => {
-        const shellExec = new vscode.ShellExecution(task.command);
+        const shellExec = VscodeHelper.createShellExecution(task.command);
         const vsTask = new vscode.Task({ type: CONFIG_DIR_KEY }, folder, task.name, CONFIG_DIR_KEY, shellExec);
         void vscode.tasks.executeTask(vsTask);
       });
@@ -46,7 +47,7 @@ export function registerTaskKeybindings(context: ExtensionContext) {
       const variablesPath = require('node:path').join(globalConfigDir, 'variables.json5');
       const env = readDevPanelVariablesAsEnv(variablesPath);
       const disposable = registerDynamicCommand(commandId, () => {
-        const shellExec = new vscode.ShellExecution(task.command, { env, cwd: globalConfigDir });
+        const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd: globalConfigDir });
         const vsTask = new vscode.Task(
           { type: GLOBAL_TASK_TYPE },
           vscode.TaskScope.Global,

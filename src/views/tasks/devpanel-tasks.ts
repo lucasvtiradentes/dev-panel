@@ -14,6 +14,7 @@ import { Command } from '../../common/lib/vscode-utils';
 import type { DevPanelConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
@@ -117,7 +118,7 @@ function createDevPanelTask(
   const configDirPath = getWorkspaceConfigDirPath(folder);
   const env = readDevPanelVariablesAsEnv(configDirPath);
   const cwd = task.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
-  const shellExec = new vscode.ShellExecution(task.command, { env, cwd });
+  const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd });
   const vsTask = new vscode.Task(
     { type: CONFIG_DIR_KEY, task: task.name },
     folder,
@@ -177,7 +178,7 @@ function createGlobalTask(
   const globalConfigDir = getGlobalConfigDir();
   const env = readDevPanelVariablesAsEnv(globalConfigDir);
   const cwd = globalConfigDir;
-  const shellExec = new vscode.ShellExecution(task.command, { env, cwd });
+  const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd });
 
   const vsTask = new vscode.Task(
     { type: `${CONFIG_DIR_KEY}-global`, task: task.name },

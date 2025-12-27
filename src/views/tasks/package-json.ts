@@ -19,6 +19,7 @@ import {
 import { Command } from '../../common/lib/vscode-utils';
 import { TaskSource } from '../../common/schemas/types';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
@@ -285,7 +286,7 @@ function createNpmTask(options: {
 
   const variablesPath = getWorkspaceVariablesPath(folder);
   const env = readDevPanelVariablesAsEnv(variablesPath);
-  const shellExec = new vscode.ShellExecution(`${NPM_RUN_COMMAND} ${name}`, { cwd, env });
+  const shellExec = VscodeHelper.createShellExecution(`${NPM_RUN_COMMAND} ${name}`, { cwd, env });
   const task = new vscode.Task({ type: 'npm' }, folder, name, 'npm', shellExec);
   const displayName = useDisplayName && name.includes(':') ? name.split(':').slice(1).join(':') : name;
 

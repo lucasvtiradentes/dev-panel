@@ -59,7 +59,7 @@ export async function hasConfig(workspacePath: string, configDir: string | null,
 async function copyDirectoryRecursive(source: Uri, target: Uri) {
   await vscode.workspace.fs.createDirectory(target);
 
-  const entries = await vscode.workspace.fs.readDirectory(source);
+  const entries = await VscodeHelper.readDirectory(source);
   for (const [name, type] of entries) {
     const sourceEntry = vscode.Uri.joinPath(source, name);
     const targetEntry = vscode.Uri.joinPath(target, name);

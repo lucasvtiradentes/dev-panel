@@ -166,4 +166,25 @@ export class VscodeHelper {
   static createFileUri(path: string): vscode.Uri {
     return vscode.Uri.file(path);
   }
+
+  static createShellExecution(commandLine: string, options?: vscode.ShellExecutionOptions): vscode.ShellExecution;
+  static createShellExecution(
+    command: string | vscode.ShellQuotedString,
+    args: (string | vscode.ShellQuotedString)[],
+    options?: vscode.ShellExecutionOptions,
+  ): vscode.ShellExecution;
+  static createShellExecution(
+    commandOrCommandLine: string | vscode.ShellQuotedString,
+    argsOrOptions?: (string | vscode.ShellQuotedString)[] | vscode.ShellExecutionOptions,
+    options?: vscode.ShellExecutionOptions,
+  ): vscode.ShellExecution {
+    if (Array.isArray(argsOrOptions)) {
+      return new vscode.ShellExecution(commandOrCommandLine, argsOrOptions, options);
+    }
+    return new vscode.ShellExecution(commandOrCommandLine as string, argsOrOptions);
+  }
+
+  static async readDirectory(uri: vscode.Uri): Promise<[string, vscode.FileType][]> {
+    return vscode.workspace.fs.readDirectory(uri);
+  }
 }

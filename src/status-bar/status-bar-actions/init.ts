@@ -11,7 +11,7 @@ import type { Uri } from '../../common/vscode/vscode-types';
 async function copyDirectoryRecursive(sourceUri: Uri, targetUri: Uri) {
   await vscode.workspace.fs.createDirectory(targetUri);
 
-  const entries = await vscode.workspace.fs.readDirectory(sourceUri);
+  const entries = await VscodeHelper.readDirectory(sourceUri);
 
   for (const [name, type] of entries) {
     const sourceEntryUri = vscode.Uri.joinPath(sourceUri, name);

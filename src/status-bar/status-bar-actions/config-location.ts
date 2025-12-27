@@ -80,7 +80,7 @@ async function askToMoveConfig(fromDir: string | null, toDir: string | null): Pr
 
 async function getSubfolders(dirUri: Uri): Promise<string[]> {
   try {
-    const entries = await vscode.workspace.fs.readDirectory(dirUri);
+    const entries = await VscodeHelper.readDirectory(dirUri);
     return entries.filter(([_, type]) => type === vscode.FileType.Directory).map(([name]) => name);
   } catch {
     return [];
