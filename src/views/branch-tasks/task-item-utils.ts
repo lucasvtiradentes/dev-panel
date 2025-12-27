@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { TaskPriority, TaskStatus } from '../../common/schemas';
 import { VscodeColor, VscodeIcon } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -105,7 +104,7 @@ function getPriorityColor(priority: TaskPriority | undefined): VscodeColor | und
 }
 
 export function formatTaskTooltip(text: string, status: TaskStatus, meta: TaskMeta): MarkdownString {
-  const md = new vscode.MarkdownString();
+  const md = VscodeHelper.createMarkdownString();
   md.supportHtml = true;
 
   md.appendMarkdown(`**${text}**\n\n`);

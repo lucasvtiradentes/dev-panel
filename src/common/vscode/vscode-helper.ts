@@ -267,4 +267,8 @@ export class VscodeHelper {
   static createEventEmitter<T>(): vscode.EventEmitter<T> {
     return new vscode.EventEmitter<T>();
   }
+
+  static createMarkdownString(value?: string, supportThemeIcons?: boolean): vscode.MarkdownString {
+    return new vscode.MarkdownString(value, supportThemeIcons);
+  }
 }

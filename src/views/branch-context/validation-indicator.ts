@@ -26,7 +26,7 @@ export class ValidationIndicator {
         ? `$(error) Branch Context (${errorCount} errors)`
         : `$(warning) Branch Context (${warningCount} warnings)`;
 
-    const tooltip = new vscode.MarkdownString();
+    const tooltip = VscodeHelper.createMarkdownString();
     tooltip.appendMarkdown('### Branch Context Validation Issues\n\n');
 
     for (const issue of issues) {
