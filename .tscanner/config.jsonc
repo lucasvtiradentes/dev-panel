@@ -51,6 +51,12 @@
         "pattern": ":\\s*(void|Promise<void>)\\s*[\\{;]",
         "include": ["src/**/*.ts"],
         "message": "Unnecessary explicit void return type annotation"
+      },
+      "no-vscode-imports-outside-vscode-folder": {
+        "pattern": "from\\s+['\"]vscode['\"]",
+        "include": ["src/**/*.ts"],
+        "exclude": ["src/common/vscode/**"],
+        "message": "Imports from 'vscode' are only allowed in src/common/vscode/ folder"
       }
     },
     "script": {
