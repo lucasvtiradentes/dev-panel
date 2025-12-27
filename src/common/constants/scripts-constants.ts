@@ -1,5 +1,5 @@
-import { homedir } from 'node:os';
-import * as path from 'node:path';
+import { NodeOsHelper } from '../lib/node-helper';
+import { PathHelper } from '../utils/path-helper';
 
 export const TOOLS_DIR = 'tools';
 export const TOOL_INSTRUCTIONS_FILE = 'instructions.md';
@@ -98,43 +98,43 @@ export function buildLogFilename(isDev: boolean): string {
 }
 
 export function getGlobalConfigDir(): string {
-  return path.join(homedir(), CONFIG_DIR_NAME);
+  return PathHelper.join(NodeOsHelper.homedir(), CONFIG_DIR_NAME);
 }
 
 export function getGlobalConfigPath(): string {
-  return path.join(getGlobalConfigDir(), CONFIG_FILE_NAME);
+  return PathHelper.join(getGlobalConfigDir(), CONFIG_FILE_NAME);
 }
 
 function getGlobalToolsDir(): string {
-  return path.join(getGlobalConfigDir(), TOOLS_DIR);
+  return PathHelper.join(getGlobalConfigDir(), TOOLS_DIR);
 }
 
 function getGlobalPromptsDir(): string {
-  return path.join(getGlobalConfigDir(), PROMPTS_DIR_NAME);
+  return PathHelper.join(getGlobalConfigDir(), PROMPTS_DIR_NAME);
 }
 
 export function getGlobalToolInstructionsPath(toolName: string): string {
-  return path.join(getGlobalToolsDir(), toolName, TOOL_INSTRUCTIONS_FILE);
+  return PathHelper.join(getGlobalToolsDir(), toolName, TOOL_INSTRUCTIONS_FILE);
 }
 
 export function getSkillDir(workspacePath: string, skillName: string): string {
-  return path.join(workspacePath, CLAUDE_DIR_NAME, SKILLS_DIR_NAME, skillName);
+  return PathHelper.join(workspacePath, CLAUDE_DIR_NAME, SKILLS_DIR_NAME, skillName);
 }
 
 export function getSkillFilePath(workspacePath: string, skillName: string): string {
-  return path.join(getSkillDir(workspacePath, skillName), SKILL_FILE_NAME);
+  return PathHelper.join(getSkillDir(workspacePath, skillName), SKILL_FILE_NAME);
 }
 
 export function getGlobalToolDir(toolName: string): string {
-  return path.join(getGlobalToolsDir(), toolName);
+  return PathHelper.join(getGlobalToolsDir(), toolName);
 }
 
 export function getGlobalPromptFilePath(promptFile: string): string {
-  return path.join(getGlobalPromptsDir(), promptFile);
+  return PathHelper.join(getGlobalPromptsDir(), promptFile);
 }
 
 export function getVscodeTasksFilePath(workspacePath: string): string {
-  return path.join(workspacePath, '.vscode', 'tasks.json');
+  return PathHelper.join(workspacePath, '.vscode', 'tasks.json');
 }
 
 export const AI_SPEC_DEV_TOOLS_REGEX = /<dev_tools>[\s\S]*?<\/dev_tools>/;

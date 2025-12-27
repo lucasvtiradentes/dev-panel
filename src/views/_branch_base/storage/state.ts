@@ -1,4 +1,4 @@
-import * as crypto from 'node:crypto';
+import { generateHashForFileContent } from 'src/common/functions/generate-cache-key';
 import { BRANCH_CONTEXT_CACHE_TTL_MS } from '../../../common/constants';
 import { FileHashCache } from '../../../common/lib/cache';
 import { createLogger } from '../../../common/lib/logger';
@@ -35,7 +35,8 @@ export const invalidateBranchContextCache = (branchName: string): void => {
 };
 
 export const updateBranchContextCache = (branchName: string, context: BranchContext, markdownContent: string): void => {
-  const contentHash = crypto.createHash('sha1').update(markdownContent).digest('hex');
+  const contentHash = generateHashForFileContent(markdownContent);
+
   logger.info(
     `[updateBranchContextCache] Updating cache for ${branchName} (hash: ${contentHash.substring(0, 8)}..., content: ${markdownContent.length} bytes)`,
   );

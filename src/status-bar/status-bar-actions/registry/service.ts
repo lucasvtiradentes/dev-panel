@@ -1,4 +1,4 @@
-import * as https from 'node:https';
+import { fetchUrl } from 'src/common/functions/fetch-url';
 import {
   PLUGINS_DIR_NAME,
   PROMPTS_DIR_NAME,
@@ -51,28 +51,10 @@ const KIND_CONFIG: Record<RegistryItemKind, KindConfig> = {
   },
 };
 
-function httpsGet(url: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    https
-      .get(url, (res) => {
-        if (res.statusCode !== 200) {
-          reject(new Error(`HTTP ${res.statusCode}: ${url}`));
-          return;
-        }
-        let data = '';
-        res.on('data', (chunk) => {
-          data += chunk;
-        });
-        res.on('end', () => resolve(data));
-      })
-      .on('error', reject);
-  });
-}
-
 export async function fetchRegistryIndex(): Promise<RegistryIndex> {
   const url = `${REGISTRY_BASE_URL}/${REGISTRY_INDEX_FILE}`;
   logger.info(`Fetching registry index from ${url}`);
-  const content = await httpsGet(url);
+  const content = await fetchUrl(url);
   const rawIndex = JSON.parse(content);
   return RegistryIndexSchema.parse(rawIndex);
 }
@@ -91,7 +73,7 @@ async function fetchItemFile(
   const file = fileName ?? config.defaultFile;
   const url = `${REGISTRY_BASE_URL}/${config.dirName}/${itemName}/${file}`;
   logger.info(`Fetching item file from ${url}`);
-  const content = await httpsGet(url);
+  const content = await fetchUrl(url);
   return { fileName: file, content };
 }
 
