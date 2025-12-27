@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import { type ItemOrLineIndex, extractLineIndex } from '../../../common/utils/item-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
@@ -46,7 +45,7 @@ export function createTaskOperationsCommands(provider: BranchTasksProvider): Dis
       const lineIndex = extractLineIndex(item);
       const node = provider.findNodeByLineIndex(lineIndex);
       if (!node) return;
-      await vscode.env.clipboard.writeText(node.text);
+      await VscodeHelper.writeToClipboard(node.text);
       VscodeHelper.showToastMessage(ToastKind.Info, 'Task text copied');
     }),
   ];

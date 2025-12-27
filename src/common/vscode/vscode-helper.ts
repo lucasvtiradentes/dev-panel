@@ -154,4 +154,8 @@ export class VscodeHelper {
   static async openExternal(url: string): Promise<boolean> {
     return vscode.env.openExternal(vscode.Uri.parse(url));
   }
+
+  static async writeToClipboard(text: string) {
+    return vscode.env.clipboard.writeText(text);
+  }
 }
