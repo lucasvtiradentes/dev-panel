@@ -12,12 +12,17 @@ import {
   REGISTRY_INDEX_FILE,
   SCRIPTS_DIR_NAME,
   TOOLS_DIR,
-} from '../constants';
-import { ConfigKey } from '../constants/enums';
-import { type RegistryIndex, RegistryIndexSchema, type RegistryItemEntry, RegistryItemKind } from '../schemas';
-import type { WorkspaceFolder } from '../vscode/vscode-types';
-import { ConfigManager } from './config-manager';
-import { logger } from './logger';
+} from '../../../common/constants';
+import { ConfigKey } from '../../../common/constants/enums';
+import { ConfigManager } from '../../../common/lib/config-manager';
+import { logger } from '../../../common/lib/logger';
+import {
+  type RegistryIndex,
+  RegistryIndexSchema,
+  type RegistryItemEntry,
+  RegistryItemKind,
+} from '../../../common/schemas';
+import type { WorkspaceFolder } from '../../../common/vscode/vscode-types';
 
 type RegistryConfigKey = Exclude<ConfigKey, ConfigKey.Tasks>;
 

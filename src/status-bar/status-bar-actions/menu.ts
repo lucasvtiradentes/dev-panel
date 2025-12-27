@@ -7,7 +7,7 @@ import type { QuickPickItem } from '../../common/vscode/vscode-types';
 import { Command, registerCommand } from '../../common/vscode/vscode-utils';
 import { showConfigLocationMenu } from './config-location';
 import { showInitMenu } from './init';
-import { showRegistryMenu } from './registry';
+import { showRegistryMenu } from './registry/index';
 
 enum SettingsMenuOption {
   ManageConfigLocation = 'manage-config-location',
