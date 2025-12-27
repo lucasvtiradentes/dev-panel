@@ -1,6 +1,6 @@
-import * as fs from 'node:fs';
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { extensionStore } from '../../../common/lib/extension-store';
+import { FileIOHelper } from '../../../common/utils/file-io';
 import { getDefaultTemplate } from './default-template';
 
 export enum TemplateSectionType {
@@ -19,8 +19,8 @@ type TemplateSection = {
 export function loadTemplate(workspace: string): string {
   const templatePath = ConfigManager.getBranchContextTemplatePath(workspace);
 
-  if (fs.existsSync(templatePath)) {
-    return fs.readFileSync(templatePath, 'utf-8');
+  if (FileIOHelper.fileExists(templatePath)) {
+    return FileIOHelper.readFile(templatePath);
   }
 
   const extensionPath = extensionStore.getExtensionPath();

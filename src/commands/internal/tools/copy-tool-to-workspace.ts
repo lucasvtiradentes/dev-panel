@@ -1,6 +1,6 @@
-import * as fs from 'node:fs';
 import { ConfigKey, LocationScope, getGlobalToolDir } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
+import { FileIOHelper } from '../../../common/utils/file-io';
 import {
   isGlobalItem,
   showAlreadyWorkspaceMessage,
@@ -53,12 +53,10 @@ async function handleCopyToolToWorkspace(treeTool: TreeTool) {
   const globalToolsDir = getGlobalToolDir(tool.name);
   const workspaceToolsDir = ConfigManager.getWorkspaceToolDir(workspaceFolder, tool.name);
 
-  if (fs.existsSync(globalToolsDir)) {
-    ConfigManager.ensureDirectoryExists(require('node:path').dirname(workspaceToolsDir));
-    if (fs.existsSync(workspaceToolsDir)) {
-      fs.rmSync(workspaceToolsDir, { recursive: true });
-    }
-    fs.cpSync(globalToolsDir, workspaceToolsDir, { recursive: true });
+  if (FileIOHelper.fileExists(globalToolsDir)) {
+    FileIOHelper.ensureDirectoryExists(require('node:path').dirname(workspaceToolsDir));
+    FileIOHelper.deleteDirectory(workspaceToolsDir);
+    FileIOHelper.copyDirectory(globalToolsDir, workspaceToolsDir);
   }
 
   showCopySuccessMessage('Tool', tool.name, LocationScope.Workspace);

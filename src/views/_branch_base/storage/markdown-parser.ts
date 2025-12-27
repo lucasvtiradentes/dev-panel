@@ -1,5 +1,5 @@
-import * as fs from 'node:fs';
 import { ConfigManager } from '../../../common/lib/config-manager';
+import { FileIOHelper } from '../../../common/utils/file-io';
 import { getFirstWorkspacePath } from '../../../common/utils/workspace-utils';
 
 export function getBranchContextFilePath(branchName: string): string | null {
@@ -9,9 +9,9 @@ export function getBranchContextFilePath(branchName: string): string | null {
 }
 
 export function getFieldLineNumber(filePath: string, fieldName: string): number {
-  if (!fs.existsSync(filePath)) return 0;
+  if (!FileIOHelper.fileExists(filePath)) return 0;
 
-  const content = fs.readFileSync(filePath, 'utf-8');
+  const content = FileIOHelper.readFile(filePath);
   const lines = content.split('\n');
 
   for (let i = 0; i < lines.length; i++) {

@@ -15,6 +15,18 @@ export function formatRelativeTime(timestamp: number): string {
   return `${diffDays} days ago`;
 }
 
+export class StringUtils {
+  static isFieldEmpty(value: string | undefined, customNaValue?: string): boolean {
+    if (!value) return true;
+    const trimmed = value.trim();
+    return trimmed === '' || trimmed === 'N/A' || (customNaValue !== undefined && trimmed === customNaValue);
+  }
+
+  static isFieldValid(value: string | undefined, customNaValue?: string): boolean {
+    return !StringUtils.isFieldEmpty(value, customNaValue);
+  }
+}
+
 export class TypeGuards {
   static isError(value: unknown): value is Error {
     return value instanceof Error;

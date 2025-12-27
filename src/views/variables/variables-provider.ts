@@ -1,5 +1,4 @@
 import { exec } from 'node:child_process';
-import * as fs from 'node:fs';
 import { promisify } from 'node:util';
 import json5 from 'json5';
 import {
@@ -16,6 +15,7 @@ import {
 import { ConfigManager } from '../../common/lib/config-manager';
 import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
+import { FileIOHelper } from '../../common/utils/file-io';
 import { getFirstWorkspaceFolder, getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -42,9 +42,9 @@ function getStatePath(): string | null {
 
 function loadState(): PpState {
   const statePath = getStatePath();
-  if (!statePath || !fs.existsSync(statePath)) return {};
+  if (!statePath || !FileIOHelper.fileExists(statePath)) return {};
   try {
-    const content = fs.readFileSync(statePath, 'utf-8');
+    const content = FileIOHelper.readFile(statePath);
     const parsed = JSON.parse(content);
     if (typeof parsed !== 'object' || parsed === null) {
       return {};
@@ -58,7 +58,7 @@ function loadState(): PpState {
 function saveState(state: PpState) {
   const statePath = getStatePath();
   if (!statePath) return;
-  fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
+  FileIOHelper.writeFile(statePath, JSON.stringify(state, null, 2));
 }
 
 function formatValue(value: unknown, variable: DevPanelVariable): string {
@@ -179,9 +179,9 @@ export class VariablesProvider implements TreeDataProvider<TreeItem> {
     if (!workspace) return null;
 
     const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
-    if (!fs.existsSync(configPath)) return null;
+    if (!FileIOHelper.fileExists(configPath)) return null;
 
-    const content = fs.readFileSync(configPath, 'utf-8');
+    const content = FileIOHelper.readFile(configPath);
     const rawConfig = json5.parse(content);
     const validatedConfig = DevPanelConfigSchema.parse(rawConfig);
     return { variables: validatedConfig.variables ?? [] };
@@ -192,9 +192,9 @@ export class VariablesProvider implements TreeDataProvider<TreeItem> {
     if (!workspace) return undefined;
 
     const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
-    if (!fs.existsSync(configPath)) return undefined;
+    if (!FileIOHelper.fileExists(configPath)) return undefined;
 
-    const content = fs.readFileSync(configPath, 'utf-8');
+    const content = FileIOHelper.readFile(configPath);
     const rawConfig = json5.parse(content);
     const validatedConfig = DevPanelConfigSchema.parse(rawConfig);
     return validatedConfig.settings;

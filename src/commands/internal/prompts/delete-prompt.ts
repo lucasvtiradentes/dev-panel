@@ -1,7 +1,7 @@
-import * as fs from 'node:fs';
 import { ConfigKey, LocationScope, getGlobalPromptFilePath } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
 import type { DevPanelPrompt } from '../../../common/schemas';
+import { FileIOHelper } from '../../../common/utils/file-io';
 import {
   isGlobalItem,
   showConfigNotFoundError,
@@ -51,9 +51,7 @@ async function handleDeletePrompt(treePrompt: TreePrompt) {
     ConfigManager.saveGlobalConfig(globalConfig);
 
     const globalPromptFile = getGlobalPromptFilePath(removed.file);
-    if (fs.existsSync(globalPromptFile)) {
-      fs.rmSync(globalPromptFile);
-    }
+    FileIOHelper.deleteFile(globalPromptFile);
 
     showDeleteSuccessMessage('prompt', promptName, true);
     void executeCommand(Command.RefreshPrompts);
@@ -87,9 +85,7 @@ async function handleDeletePrompt(treePrompt: TreePrompt) {
   ConfigManager.saveWorkspaceConfig(workspaceFolder, workspaceConfig);
 
   const workspacePromptFile = ConfigManager.getWorkspacePromptFilePath(workspaceFolder, removed.file);
-  if (fs.existsSync(workspacePromptFile)) {
-    fs.rmSync(workspacePromptFile);
-  }
+  FileIOHelper.deleteFile(workspacePromptFile);
 
   showDeleteSuccessMessage('prompt', promptName, false);
   void executeCommand(Command.RefreshPrompts);

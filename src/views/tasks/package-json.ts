@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import * as path from 'node:path';
 import {
   CONFIG_FILE_NAME,
@@ -12,6 +11,7 @@ import {
 } from '../../common/constants';
 import { ConfigManager } from '../../common/lib/config-manager';
 import { TaskSource } from '../../common/schemas/types';
+import { FileIOHelper } from '../../common/utils/file-io';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -166,7 +166,7 @@ function findPackageJsonsRecursive(dir: string, excludedDirs: Set<string>, maxDe
   const results: string[] = [];
 
   try {
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    const entries = FileIOHelper.readDirectory(dir, { withFileTypes: true });
 
     for (const entry of entries) {
       if (entry.name === PACKAGE_JSON && entry.isFile()) {
@@ -256,9 +256,9 @@ function getGroupedByScriptPrefix(
 }
 
 function readPackageScripts(packageJsonPath: string): Record<string, string> {
-  if (!fs.existsSync(packageJsonPath)) return {};
+  if (!FileIOHelper.fileExists(packageJsonPath)) return {};
   try {
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as PackageJson;
+    const packageJson = JSON.parse(FileIOHelper.readFile(packageJsonPath)) as PackageJson;
     return packageJson.scripts ?? {};
   } catch {
     return {};

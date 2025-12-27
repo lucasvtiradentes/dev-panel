@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import * as https from 'node:https';
 import * as path from 'node:path';
 import {
@@ -22,6 +21,7 @@ import {
   type RegistryItemEntry,
   RegistryItemKind,
 } from '../../../common/schemas';
+import { FileIOHelper } from '../../../common/utils/file-io';
 import type { WorkspaceFolder } from '../../../common/vscode/vscode-types';
 
 type RegistryConfigKey = Exclude<ConfigKey, ConfigKey.Tasks>;
@@ -99,10 +99,10 @@ export function getInstalledItems(workspacePath: string, kind: RegistryItemKind)
   const config = KIND_CONFIG[kind];
   const dirPath = path.join(ConfigManager.getConfigDirPathFromWorkspacePath(workspacePath), config.dirName);
 
-  if (!fs.existsSync(dirPath)) return [];
+  if (!FileIOHelper.fileExists(dirPath)) return [];
 
   try {
-    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+    const entries = FileIOHelper.readDirectory(dirPath, { withFileTypes: true });
     return entries.filter((e) => e.isFile()).map((e) => path.parse(e.name).name);
   } catch {
     return [];
@@ -119,8 +119,8 @@ export async function installItem(
   const configDirPath = ConfigManager.getWorkspaceConfigDirPath(workspaceFolder);
   const targetDir = path.join(configDirPath, config.dirName);
 
-  if (!fs.existsSync(targetDir)) {
-    fs.mkdirSync(targetDir, { recursive: true });
+  if (!FileIOHelper.fileExists(targetDir)) {
+    FileIOHelper.ensureDirectoryExists(targetDir);
   }
 
   const { fileName, content } = await fetchItemFile(kind, item.name, item.file);
@@ -128,10 +128,10 @@ export async function installItem(
   const targetFileName = `${item.name}${ext}`;
   const targetPath = path.join(targetDir, targetFileName);
 
-  if (fs.existsSync(targetPath) && !force) {
+  if (FileIOHelper.fileExists(targetPath) && !force) {
     throw new Error(`Item "${item.name}" already exists. Use force to overwrite.`);
   }
 
-  fs.writeFileSync(targetPath, content, 'utf8');
+  FileIOHelper.writeFile(targetPath, content);
   logger.info(`Installed ${kind} "${item.name}" to ${targetPath}`);
 }

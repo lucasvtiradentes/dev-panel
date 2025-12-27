@@ -1,8 +1,8 @@
-import { appendFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { getLogFilename } from '../constants/functions';
 import { CONFIG_DIR_KEY } from '../constants/scripts-constants';
+import { FileIOHelper } from '../utils/file-io';
 
 const LOG_CONTEXT_WIDTH = 8;
 const LOG_TIMEZONE_OFFSET_HOURS = -3;
@@ -53,7 +53,7 @@ class Logger implements ILogger {
   private write(level: string, message: string) {
     const timestamp = formatTimestamp();
     const logMessage = `[${timestamp}] [${this.context}] [${level}] ${message}`;
-    appendFileSync(LOG_FILE_PATH, `${logMessage}\n`);
+    FileIOHelper.appendFile(LOG_FILE_PATH, `${logMessage}\n`);
   }
 
   info(message: string) {
@@ -73,7 +73,7 @@ class Logger implements ILogger {
   }
 
   clear() {
-    writeFileSync(LOG_FILE_PATH, '');
+    FileIOHelper.writeFile(LOG_FILE_PATH, '');
   }
 }
 

@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import {
   MARKDOWN_SECTION_HEADER_PATTERN,
   MILESTONE_HEADER_PATTERN,
@@ -6,15 +5,16 @@ import {
   TODO_SECTION_HEADER_PATTERN,
 } from '../../../common/constants';
 import type { Position } from '../../../common/constants/enums';
+import { FileIOHelper } from '../../../common/utils/file-io';
 import type { MilestoneNode, SyncContext, TaskNode } from '../providers/interfaces';
 import { fromMarkdownWithOffset } from './task-markdown';
 
 export function getMilestones(context: SyncContext): Promise<{ orphanTasks: TaskNode[]; milestones: MilestoneNode[] }> {
-  if (!fs.existsSync(context.markdownPath)) {
+  if (!FileIOHelper.fileExists(context.markdownPath)) {
     return Promise.resolve({ orphanTasks: [], milestones: [] });
   }
 
-  const content = fs.readFileSync(context.markdownPath, 'utf-8');
+  const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
   const taskSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
 
@@ -68,9 +68,9 @@ export function getMilestones(context: SyncContext): Promise<{ orphanTasks: Task
 }
 
 export function moveTaskToMilestone(taskLineIndex: number, targetMilestoneName: string | null, context: SyncContext) {
-  if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
+  if (!FileIOHelper.fileExists(context.markdownPath)) return Promise.resolve();
 
-  const content = fs.readFileSync(context.markdownPath, 'utf-8');
+  const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
   const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
@@ -158,14 +158,14 @@ export function moveTaskToMilestone(taskLineIndex: number, targetMilestoneName: 
 
   lines.splice(insertIndex, 0, ...taskLines);
 
-  fs.writeFileSync(context.markdownPath, lines.join('\n'));
+  FileIOHelper.writeFile(context.markdownPath, lines.join('\n'));
   return Promise.resolve();
 }
 
 export function createMilestone(name: string, context: SyncContext) {
-  if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
+  if (!FileIOHelper.fileExists(context.markdownPath)) return Promise.resolve();
 
-  const content = fs.readFileSync(context.markdownPath, 'utf-8');
+  const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
   const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
@@ -185,15 +185,15 @@ export function createMilestone(name: string, context: SyncContext) {
   const newMilestoneLines = ['', `## ${name}`, ''];
   lines.splice(insertIndex, 0, ...newMilestoneLines);
 
-  fs.writeFileSync(context.markdownPath, lines.join('\n'));
+  FileIOHelper.writeFile(context.markdownPath, lines.join('\n'));
   return Promise.resolve();
 }
 
 export function reorderTask(taskLineIndex: number, targetLineIndex: number, position: Position, context: SyncContext) {
-  if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
+  if (!FileIOHelper.fileExists(context.markdownPath)) return Promise.resolve();
   if (taskLineIndex === targetLineIndex) return Promise.resolve();
 
-  const content = fs.readFileSync(context.markdownPath, 'utf-8');
+  const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
   const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
@@ -262,6 +262,6 @@ export function reorderTask(taskLineIndex: number, targetLineIndex: number, posi
   const insertIndex = position === 'before' ? newTargetIndex : targetEndIndex;
   lines.splice(insertIndex, 0, ...adjustedTaskLines);
 
-  fs.writeFileSync(context.markdownPath, lines.join('\n'));
+  FileIOHelper.writeFile(context.markdownPath, lines.join('\n'));
   return Promise.resolve();
 }

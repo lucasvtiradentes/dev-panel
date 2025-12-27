@@ -1,6 +1,6 @@
-import * as fs from 'node:fs';
 import { ConfigKey, LocationScope, getGlobalPromptFilePath } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
+import { FileIOHelper } from '../../../common/utils/file-io';
 import {
   isGlobalItem,
   showAlreadyWorkspaceMessage,
@@ -53,9 +53,9 @@ async function handleCopyPromptToWorkspace(treePrompt: TreePrompt) {
   const globalPromptFile = getGlobalPromptFilePath(prompt.file);
   const workspacePromptFile = ConfigManager.getWorkspacePromptFilePath(workspaceFolder, prompt.file);
 
-  if (fs.existsSync(globalPromptFile)) {
-    ConfigManager.ensureDirectoryExists(require('node:path').dirname(workspacePromptFile));
-    fs.copyFileSync(globalPromptFile, workspacePromptFile);
+  if (FileIOHelper.fileExists(globalPromptFile)) {
+    FileIOHelper.ensureDirectoryExists(require('node:path').dirname(workspacePromptFile));
+    FileIOHelper.copyFile(globalPromptFile, workspacePromptFile);
   }
 
   showCopySuccessMessage('Prompt', prompt.name, LocationScope.Workspace);

@@ -1,7 +1,7 @@
-import * as fs from 'node:fs';
 import * as path from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
+import { FileIOHelper } from '../../common/utils/file-io';
 import { EDITOR_NAMES, KEYBINDINGS_FILE, USER_CONFIG_DIR, USER_SETTINGS_DIR } from '../constants';
 
 export type VSCodeKeybinding = { key: string; command: string; when?: string };
@@ -27,9 +27,9 @@ export function parseKeybindings(content: string): VSCodeKeybinding[] {
 
 export function loadKeybindings(): VSCodeKeybinding[] {
   const keybindingsPath = getVSCodeKeybindingsPath();
-  if (!fs.existsSync(keybindingsPath)) return [];
+  if (!FileIOHelper.fileExists(keybindingsPath)) return [];
   try {
-    const content = fs.readFileSync(keybindingsPath, 'utf8');
+    const content = FileIOHelper.readFile(keybindingsPath);
     return parseKeybindings(content);
   } catch {
     return [];

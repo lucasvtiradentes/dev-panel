@@ -1,4 +1,4 @@
-import * as fs from 'node:fs';
+import { FileIOHelper } from '../../common/utils/file-io';
 import { getAllPromptKeybindings } from '../../views/prompts/keybindings-local';
 import { getAllTaskKeybindings } from '../../views/tasks/keybindings-local';
 import { getAllToolKeybindings } from '../../views/tools/keybindings-local';
@@ -56,7 +56,7 @@ export function syncKeybindings() {
   const updated = [...filtered, ...keybindingsToAdd];
 
   try {
-    fs.writeFileSync(keybindingsPath, JSON.stringify(updated, null, 2), 'utf8');
+    FileIOHelper.writeFile(keybindingsPath, JSON.stringify(updated, null, 2));
   } catch {
     // Silent fail
   }

@@ -1,7 +1,7 @@
-import * as fs from 'node:fs';
 import { MARKDOWN_SECTION_HEADER_PATTERN, TODO_SECTION_HEADER_PATTERN } from '../../../../common/constants';
 import type { Position } from '../../../../common/constants/enums';
 import type { TaskStatus } from '../../../../common/schemas';
+import { FileIOHelper } from '../../../../common/utils/file-io';
 import * as milestoneOps from '../../tasks/milestone-operations';
 import * as taskCrud from '../../tasks/task-crud';
 import { fromMarkdown, toMarkdown } from '../../tasks/task-markdown';
@@ -21,11 +21,11 @@ export class DefaultTaskProvider implements TaskSyncProvider {
   toMarkdown = toMarkdown;
 
   async getTasks(context: SyncContext): Promise<TaskNode[]> {
-    if (!fs.existsSync(context.markdownPath)) {
+    if (!FileIOHelper.fileExists(context.markdownPath)) {
       return [];
     }
 
-    const content = fs.readFileSync(context.markdownPath, 'utf-8');
+    const content = FileIOHelper.readFile(context.markdownPath);
     const lines = content.split('\n');
     const taskIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
 

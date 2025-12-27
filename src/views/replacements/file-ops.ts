@@ -1,11 +1,11 @@
-import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
+import { FileIOHelper } from '../../common/utils/file-io';
 
 export function applyFileReplacement(workspace: string, source: string, target: string) {
   const sourcePath = path.join(workspace, source);
   const targetPath = path.join(workspace, target);
-  fs.copyFileSync(sourcePath, targetPath);
+  FileIOHelper.copyFile(sourcePath, targetPath);
 }
 
 function normalizeSearchReplace(value: string[]): string {
@@ -14,7 +14,7 @@ function normalizeSearchReplace(value: string[]): string {
 
 export function applyPatches(workspace: string, target: string, patches: NormalizedPatchItem[]) {
   const targetPath = path.join(workspace, target);
-  let content = fs.readFileSync(targetPath, 'utf-8');
+  let content = FileIOHelper.readFile(targetPath);
 
   for (const patch of patches) {
     const search = normalizeSearchReplace(patch.search);
@@ -22,21 +22,21 @@ export function applyPatches(workspace: string, target: string, patches: Normali
     content = content.split(search).join(replace);
   }
 
-  fs.writeFileSync(targetPath, content);
+  FileIOHelper.writeFile(targetPath, content);
 }
 
 export function fileExists(workspace: string, filePath: string): boolean {
-  return fs.existsSync(path.join(workspace, filePath));
+  return FileIOHelper.fileExists(path.join(workspace, filePath));
 }
 
 export function isReplacementActive(workspace: string, replacement: DevPanelReplacement): boolean {
   const targetPath = path.join(workspace, replacement.target);
 
-  if (!fs.existsSync(targetPath)) {
+  if (!FileIOHelper.fileExists(targetPath)) {
     return false;
   }
 
-  const targetContent = fs.readFileSync(targetPath, 'utf-8');
+  const targetContent = FileIOHelper.readFile(targetPath);
 
   if (replacement.type === 'patch') {
     const patches = replacement.patches as unknown as NormalizedPatchItem[];
@@ -48,9 +48,9 @@ export function isReplacementActive(workspace: string, replacement: DevPanelRepl
 
   if (replacement.type === 'file') {
     const sourcePath = path.join(workspace, replacement.source);
-    if (!fs.existsSync(sourcePath)) return false;
+    if (!FileIOHelper.fileExists(sourcePath)) return false;
 
-    const sourceContent = fs.readFileSync(sourcePath, 'utf-8');
+    const sourceContent = FileIOHelper.readFile(sourcePath);
     return targetContent === sourceContent;
   }
 

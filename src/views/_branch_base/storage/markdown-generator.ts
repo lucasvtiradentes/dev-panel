@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import {
   BRANCH_CONTEXT_DEFAULT_TODOS,
   BRANCH_CONTEXT_NA,
@@ -12,6 +11,7 @@ import {
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext } from '../../../common/schemas/types';
+import { FileIOHelper } from '../../../common/utils/file-io';
 import { getFirstWorkspacePath } from '../../../common/utils/workspace-utils';
 import { getChangedFilesTree } from '../providers/default/file-changes-utils';
 import { detectBranchType, generateBranchTypeCheckboxes } from './branch-type-utils';
@@ -42,9 +42,9 @@ export async function generateBranchContextMarkdown(
   logger.info(`[generateBranchContextMarkdown] Workspace: ${workspace}`);
 
   const dirPath = ConfigManager.getBranchDirectory(workspace, branchName);
-  if (!fs.existsSync(dirPath)) {
+  if (!FileIOHelper.fileExists(dirPath)) {
     logger.info(`[generateBranchContextMarkdown] Creating directory: ${dirPath}`);
-    fs.mkdirSync(dirPath, { recursive: true });
+    FileIOHelper.ensureDirectoryExists(dirPath);
   }
 
   const mdPath = ConfigManager.getBranchContextFilePath(workspace, branchName);
@@ -100,7 +100,7 @@ export async function generateBranchContextMarkdown(
     output += `\n\n${METADATA_SEPARATOR}\n\n${METADATA_DEVPANEL_PREFIX}${metadataJson}${METADATA_SUFFIX}`;
   }
 
-  fs.writeFileSync(mdPath, output);
+  FileIOHelper.writeFile(mdPath, output);
   logger.info(`[generateBranchContextMarkdown] Markdown written to: ${mdPath} (${output.length} bytes)`);
 
   return output;

@@ -1,7 +1,7 @@
 import { exec } from 'node:child_process';
-import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { promisify } from 'node:util';
+import { FileIOHelper } from '../../common/utils/file-io';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { ProcessExecutionClass, ShellExecutionClass } from '../../common/vscode/vscode-types';
@@ -287,12 +287,12 @@ export function createExecutePromptCommand() {
         log.info(`Resolved prompt path from workspace root: ${resolvedPromptFilePath}`);
       }
 
-      if (!fs.existsSync(resolvedPromptFilePath)) {
+      if (!FileIOHelper.fileExists(resolvedPromptFilePath)) {
         void VscodeHelper.showToastMessage(ToastKind.Error, `Prompt file not found: ${resolvedPromptFilePath}`);
         return;
       }
 
-      let promptContent = fs.readFileSync(resolvedPromptFilePath, 'utf8');
+      let promptContent = FileIOHelper.readFile(resolvedPromptFilePath);
 
       const folderForSettings = folder ?? getFirstWorkspaceFolder();
       const settings = folderForSettings ? readDevPanelSettings(folderForSettings) : undefined;
@@ -359,11 +359,9 @@ async function executePromptWithSave(options: {
   const outputDir = path.dirname(outputFile);
   const tempFile = path.join(outputDir, '.prompt-temp.txt');
 
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
+  FileIOHelper.ensureDirectoryExists(outputDir);
 
-  fs.writeFileSync(tempFile, promptContent);
+  FileIOHelper.writeFile(tempFile, promptContent);
 
   await VscodeHelper.withProgress(
     {
@@ -375,10 +373,10 @@ async function executePromptWithSave(options: {
       try {
         const command = provider.getExecuteCommand(tempFile, outputFile);
         await execAsync(command, { cwd: workspacePath });
-        fs.unlinkSync(tempFile);
+        FileIOHelper.deleteFile(tempFile);
         await VscodeHelper.openDocument(VscodeHelper.createFileUri(outputFile));
       } catch (error: unknown) {
-        fs.unlinkSync(tempFile);
+        FileIOHelper.deleteFile(tempFile);
         void VscodeHelper.showToastMessage(ToastKind.Error, `Prompt failed: ${TypeGuards.getErrorMessage(error)}`);
       }
     },

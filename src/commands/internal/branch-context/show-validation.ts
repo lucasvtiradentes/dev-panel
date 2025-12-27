@@ -1,6 +1,6 @@
-import * as fs from 'node:fs';
 import { CONFIG_FILE_NAME } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
+import { FileIOHelper } from '../../../common/utils/file-io';
 import { getFirstWorkspacePath } from '../../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
@@ -14,12 +14,12 @@ export function createShowBranchContextValidationCommand(): Disposable {
     if (!workspace) return;
 
     const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
-    if (!fs.existsSync(configPath)) {
+    if (!FileIOHelper.fileExists(configPath)) {
       await VscodeHelper.showToastMessage(ToastKind.Info, 'No config file found');
       return;
     }
 
-    const configContent = fs.readFileSync(configPath, 'utf-8');
+    const configContent = FileIOHelper.readFile(configPath);
     const config = ConfigManager.parseConfig(configContent);
     if (!config) {
       await VscodeHelper.showToastMessage(ToastKind.Error, 'Failed to parse config file');

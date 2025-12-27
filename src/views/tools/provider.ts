@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import * as path from 'node:path';
 import {
   CONTEXT_VALUES,
@@ -15,6 +14,7 @@ import { ConfigManager } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import type { DevPanelConfig } from '../../common/schemas';
 import { globalToolsState, toolsState } from '../../common/state';
+import { FileIOHelper } from '../../common/utils/file-io';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
@@ -189,9 +189,9 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   }
 
   private readToolDescription(instructionsPath: string): string | null {
-    if (!fs.existsSync(instructionsPath)) return null;
+    if (!FileIOHelper.fileExists(instructionsPath)) return null;
 
-    const content = fs.readFileSync(instructionsPath, 'utf8');
+    const content = FileIOHelper.readFile(instructionsPath);
     const lines = content.split('\n');
     const descriptionBuffer: string[] = [];
     let inDescriptionSection = false;

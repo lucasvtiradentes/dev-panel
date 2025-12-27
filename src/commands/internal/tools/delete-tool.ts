@@ -1,6 +1,6 @@
-import * as fs from 'node:fs';
 import { ConfigKey, LocationScope, getGlobalToolDir } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
+import { FileIOHelper } from '../../../common/utils/file-io';
 import {
   isGlobalItem,
   showConfigNotFoundError,
@@ -46,9 +46,7 @@ async function handleDeleteTool(treeTool: TreeTool) {
     ConfigManager.saveGlobalConfig(globalConfig);
 
     const globalToolsDir = getGlobalToolDir(toolName);
-    if (fs.existsSync(globalToolsDir)) {
-      fs.rmSync(globalToolsDir, { recursive: true });
-    }
+    FileIOHelper.deleteDirectory(globalToolsDir);
 
     showDeleteSuccessMessage('tool', toolName, true);
     void executeCommand(Command.RefreshTools);
@@ -78,9 +76,7 @@ async function handleDeleteTool(treeTool: TreeTool) {
   ConfigManager.saveWorkspaceConfig(workspaceFolder, workspaceConfig);
 
   const workspaceToolsDir = ConfigManager.getWorkspaceToolDir(workspaceFolder, toolName);
-  if (fs.existsSync(workspaceToolsDir)) {
-    fs.rmSync(workspaceToolsDir, { recursive: true });
-  }
+  FileIOHelper.deleteDirectory(workspaceToolsDir);
 
   showDeleteSuccessMessage('tool', toolName, false);
   void executeCommand(Command.RefreshTools);

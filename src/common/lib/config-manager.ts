@@ -1,6 +1,6 @@
-import * as fs from 'node:fs';
 import { isAbsolute, join } from 'node:path';
 import JSON5 from 'json5';
+import { FileIOHelper } from '../../common/utils/file-io';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
@@ -150,7 +150,7 @@ export class ConfigManager {
 
   static configDirExists(workspacePath: string): boolean {
     const configDirPath = ConfigManager.getConfigDirPathFromWorkspacePath(workspacePath);
-    return fs.existsSync(configDirPath);
+    return FileIOHelper.fileExists(configDirPath);
   }
 
   static getConfigFilePathFromWorkspacePath(workspacePath: string, fileName: string): string {
@@ -211,9 +211,9 @@ export class ConfigManager {
   }
 
   static loadConfigFromPath(configPath: string): DevPanelConfig | null {
-    if (!fs.existsSync(configPath)) return null;
+    if (!FileIOHelper.fileExists(configPath)) return null;
     try {
-      return JSON5.parse(fs.readFileSync(configPath, 'utf8')) as DevPanelConfig;
+      return JSON5.parse(FileIOHelper.readFile(configPath)) as DevPanelConfig;
     } catch {
       return null;
     }
@@ -247,13 +247,11 @@ export class ConfigManager {
   }
 
   static ensureDirectoryExists(dirPath: string) {
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-    }
+    FileIOHelper.ensureDirectoryExists(dirPath);
   }
 
   static saveConfigToPath(configPath: string, config: DevPanelConfig) {
-    fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
+    FileIOHelper.writeFile(configPath, JSON.stringify(config, null, 2));
   }
 
   static saveGlobalConfig(config: DevPanelConfig) {

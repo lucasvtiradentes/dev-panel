@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import {
   BRANCH_CONTEXT_FIELD_BRANCH,
   BRANCH_CONTEXT_FIELD_LINEAR_LINK,
@@ -20,6 +19,8 @@ import {
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext, BranchContextMetadata, SectionMetadata } from '../../../common/schemas/types';
+import { StringUtils, TypeGuards } from '../../../common/utils/common-utils';
+import { FileIOHelper } from '../../../common/utils/file-io';
 import { extractSectionMetadata } from '../../../common/utils/metadata-extractor';
 import { parseBranchTypeCheckboxes } from './branch-type-utils';
 
@@ -28,16 +29,15 @@ const logger = createLogger('BranchContext');
 export function loadBranchContextFromFile(workspace: string, branchName: string): BranchContext {
   const filePath = ConfigManager.getBranchContextFilePath(workspace, branchName);
 
-  if (!fs.existsSync(filePath)) {
+  if (!FileIOHelper.fileExists(filePath)) {
     return {};
   }
 
   try {
-    const content = fs.readFileSync(filePath, 'utf-8');
+    const content = FileIOHelper.readFile(filePath);
     return parseBranchContext(content);
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
-    logger.error(`Failed to load branch context for ${branchName}: ${message}`);
+    logger.error(`Failed to load branch context for ${branchName}: ${TypeGuards.getErrorMessage(error)}`);
     return {};
   }
 }
@@ -48,7 +48,7 @@ function extractField(content: string, fieldName: string): string | undefined {
   if (!match) return undefined;
 
   const value = match[1].trim();
-  if (value === BRANCH_CONTEXT_NA) return undefined;
+  if (StringUtils.isFieldEmpty(value)) return undefined;
   return value;
 }
 
@@ -71,7 +71,7 @@ function extractSection(content: string, sectionName: string): string | undefine
   const endIndex = nextHeaderMatch && nextHeaderMatch.index !== undefined ? nextHeaderMatch.index : afterHeader.length;
   const sectionContent = afterHeader.slice(0, endIndex).trim();
 
-  if (sectionContent === BRANCH_CONTEXT_NA) return undefined;
+  if (StringUtils.isFieldEmpty(sectionContent)) return undefined;
   return sectionContent;
 }
 
@@ -87,7 +87,7 @@ function extractCodeBlockSection(content: string, sectionName: string): string |
   if (!codeBlockMatch) return undefined;
 
   const codeContent = codeBlockMatch[1].trim();
-  if (codeContent === '' || codeContent === BRANCH_CONTEXT_NO_CHANGES) return undefined;
+  if (StringUtils.isFieldEmpty(codeContent, BRANCH_CONTEXT_NO_CHANGES)) return undefined;
   return codeContent;
 }
 
@@ -114,8 +114,9 @@ function extractAllCodeBlockSections(content: string): Record<string, CodeBlockS
           metadata = parsed as SectionMetadata;
         }
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
-        logger.error(`[extractAllCodeBlockSections] Failed to parse metadata for ${sectionName}: ${message}`);
+        logger.error(
+          `[extractAllCodeBlockSections] Failed to parse metadata for ${sectionName}: ${TypeGuards.getErrorMessage(error)}`,
+        );
       }
     }
 
@@ -247,7 +248,7 @@ export function extractAllFieldsRaw(content: string): Record<string, string> {
   for (const match of fieldMatches) {
     const fieldName = match[1].trim();
     const fieldValue = match[2].trim();
-    if (fieldValue && fieldValue !== BRANCH_CONTEXT_NA) {
+    if (StringUtils.isFieldValid(fieldValue)) {
       fields[fieldName] = fieldValue;
     }
   }

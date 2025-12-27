@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import {
   BRANCH_CONTEXT_NO_CHANGES,
   NOT_GIT_REPO_MESSAGE,
@@ -16,6 +15,7 @@ import { ConfigManager } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import { branchContextState } from '../../common/state';
 import { formatRelativeTime } from '../../common/utils/common-utils';
+import { FileIOHelper } from '../../common/utils/file-io';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
@@ -178,17 +178,17 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
 
   private addToGitExclude(workspace: string) {
     const excludePath = ConfigManager.getGitExcludeFilePath(workspace);
-    if (!fs.existsSync(excludePath)) return;
+    if (!FileIOHelper.fileExists(excludePath)) return;
 
     try {
-      const content = fs.readFileSync(excludePath, 'utf-8');
+      const content = FileIOHelper.readFile(excludePath);
 
       if (content.includes(ROOT_BRANCH_CONTEXT_FILE_NAME)) return;
 
       const newContent = content.endsWith('\n')
         ? `${content}${ROOT_BRANCH_CONTEXT_FILE_NAME}\n`
         : `${content}\n${ROOT_BRANCH_CONTEXT_FILE_NAME}\n`;
-      fs.writeFileSync(excludePath, newContent);
+      FileIOHelper.writeFile(excludePath, newContent);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       logger.error(`Failed to update .git/info/exclude: ${message}`);
@@ -210,7 +210,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
       const workspace = getFirstWorkspacePath();
       if (workspace) {
         const branchFilePath = ConfigManager.getBranchContextFilePath(workspace, branchName);
-        const fileExists = fs.existsSync(branchFilePath);
+        const fileExists = FileIOHelper.fileExists(branchFilePath);
         logger.info(`[BranchContextProvider] setBranch - File exists: ${fileExists}, path: ${branchFilePath}`);
 
         if (!fileExists) {

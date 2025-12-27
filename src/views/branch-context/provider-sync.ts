@@ -1,5 +1,4 @@
 import { execSync } from 'node:child_process';
-import * as fs from 'node:fs';
 import {
   ChangedFilesStyle,
   GIT_LOG_LAST_COMMIT_MESSAGE,
@@ -11,6 +10,8 @@ import {
 import { ConfigManager } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { createLogger } from '../../common/lib/logger';
+import { StringUtils, TypeGuards } from '../../common/utils/common-utils';
+import { FileIOHelper } from '../../common/utils/file-io';
 import { extractSectionMetadata } from '../../common/utils/metadata-extractor';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { getChangedFilesWithSummary } from '../_branch_base/providers/default/file-changes-utils';
@@ -79,7 +80,7 @@ export class SyncManager {
     const rootPath = ConfigManager.getRootBranchContextFilePath(workspace);
     const branchPath = ConfigManager.getBranchContextFilePath(workspace, currentBranch);
 
-    if (!fs.existsSync(rootPath)) {
+    if (!FileIOHelper.fileExists(rootPath)) {
       return;
     }
 
@@ -89,11 +90,10 @@ export class SyncManager {
     this.lastSyncDirection = SyncDirection.RootToBranch;
 
     try {
-      const content = fs.readFileSync(rootPath, 'utf-8');
-      fs.writeFileSync(branchPath, content, 'utf-8');
+      const content = FileIOHelper.readFile(rootPath);
+      FileIOHelper.writeFile(branchPath, content);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      logger.error(`Error syncing root to branch: ${message}`);
+      logger.error(`Error syncing root to branch: ${TypeGuards.getErrorMessage(error)}`);
     } finally {
       setTimeout(() => {
         this.isSyncing = false;
@@ -123,7 +123,7 @@ export class SyncManager {
     const rootPath = ConfigManager.getRootBranchContextFilePath(workspace);
     const branchPath = ConfigManager.getBranchContextFilePath(workspace, currentBranch);
 
-    if (!fs.existsSync(branchPath)) {
+    if (!FileIOHelper.fileExists(branchPath)) {
       return;
     }
 
@@ -133,11 +133,10 @@ export class SyncManager {
     this.lastSyncDirection = SyncDirection.BranchToRoot;
 
     try {
-      const content = fs.readFileSync(branchPath, 'utf-8');
-      fs.writeFileSync(rootPath, content, 'utf-8');
+      const content = FileIOHelper.readFile(branchPath);
+      FileIOHelper.writeFile(rootPath, content);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      logger.error(`Error syncing branch to root: ${message}`);
+      logger.error(`Error syncing branch to root: ${TypeGuards.getErrorMessage(error)}`);
     } finally {
       setTimeout(() => {
         this.isSyncing = false;
@@ -205,8 +204,7 @@ export class SyncManager {
                   changedFiles = data.replace(/<!--\s*SECTION_METADATA:.*?-->/g, '').trim();
                 }
               } catch (error: unknown) {
-                const message = error instanceof Error ? error.message : String(error);
-                logger.error(`Failed to parse changedFiles metadata: ${message}`);
+                logger.error(`Failed to parse changedFiles metadata: ${TypeGuards.getErrorMessage(error)}`);
               }
             }
           }
@@ -228,8 +226,8 @@ export class SyncManager {
 
         let markdownFields: Record<string, string> = {};
         const markdownPath = ConfigManager.getBranchContextFilePath(workspace, currentBranch);
-        if (fs.existsSync(markdownPath)) {
-          const markdownContent = fs.readFileSync(markdownPath, 'utf-8');
+        const markdownContent = FileIOHelper.readFileIfExists(markdownPath);
+        if (markdownContent) {
           markdownFields = extractAllFieldsRaw(markdownContent);
         }
 
@@ -240,7 +238,7 @@ export class SyncManager {
           if (customSection?.skipIfEmpty && customSection.skipIfEmpty.length > 0) {
             for (const fieldName of customSection.skipIfEmpty) {
               const fieldValue = markdownFields[fieldName];
-              if (!fieldValue || fieldValue.trim() === '') {
+              if (StringUtils.isFieldEmpty(fieldValue)) {
                 logger.info(
                   `[syncBranchContext] Skipping "${section.name}" - field "${fieldName}" is empty (+${Date.now() - startTime}ms)`,
                 );
@@ -272,9 +270,11 @@ export class SyncManager {
             logger.info(`[syncBranchContext] "${section.name}" done (+${Date.now() - startTime}ms)`);
             return { name: section.name, data };
           } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : String(error);
-            logger.error(`[syncBranchContext] "${section.name}" FAILED (+${Date.now() - startTime}ms): ${message}`);
-            return { name: section.name, data: `Error: ${message}` };
+            const errorMessage = TypeGuards.getErrorMessage(error);
+            logger.error(
+              `[syncBranchContext] "${section.name}" FAILED (+${Date.now() - startTime}ms): ${errorMessage}`,
+            );
+            return { name: section.name, data: `Error: ${errorMessage}` };
           }
         });
 
@@ -312,8 +312,7 @@ export class SyncManager {
         lastCommitHash = execSync(GIT_REV_PARSE_HEAD, { cwd: workspace, encoding: 'utf-8' }).trim();
         lastCommitMessage = execSync(GIT_LOG_LAST_COMMIT_MESSAGE, { cwd: workspace, encoding: 'utf-8' }).trim();
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
-        logger.error(`Failed to get git commit info: ${message}`);
+        logger.error(`Failed to get git commit info: ${TypeGuards.getErrorMessage(error)}`);
       }
 
       logger.info(`[syncBranchContext] Building updated context (+${Date.now() - startTime}ms)`);

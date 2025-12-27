@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import * as path from 'node:path';
 import {
   CONFIG_FILE_NAME,
@@ -12,6 +11,7 @@ import {
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { TaskSource } from '../../../common/schemas/types';
 import { TypeGuards } from '../../../common/utils/common-utils';
+import { FileIOHelper } from '../../../common/utils/file-io';
 import { getFirstWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { WorkspaceFolder } from '../../../common/vscode/vscode-types';
@@ -24,7 +24,7 @@ async function findAllPackageJsons(folder: WorkspaceFolder): Promise<string[]> {
   const excludedDirs = getExcludedDirs(folder.uri.fsPath);
 
   async function scan(dir: string) {
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    const entries = FileIOHelper.readDirectory(dir, { withFileTypes: true });
 
     for (const entry of entries) {
       if (excludedDirs.has(entry.name) || entry.name.startsWith(DIST_DIR_PREFIX)) continue;
@@ -44,7 +44,7 @@ async function findAllPackageJsons(folder: WorkspaceFolder): Promise<string[]> {
 }
 
 async function openPackageJsonAtScripts(packageJsonPath: string) {
-  const content = fs.readFileSync(packageJsonPath, 'utf-8');
+  const content = FileIOHelper.readFile(packageJsonPath);
   const lines = content.split('\n');
   let scriptsLine = 0;
 
@@ -70,7 +70,7 @@ export function createOpenTasksConfigCommand() {
     switch (source) {
       case TaskSource.VSCode: {
         const tasksJsonPath = getVscodeTasksFilePath(workspacePath);
-        if (fs.existsSync(tasksJsonPath)) {
+        if (FileIOHelper.fileExists(tasksJsonPath)) {
           const uri = VscodeHelper.createFileUri(tasksJsonPath);
           await VscodeHelper.openDocument(uri);
         } else {
@@ -81,8 +81,8 @@ export function createOpenTasksConfigCommand() {
 
       case TaskSource.DevPanel: {
         const configPath = ConfigManager.getWorkspaceConfigFilePath(workspace, CONFIG_FILE_NAME);
-        if (fs.existsSync(configPath)) {
-          const content = fs.readFileSync(configPath, 'utf-8');
+        if (FileIOHelper.fileExists(configPath)) {
+          const content = FileIOHelper.readFile(configPath);
           const lines = content.split('\n');
           let tasksLine = 0;
 

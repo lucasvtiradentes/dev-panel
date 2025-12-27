@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import * as path from 'node:path';
 import {
   AI_SPEC_AVAILABLE_TOOLS_REGEX,
@@ -15,6 +14,7 @@ import {
 import { ConfigManager } from '../../../common/lib/config-manager';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { toolsState } from '../../../common/state';
+import { FileIOHelper } from '../../../common/utils/file-io';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable, WorkspaceFolder } from '../../../common/vscode/vscode-types';
@@ -160,8 +160,8 @@ function generateToolsXml(workspaceFolder: WorkspaceFolder): string {
     const instructionsPath = ConfigManager.getWorkspaceToolInstructionsPath(workspaceFolder, tool.name);
 
     let description = '';
-    if (fs.existsSync(instructionsPath)) {
-      const content = fs.readFileSync(instructionsPath, 'utf8');
+    if (FileIOHelper.fileExists(instructionsPath)) {
+      const content = FileIOHelper.readFile(instructionsPath);
       const instruction = parseInstructionsMd(content, tool.name);
       description = instruction.description ?? '';
     }
@@ -173,8 +173,8 @@ function generateToolsXml(workspaceFolder: WorkspaceFolder): string {
     const instructionsPath = getGlobalToolInstructionsPath(tool.name);
 
     let description = '';
-    if (fs.existsSync(instructionsPath)) {
-      const content = fs.readFileSync(instructionsPath, 'utf8');
+    if (FileIOHelper.fileExists(instructionsPath)) {
+      const content = FileIOHelper.readFile(instructionsPath);
       const instruction = parseInstructionsMd(content, tool.name);
       description = instruction.description ?? '';
     }
@@ -263,16 +263,12 @@ async function syncToSkills(workspaceFolder: WorkspaceFolder): Promise<number> {
 
   for (const tool of inactiveLocalTools) {
     const skillDir = getSkillDir(workspaceFolder.uri.fsPath, tool.name);
-    if (fs.existsSync(skillDir)) {
-      fs.rmSync(skillDir, { recursive: true });
-    }
+    FileIOHelper.deleteDirectory(skillDir);
   }
 
   for (const tool of inactiveGlobalTools) {
     const skillDir = getSkillDir(workspaceFolder.uri.fsPath, tool.name);
-    if (fs.existsSync(skillDir)) {
-      fs.rmSync(skillDir, { recursive: true });
-    }
+    FileIOHelper.deleteDirectory(skillDir);
   }
 
   let syncedCount = 0;
@@ -280,42 +276,38 @@ async function syncToSkills(workspaceFolder: WorkspaceFolder): Promise<number> {
   for (const tool of activeLocalTools) {
     const instructionsPath = ConfigManager.getWorkspaceToolInstructionsPath(workspaceFolder, tool.name);
 
-    if (!fs.existsSync(instructionsPath)) {
+    if (!FileIOHelper.fileExists(instructionsPath)) {
       continue;
     }
 
-    const instructionsContent = fs.readFileSync(instructionsPath, 'utf8');
+    const instructionsContent = FileIOHelper.readFile(instructionsPath);
     const exampleCommand = instructionsContent.match(/```bash\n(.+?)\n/)?.[1] ?? tool.command ?? tool.name;
     const skillContent = generateSkillMd(instructionsContent, tool.name, exampleCommand);
 
     const skillDir = getSkillDir(workspaceFolder.uri.fsPath, tool.name);
-    if (!fs.existsSync(skillDir)) {
-      fs.mkdirSync(skillDir, { recursive: true });
-    }
+    FileIOHelper.ensureDirectoryExists(skillDir);
 
     const skillPath = getSkillFilePath(workspaceFolder.uri.fsPath, tool.name);
-    fs.writeFileSync(skillPath, skillContent, 'utf8');
+    FileIOHelper.writeFile(skillPath, skillContent);
     syncedCount++;
   }
 
   for (const tool of activeGlobalTools) {
     const instructionsPath = getGlobalToolInstructionsPath(tool.name);
 
-    if (!fs.existsSync(instructionsPath)) {
+    if (!FileIOHelper.fileExists(instructionsPath)) {
       continue;
     }
 
-    const instructionsContent = fs.readFileSync(instructionsPath, 'utf8');
+    const instructionsContent = FileIOHelper.readFile(instructionsPath);
     const exampleCommand = instructionsContent.match(/```bash\n(.+?)\n/)?.[1] ?? tool.command ?? tool.name;
     const skillContent = generateSkillMd(instructionsContent, tool.name, exampleCommand);
 
     const skillDir = getSkillDir(workspaceFolder.uri.fsPath, tool.name);
-    if (!fs.existsSync(skillDir)) {
-      fs.mkdirSync(skillDir, { recursive: true });
-    }
+    FileIOHelper.ensureDirectoryExists(skillDir);
 
     const skillPath = getSkillFilePath(workspaceFolder.uri.fsPath, tool.name);
-    fs.writeFileSync(skillPath, skillContent, 'utf8');
+    FileIOHelper.writeFile(skillPath, skillContent);
     syncedCount++;
   }
 
@@ -327,7 +319,7 @@ function syncToAiSpecs(xml: string, workspaceFolder: WorkspaceFolder) {
 
   for (const specFile of AI_SPEC_FILES) {
     const specPath = path.join(workspaceFolder.uri.fsPath, specFile);
-    if (fs.existsSync(specPath)) {
+    if (FileIOHelper.fileExists(specPath)) {
       foundFiles.push(specPath);
     }
   }
@@ -338,7 +330,7 @@ function syncToAiSpecs(xml: string, workspaceFolder: WorkspaceFolder) {
   }
 
   for (const filePath of foundFiles) {
-    let content = fs.readFileSync(filePath, 'utf8');
+    let content = FileIOHelper.readFile(filePath);
 
     if (AI_SPEC_DEV_TOOLS_REGEX.test(content)) {
       content = content.replace(AI_SPEC_DEV_TOOLS_REGEX, xml);
@@ -348,7 +340,7 @@ function syncToAiSpecs(xml: string, workspaceFolder: WorkspaceFolder) {
       content = `${content.trimEnd()}\n\n${xml}\n`;
     }
 
-    fs.writeFileSync(filePath, content, 'utf8');
+    FileIOHelper.writeFile(filePath, content);
   }
 
   VscodeHelper.showToastMessage(

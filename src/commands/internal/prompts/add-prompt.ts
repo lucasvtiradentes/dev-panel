@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import * as path from 'node:path';
 import {
   CONFIG_FILE_NAME,
@@ -11,6 +10,7 @@ import {
 } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
 import type { DevPanelConfig } from '../../../common/schemas';
+import { FileIOHelper } from '../../../common/utils/file-io';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
@@ -55,12 +55,12 @@ async function handleAddPrompt() {
   });
 
   const configPath = ConfigManager.getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
-  if (!fs.existsSync(configPath)) {
+  if (!FileIOHelper.fileExists(configPath)) {
     VscodeHelper.showToastMessage(ToastKind.Error, `Config file not found: ${configPath}`);
     return;
   }
 
-  const configContent = fs.readFileSync(configPath, 'utf8');
+  const configContent = FileIOHelper.readFile(configPath);
   const config = ConfigManager.parseConfig(configContent);
   if (!config) {
     VscodeHelper.showToastMessage(ToastKind.Error, 'Failed to parse config file');
@@ -126,12 +126,10 @@ async function handleAddPrompt() {
 
   const updatedContent = configContent.substring(0, startIndex) + newPromptsContent + configContent.substring(endIndex);
 
-  fs.writeFileSync(configPath, updatedContent, 'utf8');
+  FileIOHelper.writeFile(configPath, updatedContent);
 
   const promptsDir = ConfigManager.getWorkspacePromptsDir(workspaceFolder);
-  if (!fs.existsSync(promptsDir)) {
-    fs.mkdirSync(promptsDir, { recursive: true });
-  }
+  FileIOHelper.ensureDirectoryExists(promptsDir);
 
   const promptFilePath = path.join(promptsDir, `${fileName}.md`);
   const promptContent = `# ${name}
@@ -154,7 +152,7 @@ Example command or code
 \`\`\`
 `;
 
-  fs.writeFileSync(promptFilePath, promptContent, 'utf8');
+  FileIOHelper.writeFile(promptFilePath, promptContent);
 
   VscodeHelper.showToastMessage(ToastKind.Info, `Prompt "${name}" created successfully`);
 

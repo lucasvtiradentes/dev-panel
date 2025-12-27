@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import {
   CONFIG_FILE_NAME,
   CONFIG_INDENT,
@@ -10,6 +9,7 @@ import {
 } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
 import type { DevPanelConfig } from '../../../common/schemas';
+import { FileIOHelper } from '../../../common/utils/file-io';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
@@ -49,12 +49,12 @@ async function handleAddTool() {
   });
 
   const configPath = ConfigManager.getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
-  if (!fs.existsSync(configPath)) {
+  if (!FileIOHelper.fileExists(configPath)) {
     VscodeHelper.showToastMessage(ToastKind.Error, `Config file not found: ${configPath}`);
     return;
   }
 
-  const configContent = fs.readFileSync(configPath, 'utf8');
+  const configContent = FileIOHelper.readFile(configPath);
   const config = ConfigManager.parseConfig(configContent);
   if (!config) {
     VscodeHelper.showToastMessage(ToastKind.Error, 'Failed to parse config file');
@@ -116,12 +116,10 @@ async function handleAddTool() {
 
   const updatedContent = configContent.substring(0, startIndex) + newToolsContent + configContent.substring(endIndex);
 
-  fs.writeFileSync(configPath, updatedContent, 'utf8');
+  FileIOHelper.writeFile(configPath, updatedContent);
 
   const toolDir = ConfigManager.getWorkspaceToolDir(workspaceFolder, name);
-  if (!fs.existsSync(toolDir)) {
-    fs.mkdirSync(toolDir, { recursive: true });
-  }
+  FileIOHelper.ensureDirectoryExists(toolDir);
 
   const instructionsPath = ConfigManager.getWorkspaceToolInstructionsPath(workspaceFolder, name);
   const instructionsContent = `# Description
@@ -161,7 +159,7 @@ ${command}
 - Issue 2: Solution 2
 `;
 
-  fs.writeFileSync(instructionsPath, instructionsContent, 'utf8');
+  FileIOHelper.writeFile(instructionsPath, instructionsContent);
 
   VscodeHelper.showToastMessage(ToastKind.Info, `Tool "${name}" created successfully`);
 

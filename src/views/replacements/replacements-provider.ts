@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import * as path from 'node:path';
 import json5 from 'json5';
 import {
@@ -13,6 +12,7 @@ import {
 import { ConfigManager } from '../../common/lib/config-manager';
 import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
+import { FileIOHelper } from '../../common/utils/file-io';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -216,9 +216,9 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
     if (!workspace) return null;
 
     const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
-    if (!fs.existsSync(configPath)) return null;
+    if (!FileIOHelper.fileExists(configPath)) return null;
 
-    const content = fs.readFileSync(configPath, 'utf-8');
+    const content = FileIOHelper.readFile(configPath);
     const rawConfig = json5.parse(content);
     const config = DevPanelConfigSchema.parse(rawConfig);
 
@@ -291,8 +291,8 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
         await restoreFileFromGit(workspace, replacement.target);
       } else {
         const targetPath = path.join(workspace, replacement.target);
-        if (fs.existsSync(targetPath)) {
-          fs.unlinkSync(targetPath);
+        if (FileIOHelper.fileExists(targetPath)) {
+          FileIOHelper.deleteFile(targetPath);
         }
       }
     }

@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import { FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
 import { Position } from '../../common/constants/enums';
 import { ConfigManager } from '../../common/lib/config-manager';
@@ -6,6 +5,7 @@ import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
 import type { TaskPriority, TaskStatus } from '../../common/schemas';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
+import { FileIOHelper } from '../../common/utils/file-io';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, Uri } from '../../common/vscode/vscode-types';
@@ -153,9 +153,9 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
     const filePath = getBranchContextFilePath(this.currentBranch);
     logger.info(`[BranchTasksProvider] [loadBranchTasks] START - Branch: ${this.currentBranch}, FilePath: ${filePath}`);
 
-    if (!filePath || !fs.existsSync(filePath)) {
+    if (!filePath || !FileIOHelper.fileExists(filePath)) {
       logger.warn(
-        `[BranchTasksProvider] [loadBranchTasks] File not found, clearing cache. filePath: ${filePath}, exists: ${filePath ? fs.existsSync(filePath) : 'N/A'}`,
+        `[BranchTasksProvider] [loadBranchTasks] File not found, clearing cache. filePath: ${filePath}, exists: ${filePath ? FileIOHelper.fileExists(filePath) : 'N/A'}`,
       );
       this.cachedNodes = [];
       this.cachedOrphanTasks = [];
@@ -361,7 +361,7 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
 
   private getSyncContext(): SyncContext | null {
     const filePath = getBranchContextFilePath(this.currentBranch);
-    if (!filePath || !fs.existsSync(filePath)) return null;
+    if (!filePath || !FileIOHelper.fileExists(filePath)) return null;
 
     const workspace = getFirstWorkspacePath();
     if (!workspace) return null;

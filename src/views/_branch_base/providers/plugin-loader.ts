@@ -1,9 +1,10 @@
 import { exec } from 'node:child_process';
-import * as fs from 'node:fs';
 import { promisify } from 'node:util';
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import { PluginAction, TaskStatus } from '../../../common/schemas';
+import { TypeGuards } from '../../../common/utils/common-utils';
+import { FileIOHelper } from '../../../common/utils/file-io';
 import { extractAllFieldsRaw } from '../storage/file-storage';
 import type {
   AutoSectionProvider,
@@ -40,9 +41,11 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
   return {
     async fetch(context: SyncContext): Promise<string> {
       let fields: Record<string, string> = {};
-      if (context.markdownPath && fs.existsSync(context.markdownPath)) {
-        const markdownContent = fs.readFileSync(context.markdownPath, 'utf-8');
-        fields = extractAllFieldsRaw(markdownContent);
+      if (context.markdownPath) {
+        const markdownContent = FileIOHelper.readFileIfExists(context.markdownPath);
+        if (markdownContent) {
+          fields = extractAllFieldsRaw(markdownContent);
+        }
       }
 
       const contextJson = JSON.stringify({
@@ -68,8 +71,7 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
 
         return stdout.trim();
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
-        logger.error(`[loadAutoProvider] Script error: ${message}`);
+        logger.error(`[loadAutoProvider] Script error: ${TypeGuards.getErrorMessage(error)}`);
         throw error;
       }
     },
@@ -122,8 +124,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       }
       return parsed as T;
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      logger.error(`[loadTaskProvider] Plugin error: ${message}`);
+      logger.error(`[loadTaskProvider] Plugin error: ${TypeGuards.getErrorMessage(error)}`);
       throw error;
     }
   }

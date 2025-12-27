@@ -1,5 +1,5 @@
-import * as fs from 'node:fs';
 import JSON5 from 'json5';
+import { FileIOHelper } from '../../common/utils/file-io';
 
 function parseVariables(content: string): Record<string, unknown> | null {
   try {
@@ -10,9 +10,9 @@ function parseVariables(content: string): Record<string, unknown> | null {
 }
 
 export function loadVariablesFromPath(variablesPath: string): Record<string, unknown> | null {
-  if (!fs.existsSync(variablesPath)) return null;
+  if (!FileIOHelper.fileExists(variablesPath)) return null;
   try {
-    const content = fs.readFileSync(variablesPath, 'utf8');
+    const content = FileIOHelper.readFile(variablesPath);
     return parseVariables(content);
   } catch {
     return null;
