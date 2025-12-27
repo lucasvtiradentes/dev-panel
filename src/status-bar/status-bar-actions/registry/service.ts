@@ -14,8 +14,7 @@ import {
 import { ConfigKey } from '../../../common/constants/enums';
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { logger } from '../../../common/lib/logger';
-import { FileIOHelper } from '../../../common/lib/node-helper';
-import { NodePathHelper } from '../../../common/lib/node-helper';
+import { FileIOHelper, NodePathHelper } from '../../../common/lib/node-helper';
 import {
   type RegistryIndex,
   RegistryIndexSchema,

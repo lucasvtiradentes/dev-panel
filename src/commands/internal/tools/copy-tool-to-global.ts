@@ -1,6 +1,6 @@
 import { ConfigKey, LocationScope, getGlobalToolDir } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
-import { FileIOHelper } from '../../../common/lib/node-helper';
+import { FileIOHelper, NodePathHelper } from '../../../common/lib/node-helper';
 import {
   isGlobalItem,
   showAlreadyGlobalMessage,
@@ -51,7 +51,7 @@ async function handleCopyToolToGlobal(treeTool: TreeTool) {
   const globalToolsDir = getGlobalToolDir(tool.name);
 
   if (FileIOHelper.fileExists(workspaceToolsDir)) {
-    FileIOHelper.ensureDirectoryExists(require('node:path').dirname(globalToolsDir));
+    FileIOHelper.ensureDirectoryExists(NodePathHelper.dirname(globalToolsDir));
     FileIOHelper.deleteDirectory(globalToolsDir);
     FileIOHelper.copyDirectory(workspaceToolsDir, globalToolsDir);
   }

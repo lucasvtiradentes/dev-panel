@@ -22,8 +22,7 @@ import { VscodeConstants } from '../vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
 import type { Uri, WorkspaceFolder } from '../vscode/vscode-types';
 import { StoreKey, extensionStore } from './extension-store';
-import { FileIOHelper } from './node-helper';
-import { NodePathHelper } from './node-helper';
+import { FileIOHelper, NodePathHelper } from './node-helper';
 
 type ConfigArrayKey = ConfigKey.Prompts | ConfigKey.Tasks | ConfigKey.Tools;
 type ConfigArrayItem =

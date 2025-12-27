@@ -11,8 +11,7 @@ import {
   getSkillFilePath,
 } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
-import { FileIOHelper } from '../../../common/lib/node-helper';
-import { NodePathHelper } from '../../../common/lib/node-helper';
+import { FileIOHelper, NodePathHelper } from '../../../common/lib/node-helper';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { toolsState } from '../../../common/state';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';

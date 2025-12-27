@@ -9,8 +9,7 @@ import {
 } from '../../common/constants/scripts-constants';
 import { ConfigManager } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
-import { FileIOHelper } from '../../common/lib/node-helper';
-import { NodePathHelper } from '../../common/lib/node-helper';
+import { FileIOHelper, NodePathHelper } from '../../common/lib/node-helper';
 import {
   type DevPanelConfig,
   type DevPanelPrompt,
@@ -23,13 +22,14 @@ import { loadVariablesFromPath, readDevPanelVariablesAsEnv } from '../../common/
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { collectInputs, replaceInputPlaceholders } from '../../common/vscode/vscode-inputs';
-import { ProcessExecutionClass, ShellExecutionClass } from '../../common/vscode/vscode-types';
-import type {
-  ExtensionContext,
-  ShellExecution,
-  Task,
-  TaskScope,
-  WorkspaceFolder,
+import {
+  type ExtensionContext,
+  ProcessExecutionClass,
+  type ShellExecution,
+  ShellExecutionClass,
+  type Task,
+  type TaskScope,
+  type WorkspaceFolder,
 } from '../../common/vscode/vscode-types';
 import { Command, isMultiRootWorkspace, registerCommand } from '../../common/vscode/vscode-utils';
 import { getFirstWorkspaceFolder } from '../../common/vscode/workspace-utils';

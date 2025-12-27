@@ -1,6 +1,6 @@
 import { ConfigKey, LocationScope, getGlobalPromptFilePath } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
-import { FileIOHelper } from '../../../common/lib/node-helper';
+import { FileIOHelper, NodePathHelper } from '../../../common/lib/node-helper';
 import {
   isGlobalItem,
   showAlreadyGlobalMessage,
@@ -51,7 +51,7 @@ async function handleCopyPromptToGlobal(treePrompt: TreePrompt) {
   const globalPromptFile = getGlobalPromptFilePath(prompt.file);
 
   if (FileIOHelper.fileExists(workspacePromptFile)) {
-    FileIOHelper.ensureDirectoryExists(require('node:path').dirname(globalPromptFile));
+    FileIOHelper.ensureDirectoryExists(NodePathHelper.dirname(globalPromptFile));
     FileIOHelper.copyFile(workspacePromptFile, globalPromptFile);
   }
 

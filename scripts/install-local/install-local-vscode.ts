@@ -1,4 +1,3 @@
-import { statSync } from 'node:fs';
 import {
   CONTEXT_PREFIX,
   DEV_SUFFIX,
@@ -206,7 +205,7 @@ function getEditorExtensionsPath(editor: Editor): string {
 }
 
 function copyRecursive(src: string, dest: string) {
-  const stat = statSync(src);
+  const stat = FileIOHelper.stat(src);
 
   if (stat.isDirectory()) {
     FileIOHelper.ensureDirectoryExists(dest);
