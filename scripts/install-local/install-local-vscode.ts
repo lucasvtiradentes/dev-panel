@@ -1,15 +1,4 @@
-import {
-  copyFileSync,
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  readdirSync,
-  rmSync,
-  statSync,
-  writeFileSync,
-} from 'node:fs';
-import { homedir } from 'node:os';
-import { join } from 'node:path';
+import { statSync } from 'node:fs';
 import {
   CONTEXT_PREFIX,
   DEV_SUFFIX,
@@ -30,11 +19,12 @@ import {
   README_FILE,
   VSCODE_EXTENSIONS_FILE,
 } from '../../src/common/constants/vscode-constants';
+import { FileIOHelper, NodeOsHelper, NodePathHelper } from '../../src/common/lib/node-helper';
 
 const logger = console;
 
 const SCRIPT_DIR = __dirname;
-const ROOT_DIR = join(SCRIPT_DIR, '..', '..');
+const ROOT_DIR = NodePathHelper.join(SCRIPT_DIR, '..', '..');
 const EXTENSION_ID_DEV = buildExtensionId(true);
 
 function main() {
@@ -55,23 +45,21 @@ function main() {
 
 function setupLocalDistDirectory() {
   const targetDir = getLocalDistDirectory();
-  if (existsSync(targetDir)) {
-    rmSync(targetDir, { recursive: true });
-  }
-  mkdirSync(targetDir, { recursive: true });
+  FileIOHelper.deleteDirectory(targetDir);
+  FileIOHelper.ensureDirectoryExists(targetDir);
 }
 
 function copyExtensionFiles() {
   const targetDir = getLocalDistDirectory();
-  copyRecursive(join(ROOT_DIR, 'out'), join(targetDir, 'out'));
-  copyRecursive(join(ROOT_DIR, 'resources'), join(targetDir, 'resources'));
+  copyRecursive(NodePathHelper.join(ROOT_DIR, 'out'), NodePathHelper.join(targetDir, 'out'));
+  copyRecursive(NodePathHelper.join(ROOT_DIR, 'resources'), NodePathHelper.join(targetDir, 'resources'));
 }
 
 function patchExtensionCode() {
   const targetDir = getLocalDistDirectory();
-  const extensionJsPath = join(targetDir, 'out', 'extension.js');
+  const extensionJsPath = NodePathHelper.join(targetDir, 'out', 'extension.js');
 
-  const extensionJs = readFileSync(extensionJsPath, 'utf8');
+  const extensionJs = FileIOHelper.readFile(extensionJsPath);
   const isDevUnminified = /var IS_DEV = false;/;
   const logFileProd = buildLogFilename(false);
   const logFileDev = buildLogFilename(true);
@@ -87,28 +75,28 @@ function patchExtensionCode() {
     patchedExtensionJs = patchedExtensionJs.replace(statusBarPattern, `${addDevLabel(EXTENSION_DISPLAY_NAME)}:`);
   }
 
-  writeFileSync(extensionJsPath, patchedExtensionJs);
+  FileIOHelper.writeFile(extensionJsPath, patchedExtensionJs);
 }
 
 function writePackageJson() {
   const targetDir = getLocalDistDirectory();
-  const packageJsonPath = join(ROOT_DIR, PACKAGE_JSON);
-  const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+  const packageJsonPath = NodePathHelper.join(ROOT_DIR, PACKAGE_JSON);
+  const packageJson = JSON.parse(FileIOHelper.readFile(packageJsonPath));
   const modifiedPackageJson = applyDevTransformations(packageJson);
-  writeFileSync(join(targetDir, PACKAGE_JSON), JSON.stringify(modifiedPackageJson, null, 2));
+  FileIOHelper.writeFile(NodePathHelper.join(targetDir, PACKAGE_JSON), JSON.stringify(modifiedPackageJson, null, 2));
 }
 
 function copyMetaFiles() {
   const targetDir = getLocalDistDirectory();
 
-  const licensePath = join(ROOT_DIR, LICENSE_FILE);
-  if (existsSync(licensePath)) {
-    copyFileSync(licensePath, join(targetDir, LICENSE_FILE));
+  const licensePath = NodePathHelper.join(ROOT_DIR, LICENSE_FILE);
+  if (FileIOHelper.fileExists(licensePath)) {
+    FileIOHelper.copyFile(licensePath, NodePathHelper.join(targetDir, LICENSE_FILE));
   }
 
-  const readmePath = join(ROOT_DIR, README_FILE);
-  if (existsSync(readmePath)) {
-    copyFileSync(readmePath, join(targetDir, README_FILE));
+  const readmePath = NodePathHelper.join(ROOT_DIR, README_FILE);
+  if (FileIOHelper.fileExists(readmePath)) {
+    FileIOHelper.copyFile(readmePath, NodePathHelper.join(targetDir, README_FILE));
   }
 }
 
@@ -118,13 +106,11 @@ function copyToVSCodeExtensions() {
 
   for (const editor of Object.values(Editor)) {
     const extensionsPath = getEditorExtensionsPath(editor);
-    if (!existsSync(extensionsPath)) continue;
+    if (!FileIOHelper.fileExists(extensionsPath)) continue;
 
-    const targetDir = join(extensionsPath, EXTENSION_ID_DEV);
-    if (existsSync(targetDir)) {
-      rmSync(targetDir, { recursive: true });
-    }
-    mkdirSync(targetDir, { recursive: true });
+    const targetDir = NodePathHelper.join(extensionsPath, EXTENSION_ID_DEV);
+    FileIOHelper.deleteDirectory(targetDir);
+    FileIOHelper.ensureDirectoryExists(targetDir);
     copyRecursive(sourceDir, targetDir);
     installedEditors.push(EDITOR_DISPLAY_NAMES[editor]);
   }
@@ -138,24 +124,22 @@ function copyToVSCodeExtensions() {
 
 function registerExtensionInEditors() {
   const targetDir = getLocalDistDirectory();
-  const packageJsonPath = join(targetDir, PACKAGE_JSON);
-  const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+  const packageJsonPath = NodePathHelper.join(targetDir, PACKAGE_JSON);
+  const packageJson = JSON.parse(FileIOHelper.readFile(packageJsonPath));
   const version = packageJson.version as string;
 
   for (const editor of Object.values(Editor)) {
     const extensionsPath = getEditorExtensionsPath(editor);
-    if (!existsSync(extensionsPath)) continue;
+    if (!FileIOHelper.fileExists(extensionsPath)) continue;
 
-    const extensionsJsonPath = join(extensionsPath, VSCODE_EXTENSIONS_FILE);
-    if (!existsSync(extensionsJsonPath)) continue;
+    const extensionsJsonPath = NodePathHelper.join(extensionsPath, VSCODE_EXTENSIONS_FILE);
+    if (!FileIOHelper.fileExists(extensionsJsonPath)) continue;
 
     try {
-      const extensionsJson = JSON.parse(readFileSync(extensionsJsonPath, 'utf8')) as ExtensionEntry[];
+      const extensionsJson = JSON.parse(FileIOHelper.readFile(extensionsJsonPath)) as ExtensionEntry[];
 
-      // Remove existing entry for this extension
       const filteredExtensions = extensionsJson.filter((ext) => ext.identifier?.id !== EXTENSION_ID_DEV);
 
-      // Add new entry
       const newEntry: ExtensionEntry = {
         identifier: {
           id: EXTENSION_ID_DEV,
@@ -163,7 +147,7 @@ function registerExtensionInEditors() {
         version,
         location: {
           $mid: 1,
-          path: join(extensionsPath, EXTENSION_ID_DEV),
+          path: NodePathHelper.join(extensionsPath, EXTENSION_ID_DEV),
           scheme: 'file',
         },
         relativeLocation: EXTENSION_ID_DEV,
@@ -171,7 +155,7 @@ function registerExtensionInEditors() {
 
       filteredExtensions.push(newEntry);
 
-      writeFileSync(extensionsJsonPath, JSON.stringify(filteredExtensions, null, 2));
+      FileIOHelper.writeFile(extensionsJsonPath, JSON.stringify(filteredExtensions, null, 2));
       logger.log(`[VSCode] ✅ Registered in ${EDITOR_DISPLAY_NAMES[editor]} extensions.json`);
     } catch (error) {
       logger.log(`[VSCode] ⚠️  Failed to register in ${EDITOR_DISPLAY_NAMES[editor]}: ${error}`);
@@ -191,7 +175,7 @@ function printSuccessMessage() {
 }
 
 function getLocalDistDirectory(): string {
-  return join(ROOT_DIR, LOCAL_DIST_DIR);
+  return NodePathHelper.join(ROOT_DIR, LOCAL_DIST_DIR);
 }
 
 enum Editor {
@@ -210,13 +194,13 @@ const EDITOR_DISPLAY_NAMES: Record<Editor, string> = {
 
 function getEditorExtensionsPath(editor: Editor): string {
   const paths: Record<Editor, string> = {
-    [Editor.VSCode]: join(homedir(), EDITOR_EXTENSIONS_PATHS.vscode),
-    [Editor.Cursor]: join(homedir(), EDITOR_EXTENSIONS_PATHS.cursor),
-    [Editor.Windsurf]: join(homedir(), EDITOR_EXTENSIONS_PATHS.windsurf),
+    [Editor.VSCode]: NodePathHelper.join(NodeOsHelper.homedir(), EDITOR_EXTENSIONS_PATHS.vscode),
+    [Editor.Cursor]: NodePathHelper.join(NodeOsHelper.homedir(), EDITOR_EXTENSIONS_PATHS.cursor),
+    [Editor.Windsurf]: NodePathHelper.join(NodeOsHelper.homedir(), EDITOR_EXTENSIONS_PATHS.windsurf),
     [Editor.VSCodium]:
       process.platform === 'darwin'
-        ? join(homedir(), EDITOR_EXTENSIONS_PATHS.vscodium.darwin)
-        : join(homedir(), EDITOR_EXTENSIONS_PATHS.vscodium.linux),
+        ? NodePathHelper.join(NodeOsHelper.homedir(), EDITOR_EXTENSIONS_PATHS.vscodium.darwin)
+        : NodePathHelper.join(NodeOsHelper.homedir(), EDITOR_EXTENSIONS_PATHS.vscodium.linux),
   };
   return paths[editor];
 }
@@ -225,16 +209,14 @@ function copyRecursive(src: string, dest: string) {
   const stat = statSync(src);
 
   if (stat.isDirectory()) {
-    if (!existsSync(dest)) {
-      mkdirSync(dest, { recursive: true });
-    }
+    FileIOHelper.ensureDirectoryExists(dest);
 
-    const entries = readdirSync(src);
+    const entries = FileIOHelper.readDirectory(src, { withFileTypes: false });
     for (const entry of entries) {
-      copyRecursive(join(src, entry), join(dest, entry));
+      copyRecursive(NodePathHelper.join(src, entry), NodePathHelper.join(dest, entry));
     }
   } else {
-    copyFileSync(src, dest);
+    FileIOHelper.copyFile(src, dest);
   }
 }
 

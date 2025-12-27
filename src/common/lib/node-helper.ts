@@ -2,6 +2,7 @@ import { exec } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
   type Dirent,
+  type Stats,
   appendFileSync,
   copyFileSync,
   cpSync,
@@ -10,6 +11,7 @@ import {
   readFileSync,
   readdirSync,
   rmSync,
+  statSync,
   unlinkSync,
   writeFileSync,
 } from 'node:fs';
@@ -159,6 +161,10 @@ export class FileIOHelper {
     if (existsSync(sourcePath)) {
       cpSync(sourcePath, targetPath, { recursive: true });
     }
+  }
+
+  static stat(filePath: string): Stats {
+    return statSync(filePath);
   }
 }
 

@@ -57,6 +57,12 @@
         "include": ["src/**/*.ts"],
         "exclude": ["src/common/vscode/**"],
         "message": "Imports from 'vscode' are only allowed in src/common/vscode/ folder"
+      },
+      "no-node-imports-outside-helper": {
+        "pattern": "from\\s+['\"]node:",
+        "include": ["src/**/*.ts", "scripts/**/*.ts"],
+        "exclude": ["src/common/lib/node-helper.ts"],
+        "message": "Direct Node.js imports (from 'node:*') are only allowed in src/common/lib/node-helper.ts. Use helpers from NodePathHelper, FileIOHelper, etc. instead"
       }
     },
     "script": {
