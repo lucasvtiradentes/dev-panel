@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import * as vscode from 'vscode';
 import {
   CONTEXT_VALUES,
   DND_MIME_TYPE_TOOLS,
@@ -23,6 +22,7 @@ import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
 import { toolsState } from '../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../common/schemas';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { TreeItem, TreeView, WorkspaceFolder } from '../../common/vscode/vscode-types';
@@ -238,7 +238,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     const toolFilePath = tool.command ? this.extractFileFromCommand(tool.command) : '';
     const fullToolFilePath = toolFilePath ? path.join(configDirPath, toolFilePath) : '';
 
-    const treeTool = new TreeTool(tool.name, fullToolFilePath, vscode.TreeItemCollapsibleState.None);
+    const treeTool = new TreeTool(tool.name, fullToolFilePath, VscodeConstants.TreeItemCollapsibleState.None);
 
     const instructionsPath = getWorkspaceToolInstructionsPath(folder, tool.name);
     const description = this.readToolDescription(tool.name, instructionsPath);
@@ -280,7 +280,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     const toolFilePath = tool.command ? this.extractFileFromCommand(tool.command) : '';
     const fullToolFilePath = toolFilePath ? path.join(globalConfigDir, toolFilePath) : '';
 
-    const treeTool = new TreeTool(globalToolName, fullToolFilePath, vscode.TreeItemCollapsibleState.None);
+    const treeTool = new TreeTool(globalToolName, fullToolFilePath, VscodeConstants.TreeItemCollapsibleState.None);
 
     const instructionsPath = getGlobalToolInstructionsPath(tool.name);
     const description = this.readToolDescription(tool.name, instructionsPath);

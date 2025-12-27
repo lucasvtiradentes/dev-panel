@@ -10,7 +10,7 @@ import {
 } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
 import type { SectionMetadata } from '../../common/schemas/types';
-import { VscodeColor } from '../../common/vscode/vscode-constants';
+import { VscodeColor, VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { SectionDefinition } from './section-registry';
 
@@ -28,7 +28,7 @@ export class SectionItem extends vscode.TreeItem {
     private readonly metadata?: SectionMetadata,
     private readonly branchType?: string,
   ) {
-    super(section.label, vscode.TreeItemCollapsibleState.None);
+    super(section.label, VscodeConstants.TreeItemCollapsibleState.None);
 
     this.contextValue = CONTEXT_VALUES.BRANCH_CONTEXT_FIELD;
 

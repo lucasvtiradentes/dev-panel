@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import * as vscode from 'vscode';
 import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
@@ -19,6 +18,7 @@ import {
 import { Command } from '../../common/lib/vscode-utils';
 import { TaskSource } from '../../common/schemas/types';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
@@ -293,7 +293,7 @@ function createNpmTask(options: {
   const treeTask = new TreeTask(
     'npm',
     displayName,
-    vscode.TreeItemCollapsibleState.None,
+    VscodeConstants.TreeItemCollapsibleState.None,
     {
       command: getCommandId(Command.ExecuteTask),
       title: 'Execute',

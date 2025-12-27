@@ -1,3 +1,9 @@
+export const VscodeConstants = {
+  get TreeItemCollapsibleState() {
+    return require('vscode').TreeItemCollapsibleState;
+  },
+};
+
 export enum VscodeIcon {
   EyeClosed = 'eye-closed',
   HeartFilled = 'heart-filled',

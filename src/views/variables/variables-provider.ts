@@ -20,6 +20,7 @@ import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-util
 import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspaceFolder, getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeItem } from '../../common/vscode/vscode-types';
 import { getIsGrouped, saveIsGrouped } from './state';
@@ -78,7 +79,7 @@ class GroupTreeItem extends vscode.TreeItem {
     public readonly groupName: string,
     public readonly variables: DevPanelVariable[],
   ) {
-    super(groupName, vscode.TreeItemCollapsibleState.Expanded);
+    super(groupName, VscodeConstants.TreeItemCollapsibleState.Expanded);
     this.contextValue = CONTEXT_VALUES.GROUP_ITEM;
   }
 }
@@ -88,7 +89,7 @@ export class VariableTreeItem extends vscode.TreeItem {
     public readonly variable: DevPanelVariable,
     currentValue?: unknown,
   ) {
-    super(variable.name, vscode.TreeItemCollapsibleState.None);
+    super(variable.name, VscodeConstants.TreeItemCollapsibleState.None);
     this.contextValue = CONTEXT_VALUES.VARIABLE_ITEM;
     const value = formatValue(currentValue, variable);
     this.description = value;

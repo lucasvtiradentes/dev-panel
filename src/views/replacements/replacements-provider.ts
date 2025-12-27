@@ -16,6 +16,7 @@ import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-util
 import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { TreeItem } from '../../common/vscode/vscode-types';
@@ -58,7 +59,7 @@ class ReplacementGroupTreeItem extends vscode.TreeItem {
     public readonly groupName: string,
     public readonly replacements: DevPanelReplacement[],
   ) {
-    super(groupName, vscode.TreeItemCollapsibleState.Expanded);
+    super(groupName, VscodeConstants.TreeItemCollapsibleState.Expanded);
     this.contextValue = CONTEXT_VALUES.REPLACEMENT_GROUP;
   }
 }
@@ -68,7 +69,7 @@ class ReplacementTreeItem extends vscode.TreeItem {
     public readonly replacement: DevPanelReplacement,
     public readonly isActive: boolean,
   ) {
-    super(replacement.name, vscode.TreeItemCollapsibleState.None);
+    super(replacement.name, VscodeConstants.TreeItemCollapsibleState.None);
 
     this.description = '';
     this.tooltip = replacement.description || replacement.name;

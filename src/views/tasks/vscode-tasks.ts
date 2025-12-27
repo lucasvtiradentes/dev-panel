@@ -1,7 +1,7 @@
-import * as vscode from 'vscode';
 import { CONTEXT_VALUES, getCommandId } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
 import { TaskSource } from '../../common/schemas/types';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { ExtendedTask, Task } from '../../common/vscode/vscode-types';
@@ -43,7 +43,7 @@ export async function getVSCodeTasks(options: {
     const _task = new TreeTask(
       task.definition.type,
       task.name,
-      vscode.TreeItemCollapsibleState.None,
+      VscodeConstants.TreeItemCollapsibleState.None,
       {
         command: getCommandId(Command.ExecuteTask),
         title: 'Execute',

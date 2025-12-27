@@ -14,6 +14,7 @@ import { Command } from '../../common/lib/vscode-utils';
 import type { DevPanelConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
@@ -138,7 +139,7 @@ function createDevPanelTask(
   const treeTask = new TreeTask(
     CONFIG_DIR_KEY,
     task.name,
-    vscode.TreeItemCollapsibleState.None,
+    VscodeConstants.TreeItemCollapsibleState.None,
     {
       command: getCommandId(Command.ExecuteTask),
       title: 'Execute',
@@ -199,7 +200,7 @@ function createGlobalTask(
   const treeTask = new TreeTask(
     `${CONFIG_DIR_KEY}-global`,
     `${GLOBAL_ITEM_PREFIX}${task.name}`,
-    vscode.TreeItemCollapsibleState.None,
+    VscodeConstants.TreeItemCollapsibleState.None,
     {
       command: getCommandId(Command.ExecuteTask),
       title: 'Execute',

@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import { CONTEXT_VALUES, NO_GROUP_NAME, VSCODE_TASKS_PATH } from '../../common/constants';
 import { isMultiRootWorkspace } from '../../common/lib/vscode-utils';
 import type { CodeWorkspaceFile, TaskDefinition, TasksJson } from '../../common/schemas/types';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { Command, TreeItemCollapsibleState, WorkspaceFolder } from '../../common/vscode/vscode-types';
@@ -33,7 +34,7 @@ export class WorkspaceTreeItem extends vscode.TreeItem {
   public childrenObject: { [key: string]: GroupTreeItem } = {};
 
   constructor(label: string) {
-    super(label, vscode.TreeItemCollapsibleState.Expanded);
+    super(label, VscodeConstants.TreeItemCollapsibleState.Expanded);
   }
 
   public addChildren(child: TreeTask) {
