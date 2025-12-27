@@ -1,7 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import json5 from 'json5';
-import * as vscode from 'vscode';
 import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
@@ -19,7 +18,7 @@ import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
-import type { TreeDataProvider, TreeItem } from '../../common/vscode/vscode-types';
+import { type TreeDataProvider, type TreeItem, TreeItemClass } from '../../common/vscode/vscode-types';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { fileExistsInGit, getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
 import {
@@ -54,7 +53,7 @@ function normalizePatchItem(item: { search: unknown; replace: unknown }): Normal
   };
 }
 
-class ReplacementGroupTreeItem extends vscode.TreeItem {
+class ReplacementGroupTreeItem extends TreeItemClass {
   constructor(
     public readonly groupName: string,
     public readonly replacements: DevPanelReplacement[],
@@ -64,7 +63,7 @@ class ReplacementGroupTreeItem extends vscode.TreeItem {
   }
 }
 
-class ReplacementTreeItem extends vscode.TreeItem {
+class ReplacementTreeItem extends TreeItemClass {
   constructor(
     public readonly replacement: DevPanelReplacement,
     public readonly isActive: boolean,

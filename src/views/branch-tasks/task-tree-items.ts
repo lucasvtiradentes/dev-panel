@@ -1,15 +1,15 @@
-import * as vscode from 'vscode';
 import { CONTEXT_VALUES, DND_MIME_TYPE_BRANCH_TASKS, getCommandId } from '../../common/constants';
 import { createLogger } from '../../common/lib/logger';
 import { Command } from '../../common/lib/vscode-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
-import type {
-  CancellationToken,
-  DataTransfer,
-  TreeDragAndDropController,
-  TreeItem,
+import {
+  type CancellationToken,
+  type DataTransfer,
+  type TreeDragAndDropController,
+  type TreeItem,
+  TreeItemClass,
 } from '../../common/vscode/vscode-types';
 import type { MilestoneNode, TaskNode } from '../_branch_base';
 import { formatTaskDescription, formatTaskTooltip, getStatusIcon } from './task-item-utils';
@@ -29,7 +29,7 @@ type DragData = {
   milestoneName?: string;
 };
 
-export class BranchTaskItem extends vscode.TreeItem {
+export class BranchTaskItem extends TreeItemClass {
   constructor(
     public readonly node: TaskNode,
     hasChildren: boolean,
@@ -57,7 +57,7 @@ export class BranchTaskItem extends vscode.TreeItem {
   }
 }
 
-export class BranchMilestoneItem extends vscode.TreeItem {
+export class BranchMilestoneItem extends TreeItemClass {
   constructor(
     public readonly milestone: MilestoneNode,
     public readonly isNoMilestone = false,

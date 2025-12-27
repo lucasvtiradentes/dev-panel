@@ -1,13 +1,18 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
-import * as vscode from 'vscode';
 import { CONTEXT_VALUES, NO_GROUP_NAME, VSCODE_TASKS_PATH } from '../../common/constants';
 import { isMultiRootWorkspace } from '../../common/lib/vscode-utils';
 import type { CodeWorkspaceFile, TaskDefinition, TasksJson } from '../../common/schemas/types';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
-import type { Command, TreeItemCollapsibleState, WorkspaceFolder } from '../../common/vscode/vscode-types';
+import {
+  type Command,
+  type TaskScope,
+  TreeItemClass,
+  type TreeItemCollapsibleState,
+  type WorkspaceFolder,
+} from '../../common/vscode/vscode-types';
 import { BaseGroupTreeItem } from '../_view_base';
 
 function loadCodeWorkspace(filePath: string): CodeWorkspaceFile | null {
@@ -30,7 +35,7 @@ function loadTasksJson(filePath: string): TasksJson | null {
 
 export class GroupTreeItem extends BaseGroupTreeItem<TreeTask> {}
 
-export class WorkspaceTreeItem extends vscode.TreeItem {
+export class WorkspaceTreeItem extends TreeItemClass {
   public childrenObject: { [key: string]: GroupTreeItem } = {};
 
   constructor(label: string) {
@@ -51,7 +56,7 @@ export class WorkspaceTreeItem extends vscode.TreeItem {
   }
 }
 
-export class TreeTask extends vscode.TreeItem {
+export class TreeTask extends TreeItemClass {
   type: string;
   hide = false;
   workspace: string | null = null;
@@ -63,7 +68,7 @@ export class TreeTask extends vscode.TreeItem {
     label: string,
     collapsibleState: TreeItemCollapsibleState,
     command?: Command,
-    workspace?: WorkspaceFolder | vscode.TaskScope,
+    workspace?: WorkspaceFolder | TaskScope,
     group?: string,
   ) {
     super(label, collapsibleState);

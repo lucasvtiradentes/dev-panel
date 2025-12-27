@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import {
   BRANCH_FIELD_DESCRIPTION_MAX_LENGTH,
   CONTEXT_VALUES,
@@ -12,6 +11,7 @@ import { Command } from '../../common/lib/vscode-utils';
 import type { SectionMetadata } from '../../common/schemas/types';
 import { VscodeColor, VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
+import { TreeItemClass } from '../../common/vscode/vscode-types';
 import type { SectionDefinition } from './section-registry';
 
 function truncate(str: string, maxLen: number): string {
@@ -20,7 +20,7 @@ function truncate(str: string, maxLen: number): string {
   return `${firstLine.slice(0, maxLen - 3)}...`;
 }
 
-export class SectionItem extends vscode.TreeItem {
+export class SectionItem extends TreeItemClass {
   constructor(
     public readonly section: SectionDefinition,
     public readonly value: string | undefined,

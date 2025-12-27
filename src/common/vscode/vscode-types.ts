@@ -1,4 +1,7 @@
 import type * as vscode from 'vscode';
+import { TreeItem as VscodeTreeItemClass } from 'vscode';
+
+export { VscodeTreeItemClass as TreeItemClass };
 
 export type CancellationToken = vscode.CancellationToken;
 export type Command = vscode.Command;

@@ -2,7 +2,6 @@ import { exec } from 'node:child_process';
 import * as fs from 'node:fs';
 import { promisify } from 'node:util';
 import json5 from 'json5';
-import * as vscode from 'vscode';
 import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
@@ -22,7 +21,7 @@ import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspaceFolder, getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { TreeDataProvider, TreeItem } from '../../common/vscode/vscode-types';
+import { type TreeDataProvider, type TreeItem, TreeItemClass } from '../../common/vscode/vscode-types';
 import { getIsGrouped, saveIsGrouped } from './state';
 
 const execAsync = promisify(exec);
@@ -74,7 +73,7 @@ function formatValue(value: unknown, variable: DevPanelVariable): string {
   return String(value);
 }
 
-class GroupTreeItem extends vscode.TreeItem {
+class GroupTreeItem extends TreeItemClass {
   constructor(
     public readonly groupName: string,
     public readonly variables: DevPanelVariable[],
@@ -84,7 +83,7 @@ class GroupTreeItem extends vscode.TreeItem {
   }
 }
 
-export class VariableTreeItem extends vscode.TreeItem {
+export class VariableTreeItem extends TreeItemClass {
   constructor(
     public readonly variable: DevPanelVariable,
     currentValue?: unknown,
