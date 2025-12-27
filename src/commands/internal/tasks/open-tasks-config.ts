@@ -11,7 +11,7 @@ import {
 } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { TaskSource } from '../../../common/schemas/types';
-import { TypeGuards } from '../../../common/utils/type-utils';
+import { TypeGuards } from '../../../common/utils/common-utils';
 import { getFirstWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { WorkspaceFolder } from '../../../common/vscode/vscode-types';

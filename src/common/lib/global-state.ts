@@ -1,4 +1,4 @@
-import { GLOBAL_STATE_KEY } from '../constants';
+import { GLOBAL_ITEM_PREFIX, GLOBAL_STATE_KEY } from '../constants';
 import {
   DEFAULT_PROMPTS_STATE,
   DEFAULT_SOURCE_STATE,
@@ -44,143 +44,98 @@ function saveState(state: GlobalUIState) {
   void globalContext.globalState.update(GLOBAL_STATE_KEY, state);
 }
 
-export const globalToolsState = {
-  load(): ToolsState {
-    return getState().tools ?? { ...DEFAULT_TOOLS_STATE };
-  },
-  save(newToolsState: ToolsState) {
-    const state = getState();
-    state.tools = newToolsState;
-    saveState(state);
-  },
-  getSourceState(): SourceState {
-    return this.load()[TaskSource.DevPanel] ?? { ...DEFAULT_SOURCE_STATE };
-  },
-  saveSourceState(sourceState: SourceState) {
-    const tools = this.load();
-    tools[TaskSource.DevPanel] = sourceState;
-    this.save(tools);
-  },
-  isFavorite(name: string): boolean {
-    return this.getSourceState().favorites.includes(name);
-  },
-  toggleFavorite(name: string): boolean {
-    const sourceState = this.getSourceState();
-    const index = sourceState.favorites.indexOf(name);
-    if (index === -1) {
-      sourceState.favorites.push(name);
-    } else {
-      sourceState.favorites.splice(index, 1);
-    }
-    this.saveSourceState(sourceState);
-    return index === -1;
-  },
-  isHidden(name: string): boolean {
-    return this.getSourceState().hidden.includes(name);
-  },
-  toggleHidden(name: string): boolean {
-    const sourceState = this.getSourceState();
-    const index = sourceState.hidden.indexOf(name);
-    if (index === -1) {
-      sourceState.hidden.push(name);
-    } else {
-      sourceState.hidden.splice(index, 1);
-    }
-    this.saveSourceState(sourceState);
-    return index === -1;
-  },
+type StateType = ToolsState | TasksGlobalState | PromptsState;
+type StateKey = keyof GlobalUIState;
+
+function createGlobalStateManager<T extends StateType>(stateKey: StateKey, defaultState: T) {
+  return {
+    load(): T {
+      return (getState()[stateKey] ?? { ...defaultState }) as T;
+    },
+    save(newState: T) {
+      const state = getState();
+      state[stateKey] = newState as never;
+      saveState(state);
+    },
+    getSourceState(): SourceState {
+      const loadedState = this.load() as Record<string, unknown>;
+      return (loadedState[TaskSource.DevPanel] ?? { ...DEFAULT_SOURCE_STATE }) as SourceState;
+    },
+    saveSourceState(sourceState: SourceState) {
+      const currentState = this.load() as Record<string, unknown>;
+      currentState[TaskSource.DevPanel] = sourceState;
+      this.save(currentState as T);
+    },
+    isFavorite(name: string): boolean {
+      return this.getSourceState().favorites.includes(name);
+    },
+    toggleFavorite(name: string): boolean {
+      const sourceState = this.getSourceState();
+      const index = sourceState.favorites.indexOf(name);
+      if (index === -1) {
+        sourceState.favorites.push(name);
+      } else {
+        sourceState.favorites.splice(index, 1);
+      }
+      this.saveSourceState(sourceState);
+      return index === -1;
+    },
+    isHidden(name: string): boolean {
+      return this.getSourceState().hidden.includes(name);
+    },
+    toggleHidden(name: string): boolean {
+      const sourceState = this.getSourceState();
+      const index = sourceState.hidden.indexOf(name);
+      if (index === -1) {
+        sourceState.hidden.push(name);
+      } else {
+        sourceState.hidden.splice(index, 1);
+      }
+      this.saveSourceState(sourceState);
+      return index === -1;
+    },
+  };
+}
+
+export const globalToolsState = createGlobalStateManager<ToolsState>('tools', DEFAULT_TOOLS_STATE);
+export const globalTasksState = createGlobalStateManager<TasksGlobalState>('tasks', DEFAULT_TASKS_GLOBAL_STATE);
+export const globalPromptsState = createGlobalStateManager<PromptsState>('prompts', DEFAULT_PROMPTS_STATE);
+
+type StateManager = {
+  isFavorite: (name: string) => boolean;
+  isHidden: (name: string) => boolean;
+  toggleFavorite: (name: string) => boolean;
+  toggleHidden: (name: string) => boolean;
 };
 
-export const globalTasksState = {
-  load(): TasksGlobalState {
-    return getState().tasks ?? { ...DEFAULT_TASKS_GLOBAL_STATE };
-  },
-  save(newTasksState: TasksGlobalState) {
-    const state = getState();
-    state.tasks = newTasksState;
-    saveState(state);
-  },
-  getSourceState(): SourceState {
-    return this.load()[TaskSource.DevPanel] ?? { ...DEFAULT_SOURCE_STATE };
-  },
-  saveSourceState(sourceState: SourceState) {
-    const tasks = this.load();
-    tasks[TaskSource.DevPanel] = sourceState;
-    this.save(tasks);
-  },
-  isFavorite(name: string): boolean {
-    return this.getSourceState().favorites.includes(name);
-  },
-  toggleFavorite(name: string): boolean {
-    const sourceState = this.getSourceState();
-    const index = sourceState.favorites.indexOf(name);
-    if (index === -1) {
-      sourceState.favorites.push(name);
-    } else {
-      sourceState.favorites.splice(index, 1);
-    }
-    this.saveSourceState(sourceState);
-    return index === -1;
-  },
-  isHidden(name: string): boolean {
-    return this.getSourceState().hidden.includes(name);
-  },
-  toggleHidden(name: string): boolean {
-    const sourceState = this.getSourceState();
-    const index = sourceState.hidden.indexOf(name);
-    if (index === -1) {
-      sourceState.hidden.push(name);
-    } else {
-      sourceState.hidden.splice(index, 1);
-    }
-    this.saveSourceState(sourceState);
-    return index === -1;
-  },
-};
+export function createStateHelpers(globalState: StateManager, workspaceState: StateManager) {
+  return {
+    isFavorite(name: string): boolean {
+      if (name.startsWith(GLOBAL_ITEM_PREFIX)) {
+        return globalState.isFavorite(name.substring(GLOBAL_ITEM_PREFIX.length));
+      }
+      return workspaceState.isFavorite(name);
+    },
 
-export const globalPromptsState = {
-  load(): PromptsState {
-    return getState().prompts ?? { ...DEFAULT_PROMPTS_STATE };
-  },
-  save(newPromptsState: PromptsState) {
-    const state = getState();
-    state.prompts = newPromptsState;
-    saveState(state);
-  },
-  getSourceState(): SourceState {
-    return this.load()[TaskSource.DevPanel] ?? { ...DEFAULT_SOURCE_STATE };
-  },
-  saveSourceState(sourceState: SourceState) {
-    const prompts = this.load();
-    prompts[TaskSource.DevPanel] = sourceState;
-    this.save(prompts);
-  },
-  isFavorite(name: string): boolean {
-    return this.getSourceState().favorites.includes(name);
-  },
-  toggleFavorite(name: string): boolean {
-    const sourceState = this.getSourceState();
-    const index = sourceState.favorites.indexOf(name);
-    if (index === -1) {
-      sourceState.favorites.push(name);
-    } else {
-      sourceState.favorites.splice(index, 1);
-    }
-    this.saveSourceState(sourceState);
-    return index === -1;
-  },
-  isHidden(name: string): boolean {
-    return this.getSourceState().hidden.includes(name);
-  },
-  toggleHidden(name: string): boolean {
-    const sourceState = this.getSourceState();
-    const index = sourceState.hidden.indexOf(name);
-    if (index === -1) {
-      sourceState.hidden.push(name);
-    } else {
-      sourceState.hidden.splice(index, 1);
-    }
-    this.saveSourceState(sourceState);
-    return index === -1;
-  },
-};
+    isHidden(name: string): boolean {
+      if (name.startsWith(GLOBAL_ITEM_PREFIX)) {
+        return globalState.isHidden(name.substring(GLOBAL_ITEM_PREFIX.length));
+      }
+      return workspaceState.isHidden(name);
+    },
+
+    toggleHidden(name: string): boolean {
+      if (name.startsWith(GLOBAL_ITEM_PREFIX)) {
+        return globalState.toggleHidden(name.substring(GLOBAL_ITEM_PREFIX.length));
+      }
+      return workspaceState.toggleHidden(name);
+    },
+
+    toggleFavorite(name: string): boolean {
+      if (name.startsWith(GLOBAL_ITEM_PREFIX)) {
+        return globalState.toggleFavorite(name.substring(GLOBAL_ITEM_PREFIX.length));
+      }
+      return workspaceState.toggleFavorite(name);
+    },
+  };
+}

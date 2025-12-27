@@ -32,7 +32,7 @@ import {
   PromptExecutionMode,
   getAIProvidersListFormatted,
 } from '../../common/schemas';
-import { TypeGuards } from '../../common/utils/type-utils';
+import { TypeGuards } from '../../common/utils/common-utils';
 import { loadVariablesFromPath, readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { Command, isMultiRootWorkspace, registerCommand } from '../../common/vscode/vscode-utils';

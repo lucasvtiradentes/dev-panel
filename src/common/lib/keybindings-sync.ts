@@ -6,6 +6,7 @@ import { getAllVariableKeybindings } from '../../views/variables/keybindings-loc
 import { getPromptCommandId, getTaskCommandId, getToolCommandId, getVariableCommandId } from '../constants/functions';
 import { VscodeHelper } from '../vscode/vscode-helper';
 import { getVSCodeKeybindingsPath, loadKeybindings } from '../vscode/vscode-keybindings-utils';
+import { Command, executeCommand } from '../vscode/vscode-utils';
 
 export function syncKeybindings() {
   const folders = VscodeHelper.getWorkspaceFolders();
@@ -59,4 +60,12 @@ export function syncKeybindings() {
   } catch {
     // Silent fail
   }
+}
+
+export async function openKeybindingsForCommand(commandId: string) {
+  await executeCommand(Command.VscodeOpenGlobalKeybindings, { query: `@command:${commandId}` });
+}
+
+export async function openKeybindingsWithPrefix(prefix: string) {
+  await executeCommand(Command.VscodeOpenGlobalKeybindings, { query: prefix });
 }

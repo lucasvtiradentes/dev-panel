@@ -1,5 +1,5 @@
 import { DND_MIME_TYPE_TASKS, NO_GROUP_NAME } from '../../common/constants';
-import { ExtensionConfigKey, getExtensionConfig } from '../../common/lib/extension-config';
+import { ExtensionConfigKey, getExtensionConfig } from '../../common/lib/extension-store';
 import { TASK_SOURCES, TaskSource } from '../../common/schemas/types';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { Event, EventEmitter, TreeDataProvider, TreeItem, TreeView } from '../../common/vscode/vscode-types';
