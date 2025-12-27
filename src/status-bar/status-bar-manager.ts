@@ -1,8 +1,8 @@
 import { EXTENSION_DISPLAY_NAME, getCommandId } from '../common/constants';
-import { Command } from '../common/lib/vscode-utils';
 import { VscodeConstants } from '../common/vscode/vscode-constants';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { StatusBarItem } from '../common/vscode/vscode-types';
+import { Command } from '../common/vscode/vscode-utils';
 
 export class StatusBarManager {
   private readonly statusBarItem: StatusBarItem;

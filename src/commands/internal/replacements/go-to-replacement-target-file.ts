@@ -1,9 +1,9 @@
 import * as path from 'node:path';
-import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import type { DevPanelReplacement } from '../../../common/schemas/config-schema';
 import { getFirstWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
+import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 
 export type GoToReplacementTargetFileParams = { replacement?: DevPanelReplacement };
 

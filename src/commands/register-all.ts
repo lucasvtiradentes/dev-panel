@@ -6,11 +6,11 @@ import {
   parseConfig,
 } from '../common/lib/config-manager';
 import { syncKeybindings } from '../common/lib/keybindings-sync';
-import { Command, executeCommand, registerCommand } from '../common/lib/vscode-utils';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
 import { VscodeConstants } from '../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
+import { Command, executeCommand, registerCommand } from '../common/vscode/vscode-utils';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
 import type { BranchContextProvider } from '../views/branch-context';
 import { validateBranchContext } from '../views/branch-context/config-validator';

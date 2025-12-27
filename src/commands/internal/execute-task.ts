@@ -32,7 +32,6 @@ import {
 } from '../../common/lib/config-manager';
 import { collectInputs, replaceInputPlaceholders } from '../../common/lib/inputs';
 import { createLogger } from '../../common/lib/logger';
-import { Command, isMultiRootWorkspace, registerCommand } from '../../common/lib/vscode-utils';
 import {
   type DevPanelConfig,
   type DevPanelPrompt,
@@ -43,6 +42,7 @@ import {
 import { TypeGuards } from '../../common/utils/type-utils';
 import { loadVariablesFromPath, readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
+import { Command, isMultiRootWorkspace, registerCommand } from '../../common/vscode/vscode-utils';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';
 import { TreeTool } from '../../views/tools/items';

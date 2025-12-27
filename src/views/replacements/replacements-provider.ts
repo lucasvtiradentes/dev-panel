@@ -11,7 +11,6 @@ import {
   getCommandId,
 } from '../../common/constants';
 import { getConfigFilePathFromWorkspacePath } from '../../common/lib/config-manager';
-import { Command, ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
@@ -19,6 +18,7 @@ import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import { type TreeDataProvider, type TreeItem, TreeItemClass } from '../../common/vscode/vscode-types';
+import { Command, ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import { fileExistsInGit, getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
 import {

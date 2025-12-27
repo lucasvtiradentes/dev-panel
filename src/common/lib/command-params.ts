@@ -20,7 +20,7 @@ import type {
   ToggleToolParams,
 } from '../../commands/internal/tools/toggle-tools-view';
 import type { Uri } from '../vscode/vscode-types';
-import { Command } from './vscode-utils';
+import { Command } from '../vscode/vscode-utils';
 
 export type VscodeOpenParams = { uri: Uri; viewColumn?: number };
 export type VscodeSetContextParams = { key: string; value: unknown };

@@ -1,10 +1,10 @@
 import { EXTENSION_DISPLAY_NAME } from 'src/common/constants';
 import { getWorkspaceConfigDirPath } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
-import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { QuickPickItem } from '../../common/vscode/vscode-types';
+import { Command, registerCommand } from '../../common/vscode/vscode-utils';
 import { showConfigLocationMenu } from './config-location';
 import { showInitMenu } from './init';
 import { showRegistryMenu } from './registry';

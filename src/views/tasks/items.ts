@@ -1,7 +1,6 @@
 import * as fs from 'node:fs';
 import JSON5 from 'json5';
 import { CONTEXT_VALUES, NO_GROUP_NAME, VSCODE_TASKS_PATH } from '../../common/constants';
-import { isMultiRootWorkspace } from '../../common/lib/vscode-utils';
 import type { CodeWorkspaceFile, TaskDefinition, TasksJson } from '../../common/schemas/types';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -13,6 +12,7 @@ import {
   type TreeItemCollapsibleState,
   type WorkspaceFolder,
 } from '../../common/vscode/vscode-types';
+import { isMultiRootWorkspace } from '../../common/vscode/vscode-utils';
 import { BaseGroupTreeItem } from '../_view_base';
 
 function loadCodeWorkspace(filePath: string): CodeWorkspaceFile | null {

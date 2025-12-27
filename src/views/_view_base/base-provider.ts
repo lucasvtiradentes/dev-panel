@@ -1,7 +1,7 @@
 import { GLOBAL_ITEM_PREFIX, NO_GROUP_NAME } from '../../common/constants';
-import { type ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { Event, EventEmitter, TreeDataProvider, TreeItem } from '../../common/vscode/vscode-types';
+import { type ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
 import type { GlobalStateManager, GroupTreeItem, NamedTreeItem, SimpleStateManager, StateManager } from './types';
 
 export type ProviderConfig<TSource = void> = {

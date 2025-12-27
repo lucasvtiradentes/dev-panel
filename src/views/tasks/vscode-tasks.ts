@@ -1,10 +1,10 @@
 import { CONTEXT_VALUES, getCommandId } from '../../common/constants';
-import { Command } from '../../common/lib/vscode-utils';
 import { TaskSource } from '../../common/schemas/types';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { ExtendedTask, Task } from '../../common/vscode/vscode-types';
+import { Command } from '../../common/vscode/vscode-utils';
 import { type GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 

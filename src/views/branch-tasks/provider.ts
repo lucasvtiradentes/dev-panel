@@ -4,12 +4,12 @@ import { Position } from '../../common/constants/enums';
 import { loadWorkspaceConfigFromPath } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
-import { ContextKey, setContextKey } from '../../common/lib/vscode-utils';
 import type { TaskPriority, TaskStatus } from '../../common/schemas';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, Uri } from '../../common/vscode/vscode-types';
+import { ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
 import {
   type MilestoneNode,
   type SyncContext,

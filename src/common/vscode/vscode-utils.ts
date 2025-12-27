@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 import { getCommandId } from '../constants/functions';
 import { CONTEXT_PREFIX } from '../constants/scripts-constants';
-import { VscodeHelper } from '../vscode/vscode-helper';
-import type { Disposable } from '../vscode/vscode-types';
-import type { CommandParams } from './command-params';
+import type { CommandParams } from '../lib/command-params';
+import { VscodeHelper } from './vscode-helper';
+import type { Disposable } from './vscode-types';
 
 export enum Command {
   Refresh = 'refresh',

@@ -1,6 +1,6 @@
-import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
+import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { TreePrompt } from '../../../views/prompts';
 
 export type GoToPromptFileParams = TreePrompt;

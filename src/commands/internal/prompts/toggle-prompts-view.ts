@@ -1,5 +1,5 @@
-import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import type { Disposable } from '../../../common/vscode/vscode-types';
+import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { PromptTreeDataProvider, TreePrompt } from '../../../views/prompts';
 
 export type TogglePromptFavoriteParams = TreePrompt;

@@ -10,11 +10,11 @@ import {
   TOOL_NAME_VALIDATION_MESSAGE,
 } from '../../../common/constants';
 import { getWorkspaceConfigFilePath, getWorkspacePromptsDir, parseConfig } from '../../../common/lib/config-manager';
-import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
+import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 
 async function handleAddPrompt() {
   const workspaceFolder = requireWorkspaceFolder();

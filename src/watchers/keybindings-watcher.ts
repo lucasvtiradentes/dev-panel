@@ -2,10 +2,10 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { CONTEXT_PREFIX, KEYBINDINGS_FILE } from '../common/constants';
 import { createLogger } from '../common/lib/logger';
-import { getVSCodeKeybindingsPath, parseKeybindings } from '../common/lib/vscode-keybindings-utils';
-import { getWorkspaceId } from '../common/lib/vscode-utils';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
+import { getVSCodeKeybindingsPath, parseKeybindings } from '../common/vscode/vscode-keybindings-utils';
 import type { Disposable } from '../common/vscode/vscode-types';
+import { getWorkspaceId } from '../common/vscode/vscode-utils';
 import { type RefreshCallback, WATCHER_CONSTANTS, attachFileWatcherHandlers } from './utils';
 
 const logger = createLogger('KeybindingsWatcher');

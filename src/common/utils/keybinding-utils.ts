@@ -1,4 +1,4 @@
-import { Command, executeCommand } from '../lib/vscode-utils';
+import { Command, executeCommand } from '../vscode/vscode-utils';
 
 export async function openKeybindingsForCommand(commandId: string) {
   await executeCommand(Command.VscodeOpenGlobalKeybindings, { query: `@command:${commandId}` });

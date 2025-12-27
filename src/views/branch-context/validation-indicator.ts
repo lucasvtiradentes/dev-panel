@@ -1,8 +1,8 @@
 import { getCommandId } from '../../common/constants';
-import { Command } from '../../common/lib/vscode-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { StatusBarItem } from '../../common/vscode/vscode-types';
+import { Command } from '../../common/vscode/vscode-utils';
 import type { ValidationIssue } from './config-validator';
 
 export class ValidationIndicator {

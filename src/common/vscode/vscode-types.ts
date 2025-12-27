@@ -5,9 +5,11 @@ import {
   TreeItem as VscodeTreeItemClass,
 } from 'vscode';
 
-export { VscodeTreeItemClass as TreeItemClass };
-export { VscodeShellExecutionClass as ShellExecutionClass };
-export { VscodeProcessExecutionClass as ProcessExecutionClass };
+export {
+  VscodeProcessExecutionClass as ProcessExecutionClass,
+  VscodeShellExecutionClass as ShellExecutionClass,
+  VscodeTreeItemClass as TreeItemClass,
+};
 
 export type CancellationToken = vscode.CancellationToken;
 export type Command = vscode.Command;
@@ -18,7 +20,7 @@ export type EventEmitter<T> = vscode.EventEmitter<T>;
 export type ExtensionContext = vscode.ExtensionContext;
 export type FileSystemWatcher = vscode.FileSystemWatcher;
 export type MarkdownString = vscode.MarkdownString;
-export type ProcessExecution = vscode.ProcessExecution;
+type ProcessExecution = vscode.ProcessExecution;
 type ProgressLocation = vscode.ProgressLocation;
 export type QuickPickItem = vscode.QuickPickItem;
 type QuickPickItemKind = vscode.QuickPickItemKind;

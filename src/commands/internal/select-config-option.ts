@@ -1,5 +1,5 @@
-import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import type { DevPanelVariable } from '../../common/schemas/config-schema';
+import { Command, registerCommand } from '../../common/vscode/vscode-utils';
 import { type VariableTreeItem, resetVariableOption, selectVariableOption } from '../../views/variables';
 
 export type SelectConfigOptionParams = DevPanelVariable;

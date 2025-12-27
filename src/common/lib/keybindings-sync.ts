@@ -5,7 +5,7 @@ import { getAllToolKeybindings } from '../../views/tools/keybindings-local';
 import { getAllVariableKeybindings } from '../../views/variables/keybindings-local';
 import { getPromptCommandId, getTaskCommandId, getToolCommandId, getVariableCommandId } from '../constants/functions';
 import { VscodeHelper } from '../vscode/vscode-helper';
-import { getVSCodeKeybindingsPath, loadKeybindings } from './vscode-keybindings-utils';
+import { getVSCodeKeybindingsPath, loadKeybindings } from '../vscode/vscode-keybindings-utils';
 
 export function syncKeybindings() {
   const folders = VscodeHelper.getWorkspaceFolders();
