@@ -1,4 +1,4 @@
-import { type BranchContextState, DEFAULT_BRANCH_CONTEXT_STATE } from '../../schemas';
+import { type BranchContextState, DEFAULT_BRANCH_CONTEXT_STATE } from '../schemas';
 import { getState, saveState } from './base';
 
 export const branchContextState = {

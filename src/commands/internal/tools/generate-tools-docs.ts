@@ -17,12 +17,12 @@ import {
   loadGlobalConfig,
   loadWorkspaceConfig,
 } from '../../../common/lib/config-manager';
-import { toolsState } from '../../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable, WorkspaceFolder } from '../../../common/vscode/vscode-types';
 import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
+import { toolsState } from '../../../common/workspace-state';
 
 type ToolInstruction = {
   id: string;

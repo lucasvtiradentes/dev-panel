@@ -1,6 +1,6 @@
-import { branchContextState } from '../../../common/lib/workspace-state';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import { Command, ContextKey, registerCommand, setContextKey } from '../../../common/vscode/vscode-utils';
+import { branchContextState } from '../../../common/workspace-state';
 import type { BranchContextProvider } from '../../../views/branch-context';
 
 export function createToggleBranchContextHideEmptySectionsCommand(

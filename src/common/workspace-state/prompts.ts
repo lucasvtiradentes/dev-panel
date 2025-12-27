@@ -1,31 +1,31 @@
-import { DEFAULT_SOURCE_STATE, DEFAULT_TOOLS_STATE, type SourceState, type ToolsState } from '../../schemas';
-import { TaskSource } from '../../schemas/types';
+import { DEFAULT_PROMPTS_STATE, DEFAULT_SOURCE_STATE, type PromptsState, type SourceState } from '../schemas';
+import { TaskSource } from '../schemas/types';
 import { getState, saveState } from './base';
 
-export const toolsState = {
-  load(): ToolsState {
-    return getState().tools ?? { ...DEFAULT_TOOLS_STATE };
+export const promptsState = {
+  load(): PromptsState {
+    return getState().prompts ?? { ...DEFAULT_PROMPTS_STATE };
   },
-  save(newToolsState: ToolsState) {
+  save(newPromptsState: PromptsState) {
     const state = getState();
-    state.tools = newToolsState;
+    state.prompts = newPromptsState;
     saveState(state);
   },
   getIsGrouped(): boolean {
     return this.load().isGrouped ?? false;
   },
   saveIsGrouped(isGrouped: boolean) {
-    const tools = this.load();
-    tools.isGrouped = isGrouped;
-    this.save(tools);
+    const prompts = this.load();
+    prompts.isGrouped = isGrouped;
+    this.save(prompts);
   },
   getShowHidden(): boolean {
     return this.load().showHidden ?? false;
   },
   saveShowHidden(showHidden: boolean) {
-    const tools = this.load();
-    tools.showHidden = showHidden;
-    this.save(tools);
+    const prompts = this.load();
+    prompts.showHidden = showHidden;
+    this.save(prompts);
   },
   getHiddenItems(): string[] {
     return this.getSourceState().hidden;
@@ -34,9 +34,9 @@ export const toolsState = {
     return this.load().showOnlyFavorites ?? false;
   },
   saveShowOnlyFavorites(showOnlyFavorites: boolean) {
-    const tools = this.load();
-    tools.showOnlyFavorites = showOnlyFavorites;
-    this.save(tools);
+    const prompts = this.load();
+    prompts.showOnlyFavorites = showOnlyFavorites;
+    this.save(prompts);
   },
   getFavoriteItems(): string[] {
     return this.getSourceState().favorites;
@@ -45,9 +45,9 @@ export const toolsState = {
     return this.load()[TaskSource.DevPanel] ?? { ...DEFAULT_SOURCE_STATE };
   },
   saveSourceState(sourceState: SourceState) {
-    const tools = this.load();
-    tools[TaskSource.DevPanel] = sourceState;
-    this.save(tools);
+    const prompts = this.load();
+    prompts[TaskSource.DevPanel] = sourceState;
+    this.save(prompts);
   },
   getOrder(isGrouped: boolean): string[] {
     const sourceState = this.getSourceState();
@@ -89,30 +89,5 @@ export const toolsState = {
     }
     this.saveSourceState(sourceState);
     return index === -1;
-  },
-  getActiveTools(): string[] {
-    return this.load().activeTools ?? [];
-  },
-  setActiveTools(active: string[]) {
-    const tools = this.load();
-    tools.activeTools = active;
-    this.save(tools);
-  },
-  addActiveTool(name: string) {
-    const tools = this.load();
-    if (!tools.activeTools) {
-      tools.activeTools = [];
-    }
-    if (!tools.activeTools.includes(name)) {
-      tools.activeTools.push(name);
-      this.save(tools);
-    }
-  },
-  removeActiveTool(name: string) {
-    const tools = this.load();
-    if (tools.activeTools) {
-      tools.activeTools = tools.activeTools.filter((n) => n !== name);
-      this.save(tools);
-    }
   },
 };

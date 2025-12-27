@@ -1,4 +1,4 @@
-import { DEFAULT_REPLACEMENTS_STATE, type ReplacementsState } from '../../schemas';
+import { DEFAULT_REPLACEMENTS_STATE, type ReplacementsState } from '../schemas';
 import { getState, saveState } from './base';
 
 export const replacementsState = {
@@ -35,7 +35,7 @@ export const replacementsState = {
   },
   removeActiveReplacement(name: string) {
     const replacements = this.load();
-    replacements.activeReplacements = replacements.activeReplacements.filter((n) => n !== name);
+    replacements.activeReplacements = replacements.activeReplacements.filter((n: string) => n !== name);
     this.save(replacements);
   },
   getLastBranch(): string {

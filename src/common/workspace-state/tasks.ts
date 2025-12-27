@@ -1,5 +1,5 @@
-import { DEFAULT_SOURCE_STATE, DEFAULT_TASKS_STATE, type SourceState, type TasksState } from '../../schemas';
-import { TaskSource } from '../../schemas/types';
+import { DEFAULT_SOURCE_STATE, DEFAULT_TASKS_STATE, type SourceState, type TasksState } from '../schemas';
+import { TaskSource } from '../schemas/types';
 import { getState, saveState } from './base';
 
 export const tasksState = {

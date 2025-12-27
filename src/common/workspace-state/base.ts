@@ -1,6 +1,6 @@
-import { WORKSPACE_STATE_KEY } from '../../constants/scripts-constants';
-import { DEFAULT_WORKSPACE_UI_STATE, type WorkspaceUIState } from '../../schemas';
-import type { ExtensionContext } from '../../vscode/vscode-types';
+import { WORKSPACE_STATE_KEY } from '../constants/scripts-constants';
+import { DEFAULT_WORKSPACE_UI_STATE, type WorkspaceUIState } from '../schemas';
+import type { ExtensionContext } from '../vscode/vscode-types';
 
 let _context: ExtensionContext | null = null;
 

@@ -1,4 +1,4 @@
-import { DEFAULT_VARIABLES_STATE, type VariablesState } from '../../schemas';
+import { DEFAULT_VARIABLES_STATE, type VariablesState } from '../schemas';
 import { getState, saveState } from './base';
 
 export const variablesState = {
