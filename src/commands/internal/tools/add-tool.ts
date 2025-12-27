@@ -10,10 +10,10 @@ import {
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { FileIOHelper } from '../../../common/lib/node-helper';
 import type { DevPanelConfig } from '../../../common/schemas';
-import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
+import { requireWorkspaceFolder } from '../../../common/vscode/workspace-utils';
 
 async function handleAddTool() {
   const workspaceFolder = requireWorkspaceFolder();

@@ -10,8 +10,8 @@ import {
   showNotFoundError,
   stripGlobalPrefix,
 } from '../../../common/utils/item-utils';
-import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-utils';
+import { requireWorkspaceFolder } from '../../../common/vscode/workspace-utils';
 import type { TreeTool } from '../../../views/tools/items';
 
 async function handleDeleteTool(treeTool: TreeTool) {

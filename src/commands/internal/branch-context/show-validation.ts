@@ -1,11 +1,11 @@
 import { CONFIG_FILE_NAME } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { FileIOHelper } from '../../../common/lib/node-helper';
-import { getFirstWorkspacePath } from '../../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-utils';
+import { getFirstWorkspacePath } from '../../../common/vscode/workspace-utils';
 import { validateBranchContext } from '../../../views/branch-context/config-validator';
 
 export function createShowBranchContextValidationCommand(): Disposable {

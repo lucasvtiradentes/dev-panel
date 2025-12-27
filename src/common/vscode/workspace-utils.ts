@@ -1,5 +1,5 @@
-import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
-import type { WorkspaceFolder } from '../vscode/vscode-types';
+import { ToastKind, VscodeHelper } from './vscode-helper';
+import type { WorkspaceFolder } from './vscode-types';
 
 export function getFirstWorkspaceFolder(): WorkspaceFolder | undefined {
   return VscodeHelper.getWorkspaceFolders()[0];

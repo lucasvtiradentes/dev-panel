@@ -3,7 +3,7 @@ import { BRANCH_CONTEXT_CACHE_TTL_MS } from '../../../common/constants';
 import { FileHashCache } from '../../../common/lib/cache';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext } from '../../../common/schemas/types';
-import { getFirstWorkspacePath } from '../../../common/utils/workspace-utils';
+import { getFirstWorkspacePath } from '../../../common/vscode/workspace-utils';
 import { loadBranchContextFromFile } from './file-storage';
 import { getBranchContextFilePath } from './markdown-parser';
 

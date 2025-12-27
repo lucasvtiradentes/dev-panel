@@ -7,9 +7,9 @@ import {
 } from '../constants/scripts-constants';
 import { createLogger } from '../lib/logger';
 import { type DevPanelInput, type DevPanelSettings, PromptInputType } from '../schemas';
-import { getFirstWorkspaceFolder } from '../utils/workspace-utils';
 import { ToastKind, VscodeHelper } from './vscode-helper';
 import type { QuickPickItem, WorkspaceFolder } from './vscode-types';
+import { getFirstWorkspaceFolder } from './workspace-utils';
 
 const log = createLogger('inputs');
 

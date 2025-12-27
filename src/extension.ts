@@ -12,10 +12,10 @@ import {
 import { extensionStore } from './common/lib/extension-store';
 import { logger } from './common/lib/logger';
 import { initGlobalState, initWorkspaceState, migrateGlobalState } from './common/state';
-import { getFirstWorkspacePath } from './common/utils/workspace-utils';
 import { VscodeHelper } from './common/vscode/vscode-helper';
 import type { ExtensionContext } from './common/vscode/vscode-types';
 import { ContextKey, generateWorkspaceId, setContextKey, setWorkspaceId } from './common/vscode/vscode-utils';
+import { getFirstWorkspacePath } from './common/vscode/workspace-utils';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import { BranchContextProvider } from './views/branch-context';
 import { ensureTemplateExists } from './views/branch-context/template-initializer';

@@ -1,8 +1,8 @@
 import { ConfigManager } from '../common/lib/config-manager';
 import { createLogger } from '../common/lib/logger';
-import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable, Uri } from '../common/vscode/vscode-types';
+import { getFirstWorkspacePath } from '../common/vscode/workspace-utils';
 import { type UriChangeCallback, attachFileWatcherHandlers } from './utils';
 
 const logger = createLogger('BranchMarkdownWatcher');

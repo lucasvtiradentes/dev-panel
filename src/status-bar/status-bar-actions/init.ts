@@ -3,10 +3,10 @@ import { INIT_RESOURCES_DIR_NAME, RESOURCES_DIR_NAME } from '../../common/consta
 import { ConfigManager } from '../../common/lib/config-manager';
 import { extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
-import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { Uri } from '../../common/vscode/vscode-types';
+import { requireWorkspaceFolder } from '../../common/vscode/workspace-utils';
 
 async function copyDirectoryRecursive(sourceUri: Uri, targetUri: Uri) {
   await VscodeHelper.createDirectory(targetUri);

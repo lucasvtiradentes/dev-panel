@@ -20,7 +20,6 @@ import {
 } from '../../common/schemas';
 import { TypeGuards } from '../../common/utils/common-utils';
 import { loadVariablesFromPath, readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
-import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { collectInputs, replaceInputPlaceholders } from '../../common/vscode/vscode-inputs';
@@ -33,6 +32,7 @@ import type {
   WorkspaceFolder,
 } from '../../common/vscode/vscode-types';
 import { Command, isMultiRootWorkspace, registerCommand } from '../../common/vscode/vscode-utils';
+import { getFirstWorkspaceFolder } from '../../common/vscode/workspace-utils';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';
 import { TreeTool } from '../../views/tools/items';

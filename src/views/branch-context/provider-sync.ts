@@ -13,7 +13,7 @@ import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper } from '../../common/lib/node-helper';
 import { StringUtils, TypeGuards } from '../../common/utils/common-utils';
 import { extractSectionMetadata } from '../../common/utils/metadata-extractor';
-import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { getFirstWorkspacePath } from '../../common/vscode/workspace-utils';
 import { getChangedFilesWithSummary } from '../_branch_base/providers/default/file-changes-utils';
 import type { SyncContext } from '../_branch_base/providers/interfaces';
 import {

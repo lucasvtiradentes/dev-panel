@@ -1,8 +1,8 @@
 import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../common/constants/scripts-constants';
 import { createLogger } from '../common/lib/logger';
-import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable } from '../common/vscode/vscode-types';
+import { getFirstWorkspacePath } from '../common/vscode/workspace-utils';
 import { type RefreshCallback, attachFileWatcherHandlers } from './utils';
 
 const logger = createLogger('RootMarkdownWatcher');

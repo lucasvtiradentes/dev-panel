@@ -1,9 +1,9 @@
 import { CONFIG_FILE_NAME } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
 import { FileIOHelper } from '../../../common/lib/node-helper';
-import { getFirstWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
+import { getFirstWorkspaceFolder } from '../../../common/vscode/workspace-utils';
 
 async function handleOpenVariablesConfig() {
   const workspace = getFirstWorkspaceFolder();

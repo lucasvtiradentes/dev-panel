@@ -9,10 +9,10 @@ import {
 import { ConfigManager } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import { NodePathHelper } from '../../common/lib/node-helper';
-import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { QuickPickItem, Uri } from '../../common/vscode/vscode-types';
+import { requireWorkspaceFolder } from '../../common/vscode/workspace-utils';
 
 type QuickPickItemWithId<T> = QuickPickItem & { id: T };
 

@@ -1,9 +1,9 @@
 import { GLOBAL_ITEM_PREFIX, getGlobalToolInstructionsPath } from '../../../common/constants';
 import { ConfigManager } from '../../../common/lib/config-manager';
-import { getFirstWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
+import { getFirstWorkspaceFolder } from '../../../common/vscode/workspace-utils';
 import type { TreeTool } from '../../../views/tools';
 
 export type GoToToolFileParams = TreeTool;

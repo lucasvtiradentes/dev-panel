@@ -15,10 +15,10 @@ import { FileIOHelper } from '../../../common/lib/node-helper';
 import { NodePathHelper } from '../../../common/lib/node-helper';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { toolsState } from '../../../common/state';
-import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable, WorkspaceFolder } from '../../../common/vscode/vscode-types';
 import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
+import { requireWorkspaceFolder } from '../../../common/vscode/workspace-utils';
 
 type ToolInstruction = {
   id: string;

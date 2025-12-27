@@ -9,8 +9,8 @@ import {
   showInvalidItemError,
   showNotFoundError,
 } from '../../../common/utils/item-utils';
-import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-utils';
+import { requireWorkspaceFolder } from '../../../common/vscode/workspace-utils';
 import type { TreePrompt } from '../../../views/prompts/items';
 
 async function handleCopyPromptToGlobal(treePrompt: TreePrompt) {

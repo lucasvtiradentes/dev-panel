@@ -6,10 +6,10 @@ import { logger } from '../../common/lib/logger';
 import { FileIOHelper } from '../../common/lib/node-helper';
 import type { TaskPriority, TaskStatus } from '../../common/schemas';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
-import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, Uri } from '../../common/vscode/vscode-types';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
+import { getFirstWorkspacePath } from '../../common/vscode/workspace-utils';
 import {
   type MilestoneNode,
   type SyncContext,
