@@ -26,7 +26,7 @@ export function registerToolKeybindings(context: ExtensionContext) {
         const configDirPath = getWorkspaceConfigDirPath(folder);
         const shellExec = VscodeHelper.createShellExecution(tool.command as string, { cwd: configDirPath });
         const task = VscodeHelper.createTask({ type: TOOL_TASK_TYPE }, folder, tool.name, TOOL_TASK_TYPE, shellExec);
-        void vscode.tasks.executeTask(task);
+        void VscodeHelper.executeTask(task);
       });
       context.subscriptions.push(disposable);
     }
@@ -49,7 +49,7 @@ export function registerToolKeybindings(context: ExtensionContext) {
           TOOL_TASK_TYPE,
           shellExec,
         );
-        void vscode.tasks.executeTask(task);
+        void VscodeHelper.executeTask(task);
       });
       context.subscriptions.push(disposable);
     }

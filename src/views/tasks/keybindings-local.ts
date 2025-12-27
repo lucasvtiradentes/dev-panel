@@ -31,7 +31,7 @@ export function registerTaskKeybindings(context: ExtensionContext) {
       const disposable = registerDynamicCommand(commandId, () => {
         const shellExec = VscodeHelper.createShellExecution(task.command);
         const vsTask = VscodeHelper.createTask({ type: CONFIG_DIR_KEY }, folder, task.name, CONFIG_DIR_KEY, shellExec);
-        void vscode.tasks.executeTask(vsTask);
+        void VscodeHelper.executeTask(vsTask);
       });
       context.subscriptions.push(disposable);
     }
@@ -55,7 +55,7 @@ export function registerTaskKeybindings(context: ExtensionContext) {
           GLOBAL_TASK_TYPE,
           shellExec,
         );
-        void vscode.tasks.executeTask(vsTask);
+        void VscodeHelper.executeTask(vsTask);
       });
       context.subscriptions.push(disposable);
     }

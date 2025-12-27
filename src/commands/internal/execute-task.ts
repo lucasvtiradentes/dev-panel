@@ -165,9 +165,9 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
       log.info(`Executing task: ${modifiedTask.name}`);
       log.info(`Final presentation: ${JSON.stringify(modifiedTask.presentationOptions)}`);
 
-      void vscode.tasks.executeTask(modifiedTask).then((execution) => {
+      void VscodeHelper.executeTask(modifiedTask).then((execution) => {
         log.info(`Task started successfully: ${modifiedTask.name}`);
-        vscode.tasks.onDidEndTask((e) => {
+        VscodeHelper.onDidEndTask((e) => {
           if (e.execution === execution) {
             log.info(`Task ended: ${modifiedTask.name}`);
             void context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, null);
@@ -230,13 +230,13 @@ export function createExecuteToolCommand(context: ExtensionContext) {
         showReuseMessage: false,
       };
 
-      void vscode.tasks.executeTask(vsTask);
+      void VscodeHelper.executeTask(vsTask);
       return;
     }
 
     const task = item as vscode.Task;
-    void vscode.tasks.executeTask(task).then((execution) => {
-      vscode.tasks.onDidEndTask((e) => {
+    void VscodeHelper.executeTask(task).then((execution) => {
+      VscodeHelper.onDidEndTask((e) => {
         if (e.execution === execution) {
           void context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, null);
         }

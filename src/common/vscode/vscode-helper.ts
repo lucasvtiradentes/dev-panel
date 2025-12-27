@@ -290,4 +290,12 @@ export class VscodeHelper {
   ): vscode.TreeItem {
     return new vscode.TreeItem(label, collapsibleState);
   }
+
+  static executeTask(task: vscode.Task): Thenable<vscode.TaskExecution> {
+    return vscode.tasks.executeTask(task);
+  }
+
+  static onDidEndTask(listener: (e: vscode.TaskEndEvent) => unknown): vscode.Disposable {
+    return vscode.tasks.onDidEndTask(listener);
+  }
 }

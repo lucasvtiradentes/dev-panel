@@ -2,13 +2,14 @@ import * as vscode from 'vscode';
 import { CONTEXT_VALUES, getCommandId } from '../../common/constants';
 import { Command } from '../../common/lib/vscode-utils';
 import { TaskSource } from '../../common/schemas/types';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { ExtendedTask, Task } from '../../common/vscode/vscode-types';
 import { type GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
 export async function hasVSCodeGroups(): Promise<boolean> {
-  const tasks: Task[] = await vscode.tasks.fetchTasks();
+  const tasks: Task[] = await VscodeHelper.fetchTasks();
   const workspaceTasks = tasks.filter((t) => t.source === 'Workspace');
   return workspaceTasks.some((task) => (task as ExtendedTask).presentationOptions?.group != null);
 }
@@ -25,7 +26,7 @@ export async function getVSCodeTasks(options: {
   ) => Promise<Array<WorkspaceTreeItem | TreeTask | GroupTreeItem>>;
 }): Promise<Array<TreeTask | GroupTreeItem | WorkspaceTreeItem>> {
   const { grouped, showHidden, showOnlyFavorites, sortFn, getLowestLevel } = options;
-  let tasks: Task[] = await vscode.tasks.fetchTasks();
+  let tasks: Task[] = await VscodeHelper.fetchTasks();
   tasks = tasks.filter((t) => t.source === 'Workspace');
 
   const taskElements: Array<WorkspaceTreeItem | TreeTask> = [];
