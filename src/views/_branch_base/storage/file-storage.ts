@@ -8,6 +8,8 @@ import {
   BUILTIN_SECTION_NAMES,
   METADATA_DEVPANEL_PREFIX,
   METADATA_DEVPANEL_REGEX,
+  METADATA_SECTION_REGEX_GLOBAL,
+  METADATA_SECTION_WITH_CODEBLOCK_REGEX,
   METADATA_SEPARATOR_REGEX,
   METADATA_SUFFIX,
   SECTION_NAME_CHANGED_FILES,
@@ -98,7 +100,7 @@ type CodeBlockSection = {
 
 function extractAllCodeBlockSections(content: string): Record<string, CodeBlockSection> {
   const sections: Record<string, CodeBlockSection> = {};
-  const sectionRegex = /^#\s+([A-Z][A-Z\s]+)\s*\n+```\s*\n([\s\S]*?)\n```(\s*\n+<!-- SECTION_METADATA: (.+?) -->)?/gm;
+  const sectionRegex = METADATA_SECTION_WITH_CODEBLOCK_REGEX;
 
   const matches = content.matchAll(sectionRegex);
   for (const match of matches) {
@@ -269,7 +271,7 @@ export function extractAllFieldsRaw(content: string): Record<string, string> {
     sectionContent = sectionContent
       .replace(METADATA_DEVPANEL_REGEX, '')
       .replace(METADATA_SEPARATOR_REGEX, '')
-      .replace(/<!--\s*SECTION_METADATA:.*?-->/g, '')
+      .replace(METADATA_SECTION_REGEX_GLOBAL, '')
       .trim();
 
     const codeBlockMatch = sectionContent.match(/^```\s*\n([\s\S]*?)\n```/);

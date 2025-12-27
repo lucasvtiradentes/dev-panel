@@ -1,4 +1,4 @@
-import { FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
+import { BRANCH_CONTEXT_NA, FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
 import { Position } from '../../common/constants/enums';
 import { ConfigManager } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
@@ -155,7 +155,7 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
 
     if (!filePath || !FileIOHelper.fileExists(filePath)) {
       logger.warn(
-        `[BranchTasksProvider] [loadBranchTasks] File not found, clearing cache. filePath: ${filePath}, exists: ${filePath ? FileIOHelper.fileExists(filePath) : 'N/A'}`,
+        `[BranchTasksProvider] [loadBranchTasks] File not found, clearing cache. filePath: ${filePath}, exists: ${filePath ? FileIOHelper.fileExists(filePath) : BRANCH_CONTEXT_NA}`,
       );
       this.cachedNodes = [];
       this.cachedOrphanTasks = [];

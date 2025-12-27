@@ -1,3 +1,5 @@
+import { BRANCH_CONTEXT_NA } from '../constants';
+
 export function formatRelativeTime(timestamp: number): string {
   const now = Date.now();
   const diffMs = now - timestamp;
@@ -19,7 +21,9 @@ export class StringUtils {
   static isFieldEmpty(value: string | undefined, customNaValue?: string): boolean {
     if (!value) return true;
     const trimmed = value.trim();
-    return trimmed === '' || trimmed === 'N/A' || (customNaValue !== undefined && trimmed === customNaValue);
+    return (
+      trimmed === '' || trimmed === BRANCH_CONTEXT_NA || (customNaValue !== undefined && trimmed === customNaValue)
+    );
   }
 
   static isFieldValid(value: string | undefined, customNaValue?: string): boolean {

@@ -1,12 +1,14 @@
-import { execAsync } from 'src/common/functions/exec-async';
 import {
   ChangedFilesStyle,
   GIT_LOG_LAST_COMMIT_MESSAGE,
   GIT_REV_PARSE_HEAD,
+  METADATA_SECTION_REGEX_CAPTURE,
+  METADATA_SECTION_REGEX_GLOBAL,
   SECTION_NAME_CHANGED_FILES,
   SYNC_DEBOUNCE_MS,
   WRITING_MARKDOWN_TIMEOUT_MS,
 } from '../../common/constants';
+import { execAsync } from '../../common/functions/exec-async';
 import { ConfigManager } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { createLogger } from '../../common/lib/logger';
@@ -195,13 +197,13 @@ export class SyncManager {
             const data = await changedFilesSection.provider.fetch(syncContext);
             changedFiles = data;
 
-            const metadataMatch = data.match(/<!--\s*SECTION_METADATA:\s*(.+?)\s*-->/);
+            const metadataMatch = data.match(METADATA_SECTION_REGEX_CAPTURE);
             if (metadataMatch) {
               try {
                 const parsed = JSON.parse(metadataMatch[1]);
                 if (typeof parsed === 'object' && parsed !== null) {
                   changedFilesSectionMetadata = parsed as Record<string, unknown>;
-                  changedFiles = data.replace(/<!--\s*SECTION_METADATA:.*?-->/g, '').trim();
+                  changedFiles = data.replace(METADATA_SECTION_REGEX_GLOBAL, '').trim();
                 }
               } catch (error: unknown) {
                 logger.error(`Failed to parse changedFiles metadata: ${TypeGuards.getErrorMessage(error)}`);

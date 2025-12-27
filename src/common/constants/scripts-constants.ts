@@ -35,6 +35,10 @@ export const METADATA_SECTION_PREFIX = '<!-- SECTION_METADATA: ';
 export const METADATA_SUFFIX = ' -->';
 export const METADATA_SEPARATOR = '<!-- ------------------- -->';
 export const METADATA_DEVPANEL_REGEX = /<!--\s*DEVPANEL_METADATA:.*?-->/;
+export const METADATA_SECTION_REGEX_CAPTURE = /<!--\s*SECTION_METADATA:\s*(.+?)\s*-->/;
+export const METADATA_SECTION_REGEX_GLOBAL = /<!--\s*SECTION_METADATA:.*?-->/g;
+export const METADATA_SECTION_WITH_CODEBLOCK_REGEX =
+  /^#\s+([A-Z][A-Z\s]+)\s*\n+```\s*\n([\s\S]*?)\n```(\s*\n+<!-- SECTION_METADATA: (.+?) -->)?/gm;
 export const METADATA_SEPARATOR_REGEX = /<!--\s*-+\s*-->/;
 
 export const METADATA_FIELD_IS_EMPTY = 'isEmpty';
