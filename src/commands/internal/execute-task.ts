@@ -2,9 +2,9 @@ import { exec } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { promisify } from 'node:util';
-import * as vscode from 'vscode';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
+import { ProcessExecutionClass, ShellExecutionClass } from '../../common/vscode/vscode-types';
 import type {
   ExtensionContext,
   ShellExecution,
@@ -61,7 +61,7 @@ function cloneTaskWithEnv(task: Task, env: Record<string, string>): Task {
 
   let newTask: Task;
 
-  if (execution instanceof vscode.ShellExecution) {
+  if (execution instanceof ShellExecutionClass) {
     const mergedEnv = { ...execution.options?.env, ...env };
     const commandLine = execution.commandLine;
     const command = execution.command;
@@ -90,7 +90,7 @@ function cloneTaskWithEnv(task: Task, env: Record<string, string>): Task {
     return newTask;
   }
 
-  if (execution instanceof vscode.ProcessExecution) {
+  if (execution instanceof ProcessExecutionClass) {
     const mergedEnv = { ...execution.options?.env, ...env };
     const newExecution = VscodeHelper.createProcessExecution(execution.process, execution.args, {
       ...execution.options,
@@ -117,13 +117,13 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
     Command.ExecuteTask,
     async (
       task: Task,
-      scope: TaskScope | vscode.WorkspaceFolder | undefined,
+      scope: TaskScope | WorkspaceFolder | undefined,
       taskConfig?: NonNullable<DevPanelConfig['tasks']>[number],
     ) => {
       let modifiedTask = task;
 
       if (taskConfig?.inputs && taskConfig.inputs.length > 0) {
-        const folder = scope && typeof scope !== 'number' && 'uri' in scope ? (scope as vscode.WorkspaceFolder) : null;
+        const folder = scope && typeof scope !== 'number' && 'uri' in scope ? (scope as WorkspaceFolder) : null;
         const folderForSettings = folder ?? getFirstWorkspaceFolder();
         const settings = folderForSettings ? readDevPanelSettings(folderForSettings) : undefined;
 
@@ -131,7 +131,7 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
         if (inputValues === null) return;
 
         const execution = task.execution;
-        if (execution instanceof vscode.ShellExecution) {
+        if (execution instanceof ShellExecutionClass) {
           let commandToReplace = execution.commandLine ?? String(execution.command);
           commandToReplace = replaceInputPlaceholders(commandToReplace, inputValues);
 
@@ -148,7 +148,7 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
       }
 
       if (scope && typeof scope !== 'number' && 'uri' in scope) {
-        const folder = scope as vscode.WorkspaceFolder;
+        const folder = scope as WorkspaceFolder;
         const variablesPath = getWorkspaceVariablesPath(folder);
         const env = readDevPanelVariablesAsEnv(variablesPath);
 
@@ -158,8 +158,8 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
       }
 
       if (isMultiRootWorkspace()) {
-        if (scope != null && (scope as vscode.WorkspaceFolder).name != null) {
-          await context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, (scope as vscode.WorkspaceFolder).name);
+        if (scope != null && (scope as WorkspaceFolder).name != null) {
+          await context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, (scope as WorkspaceFolder).name);
         }
       }
 
@@ -180,7 +180,7 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
 }
 
 export function createExecuteToolCommand(context: ExtensionContext) {
-  return registerCommand(Command.ExecuteTool, (item: TreeTool | vscode.Task) => {
+  return registerCommand(Command.ExecuteTool, (item: TreeTool | Task) => {
     if (item instanceof TreeTool) {
       const toolName = item.toolName;
       const isGlobal = toolName.startsWith(GLOBAL_ITEM_PREFIX);
@@ -235,7 +235,7 @@ export function createExecuteToolCommand(context: ExtensionContext) {
       return;
     }
 
-    const task = item as vscode.Task;
+    const task = item as Task;
     void VscodeHelper.executeTask(task).then((execution) => {
       VscodeHelper.onDidEndTask((e) => {
         if (e.execution === execution) {

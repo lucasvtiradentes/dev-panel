@@ -1,10 +1,10 @@
 import { EXTENSION_DISPLAY_NAME } from 'src/common/constants';
-import type * as vscode from 'vscode';
 import { getWorkspaceConfigDirPath } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
 import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
+import type { QuickPickItem } from '../../common/vscode/vscode-types';
 import { showConfigLocationMenu } from './config-location';
 import { showInitMenu } from './init';
 import { showRegistryMenu } from './registry';
@@ -15,7 +15,7 @@ enum SettingsMenuOption {
   Init = 'init',
 }
 
-type QuickPickItemWithId<T> = vscode.QuickPickItem & { id: T };
+type QuickPickItemWithId<T> = QuickPickItem & { id: T };
 
 export function createOpenSettingsMenuCommand() {
   return registerCommand(Command.OpenSettingsMenu, async () => {
