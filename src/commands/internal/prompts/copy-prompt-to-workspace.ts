@@ -1,11 +1,10 @@
 import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { ConfigKey, LocationScope, getGlobalPromptsDir } from '../../../common/constants';
+import { ConfigKey, LocationScope, getGlobalPromptFilePath } from '../../../common/constants';
 import {
   addOrUpdateConfigItem,
   confirmOverwrite,
   ensureDirectoryExists,
-  getWorkspaceConfigDirPath,
+  getWorkspacePromptFilePath,
   loadGlobalConfig,
   loadWorkspaceConfig,
   saveWorkspaceConfig,
@@ -59,12 +58,11 @@ async function handleCopyPromptToWorkspace(treePrompt: TreePrompt) {
   addOrUpdateConfigItem(workspaceConfig, ConfigKey.Prompts, prompt);
   saveWorkspaceConfig(workspaceFolder, workspaceConfig);
 
-  const globalPromptFile = path.join(getGlobalPromptsDir(), prompt.file);
-  const workspaceConfigDir = getWorkspaceConfigDirPath(workspaceFolder);
-  const workspacePromptFile = path.join(workspaceConfigDir, prompt.file);
+  const globalPromptFile = getGlobalPromptFilePath(prompt.file);
+  const workspacePromptFile = getWorkspacePromptFilePath(workspaceFolder, prompt.file);
 
   if (fs.existsSync(globalPromptFile)) {
-    ensureDirectoryExists(path.dirname(workspacePromptFile));
+    ensureDirectoryExists(require('node:path').dirname(workspacePromptFile));
     fs.copyFileSync(globalPromptFile, workspacePromptFile);
   }
 

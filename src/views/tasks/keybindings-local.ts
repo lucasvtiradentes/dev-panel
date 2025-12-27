@@ -43,7 +43,8 @@ export function registerTaskKeybindings(context: ExtensionContext) {
 
     for (const task of globalTasks) {
       const commandId = getTaskCommandId(task.name);
-      const env = readDevPanelVariablesAsEnv(globalConfigDir);
+      const variablesPath = require('node:path').join(globalConfigDir, 'variables.json5');
+      const env = readDevPanelVariablesAsEnv(variablesPath);
       const disposable = registerDynamicCommand(commandId, () => {
         const shellExec = new vscode.ShellExecution(task.command, { env, cwd: globalConfigDir });
         const vsTask = new vscode.Task(

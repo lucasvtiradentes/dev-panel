@@ -6,9 +6,9 @@ import {
   GLOBAL_PROMPT_TOOLTIP,
   NO_GROUP_NAME,
   getCommandId,
-  getGlobalConfigDir,
+  getGlobalPromptFilePath,
 } from '../../common/constants';
-import { getWorkspaceConfigDirPath, loadGlobalConfig, loadWorkspaceConfig } from '../../common/lib/config-manager';
+import { getWorkspacePromptFilePath, loadGlobalConfig, loadWorkspaceConfig } from '../../common/lib/config-manager';
 import { globalPromptsState } from '../../common/lib/global-state';
 import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
@@ -152,8 +152,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     if (hidden && !this._showHidden) return null;
     if (this._showOnlyFavorites && !favorite) return null;
 
-    const configDirPath = getWorkspaceConfigDirPath(folder);
-    const promptFilePath = `${configDirPath}/${prompt.file}`;
+    const promptFilePath = getWorkspacePromptFilePath(folder, prompt.file);
 
     const treePrompt = new TreePrompt(prompt.name, promptFilePath, vscode.TreeItemCollapsibleState.None, {
       command: getCommandId(Command.ExecutePrompt),
@@ -183,8 +182,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     if (hidden && !this._showHidden) return null;
     if (this._showOnlyFavorites && !favorite) return null;
 
-    const globalConfigDir = getGlobalConfigDir();
-    const promptFilePath = `${globalConfigDir}/${prompt.file}`;
+    const promptFilePath = getGlobalPromptFilePath(prompt.file);
 
     const treePrompt = new TreePrompt(
       `${GLOBAL_ITEM_PREFIX}${prompt.name}`,

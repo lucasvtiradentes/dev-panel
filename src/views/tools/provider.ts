@@ -1,5 +1,5 @@
 import * as fs from 'node:fs';
-import { homedir } from 'node:os';
+import * as path from 'node:path';
 import * as vscode from 'vscode';
 import {
   CONTEXT_VALUES,
@@ -8,12 +8,16 @@ import {
   GLOBAL_TOOL_TOOLTIP,
   NO_GROUP_NAME,
   SHELL_SCRIPT_PATTERN,
-  TOOLS_DIR,
-  TOOL_INSTRUCTIONS_FILE,
   getCommandId,
   getGlobalConfigDir,
+  getGlobalToolInstructionsPath,
 } from '../../common/constants';
-import { getWorkspaceConfigDirPath, loadGlobalConfig, loadWorkspaceConfig } from '../../common/lib/config-manager';
+import {
+  getWorkspaceConfigDirPath,
+  getWorkspaceToolInstructionsPath,
+  loadGlobalConfig,
+  loadWorkspaceConfig,
+} from '../../common/lib/config-manager';
 import { globalToolsState } from '../../common/lib/global-state';
 import { createLogger } from '../../common/lib/logger';
 import { Command, ContextKey } from '../../common/lib/vscode-utils';
@@ -189,8 +193,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     return match ? match[1] : null;
   }
 
-  private readToolDescription(toolName: string, configDirPath: string): string | null {
-    const instructionsPath = `${configDirPath}/${TOOLS_DIR}/${toolName}/${TOOL_INSTRUCTIONS_FILE}`;
+  private readToolDescription(toolName: string, instructionsPath: string): string | null {
     if (!fs.existsSync(instructionsPath)) return null;
 
     const content = fs.readFileSync(instructionsPath, 'utf8');
@@ -232,12 +235,12 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
 
     const configDirPath = getWorkspaceConfigDirPath(folder);
     const toolFilePath = tool.command ? this.extractFileFromCommand(tool.command) : '';
-    const fullToolFilePath = toolFilePath ? `${configDirPath}/${toolFilePath}` : '';
+    const fullToolFilePath = toolFilePath ? path.join(configDirPath, toolFilePath) : '';
 
     const treeTool = new TreeTool(tool.name, fullToolFilePath, vscode.TreeItemCollapsibleState.None);
 
-    const configDirPath2 = getWorkspaceConfigDirPath(folder);
-    const description = this.readToolDescription(tool.name, configDirPath2);
+    const instructionsPath = getWorkspaceToolInstructionsPath(folder, tool.name);
+    const description = this.readToolDescription(tool.name, instructionsPath);
     if (description) {
       treeTool.tooltip = description;
     }
@@ -274,11 +277,12 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
 
     const globalConfigDir = getGlobalConfigDir();
     const toolFilePath = tool.command ? this.extractFileFromCommand(tool.command) : '';
-    const fullToolFilePath = toolFilePath ? `${globalConfigDir}/${toolFilePath}` : '';
+    const fullToolFilePath = toolFilePath ? path.join(globalConfigDir, toolFilePath) : '';
 
     const treeTool = new TreeTool(globalToolName, fullToolFilePath, vscode.TreeItemCollapsibleState.None);
 
-    const description = this.readToolDescription(tool.name, homedir());
+    const instructionsPath = getGlobalToolInstructionsPath(tool.name);
+    const description = this.readToolDescription(tool.name, instructionsPath);
     treeTool.tooltip = description ? `Global: ${description}` : GLOBAL_TOOL_TOOLTIP;
 
     if (hidden) {

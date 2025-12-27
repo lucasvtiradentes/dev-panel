@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { GLOBAL_ITEM_PREFIX, TOOLS_DIR, TOOL_INSTRUCTIONS_FILE, getGlobalConfigDir } from '../../../common/constants';
-import { joinConfigPath } from '../../../common/lib/config-manager';
+import { GLOBAL_ITEM_PREFIX, getGlobalToolInstructionsPath } from '../../../common/constants';
+import { getWorkspaceToolInstructionsPath } from '../../../common/lib/config-manager';
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import { getFirstWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
@@ -17,12 +17,11 @@ export function createGoToToolFileCommand(): Disposable {
 
       let instructionsPath: string;
       if (isGlobal) {
-        const globalConfigDir = getGlobalConfigDir();
-        instructionsPath = `${globalConfigDir}/${TOOLS_DIR}/${toolName}/${TOOL_INSTRUCTIONS_FILE}`;
+        instructionsPath = getGlobalToolInstructionsPath(toolName);
       } else {
         const workspaceFolder = getFirstWorkspaceFolder();
         if (!workspaceFolder) return;
-        instructionsPath = joinConfigPath(workspaceFolder, TOOLS_DIR, toolName, TOOL_INSTRUCTIONS_FILE);
+        instructionsPath = getWorkspaceToolInstructionsPath(workspaceFolder, toolName);
       }
 
       const uri = vscode.Uri.file(instructionsPath);

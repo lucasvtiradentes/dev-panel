@@ -7,9 +7,8 @@ import {
   DIST_DIR_PREFIX,
   PACKAGE_JSON,
   PACKAGE_JSON_SCRIPTS_PATTERN,
-  VSCODE_DIR,
-  VSCODE_TASKS_FILE,
   VSCODE_TASKS_PATH,
+  getVscodeTasksFilePath,
 } from '../../../common/constants';
 import { getConfigDirLabel, getCurrentConfigDir, getWorkspaceConfigFilePath } from '../../../common/lib/config-manager';
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
@@ -71,7 +70,7 @@ export function createOpenTasksConfigCommand() {
 
     switch (source) {
       case TaskSource.VSCode: {
-        const tasksJsonPath = path.join(workspacePath, VSCODE_DIR, VSCODE_TASKS_FILE);
+        const tasksJsonPath = getVscodeTasksFilePath(workspacePath);
         if (fs.existsSync(tasksJsonPath)) {
           const uri = vscode.Uri.file(tasksJsonPath);
           await VscodeHelper.openDocument(uri);

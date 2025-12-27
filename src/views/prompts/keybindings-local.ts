@@ -1,5 +1,5 @@
-import { getGlobalConfigDir, getPromptCommandId, getPromptCommandPrefix } from '../../common/constants';
-import { forEachWorkspaceConfig, getWorkspaceConfigDirPath, loadGlobalConfig } from '../../common/lib/config-manager';
+import { getGlobalPromptFilePath, getPromptCommandId, getPromptCommandPrefix } from '../../common/constants';
+import { forEachWorkspaceConfig, getWorkspacePromptFilePath, loadGlobalConfig } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { Command, executeCommand, registerDynamicCommand } from '../../common/lib/vscode-utils';
 import type { ExtensionContext } from '../../common/vscode/vscode-types';
@@ -19,8 +19,7 @@ export function registerPromptKeybindings(context: ExtensionContext) {
 
     for (const prompt of prompts) {
       const commandId = getPromptCommandId(prompt.name);
-      const configDirPath = getWorkspaceConfigDirPath(folder);
-      const promptFilePath = `${configDirPath}/${prompt.file}`;
+      const promptFilePath = getWorkspacePromptFilePath(folder, prompt.file);
       const disposable = registerDynamicCommand(commandId, () => {
         void executeCommand(Command.ExecutePrompt, { promptFilePath, folder, promptConfig: prompt });
       });
@@ -31,11 +30,10 @@ export function registerPromptKeybindings(context: ExtensionContext) {
   const globalConfig = loadGlobalConfig();
   if (globalConfig) {
     const globalPrompts = globalConfig.prompts ?? [];
-    const globalConfigDir = getGlobalConfigDir();
 
     for (const prompt of globalPrompts) {
       const commandId = getPromptCommandId(prompt.name);
-      const promptFilePath = `${globalConfigDir}/${prompt.file}`;
+      const promptFilePath = getGlobalPromptFilePath(prompt.file);
       const disposable = registerDynamicCommand(commandId, () => {
         void executeCommand(Command.ExecutePrompt, { promptFilePath, folder: null, promptConfig: prompt });
       });

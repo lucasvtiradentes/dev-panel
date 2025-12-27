@@ -1,6 +1,5 @@
 import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 import {
   ChangedFilesStyle,
   GIT_LOG_LAST_COMMIT_MESSAGE,
@@ -9,8 +8,10 @@ import {
   SYNC_DEBOUNCE_MS,
   WRITING_MARKDOWN_TIMEOUT_MS,
 } from '../../common/constants';
-import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-constants';
-import { getBranchContextFilePath as getBranchContextFilePathUtil } from '../../common/lib/config-manager';
+import {
+  getBranchContextFilePath as getBranchContextFilePathUtil,
+  getRootBranchContextFilePath,
+} from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { createLogger } from '../../common/lib/logger';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
@@ -75,7 +76,7 @@ export class SyncManager {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
-    const rootPath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
+    const rootPath = getRootBranchContextFilePath(workspace);
     const branchPath = getBranchContextFilePathUtil(workspace, currentBranch);
 
     if (!fs.existsSync(rootPath)) {
@@ -119,7 +120,7 @@ export class SyncManager {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
-    const rootPath = path.join(workspace, ROOT_BRANCH_CONTEXT_FILE_NAME);
+    const rootPath = getRootBranchContextFilePath(workspace);
     const branchPath = getBranchContextFilePathUtil(workspace, currentBranch);
 
     if (!fs.existsSync(branchPath)) {

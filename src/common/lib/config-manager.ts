@@ -2,14 +2,23 @@ import * as fs from 'node:fs';
 import { isAbsolute, join } from 'node:path';
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, getGlobalConfigDir, getGlobalConfigPath } from '../constants';
+import {
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  PROMPTS_DIR_NAME,
+  TOOLS_DIR,
+  VARIABLES_FILE_NAME,
+  getGlobalConfigDir,
+  getGlobalConfigPath,
+} from '../constants';
 import type { ConfigKey } from '../constants/enums';
 import { FILENAME_INVALID_CHARS_PATTERN } from '../constants/regex-constants';
 import {
   BRANCHES_DIR_NAME,
   BRANCH_CONTEXT_FILENAME,
   BRANCH_CONTEXT_TEMPLATE_FILENAME,
-  PROMPTS_DIR_NAME,
+  ROOT_BRANCH_CONTEXT_FILE_NAME,
+  TOOL_INSTRUCTIONS_FILE,
 } from '../constants/scripts-constants';
 import type { DevPanelConfig } from '../schemas';
 import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
@@ -95,6 +104,38 @@ export function joinConfigPath(folder: WorkspaceFolder, ...segments: string[]): 
   const configDir = getCurrentConfigDir();
   const basePath = getConfigDirPath(folder.uri.fsPath, configDir);
   return join(basePath, ...segments);
+}
+
+export function getWorkspaceToolsDir(folder: WorkspaceFolder): string {
+  return joinConfigPath(folder, TOOLS_DIR);
+}
+
+export function getWorkspaceToolDir(folder: WorkspaceFolder, toolName: string): string {
+  return joinConfigPath(folder, TOOLS_DIR, toolName);
+}
+
+export function getWorkspaceToolInstructionsPath(folder: WorkspaceFolder, toolName: string): string {
+  return joinConfigPath(folder, TOOLS_DIR, toolName, TOOL_INSTRUCTIONS_FILE);
+}
+
+export function getWorkspacePromptsDir(folder: WorkspaceFolder): string {
+  return joinConfigPath(folder, PROMPTS_DIR_NAME);
+}
+
+export function getWorkspacePromptFilePath(folder: WorkspaceFolder, promptFile: string): string {
+  return joinConfigPath(folder, promptFile);
+}
+
+export function getWorkspaceVariablesPath(folder: WorkspaceFolder): string {
+  return joinConfigPath(folder, VARIABLES_FILE_NAME);
+}
+
+export function getRootBranchContextFilePath(workspacePath: string): string {
+  return join(workspacePath, ROOT_BRANCH_CONTEXT_FILE_NAME);
+}
+
+export function getGitExcludeFilePath(workspacePath: string): string {
+  return join(workspacePath, '.git', 'info', 'exclude');
 }
 
 export function getConfigDirPathFromWorkspacePath(workspacePath: string): string {

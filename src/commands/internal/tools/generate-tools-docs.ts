@@ -8,11 +8,15 @@ import {
   GLOBAL_ITEM_PREFIX,
   SKILLS_DIR_NAME,
   SKILL_FILE_NAME,
-  TOOLS_DIR,
-  TOOL_INSTRUCTIONS_FILE,
-  getGlobalToolsDir,
+  getGlobalToolInstructionsPath,
+  getSkillDir,
+  getSkillFilePath,
 } from '../../../common/constants';
-import { getWorkspaceConfigDirPath, loadGlobalConfig, loadWorkspaceConfig } from '../../../common/lib/config-manager';
+import {
+  getWorkspaceToolInstructionsPath,
+  loadGlobalConfig,
+  loadWorkspaceConfig,
+} from '../../../common/lib/config-manager';
 import { Command, registerCommand } from '../../../common/lib/vscode-utils';
 import { toolsState } from '../../../common/lib/workspace-state';
 import type { DevPanelConfig } from '../../../common/schemas';
@@ -156,9 +160,8 @@ function generateToolsXml(workspaceFolder: WorkspaceFolder): string {
   const toolsXml: string[] = ['<available_tools>'];
   toolsXml.push('  Custom CLI tools installed (execute via Bash tool):');
 
-  const workspaceConfigDir = getWorkspaceConfigDirPath(workspaceFolder);
   for (const tool of activeLocalTools) {
-    const instructionsPath = path.join(workspaceConfigDir, TOOLS_DIR, tool.name, TOOL_INSTRUCTIONS_FILE);
+    const instructionsPath = getWorkspaceToolInstructionsPath(workspaceFolder, tool.name);
 
     let description = '';
     if (fs.existsSync(instructionsPath)) {
@@ -171,7 +174,7 @@ function generateToolsXml(workspaceFolder: WorkspaceFolder): string {
   }
 
   for (const tool of activeGlobalTools) {
-    const instructionsPath = path.join(getGlobalToolsDir(), tool.name, TOOL_INSTRUCTIONS_FILE);
+    const instructionsPath = getGlobalToolInstructionsPath(tool.name);
 
     let description = '';
     if (fs.existsSync(instructionsPath)) {
@@ -263,14 +266,14 @@ async function syncToSkills(workspaceFolder: WorkspaceFolder): Promise<number> {
   const inactiveGlobalTools = globalTools.filter((tool) => !activeTools.includes(`${GLOBAL_ITEM_PREFIX}${tool.name}`));
 
   for (const tool of inactiveLocalTools) {
-    const skillDir = path.join(workspaceFolder.uri.fsPath, CLAUDE_DIR_NAME, SKILLS_DIR_NAME, tool.name);
+    const skillDir = getSkillDir(workspaceFolder.uri.fsPath, tool.name);
     if (fs.existsSync(skillDir)) {
       fs.rmSync(skillDir, { recursive: true });
     }
   }
 
   for (const tool of inactiveGlobalTools) {
-    const skillDir = path.join(workspaceFolder.uri.fsPath, CLAUDE_DIR_NAME, SKILLS_DIR_NAME, tool.name);
+    const skillDir = getSkillDir(workspaceFolder.uri.fsPath, tool.name);
     if (fs.existsSync(skillDir)) {
       fs.rmSync(skillDir, { recursive: true });
     }
@@ -278,9 +281,8 @@ async function syncToSkills(workspaceFolder: WorkspaceFolder): Promise<number> {
 
   let syncedCount = 0;
 
-  const workspaceConfigDir = getWorkspaceConfigDirPath(workspaceFolder);
   for (const tool of activeLocalTools) {
-    const instructionsPath = path.join(workspaceConfigDir, TOOLS_DIR, tool.name, TOOL_INSTRUCTIONS_FILE);
+    const instructionsPath = getWorkspaceToolInstructionsPath(workspaceFolder, tool.name);
 
     if (!fs.existsSync(instructionsPath)) {
       continue;
@@ -290,18 +292,18 @@ async function syncToSkills(workspaceFolder: WorkspaceFolder): Promise<number> {
     const exampleCommand = instructionsContent.match(/```bash\n(.+?)\n/)?.[1] ?? tool.command ?? tool.name;
     const skillContent = generateSkillMd(instructionsContent, tool.name, exampleCommand);
 
-    const skillDir = path.join(workspaceFolder.uri.fsPath, CLAUDE_DIR_NAME, SKILLS_DIR_NAME, tool.name);
+    const skillDir = getSkillDir(workspaceFolder.uri.fsPath, tool.name);
     if (!fs.existsSync(skillDir)) {
       fs.mkdirSync(skillDir, { recursive: true });
     }
 
-    const skillPath = path.join(skillDir, SKILL_FILE_NAME);
+    const skillPath = getSkillFilePath(workspaceFolder.uri.fsPath, tool.name);
     fs.writeFileSync(skillPath, skillContent, 'utf8');
     syncedCount++;
   }
 
   for (const tool of activeGlobalTools) {
-    const instructionsPath = path.join(getGlobalToolsDir(), tool.name, TOOL_INSTRUCTIONS_FILE);
+    const instructionsPath = getGlobalToolInstructionsPath(tool.name);
 
     if (!fs.existsSync(instructionsPath)) {
       continue;
@@ -311,12 +313,12 @@ async function syncToSkills(workspaceFolder: WorkspaceFolder): Promise<number> {
     const exampleCommand = instructionsContent.match(/```bash\n(.+?)\n/)?.[1] ?? tool.command ?? tool.name;
     const skillContent = generateSkillMd(instructionsContent, tool.name, exampleCommand);
 
-    const skillDir = path.join(workspaceFolder.uri.fsPath, CLAUDE_DIR_NAME, SKILLS_DIR_NAME, tool.name);
+    const skillDir = getSkillDir(workspaceFolder.uri.fsPath, tool.name);
     if (!fs.existsSync(skillDir)) {
       fs.mkdirSync(skillDir, { recursive: true });
     }
 
-    const skillPath = path.join(skillDir, SKILL_FILE_NAME);
+    const skillPath = getSkillFilePath(workspaceFolder.uri.fsPath, tool.name);
     fs.writeFileSync(skillPath, skillContent, 'utf8');
     syncedCount++;
   }

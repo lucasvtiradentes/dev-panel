@@ -25,6 +25,7 @@ import {
   getPromptOutputFilePath,
   getWorkspaceConfigDirPath,
   getWorkspaceConfigFilePath,
+  getWorkspaceVariablesPath,
   loadGlobalConfig,
   loadWorkspaceConfig,
 } from '../../common/lib/config-manager';
@@ -39,7 +40,7 @@ import {
   getAIProvidersListFormatted,
 } from '../../common/schemas';
 import { TypeGuards } from '../../common/utils/type-utils';
-import { loadVariablesFromPath } from '../../common/utils/variables-env';
+import { loadVariablesFromPath, readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { getFirstWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { getCurrentBranch } from '../../views/replacements/git-utils';
@@ -52,19 +53,6 @@ export type ExecutePromptParams = {
   folder: WorkspaceFolder | null;
   promptConfig?: DevPanelPrompt;
 };
-
-function readDevPanelVariablesAsEnv(workspacePath: string): Record<string, string> {
-  const variablesPath = `${workspacePath}/${CONFIG_DIR_NAME}/${VARIABLES_FILE_NAME}`;
-  const variables = loadVariablesFromPath(variablesPath);
-  if (!variables) return {};
-
-  const env: Record<string, string> = {};
-  for (const [key, value] of Object.entries(variables)) {
-    const stringValue = TypeGuards.isObject(value) ? JSON.stringify(value) : String(value);
-    env[key] = stringValue;
-  }
-  return env;
-}
 
 function cloneTaskWithEnv(task: Task, env: Record<string, string>): Task {
   const execution = task.execution;
@@ -157,7 +145,8 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
 
       if (scope && typeof scope !== 'number' && 'uri' in scope) {
         const folder = scope as vscode.WorkspaceFolder;
-        const env = readDevPanelVariablesAsEnv(folder.uri.fsPath);
+        const variablesPath = getWorkspaceVariablesPath(folder);
+        const env = readDevPanelVariablesAsEnv(variablesPath);
 
         if (Object.keys(env).length > 0) {
           modifiedTask = cloneTaskWithEnv(modifiedTask, env);
@@ -203,7 +192,7 @@ export function createExecuteToolCommand(context: ExtensionContext) {
       if (isGlobal) {
         toolConfig = globalConfig?.tools?.find((t) => t.name === actualName);
         cwd = folder ? folder.uri.fsPath : getGlobalConfigDir();
-        env = readDevPanelVariablesAsEnv(getGlobalConfigDir());
+        env = readDevPanelVariablesAsEnv(require('node:path').join(getGlobalConfigDir(), 'variables.json5'));
       } else {
         if (!folder) {
           void VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
@@ -213,7 +202,7 @@ export function createExecuteToolCommand(context: ExtensionContext) {
         toolConfig = config?.tools?.find((t) => t.name === actualName);
         const configDirPath = getWorkspaceConfigDirPath(folder);
         cwd = toolConfig?.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
-        env = readDevPanelVariablesAsEnv(configDirPath);
+        env = readDevPanelVariablesAsEnv(getWorkspaceVariablesPath(folder));
       }
 
       if (!toolConfig?.command) {
