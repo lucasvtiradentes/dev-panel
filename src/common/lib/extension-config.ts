@@ -1,6 +1,6 @@
-import * as vscode from 'vscode';
 import { IS_DEV } from '../constants/constants';
 import { CONTEXT_PREFIX, DEV_SUFFIX } from '../constants/scripts-constants';
+import { VscodeHelper } from '../vscode/vscode-helper';
 
 export enum ExtensionConfigKey {
   AutoRefresh = 'autorefresh',
@@ -19,6 +19,6 @@ function getConfigSection(): string {
 }
 
 export function getExtensionConfig<K extends ExtensionConfigKey>(key: K): ExtensionConfigSchema[K] {
-  const config = vscode.workspace.getConfiguration(getConfigSection());
+  const config = VscodeHelper.getConfiguration(getConfigSection());
   return config.get<ExtensionConfigSchema[K]>(key) ?? defaultValues[key];
 }

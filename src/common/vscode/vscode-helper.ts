@@ -215,4 +215,25 @@ export class VscodeHelper {
   static getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] {
     return vscode.workspace.workspaceFolders ?? [];
   }
+
+  static getWorkspaceName(): string | undefined {
+    return vscode.workspace.name;
+  }
+
+  static findFiles(
+    include: vscode.GlobPattern,
+    exclude?: vscode.GlobPattern | null,
+    maxResults?: number,
+    token?: vscode.CancellationToken,
+  ): Thenable<vscode.Uri[]> {
+    return vscode.workspace.findFiles(include, exclude, maxResults, token);
+  }
+
+  static asRelativePath(pathOrUri: string | vscode.Uri, includeWorkspaceFolder?: boolean): string {
+    return vscode.workspace.asRelativePath(pathOrUri, includeWorkspaceFolder);
+  }
+
+  static getConfiguration(section?: string, scope?: vscode.ConfigurationScope | null): vscode.WorkspaceConfiguration {
+    return vscode.workspace.getConfiguration(section, scope);
+  }
 }

@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { DEFAULT_EXCLUDES, DEFAULT_INCLUDES, ROOT_FOLDER_LABEL } from '../constants';
 import { VscodeHelper } from '../vscode/vscode-helper';
 import type { QuickPickItem, WorkspaceFolder } from '../vscode/vscode-types';
@@ -48,14 +47,14 @@ async function selectFilesFlat(opts: InternalSelectionOptions): Promise<string |
   log.info(`selectFilesFlat - workspaceFolder.uri.fsPath: ${workspaceFolder.uri.fsPath}`);
   const includeGlob = buildGlob(includes);
   const excludeGlob = buildGlob(excludes);
-  const files = await vscode.workspace.findFiles(
+  const files = await VscodeHelper.findFiles(
     VscodeHelper.createRelativePattern(workspaceFolder, includeGlob),
     excludeGlob,
   );
   log.info(`selectFilesFlat - found ${files.length} files`);
 
   const items: QuickPickItem[] = files.map((uri) => ({
-    label: vscode.workspace.asRelativePath(uri, false),
+    label: VscodeHelper.asRelativePath(uri, false),
     description: uri.fsPath,
   }));
 
@@ -104,14 +103,14 @@ async function selectFoldersFlat(opts: InternalSelectionOptions): Promise<string
   const { workspaceFolder, label, multiSelect, includes, excludes } = opts;
   const includeGlob = buildGlob(includes);
   const excludeGlob = buildGlob(excludes);
-  const files = await vscode.workspace.findFiles(
+  const files = await VscodeHelper.findFiles(
     VscodeHelper.createRelativePattern(workspaceFolder, includeGlob),
     excludeGlob,
   );
 
   const folderSet = new Set<string>();
   for (const file of files) {
-    const relativePath = vscode.workspace.asRelativePath(file, false);
+    const relativePath = VscodeHelper.asRelativePath(file, false);
     const parts = relativePath.split('/');
     let currentPath = '';
     for (let i = 0; i < parts.length - 1; i++) {

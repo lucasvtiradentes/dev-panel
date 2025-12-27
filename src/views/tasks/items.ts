@@ -76,7 +76,7 @@ export class TreeTask extends vscode.TreeItem {
     if (typeof workspace === 'object' && workspace !== null) {
       this.workspace = workspace.name;
     } else if (workspace === vscode.TaskScope.Workspace) {
-      this.workspace = vscode.workspace.name ?? 'root';
+      this.workspace = VscodeHelper.getWorkspaceName() ?? 'root';
     }
 
     this.loadTaskMetadata();
