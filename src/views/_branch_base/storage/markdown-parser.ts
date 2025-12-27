@@ -1,11 +1,11 @@
 import * as fs from 'node:fs';
-import { getBranchContextFilePath as getBranchContextFilePathUtil } from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/lib/config-manager';
 import { getFirstWorkspacePath } from '../../../common/utils/workspace-utils';
 
 export function getBranchContextFilePath(branchName: string): string | null {
   const workspace = getFirstWorkspacePath();
   if (!workspace) return null;
-  return getBranchContextFilePathUtil(workspace, branchName);
+  return ConfigManager.getBranchContextFilePath(workspace, branchName);
 }
 
 export function getFieldLineNumber(filePath: string, fieldName: string): number {

@@ -10,7 +10,7 @@ import {
   SECTION_NAME_TASKS,
 } from '../../common/constants';
 import { BRANCH_CONTEXT_NA } from '../../common/constants/scripts-constants';
-import { loadWorkspaceConfigFromPath } from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/lib/config-manager';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import { SimpleCache } from '../../common/utils/cache';
 import { SectionRegistry } from './section-registry';
@@ -28,7 +28,7 @@ export class ProviderHelpers {
       return cached;
     }
 
-    const config = loadWorkspaceConfigFromPath(workspace);
+    const config = ConfigManager.loadWorkspaceConfigFromPath(workspace);
     this.configCache.set(workspace, config);
     return config;
   }

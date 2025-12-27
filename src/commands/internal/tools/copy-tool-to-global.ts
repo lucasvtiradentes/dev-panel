@@ -1,14 +1,6 @@
 import * as fs from 'node:fs';
 import { ConfigKey, LocationScope, getGlobalToolDir } from '../../../common/constants';
-import {
-  addOrUpdateConfigItem,
-  confirmOverwrite,
-  ensureDirectoryExists,
-  getWorkspaceToolDir,
-  loadGlobalConfig,
-  loadWorkspaceConfig,
-  saveGlobalConfig,
-} from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/lib/config-manager';
 import {
   isGlobalItem,
   showAlreadyGlobalMessage,
@@ -35,7 +27,7 @@ async function handleCopyToolToGlobal(treeTool: TreeTool) {
   const workspaceFolder = requireWorkspaceFolder();
   if (!workspaceFolder) return;
 
-  const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
+  const workspaceConfig = ConfigManager.loadWorkspaceConfig(workspaceFolder);
   if (!workspaceConfig) {
     showConfigNotFoundError(LocationScope.Workspace);
     return;
@@ -47,19 +39,19 @@ async function handleCopyToolToGlobal(treeTool: TreeTool) {
     return;
   }
 
-  const globalConfig = loadGlobalConfig() ?? {};
+  const globalConfig = ConfigManager.loadGlobalConfig() ?? {};
   const exists = globalConfig.tools?.some((t) => t.name === tool.name);
 
-  if (exists && !(await confirmOverwrite('Tool', tool.name))) return;
+  if (exists && !(await ConfigManager.confirmOverwrite('Tool', tool.name))) return;
 
-  addOrUpdateConfigItem(globalConfig, ConfigKey.Tools, tool);
-  saveGlobalConfig(globalConfig);
+  ConfigManager.addOrUpdateConfigItem(globalConfig, ConfigKey.Tools, tool);
+  ConfigManager.saveGlobalConfig(globalConfig);
 
-  const workspaceToolsDir = getWorkspaceToolDir(workspaceFolder, tool.name);
+  const workspaceToolsDir = ConfigManager.getWorkspaceToolDir(workspaceFolder, tool.name);
   const globalToolsDir = getGlobalToolDir(tool.name);
 
   if (fs.existsSync(workspaceToolsDir)) {
-    ensureDirectoryExists(require('node:path').dirname(globalToolsDir));
+    ConfigManager.ensureDirectoryExists(require('node:path').dirname(globalToolsDir));
     if (fs.existsSync(globalToolsDir)) {
       fs.rmSync(globalToolsDir, { recursive: true });
     }

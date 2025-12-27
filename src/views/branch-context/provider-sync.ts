@@ -8,10 +8,7 @@ import {
   SYNC_DEBOUNCE_MS,
   WRITING_MARKDOWN_TIMEOUT_MS,
 } from '../../common/constants';
-import {
-  getBranchContextFilePath as getBranchContextFilePathUtil,
-  getRootBranchContextFilePath,
-} from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/lib/config-manager';
 import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { createLogger } from '../../common/lib/logger';
 import { extractSectionMetadata } from '../../common/utils/metadata-extractor';
@@ -78,8 +75,8 @@ export class SyncManager {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
-    const rootPath = getRootBranchContextFilePath(workspace);
-    const branchPath = getBranchContextFilePathUtil(workspace, currentBranch);
+    const rootPath = ConfigManager.getRootBranchContextFilePath(workspace);
+    const branchPath = ConfigManager.getBranchContextFilePath(workspace, currentBranch);
 
     if (!fs.existsSync(rootPath)) {
       return;
@@ -122,8 +119,8 @@ export class SyncManager {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
-    const rootPath = getRootBranchContextFilePath(workspace);
-    const branchPath = getBranchContextFilePathUtil(workspace, currentBranch);
+    const rootPath = ConfigManager.getRootBranchContextFilePath(workspace);
+    const branchPath = ConfigManager.getBranchContextFilePath(workspace, currentBranch);
 
     if (!fs.existsSync(branchPath)) {
       return;
@@ -178,7 +175,7 @@ export class SyncManager {
       const syncContext: SyncContext = {
         branchName: currentBranch,
         workspacePath: workspace,
-        markdownPath: getBranchContextFilePathUtil(workspace, currentBranch),
+        markdownPath: ConfigManager.getBranchContextFilePath(workspace, currentBranch),
         branchContext: context,
       };
 

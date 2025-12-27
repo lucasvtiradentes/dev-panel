@@ -11,12 +11,7 @@ import {
   getGlobalConfigDir,
   getGlobalToolInstructionsPath,
 } from '../../common/constants';
-import {
-  getWorkspaceConfigDirPath,
-  getWorkspaceToolInstructionsPath,
-  loadGlobalConfig,
-  loadWorkspaceConfig,
-} from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/lib/config-manager';
 import { globalToolsState } from '../../common/lib/global-state';
 import { createLogger } from '../../common/lib/logger';
 import type { DevPanelConfig } from '../../common/schemas';
@@ -180,12 +175,12 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   }
 
   private readDevPanelTools(folder: WorkspaceFolder): NonNullable<DevPanelConfig['tools']> {
-    const config = loadWorkspaceConfig(folder);
+    const config = ConfigManager.loadWorkspaceConfig(folder);
     return config?.tools ?? [];
   }
 
   private readGlobalTools(): NonNullable<DevPanelConfig['tools']> {
-    const config = loadGlobalConfig();
+    const config = ConfigManager.loadGlobalConfig();
     return config?.tools ?? [];
   }
 
@@ -234,13 +229,13 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     if (hidden && !this._showHidden) return null;
     if (this._showOnlyFavorites && !favorite) return null;
 
-    const configDirPath = getWorkspaceConfigDirPath(folder);
+    const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
     const toolFilePath = tool.command ? this.extractFileFromCommand(tool.command) : '';
     const fullToolFilePath = toolFilePath ? path.join(configDirPath, toolFilePath) : '';
 
     const treeTool = new TreeTool(tool.name, fullToolFilePath, VscodeConstants.TreeItemCollapsibleState.None);
 
-    const instructionsPath = getWorkspaceToolInstructionsPath(folder, tool.name);
+    const instructionsPath = ConfigManager.getWorkspaceToolInstructionsPath(folder, tool.name);
     const description = this.readToolDescription(instructionsPath);
     if (description) {
       treeTool.tooltip = description;

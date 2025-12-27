@@ -17,7 +17,7 @@ import {
   SECTION_NAME_REQUIREMENTS,
   SECTION_NAME_TASKS,
 } from '../../../common/constants';
-import { getBranchContextFilePath } from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext, BranchContextMetadata, SectionMetadata } from '../../../common/schemas/types';
 import { extractSectionMetadata } from '../../../common/utils/metadata-extractor';
@@ -26,7 +26,7 @@ import { parseBranchTypeCheckboxes } from './branch-type-utils';
 const logger = createLogger('BranchContext');
 
 export function loadBranchContextFromFile(workspace: string, branchName: string): BranchContext {
-  const filePath = getBranchContextFilePath(workspace, branchName);
+  const filePath = ConfigManager.getBranchContextFilePath(workspace, branchName);
 
   if (!fs.existsSync(filePath)) {
     return {};

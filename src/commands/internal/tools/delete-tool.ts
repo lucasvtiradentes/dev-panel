@@ -1,14 +1,6 @@
 import * as fs from 'node:fs';
 import { ConfigKey, LocationScope, getGlobalToolDir } from '../../../common/constants';
-import {
-  confirmDelete,
-  getWorkspaceToolDir,
-  loadGlobalConfig,
-  loadWorkspaceConfig,
-  removeConfigItem,
-  saveGlobalConfig,
-  saveWorkspaceConfig,
-} from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/lib/config-manager';
 import {
   isGlobalItem,
   showConfigNotFoundError,
@@ -31,10 +23,10 @@ async function handleDeleteTool(treeTool: TreeTool) {
   const isGlobal = isGlobalItem(treeTool.toolName);
   const toolName = stripGlobalPrefix(treeTool.toolName);
 
-  if (!(await confirmDelete('tool', toolName, isGlobal))) return;
+  if (!(await ConfigManager.confirmDelete('tool', toolName, isGlobal))) return;
 
   if (isGlobal) {
-    const globalConfig = loadGlobalConfig();
+    const globalConfig = ConfigManager.loadGlobalConfig();
     if (!globalConfig) {
       showConfigNotFoundError(LocationScope.Global);
       return;
@@ -45,13 +37,13 @@ async function handleDeleteTool(treeTool: TreeTool) {
       return;
     }
 
-    const removed = removeConfigItem(globalConfig, ConfigKey.Tools, toolName);
+    const removed = ConfigManager.removeConfigItem(globalConfig, ConfigKey.Tools, toolName);
     if (!removed) {
       showNotFoundError('Tool', toolName, LocationScope.Global);
       return;
     }
 
-    saveGlobalConfig(globalConfig);
+    ConfigManager.saveGlobalConfig(globalConfig);
 
     const globalToolsDir = getGlobalToolDir(toolName);
     if (fs.existsSync(globalToolsDir)) {
@@ -66,7 +58,7 @@ async function handleDeleteTool(treeTool: TreeTool) {
   const workspaceFolder = requireWorkspaceFolder();
   if (!workspaceFolder) return;
 
-  const workspaceConfig = loadWorkspaceConfig(workspaceFolder);
+  const workspaceConfig = ConfigManager.loadWorkspaceConfig(workspaceFolder);
   if (!workspaceConfig) {
     showConfigNotFoundError(LocationScope.Workspace);
     return;
@@ -77,15 +69,15 @@ async function handleDeleteTool(treeTool: TreeTool) {
     return;
   }
 
-  const removed = removeConfigItem(workspaceConfig, ConfigKey.Tools, toolName);
+  const removed = ConfigManager.removeConfigItem(workspaceConfig, ConfigKey.Tools, toolName);
   if (!removed) {
     showNotFoundError('Tool', toolName, LocationScope.Workspace);
     return;
   }
 
-  saveWorkspaceConfig(workspaceFolder, workspaceConfig);
+  ConfigManager.saveWorkspaceConfig(workspaceFolder, workspaceConfig);
 
-  const workspaceToolsDir = getWorkspaceToolDir(workspaceFolder, toolName);
+  const workspaceToolsDir = ConfigManager.getWorkspaceToolDir(workspaceFolder, toolName);
   if (fs.existsSync(workspaceToolsDir)) {
     fs.rmSync(workspaceToolsDir, { recursive: true });
   }

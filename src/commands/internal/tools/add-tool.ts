@@ -8,12 +8,7 @@ import {
   TOOL_NAME_PATTERN,
   TOOL_NAME_VALIDATION_MESSAGE,
 } from '../../../common/constants';
-import {
-  getWorkspaceConfigFilePath,
-  getWorkspaceToolDir,
-  getWorkspaceToolInstructionsPath,
-  parseConfig,
-} from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/lib/config-manager';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
@@ -53,14 +48,14 @@ async function handleAddTool() {
     placeHolder: 'Development',
   });
 
-  const configPath = getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
+  const configPath = ConfigManager.getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
   if (!fs.existsSync(configPath)) {
     VscodeHelper.showToastMessage(ToastKind.Error, `Config file not found: ${configPath}`);
     return;
   }
 
   const configContent = fs.readFileSync(configPath, 'utf8');
-  const config = parseConfig(configContent);
+  const config = ConfigManager.parseConfig(configContent);
   if (!config) {
     VscodeHelper.showToastMessage(ToastKind.Error, 'Failed to parse config file');
     return;
@@ -123,12 +118,12 @@ async function handleAddTool() {
 
   fs.writeFileSync(configPath, updatedContent, 'utf8');
 
-  const toolDir = getWorkspaceToolDir(workspaceFolder, name);
+  const toolDir = ConfigManager.getWorkspaceToolDir(workspaceFolder, name);
   if (!fs.existsSync(toolDir)) {
     fs.mkdirSync(toolDir, { recursive: true });
   }
 
-  const instructionsPath = getWorkspaceToolInstructionsPath(workspaceFolder, name);
+  const instructionsPath = ConfigManager.getWorkspaceToolInstructionsPath(workspaceFolder, name);
   const instructionsContent = `# Description
 
 ${description || `Tool: ${name}`}

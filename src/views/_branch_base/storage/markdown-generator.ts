@@ -9,7 +9,7 @@ import {
   METADATA_SEPARATOR,
   METADATA_SUFFIX,
 } from '../../../common/constants';
-import { configDirExists, getBranchContextFilePath, getBranchDirectory } from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext } from '../../../common/schemas/types';
 import { getFirstWorkspacePath } from '../../../common/utils/workspace-utils';
@@ -34,20 +34,20 @@ export async function generateBranchContextMarkdown(
     return;
   }
 
-  if (!configDirExists(workspace)) {
+  if (!ConfigManager.configDirExists(workspace)) {
     logger.info('[generateBranchContextMarkdown] No config directory, skipping');
     return;
   }
 
   logger.info(`[generateBranchContextMarkdown] Workspace: ${workspace}`);
 
-  const dirPath = getBranchDirectory(workspace, branchName);
+  const dirPath = ConfigManager.getBranchDirectory(workspace, branchName);
   if (!fs.existsSync(dirPath)) {
     logger.info(`[generateBranchContextMarkdown] Creating directory: ${dirPath}`);
     fs.mkdirSync(dirPath, { recursive: true });
   }
 
-  const mdPath = getBranchContextFilePath(workspace, branchName);
+  const mdPath = ConfigManager.getBranchContextFilePath(workspace, branchName);
   logger.info(`[generateBranchContextMarkdown] Markdown path: ${mdPath}`);
 
   const template = loadTemplate(workspace);

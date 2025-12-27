@@ -1,6 +1,6 @@
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
-import { getConfigDirPathFromWorkspacePath } from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/lib/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import { PluginAction, TaskStatus } from '../../../common/schemas';
 import type {
@@ -32,7 +32,7 @@ const logger = createLogger('PluginLoader');
 const PLUGIN_TIMEOUT = 60000;
 
 export function loadAutoProvider(workspace: string, providerCommand: string): AutoSectionProvider {
-  const configDir = getConfigDirPathFromWorkspacePath(workspace);
+  const configDir = ConfigManager.getConfigDirPathFromWorkspacePath(workspace);
   logger.info(`[loadAutoProvider] Provider command: ${providerCommand}`);
 
   return {
@@ -69,7 +69,7 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
 }
 
 export function loadTaskProvider(workspace: string, providerCommand: string): TaskSyncProvider {
-  const configDir = getConfigDirPathFromWorkspacePath(workspace);
+  const configDir = ConfigManager.getConfigDirPathFromWorkspacePath(workspace);
   logger.info(`[loadTaskProvider] Loading provider: ${providerCommand}`);
 
   async function executePlugin<T>(action: PluginAction, context: SyncContext, payload?: unknown): Promise<T> {

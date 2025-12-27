@@ -1,11 +1,5 @@
 import { ConfigKey, LocationScope } from '../../../common/constants';
-import {
-  addOrUpdateConfigItem,
-  confirmOverwrite,
-  loadGlobalConfig,
-  loadWorkspaceConfig,
-  saveWorkspaceConfig,
-} from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/lib/config-manager';
 import {
   isGlobalItem,
   showAlreadyWorkspaceMessage,
@@ -35,7 +29,7 @@ async function handleCopyTaskToWorkspace(treeTask: TreeTask) {
   const workspaceFolder = await selectWorkspaceFolder('Select workspace to copy task to');
   if (!workspaceFolder) return;
 
-  const globalConfig = loadGlobalConfig();
+  const globalConfig = ConfigManager.loadGlobalConfig();
   if (!globalConfig) {
     showConfigNotFoundError(LocationScope.Global);
     return;
@@ -47,13 +41,13 @@ async function handleCopyTaskToWorkspace(treeTask: TreeTask) {
     return;
   }
 
-  const workspaceConfig = loadWorkspaceConfig(workspaceFolder) ?? {};
+  const workspaceConfig = ConfigManager.loadWorkspaceConfig(workspaceFolder) ?? {};
   const exists = workspaceConfig.tasks?.some((t) => t.name === task.name);
 
-  if (exists && !(await confirmOverwrite('Task', task.name))) return;
+  if (exists && !(await ConfigManager.confirmOverwrite('Task', task.name))) return;
 
-  addOrUpdateConfigItem(workspaceConfig, ConfigKey.Tasks, task);
-  saveWorkspaceConfig(workspaceFolder, workspaceConfig);
+  ConfigManager.addOrUpdateConfigItem(workspaceConfig, ConfigKey.Tasks, task);
+  ConfigManager.saveWorkspaceConfig(workspaceFolder, workspaceConfig);
 
   showCopySuccessMessage('Task', task.name, LocationScope.Workspace);
   void executeCommand(Command.Refresh);

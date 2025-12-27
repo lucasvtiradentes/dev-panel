@@ -1,4 +1,4 @@
-import { getBranchContextTemplatePath } from '../common/lib/config-manager';
+import { ConfigManager } from '../common/lib/config-manager';
 import { createLogger } from '../common/lib/logger';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
@@ -14,7 +14,7 @@ export function createTemplateWatcher(onChange: RefreshCallback): Disposable {
     return { dispose: () => undefined };
   }
 
-  const templatePath = getBranchContextTemplatePath(workspace);
+  const templatePath = ConfigManager.getBranchContextTemplatePath(workspace);
   logger.info(`Setting up template watcher for: ${templatePath}`);
 
   const watcher = VscodeHelper.createFileSystemWatcher(

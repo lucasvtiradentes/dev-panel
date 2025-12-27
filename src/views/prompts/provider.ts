@@ -7,7 +7,7 @@ import {
   getCommandId,
   getGlobalPromptFilePath,
 } from '../../common/constants';
-import { getWorkspacePromptFilePath, loadGlobalConfig, loadWorkspaceConfig } from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/lib/config-manager';
 import { globalPromptsState } from '../../common/lib/global-state';
 import { createLogger } from '../../common/lib/logger';
 import type { DevPanelConfig } from '../../common/schemas';
@@ -126,7 +126,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
   }
 
   private readDevPanelPrompts(folder: WorkspaceFolder): NonNullable<DevPanelConfig['prompts']> {
-    const config = loadWorkspaceConfig(folder);
+    const config = ConfigManager.loadWorkspaceConfig(folder);
     const prompts = config?.prompts ?? [];
     log.info(`readDevPanelPrompts - found ${prompts.length} prompts`);
     for (const p of prompts) {
@@ -138,7 +138,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
   }
 
   private readGlobalPrompts(): NonNullable<DevPanelConfig['prompts']> {
-    const config = loadGlobalConfig();
+    const config = ConfigManager.loadGlobalConfig();
     const prompts = config?.prompts ?? [];
     log.info(`readGlobalPrompts - found ${prompts.length} prompts`);
     return prompts;
@@ -153,7 +153,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     if (hidden && !this._showHidden) return null;
     if (this._showOnlyFavorites && !favorite) return null;
 
-    const promptFilePath = getWorkspacePromptFilePath(folder, prompt.file);
+    const promptFilePath = ConfigManager.getWorkspacePromptFilePath(folder, prompt.file);
 
     const treePrompt = new TreePrompt(prompt.name, promptFilePath, VscodeConstants.TreeItemCollapsibleState.None, {
       command: getCommandId(Command.ExecutePrompt),

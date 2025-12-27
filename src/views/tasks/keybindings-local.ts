@@ -5,7 +5,7 @@ import {
   getTaskCommandId,
   getTaskCommandPrefix,
 } from '../../common/constants';
-import { forEachWorkspaceConfig, loadGlobalConfig } from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/lib/config-manager';
 import { syncKeybindings } from '../../common/lib/keybindings-sync';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
@@ -23,7 +23,7 @@ export const getAllTaskKeybindings = () => manager.getAllKeybindings();
 export const reloadTaskKeybindings = () => manager.reload();
 
 export function registerTaskKeybindings(context: ExtensionContext) {
-  forEachWorkspaceConfig((folder, config) => {
+  ConfigManager.forEachWorkspaceConfig((folder, config) => {
     const tasks = config.tasks ?? [];
 
     for (const task of tasks) {
@@ -37,7 +37,7 @@ export function registerTaskKeybindings(context: ExtensionContext) {
     }
   });
 
-  const globalConfig = loadGlobalConfig();
+  const globalConfig = ConfigManager.loadGlobalConfig();
   if (globalConfig) {
     const globalTasks = globalConfig.tasks ?? [];
     const globalConfigDir = getGlobalConfigDir();

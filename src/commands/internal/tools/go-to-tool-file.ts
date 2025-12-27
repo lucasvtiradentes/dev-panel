@@ -1,5 +1,5 @@
 import { GLOBAL_ITEM_PREFIX, getGlobalToolInstructionsPath } from '../../../common/constants';
-import { getWorkspaceToolInstructionsPath } from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/lib/config-manager';
 import { getFirstWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
@@ -20,7 +20,7 @@ export function createGoToToolFileCommand(): Disposable {
       } else {
         const workspaceFolder = getFirstWorkspaceFolder();
         if (!workspaceFolder) return;
-        instructionsPath = getWorkspaceToolInstructionsPath(workspaceFolder, toolName);
+        instructionsPath = ConfigManager.getWorkspaceToolInstructionsPath(workspaceFolder, toolName);
       }
 
       const uri = VscodeHelper.createFileUri(instructionsPath);

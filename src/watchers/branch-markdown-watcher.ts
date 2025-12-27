@@ -1,4 +1,4 @@
-import { getBranchContextFilePath } from '../common/lib/config-manager';
+import { ConfigManager } from '../common/lib/config-manager';
 import { createLogger } from '../common/lib/logger';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
@@ -42,7 +42,7 @@ export function createBranchMarkdownWatcher(callbacks: DynamicWatcherCallbacks):
       return;
     }
 
-    const filePath = getBranchContextFilePath(workspace, branchName);
+    const filePath = ConfigManager.getBranchContextFilePath(workspace, branchName);
     if (!filePath) {
       logger.warn(`[BranchMarkdownWatcher] [setupWatcher] No file path for branch: "${branchName}"`);
       currentBranch = branchName;

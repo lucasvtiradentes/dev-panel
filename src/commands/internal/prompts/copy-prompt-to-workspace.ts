@@ -1,14 +1,6 @@
 import * as fs from 'node:fs';
 import { ConfigKey, LocationScope, getGlobalPromptFilePath } from '../../../common/constants';
-import {
-  addOrUpdateConfigItem,
-  confirmOverwrite,
-  ensureDirectoryExists,
-  getWorkspacePromptFilePath,
-  loadGlobalConfig,
-  loadWorkspaceConfig,
-  saveWorkspaceConfig,
-} from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/lib/config-manager';
 import {
   isGlobalItem,
   showAlreadyWorkspaceMessage,
@@ -38,7 +30,7 @@ async function handleCopyPromptToWorkspace(treePrompt: TreePrompt) {
   const workspaceFolder = await selectWorkspaceFolder('Select workspace to copy prompt to');
   if (!workspaceFolder) return;
 
-  const globalConfig = loadGlobalConfig();
+  const globalConfig = ConfigManager.loadGlobalConfig();
   if (!globalConfig) {
     showConfigNotFoundError(LocationScope.Global);
     return;
@@ -50,19 +42,19 @@ async function handleCopyPromptToWorkspace(treePrompt: TreePrompt) {
     return;
   }
 
-  const workspaceConfig = loadWorkspaceConfig(workspaceFolder) ?? {};
+  const workspaceConfig = ConfigManager.loadWorkspaceConfig(workspaceFolder) ?? {};
   const exists = workspaceConfig.prompts?.some((p) => p.name === prompt.name);
 
-  if (exists && !(await confirmOverwrite('Prompt', prompt.name))) return;
+  if (exists && !(await ConfigManager.confirmOverwrite('Prompt', prompt.name))) return;
 
-  addOrUpdateConfigItem(workspaceConfig, ConfigKey.Prompts, prompt);
-  saveWorkspaceConfig(workspaceFolder, workspaceConfig);
+  ConfigManager.addOrUpdateConfigItem(workspaceConfig, ConfigKey.Prompts, prompt);
+  ConfigManager.saveWorkspaceConfig(workspaceFolder, workspaceConfig);
 
   const globalPromptFile = getGlobalPromptFilePath(prompt.file);
-  const workspacePromptFile = getWorkspacePromptFilePath(workspaceFolder, prompt.file);
+  const workspacePromptFile = ConfigManager.getWorkspacePromptFilePath(workspaceFolder, prompt.file);
 
   if (fs.existsSync(globalPromptFile)) {
-    ensureDirectoryExists(require('node:path').dirname(workspacePromptFile));
+    ConfigManager.ensureDirectoryExists(require('node:path').dirname(workspacePromptFile));
     fs.copyFileSync(globalPromptFile, workspacePromptFile);
   }
 

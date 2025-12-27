@@ -1,14 +1,6 @@
 import * as fs from 'node:fs';
 import { ConfigKey, LocationScope, getGlobalToolDir } from '../../../common/constants';
-import {
-  addOrUpdateConfigItem,
-  confirmOverwrite,
-  ensureDirectoryExists,
-  getWorkspaceToolDir,
-  loadGlobalConfig,
-  loadWorkspaceConfig,
-  saveWorkspaceConfig,
-} from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/lib/config-manager';
 import {
   isGlobalItem,
   showAlreadyWorkspaceMessage,
@@ -38,7 +30,7 @@ async function handleCopyToolToWorkspace(treeTool: TreeTool) {
   const workspaceFolder = await selectWorkspaceFolder('Select workspace to copy tool to');
   if (!workspaceFolder) return;
 
-  const globalConfig = loadGlobalConfig();
+  const globalConfig = ConfigManager.loadGlobalConfig();
   if (!globalConfig) {
     showConfigNotFoundError(LocationScope.Global);
     return;
@@ -50,19 +42,19 @@ async function handleCopyToolToWorkspace(treeTool: TreeTool) {
     return;
   }
 
-  const workspaceConfig = loadWorkspaceConfig(workspaceFolder) ?? {};
+  const workspaceConfig = ConfigManager.loadWorkspaceConfig(workspaceFolder) ?? {};
   const exists = workspaceConfig.tools?.some((t) => t.name === tool.name);
 
-  if (exists && !(await confirmOverwrite('Tool', tool.name))) return;
+  if (exists && !(await ConfigManager.confirmOverwrite('Tool', tool.name))) return;
 
-  addOrUpdateConfigItem(workspaceConfig, ConfigKey.Tools, tool);
-  saveWorkspaceConfig(workspaceFolder, workspaceConfig);
+  ConfigManager.addOrUpdateConfigItem(workspaceConfig, ConfigKey.Tools, tool);
+  ConfigManager.saveWorkspaceConfig(workspaceFolder, workspaceConfig);
 
   const globalToolsDir = getGlobalToolDir(tool.name);
-  const workspaceToolsDir = getWorkspaceToolDir(workspaceFolder, tool.name);
+  const workspaceToolsDir = ConfigManager.getWorkspaceToolDir(workspaceFolder, tool.name);
 
   if (fs.existsSync(globalToolsDir)) {
-    ensureDirectoryExists(require('node:path').dirname(workspaceToolsDir));
+    ConfigManager.ensureDirectoryExists(require('node:path').dirname(workspaceToolsDir));
     if (fs.existsSync(workspaceToolsDir)) {
       fs.rmSync(workspaceToolsDir, { recursive: true });
     }

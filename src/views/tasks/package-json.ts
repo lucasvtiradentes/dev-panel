@@ -10,11 +10,7 @@ import {
   PACKAGE_JSON,
   getCommandId,
 } from '../../common/constants';
-import {
-  getConfigFilePathFromWorkspacePath,
-  getWorkspaceVariablesPath,
-  loadConfigFromPath,
-} from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/lib/config-manager';
 import { TaskSource } from '../../common/schemas/types';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
@@ -51,10 +47,10 @@ function extractDirNamesFromGlobs(patterns: string[]): string[] {
 }
 
 export function getExcludedDirs(workspacePath: string): Set<string> {
-  const configPath = getConfigFilePathFromWorkspacePath(workspacePath, CONFIG_FILE_NAME);
+  const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspacePath, CONFIG_FILE_NAME);
   const excluded = new Set(DEFAULT_EXCLUDED_DIRS);
 
-  const config = loadConfigFromPath(configPath);
+  const config = ConfigManager.loadConfigFromPath(configPath);
   if (config) {
     const customExcludePatterns = config.settings?.exclude ?? [];
     const customDirs = extractDirNamesFromGlobs(customExcludePatterns);
@@ -284,7 +280,7 @@ function createNpmTask(options: {
   if (hidden && !showHidden) return null;
   if (showOnlyFavorites && !favorite) return null;
 
-  const variablesPath = getWorkspaceVariablesPath(folder);
+  const variablesPath = ConfigManager.getWorkspaceVariablesPath(folder);
   const env = readDevPanelVariablesAsEnv(variablesPath);
   const shellExec = VscodeHelper.createShellExecution(`${NPM_RUN_COMMAND} ${name}`, { cwd, env });
   const task = VscodeHelper.createTask({ type: 'npm' }, folder, name, 'npm', shellExec);

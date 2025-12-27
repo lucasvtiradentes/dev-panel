@@ -1,5 +1,5 @@
 import * as fs from 'node:fs';
-import { getBranchContextTemplatePath } from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/lib/config-manager';
 import { extensionStore } from '../../../common/lib/extension-store';
 import { getDefaultTemplate } from './default-template';
 
@@ -17,7 +17,7 @@ export type TemplateSection = {
 };
 
 export function loadTemplate(workspace: string): string {
-  const templatePath = getBranchContextTemplatePath(workspace);
+  const templatePath = ConfigManager.getBranchContextTemplatePath(workspace);
 
   if (fs.existsSync(templatePath)) {
     return fs.readFileSync(templatePath, 'utf-8');

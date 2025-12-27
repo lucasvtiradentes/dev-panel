@@ -16,7 +16,7 @@ import {
 import { ConfigKey } from '../constants/enums';
 import { type RegistryIndex, RegistryIndexSchema, type RegistryItemEntry, RegistryItemKind } from '../schemas';
 import type { WorkspaceFolder } from '../vscode/vscode-types';
-import { getConfigDirPathFromWorkspacePath, getWorkspaceConfigDirPath } from './config-manager';
+import { ConfigManager } from './config-manager';
 import { logger } from './logger';
 
 type RegistryConfigKey = Exclude<ConfigKey, ConfigKey.Tasks>;
@@ -92,7 +92,7 @@ export async function fetchItemFile(
 
 export function getInstalledItems(workspacePath: string, kind: RegistryItemKind): string[] {
   const config = KIND_CONFIG[kind];
-  const dirPath = path.join(getConfigDirPathFromWorkspacePath(workspacePath), config.dirName);
+  const dirPath = path.join(ConfigManager.getConfigDirPathFromWorkspacePath(workspacePath), config.dirName);
 
   if (!fs.existsSync(dirPath)) return [];
 
@@ -111,7 +111,7 @@ export async function installItem(
   force = false,
 ) {
   const config = KIND_CONFIG[kind];
-  const configDirPath = getWorkspaceConfigDirPath(workspaceFolder);
+  const configDirPath = ConfigManager.getWorkspaceConfigDirPath(workspaceFolder);
   const targetDir = path.join(configDirPath, config.dirName);
 
   if (!fs.existsSync(targetDir)) {
