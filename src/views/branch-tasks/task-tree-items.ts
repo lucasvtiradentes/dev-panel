@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { CONTEXT_VALUES, DND_MIME_TYPE_BRANCH_TASKS, getCommandId } from '../../common/constants';
 import { createLogger } from '../../common/lib/logger';
 import { Command } from '../../common/lib/vscode-utils';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { CancellationToken, DataTransfer, TreeItem } from '../../common/vscode/vscode-types';
 import type { MilestoneNode, TaskNode } from '../_branch_base';
@@ -107,7 +108,7 @@ export class BranchTasksDragAndDropController implements vscode.TreeDragAndDropC
       milestoneName: this.provider.findMilestoneForTask(item.node.lineIndex),
     };
     logger.info(`[handleDrag] Dragging task at line ${data.lineIndex}, milestone: ${data.milestoneName ?? 'none'}`);
-    dataTransfer.set(DND_MIME_TYPE_BRANCH_TASKS, new vscode.DataTransferItem(JSON.stringify(data)));
+    dataTransfer.set(DND_MIME_TYPE_BRANCH_TASKS, VscodeHelper.createDataTransferItem(JSON.stringify(data)));
   }
 
   async handleDrop(target: BranchTreeItem | undefined, dataTransfer: DataTransfer, _token: CancellationToken) {

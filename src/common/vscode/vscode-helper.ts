@@ -271,4 +271,23 @@ export class VscodeHelper {
   static createMarkdownString(value?: string, supportThemeIcons?: boolean): vscode.MarkdownString {
     return new vscode.MarkdownString(value, supportThemeIcons);
   }
+
+  static createDataTransferItem(value: unknown): vscode.DataTransferItem {
+    return new vscode.DataTransferItem(value);
+  }
+
+  static createProcessExecution(
+    process: string,
+    args: string[],
+    options?: vscode.ProcessExecutionOptions,
+  ): vscode.ProcessExecution {
+    return new vscode.ProcessExecution(process, args, options);
+  }
+
+  static createTreeItem(
+    label: string | vscode.TreeItemLabel,
+    collapsibleState?: vscode.TreeItemCollapsibleState,
+  ): vscode.TreeItem {
+    return new vscode.TreeItem(label, collapsibleState);
+  }
 }

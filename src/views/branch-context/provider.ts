@@ -1,5 +1,5 @@
 import * as fs from 'node:fs';
-import * as vscode from 'vscode';
+import type * as vscode from 'vscode';
 import {
   BRANCH_CONTEXT_NO_CHANGES,
   NOT_GIT_REPO_MESSAGE,
@@ -237,7 +237,7 @@ export class BranchContextProvider implements vscode.TreeDataProvider<TreeItem> 
     if (!workspace) return [];
 
     if (!(await isGitRepository(workspace))) {
-      return [new vscode.TreeItem(NOT_GIT_REPO_MESSAGE)];
+      return [VscodeHelper.createTreeItem(NOT_GIT_REPO_MESSAGE)];
     }
 
     if (!this.currentBranch) {

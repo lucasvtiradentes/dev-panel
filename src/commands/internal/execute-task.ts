@@ -91,7 +91,7 @@ function cloneTaskWithEnv(task: Task, env: Record<string, string>): Task {
 
   if (execution instanceof vscode.ProcessExecution) {
     const mergedEnv = { ...execution.options?.env, ...env };
-    const newExecution = new vscode.ProcessExecution(execution.process, execution.args, {
+    const newExecution = VscodeHelper.createProcessExecution(execution.process, execution.args, {
       ...execution.options,
       env: mergedEnv,
     });
