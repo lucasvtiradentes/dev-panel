@@ -1,5 +1,5 @@
 import { getGlobalPromptFilePath, getPromptCommandId, getPromptCommandPrefix } from '../../common/constants';
-import { ConfigManager } from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/utils/config-manager';
 import { syncKeybindings } from '../../common/utils/keybindings-sync';
 import type { ExtensionContext } from '../../common/vscode/vscode-types';
 import { Command, executeCommand, registerDynamicCommand } from '../../common/vscode/vscode-utils';

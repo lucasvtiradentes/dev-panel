@@ -7,10 +7,10 @@ import {
   VSCODE_TASKS_PATH,
   getVscodeTasksFilePath,
 } from '../../../common/constants';
-import { ConfigManager } from '../../../common/lib/config-manager';
 import { FileIOHelper, NodePathHelper } from '../../../common/lib/node-helper';
 import { TaskSource } from '../../../common/schemas/types';
 import { TypeGuards } from '../../../common/utils/common-utils';
+import { ConfigManager } from '../../../common/utils/config-manager';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { WorkspaceFolder } from '../../../common/vscode/vscode-types';
 import { Command, registerCommand } from '../../../common/vscode/vscode-utils';

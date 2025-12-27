@@ -1,6 +1,6 @@
 import { EXTENSION_DISPLAY_NAME } from 'src/common/constants';
-import { ConfigManager } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
+import { ConfigManager } from '../../common/utils/config-manager';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { QuickPickItem } from '../../common/vscode/vscode-types';
 import { Command, registerCommand } from '../../common/vscode/vscode-utils';

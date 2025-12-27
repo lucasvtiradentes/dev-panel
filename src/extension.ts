@@ -9,9 +9,9 @@ import {
   getViewIdTodos,
   getViewIdTools,
 } from './common/constants';
-import { extensionStore } from './common/lib/extension-store';
 import { logger } from './common/lib/logger';
-import { initGlobalState, initWorkspaceState, migrateGlobalState } from './common/state';
+import { initGlobalState, initWorkspaceState } from './common/state';
+import { extensionStore } from './common/utils/extension-store';
 import { VscodeHelper } from './common/vscode/vscode-helper';
 import type { ExtensionContext } from './common/vscode/vscode-types';
 import { ContextKey, generateWorkspaceId, setContextKey, setWorkspaceId } from './common/vscode/vscode-utils';
@@ -51,7 +51,6 @@ type Providers = {
 function setupStatesAndContext(context: ExtensionContext) {
   initWorkspaceState(context);
   initGlobalState(context);
-  migrateGlobalState();
   extensionStore.initialize(context);
 
   const workspaceId = generateWorkspaceId();

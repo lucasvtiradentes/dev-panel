@@ -1,7 +1,7 @@
 import { ConfigKey, LocationScope, getGlobalPromptFilePath } from '../../../common/constants';
-import { ConfigManager } from '../../../common/lib/config-manager';
 import { FileIOHelper } from '../../../common/lib/node-helper';
 import type { DevPanelPrompt } from '../../../common/schemas';
+import { ConfigManager } from '../../../common/utils/config-manager';
 import {
   isGlobalItem,
   showConfigNotFoundError,

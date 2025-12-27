@@ -10,11 +10,11 @@ import {
 } from '../../common/constants';
 import { execAsync } from '../../common/functions/exec-async';
 import { extractSectionMetadata } from '../../common/functions/extract-section-metadata';
-import { ConfigManager } from '../../common/lib/config-manager';
-import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper } from '../../common/lib/node-helper';
 import { StringUtils, TypeGuards } from '../../common/utils/common-utils';
+import { ConfigManager } from '../../common/utils/config-manager';
+import { StoreKey, extensionStore } from '../../common/utils/extension-store';
 import { getFirstWorkspacePath } from '../../common/vscode/workspace-utils';
 import { getChangedFilesWithSummary } from '../_branch_base/providers/default/file-changes-utils';
 import type { SyncContext } from '../_branch_base/providers/interfaces';

@@ -6,7 +6,7 @@ import {
   getTaskCommandId,
   getTaskCommandPrefix,
 } from '../../common/constants';
-import { ConfigManager } from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/utils/config-manager';
 import { syncKeybindings } from '../../common/utils/keybindings-sync';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';

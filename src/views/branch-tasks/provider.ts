@@ -1,11 +1,11 @@
 import { BRANCH_CONTEXT_NA, FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
 import { Position } from '../../common/constants/enums';
-import { ConfigManager } from '../../common/lib/config-manager';
-import { StoreKey, extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
 import { FileIOHelper } from '../../common/lib/node-helper';
 import type { TaskPriority, TaskStatus } from '../../common/schemas';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
+import { ConfigManager } from '../../common/utils/config-manager';
+import { StoreKey, extensionStore } from '../../common/utils/extension-store';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, Uri } from '../../common/vscode/vscode-types';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-utils';

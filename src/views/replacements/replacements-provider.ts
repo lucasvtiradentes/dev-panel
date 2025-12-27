@@ -8,10 +8,10 @@ import {
   NO_GROUP_NAME,
   getCommandId,
 } from '../../common/constants';
-import { ConfigManager } from '../../common/lib/config-manager';
 import { FileIOHelper, NodePathHelper } from '../../common/lib/node-helper';
 import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
+import { ConfigManager } from '../../common/utils/config-manager';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';

@@ -7,7 +7,6 @@ import {
   VARIABLES_FILE_NAME,
   getGlobalConfigDir,
 } from '../../common/constants/scripts-constants';
-import { ConfigManager } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper, NodePathHelper } from '../../common/lib/node-helper';
 import {
@@ -18,6 +17,7 @@ import {
   getAIProvidersListFormatted,
 } from '../../common/schemas';
 import { TypeGuards } from '../../common/utils/common-utils';
+import { ConfigManager } from '../../common/utils/config-manager';
 import { loadVariablesFromPath, readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';

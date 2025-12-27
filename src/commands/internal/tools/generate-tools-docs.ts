@@ -10,10 +10,10 @@ import {
   getSkillDir,
   getSkillFilePath,
 } from '../../../common/constants';
-import { ConfigManager } from '../../../common/lib/config-manager';
 import { FileIOHelper, NodePathHelper } from '../../../common/lib/node-helper';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { toolsState } from '../../../common/state';
+import { ConfigManager } from '../../../common/utils/config-manager';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable, WorkspaceFolder } from '../../../common/vscode/vscode-types';
 import { Command, registerCommand } from '../../../common/vscode/vscode-utils';

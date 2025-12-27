@@ -7,10 +7,10 @@ import {
   getCommandId,
   getGlobalConfigDir,
 } from '../../common/constants';
-import { ConfigManager } from '../../common/lib/config-manager';
 import type { DevPanelConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
 import { globalTasksState } from '../../common/state';
+import { ConfigManager } from '../../common/utils/config-manager';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';

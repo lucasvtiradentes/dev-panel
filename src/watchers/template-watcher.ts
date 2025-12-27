@@ -1,5 +1,5 @@
-import { ConfigManager } from '../common/lib/config-manager';
 import { createLogger } from '../common/lib/logger';
+import { ConfigManager } from '../common/utils/config-manager';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable } from '../common/vscode/vscode-types';
 import { getFirstWorkspacePath } from '../common/vscode/workspace-utils';

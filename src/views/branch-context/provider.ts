@@ -12,10 +12,10 @@ import {
   SECTION_NAME_REQUIREMENTS,
 } from '../../common/constants';
 import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-constants';
-import { ConfigManager } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper } from '../../common/lib/node-helper';
 import { branchContextState } from '../../common/state';
+import { ConfigManager } from '../../common/utils/config-manager';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-utils';

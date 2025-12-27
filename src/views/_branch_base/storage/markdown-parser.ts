@@ -1,5 +1,5 @@
-import { ConfigManager } from '../../../common/lib/config-manager';
 import { FileIOHelper } from '../../../common/lib/node-helper';
+import { ConfigManager } from '../../../common/utils/config-manager';
 import { getFirstWorkspacePath } from '../../../common/vscode/workspace-utils';
 
 export function getBranchContextFilePath(branchName: string): string | null {

@@ -8,9 +8,9 @@ import {
   PACKAGE_JSON,
   getCommandId,
 } from '../../common/constants';
-import { ConfigManager } from '../../common/lib/config-manager';
 import { FileIOHelper, NodePathHelper } from '../../common/lib/node-helper';
 import { TaskSource } from '../../common/schemas/types';
+import { ConfigManager } from '../../common/utils/config-manager';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';

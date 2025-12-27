@@ -1,5 +1,5 @@
 import { ConfigKey, LocationScope } from '../../../common/constants';
-import { ConfigManager } from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/utils/config-manager';
 import {
   isGlobalItem,
   showConfigNotFoundError,

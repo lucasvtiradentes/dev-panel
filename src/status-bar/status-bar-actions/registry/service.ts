@@ -12,7 +12,6 @@ import {
   TOOLS_DIR,
 } from '../../../common/constants';
 import { ConfigKey } from '../../../common/constants/enums';
-import { ConfigManager } from '../../../common/lib/config-manager';
 import { logger } from '../../../common/lib/logger';
 import { FileIOHelper, NodePathHelper } from '../../../common/lib/node-helper';
 import {
@@ -21,6 +20,7 @@ import {
   type RegistryItemEntry,
   RegistryItemKind,
 } from '../../../common/schemas';
+import { ConfigManager } from '../../../common/utils/config-manager';
 import type { WorkspaceFolder } from '../../../common/vscode/vscode-types';
 
 type RegistryConfigKey = Exclude<ConfigKey, ConfigKey.Tasks>;
