@@ -70,7 +70,7 @@ export class FileHashCache<T> extends SimpleCache<T> {
   }
 }
 
-export function getFileHash(filePath: string): string {
+function getFileHash(filePath: string): string {
   try {
     if (!fs.existsSync(filePath)) {
       return '';

@@ -47,13 +47,13 @@ const DEFAULT_SOURCE_STATE = {
   hidden: [],
 };
 
-const DEFAULT_TOOLS_STATE_GLOBAL = {
+const _DEFAULT_TOOLS_STATE_GLOBAL = {
   isGrouped: false,
   devpanel: { ...DEFAULT_SOURCE_STATE },
   activeTools: [],
 };
 
-const DEFAULT_PROMPTS_STATE_GLOBAL = {
+const _DEFAULT_PROMPTS_STATE_GLOBAL = {
   isGrouped: false,
   devpanel: { ...DEFAULT_SOURCE_STATE },
 };

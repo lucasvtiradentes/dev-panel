@@ -49,7 +49,7 @@ const BranchContextStateSchema = z.object({
   hideEmptySections: z.boolean().optional(),
 });
 
-const WorkspaceUIStateSchema = z.object({
+const _WorkspaceUIStateSchema = z.object({
   tasks: TasksStateSchema.optional(),
   tools: ToolsStateSchema.optional(),
   prompts: PromptsStateSchema.optional(),
@@ -65,7 +65,7 @@ const TasksGlobalStateSchema = z.object({
   devpanel: SourceStateSchema,
 });
 
-const GlobalUIStateSchema = z.object({
+const _GlobalUIStateSchema = z.object({
   tasks: TasksGlobalStateSchema.optional(),
   tools: ToolsStateSchema.optional(),
   prompts: PromptsStateSchema.optional(),
