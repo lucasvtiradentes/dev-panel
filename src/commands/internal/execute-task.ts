@@ -186,7 +186,7 @@ export function createExecuteToolCommand(context: ExtensionContext) {
       if (isGlobal) {
         toolConfig = globalConfig?.tools?.find((t) => t.name === actualName);
         cwd = folder ? folder.uri.fsPath : getGlobalConfigDir();
-        env = readDevPanelVariablesAsEnv(require('node:path').join(getGlobalConfigDir(), 'variables.json5'));
+        env = readDevPanelVariablesAsEnv(NodePathHelper.join(getGlobalConfigDir(), 'variables.json5'));
       } else {
         if (!folder) {
           void VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');

@@ -1,5 +1,5 @@
 import { getTaskCommandId, getTaskCommandPrefix } from '../../../common/constants';
-import { openKeybindingsForCommand, openKeybindingsWithPrefix } from '../../../common/lib/keybindings-sync';
+import { openKeybindingsForCommand, openKeybindingsWithPrefix } from '../../../common/utils/keybindings-sync';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { TreeTask } from '../../../views/tasks/items';

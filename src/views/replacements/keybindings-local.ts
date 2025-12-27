@@ -1,6 +1,6 @@
 import { getReplacementCommandId } from '../../common/constants';
 import { ConfigManager } from '../../common/lib/config-manager';
-import { syncKeybindings } from '../../common/lib/keybindings-sync';
+import { syncKeybindings } from '../../common/utils/keybindings-sync';
 import type { ExtensionContext } from '../../common/vscode/vscode-types';
 import { Command, executeCommand, registerDynamicCommand } from '../../common/vscode/vscode-utils';
 

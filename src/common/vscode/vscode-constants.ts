@@ -1,30 +1,32 @@
+import * as vscode from 'vscode';
+
 export const VscodeConstants = {
   get TreeItemCollapsibleState() {
-    return require('vscode').TreeItemCollapsibleState;
+    return vscode.TreeItemCollapsibleState;
   },
   get TaskScope() {
-    return require('vscode').TaskScope;
+    return vscode.TaskScope;
   },
   get ProgressLocation() {
-    return require('vscode').ProgressLocation;
+    return vscode.ProgressLocation;
   },
   get TaskRevealKind() {
-    return require('vscode').TaskRevealKind;
+    return vscode.TaskRevealKind;
   },
   get TaskPanelKind() {
-    return require('vscode').TaskPanelKind;
+    return vscode.TaskPanelKind;
   },
   get QuickPickItemKind() {
-    return require('vscode').QuickPickItemKind;
+    return vscode.QuickPickItemKind;
   },
   get FileType() {
-    return require('vscode').FileType;
+    return vscode.FileType;
   },
   get ViewColumn() {
-    return require('vscode').ViewColumn;
+    return vscode.ViewColumn;
   },
   get StatusBarAlignment() {
-    return require('vscode').StatusBarAlignment;
+    return vscode.StatusBarAlignment;
   },
 };
 

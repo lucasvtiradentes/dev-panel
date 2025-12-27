@@ -1,4 +1,4 @@
-import { syncKeybindings } from '../common/lib/keybindings-sync';
+import { syncKeybindings } from '../common/utils/keybindings-sync';
 import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
 import { Command, registerCommand } from '../common/vscode/vscode-utils';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
