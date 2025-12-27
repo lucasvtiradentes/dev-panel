@@ -8,23 +8,25 @@ import type { TreeTool } from '../../../views/tools';
 
 export type GoToToolFileParams = TreeTool;
 
-export function createGoToToolFileCommand(): Disposable {
-  return registerCommand(Command.GoToToolFile, async (item: GoToToolFileParams) => {
-    if (item?.toolName) {
-      const isGlobal = item.toolName.startsWith(GLOBAL_ITEM_PREFIX);
-      const toolName = isGlobal ? item.toolName.substring(GLOBAL_ITEM_PREFIX.length) : item.toolName;
+async function handleGoToToolFile(item: GoToToolFileParams) {
+  if (item?.toolName) {
+    const isGlobal = item.toolName.startsWith(GLOBAL_ITEM_PREFIX);
+    const toolName = isGlobal ? item.toolName.substring(GLOBAL_ITEM_PREFIX.length) : item.toolName;
 
-      let instructionsPath: string;
-      if (isGlobal) {
-        instructionsPath = getGlobalToolInstructionsPath(toolName);
-      } else {
-        const workspaceFolder = getFirstWorkspaceFolder();
-        if (!workspaceFolder) return;
-        instructionsPath = ConfigManager.getWorkspaceToolInstructionsPath(workspaceFolder, toolName);
-      }
-
-      const uri = VscodeHelper.createFileUri(instructionsPath);
-      await VscodeHelper.openDocument(uri);
+    let instructionsPath: string;
+    if (isGlobal) {
+      instructionsPath = getGlobalToolInstructionsPath(toolName);
+    } else {
+      const workspaceFolder = getFirstWorkspaceFolder();
+      if (!workspaceFolder) return;
+      instructionsPath = ConfigManager.getWorkspaceToolInstructionsPath(workspaceFolder, toolName);
     }
-  });
+
+    const uri = VscodeHelper.createFileUri(instructionsPath);
+    await VscodeHelper.openDocument(uri);
+  }
+}
+
+export function createGoToToolFileCommand(): Disposable {
+  return registerCommand(Command.GoToToolFile, handleGoToToolFile);
 }

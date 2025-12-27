@@ -29,33 +29,32 @@ async function pickStatus(): Promise<TaskStatus | undefined> {
   return statusMap[picked.label];
 }
 
+async function handleSetTaskStatus(provider: BranchTasksProvider, item: ItemOrLineIndex, status: TaskStatus) {
+  const lineIndex = extractLineIndex(item);
+  await provider.setStatus(lineIndex, status);
+}
+
+async function handleSetTaskStatusWithPicker(provider: BranchTasksProvider, item: ItemOrLineIndex) {
+  const lineIndex = extractLineIndex(item);
+  const status = await pickStatus();
+  if (!status) return;
+  await provider.setStatus(lineIndex, status);
+}
+
 export function createSetTaskStatusCommands(provider: BranchTasksProvider): Disposable[] {
   return [
-    registerCommand(Command.SetTaskStatus, async (item: ItemOrLineIndex) => {
-      const lineIndex = extractLineIndex(item);
-      const status = await pickStatus();
-      if (!status) return;
-      await provider.setStatus(lineIndex, status);
-    }),
-
-    registerCommand(Command.SetTaskStatusTodo, async (item: ItemOrLineIndex) => {
-      const lineIndex = extractLineIndex(item);
-      await provider.setStatus(lineIndex, TaskStatus.Todo);
-    }),
-
-    registerCommand(Command.SetTaskStatusDoing, async (item: ItemOrLineIndex) => {
-      const lineIndex = extractLineIndex(item);
-      await provider.setStatus(lineIndex, TaskStatus.Doing);
-    }),
-
-    registerCommand(Command.SetTaskStatusDone, async (item: ItemOrLineIndex) => {
-      const lineIndex = extractLineIndex(item);
-      await provider.setStatus(lineIndex, TaskStatus.Done);
-    }),
-
-    registerCommand(Command.SetTaskStatusBlocked, async (item: ItemOrLineIndex) => {
-      const lineIndex = extractLineIndex(item);
-      await provider.setStatus(lineIndex, TaskStatus.Blocked);
-    }),
+    registerCommand(Command.SetTaskStatus, (item: ItemOrLineIndex) => handleSetTaskStatusWithPicker(provider, item)),
+    registerCommand(Command.SetTaskStatusTodo, (item: ItemOrLineIndex) =>
+      handleSetTaskStatus(provider, item, TaskStatus.Todo),
+    ),
+    registerCommand(Command.SetTaskStatusDoing, (item: ItemOrLineIndex) =>
+      handleSetTaskStatus(provider, item, TaskStatus.Doing),
+    ),
+    registerCommand(Command.SetTaskStatusDone, (item: ItemOrLineIndex) =>
+      handleSetTaskStatus(provider, item, TaskStatus.Done),
+    ),
+    registerCommand(Command.SetTaskStatusBlocked, (item: ItemOrLineIndex) =>
+      handleSetTaskStatus(provider, item, TaskStatus.Blocked),
+    ),
   ];
 }
