@@ -1,5 +1,5 @@
-import * as path from 'node:path';
 import type { DevPanelReplacement } from '../../../common/schemas/config-schema';
+import { PathHelper } from '../../../common/utils/path-helper';
 import { getFirstWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
@@ -12,7 +12,7 @@ export function createGoToReplacementTargetFileCommand(): Disposable {
     if (item?.replacement?.target) {
       const workspaceFolder = getFirstWorkspaceFolder();
       if (!workspaceFolder) return;
-      const targetPath = path.join(workspaceFolder.uri.fsPath, item.replacement.target);
+      const targetPath = PathHelper.join(workspaceFolder.uri.fsPath, item.replacement.target);
       const uri = VscodeHelper.createFileUri(targetPath);
       await VscodeHelper.openDocument(uri);
     }

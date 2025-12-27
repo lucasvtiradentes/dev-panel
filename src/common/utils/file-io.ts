@@ -1,5 +1,7 @@
 import * as fs from 'node:fs';
 
+const UTF_ENCODING: BufferEncoding = 'utf-8';
+
 export class FileIOHelper {
   static readFileIfExists(filePath: string): string | null {
     if (!fs.existsSync(filePath)) {
@@ -7,22 +9,22 @@ export class FileIOHelper {
     }
 
     try {
-      return fs.readFileSync(filePath, 'utf-8');
+      return FileIOHelper.readFile(filePath);
     } catch {
       return null;
     }
   }
 
   static readFile(filePath: string): string {
-    return fs.readFileSync(filePath, 'utf-8');
+    return fs.readFileSync(filePath, UTF_ENCODING);
   }
 
   static writeFile(filePath: string, content: string) {
-    fs.writeFileSync(filePath, content, 'utf-8');
+    fs.writeFileSync(filePath, content, UTF_ENCODING);
   }
 
   static appendFile(filePath: string, content: string) {
-    fs.appendFileSync(filePath, content, 'utf-8');
+    fs.appendFileSync(filePath, content, UTF_ENCODING);
   }
 
   static fileExists(filePath: string): boolean {

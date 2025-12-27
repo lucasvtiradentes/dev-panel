@@ -1,4 +1,3 @@
-import * as path from 'node:path';
 import {
   AI_SPEC_AVAILABLE_TOOLS_REGEX,
   AI_SPEC_DEV_TOOLS_REGEX,
@@ -15,6 +14,7 @@ import { ConfigManager } from '../../../common/lib/config-manager';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { toolsState } from '../../../common/state';
 import { FileIOHelper } from '../../../common/utils/file-io';
+import { PathHelper } from '../../../common/utils/path-helper';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable, WorkspaceFolder } from '../../../common/vscode/vscode-types';
@@ -318,7 +318,7 @@ function syncToAiSpecs(xml: string, workspaceFolder: WorkspaceFolder) {
   const foundFiles: string[] = [];
 
   for (const specFile of AI_SPEC_FILES) {
-    const specPath = path.join(workspaceFolder.uri.fsPath, specFile);
+    const specPath = PathHelper.join(workspaceFolder.uri.fsPath, specFile);
     if (FileIOHelper.fileExists(specPath)) {
       foundFiles.push(specPath);
     }
@@ -345,7 +345,7 @@ function syncToAiSpecs(xml: string, workspaceFolder: WorkspaceFolder) {
 
   VscodeHelper.showToastMessage(
     ToastKind.Info,
-    `Updated ${foundFiles.length} file(s) with tools documentation: ${foundFiles.map((f) => path.basename(f)).join(', ')}`,
+    `Updated ${foundFiles.length} file(s) with tools documentation: ${foundFiles.map((f) => PathHelper.basename(f)).join(', ')}`,
   );
 }
 

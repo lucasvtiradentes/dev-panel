@@ -1,4 +1,3 @@
-import * as path from 'node:path';
 import {
   CONTEXT_VALUES,
   DND_MIME_TYPE_TOOLS,
@@ -15,6 +14,7 @@ import { createLogger } from '../../common/lib/logger';
 import type { DevPanelConfig } from '../../common/schemas';
 import { globalToolsState, toolsState } from '../../common/state';
 import { FileIOHelper } from '../../common/utils/file-io';
+import { PathHelper } from '../../common/utils/path-helper';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
@@ -230,7 +230,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
 
     const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
     const toolFilePath = tool.command ? this.extractFileFromCommand(tool.command) : '';
-    const fullToolFilePath = toolFilePath ? path.join(configDirPath, toolFilePath) : '';
+    const fullToolFilePath = toolFilePath ? PathHelper.join(configDirPath, toolFilePath) : '';
 
     const treeTool = new TreeTool(tool.name, fullToolFilePath, VscodeConstants.TreeItemCollapsibleState.None);
 
@@ -272,7 +272,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
 
     const globalConfigDir = getGlobalConfigDir();
     const toolFilePath = tool.command ? this.extractFileFromCommand(tool.command) : '';
-    const fullToolFilePath = toolFilePath ? path.join(globalConfigDir, toolFilePath) : '';
+    const fullToolFilePath = toolFilePath ? PathHelper.join(globalConfigDir, toolFilePath) : '';
 
     const treeTool = new TreeTool(globalToolName, fullToolFilePath, VscodeConstants.TreeItemCollapsibleState.None);
 

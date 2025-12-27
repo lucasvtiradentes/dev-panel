@@ -1,4 +1,3 @@
-import * as path from 'node:path';
 import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
@@ -12,6 +11,7 @@ import {
 import { ConfigManager } from '../../common/lib/config-manager';
 import { TaskSource } from '../../common/schemas/types';
 import { FileIOHelper } from '../../common/utils/file-io';
+import { PathHelper } from '../../common/utils/path-helper';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -140,8 +140,8 @@ async function findAllPackageJsons(folder: WorkspaceFolder): Promise<PackageLoca
     const scripts = readPackageScripts(pkgPath);
     if (Object.keys(scripts).length === 0) continue;
 
-    const pkgDir = path.dirname(pkgPath);
-    const relativePath = path.relative(rootPath, pkgDir) || 'root';
+    const pkgDir = PathHelper.dirname(pkgPath);
+    const relativePath = PathHelper.relative(rootPath, pkgDir) || 'root';
 
     packages.push({
       relativePath,
@@ -170,10 +170,10 @@ function findPackageJsonsRecursive(dir: string, excludedDirs: Set<string>, maxDe
 
     for (const entry of entries) {
       if (entry.name === PACKAGE_JSON && entry.isFile()) {
-        results.push(path.join(dir, entry.name));
+        results.push(PathHelper.join(dir, entry.name));
       } else if (entry.isDirectory() && !excludedDirs.has(entry.name) && !entry.name.startsWith(DIST_DIR_PREFIX)) {
         results.push(
-          ...findPackageJsonsRecursive(path.join(dir, entry.name), excludedDirs, maxDepth, currentDepth + 1),
+          ...findPackageJsonsRecursive(PathHelper.join(dir, entry.name), excludedDirs, maxDepth, currentDepth + 1),
         );
       }
     }

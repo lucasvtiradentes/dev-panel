@@ -1,7 +1,7 @@
 import { exec } from 'node:child_process';
-import * as path from 'node:path';
 import { promisify } from 'node:util';
 import { FileIOHelper } from '../../common/utils/file-io';
+import { PathHelper } from '../../common/utils/path-helper';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { ProcessExecutionClass, ShellExecutionClass } from '../../common/vscode/vscode-types';
@@ -283,7 +283,7 @@ export function createExecutePromptCommand() {
 
       let resolvedPromptFilePath = promptFilePath;
       if (promptConfig?.useWorkspaceRoot && folder) {
-        resolvedPromptFilePath = path.join(folder.uri.fsPath, promptConfig.file);
+        resolvedPromptFilePath = PathHelper.join(folder.uri.fsPath, promptConfig.file);
         log.info(`Resolved prompt path from workspace root: ${resolvedPromptFilePath}`);
       }
 
@@ -356,8 +356,8 @@ async function executePromptWithSave(options: {
 
   const timestamped = settings?.promptExecution !== PromptExecutionMode.Overwrite;
   const outputFile = ConfigManager.getPromptOutputFilePath(workspacePath, branch, promptName, timestamped);
-  const outputDir = path.dirname(outputFile);
-  const tempFile = path.join(outputDir, '.prompt-temp.txt');
+  const outputDir = PathHelper.dirname(outputFile);
+  const tempFile = PathHelper.join(outputDir, '.prompt-temp.txt');
 
   FileIOHelper.ensureDirectoryExists(outputDir);
 

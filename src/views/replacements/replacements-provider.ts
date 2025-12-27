@@ -1,4 +1,3 @@
-import * as path from 'node:path';
 import json5 from 'json5';
 import {
   CONFIG_FILE_NAME,
@@ -13,6 +12,7 @@ import { ConfigManager } from '../../common/lib/config-manager';
 import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { FileIOHelper } from '../../common/utils/file-io';
+import { PathHelper } from '../../common/utils/path-helper';
 import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -290,7 +290,7 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
         await setSkipWorktree(workspace, replacement.target, false);
         await restoreFileFromGit(workspace, replacement.target);
       } else {
-        const targetPath = path.join(workspace, replacement.target);
+        const targetPath = PathHelper.join(workspace, replacement.target);
         if (FileIOHelper.fileExists(targetPath)) {
           FileIOHelper.deleteFile(targetPath);
         }

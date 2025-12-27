@@ -1,5 +1,7 @@
 import { VSCODE_TASKS_PATH } from '../../../common/constants';
 import { TypeGuards } from '../../../common/utils/common-utils';
+import { FileIOHelper } from '../../../common/utils/file-io';
+import { PathHelper } from '../../../common/utils/path-helper';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import { Command, isMultiRootWorkspace, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { TreeTask } from '../../../views/tasks';
@@ -17,9 +19,10 @@ export function createGoToTaskCommand() {
       return;
     }
 
-    const tasksFileUri = VscodeHelper.parseUri(`${folders[0].uri.fsPath}/${VSCODE_TASKS_PATH}`);
-    const tasksFileContent = await VscodeHelper.readFile(tasksFileUri);
-    const lines = Buffer.from(tasksFileContent).toString('utf-8').split('\n');
+    const tasksFilePath = PathHelper.join(folders[0].uri.fsPath, VSCODE_TASKS_PATH);
+    const tasksFileUri = VscodeHelper.createFileUri(tasksFilePath);
+    const tasksFileContent = FileIOHelper.readFile(tasksFilePath);
+    const lines = tasksFileContent.split('\n');
 
     for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
       if (lines[lineNumber].includes(task.label as string)) {

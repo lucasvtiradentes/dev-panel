@@ -1,4 +1,3 @@
-import { posix } from 'node:path';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
@@ -9,6 +8,7 @@ import {
 } from '../../common/constants';
 import { ConfigManager } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
+import { PathHelper } from '../../common/utils/path-helper';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -21,7 +21,7 @@ function isRootPath(p: string): boolean {
 }
 
 function joinPath(base: string, segment: string): string {
-  return isRootPath(base) ? segment : posix.join(base, segment);
+  return isRootPath(base) ? segment : PathHelper.posix.join(base, segment);
 }
 
 export async function showConfigLocationMenu() {
@@ -134,7 +134,7 @@ async function showFolderPicker(workspaceRoot: Uri, currentPath: string): Promis
   }
 
   if (selected.id === QUICK_PICK_ACTION_PARENT) {
-    const parent = posix.dirname(currentPath);
+    const parent = PathHelper.posix.dirname(currentPath);
     return showFolderPicker(workspaceRoot, isRootPath(parent) ? ROOT_FOLDER_LABEL : parent);
   }
 

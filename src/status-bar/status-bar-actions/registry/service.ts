@@ -1,5 +1,4 @@
 import * as https from 'node:https';
-import * as path from 'node:path';
 import {
   PLUGINS_DIR_NAME,
   PROMPTS_DIR_NAME,
@@ -22,6 +21,7 @@ import {
   RegistryItemKind,
 } from '../../../common/schemas';
 import { FileIOHelper } from '../../../common/utils/file-io';
+import { PathHelper } from '../../../common/utils/path-helper';
 import type { WorkspaceFolder } from '../../../common/vscode/vscode-types';
 
 type RegistryConfigKey = Exclude<ConfigKey, ConfigKey.Tasks>;
@@ -97,13 +97,13 @@ async function fetchItemFile(
 
 export function getInstalledItems(workspacePath: string, kind: RegistryItemKind): string[] {
   const config = KIND_CONFIG[kind];
-  const dirPath = path.join(ConfigManager.getConfigDirPathFromWorkspacePath(workspacePath), config.dirName);
+  const dirPath = PathHelper.join(ConfigManager.getConfigDirPathFromWorkspacePath(workspacePath), config.dirName);
 
   if (!FileIOHelper.fileExists(dirPath)) return [];
 
   try {
     const entries = FileIOHelper.readDirectory(dirPath, { withFileTypes: true });
-    return entries.filter((e) => e.isFile()).map((e) => path.parse(e.name).name);
+    return entries.filter((e) => e.isFile()).map((e) => PathHelper.parse(e.name).name);
   } catch {
     return [];
   }
@@ -117,16 +117,16 @@ export async function installItem(
 ) {
   const config = KIND_CONFIG[kind];
   const configDirPath = ConfigManager.getWorkspaceConfigDirPath(workspaceFolder);
-  const targetDir = path.join(configDirPath, config.dirName);
+  const targetDir = PathHelper.join(configDirPath, config.dirName);
 
   if (!FileIOHelper.fileExists(targetDir)) {
     FileIOHelper.ensureDirectoryExists(targetDir);
   }
 
   const { fileName, content } = await fetchItemFile(kind, item.name, item.file);
-  const ext = path.extname(fileName);
+  const ext = PathHelper.extname(fileName);
   const targetFileName = `${item.name}${ext}`;
-  const targetPath = path.join(targetDir, targetFileName);
+  const targetPath = PathHelper.join(targetDir, targetFileName);
 
   if (FileIOHelper.fileExists(targetPath) && !force) {
     throw new Error(`Item "${item.name}" already exists. Use force to overwrite.`);

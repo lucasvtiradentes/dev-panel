@@ -1,10 +1,10 @@
-import * as path from 'node:path';
 import type { DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
 import { FileIOHelper } from '../../common/utils/file-io';
+import { PathHelper } from '../../common/utils/path-helper';
 
 export function applyFileReplacement(workspace: string, source: string, target: string) {
-  const sourcePath = path.join(workspace, source);
-  const targetPath = path.join(workspace, target);
+  const sourcePath = PathHelper.join(workspace, source);
+  const targetPath = PathHelper.join(workspace, target);
   FileIOHelper.copyFile(sourcePath, targetPath);
 }
 
@@ -13,7 +13,7 @@ function normalizeSearchReplace(value: string[]): string {
 }
 
 export function applyPatches(workspace: string, target: string, patches: NormalizedPatchItem[]) {
-  const targetPath = path.join(workspace, target);
+  const targetPath = PathHelper.join(workspace, target);
   let content = FileIOHelper.readFile(targetPath);
 
   for (const patch of patches) {
@@ -26,11 +26,11 @@ export function applyPatches(workspace: string, target: string, patches: Normali
 }
 
 export function fileExists(workspace: string, filePath: string): boolean {
-  return FileIOHelper.fileExists(path.join(workspace, filePath));
+  return FileIOHelper.fileExists(PathHelper.join(workspace, filePath));
 }
 
 export function isReplacementActive(workspace: string, replacement: DevPanelReplacement): boolean {
-  const targetPath = path.join(workspace, replacement.target);
+  const targetPath = PathHelper.join(workspace, replacement.target);
 
   if (!FileIOHelper.fileExists(targetPath)) {
     return false;
@@ -47,7 +47,7 @@ export function isReplacementActive(workspace: string, replacement: DevPanelRepl
   }
 
   if (replacement.type === 'file') {
-    const sourcePath = path.join(workspace, replacement.source);
+    const sourcePath = PathHelper.join(workspace, replacement.source);
     if (!FileIOHelper.fileExists(sourcePath)) return false;
 
     const sourceContent = FileIOHelper.readFile(sourcePath);

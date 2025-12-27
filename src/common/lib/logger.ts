@@ -1,12 +1,12 @@
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { getLogFilename } from '../constants/functions';
 import { CONFIG_DIR_KEY } from '../constants/scripts-constants';
 import { FileIOHelper } from '../utils/file-io';
+import { PathHelper } from '../utils/path-helper';
 
 const LOG_CONTEXT_WIDTH = 8;
 const LOG_TIMEZONE_OFFSET_HOURS = -3;
-export const LOG_FILE_PATH = join(tmpdir(), getLogFilename());
+export const LOG_FILE_PATH = PathHelper.join(tmpdir(), getLogFilename());
 
 function formatTimestamp(): string {
   const now = new Date();

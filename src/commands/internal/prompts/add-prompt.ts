@@ -1,4 +1,3 @@
-import * as path from 'node:path';
 import {
   CONFIG_FILE_NAME,
   CONFIG_INDENT,
@@ -11,6 +10,7 @@ import {
 import { ConfigManager } from '../../../common/lib/config-manager';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { FileIOHelper } from '../../../common/utils/file-io';
+import { PathHelper } from '../../../common/utils/path-helper';
 import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
@@ -131,7 +131,7 @@ async function handleAddPrompt() {
   const promptsDir = ConfigManager.getWorkspacePromptsDir(workspaceFolder);
   FileIOHelper.ensureDirectoryExists(promptsDir);
 
-  const promptFilePath = path.join(promptsDir, `${fileName}.md`);
+  const promptFilePath = PathHelper.join(promptsDir, `${fileName}.md`);
   const promptContent = `# ${name}
 
 ${description || `Prompt: ${name}`}
