@@ -1,5 +1,4 @@
 import { posix } from 'node:path';
-import * as vscode from 'vscode';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
@@ -19,9 +18,9 @@ import { logger } from '../../common/lib/logger';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { Uri } from '../../common/vscode/vscode-types';
+import type { QuickPickItem, Uri } from '../../common/vscode/vscode-types';
 
-type QuickPickItemWithId<T> = vscode.QuickPickItem & { id: T };
+type QuickPickItemWithId<T> = QuickPickItem & { id: T };
 
 function isRootPath(p: string): boolean {
   return p === ROOT_FOLDER_LABEL || p === '';
@@ -82,7 +81,7 @@ async function askToMoveConfig(fromDir: string | null, toDir: string | null): Pr
 async function getSubfolders(dirUri: Uri): Promise<string[]> {
   try {
     const entries = await VscodeHelper.readDirectory(dirUri);
-    return entries.filter(([_, type]) => type === vscode.FileType.Directory).map(([name]) => name);
+    return entries.filter(([_, type]) => type === VscodeConstants.FileType.Directory).map(([name]) => name);
   } catch {
     return [];
   }

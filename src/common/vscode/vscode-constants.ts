@@ -17,6 +17,15 @@ export const VscodeConstants = {
   get QuickPickItemKind() {
     return require('vscode').QuickPickItemKind;
   },
+  get FileType() {
+    return require('vscode').FileType;
+  },
+  get ViewColumn() {
+    return require('vscode').ViewColumn;
+  },
+  get StatusBarAlignment() {
+    return require('vscode').StatusBarAlignment;
+  },
 };
 
 export enum VscodeIcon {

@@ -1,10 +1,10 @@
-import * as vscode from 'vscode';
 import { CONFIG_FILE_NAME, EXTENSION_DISPLAY_NAME } from '../../common/constants';
 import { INIT_RESOURCES_DIR_NAME, RESOURCES_DIR_NAME } from '../../common/constants/scripts-constants';
 import { getWorkspaceConfigDirPath } from '../../common/lib/config-manager';
 import { extensionStore } from '../../common/lib/extension-store';
 import { logger } from '../../common/lib/logger';
 import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
+import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { Uri } from '../../common/vscode/vscode-types';
 
@@ -17,7 +17,7 @@ async function copyDirectoryRecursive(sourceUri: Uri, targetUri: Uri) {
     const sourceEntryUri = VscodeHelper.joinPath(sourceUri, name);
     const targetEntryUri = VscodeHelper.joinPath(targetUri, name);
 
-    if (type === vscode.FileType.Directory) {
+    if (type === VscodeConstants.FileType.Directory) {
       await copyDirectoryRecursive(sourceEntryUri, targetEntryUri);
     } else {
       const content = await VscodeHelper.readFile(sourceEntryUri);

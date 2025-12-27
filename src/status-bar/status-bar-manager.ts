@@ -1,6 +1,6 @@
-import * as vscode from 'vscode';
 import { EXTENSION_DISPLAY_NAME, getCommandId } from '../common/constants';
 import { Command } from '../common/lib/vscode-utils';
+import { VscodeConstants } from '../common/vscode/vscode-constants';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { StatusBarItem } from '../common/vscode/vscode-types';
 
@@ -10,7 +10,7 @@ export class StatusBarManager {
 
   constructor(hasConfig = true) {
     this.hasConfig = hasConfig;
-    this.statusBarItem = VscodeHelper.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+    this.statusBarItem = VscodeHelper.createStatusBarItem(VscodeConstants.StatusBarAlignment.Left, 100);
     this.statusBarItem.command = getCommandId(Command.OpenSettingsMenu);
     this.updateDisplay();
     this.statusBarItem.show();

@@ -1,5 +1,4 @@
 import * as fs from 'node:fs';
-import * as vscode from 'vscode';
 import { CONFIG_FILE_NAME } from '../common/constants';
 import {
   getBranchContextTemplatePath,
@@ -9,6 +8,7 @@ import {
 import { syncKeybindings } from '../common/lib/keybindings-sync';
 import { Command, registerCommand } from '../common/lib/vscode-utils';
 import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
+import { VscodeConstants } from '../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
@@ -188,8 +188,8 @@ export function registerAllCommands(options: {
         const templatePath = getBranchContextTemplatePath(workspace);
         const templateUri = VscodeHelper.createFileUri(templatePath);
 
-        await VscodeHelper.executeCommand('vscode.open', configUri, vscode.ViewColumn.One);
-        await VscodeHelper.executeCommand('vscode.open', templateUri, vscode.ViewColumn.Two);
+        await VscodeHelper.executeCommand('vscode.open', configUri, VscodeConstants.ViewColumn.One);
+        await VscodeHelper.executeCommand('vscode.open', templateUri, VscodeConstants.ViewColumn.Two);
       }
     }),
   ];

@@ -1,7 +1,6 @@
 import * as fs from 'node:fs';
 import { isAbsolute, join } from 'node:path';
 import JSON5 from 'json5';
-import * as vscode from 'vscode';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
@@ -21,6 +20,7 @@ import {
   TOOL_INSTRUCTIONS_FILE,
 } from '../constants/scripts-constants';
 import type { DevPanelConfig } from '../schemas';
+import { VscodeConstants } from '../vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
 import type { Uri, WorkspaceFolder } from '../vscode/vscode-types';
 import { StoreKey, extensionStore } from './extension-store';
@@ -64,7 +64,7 @@ async function copyDirectoryRecursive(source: Uri, target: Uri) {
     const sourceEntry = VscodeHelper.joinPath(source, name);
     const targetEntry = VscodeHelper.joinPath(target, name);
 
-    if (type === vscode.FileType.Directory) {
+    if (type === VscodeConstants.FileType.Directory) {
       await copyDirectoryRecursive(sourceEntry, targetEntry);
     } else {
       await VscodeHelper.copy(sourceEntry, targetEntry, { overwrite: true });
