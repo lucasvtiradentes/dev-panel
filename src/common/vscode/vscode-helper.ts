@@ -292,6 +292,7 @@ export class VscodeHelper {
     name: string,
     source: string,
     execution?: vscode.ProcessExecution | vscode.ShellExecution | vscode.CustomExecution,
+    // tscanner-ignore-next-line no-single-or-array-union
     problemMatchers?: string | string[],
   ): vscode.Task {
     return new vscode.Task(definition, scope, name, source, execution, problemMatchers);

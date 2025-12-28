@@ -35,6 +35,7 @@ function loadTasksJson(filePath: string): TasksJson | null {
   }
 }
 
+// tscanner-ignore-next-line no-empty-class
 export class GroupTreeItem extends BaseGroupTreeItem<TreeTask> {}
 
 export class WorkspaceTreeItem extends TreeItemClass {

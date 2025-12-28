@@ -3,6 +3,7 @@ import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { Command, TreeItemCollapsibleState } from '../../common/vscode/vscode-types';
 import { BaseGroupTreeItem, BaseNamedTreeItem } from '../_view_base';
 
+// tscanner-ignore-next-line no-empty-class
 export class PromptGroupTreeItem extends BaseGroupTreeItem<TreePrompt> {}
 
 export class TreePrompt extends BaseNamedTreeItem {

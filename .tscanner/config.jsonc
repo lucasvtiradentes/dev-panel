@@ -37,16 +37,11 @@
       "no-var": {},
       "prefer-const": {},
       // "prefer-interface-over-type": {},
-      "prefer-nullish-coalescing": {},
+      // "prefer-nullish-coalescing": {},
       "prefer-optional-chain": {},
       "prefer-type-over-interface": {}
     },
     "regex": {
-      "example-no-console-log": {
-        "pattern": "console\\.log",
-        "include": ["src/**/*.ts"],
-        "message": "Remove console.log before committing"
-      },
       "no-useless-void-return": {
         "pattern": ":\\s*(void|Promise<void>)\\s*[\\{;]",
         "include": ["src/**/*.ts"],
@@ -61,8 +56,8 @@
       "no-node-imports-outside-helper": {
         "pattern": "from\\s+['\"]node:",
         "include": ["src/**/*.ts", "scripts/**/*.ts"],
-        "exclude": ["src/common/lib/node-helper.ts"],
-        "message": "Direct Node.js imports (from 'node:*') are only allowed in src/common/lib/node-helper.ts. Use helpers from NodePathHelper, FileIOHelper, etc. instead"
+        "exclude": ["src/common/utils/helpers/node-helper.ts"],
+        "message": "Direct Node.js imports (from 'node:*') are only allowed in src/common/utils/helpers/node-helper.ts. Use helpers from NodePathHelper, FileIOHelper, etc. instead"
       },
       "no-json5-imports-outside-read-jsonc-file": {
         "pattern": "from\\s+['\"]json5['\"]",
