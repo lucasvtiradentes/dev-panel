@@ -8,7 +8,7 @@ import {
   METADATA_SEPARATOR,
   METADATA_SUFFIX,
 } from '../../../common/constants';
-import { GitHelper } from '../../../common/lib/git-helper';
+import { Git } from '../../../common/lib/git';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext } from '../../../common/schemas/types';
 import { ConfigManager } from '../../../common/utils/config-manager';
@@ -55,8 +55,7 @@ export async function generateBranchContextMarkdown(
   const useExistingChanges = !!context.changedFiles;
   logger.info(`[generateBranchContextMarkdown] Using existing changed files: ${useExistingChanges}`);
 
-  const changedFilesTree =
-    context.changedFiles || (await GitHelper.getChangedFilesTree(workspace, ChangedFilesStyle.List));
+  const changedFilesTree = context.changedFiles || (await Git.getChangedFilesTree(workspace, ChangedFilesStyle.List));
   logger.info(
     `[generateBranchContextMarkdown] Changed files result (first 100 chars): ${changedFilesTree.substring(0, 100)}`,
   );

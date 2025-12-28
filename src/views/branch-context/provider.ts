@@ -11,7 +11,7 @@ import {
   SECTION_NAME_REQUIREMENTS,
 } from '../../common/constants';
 import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-constants';
-import { GitHelper } from '../../common/lib/git-helper';
+import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
 import { branchContextState } from '../../common/state';
 import { ConfigManager } from '../../common/utils/config-manager';
@@ -157,7 +157,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
       return;
     }
 
-    if (await GitHelper.isRepository(workspace)) {
+    if (await Git.isRepository(workspace)) {
       logger.info('[BranchContextProvider] Adding to git exclude');
       this.addToGitExclude(workspace);
     }
@@ -243,12 +243,12 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return [];
 
-    if (!(await GitHelper.isRepository(workspace))) {
+    if (!(await Git.isRepository(workspace))) {
       return [VscodeHelper.createTreeItem(NOT_GIT_REPO_MESSAGE)];
     }
 
     if (!this.currentBranch) {
-      this.currentBranch = await GitHelper.getCurrentBranch(workspace);
+      this.currentBranch = await Git.getCurrentBranch(workspace);
     }
 
     const context = loadBranchContext(this.currentBranch);
@@ -270,7 +270,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
         modified: (changedFilesSectionMetadata.modified as number) || 0,
         deleted: (changedFilesSectionMetadata.deleted as number) || 0,
       };
-      changedFilesValue = GitHelper.formatChangedFilesSummary(summary);
+      changedFilesValue = Git.formatChangedFilesSummary(summary);
     }
 
     const markdownPath = ConfigManager.getBranchContextFilePath(workspace, this.currentBranch);

@@ -8,7 +8,7 @@ import {
   WRITING_MARKDOWN_TIMEOUT_MS,
 } from '../../common/constants';
 import { StoreKey, extensionStore } from '../../common/core/extension-store';
-import { GitHelper } from '../../common/lib/git-helper';
+import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
 import { ConfigManager } from '../../common/utils/config-manager';
 import { execAsync } from '../../common/utils/functions/exec-async';
@@ -210,7 +210,7 @@ export class SyncManager {
             }
           }
         } else {
-          const result = await GitHelper.getChangedFilesWithSummary(workspace, ChangedFilesStyle.List);
+          const result = await Git.getChangedFilesWithSummary(workspace, ChangedFilesStyle.List);
           changedFiles = result.content;
           changedFilesSectionMetadata = result.sectionMetadata;
         }
@@ -310,9 +310,9 @@ export class SyncManager {
       let lastCommitHash: string | undefined;
       let lastCommitMessage: string | undefined;
       try {
-        const hashResult = await execAsync(GitHelper.COMMANDS.REV_PARSE_HEAD, { cwd: workspace });
+        const hashResult = await execAsync(Git.COMMANDS.REV_PARSE_HEAD, { cwd: workspace });
         lastCommitHash = hashResult.stdout.trim();
-        const msgResult = await execAsync(GitHelper.COMMANDS.LOG_LAST_COMMIT_MESSAGE, { cwd: workspace });
+        const msgResult = await execAsync(Git.COMMANDS.LOG_LAST_COMMIT_MESSAGE, { cwd: workspace });
         lastCommitMessage = msgResult.stdout.trim();
       } catch (error: unknown) {
         logger.error(`Failed to get git commit info: ${TypeGuardsHelper.getErrorMessage(error)}`);

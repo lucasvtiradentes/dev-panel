@@ -6,7 +6,7 @@ import {
   CONFIG_FILE_NAME,
   getGlobalConfigDir,
 } from '../../common/constants/scripts-constants';
-import { GitHelper } from '../../common/lib/git-helper';
+import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
 import {
   type DevPanelConfig,
@@ -257,7 +257,7 @@ async function executePromptWithSave(options: {
 }) {
   const { promptContent, folder, promptName, provider, settings } = options;
   const workspacePath = folder.uri.fsPath;
-  const branch = await GitHelper.getCurrentBranch(workspacePath).catch(() => 'unknown');
+  const branch = await Git.getCurrentBranch(workspacePath).catch(() => 'unknown');
 
   const timestamped = settings?.promptExecution !== PromptExecutionMode.Overwrite;
   const outputFile = ConfigManager.getPromptOutputFilePath(workspacePath, branch, promptName, timestamped);

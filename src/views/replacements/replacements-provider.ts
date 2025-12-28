@@ -8,7 +8,7 @@ import {
   NO_GROUP_NAME,
   getCommandId,
 } from '../../common/constants';
-import { GitHelper } from '../../common/lib/git-helper';
+import { Git } from '../../common/lib/git';
 import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { ConfigManager } from '../../common/utils/config-manager';
@@ -126,8 +126,8 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
 
   private async handleStartup() {
     const workspace = getFirstWorkspacePath();
-    if (workspace && (await GitHelper.isRepository(workspace))) {
-      const currentBranch = await GitHelper.getCurrentBranch(workspace);
+    if (workspace && (await Git.isRepository(workspace))) {
+      const currentBranch = await Git.getCurrentBranch(workspace);
       setLastBranch(currentBranch);
     }
     this.syncReplacementState();
@@ -249,7 +249,7 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
-    if (!(await GitHelper.isRepository(workspace))) {
+    if (!(await Git.isRepository(workspace))) {
       VscodeHelper.showToastMessage(ToastKind.Error, ERROR_REPLACEMENTS_REQUIRE_GIT);
       return;
     }
@@ -264,9 +264,9 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
       return;
     }
 
-    const targetExistsInGit = await GitHelper.fileExistsInGit(workspace, replacement.target);
+    const targetExistsInGit = await Git.fileExistsInGit(workspace, replacement.target);
     if (targetExistsInGit) {
-      await GitHelper.setSkipWorktree(workspace, replacement.target, true);
+      await Git.setSkipWorktree(workspace, replacement.target, true);
     }
 
     if (replacement.type === 'file') {
@@ -282,12 +282,12 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
     const workspace = getFirstWorkspacePath();
     if (!workspace) return;
 
-    if (await GitHelper.isRepository(workspace)) {
-      const targetExistsInGit = await GitHelper.fileExistsInGit(workspace, replacement.target);
+    if (await Git.isRepository(workspace)) {
+      const targetExistsInGit = await Git.fileExistsInGit(workspace, replacement.target);
 
       if (targetExistsInGit) {
-        await GitHelper.setSkipWorktree(workspace, replacement.target, false);
-        await GitHelper.restoreFile(workspace, replacement.target);
+        await Git.setSkipWorktree(workspace, replacement.target, false);
+        await Git.restoreFile(workspace, replacement.target);
       } else {
         const targetPath = NodePathHelper.join(workspace, replacement.target);
         if (FileIOHelper.fileExists(targetPath)) {

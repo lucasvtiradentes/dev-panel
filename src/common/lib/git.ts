@@ -39,7 +39,7 @@ type TreeNode = {
   children?: Map<string, TreeNode>;
 };
 
-export class GitHelper {
+export class Git {
   static readonly COMMANDS = {
     DIFF_BASE_BRANCH_NAME_STATUS: `git diff ${BASE_BRANCH}...HEAD --name-status`,
     DIFF_BASE_BRANCH_NAME_ONLY: `git diff ${BASE_BRANCH}...HEAD --name-only`,
@@ -66,17 +66,17 @@ export class GitHelper {
   }
 
   static async getCurrentBranch(workspace: string): Promise<string> {
-    return GitHelper.execCommand(workspace, ['rev-parse', '--abbrev-ref', 'HEAD']);
+    return Git.execCommand(workspace, ['rev-parse', '--abbrev-ref', 'HEAD']);
   }
 
   static async setSkipWorktree(workspace: string, filePath: string, skip: boolean) {
     const flag = skip ? '--skip-worktree' : '--no-skip-worktree';
-    await GitHelper.execCommand(workspace, ['update-index', flag, filePath]);
+    await Git.execCommand(workspace, ['update-index', flag, filePath]);
   }
 
   static async isRepository(workspace: string): Promise<boolean> {
     try {
-      await GitHelper.execCommand(workspace, ['rev-parse', '--git-dir']);
+      await Git.execCommand(workspace, ['rev-parse', '--git-dir']);
       return true;
     } catch {
       return false;
@@ -84,12 +84,12 @@ export class GitHelper {
   }
 
   static async restoreFile(workspace: string, filePath: string) {
-    await GitHelper.execCommand(workspace, ['checkout', '--', filePath]);
+    await Git.execCommand(workspace, ['checkout', '--', filePath]);
   }
 
   static async fileExistsInGit(workspace: string, filePath: string): Promise<boolean> {
     try {
-      await GitHelper.execCommand(workspace, ['ls-files', '--error-unmatch', filePath]);
+      await Git.execCommand(workspace, ['ls-files', '--error-unmatch', filePath]);
       return true;
     } catch {
       return false;
@@ -97,14 +97,14 @@ export class GitHelper {
   }
 
   static async getAPI(): Promise<GitAPI | null> {
-    const gitExtension = VscodeHelper.getExtension<GitExtension>(GitHelper.INTEGRATION.EXTENSION_ID);
+    const gitExtension = VscodeHelper.getExtension<GitExtension>(Git.INTEGRATION.EXTENSION_ID);
     if (!gitExtension) {
       return null;
     }
     if (!gitExtension.isActive) {
       await gitExtension.activate();
     }
-    return gitExtension.exports.getAPI(GitHelper.INTEGRATION.API_VERSION);
+    return gitExtension.exports.getAPI(Git.INTEGRATION.API_VERSION);
   }
 
   static formatChangedFilesSummary(summary: ChangedFilesSummary | null): string {
@@ -139,26 +139,26 @@ export class GitHelper {
     style: ChangedFilesStyle,
   ): Promise<ChangedFilesResult> {
     if (style === ChangedFilesStyle.Tree) {
-      const content = await GitHelper.getChangedFilesTreeFormat(workspacePath);
-      const summary = await GitHelper.getChangedFilesSummaryFromGit(workspacePath);
+      const content = await Git.getChangedFilesTreeFormat(workspacePath);
+      const summary = await Git.getChangedFilesSummaryFromGit(workspacePath);
       const sectionMetadata = summary
         ? { filesCount: summary.added + summary.modified + summary.deleted, ...summary }
         : { filesCount: 0, added: 0, modified: 0, deleted: 0 };
       return {
         content,
-        summary: GitHelper.formatChangedFilesSummary(summary),
+        summary: Git.formatChangedFilesSummary(summary),
         sectionMetadata: content !== BRANCH_CONTEXT_NO_CHANGES ? sectionMetadata : undefined,
       };
     }
-    return GitHelper.getChangedFilesListFormatWithSummary(workspacePath);
+    return Git.getChangedFilesListFormatWithSummary(workspacePath);
   }
 
   private static async getChangedFilesSummaryFromGit(workspacePath: string): Promise<ChangedFilesSummary | null> {
     try {
       const commands = [
-        GitHelper.COMMANDS.DIFF_BASE_BRANCH_NAME_STATUS,
-        GitHelper.COMMANDS.DIFF_CACHED_NAME_STATUS,
-        GitHelper.COMMANDS.DIFF_NAME_STATUS,
+        Git.COMMANDS.DIFF_BASE_BRANCH_NAME_STATUS,
+        Git.COMMANDS.DIFF_CACHED_NAME_STATUS,
+        Git.COMMANDS.DIFF_NAME_STATUS,
       ];
 
       const results = await Promise.all(
@@ -185,7 +185,7 @@ export class GitHelper {
         return null;
       }
 
-      return GitHelper.computeSummaryFromStatusMap(statusMap);
+      return Git.computeSummaryFromStatusMap(statusMap);
     } catch {
       return null;
     }
@@ -195,17 +195,17 @@ export class GitHelper {
     logger.info(`[getChangedFilesTree] Called with workspace: ${workspacePath}, style: ${style}`);
 
     if (style === ChangedFilesStyle.Tree) {
-      return GitHelper.getChangedFilesTreeFormat(workspacePath);
+      return Git.getChangedFilesTreeFormat(workspacePath);
     }
-    return GitHelper.getChangedFilesListFormat(workspacePath);
+    return Git.getChangedFilesListFormat(workspacePath);
   }
 
   private static async getChangedFilesTreeFormat(workspacePath: string): Promise<string> {
     try {
       const commands = [
-        GitHelper.COMMANDS.DIFF_BASE_BRANCH_NAME_ONLY,
-        GitHelper.COMMANDS.DIFF_CACHED_NAME_ONLY,
-        GitHelper.COMMANDS.DIFF_NAME_ONLY,
+        Git.COMMANDS.DIFF_BASE_BRANCH_NAME_ONLY,
+        Git.COMMANDS.DIFF_CACHED_NAME_ONLY,
+        Git.COMMANDS.DIFF_NAME_ONLY,
       ];
 
       const results = await Promise.all(
@@ -228,7 +228,7 @@ export class GitHelper {
         return BRANCH_CONTEXT_NO_CHANGES;
       }
 
-      const tree = GitHelper.buildFileTree(Array.from(allFiles));
+      const tree = Git.buildFileTree(Array.from(allFiles));
       return tree;
     } catch {
       return NOT_GIT_REPO_MESSAGE;
@@ -240,9 +240,9 @@ export class GitHelper {
 
     try {
       const commands = [
-        { status: GitHelper.COMMANDS.DIFF_BASE_BRANCH_NAME_STATUS, num: GitHelper.COMMANDS.DIFF_BASE_BRANCH_NUMSTAT },
-        { status: GitHelper.COMMANDS.DIFF_CACHED_NAME_STATUS, num: GitHelper.COMMANDS.DIFF_CACHED_NUMSTAT },
-        { status: GitHelper.COMMANDS.DIFF_NAME_STATUS, num: GitHelper.COMMANDS.DIFF_NUMSTAT },
+        { status: Git.COMMANDS.DIFF_BASE_BRANCH_NAME_STATUS, num: Git.COMMANDS.DIFF_BASE_BRANCH_NUMSTAT },
+        { status: Git.COMMANDS.DIFF_CACHED_NAME_STATUS, num: Git.COMMANDS.DIFF_CACHED_NUMSTAT },
+        { status: Git.COMMANDS.DIFF_NAME_STATUS, num: Git.COMMANDS.DIFF_NUMSTAT },
       ];
 
       logger.info(`[getChangedFilesListFormat] Executing ${commands.length} git command pairs`);
@@ -315,9 +315,9 @@ export class GitHelper {
   private static async getChangedFilesListFormatWithSummary(workspacePath: string): Promise<ChangedFilesResult> {
     try {
       const commands = [
-        { status: GitHelper.COMMANDS.DIFF_BASE_BRANCH_NAME_STATUS, num: GitHelper.COMMANDS.DIFF_BASE_BRANCH_NUMSTAT },
-        { status: GitHelper.COMMANDS.DIFF_CACHED_NAME_STATUS, num: GitHelper.COMMANDS.DIFF_CACHED_NUMSTAT },
-        { status: GitHelper.COMMANDS.DIFF_NAME_STATUS, num: GitHelper.COMMANDS.DIFF_NUMSTAT },
+        { status: Git.COMMANDS.DIFF_BASE_BRANCH_NAME_STATUS, num: Git.COMMANDS.DIFF_BASE_BRANCH_NUMSTAT },
+        { status: Git.COMMANDS.DIFF_CACHED_NAME_STATUS, num: Git.COMMANDS.DIFF_CACHED_NUMSTAT },
+        { status: Git.COMMANDS.DIFF_NAME_STATUS, num: Git.COMMANDS.DIFF_NUMSTAT },
       ];
 
       const results = await Promise.all(
@@ -372,7 +372,7 @@ export class GitHelper {
         };
       }
 
-      const summary = GitHelper.computeSummaryFromStatusMap(statusMap);
+      const summary = Git.computeSummaryFromStatusMap(statusMap);
 
       const sortedFiles = Array.from(statusMap.keys()).sort();
       const maxFileLength = Math.max(...sortedFiles.map((f) => f.length));
@@ -387,7 +387,7 @@ export class GitHelper {
         lines.push(`${statusSymbol}  ${file}${padding}(+${stats.added} -${stats.deleted})`);
       }
 
-      const formattedSummary = GitHelper.formatChangedFilesSummary(summary);
+      const formattedSummary = Git.formatChangedFilesSummary(summary);
       const sectionMetadata = {
         filesCount: statusMap.size,
         added: summary.added,
@@ -400,7 +400,7 @@ export class GitHelper {
 
       return {
         content: lines.join('\n'),
-        summary: GitHelper.formatChangedFilesSummary(summary),
+        summary: Git.formatChangedFilesSummary(summary),
         sectionMetadata,
       };
     } catch {
@@ -431,7 +431,7 @@ export class GitHelper {
       }
     }
 
-    return GitHelper.renderTree(root, '', true);
+    return Git.renderTree(root, '', true);
   }
 
   private static renderTree(node: TreeNode, prefix: string, isRoot: boolean): string {
@@ -443,13 +443,13 @@ export class GitHelper {
 
       entries.forEach(([, child], index) => {
         const isLast = index === entries.length - 1;
-        lines.push(...GitHelper.renderNode(child, '', isLast));
+        lines.push(...Git.renderNode(child, '', isLast));
       });
 
       return lines.join('\n');
     }
 
-    return GitHelper.renderNode(node, prefix, false).join('\n');
+    return Git.renderNode(node, prefix, false).join('\n');
   }
 
   private static renderNode(node: TreeNode, prefix: string, isLast: boolean): string[] {
@@ -463,7 +463,7 @@ export class GitHelper {
       const entries = Array.from(node.children.entries());
       entries.forEach(([, child], index) => {
         const childIsLast = index === entries.length - 1;
-        lines.push(...GitHelper.renderNode(child, newPrefix, childIsLast));
+        lines.push(...Git.renderNode(child, newPrefix, childIsLast));
       });
     }
 
