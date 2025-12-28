@@ -1,4 +1,4 @@
-import { execAsync } from 'src/common/functions/exec-async';
+import { execAsync } from 'src/common/utils/functions/exec-async';
 import { GLOBAL_ITEM_PREFIX, GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
 import {
   CONFIG_DIR_KEY,

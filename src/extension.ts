@@ -9,9 +9,9 @@ import {
   getViewIdTodos,
   getViewIdTools,
 } from './common/constants';
+import { extensionStore } from './common/core/extension-store';
 import { logger } from './common/lib/logger';
 import { initGlobalState, initWorkspaceState } from './common/state';
-import { extensionStore } from './common/utils/extension-store';
 import { VscodeHelper } from './common/vscode/vscode-helper';
 import type { ExtensionContext } from './common/vscode/vscode-types';
 import { ContextKey, generateWorkspaceId, setContextKey, setWorkspaceId } from './common/vscode/vscode-utils';

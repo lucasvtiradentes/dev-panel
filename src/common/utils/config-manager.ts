@@ -17,12 +17,12 @@ import {
   ROOT_BRANCH_CONTEXT_FILE_NAME,
   TOOL_INSTRUCTIONS_FILE,
 } from '../constants/scripts-constants';
+import { StoreKey, extensionStore } from '../core/extension-store';
 import { FileIOHelper, NodePathHelper } from '../lib/node-helper';
 import type { DevPanelConfig } from '../schemas';
 import { VscodeConstants } from '../vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
 import type { Uri, WorkspaceFolder } from '../vscode/vscode-types';
-import { StoreKey, extensionStore } from './extension-store';
 
 type ConfigArrayKey = ConfigKey.Prompts | ConfigKey.Tasks | ConfigKey.Tools;
 type ConfigArrayItem =

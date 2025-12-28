@@ -7,14 +7,14 @@ import {
   SYNC_DEBOUNCE_MS,
   WRITING_MARKDOWN_TIMEOUT_MS,
 } from '../../common/constants';
-import { execAsync } from '../../common/functions/exec-async';
-import { extractSectionMetadata } from '../../common/functions/extract-section-metadata';
+import { StoreKey, extensionStore } from '../../common/core/extension-store';
 import { GitHelper } from '../../common/lib/git-helper';
 import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper } from '../../common/lib/node-helper';
 import { TypeGuardsHelper } from '../../common/lib/type-guards-helper';
 import { ConfigManager } from '../../common/utils/config-manager';
-import { StoreKey, extensionStore } from '../../common/utils/extension-store';
+import { execAsync } from '../../common/utils/functions/exec-async';
+import { extractSectionMetadata } from '../../common/utils/functions/extract-section-metadata';
 import { getFirstWorkspacePath } from '../../common/vscode/workspace-utils';
 import type { SyncContext } from '../_branch_base/providers/interfaces';
 import {

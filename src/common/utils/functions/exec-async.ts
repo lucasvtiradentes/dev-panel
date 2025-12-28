@@ -1,4 +1,4 @@
-import { UTF_ENCODING, execAsyncFn } from '../lib/node-helper';
+import { UTF_ENCODING, execAsyncFn } from 'src/common/lib/node-helper';
 
 type ExecAsyncOptions = {
   timeout?: number;

@@ -1,5 +1,5 @@
 import { BASE_BRANCH, BRANCH_CONTEXT_NO_CHANGES, ChangedFilesStyle, NOT_GIT_REPO_MESSAGE } from '../constants';
-import { execAsync } from '../functions/exec-async';
+import { execAsync } from '../utils/functions/exec-async';
 import { VscodeHelper } from '../vscode/vscode-helper';
 import type { Event } from '../vscode/vscode-types';
 import { createLogger } from './logger';

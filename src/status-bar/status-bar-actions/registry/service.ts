@@ -1,4 +1,3 @@
-import { fetchUrl } from 'src/common/functions/fetch-url';
 import {
   PLUGINS_DIR_NAME,
   PROMPTS_DIR_NAME,
@@ -21,6 +20,7 @@ import {
   RegistryItemKind,
 } from '../../../common/schemas';
 import { ConfigManager } from '../../../common/utils/config-manager';
+import { fetchUrl } from '../../../common/utils/functions/fetch-url';
 import type { WorkspaceFolder } from '../../../common/vscode/vscode-types';
 
 type RegistryConfigKey = Exclude<ConfigKey, ConfigKey.Tasks>;

@@ -1,8 +1,8 @@
 import { CONFIG_FILE_NAME, EXTENSION_DISPLAY_NAME } from '../../common/constants';
 import { INIT_RESOURCES_DIR_NAME, RESOURCES_DIR_NAME } from '../../common/constants/scripts-constants';
+import { extensionStore } from '../../common/core/extension-store';
 import { logger } from '../../common/lib/logger';
 import { ConfigManager } from '../../common/utils/config-manager';
-import { extensionStore } from '../../common/utils/extension-store';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { Uri } from '../../common/vscode/vscode-types';

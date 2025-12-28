@@ -1,9 +1,9 @@
-import { execAsync } from 'src/common/functions/exec-async';
 import { createLogger } from '../../../common/lib/logger';
 import { FileIOHelper } from '../../../common/lib/node-helper';
 import { TypeGuardsHelper } from '../../../common/lib/type-guards-helper';
 import { PluginAction, TaskStatus } from '../../../common/schemas';
 import { ConfigManager } from '../../../common/utils/config-manager';
+import { execAsync } from '../../../common/utils/functions/exec-async';
 import { extractAllFieldsRaw } from '../storage/file-storage';
 import type {
   AutoSectionProvider,

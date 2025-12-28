@@ -1,5 +1,5 @@
-import { METADATA_SECTION_REGEX_CAPTURE, METADATA_SECTION_REGEX_GLOBAL } from '../constants';
-import { createLogger } from '../lib/logger';
+import { METADATA_SECTION_REGEX_CAPTURE, METADATA_SECTION_REGEX_GLOBAL } from '../../constants';
+import { createLogger } from '../../lib/logger';
 
 const logger = createLogger('MetadataExtractor');
 
