@@ -11,7 +11,6 @@ import { ConfigManager } from '../../common/core/config-manager';
 import { StoreKey, extensionStore } from '../../common/core/extension-store';
 import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
-import { execAsync } from '../../common/utils/functions/exec-async';
 import { extractSectionMetadata } from '../../common/utils/functions/extract-section-metadata';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
@@ -308,10 +307,8 @@ export class SyncManager {
       let lastCommitHash: string | undefined;
       let lastCommitMessage: string | undefined;
       try {
-        const hashResult = await execAsync(Git.COMMANDS.REV_PARSE_HEAD, { cwd: workspace });
-        lastCommitHash = hashResult.stdout.trim();
-        const msgResult = await execAsync(Git.COMMANDS.LOG_LAST_COMMIT_MESSAGE, { cwd: workspace });
-        lastCommitMessage = msgResult.stdout.trim();
+        lastCommitHash = await Git.getLastCommitHash(workspace);
+        lastCommitMessage = await Git.getLastCommitMessage(workspace);
       } catch (error: unknown) {
         logger.error(`Failed to get git commit info: ${TypeGuardsHelper.getErrorMessage(error)}`);
       }
