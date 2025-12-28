@@ -12,10 +12,10 @@ import {
 } from '../constants';
 import type { DevPanelConfig } from '../schemas';
 import { toolsState } from '../state';
+import { ConfigManager } from '../utils/config-manager';
+import { FileIOHelper, NodePathHelper } from '../utils/helpers/node-helper';
 import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
 import type { WorkspaceFolder } from '../vscode/vscode-types';
-import { ConfigManager } from './config-manager';
-import { FileIOHelper, NodePathHelper } from './helpers/node-helper';
 
 type ToolInstruction = {
   id: string;
@@ -29,7 +29,7 @@ type ToolInstruction = {
   troubleshooting?: string;
 };
 
-export class DocsGenerator {
+export class ToolDocsGenerator {
   static parseInstructionsMd(content: string, toolName: string): ToolInstruction {
     const lines = content.split('\n');
     const instruction: ToolInstruction = {
@@ -140,7 +140,7 @@ export class DocsGenerator {
     const config = ConfigManager.loadWorkspaceConfig(workspaceFolder);
     const localTools = config?.tools ?? [];
 
-    const globalTools = DocsGenerator.getGlobalTools();
+    const globalTools = ToolDocsGenerator.getGlobalTools();
     const activeTools = toolsState.getActiveTools();
 
     const activeLocalTools = localTools.filter((tool) => activeTools.includes(tool.name));
@@ -160,7 +160,7 @@ export class DocsGenerator {
       let description = '';
       if (FileIOHelper.fileExists(instructionsPath)) {
         const content = FileIOHelper.readFile(instructionsPath);
-        const instruction = DocsGenerator.parseInstructionsMd(content, tool.name);
+        const instruction = ToolDocsGenerator.parseInstructionsMd(content, tool.name);
         description = instruction.description ?? '';
       }
 
@@ -173,7 +173,7 @@ export class DocsGenerator {
       let description = '';
       if (FileIOHelper.fileExists(instructionsPath)) {
         const content = FileIOHelper.readFile(instructionsPath);
-        const instruction = DocsGenerator.parseInstructionsMd(content, tool.name);
+        const instruction = ToolDocsGenerator.parseInstructionsMd(content, tool.name);
         description = instruction.description ?? '';
       }
 
@@ -250,7 +250,7 @@ ${contentLines.join('\n').trim()}
     const config = ConfigManager.loadWorkspaceConfig(workspaceFolder);
     const localTools = config?.tools ?? [];
 
-    const globalTools = DocsGenerator.getGlobalTools();
+    const globalTools = ToolDocsGenerator.getGlobalTools();
     const activeTools = toolsState.getActiveTools();
 
     const activeLocalTools = localTools.filter((tool) => activeTools.includes(tool.name));
@@ -282,7 +282,7 @@ ${contentLines.join('\n').trim()}
 
       const instructionsContent = FileIOHelper.readFile(instructionsPath);
       const exampleCommand = instructionsContent.match(/```bash\n(.+?)\n/)?.[1] ?? tool.command ?? tool.name;
-      const skillContent = DocsGenerator.generateSkillMd(instructionsContent, tool.name, exampleCommand);
+      const skillContent = ToolDocsGenerator.generateSkillMd(instructionsContent, tool.name, exampleCommand);
 
       const skillDir = getSkillDir(workspaceFolder.uri.fsPath, tool.name);
       FileIOHelper.ensureDirectoryExists(skillDir);
@@ -301,7 +301,7 @@ ${contentLines.join('\n').trim()}
 
       const instructionsContent = FileIOHelper.readFile(instructionsPath);
       const exampleCommand = instructionsContent.match(/```bash\n(.+?)\n/)?.[1] ?? tool.command ?? tool.name;
-      const skillContent = DocsGenerator.generateSkillMd(instructionsContent, tool.name, exampleCommand);
+      const skillContent = ToolDocsGenerator.generateSkillMd(instructionsContent, tool.name, exampleCommand);
 
       const skillDir = getSkillDir(workspaceFolder.uri.fsPath, tool.name);
       FileIOHelper.ensureDirectoryExists(skillDir);
