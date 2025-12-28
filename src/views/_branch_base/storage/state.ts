@@ -29,12 +29,12 @@ export const loadBranchContext = (branchName: string): BranchContext => {
   return context;
 };
 
-export const invalidateBranchContextCache = (branchName: string): void => {
+export const invalidateBranchContextCache = (branchName: string) => {
   logger.info(`[invalidateBranchContextCache] Invalidating cache for ${branchName}`);
   contextCache.invalidate(branchName);
 };
 
-export const updateBranchContextCache = (branchName: string, context: BranchContext, markdownContent: string): void => {
+export const updateBranchContextCache = (branchName: string, context: BranchContext, markdownContent: string) => {
   const contentHash = generateHashForFileContent(markdownContent);
 
   logger.info(
