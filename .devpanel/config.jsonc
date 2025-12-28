@@ -129,8 +129,8 @@
       "target": "src/extension.ts",
       "patches": [
         {
-          "search": "void vscode.tasks.fetchTasks();",
-          "replace": "// DEBUG ENABLED\n  void vscode.tasks.fetchTasks();"
+          "search": "void VscodeHelper.fetchTasks();",
+          "replace": "// DEBUG ENABLED\n  void VscodeHelper.fetchTasks();"
         }
       ],
       "group": "Debug"

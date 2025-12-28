@@ -50,3 +50,5 @@
 - [ ] adicionar project agents 
 - [ ] ter codebase rules (tipo ter um arquivo para vscode utils)
 - [ ] ter um codebase patterns (swr, endpoints, etc)
+- [ ] comand de branch-tasks tao errados, deveriam usar metodos de providers
+- [ ] deve dar um toast de error quando o replacement nao substituir de fato
