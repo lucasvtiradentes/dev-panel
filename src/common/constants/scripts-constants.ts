@@ -132,17 +132,6 @@ export function getVscodeTasksFilePath(workspacePath: string): string {
   return NodePathHelper.join(workspacePath, '.vscode', 'tasks.json');
 }
 
-const GITHUB_REPO = 'lucasvtiradentes/dev-panel';
-export const REGISTRY_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/registry`;
-export const REGISTRY_INDEX_FILE = 'index.json';
-export const PLUGINS_DIR_NAME = 'plugins';
-export const SCRIPTS_DIR_NAME = 'scripts';
-
-export const REGISTRY_DEFAULT_PLUGIN_FILE = 'plugin.ts';
-export const REGISTRY_DEFAULT_PROMPT_FILE = 'prompt.md';
-export const REGISTRY_DEFAULT_TOOL_FILE = 'instructions.md';
-export const REGISTRY_DEFAULT_SCRIPT_FILE = 'script.sh';
-
 export const WORKSPACE_STATE_CONFIG_DIR_KEY = `${CONFIG_DIR_KEY}.configDir`;
 
 const GLOBAL_ITEM_TOOLTIP_SUFFIX = `from ~/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`;
