@@ -1,5 +1,5 @@
 import { CONFIG_FILE_NAME } from '../../../common/constants';
-import { BranchContextUtils } from '../../../common/core/branch-context-helper';
+import { BranchContextMarkdownHelper } from '../../../common/core/branch-context-markdown';
 import { ConfigManager } from '../../../common/utils/config-manager';
 import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../../common/vscode/vscode-constants';
@@ -11,7 +11,7 @@ async function handleShowValidation() {
   const workspace = VscodeHelper.getFirstWorkspacePath();
   if (!workspace) return;
 
-  const result = BranchContextUtils.getValidationIssues(workspace, validateBranchContext);
+  const result = BranchContextMarkdownHelper.getValidationIssues(workspace, validateBranchContext);
 
   if (!result.success) {
     const message = result.error === 'no-config' ? 'No config file found' : 'Failed to parse config file';

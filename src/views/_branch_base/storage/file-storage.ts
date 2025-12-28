@@ -1,4 +1,4 @@
-import { BranchContextMarkdownHelper } from 'src/common/core/branch-context-helper';
+import { BranchContextMarkdownHelper } from 'src/common/core/branch-context-markdown';
 import {
   BRANCH_CONTEXT_FIELD_BRANCH,
   BRANCH_CONTEXT_FIELD_LINEAR_LINK,

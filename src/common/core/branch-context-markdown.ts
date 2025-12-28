@@ -2,20 +2,6 @@ import { BRANCH_CONTEXT_NA, CONFIG_FILE_NAME } from '../constants';
 import { ConfigManager } from '../utils/config-manager';
 import { FileIOHelper } from '../utils/helpers/node-helper';
 
-export class BranchContextMarkdownHelper {
-  static isFieldEmpty(value: string | undefined, customNaValue?: string): boolean {
-    if (!value) return true;
-    const trimmed = value.trim();
-    return (
-      trimmed === '' || trimmed === BRANCH_CONTEXT_NA || (customNaValue !== undefined && trimmed === customNaValue)
-    );
-  }
-
-  static isFieldValid(value: string | undefined, customNaValue?: string): boolean {
-    return !BranchContextMarkdownHelper.isFieldEmpty(value, customNaValue);
-  }
-}
-
 type ValidationIssue = {
   section: string;
   message: string;
@@ -32,7 +18,19 @@ type ValidationResult =
       error: 'no-config' | 'parse-error';
     };
 
-export class BranchContextUtils {
+export class BranchContextMarkdownHelper {
+  static isFieldEmpty(value: string | undefined, customNaValue?: string): boolean {
+    if (!value) return true;
+    const trimmed = value.trim();
+    return (
+      trimmed === '' || trimmed === BRANCH_CONTEXT_NA || (customNaValue !== undefined && trimmed === customNaValue)
+    );
+  }
+
+  static isFieldValid(value: string | undefined, customNaValue?: string): boolean {
+    return !BranchContextMarkdownHelper.isFieldEmpty(value, customNaValue);
+  }
+
   static getValidationIssues<T>(
     workspace: string,
     validateFn: (workspace: string, branchContext: T) => ValidationIssue[],

@@ -1,4 +1,4 @@
-import { BranchContextMarkdownHelper } from 'src/common/core/branch-context-helper';
+import { BranchContextMarkdownHelper } from 'src/common/core/branch-context-markdown';
 import {
   ChangedFilesStyle,
   METADATA_SECTION_REGEX_CAPTURE,
