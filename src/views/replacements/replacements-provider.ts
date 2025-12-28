@@ -18,7 +18,6 @@ import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import { type TreeDataProvider, type TreeItem, TreeItemClass } from '../../common/vscode/vscode-types';
 import { Command, ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
-import { getFirstWorkspacePath } from '../../common/vscode/workspace-utils';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import {
   addActiveReplacement,
@@ -125,7 +124,7 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
   }
 
   private async handleStartup() {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (workspace && (await Git.isRepository(workspace))) {
       const currentBranch = await Git.getCurrentBranch(workspace);
       setLastBranch(currentBranch);
@@ -134,7 +133,7 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
   }
 
   private syncReplacementState() {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
     const config = this.loadConfig();
@@ -211,7 +210,7 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
   }
 
   private loadConfig(): DevPanelConfig | null {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return null;
 
     const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
@@ -246,7 +245,7 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
   }
 
   private async activateReplacement(replacement: DevPanelReplacement) {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
     if (!(await Git.isRepository(workspace))) {
@@ -279,7 +278,7 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
   }
 
   private async deactivateReplacement(replacement: DevPanelReplacement) {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
     if (await Git.isRepository(workspace)) {

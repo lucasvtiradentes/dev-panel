@@ -9,7 +9,6 @@ import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, Uri } from '../../common/vscode/vscode-types';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
-import { getFirstWorkspacePath } from '../../common/vscode/workspace-utils';
 import {
   type MilestoneNode,
   type SyncContext,
@@ -45,7 +44,7 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
   private isInitializing = true;
 
   constructor() {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     const config = workspace ? this.loadConfig(workspace) : null;
     const tasksConfig = config?.branchContext?.builtinSections?.tasks;
     this.taskProvider = createTaskProvider(tasksConfig, workspace ?? undefined);
@@ -164,7 +163,7 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
       return;
     }
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) {
       logger.warn('[BranchTasksProvider] [loadBranchTasks] No workspace, clearing cache');
       this.cachedNodes = [];
@@ -363,7 +362,7 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
     const filePath = getBranchContextFilePath(this.currentBranch);
     if (!filePath || !FileIOHelper.fileExists(filePath)) return null;
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return null;
 
     const branchContext = loadBranchContext(this.currentBranch);

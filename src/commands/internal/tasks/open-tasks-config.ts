@@ -12,13 +12,12 @@ import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
-import { getFirstWorkspaceFolder } from '../../../common/vscode/workspace-utils';
 import { getExcludedDirs } from '../../../views/tasks/package-json';
 import { getCurrentSource } from '../../../views/tasks/state';
 
 async function handleOpenTasksConfig() {
   const source = getCurrentSource();
-  const workspace = getFirstWorkspaceFolder();
+  const workspace = VscodeHelper.getFirstWorkspaceFolder();
   if (!workspace) return;
 
   const workspacePath = workspace.uri.fsPath;

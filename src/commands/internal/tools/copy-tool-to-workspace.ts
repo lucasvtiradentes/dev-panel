@@ -10,8 +10,8 @@ import {
   showNotFoundError,
   stripGlobalPrefix,
 } from '../../../common/utils/item-utils';
+import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-utils';
-import { selectWorkspaceFolder } from '../../../common/vscode/workspace-utils';
 import type { TreeTool } from '../../../views/tools/items';
 
 async function handleCopyToolToWorkspace(treeTool: TreeTool) {
@@ -27,7 +27,7 @@ async function handleCopyToolToWorkspace(treeTool: TreeTool) {
 
   const toolName = stripGlobalPrefix(treeTool.toolName);
 
-  const workspaceFolder = await selectWorkspaceFolder('Select workspace to copy tool to');
+  const workspaceFolder = await VscodeHelper.selectWorkspaceFolder('Select workspace to copy tool to');
   if (!workspaceFolder) return;
 
   const globalConfig = ConfigManager.loadGlobalConfig();

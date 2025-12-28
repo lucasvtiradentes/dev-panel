@@ -2,13 +2,12 @@ import { createLogger } from '../common/lib/logger';
 import { ConfigManager } from '../common/utils/config-manager';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable } from '../common/vscode/vscode-types';
-import { getFirstWorkspacePath } from '../common/vscode/workspace-utils';
 import { type RefreshCallback, attachFileWatcherHandlers } from './utils';
 
 const logger = createLogger('TemplateWatcher');
 
 export function createTemplateWatcher(onChange: RefreshCallback): Disposable {
-  const workspace = getFirstWorkspacePath();
+  const workspace = VscodeHelper.getFirstWorkspacePath();
   if (!workspace) {
     logger.warn('No workspace found, watcher not created');
     return { dispose: () => undefined };

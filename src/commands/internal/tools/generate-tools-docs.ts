@@ -3,10 +3,9 @@ import { DocsGenerator } from '../../../common/utils/docs-generator';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
-import { requireWorkspaceFolder } from '../../../common/vscode/workspace-utils';
 
 async function handleGenerateToolsDocs() {
-  const workspaceFolder = requireWorkspaceFolder();
+  const workspaceFolder = VscodeHelper.requireWorkspaceFolder();
   if (!workspaceFolder) return;
 
   const skillsCount = await DocsGenerator.syncToSkills(workspaceFolder);

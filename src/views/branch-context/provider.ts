@@ -20,7 +20,6 @@ import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
-import { getFirstWorkspacePath } from '../../common/vscode/workspace-utils';
 import { createTaskProvider, loadBranchContext } from '../_branch_base';
 import { getFieldLineNumber } from '../_branch_base/storage/markdown-parser';
 import { validateBranchContext } from './config-validator';
@@ -49,7 +48,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     this.validationIndicator = new ValidationIndicator();
     this.helpers = new ProviderHelpers();
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     const config = workspace ? ConfigManager.loadWorkspaceConfigFromPath(workspace) : null;
     const tasksConfig = config?.branchContext?.builtinSections?.tasks;
     this.taskProvider = createTaskProvider(tasksConfig, workspace ?? undefined);
@@ -124,7 +123,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
       return;
     }
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace || !uri) return;
 
     const currentBranchPath = ConfigManager.getBranchContextFilePath(workspace, this.currentBranch);
@@ -151,7 +150,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   async initialize() {
     logger.info('[BranchContextProvider] initialize called');
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) {
       logger.warn('[BranchContextProvider] No workspace found');
       return;
@@ -206,7 +205,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     if (branchName !== this.currentBranch) {
       this.currentBranch = branchName;
 
-      const workspace = getFirstWorkspacePath();
+      const workspace = VscodeHelper.getFirstWorkspacePath();
       if (workspace) {
         const branchFilePath = ConfigManager.getBranchContextFilePath(workspace, branchName);
         const fileExists = FileIOHelper.fileExists(branchFilePath);
@@ -240,7 +239,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   async getChildren(element?: TreeItem): Promise<TreeItem[]> {
     if (element) return [];
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return [];
 
     if (!(await Git.isRepository(workspace))) {
@@ -328,7 +327,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   }
 
   async openMarkdownFile() {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
     const filePath = ConfigManager.getRootBranchContextFilePath(workspace);
@@ -337,7 +336,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   }
 
   async openMarkdownFileAtLine(fieldName: string) {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
     const filePath = ConfigManager.getRootBranchContextFilePath(workspace);
@@ -347,7 +346,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   }
 
   async syncBranchContext() {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace || !ConfigManager.configDirExists(workspace)) {
       logger.info('[syncBranchContext] No config directory, skipping');
       return;

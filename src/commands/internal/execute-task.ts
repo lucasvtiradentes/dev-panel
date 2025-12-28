@@ -31,7 +31,6 @@ import {
   type WorkspaceFolder,
 } from '../../common/vscode/vscode-types';
 import { Command, isMultiRootWorkspace, registerCommand } from '../../common/vscode/vscode-utils';
-import { getFirstWorkspaceFolder } from '../../common/vscode/workspace-utils';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { TreeTool } from '../../views/tools/items';
 
@@ -53,7 +52,7 @@ async function handleExecuteTask(
 
   if (taskConfig?.inputs && taskConfig.inputs.length > 0) {
     const folder = scope && typeof scope !== 'number' && 'uri' in scope ? (scope as WorkspaceFolder) : null;
-    const folderForSettings = folder ?? getFirstWorkspaceFolder();
+    const folderForSettings = folder ?? VscodeHelper.getFirstWorkspaceFolder();
     const settings = folderForSettings ? ConfigManager.readSettings(folderForSettings) : undefined;
 
     const inputValues = await collectInputs(taskConfig.inputs, folder, settings);
@@ -123,7 +122,7 @@ function handleExecuteTool(context: ExtensionContext, item: TreeTool | Task) {
     let env: Record<string, string> = {};
 
     const globalConfig = ConfigManager.loadGlobalConfig();
-    const folder = getFirstWorkspaceFolder();
+    const folder = VscodeHelper.getFirstWorkspaceFolder();
 
     if (isGlobal) {
       toolConfig = globalConfig?.tools?.find((t) => t.name === actualName);
@@ -201,7 +200,7 @@ async function handleExecutePrompt({ promptFilePath, folder, promptConfig }: Exe
 
   let promptContent = FileIOHelper.readFile(resolvedPromptFilePath);
 
-  const folderForSettings = folder ?? getFirstWorkspaceFolder();
+  const folderForSettings = folder ?? VscodeHelper.getFirstWorkspaceFolder();
   const settings = folderForSettings ? ConfigManager.readSettings(folderForSettings) : undefined;
   log.info(`settings: ${JSON.stringify(settings)}`);
 
@@ -227,7 +226,7 @@ async function handleExecutePrompt({ promptFilePath, folder, promptConfig }: Exe
   }
 
   if (promptConfig?.saveOutput) {
-    const folderForOutput = folder ?? getFirstWorkspaceFolder();
+    const folderForOutput = folder ?? VscodeHelper.getFirstWorkspaceFolder();
     if (!folderForOutput) {
       void VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder available to save prompt output');
       return;

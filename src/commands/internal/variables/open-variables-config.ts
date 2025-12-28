@@ -3,10 +3,9 @@ import { ConfigManager } from '../../../common/utils/config-manager';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
-import { getFirstWorkspaceFolder } from '../../../common/vscode/workspace-utils';
 
 async function handleOpenVariablesConfig() {
-  const workspace = getFirstWorkspaceFolder();
+  const workspace = VscodeHelper.getFirstWorkspaceFolder();
   if (!workspace) return;
 
   const configPath = ConfigManager.getWorkspaceConfigFilePath(workspace, CONFIG_FILE_NAME);

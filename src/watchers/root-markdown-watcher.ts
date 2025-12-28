@@ -2,7 +2,6 @@ import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../common/constants/scripts-const
 import { createLogger } from '../common/lib/logger';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable } from '../common/vscode/vscode-types';
-import { getFirstWorkspacePath } from '../common/vscode/workspace-utils';
 import { type RefreshCallback, attachFileWatcherHandlers } from './utils';
 
 const logger = createLogger('RootMarkdownWatcher');
@@ -10,7 +9,7 @@ const logger = createLogger('RootMarkdownWatcher');
 export function createRootMarkdownWatcher(onChange: RefreshCallback): Disposable {
   logger.info(`Setting up root markdown watcher for: ${ROOT_BRANCH_CONTEXT_FILE_NAME}`);
 
-  const workspace = getFirstWorkspacePath();
+  const workspace = VscodeHelper.getFirstWorkspacePath();
   if (!workspace) {
     logger.warn('No workspace found, watcher not created');
     return { dispose: () => undefined };

@@ -6,7 +6,6 @@ import { ConfigManager } from '../../common/utils/config-manager';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { Uri } from '../../common/vscode/vscode-types';
-import { requireWorkspaceFolder } from '../../common/vscode/workspace-utils';
 
 async function copyDirectoryRecursive(sourceUri: Uri, targetUri: Uri) {
   await VscodeHelper.createDirectory(targetUri);
@@ -27,7 +26,7 @@ async function copyDirectoryRecursive(sourceUri: Uri, targetUri: Uri) {
 }
 
 export async function showInitMenu() {
-  const workspaceFolder = requireWorkspaceFolder();
+  const workspaceFolder = VscodeHelper.requireWorkspaceFolder();
   if (!workspaceFolder) return;
 
   try {

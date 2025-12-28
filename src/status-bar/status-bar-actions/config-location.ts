@@ -12,7 +12,6 @@ import { NodePathHelper } from '../../common/utils/helpers/node-helper';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { QuickPickItem, Uri } from '../../common/vscode/vscode-types';
-import { requireWorkspaceFolder } from '../../common/vscode/workspace-utils';
 
 type QuickPickItemWithId<T> = QuickPickItem & { id: T };
 
@@ -25,7 +24,7 @@ function joinPath(base: string, segment: string): string {
 }
 
 export async function showConfigLocationMenu() {
-  const workspaceFolder = requireWorkspaceFolder();
+  const workspaceFolder = VscodeHelper.requireWorkspaceFolder();
   if (!workspaceFolder) return;
 
   const workspacePath = workspaceFolder.uri.fsPath;

@@ -4,7 +4,6 @@ import { ConfigManager } from '../../common/utils/config-manager';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { QuickPickItem } from '../../common/vscode/vscode-types';
 import { Command, registerCommand } from '../../common/vscode/vscode-utils';
-import { getFirstWorkspaceFolder } from '../../common/vscode/workspace-utils';
 import { showConfigLocationMenu } from './config-location';
 import { showInitMenu } from './init';
 import { showRegistryMenu } from './registry/index';
@@ -21,7 +20,7 @@ export function createOpenSettingsMenuCommand() {
   return registerCommand(Command.OpenSettingsMenu, async () => {
     logger.info('openSettingsMenu command called');
 
-    const workspaceFolder = getFirstWorkspaceFolder();
+    const workspaceFolder = VscodeHelper.getFirstWorkspaceFolder();
     let showInit = false;
 
     if (workspaceFolder) {

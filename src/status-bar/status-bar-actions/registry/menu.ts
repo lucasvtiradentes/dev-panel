@@ -4,7 +4,6 @@ import { type RegistryItemEntry, RegistryItemKind } from '../../../common/schema
 import { VscodeConstants, VscodeIcon } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { QuickPickItem, WorkspaceFolder } from '../../../common/vscode/vscode-types';
-import { requireWorkspaceFolder } from '../../../common/vscode/workspace-utils';
 import { fetchRegistryIndex, getInstalledItems, getItemsForKind, installItem } from './service';
 
 type QuickPickItemWithId<T> = QuickPickItem & { id: T };
@@ -17,7 +16,7 @@ const KIND_LABELS: Record<RegistryItemKind, { label: string; icon: VscodeIcon }>
 };
 
 export async function showRegistryMenu() {
-  const workspaceFolder = requireWorkspaceFolder();
+  const workspaceFolder = VscodeHelper.requireWorkspaceFolder();
   if (!workspaceFolder) return;
 
   const kindItems: QuickPickItemWithId<RegistryItemKind>[] = Object.entries(KIND_LABELS).map(

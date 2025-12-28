@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import type { VscodeColor, VscodeColorString, VscodeIcon, VscodeIconString } from './vscode-constants';
-import type { ThemeIcon, TreeView, Uri } from './vscode-types';
+import type { ThemeIcon, TreeView, Uri, WorkspaceFolder } from './vscode-types';
 
 export enum ToastKind {
   Info = 'info',
@@ -9,6 +9,39 @@ export enum ToastKind {
 }
 
 export class VscodeHelper {
+  static getFirstWorkspaceFolder(): WorkspaceFolder | undefined {
+    return VscodeHelper.getWorkspaceFolders()[0];
+  }
+
+  static getFirstWorkspacePath(): string | null {
+    return VscodeHelper.getFirstWorkspaceFolder()?.uri.fsPath ?? null;
+  }
+
+  static requireWorkspaceFolder(): WorkspaceFolder | null {
+    const folder = VscodeHelper.getFirstWorkspaceFolder();
+    if (!folder) {
+      VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
+      return null;
+    }
+    return folder;
+  }
+
+  static async selectWorkspaceFolder(placeholder: string): Promise<WorkspaceFolder | null> {
+    const folders = VscodeHelper.getWorkspaceFolders();
+    if (folders.length === 0) {
+      VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
+      return null;
+    }
+
+    if (folders.length === 1) {
+      return folders[0];
+    }
+
+    const items = folders.map((f) => ({ label: f.name, folder: f }));
+    const selected = await VscodeHelper.showQuickPickItems(items, { placeHolder: placeholder });
+    return selected?.folder ?? null;
+  }
+
   static createIcon(icon: VscodeIcon, color?: VscodeColor): ThemeIcon {
     return color ? new vscode.ThemeIcon(icon, new vscode.ThemeColor(color)) : new vscode.ThemeIcon(icon);
   }

@@ -9,7 +9,6 @@ import { createLogger } from '../lib/logger';
 import { type DevPanelInput, type DevPanelSettings, PromptInputType, TaskPriority, TaskStatus } from '../schemas';
 import { ToastKind, VscodeHelper } from './vscode-helper';
 import type { QuickPickItem, WorkspaceFolder } from './vscode-types';
-import { getFirstWorkspaceFolder } from './workspace-utils';
 
 const log = createLogger('inputs');
 
@@ -249,7 +248,7 @@ async function collectFileInput(
   log.info(`collectFileInput called - multiple: ${multiple}`);
   log.debug(`input: ${JSON.stringify(input)}`);
 
-  const folder = workspaceFolder ?? getFirstWorkspaceFolder();
+  const folder = workspaceFolder ?? VscodeHelper.getFirstWorkspaceFolder();
   if (!folder) {
     void VscodeHelper.showToastMessage(ToastKind.Error, ERROR_MSG_WORKSPACE_REQUIRED);
     return undefined;
@@ -275,7 +274,7 @@ async function collectFolderInput(
   multiple: boolean,
   settings?: DevPanelSettings,
 ): Promise<string | undefined> {
-  const folder = workspaceFolder ?? getFirstWorkspaceFolder();
+  const folder = workspaceFolder ?? VscodeHelper.getFirstWorkspaceFolder();
   if (!folder) {
     void VscodeHelper.showToastMessage(ToastKind.Error, ERROR_MSG_WORKSPACE_REQUIRED);
     return undefined;

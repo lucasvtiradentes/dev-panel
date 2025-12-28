@@ -5,11 +5,10 @@ import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-utils';
-import { getFirstWorkspacePath } from '../../../common/vscode/workspace-utils';
 import { validateBranchContext } from '../../../views/branch-context/config-validator';
 
 async function handleShowValidation() {
-  const workspace = getFirstWorkspacePath();
+  const workspace = VscodeHelper.getFirstWorkspacePath();
   if (!workspace) return;
 
   const result = BranchContextUtils.getValidationIssues(workspace, validateBranchContext);

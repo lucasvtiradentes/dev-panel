@@ -2,7 +2,6 @@ import { Git, type GitRepository } from '../common/lib/git';
 import { createLogger } from '../common/lib/logger';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable, FileSystemWatcher } from '../common/vscode/vscode-types';
-import { getFirstWorkspacePath } from '../common/vscode/workspace-utils';
 import { WATCHER_CONSTANTS } from './utils';
 
 type BranchChangeCallback = (newBranch: string) => void;
@@ -16,7 +15,7 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
   let pollInterval: ReturnType<typeof setInterval> | null = null;
 
   const handleBranchChange = async () => {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
     try {
@@ -57,7 +56,7 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
   };
 
   const setupHeadFileWatcher = () => {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
     headWatcher = VscodeHelper.createFileSystemWatcher(
@@ -75,7 +74,7 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
   };
 
   const initializeBranch = async () => {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
     if (await Git.isRepository(workspace)) {

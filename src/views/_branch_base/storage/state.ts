@@ -3,7 +3,7 @@ import { FileHashCache } from '../../../common/lib/cache';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext } from '../../../common/schemas/types';
 import { generateHashForFileContent } from '../../../common/utils/functions/generate-cache-key';
-import { getFirstWorkspacePath } from '../../../common/vscode/workspace-utils';
+import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import { loadBranchContextFromFile } from './file-storage';
 import { getBranchContextFilePath } from './markdown-parser';
 
@@ -11,7 +11,7 @@ const logger = createLogger('BranchContextCache');
 const contextCache = new FileHashCache<BranchContext>(BRANCH_CONTEXT_CACHE_TTL_MS);
 
 export const loadBranchContext = (branchName: string): BranchContext => {
-  const workspace = getFirstWorkspacePath();
+  const workspace = VscodeHelper.getFirstWorkspacePath();
   if (!workspace) return {};
 
   const filePath = getBranchContextFilePath(branchName);

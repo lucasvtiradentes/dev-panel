@@ -20,7 +20,6 @@ import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/vscode/vscode-inputs';
 import { type TreeDataProvider, type TreeItem, TreeItemClass } from '../../common/vscode/vscode-types';
 import { Command, ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
-import { getFirstWorkspaceFolder, getFirstWorkspacePath } from '../../common/vscode/workspace-utils';
 import { getIsGrouped, saveIsGrouped } from './state';
 
 type PpVariables = {
@@ -32,7 +31,7 @@ type PpState = {
 };
 
 function getStatePath(): string | null {
-  const workspace = getFirstWorkspacePath();
+  const workspace = VscodeHelper.getFirstWorkspacePath();
   if (!workspace) return null;
   return ConfigManager.getConfigFilePathFromWorkspacePath(workspace, VARIABLES_FILE_NAME);
 }
@@ -172,7 +171,7 @@ export class VariablesProvider implements TreeDataProvider<TreeItem> {
   }
 
   private loadConfig(): PpVariables | null {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return null;
 
     const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
@@ -185,7 +184,7 @@ export class VariablesProvider implements TreeDataProvider<TreeItem> {
   }
 
   public loadSettings(): DevPanelSettings | undefined {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return undefined;
 
     const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
@@ -201,7 +200,7 @@ export class VariablesProvider implements TreeDataProvider<TreeItem> {
 async function runCommand(variable: DevPanelVariable, value: unknown) {
   if (!variable.command) return;
 
-  const workspace = getFirstWorkspacePath();
+  const workspace = VscodeHelper.getFirstWorkspacePath();
   if (!workspace) return;
 
   const formattedValue = Array.isArray(value) ? value.join(',') : String(value);
@@ -276,7 +275,7 @@ export async function selectVariableOption(variable: DevPanelVariable) {
     }
 
     case VariableKind.File: {
-      const workspaceFolder = getFirstWorkspaceFolder();
+      const workspaceFolder = VscodeHelper.getFirstWorkspaceFolder();
       if (!workspaceFolder) return;
 
       const settings = providerInstance?.loadSettings();
@@ -311,7 +310,7 @@ export async function selectVariableOption(variable: DevPanelVariable) {
     }
 
     case VariableKind.Folder: {
-      const workspaceFolder = getFirstWorkspaceFolder();
+      const workspaceFolder = VscodeHelper.getFirstWorkspaceFolder();
       if (!workspaceFolder) return;
 
       const settings = providerInstance?.loadSettings();

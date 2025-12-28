@@ -15,7 +15,7 @@ import { execAsync } from '../../common/utils/functions/exec-async';
 import { extractSectionMetadata } from '../../common/utils/functions/extract-section-metadata';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
-import { getFirstWorkspacePath } from '../../common/vscode/workspace-utils';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { SyncContext } from '../_branch_base/providers/interfaces';
 import {
   extractAllFieldsRaw,
@@ -75,7 +75,7 @@ export class SyncManager {
       return;
     }
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
     const rootPath = ConfigManager.getRootBranchContextFilePath(workspace);
@@ -118,7 +118,7 @@ export class SyncManager {
       return;
     }
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
     const rootPath = ConfigManager.getRootBranchContextFilePath(workspace);
@@ -160,7 +160,7 @@ export class SyncManager {
       return;
     }
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) {
       logger.warn('[syncBranchContext] No workspace, skipping');
       return;

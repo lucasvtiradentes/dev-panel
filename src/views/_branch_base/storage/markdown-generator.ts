@@ -13,7 +13,7 @@ import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext } from '../../../common/schemas/types';
 import { ConfigManager } from '../../../common/utils/config-manager';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
-import { getFirstWorkspacePath } from '../../../common/vscode/workspace-utils';
+import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import { detectBranchType, generateBranchTypeCheckboxes } from './branch-type-utils';
 import { loadTemplate } from './template-parser';
 
@@ -28,7 +28,7 @@ export async function generateBranchContextMarkdown(
 ): Promise<string | undefined> {
   logger.info(`[generateBranchContextMarkdown] Called for branch: ${branchName}`);
 
-  const workspace = getFirstWorkspacePath();
+  const workspace = VscodeHelper.getFirstWorkspacePath();
   if (!workspace) {
     logger.warn('[generateBranchContextMarkdown] No workspace found');
     return;

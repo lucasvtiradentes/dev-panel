@@ -2,7 +2,6 @@ import { createLogger } from '../common/lib/logger';
 import { ConfigManager } from '../common/utils/config-manager';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable, Uri } from '../common/vscode/vscode-types';
-import { getFirstWorkspacePath } from '../common/vscode/workspace-utils';
 import { type UriChangeCallback, attachFileWatcherHandlers } from './utils';
 
 const logger = createLogger('BranchMarkdownWatcher');
@@ -35,7 +34,7 @@ export function createBranchMarkdownWatcher(callbacks: DynamicWatcherCallbacks):
       currentWatcher = null;
     }
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace || !branchName) {
       logger.warn('[BranchMarkdownWatcher] [setupWatcher] No workspace or branch, skipping watcher setup');
       currentBranch = branchName;

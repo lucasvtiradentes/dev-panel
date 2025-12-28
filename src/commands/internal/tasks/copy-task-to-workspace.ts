@@ -9,8 +9,8 @@ import {
   showNotFoundError,
   stripGlobalPrefix,
 } from '../../../common/utils/item-utils';
+import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-utils';
-import { selectWorkspaceFolder } from '../../../common/vscode/workspace-utils';
 import type { TreeTask } from '../../../views/tasks/items';
 
 async function handleCopyTaskToWorkspace(treeTask: TreeTask) {
@@ -26,7 +26,7 @@ async function handleCopyTaskToWorkspace(treeTask: TreeTask) {
 
   const taskName = stripGlobalPrefix(treeTask.taskName);
 
-  const workspaceFolder = await selectWorkspaceFolder('Select workspace to copy task to');
+  const workspaceFolder = await VscodeHelper.selectWorkspaceFolder('Select workspace to copy task to');
   if (!workspaceFolder) return;
 
   const globalConfig = ConfigManager.loadGlobalConfig();
