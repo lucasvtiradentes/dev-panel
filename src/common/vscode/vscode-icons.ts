@@ -13,5 +13,9 @@ export class VscodeIcons {
   static readonly TaskDefault = VscodeHelper.createIcon(VscodeIcon.CircleLargeOutline);
 
   static readonly Inbox = VscodeHelper.createIcon(VscodeIcon.Inbox);
+  static readonly InboxCompleted = VscodeHelper.createIcon(VscodeIcon.Inbox, VscodeColor.ChartsGreen);
+  static readonly InboxInProgress = VscodeHelper.createIcon(VscodeIcon.Inbox, VscodeColor.ChartsBlue);
   static readonly Milestone = VscodeHelper.createIcon(VscodeIcon.Milestone);
+  static readonly MilestoneCompleted = VscodeHelper.createIcon(VscodeIcon.Milestone, VscodeColor.ChartsGreen);
+  static readonly MilestoneInProgress = VscodeHelper.createIcon(VscodeIcon.Milestone, VscodeColor.ChartsBlue);
 }

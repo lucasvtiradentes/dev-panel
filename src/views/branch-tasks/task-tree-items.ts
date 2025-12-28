@@ -66,11 +66,23 @@ export class BranchMilestoneItem extends TreeItemClass {
   ) {
     super(milestone.name, VscodeConstants.TreeItemCollapsibleState.Expanded);
     this.contextValue = CONTEXT_VALUES.MILESTONE_ITEM;
-    this.iconPath = isNoMilestone ? VscodeIcons.Inbox : VscodeIcons.Milestone;
 
     const total = this.countAllTasks(milestone.tasks);
     const done = this.countDoneTasks(milestone.tasks);
+    const doing = this.countDoingTasks(milestone.tasks);
     this.description = `${done}/${total}`;
+
+    this.iconPath = this.getMilestoneIcon(isNoMilestone, total, done, doing);
+  }
+
+  private getMilestoneIcon(isNoMilestone: boolean, total: number, done: number, doing: number) {
+    if (total > 0 && done === total) {
+      return isNoMilestone ? VscodeIcons.InboxCompleted : VscodeIcons.MilestoneCompleted;
+    }
+    if (doing > 0) {
+      return isNoMilestone ? VscodeIcons.InboxInProgress : VscodeIcons.MilestoneInProgress;
+    }
+    return isNoMilestone ? VscodeIcons.Inbox : VscodeIcons.Milestone;
   }
 
   private countAllTasks(tasks: TaskNode[]): number {
@@ -86,6 +98,15 @@ export class BranchMilestoneItem extends TreeItemClass {
     for (const task of tasks) {
       if (task.status === TaskStatus.Done) count++;
       count += this.countDoneTasks(task.children);
+    }
+    return count;
+  }
+
+  private countDoingTasks(tasks: TaskNode[]): number {
+    let count = 0;
+    for (const task of tasks) {
+      if (task.status === TaskStatus.Doing) count++;
+      count += this.countDoingTasks(task.children);
     }
     return count;
   }
