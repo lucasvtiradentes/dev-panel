@@ -5,11 +5,12 @@ import {
   DEFAULT_EXCLUDES,
   DEFAULT_INCLUDES,
   DESCRIPTION_NOT_SET,
-  ERROR_VARIABLE_COMMAND_FAILED,
   ToggleLabel,
   VARIABLES_FILE_NAME,
   getCommandId,
 } from '../../common/constants';
+
+const ERROR_VARIABLE_COMMAND_FAILED = 'Variable command failed';
 import { ConfigManager } from '../../common/core/config-manager';
 import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';

@@ -52,20 +52,6 @@ export const DND_MIME_TYPE_BRANCH_TASKS = `application/vnd.code.tree.${CONFIG_DI
 
 export const WORKSPACE_STATE_KEY = `${CONFIG_DIR_KEY}.uiState`;
 
-export const LOCAL_DIST_DIR = 'dist-dev';
-
-export const VSCODE_STANDARD_CONTAINERS = ['explorer', 'scm', 'debug', 'test', 'remote'];
-
-export const EDITOR_EXTENSIONS_PATHS = {
-  vscode: '.vscode/extensions',
-  cursor: '.cursor/extensions',
-  windsurf: '.windsurf/extensions',
-  vscodium: {
-    darwin: '.vscode-oss/extensions',
-    linux: '.config/VSCodium/extensions',
-  },
-} as const;
-
 export const CONTEXT_PREFIX = 'devPanel';
 export const VIEW_ID_TASKS = `${CONTEXT_PREFIX}Tasks`;
 export const VIEW_ID_CONFIGS = `${CONTEXT_PREFIX}Configs`;
@@ -146,9 +132,8 @@ export function getVscodeTasksFilePath(workspacePath: string): string {
   return NodePathHelper.join(workspacePath, '.vscode', 'tasks.json');
 }
 
-export const AI_SPEC_DEV_TOOLS_REGEX = /<dev_tools>[\s\S]*?<\/dev_tools>/;
-
-export const REGISTRY_BASE_URL = 'https://raw.githubusercontent.com/lucasvtiradentes/dev-panel/main/registry';
+const GITHUB_REPO = 'lucasvtiradentes/dev-panel';
+export const REGISTRY_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/registry`;
 export const REGISTRY_INDEX_FILE = 'index.json';
 export const PLUGINS_DIR_NAME = 'plugins';
 export const SCRIPTS_DIR_NAME = 'scripts';
@@ -157,27 +142,12 @@ export const REGISTRY_DEFAULT_PLUGIN_FILE = 'plugin.ts';
 export const REGISTRY_DEFAULT_PROMPT_FILE = 'prompt.md';
 export const REGISTRY_DEFAULT_TOOL_FILE = 'instructions.md';
 export const REGISTRY_DEFAULT_SCRIPT_FILE = 'script.sh';
-export const AI_SPEC_AVAILABLE_TOOLS_REGEX = /<available_tools>[\s\S]*?<\/available_tools>/;
 
 export const WORKSPACE_STATE_CONFIG_DIR_KEY = `${CONFIG_DIR_KEY}.configDir`;
 
-export const ERROR_MSG_WORKSPACE_REQUIRED = 'File/folder input requires a workspace folder';
-export const ERROR_MSG_INVALID_NUMBER = 'Please enter a valid number';
-
-export const CONFIRM_YES = 'Yes';
-const CONFIRM_NO = 'No';
-export const CONFIRM_OPTIONS = [CONFIRM_YES, CONFIRM_NO] as const;
-
-const GLOBAL_ITEM_TOOLTIP_SUFFIX = `from ~/.devpanel/${CONFIG_FILE_NAME}`;
+const GLOBAL_ITEM_TOOLTIP_SUFFIX = `from ~/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`;
 export const GLOBAL_PROMPT_TOOLTIP = `Global prompt ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
 export const GLOBAL_TASK_TOOLTIP = `Global task ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
 export const GLOBAL_TOOL_TOOLTIP = `Global tool ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
 
 export const NOT_GIT_REPO_MESSAGE = 'Not a git repository';
-
-export const ERROR_REPLACEMENTS_REQUIRE_GIT = 'Replacements require a git repository';
-export const ERROR_TARGET_FILE_NOT_FOUND = 'Target file not found';
-export const ERROR_SOURCE_FILE_NOT_FOUND = 'Source file not found';
-export const ERROR_VARIABLE_COMMAND_FAILED = 'Variable command failed';
-
-export const NPM_RUN_COMMAND = 'npm run';

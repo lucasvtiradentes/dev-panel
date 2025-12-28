@@ -1,10 +1,10 @@
 import { DEFAULT_EXCLUDES, DEFAULT_INCLUDES, ROOT_FOLDER_LABEL } from '../constants';
-import {
-  CONFIRM_OPTIONS,
-  CONFIRM_YES,
-  ERROR_MSG_INVALID_NUMBER,
-  ERROR_MSG_WORKSPACE_REQUIRED,
-} from '../constants/scripts-constants';
+
+const ERROR_MSG_WORKSPACE_REQUIRED = 'File/folder input requires a workspace folder';
+const ERROR_MSG_INVALID_NUMBER = 'Please enter a valid number';
+const CONFIRM_YES = 'Yes';
+const CONFIRM_NO = 'No';
+const CONFIRM_OPTIONS = [CONFIRM_YES, CONFIRM_NO] as const;
 import { createLogger } from '../lib/logger';
 import { type DevPanelInput, type DevPanelSettings, PromptInputType, TaskPriority, TaskStatus } from '../schemas';
 import { VscodeIcon } from './vscode-constants';

@@ -1,17 +1,27 @@
 import {
   CONTEXT_PREFIX,
   DEV_SUFFIX,
-  EDITOR_EXTENSIONS_PATHS,
   EXTENSION_DISPLAY_NAME,
   EXTENSION_NAME,
-  LOCAL_DIST_DIR,
   VIEW_ID_TASKS,
-  VSCODE_STANDARD_CONTAINERS,
   addDevLabel,
   addDevSuffix,
   buildExtensionId,
   buildLogFilename,
 } from '../../src/common/constants/scripts-constants';
+
+const LOCAL_DIST_DIR = 'dist-dev';
+const VSCODE_STANDARD_CONTAINERS = ['explorer', 'scm', 'debug', 'test', 'remote'];
+
+const EDITOR_EXTENSIONS_PATHS = {
+  vscode: '.vscode/extensions',
+  cursor: '.cursor/extensions',
+  windsurf: '.windsurf/extensions',
+  vscodium: {
+    darwin: '.vscode-oss/extensions',
+    linux: '.config/VSCodium/extensions',
+  },
+} as const;
 import {
   LICENSE_FILE,
   PACKAGE_JSON,
