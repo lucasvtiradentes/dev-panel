@@ -110,6 +110,10 @@ export function getGlobalConfigPath(): string {
   return NodePathHelper.join(getGlobalConfigDir(), CONFIG_FILE_NAME);
 }
 
+export function getGlobalVariablesPath(): string {
+  return NodePathHelper.join(getGlobalConfigDir(), VARIABLES_FILE_NAME);
+}
+
 function getGlobalToolsDir(): string {
   return NodePathHelper.join(getGlobalConfigDir(), TOOLS_DIR);
 }

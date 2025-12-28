@@ -201,21 +201,15 @@ function parseBranchContext(content: string): BranchContext {
     }
   }
 
-  logger.info(
-    `[parseBranchContext] Inline metadata sections: ${Object.keys(inlineSectionsMetadata).join(', ') || 'none'}`,
-  );
-  logger.info(
-    `[parseBranchContext] Footer metadata sections: ${Object.keys(baseMetadata.sections || {}).join(', ') || 'none'}`,
-  );
+  logger.info(`[parseBranchContext] Inline metadata sections: ${Object.keys(inlineSectionsMetadata).join(', ')}`);
+  logger.info(`[parseBranchContext] Footer metadata sections: ${Object.keys(baseMetadata.sections || {}).join(', ')}`);
 
   const mergedSectionsMetadata = {
     ...(baseMetadata.sections || {}),
     ...inlineSectionsMetadata,
   };
 
-  logger.info(
-    `[parseBranchContext] Merged metadata sections: ${Object.keys(mergedSectionsMetadata).join(', ') || 'none'}`,
-  );
+  logger.info(`[parseBranchContext] Merged metadata sections: ${Object.keys(mergedSectionsMetadata).join(', ')}`);
 
   const context: BranchContext = {
     branchName: extractField(content, BRANCH_CONTEXT_FIELD_BRANCH.replace(':', '')),

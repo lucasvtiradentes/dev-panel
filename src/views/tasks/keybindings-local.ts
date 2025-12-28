@@ -1,9 +1,9 @@
 import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
-import { NodePathHelper } from 'src/common/utils/helpers/node-helper';
 import {
   CONFIG_DIR_KEY,
   GLOBAL_TASK_TYPE,
   getGlobalConfigDir,
+  getGlobalVariablesPath,
   getTaskCommandId,
   getTaskCommandPrefix,
 } from '../../common/constants';
@@ -39,7 +39,7 @@ export function registerTaskKeybindings(context: ExtensionContext) {
     },
     createGlobalHandler: (task) => {
       const globalConfigDir = getGlobalConfigDir();
-      const variablesPath = NodePathHelper.join(globalConfigDir, 'variables.json5');
+      const variablesPath = getGlobalVariablesPath();
       const env = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);
 
       return () => {

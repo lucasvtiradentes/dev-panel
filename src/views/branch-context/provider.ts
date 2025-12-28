@@ -252,7 +252,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
 
     const context = loadBranchContext(this.currentBranch);
     logger.info(
-      `[BranchContext] [getChildren] Loaded context - metadata.sections keys: ${Object.keys(context.metadata?.sections || {}).join(', ') || 'none'}`,
+      `[BranchContext] [getChildren] Loaded context - metadata.sections keys: ${Object.keys(context.metadata?.sections || {}).join(', ')}`,
     );
     const config = this.helpers.loadConfig(workspace);
     const hideEmpty = branchContextState.getHideEmptySections();

@@ -118,7 +118,7 @@ export class BranchTasksDragAndDropController implements TreeDragAndDropControll
       lineIndex: item.node.lineIndex,
       milestoneName: this.provider.findMilestoneForTask(item.node.lineIndex),
     };
-    logger.info(`[handleDrag] Dragging task at line ${data.lineIndex}, milestone: ${data.milestoneName ?? 'none'}`);
+    logger.info(`[handleDrag] Dragging task at line ${data.lineIndex}, milestone: ${data.milestoneName}`);
     dataTransfer.set(DND_MIME_TYPE_BRANCH_TASKS, VscodeHelper.createDataTransferItem(JSON.stringify(data)));
   }
 
@@ -151,7 +151,7 @@ export class BranchTasksDragAndDropController implements TreeDragAndDropControll
       const targetMilestone = target.isNoMilestone ? null : target.milestone.name;
       if (dragData.milestoneName !== targetMilestone) {
         logger.info(
-          `[handleDrop] Moving task ${dragData.lineIndex} from milestone "${dragData.milestoneName ?? 'none'}" to "${targetMilestone ?? 'none'}"`,
+          `[handleDrop] Moving task ${dragData.lineIndex} from milestone "${dragData.milestoneName}" to "${targetMilestone}"`,
         );
         await this.provider.moveTaskToMilestone(dragData.lineIndex, targetMilestone);
       } else {
@@ -162,7 +162,7 @@ export class BranchTasksDragAndDropController implements TreeDragAndDropControll
 
       if (dragData.milestoneName !== targetMilestone) {
         logger.info(
-          `[handleDrop] Moving task ${dragData.lineIndex} from milestone "${dragData.milestoneName ?? 'none'}" to "${targetMilestone ?? 'none'}"`,
+          `[handleDrop] Moving task ${dragData.lineIndex} from milestone "${dragData.milestoneName}" to "${targetMilestone}"`,
         );
         await this.provider.moveTaskToMilestone(dragData.lineIndex, targetMilestone ?? null);
         await new Promise((resolve) => setTimeout(resolve, 100));

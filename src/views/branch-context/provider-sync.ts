@@ -303,9 +303,7 @@ export class SyncManager {
       for (const [name, metadata] of Object.entries(customSectionMetadata)) {
         sectionMetadataMap[name] = metadata;
       }
-      logger.info(
-        `[syncBranchContext] Section metadata map keys: ${Object.keys(sectionMetadataMap).join(', ') || 'none'}`,
-      );
+      logger.info(`[syncBranchContext] Section metadata map keys: ${Object.keys(sectionMetadataMap).join(', ')}`);
 
       let lastCommitHash: string | undefined;
       let lastCommitMessage: string | undefined;
@@ -320,7 +318,7 @@ export class SyncManager {
 
       logger.info(`[syncBranchContext] Building updated context (+${Date.now() - startTime}ms)`);
       logger.info(
-        `[syncBranchContext] Context before update - metadata.sections keys: ${Object.keys(context.metadata?.sections || {}).join(', ') || 'none'}`,
+        `[syncBranchContext] Context before update - metadata.sections keys: ${Object.keys(context.metadata?.sections || {}).join(', ')}`,
       );
 
       const updatedContext = {
@@ -337,7 +335,7 @@ export class SyncManager {
       };
 
       logger.info(
-        `[syncBranchContext] Updated context - metadata.sections keys: ${Object.keys(updatedContext.metadata?.sections || {}).join(', ') || 'none'}`,
+        `[syncBranchContext] Updated context - metadata.sections keys: ${Object.keys(updatedContext.metadata?.sections || {}).join(', ')}`,
       );
       if (updatedContext.metadata?.sections) {
         for (const [sectionName, sectionMetadata] of Object.entries(updatedContext.metadata.sections)) {

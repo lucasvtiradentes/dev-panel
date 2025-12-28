@@ -7,6 +7,7 @@ import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   getGlobalConfigDir,
+  getGlobalVariablesPath,
 } from '../../common/constants/scripts-constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import { Git } from '../../common/lib/git';
@@ -195,9 +196,7 @@ function handleExecuteTool(context: ExtensionContext, item: TreeTool | Task) {
     if (isGlobal) {
       toolConfig = globalConfig?.tools?.find((t) => t.name === actualName);
       cwd = folder ? folder.uri.fsPath : getGlobalConfigDir();
-      env = VariablesEnvManager.readDevPanelVariablesAsEnv(
-        NodePathHelper.join(getGlobalConfigDir(), 'variables.json5'),
-      );
+      env = VariablesEnvManager.readDevPanelVariablesAsEnv(getGlobalVariablesPath());
     } else {
       if (!folder) {
         void VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
