@@ -5,7 +5,6 @@ import { PluginAction, TaskStatus } from '../../../common/schemas';
 import { execAsync } from '../../../common/utils/functions/exec-async';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
-import { ENV } from '../../../env';
 import { extractAllFieldsRaw } from '../storage/file-storage';
 import type { AutoSectionProvider, NewTask, SyncContext, SyncResult, TaskNode, TaskSyncProvider } from './interfaces';
 import type {
@@ -52,7 +51,7 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
           timeout: PLUGIN_TIMEOUT,
           cwd: configDir,
           env: {
-            ...ENV,
+            ...process.env,
             PLUGIN_CONTEXT: contextJson,
           },
         });
@@ -85,7 +84,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
         timeout: PLUGIN_TIMEOUT,
         cwd: configDir,
         env: {
-          ...ENV,
+          ...process.env,
           PLUGIN_CONTEXT: JSON.stringify(request),
         },
       });
