@@ -56,3 +56,4 @@
 - [ ] milestones devem ter cores
 - [ ] criar um botao de popular requirements / notes etc a partir do linear / pr info
 - [ ] botao de IA para a gente preencher os dados do markdown com ia 
+- [ ] JSON.parse -> criar json helper
