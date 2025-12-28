@@ -1,5 +1,5 @@
 import { TaskPriority } from '../../../common/schemas';
-import { type ItemOrLineIndex, extractLineIndex } from '../../../common/utils/item-utils';
+import { type ItemOrLineIndex, extractLineIndex } from '../../../common/utils/tree-item-utils';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { pickPriority } from '../../../common/vscode/vscode-inputs';
 import type { Disposable } from '../../../common/vscode/vscode-types';

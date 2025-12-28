@@ -1,4 +1,4 @@
-import { type ItemOrLineIndex, extractLineIndex } from '../../../common/utils/item-utils';
+import { type ItemOrLineIndex, extractLineIndex } from '../../../common/utils/tree-item-utils';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
