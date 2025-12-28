@@ -41,27 +41,13 @@ type TreeNode = {
 };
 
 export class Git {
-  static readonly COMMANDS = {
-    DIFF_BASE_BRANCH_NAME_STATUS: `git diff ${BASE_BRANCH}...HEAD --name-status`,
-    DIFF_BASE_BRANCH_NAME_ONLY: `git diff ${BASE_BRANCH}...HEAD --name-only`,
-    DIFF_BASE_BRANCH_NUMSTAT: `git diff ${BASE_BRANCH}...HEAD --numstat`,
-    DIFF_CACHED_NAME_STATUS: 'git diff --cached --name-status',
-    DIFF_CACHED_NAME_ONLY: 'git diff --cached --name-only',
-    DIFF_CACHED_NUMSTAT: 'git diff --cached --numstat',
-    DIFF_NAME_STATUS: 'git diff --name-status',
-    DIFF_NAME_ONLY: 'git diff --name-only',
-    DIFF_NUMSTAT: 'git diff --numstat',
-    REV_PARSE_HEAD: 'git rev-parse HEAD',
-    LOG_LAST_COMMIT_MESSAGE: 'git log -1 --pretty=%B',
-  } as const;
-
   static readonly INTEGRATION = {
     EXTENSION_ID: 'vscode.git',
     API_VERSION: 1,
     HEAD_FILE_PATH: '.git/HEAD',
   } as const;
 
-  static async execCommand(workspace: string, args: string[]): Promise<string> {
+  private static async execCommand(workspace: string, args: string[]): Promise<string> {
     const { stdout } = await execAsync(`git ${args.join(' ')}`, { cwd: workspace });
     return stdout.trim();
   }
@@ -88,6 +74,14 @@ export class Git {
     await Git.execCommand(workspace, ['checkout', '--', filePath]);
   }
 
+  static async getLastCommitHash(workspace: string): Promise<string> {
+    return Git.execCommand(workspace, ['rev-parse', 'HEAD']);
+  }
+
+  static async getLastCommitMessage(workspace: string): Promise<string> {
+    return Git.execCommand(workspace, ['log', '-1', '--pretty=%B']);
+  }
+
   static async fileExistsInGit(workspace: string, filePath: string): Promise<boolean> {
     try {
       await Git.execCommand(workspace, ['ls-files', '--error-unmatch', filePath]);
@@ -95,6 +89,42 @@ export class Git {
     } catch {
       return false;
     }
+  }
+
+  static async diffBaseBranchNameStatus(workspace: string, baseBranch: string): Promise<string> {
+    return Git.execCommand(workspace, ['diff', `${baseBranch}...HEAD`, '--name-status']);
+  }
+
+  static async diffBaseBranchNameOnly(workspace: string, baseBranch: string): Promise<string> {
+    return Git.execCommand(workspace, ['diff', `${baseBranch}...HEAD`, '--name-only']);
+  }
+
+  static async diffBaseBranchNumstat(workspace: string, baseBranch: string): Promise<string> {
+    return Git.execCommand(workspace, ['diff', `${baseBranch}...HEAD`, '--numstat']);
+  }
+
+  static async diffCachedNameStatus(workspace: string): Promise<string> {
+    return Git.execCommand(workspace, ['diff', '--cached', '--name-status']);
+  }
+
+  static async diffCachedNameOnly(workspace: string): Promise<string> {
+    return Git.execCommand(workspace, ['diff', '--cached', '--name-only']);
+  }
+
+  static async diffCachedNumstat(workspace: string): Promise<string> {
+    return Git.execCommand(workspace, ['diff', '--cached', '--numstat']);
+  }
+
+  static async diffNameStatus(workspace: string): Promise<string> {
+    return Git.execCommand(workspace, ['diff', '--name-status']);
+  }
+
+  static async diffNameOnly(workspace: string): Promise<string> {
+    return Git.execCommand(workspace, ['diff', '--name-only']);
+  }
+
+  static async diffNumstat(workspace: string): Promise<string> {
+    return Git.execCommand(workspace, ['diff', '--numstat']);
   }
 
   static async getAPI(): Promise<GitAPI | null> {
@@ -156,21 +186,16 @@ export class Git {
 
   private static async getChangedFilesSummaryFromGit(workspacePath: string): Promise<ChangedFilesSummary | null> {
     try {
-      const commands = [
-        Git.COMMANDS.DIFF_BASE_BRANCH_NAME_STATUS,
-        Git.COMMANDS.DIFF_CACHED_NAME_STATUS,
-        Git.COMMANDS.DIFF_NAME_STATUS,
-      ];
-
-      const results = await Promise.all(
-        commands.map((cmd) => execAsync(cmd, { cwd: workspacePath }).then((r) => r.stdout)),
-      );
+      const results = await Promise.all([
+        Git.diffBaseBranchNameStatus(workspacePath, BASE_BRANCH),
+        Git.diffCachedNameStatus(workspacePath),
+        Git.diffNameStatus(workspacePath),
+      ]);
 
       const statusMap = new Map<string, string>();
 
       for (const output of results) {
         output
-          .trim()
           .split('\n')
           .filter((line) => line)
           .forEach((line) => {
@@ -203,34 +228,26 @@ export class Git {
 
   private static async getChangedFilesTreeFormat(workspacePath: string): Promise<string> {
     try {
-      const commands = [
-        Git.COMMANDS.DIFF_BASE_BRANCH_NAME_ONLY,
-        Git.COMMANDS.DIFF_CACHED_NAME_ONLY,
-        Git.COMMANDS.DIFF_NAME_ONLY,
-      ];
-
-      const results = await Promise.all(
-        commands.map((cmd) => execAsync(cmd, { cwd: workspacePath }).then((r) => r.stdout)),
-      );
+      const results = await Promise.all([
+        Git.diffBaseBranchNameOnly(workspacePath, BASE_BRANCH),
+        Git.diffCachedNameOnly(workspacePath),
+        Git.diffNameOnly(workspacePath),
+      ]);
 
       const allFiles = new Set<string>();
 
-      const addFiles = (output: string) => {
+      for (const output of results) {
         output
-          .trim()
           .split('\n')
           .filter((f) => f)
           .forEach((f) => allFiles.add(f));
-      };
-
-      results.forEach(addFiles);
+      }
 
       if (allFiles.size === 0) {
         return BRANCH_CONTEXT_NO_CHANGES;
       }
 
-      const tree = Git.buildFileTree(Array.from(allFiles));
-      return tree;
+      return Git.buildFileTree(Array.from(allFiles));
     } catch {
       return NOT_GIT_REPO_MESSAGE;
     }
@@ -240,32 +257,22 @@ export class Git {
     logger.info(`[getChangedFilesListFormat] Starting git commands for workspace: ${workspacePath}`);
 
     try {
-      const commands = [
-        { status: Git.COMMANDS.DIFF_BASE_BRANCH_NAME_STATUS, num: Git.COMMANDS.DIFF_BASE_BRANCH_NUMSTAT },
-        { status: Git.COMMANDS.DIFF_CACHED_NAME_STATUS, num: Git.COMMANDS.DIFF_CACHED_NUMSTAT },
-        { status: Git.COMMANDS.DIFF_NAME_STATUS, num: Git.COMMANDS.DIFF_NUMSTAT },
-      ];
-
-      logger.info(`[getChangedFilesListFormat] Executing ${commands.length} git command pairs`);
-
-      const results = await Promise.all(
-        commands.map(async ({ status, num }) => {
-          const [statusRes, numRes] = await Promise.all([
-            execAsync(status, { cwd: workspacePath }),
-            execAsync(num, { cwd: workspacePath }),
-          ]);
-          return { status: statusRes.stdout, num: numRes.stdout };
-        }),
-      );
+      const results = await Promise.all([
+        Promise.all([
+          Git.diffBaseBranchNameStatus(workspacePath, BASE_BRANCH),
+          Git.diffBaseBranchNumstat(workspacePath, BASE_BRANCH),
+        ]),
+        Promise.all([Git.diffCachedNameStatus(workspacePath), Git.diffCachedNumstat(workspacePath)]),
+        Promise.all([Git.diffNameStatus(workspacePath), Git.diffNumstat(workspacePath)]),
+      ]);
 
       logger.info('[getChangedFilesListFormat] Git commands completed successfully');
 
       const statusMap = new Map<string, string>();
       const statsMap = new Map<string, { added: string; deleted: string }>();
 
-      results.forEach(({ status, num }) => {
+      for (const [status, num] of results) {
         status
-          .trim()
           .split('\n')
           .filter((line) => line)
           .forEach((line) => {
@@ -275,7 +282,6 @@ export class Git {
           });
 
         num
-          .trim()
           .split('\n')
           .filter((line) => line)
           .forEach((line) => {
@@ -283,7 +289,7 @@ export class Git {
             const file = fileParts.join('\t');
             statsMap.set(file, { added, deleted });
           });
-      });
+      }
 
       if (statusMap.size === 0) {
         logger.info('[getChangedFilesListFormat] No changes detected');
@@ -297,10 +303,10 @@ export class Git {
 
       const lines: string[] = [];
       for (const file of sortedFiles) {
-        const status = statusMap.get(file);
-        if (!status) continue;
+        const fileStatus = statusMap.get(file);
+        if (!fileStatus) continue;
         const stats = statsMap.get(file) || { added: '0', deleted: '0' };
-        const statusSymbol = status.charAt(0);
+        const statusSymbol = fileStatus.charAt(0);
         const padding = ' '.repeat(Math.max(0, maxFileLength - file.length + 1));
         lines.push(`${statusSymbol}  ${file}${padding}(+${stats.added} -${stats.deleted})`);
       }
@@ -315,28 +321,20 @@ export class Git {
 
   private static async getChangedFilesListFormatWithSummary(workspacePath: string): Promise<ChangedFilesResult> {
     try {
-      const commands = [
-        { status: Git.COMMANDS.DIFF_BASE_BRANCH_NAME_STATUS, num: Git.COMMANDS.DIFF_BASE_BRANCH_NUMSTAT },
-        { status: Git.COMMANDS.DIFF_CACHED_NAME_STATUS, num: Git.COMMANDS.DIFF_CACHED_NUMSTAT },
-        { status: Git.COMMANDS.DIFF_NAME_STATUS, num: Git.COMMANDS.DIFF_NUMSTAT },
-      ];
-
-      const results = await Promise.all(
-        commands.map(async ({ status, num }) => {
-          const [statusRes, numRes] = await Promise.all([
-            execAsync(status, { cwd: workspacePath }),
-            execAsync(num, { cwd: workspacePath }),
-          ]);
-          return { status: statusRes.stdout, num: numRes.stdout };
-        }),
-      );
+      const results = await Promise.all([
+        Promise.all([
+          Git.diffBaseBranchNameStatus(workspacePath, BASE_BRANCH),
+          Git.diffBaseBranchNumstat(workspacePath, BASE_BRANCH),
+        ]),
+        Promise.all([Git.diffCachedNameStatus(workspacePath), Git.diffCachedNumstat(workspacePath)]),
+        Promise.all([Git.diffNameStatus(workspacePath), Git.diffNumstat(workspacePath)]),
+      ]);
 
       const statusMap = new Map<string, string>();
       const statsMap = new Map<string, { added: string; deleted: string }>();
 
-      results.forEach(({ status, num }) => {
-        status
-          .trim()
+      for (const [statusOutput, numOutput] of results) {
+        statusOutput
           .split('\n')
           .filter((line) => line)
           .forEach((line) => {
@@ -347,8 +345,7 @@ export class Git {
             }
           });
 
-        num
-          .trim()
+        numOutput
           .split('\n')
           .filter((line) => line)
           .forEach((line) => {
@@ -356,7 +353,7 @@ export class Git {
             const file = fileParts.join('\t');
             statsMap.set(file, { added, deleted });
           });
-      });
+      }
 
       if (statusMap.size === 0) {
         return {
@@ -373,27 +370,27 @@ export class Git {
         };
       }
 
-      const summary = Git.computeSummaryFromStatusMap(statusMap);
+      const computedSummary = Git.computeSummaryFromStatusMap(statusMap);
 
       const sortedFiles = Array.from(statusMap.keys()).sort();
       const maxFileLength = Math.max(...sortedFiles.map((f) => f.length));
 
       const lines: string[] = [];
       for (const file of sortedFiles) {
-        const status = statusMap.get(file);
-        if (!status) continue;
+        const fileStatus = statusMap.get(file);
+        if (!fileStatus) continue;
         const stats = statsMap.get(file) ?? { added: '0', deleted: '0' };
-        const statusSymbol = status.charAt(0);
+        const statusSymbol = fileStatus.charAt(0);
         const padding = ' '.repeat(Math.max(0, maxFileLength - file.length + 1));
         lines.push(`${statusSymbol}  ${file}${padding}(+${stats.added} -${stats.deleted})`);
       }
 
-      const formattedSummary = Git.formatChangedFilesSummary(summary);
+      const formattedSummary = Git.formatChangedFilesSummary(computedSummary);
       const sectionMetadata = {
         filesCount: statusMap.size,
-        added: summary.added,
-        modified: summary.modified,
-        deleted: summary.deleted,
+        added: computedSummary.added,
+        modified: computedSummary.modified,
+        deleted: computedSummary.deleted,
         summary: formattedSummary,
         isEmpty: statusMap.size === 0,
         description: formattedSummary,
@@ -401,7 +398,7 @@ export class Git {
 
       return {
         content: lines.join('\n'),
-        summary: Git.formatChangedFilesSummary(summary),
+        summary: Git.formatChangedFilesSummary(computedSummary),
         sectionMetadata,
       };
     } catch {

@@ -5,11 +5,12 @@ import {
   DEFAULT_EXCLUDES,
   DEFAULT_INCLUDES,
   DESCRIPTION_NOT_SET,
-  ERROR_VARIABLE_COMMAND_FAILED,
   ToggleLabel,
   VARIABLES_FILE_NAME,
   getCommandId,
 } from '../../common/constants';
+
+const ERROR_VARIABLE_COMMAND_FAILED = 'Variable command failed';
 import { ConfigManager } from '../../common/core/config-manager';
 import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
@@ -25,11 +26,11 @@ import { type FileSelectionOptions, selectFiles, selectFolders } from '../../com
 import { type TreeDataProvider, type TreeItem, TreeItemClass } from '../../common/vscode/vscode-types';
 import { getIsGrouped, saveIsGrouped } from './state';
 
-type PpVariables = {
+type DevPanelVariables = {
   variables: DevPanelVariable[];
 };
 
-type PpState = {
+type DevPanelState = {
   [key: string]: unknown;
 };
 
@@ -39,7 +40,7 @@ function getStatePath(): string | null {
   return ConfigManager.getConfigFilePathFromWorkspacePath(workspace, VARIABLES_FILE_NAME);
 }
 
-function loadState(): PpState {
+function loadState(): DevPanelState {
   const statePath = getStatePath();
   if (!statePath || !FileIOHelper.fileExists(statePath)) return {};
   try {
@@ -48,13 +49,13 @@ function loadState(): PpState {
     if (!TypeGuardsHelper.isObject(parsed)) {
       return {};
     }
-    return parsed as PpState;
+    return parsed as DevPanelState;
   } catch {
     return {};
   }
 }
 
-function saveState(state: PpState) {
+function saveState(state: DevPanelState) {
   const statePath = getStatePath();
   if (!statePath) return;
   FileIOHelper.writeFile(statePath, JSON.stringify(state, null, 2));
@@ -161,7 +162,7 @@ export class VariablesProvider implements TreeDataProvider<TreeItem> {
     return Promise.resolve(items);
   }
 
-  private loadConfig(): PpVariables | null {
+  private loadConfig(): DevPanelVariables | null {
     const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return null;
 

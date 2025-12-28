@@ -40,11 +40,8 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
       }
 
       const contextJson = JSON.stringify({
-        branchName: context.branchName,
-        workspacePath: context.workspacePath,
-        markdownPath: context.markdownPath,
+        ...context,
         fields,
-        sectionOptions: context.sectionOptions,
       });
 
       logger.info(`[loadAutoProvider] Running: ${providerCommand}`);
@@ -75,13 +72,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
   async function executePlugin<T>(action: PluginAction, context: SyncContext, payload?: unknown): Promise<T> {
     const request: PluginRequest = {
       action,
-      context: {
-        branchName: context.branchName,
-        workspacePath: context.workspacePath,
-        markdownPath: context.markdownPath,
-        branchContext: context.branchContext,
-        sectionOptions: context.sectionOptions,
-      },
+      context,
       payload,
     };
 

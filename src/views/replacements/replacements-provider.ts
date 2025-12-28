@@ -1,11 +1,5 @@
-import {
-  CONFIG_FILE_NAME,
-  CONTEXT_VALUES,
-  ERROR_REPLACEMENTS_REQUIRE_GIT,
-  ERROR_SOURCE_FILE_NOT_FOUND,
-  ERROR_TARGET_FILE_NOT_FOUND,
-  getCommandId,
-} from '../../common/constants';
+import { CONFIG_FILE_NAME, CONTEXT_VALUES, getCommandId } from '../../common/constants';
+
 import { ConfigManager } from '../../common/core/config-manager';
 import { Git } from '../../common/lib/git';
 import {
@@ -231,17 +225,17 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
     if (!workspace) return;
 
     if (!(await Git.isRepository(workspace))) {
-      VscodeHelper.showToastMessage(ToastKind.Error, ERROR_REPLACEMENTS_REQUIRE_GIT);
+      VscodeHelper.showToastMessage(ToastKind.Error, 'Replacements require a git repository');
       return;
     }
 
     if (replacement.type === ReplacementType.Patch && !fileExists(workspace, replacement.target)) {
-      VscodeHelper.showToastMessage(ToastKind.Error, `${ERROR_TARGET_FILE_NOT_FOUND}: ${replacement.target}`);
+      VscodeHelper.showToastMessage(ToastKind.Error, `Target file not found: ${replacement.target}`);
       return;
     }
 
     if (replacement.type === ReplacementType.File && !fileExists(workspace, replacement.source)) {
-      VscodeHelper.showToastMessage(ToastKind.Error, `${ERROR_SOURCE_FILE_NOT_FOUND}: ${replacement.source}`);
+      VscodeHelper.showToastMessage(ToastKind.Error, `Source file not found: ${replacement.source}`);
       return;
     }
 

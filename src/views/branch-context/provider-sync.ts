@@ -1,6 +1,5 @@
 import { BranchContextMarkdownHelper } from 'src/common/core/branch-context-markdown';
 import {
-  ChangedFilesStyle,
   METADATA_SECTION_REGEX_CAPTURE,
   METADATA_SECTION_REGEX_GLOBAL,
   SECTION_NAME_CHANGED_FILES,
@@ -11,7 +10,6 @@ import { ConfigManager } from '../../common/core/config-manager';
 import { StoreKey, extensionStore } from '../../common/core/extension-store';
 import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
-import { execAsync } from '../../common/utils/functions/exec-async';
 import { extractSectionMetadata } from '../../common/utils/functions/extract-section-metadata';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
@@ -187,32 +185,25 @@ export class SyncManager {
       if (changedFilesConfig !== false) {
         logger.info(`[syncBranchContext] Fetching changedFiles (+${Date.now() - startTime}ms)`);
 
-        if (TypeGuardsHelper.isObjectWithProperty(changedFilesConfig, 'provider')) {
-          const registry = this.helpers.getSectionRegistry(workspace, config, changedFilesConfig);
-          const changedFilesSection = registry.get(SECTION_NAME_CHANGED_FILES);
+        const registry = this.helpers.getSectionRegistry(workspace, config, changedFilesConfig);
+        const changedFilesSection = registry.get(SECTION_NAME_CHANGED_FILES);
 
-          if (changedFilesSection?.provider) {
-            logger.info(`[syncBranchContext] Using custom provider for changedFiles: ${changedFilesConfig.provider}`);
-            const data = await changedFilesSection.provider.fetch(syncContext);
-            changedFiles = data;
+        if (changedFilesSection?.provider) {
+          const data = await changedFilesSection.provider.fetch(syncContext);
+          changedFiles = data;
 
-            const metadataMatch = data.match(METADATA_SECTION_REGEX_CAPTURE);
-            if (metadataMatch) {
-              try {
-                const parsed = JSON.parse(metadataMatch[1]);
-                if (TypeGuardsHelper.isObject(parsed)) {
-                  changedFilesSectionMetadata = parsed as Record<string, unknown>;
-                  changedFiles = data.replace(METADATA_SECTION_REGEX_GLOBAL, '').trim();
-                }
-              } catch (error: unknown) {
-                logger.error(`Failed to parse changedFiles metadata: ${TypeGuardsHelper.getErrorMessage(error)}`);
+          const metadataMatch = data.match(METADATA_SECTION_REGEX_CAPTURE);
+          if (metadataMatch) {
+            try {
+              const parsed = JSON.parse(metadataMatch[1]);
+              if (TypeGuardsHelper.isObject(parsed)) {
+                changedFilesSectionMetadata = parsed as Record<string, unknown>;
+                changedFiles = data.replace(METADATA_SECTION_REGEX_GLOBAL, '').trim();
               }
+            } catch (error: unknown) {
+              logger.error(`Failed to parse changedFiles metadata: ${TypeGuardsHelper.getErrorMessage(error)}`);
             }
           }
-        } else {
-          const result = await Git.getChangedFilesWithSummary(workspace, ChangedFilesStyle.List);
-          changedFiles = result.content;
-          changedFilesSectionMetadata = result.sectionMetadata;
         }
 
         logger.info(`[syncBranchContext] changedFiles done (+${Date.now() - startTime}ms)`);
@@ -308,10 +299,8 @@ export class SyncManager {
       let lastCommitHash: string | undefined;
       let lastCommitMessage: string | undefined;
       try {
-        const hashResult = await execAsync(Git.COMMANDS.REV_PARSE_HEAD, { cwd: workspace });
-        lastCommitHash = hashResult.stdout.trim();
-        const msgResult = await execAsync(Git.COMMANDS.LOG_LAST_COMMIT_MESSAGE, { cwd: workspace });
-        lastCommitMessage = msgResult.stdout.trim();
+        lastCommitHash = await Git.getLastCommitHash(workspace);
+        lastCommitMessage = await Git.getLastCommitMessage(workspace);
       } catch (error: unknown) {
         logger.error(`Failed to get git commit info: ${TypeGuardsHelper.getErrorMessage(error)}`);
       }

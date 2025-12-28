@@ -1,15 +1,6 @@
-import {
-  PLUGINS_DIR_NAME,
-  PROMPTS_DIR_NAME,
-  REGISTRY_BASE_URL,
-  REGISTRY_DEFAULT_PLUGIN_FILE,
-  REGISTRY_DEFAULT_PROMPT_FILE,
-  REGISTRY_DEFAULT_SCRIPT_FILE,
-  REGISTRY_DEFAULT_TOOL_FILE,
-  REGISTRY_INDEX_FILE,
-  SCRIPTS_DIR_NAME,
-  TOOLS_DIR,
-} from '../../../common/constants';
+import { PROMPTS_DIR_NAME, TOOLS_DIR } from '../../../common/constants';
+
+const REGISTRY_BASE_URL = 'https://raw.githubusercontent.com/lucasvtiradentes/dev-panel/main/registry';
 import { ConfigKey } from '../../../common/constants/enums';
 import { ConfigManager } from '../../../common/core/config-manager';
 import { logger } from '../../../common/lib/logger';
@@ -32,26 +23,14 @@ type KindConfig = {
 };
 
 const KIND_CONFIG: Record<RegistryItemKind, KindConfig> = {
-  [RegistryItemKind.Plugin]: {
-    dirName: PLUGINS_DIR_NAME,
-    defaultFile: REGISTRY_DEFAULT_PLUGIN_FILE,
-    configKey: ConfigKey.Plugins,
-  },
-  [RegistryItemKind.Prompt]: {
-    dirName: PROMPTS_DIR_NAME,
-    defaultFile: REGISTRY_DEFAULT_PROMPT_FILE,
-    configKey: ConfigKey.Prompts,
-  },
-  [RegistryItemKind.Tool]: { dirName: TOOLS_DIR, defaultFile: REGISTRY_DEFAULT_TOOL_FILE, configKey: ConfigKey.Tools },
-  [RegistryItemKind.Script]: {
-    dirName: SCRIPTS_DIR_NAME,
-    defaultFile: REGISTRY_DEFAULT_SCRIPT_FILE,
-    configKey: ConfigKey.Scripts,
-  },
+  [RegistryItemKind.Plugin]: { dirName: 'plugins', defaultFile: 'plugin.ts', configKey: ConfigKey.Plugins },
+  [RegistryItemKind.Prompt]: { dirName: PROMPTS_DIR_NAME, defaultFile: 'prompt.md', configKey: ConfigKey.Prompts },
+  [RegistryItemKind.Tool]: { dirName: TOOLS_DIR, defaultFile: 'instructions.md', configKey: ConfigKey.Tools },
+  [RegistryItemKind.Script]: { dirName: 'scripts', defaultFile: 'script.sh', configKey: ConfigKey.Scripts },
 };
 
 export async function fetchRegistryIndex(): Promise<RegistryIndex> {
-  const url = `${REGISTRY_BASE_URL}/${REGISTRY_INDEX_FILE}`;
+  const url = `${REGISTRY_BASE_URL}/index.json`;
   logger.info(`Fetching registry index from ${url}`);
   const content = await fetchUrl(url);
   const rawIndex = JSON.parse(content);

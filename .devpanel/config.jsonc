@@ -20,11 +20,11 @@
   },
   "branchContext": {
     "builtinSections": {
-      // "changedFiles": {
-      //   "provider": "tsx ./plugins/tree-changed-files.ts"
-      // },
+      "changedFiles": {
+        "provider": "tsx ./plugins/tree-changed-files.ts"
+      },
       // "tasks": { "provider": "tsx ./plugins/linear-tasks.ts" },
-      "changedFiles": true,
+      // "changedFiles": true,
       "tasks": true
     },
     "customSections": [

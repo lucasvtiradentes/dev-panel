@@ -5,7 +5,6 @@ import {
   DEFAULT_EXCLUDED_DIRS,
   DIST_DIR_PREFIX,
   NO_GROUP_NAME,
-  NPM_RUN_COMMAND,
   PACKAGE_JSON,
   ROOT_PACKAGE_LABEL,
   getCommandId,
@@ -282,7 +281,7 @@ function createNpmTask(options: {
 
   const variablesPath = ConfigManager.getWorkspaceVariablesPath(folder);
   const env = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);
-  const shellExec = VscodeHelper.createShellExecution(`${NPM_RUN_COMMAND} ${name}`, { cwd, env });
+  const shellExec = VscodeHelper.createShellExecution(`npm run ${name}`, { cwd, env });
   const task = VscodeHelper.createTask({
     definition: { type: 'npm' },
     scope: folder,

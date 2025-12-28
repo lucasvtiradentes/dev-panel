@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { EDITOR_NAMES, KEYBINDINGS_FILE, USER_CONFIG_DIR, USER_SETTINGS_DIR } from '../constants';
 import { readJsoncFile } from '../utils/functions/read-jsonc-file';
-import { FileIOHelper, NodePathHelper } from '../utils/helpers/node-helper';
+import { FileIOHelper, NodeOsHelper, NodePathHelper } from '../utils/helpers/node-helper';
 
 export type VSCodeKeybinding = { key: string; command: string; when?: string };
 
@@ -13,7 +13,7 @@ function detectEditor(): string {
 
 export function getVSCodeKeybindingsPath(): string {
   const editorName = detectEditor();
-  return NodePathHelper.join(process.env.HOME ?? '', USER_CONFIG_DIR, editorName, USER_SETTINGS_DIR, KEYBINDINGS_FILE);
+  return NodePathHelper.join(NodeOsHelper.homedir(), USER_CONFIG_DIR, editorName, USER_SETTINGS_DIR, KEYBINDINGS_FILE);
 }
 
 export function parseKeybindings(content: string) {
