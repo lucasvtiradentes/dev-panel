@@ -23,6 +23,7 @@ import type { BranchContextConfig } from '../../common/schemas/config-schema';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeIcon, type VscodeIconString } from '../../common/vscode/vscode-constants';
+import { DefaultChangedFilesProvider } from '../_branch_base/providers/default/changed-files.provider';
 import type { AutoSectionProvider } from '../_branch_base/providers/interfaces';
 import { loadAutoProvider } from '../_branch_base/providers/plugin-loader';
 
@@ -140,6 +141,7 @@ export class SectionRegistry {
           type: SectionType.Auto,
           icon: VscodeIcon.Diff,
           isBuiltin: true,
+          provider: new DefaultChangedFilesProvider(),
         });
       }
     }
