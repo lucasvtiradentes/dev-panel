@@ -29,15 +29,19 @@ export const BRANCH_CONTEXT_NA = 'N/A';
 export const BRANCH_CONTEXT_NO_CHANGES = 'No changes';
 export const BRANCH_CONTEXT_DEFAULT_TODOS = '- [ ] task1\n- [ ] task2';
 
-export const METADATA_DEVPANEL_PREFIX = '<!-- DEVPANEL_METADATA: ';
-export const METADATA_SECTION_PREFIX = '<!-- SECTION_METADATA: ';
+const METADATA_DEVPANEL = 'DEVPANEL_METADATA';
+export const METADATA_DEVPANEL_PREFIX = `<!-- ${METADATA_DEVPANEL}: `;
+export const METADATA_DEVPANEL_REGEX = new RegExp(`<!--\\s*${METADATA_DEVPANEL}:.*?-->`);
+export const METADATA_SECTION = 'SECTION_METADATA';
+export const METADATA_SECTION_PREFIX = `<!-- ${METADATA_SECTION}: `;
+export const METADATA_SECTION_REGEX_CAPTURE = new RegExp(`<!--\\s*${METADATA_SECTION}:\\s*(.+?)\\s*-->`);
+export const METADATA_SECTION_REGEX_GLOBAL = new RegExp(`<!--\\s*${METADATA_SECTION}:.*?-->`, 'g');
 export const METADATA_SUFFIX = ' -->';
 export const METADATA_SEPARATOR = '<!-- ------------------- -->';
-export const METADATA_DEVPANEL_REGEX = /<!--\s*DEVPANEL_METADATA:.*?-->/;
-export const METADATA_SECTION_REGEX_CAPTURE = /<!--\s*SECTION_METADATA:\s*(.+?)\s*-->/;
-export const METADATA_SECTION_REGEX_GLOBAL = /<!--\s*SECTION_METADATA:.*?-->/g;
-export const METADATA_SECTION_WITH_CODEBLOCK_REGEX =
-  /^#\s+([A-Z][A-Z\s]+)\s*\n+```\s*\n([\s\S]*?)\n```(\s*\n+<!-- SECTION_METADATA: (.+?) -->)?/gm;
+export const METADATA_SECTION_WITH_CODEBLOCK_REGEX = new RegExp(
+  `^#\\s+([A-Z][A-Z\\s]+)\\s*\\n+\`\`\`\\s*\\n([\\s\\S]*?)\\n\`\`\`(\\s*\\n+<!-- ${METADATA_SECTION}: (.+?) -->)?`,
+  'gm',
+);
 export const METADATA_SEPARATOR_REGEX = /<!--\s*-+\s*-->/;
 
 export const METADATA_FIELD_IS_EMPTY = 'isEmpty';
