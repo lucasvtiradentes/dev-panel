@@ -62,7 +62,7 @@ async function showItemsForKind(workspaceFolder: WorkspaceFolder, kind: Registry
           const isInstalled = installedItems.includes(item.name);
           return {
             id: item,
-            label: `${isInstalled ? '$(check) ' : ''}${item.name}`,
+            label: `${isInstalled ? `$(${VscodeIcon.Check}) ` : ''}${item.name}`,
             description: item.category,
             detail: item.description,
             picked: false,
@@ -71,7 +71,7 @@ async function showItemsForKind(workspaceFolder: WorkspaceFolder, kind: Registry
 
         quickPickItems.unshift({
           id: null,
-          label: '$(arrow-left) Back',
+          label: `$(${VscodeIcon.ArrowLeft}) Back`,
           detail: 'Return to category selection',
         });
 

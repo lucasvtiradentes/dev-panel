@@ -9,7 +9,7 @@ import {
 import { ConfigManager } from '../../common/core/config-manager';
 import { logger } from '../../common/lib/logger';
 import { NodePathHelper } from '../../common/utils/helpers/node-helper';
-import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { VscodeConstants, VscodeIcon } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { QuickPickItem, Uri } from '../../common/vscode/vscode-types';
 
@@ -93,14 +93,14 @@ async function showFolderPicker(workspaceRoot: Uri, currentPath: string): Promis
 
   items.push({
     id: QUICK_PICK_ACTION_SELECT,
-    label: '$(check) Select this folder',
+    label: `$(${VscodeIcon.Check}) Select this folder`,
     detail: isRoot ? `Use: ${CONFIG_DIR_NAME} (project root)` : `Use: ${joinPath(currentPath, CONFIG_DIR_NAME)}`,
   });
 
   if (!isRoot) {
     items.push({
       id: QUICK_PICK_ACTION_PARENT,
-      label: '$(arrow-up) ..',
+      label: `$(${VscodeIcon.ArrowUp}) ..`,
       detail: 'Go to parent folder',
     });
   }
@@ -116,7 +116,7 @@ async function showFolderPicker(workspaceRoot: Uri, currentPath: string): Promis
   for (const folder of subfolders.sort()) {
     items.push({
       id: folder,
-      label: `$(folder) ${folder}`,
+      label: `$(${VscodeIcon.Folder}) ${folder}`,
       detail: joinPath(currentPath, folder),
     });
   }

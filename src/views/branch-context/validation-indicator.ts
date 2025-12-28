@@ -1,6 +1,6 @@
 import { getCommandId } from '../../common/constants';
 import { Command } from '../../common/vscode/vscode-commands';
-import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { VscodeConstants, VscodeIcon } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { StatusBarItem } from '../../common/vscode/vscode-types';
 import type { ValidationIssue } from './config-validator';
@@ -23,14 +23,14 @@ export class ValidationIndicator {
 
     this.statusBarItem.text =
       errorCount > 0
-        ? `$(error) Branch Context (${errorCount} errors)`
-        : `$(warning) Branch Context (${warningCount} warnings)`;
+        ? `$(${VscodeIcon.Error}) Branch Context (${errorCount} errors)`
+        : `$(${VscodeIcon.Warning}) Branch Context (${warningCount} warnings)`;
 
     const tooltip = VscodeHelper.createMarkdownString();
     tooltip.appendMarkdown('### Branch Context Validation Issues\n\n');
 
     for (const issue of issues) {
-      const icon = issue.severity === 'error' ? '$(error)' : '$(warning)';
+      const icon = issue.severity === 'error' ? `$(${VscodeIcon.Error})` : `$(${VscodeIcon.Warning})`;
       tooltip.appendMarkdown(`${icon} **${issue.section}**: ${issue.message}\n\n`);
     }
 

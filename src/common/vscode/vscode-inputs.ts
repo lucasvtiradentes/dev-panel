@@ -7,6 +7,7 @@ import {
 } from '../constants/scripts-constants';
 import { createLogger } from '../lib/logger';
 import { type DevPanelInput, type DevPanelSettings, PromptInputType, TaskPriority, TaskStatus } from '../schemas';
+import { VscodeIcon } from './vscode-constants';
 import { ToastKind, VscodeHelper } from './vscode-helper';
 import type { QuickPickItem, WorkspaceFolder } from './vscode-types';
 
@@ -354,10 +355,10 @@ export function replaceInputPlaceholders(content: string, values: InputValues): 
 
 export async function pickStatus(): Promise<TaskStatus | undefined> {
   const items: QuickPickItem[] = [
-    { label: '$(circle-large-outline) Todo', description: 'Not started' },
-    { label: '$(play-circle) Doing', description: 'In progress' },
-    { label: '$(pass-filled) Done', description: 'Completed' },
-    { label: '$(error) Blocked', description: 'Blocked by something' },
+    { label: `$(${VscodeIcon.CircleLargeOutline}) Todo`, description: 'Not started' },
+    { label: `$(${VscodeIcon.PlayCircle}) Doing`, description: 'In progress' },
+    { label: `$(${VscodeIcon.PassFilled}) Done`, description: 'Completed' },
+    { label: `$(${VscodeIcon.Error}) Blocked`, description: 'Blocked by something' },
   ];
 
   const picked = await VscodeHelper.showQuickPickItems(items, {
@@ -367,10 +368,10 @@ export async function pickStatus(): Promise<TaskStatus | undefined> {
   if (!picked) return undefined;
 
   const statusMap: Record<string, TaskStatus> = {
-    '$(circle-large-outline) Todo': TaskStatus.Todo,
-    '$(play-circle) Doing': TaskStatus.Doing,
-    '$(pass-filled) Done': TaskStatus.Done,
-    '$(error) Blocked': TaskStatus.Blocked,
+    [`$(${VscodeIcon.CircleLargeOutline}) Todo`]: TaskStatus.Todo,
+    [`$(${VscodeIcon.PlayCircle}) Doing`]: TaskStatus.Doing,
+    [`$(${VscodeIcon.PassFilled}) Done`]: TaskStatus.Done,
+    [`$(${VscodeIcon.Error}) Blocked`]: TaskStatus.Blocked,
   };
 
   return statusMap[picked.label];
