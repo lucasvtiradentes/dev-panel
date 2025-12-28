@@ -1,9 +1,9 @@
 import { DIST_DIR_PREFIX, PACKAGE_JSON, PACKAGE_JSON_SCRIPTS_PATTERN } from '../constants';
+import { FileIOHelper, NodePathHelper } from '../utils/helpers/node-helper';
 import { VscodeHelper } from '../vscode/vscode-helper';
 import type { WorkspaceFolder } from '../vscode/vscode-types';
-import { FileIOHelper, NodePathHelper } from './helpers/node-helper';
 
-export class FileOperations {
+export class PackageJsonHelper {
   static async findAllPackageJsons(folder: WorkspaceFolder, excludedDirs: Set<string>): Promise<string[]> {
     const packageJsons: string[] = [];
 
