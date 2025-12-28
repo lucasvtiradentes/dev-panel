@@ -1,5 +1,6 @@
 import { Git, type GitRepository } from '../common/lib/git';
 import { createLogger } from '../common/lib/logger';
+import { TypeGuardsHelper } from '../common/utils/helpers/type-guards-helper';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable, FileSystemWatcher } from '../common/vscode/vscode-types';
 import { WATCHER_CONSTANTS } from './utils';
@@ -25,8 +26,8 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
         currentBranch = newBranch;
         onBranchChange(newBranch);
       }
-    } catch (error) {
-      logger.error(`Failed to get current branch: ${String(error)}`);
+    } catch (error: unknown) {
+      logger.error(`Failed to get current branch: ${TypeGuardsHelper.getErrorMessage(error)}`);
     }
   };
 

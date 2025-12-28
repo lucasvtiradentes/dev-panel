@@ -1,5 +1,5 @@
 import { CONFIG_FILE_NAME } from '../../../common/constants';
-import { BranchContextMarkdownHelper } from '../../../common/core/branch-context-markdown';
+import { BranchContextError, BranchContextMarkdownHelper } from '../../../common/core/branch-context-markdown';
 import { ConfigManager } from '../../../common/core/config-manager';
 import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../../common/vscode/vscode-constants';
@@ -14,8 +14,9 @@ async function handleShowValidation() {
   const result = BranchContextMarkdownHelper.getValidationIssues(workspace, validateBranchContext);
 
   if (!result.success) {
-    const message = result.error === 'no-config' ? 'No config file found' : 'Failed to parse config file';
-    const kind = result.error === 'no-config' ? ToastKind.Info : ToastKind.Error;
+    const message =
+      result.error === BranchContextError.NoConfig ? 'No config file found' : 'Failed to parse config file';
+    const kind = result.error === BranchContextError.NoConfig ? ToastKind.Info : ToastKind.Error;
     await VscodeHelper.showToastMessage(kind, message);
     return;
   }

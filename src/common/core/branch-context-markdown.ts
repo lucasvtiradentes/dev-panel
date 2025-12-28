@@ -2,6 +2,11 @@ import { BRANCH_CONTEXT_NA, CONFIG_FILE_NAME, METADATA_FIELD_IS_EMPTY } from '..
 import { FileIOHelper } from '../utils/helpers/node-helper';
 import { ConfigManager } from './config-manager';
 
+export enum BranchContextError {
+  NoConfig = 'no-config',
+  ParseError = 'parse-error',
+}
+
 type ValidationIssue = {
   section: string;
   message: string;
@@ -15,7 +20,7 @@ type ValidationResult =
     }
   | {
       success: false;
-      error: 'no-config' | 'parse-error';
+      error: BranchContextError;
     };
 
 export class BranchContextMarkdownHelper {
@@ -49,13 +54,13 @@ export class BranchContextMarkdownHelper {
   ): ValidationResult {
     const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
     if (!FileIOHelper.fileExists(configPath)) {
-      return { success: false, error: 'no-config' };
+      return { success: false, error: BranchContextError.NoConfig };
     }
 
     const configContent = FileIOHelper.readFile(configPath);
     const config = ConfigManager.parseConfig(configContent);
     if (!config) {
-      return { success: false, error: 'parse-error' };
+      return { success: false, error: BranchContextError.ParseError };
     }
 
     const issues = validateFn(workspace, config.branchContext as T);

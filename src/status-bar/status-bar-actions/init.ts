@@ -3,6 +3,7 @@ import { INIT_RESOURCES_DIR_NAME, RESOURCES_DIR_NAME } from '../../common/consta
 import { ConfigManager } from '../../common/core/config-manager';
 import { extensionStore } from '../../common/core/extension-store';
 import { logger } from '../../common/lib/logger';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 
 export async function showInitMenu() {
@@ -26,8 +27,9 @@ export async function showInitMenu() {
       ToastKind.Info,
       `${EXTENSION_DISPLAY_NAME} initialized! Config created at ${CONFIG_FILE_NAME}`,
     );
-  } catch (error) {
-    logger.error('Failed to initialize ${EXTENSION_DISPLAY_NAME}: ${error}');
-    void VscodeHelper.showToastMessage(ToastKind.Error, `Failed to initialize: ${error}`);
+  } catch (error: unknown) {
+    const message = TypeGuardsHelper.getErrorMessage(error);
+    logger.error(`Failed to initialize ${EXTENSION_DISPLAY_NAME}: ${message}`);
+    void VscodeHelper.showToastMessage(ToastKind.Error, `Failed to initialize: ${message}`);
   }
 }

@@ -196,14 +196,19 @@ const DevPanelReplacementBaseSchema = z.object({
   group: z.string().optional().describe('Group name for organizing replacements'),
 });
 
+export enum ReplacementType {
+  File = 'file',
+  Patch = 'patch',
+}
+
 const DevPanelReplacementFileSchema = DevPanelReplacementBaseSchema.extend({
-  type: z.literal('file').describe('Replace entire file content'),
+  type: z.literal(ReplacementType.File).describe('Replace entire file content'),
   source: z.string().describe('Source file path relative to workspace'),
   target: z.string().describe('Target file path relative to workspace'),
 });
 
 const DevPanelReplacementPatchTypeSchema = DevPanelReplacementBaseSchema.extend({
-  type: z.literal('patch').describe('Apply patches to file'),
+  type: z.literal(ReplacementType.Patch).describe('Apply patches to file'),
   target: z.string().describe('Target file path relative to workspace'),
   patches: z.array(DevPanelReplacementPatchSchema).describe('List of search/replace patches'),
 });

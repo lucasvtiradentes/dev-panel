@@ -9,6 +9,7 @@ export {
   AIProvider,
   PromptExecutionMode,
   PromptInputType,
+  ReplacementType,
   VariableKind,
   getAIProvidersListFormatted,
 } from './config-schema';
@@ -22,9 +23,11 @@ export {
 
 export {
   type NormalizedPatchItem,
+  type NormalizedPatchReplacement,
   type BranchContext,
   TaskStatus,
   TaskPriority,
   SectionType,
   PluginAction,
+  normalizePatchItem,
 } from './types';
