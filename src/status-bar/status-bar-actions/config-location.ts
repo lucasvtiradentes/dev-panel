@@ -7,8 +7,8 @@ import {
   ROOT_FOLDER_LABEL,
 } from '../../common/constants';
 import { logger } from '../../common/lib/logger';
-import { NodePathHelper } from '../../common/lib/node-helper';
 import { ConfigManager } from '../../common/utils/config-manager';
+import { NodePathHelper } from '../../common/utils/helpers/node-helper';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { QuickPickItem, Uri } from '../../common/vscode/vscode-types';

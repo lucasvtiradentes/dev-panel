@@ -10,11 +10,11 @@ import {
   VARIABLES_FILE_NAME,
   getCommandId,
 } from '../../common/constants';
-import { FileIOHelper } from '../../common/lib/node-helper';
 import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { ConfigManager } from '../../common/utils/config-manager';
 import { execAsync } from '../../common/utils/functions/exec-async';
+import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/vscode/vscode-inputs';

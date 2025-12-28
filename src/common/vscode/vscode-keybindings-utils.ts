@@ -1,8 +1,8 @@
 import JSON5 from 'json5';
 import * as vscode from 'vscode';
-import { FileIOHelper } from '../../common/lib/node-helper';
 import { EDITOR_NAMES, KEYBINDINGS_FILE, USER_CONFIG_DIR, USER_SETTINGS_DIR } from '../constants';
-import { NodePathHelper } from '../lib/node-helper';
+import { FileIOHelper } from '../utils/helpers/node-helper';
+import { NodePathHelper } from '../utils/helpers/node-helper';
 
 export type VSCodeKeybinding = { key: string; command: string; when?: string };
 

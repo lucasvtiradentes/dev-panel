@@ -1,4 +1,4 @@
-import { NodePathHelper } from 'src/common/lib/node-helper';
+import { NodePathHelper } from 'src/common/utils/helpers/node-helper';
 import {
   CONFIG_DIR_KEY,
   GLOBAL_TASK_TYPE,

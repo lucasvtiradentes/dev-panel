@@ -3,7 +3,7 @@ import {
   INIT_RESOURCES_DIR_NAME,
   RESOURCES_DIR_NAME,
 } from '../../../common/constants/scripts-constants';
-import { FileIOHelper, NodePathHelper } from '../../../common/lib/node-helper';
+import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
 
 export function getDefaultTemplate(extensionPath: string): string {
   const templatePath = NodePathHelper.join(

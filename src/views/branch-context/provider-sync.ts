@@ -1,4 +1,4 @@
-import { BranchContextMarkdownHelper } from 'src/common/lib/branch-context-helper';
+import { BranchContextMarkdownHelper } from 'src/common/core/branch-context-helper';
 import {
   ChangedFilesStyle,
   METADATA_SECTION_REGEX_CAPTURE,
@@ -10,11 +10,11 @@ import {
 import { StoreKey, extensionStore } from '../../common/core/extension-store';
 import { GitHelper } from '../../common/lib/git-helper';
 import { createLogger } from '../../common/lib/logger';
-import { FileIOHelper } from '../../common/lib/node-helper';
-import { TypeGuardsHelper } from '../../common/lib/type-guards-helper';
 import { ConfigManager } from '../../common/utils/config-manager';
 import { execAsync } from '../../common/utils/functions/exec-async';
 import { extractSectionMetadata } from '../../common/utils/functions/extract-section-metadata';
+import { FileIOHelper } from '../../common/utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { getFirstWorkspacePath } from '../../common/vscode/workspace-utils';
 import type { SyncContext } from '../_branch_base/providers/interfaces';
 import {

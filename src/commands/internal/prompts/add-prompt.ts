@@ -7,9 +7,9 @@ import {
   TOOL_NAME_PATTERN,
   TOOL_NAME_VALIDATION_MESSAGE,
 } from '../../../common/constants';
-import { FileIOHelper, NodePathHelper } from '../../../common/lib/node-helper';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { ConfigManager } from '../../../common/utils/config-manager';
+import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import { Command, registerCommand } from '../../../common/vscode/vscode-utils';

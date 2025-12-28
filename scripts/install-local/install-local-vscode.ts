@@ -18,7 +18,7 @@ import {
   README_FILE,
   VSCODE_EXTENSIONS_FILE,
 } from '../../src/common/constants/vscode-constants';
-import { FileIOHelper, NodeOsHelper, NodePathHelper } from '../../src/common/lib/node-helper';
+import { FileIOHelper, NodeOsHelper, NodePathHelper } from '../../src/common/utils/helpers/node-helper';
 
 const logger = console;
 

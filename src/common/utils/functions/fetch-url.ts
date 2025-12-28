@@ -1,4 +1,4 @@
-import { NodeHttps } from '../../lib/node-helper';
+import { NodeHttps } from '../helpers/node-helper';
 
 export function fetchUrl(url: string): Promise<string> {
   return new Promise((resolve, reject) => {

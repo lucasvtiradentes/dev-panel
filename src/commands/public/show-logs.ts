@@ -1,5 +1,5 @@
 import { LOG_FILE_PATH } from '../../common/lib/logger';
-import { TypeGuardsHelper } from '../../common/lib/type-guards-helper';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { Command, registerCommand } from '../../common/vscode/vscode-utils';
 

@@ -1,6 +1,6 @@
 import { getLogFilename } from '../constants/functions';
 import { CONFIG_DIR_KEY } from '../constants/scripts-constants';
-import { FileIOHelper, NodeOsHelper, NodePathHelper } from './node-helper';
+import { FileIOHelper, NodeOsHelper, NodePathHelper } from '../utils/helpers/node-helper';
 
 const LOG_CONTEXT_WIDTH = 8;
 const LOG_TIMEZONE_OFFSET_HOURS = -3;

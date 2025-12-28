@@ -1,4 +1,4 @@
-import { NodeOsHelper, NodePathHelper } from '../lib/node-helper';
+import { NodeOsHelper, NodePathHelper } from '../utils/helpers/node-helper';
 
 export const TOOLS_DIR = 'tools';
 export const TOOL_INSTRUCTIONS_FILE = 'instructions.md';

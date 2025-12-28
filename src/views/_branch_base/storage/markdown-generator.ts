@@ -10,9 +10,9 @@ import {
 } from '../../../common/constants';
 import { GitHelper } from '../../../common/lib/git-helper';
 import { createLogger } from '../../../common/lib/logger';
-import { FileIOHelper } from '../../../common/lib/node-helper';
 import type { BranchContext } from '../../../common/schemas/types';
 import { ConfigManager } from '../../../common/utils/config-manager';
+import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { getFirstWorkspacePath } from '../../../common/vscode/workspace-utils';
 import { detectBranchType, generateBranchTypeCheckboxes } from './branch-type-utils';
 import { loadTemplate } from './template-parser';

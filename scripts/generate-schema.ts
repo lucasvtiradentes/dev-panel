@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { FileIOHelper, NodePathHelper } from '../src/common/lib/node-helper';
 import { DevPanelConfigSchema } from '../src/common/schemas';
+import { FileIOHelper, NodePathHelper } from '../src/common/utils/helpers/node-helper';
 
 const logger = console;
 

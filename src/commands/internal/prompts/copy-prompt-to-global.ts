@@ -1,6 +1,6 @@
 import { ConfigKey, LocationScope, getGlobalPromptFilePath } from '../../../common/constants';
-import { FileIOHelper, NodePathHelper } from '../../../common/lib/node-helper';
 import { ConfigManager } from '../../../common/utils/config-manager';
+import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
 import {
   isGlobalItem,
   showAlreadyGlobalMessage,

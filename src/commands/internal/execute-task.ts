@@ -8,8 +8,6 @@ import {
 } from '../../common/constants/scripts-constants';
 import { GitHelper } from '../../common/lib/git-helper';
 import { createLogger } from '../../common/lib/logger';
-import { FileIOHelper, NodePathHelper } from '../../common/lib/node-helper';
-import { TypeGuardsHelper } from '../../common/lib/type-guards-helper';
 import {
   type DevPanelConfig,
   type DevPanelPrompt,
@@ -18,6 +16,8 @@ import {
   getAIProvidersListFormatted,
 } from '../../common/schemas';
 import { ConfigManager } from '../../common/utils/config-manager';
+import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { TaskUtils } from '../../common/utils/task-utils';
 import { loadVariablesFromPath, readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';

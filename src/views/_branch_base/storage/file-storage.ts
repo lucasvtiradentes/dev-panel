@@ -1,4 +1,4 @@
-import { BranchContextMarkdownHelper } from 'src/common/lib/branch-context-helper';
+import { BranchContextMarkdownHelper } from 'src/common/core/branch-context-helper';
 import {
   BRANCH_CONTEXT_FIELD_BRANCH,
   BRANCH_CONTEXT_FIELD_LINEAR_LINK,
@@ -20,11 +20,11 @@ import {
   SECTION_NAME_TASKS,
 } from '../../../common/constants';
 import { createLogger } from '../../../common/lib/logger';
-import { FileIOHelper } from '../../../common/lib/node-helper';
-import { TypeGuardsHelper } from '../../../common/lib/type-guards-helper';
 import type { BranchContext, BranchContextMetadata, SectionMetadata } from '../../../common/schemas/types';
 import { ConfigManager } from '../../../common/utils/config-manager';
 import { extractSectionMetadata } from '../../../common/utils/functions/extract-section-metadata';
+import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { parseBranchTypeCheckboxes } from './branch-type-utils';
 
 const logger = createLogger('BranchContext');

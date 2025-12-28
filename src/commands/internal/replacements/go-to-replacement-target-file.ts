@@ -1,5 +1,5 @@
-import { NodePathHelper } from '../../../common/lib/node-helper';
 import type { DevPanelReplacement } from '../../../common/schemas/config-schema';
+import { NodePathHelper } from '../../../common/utils/helpers/node-helper';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import { Command, registerCommand } from '../../../common/vscode/vscode-utils';

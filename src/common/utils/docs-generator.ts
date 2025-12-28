@@ -10,12 +10,12 @@ import {
   getSkillDir,
   getSkillFilePath,
 } from '../constants';
-import { FileIOHelper, NodePathHelper } from '../lib/node-helper';
 import type { DevPanelConfig } from '../schemas';
 import { toolsState } from '../state';
 import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
 import type { WorkspaceFolder } from '../vscode/vscode-types';
 import { ConfigManager } from './config-manager';
+import { FileIOHelper, NodePathHelper } from './helpers/node-helper';
 
 type ToolInstruction = {
   id: string;

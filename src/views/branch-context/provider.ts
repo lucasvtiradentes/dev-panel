@@ -13,10 +13,10 @@ import {
 import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-constants';
 import { GitHelper } from '../../common/lib/git-helper';
 import { createLogger } from '../../common/lib/logger';
-import { FileIOHelper } from '../../common/lib/node-helper';
 import { branchContextState } from '../../common/state';
 import { ConfigManager } from '../../common/utils/config-manager';
 import { formatRelativeTime } from '../../common/utils/functions/format-relative-time';
+import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-utils';

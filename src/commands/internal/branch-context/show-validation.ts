@@ -1,5 +1,5 @@
 import { CONFIG_FILE_NAME } from '../../../common/constants';
-import { BranchContextUtils } from '../../../common/lib/branch-context-helper';
+import { BranchContextUtils } from '../../../common/core/branch-context-helper';
 import { ConfigManager } from '../../../common/utils/config-manager';
 import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';

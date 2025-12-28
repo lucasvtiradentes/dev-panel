@@ -1,6 +1,6 @@
 import { BRANCH_CONTEXT_NA, CONFIG_FILE_NAME } from '../constants';
 import { ConfigManager } from '../utils/config-manager';
-import { FileIOHelper } from './node-helper';
+import { FileIOHelper } from '../utils/helpers/node-helper';
 
 export class BranchContextMarkdownHelper {
   static isFieldEmpty(value: string | undefined, customNaValue?: string): boolean {

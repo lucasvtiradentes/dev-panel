@@ -1,5 +1,5 @@
-import { FileIOHelper, NodePathHelper } from '../../common/lib/node-helper';
 import type { DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
+import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
 
 export function applyFileReplacement(workspace: string, source: string, target: string) {
   const sourcePath = NodePathHelper.join(workspace, source);

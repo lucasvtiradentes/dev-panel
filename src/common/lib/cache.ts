@@ -1,5 +1,5 @@
 import { generateHashForFileContent } from '../utils/functions/generate-cache-key';
-import { FileIOHelper } from './node-helper';
+import { FileIOHelper } from '../utils/helpers/node-helper';
 
 type CacheEntry<T> = {
   value: T;

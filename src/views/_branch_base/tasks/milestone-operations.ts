@@ -5,7 +5,7 @@ import {
   TODO_SECTION_HEADER_PATTERN,
 } from '../../../common/constants';
 import type { Position } from '../../../common/constants/enums';
-import { FileIOHelper } from '../../../common/lib/node-helper';
+import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import type { MilestoneNode, SyncContext, TaskNode } from '../providers/interfaces';
 import { fromMarkdownWithOffset } from './task-markdown';
 

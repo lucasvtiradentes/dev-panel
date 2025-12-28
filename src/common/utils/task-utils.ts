@@ -1,7 +1,7 @@
-import { TypeGuardsHelper } from '../lib/type-guards-helper';
 import { VscodeConstants } from '../vscode/vscode-constants';
 import { VscodeHelper } from '../vscode/vscode-helper';
 import { ProcessExecutionClass, ShellExecutionClass, type Task } from '../vscode/vscode-types';
+import { TypeGuardsHelper } from './helpers/type-guards-helper';
 
 export class TaskUtils {
   static cloneWithEnv(task: Task, env: Record<string, string>): Task {
