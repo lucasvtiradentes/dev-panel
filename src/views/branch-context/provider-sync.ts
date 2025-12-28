@@ -340,8 +340,8 @@ export class SyncManager {
         `[syncBranchContext] Updated context - metadata.sections keys: ${Object.keys(updatedContext.metadata?.sections || {}).join(', ') || 'none'}`,
       );
       if (updatedContext.metadata?.sections) {
-        for (const [name, metadata] of Object.entries(updatedContext.metadata.sections)) {
-          logger.info(`[syncBranchContext] Section "${name}" metadata: ${JSON.stringify(metadata)}`);
+        for (const [sectionName, sectionMetadata] of Object.entries(updatedContext.metadata.sections)) {
+          logger.info(`[syncBranchContext] Section "${sectionName}" metadata: ${JSON.stringify(sectionMetadata)}`);
         }
       }
 

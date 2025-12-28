@@ -259,12 +259,12 @@ export function extractAllFieldsRaw(content: string): Record<string, string> {
   const sectionRegex = /^#\s+([A-Z][A-Z\s]+)\s*$/gm;
   const matches = [...content.matchAll(sectionRegex)];
   for (let i = 0; i < matches.length; i++) {
-    const match = matches[i];
-    const sectionName = match[1].trim();
+    const sectionMatch = matches[i];
+    const sectionName = sectionMatch[1].trim();
 
-    if (match.index === undefined) continue;
+    if (sectionMatch.index === undefined) continue;
 
-    const startIndex = match.index + match[0].length;
+    const startIndex = sectionMatch.index + sectionMatch[0].length;
     const nextMatch = matches[i + 1];
     const endIndex = nextMatch?.index ?? content.length;
     let sectionContent = content.slice(startIndex, endIndex).trim();
