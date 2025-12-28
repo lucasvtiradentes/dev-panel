@@ -1,6 +1,7 @@
 import { branchContextState } from '../../../common/state';
+import { ContextKey, setContextKey } from '../../../common/vscode/vscode-context';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import { Command, ContextKey, registerCommand, setContextKey } from '../../../common/vscode/vscode-utils';
+import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { BranchContextProvider } from '../../../views/branch-context';
 
 function handleToggleHideEmptySections(branchContextProvider: BranchContextProvider, hideValue: boolean) {

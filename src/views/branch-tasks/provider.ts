@@ -6,9 +6,9 @@ import type { TaskPriority, TaskStatus } from '../../common/schemas';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import { ConfigManager } from '../../common/utils/config-manager';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
+import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, Uri } from '../../common/vscode/vscode-types';
-import { ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
 import {
   type MilestoneNode,
   type SyncContext,

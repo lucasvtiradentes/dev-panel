@@ -16,10 +16,11 @@ import { ConfigManager } from '../../common/utils/config-manager';
 import { execAsync } from '../../common/utils/functions/exec-async';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/vscode/vscode-inputs';
 import { type TreeDataProvider, type TreeItem, TreeItemClass } from '../../common/vscode/vscode-types';
-import { Command, ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
+import { Command } from '../../common/vscode/vscode-utils';
 import { getIsGrouped, saveIsGrouped } from './state';
 
 type PpVariables = {
