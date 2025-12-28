@@ -1,5 +1,6 @@
 import { DEFAULT_TASK_STATUS, INVALID_LINE_INDEX } from '../../../common/constants';
 import { createLogger } from '../../../common/lib/logger';
+import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { DefaultTaskProvider } from './default/tasks.provider';
 import type { TaskSyncProvider } from './interfaces';
 import { loadTaskProvider } from './plugin-loader';
@@ -19,7 +20,7 @@ export function createTaskProvider(config?: ProviderConfig, workspace?: string):
     return new DefaultTaskProvider();
   }
 
-  if (typeof config === 'object' && config.provider) {
+  if (TypeGuardsHelper.isObjectWithProperty(config, 'provider')) {
     if (!workspace) {
       throw new Error('Workspace path is required for custom task providers');
     }

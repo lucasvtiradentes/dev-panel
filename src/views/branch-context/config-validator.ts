@@ -1,8 +1,9 @@
 import { BRANCH_CONTEXT_TEMPLATE_FILENAME, CONFIG_FILE_NAME } from 'src/common/constants';
 import type { BranchContextConfig } from '../../common/schemas/config-schema';
+import { SectionType } from '../../common/schemas/types';
 import { TemplateSectionType, loadTemplate, parseTemplate } from '../_branch_base/storage/template-parser';
 
-export enum ValidationIssueType {
+enum ValidationIssueType {
   MissingInTemplate = 'missing-in-template',
   UnknownInTemplate = 'unknown-in-template',
   InvalidProvider = 'invalid-provider',
@@ -44,13 +45,13 @@ export function validateBranchContext(workspace: string, config: BranchContextCo
     }
 
     const isAutoCompatible =
-      configSection.type === 'auto' &&
+      configSection.type === SectionType.Auto &&
       (templateSection.type === TemplateSectionType.Code || templateSection.type === TemplateSectionType.Text);
     const isExactMatch = configSection.type === templateSection.type;
-    const isCodeToAuto = templateSection.type === TemplateSectionType.Code && configSection.type === 'auto';
+    const isCodeToAuto = templateSection.type === TemplateSectionType.Code && configSection.type === SectionType.Auto;
 
     if (!isAutoCompatible && !isExactMatch && !isCodeToAuto) {
-      const templateType = templateSection.type === TemplateSectionType.Code ? 'auto' : templateSection.type;
+      const templateType = templateSection.type === TemplateSectionType.Code ? SectionType.Auto : templateSection.type;
       issues.push({
         type: ValidationIssueType.TypeMismatch,
         section: configSection.name,
@@ -59,7 +60,7 @@ export function validateBranchContext(workspace: string, config: BranchContextCo
       });
     }
 
-    if (configSection.type === 'auto' && !configSection.provider) {
+    if (configSection.type === SectionType.Auto && !configSection.provider) {
       issues.push({
         type: ValidationIssueType.InvalidProvider,
         section: configSection.name,

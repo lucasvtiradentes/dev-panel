@@ -1,40 +1,13 @@
+import { Git, type GitRepository } from '../common/lib/git';
 import { createLogger } from '../common/lib/logger';
-import { getFirstWorkspacePath } from '../common/utils/workspace-utils';
+import { TypeGuardsHelper } from '../common/utils/helpers/type-guards-helper';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
-import type { Disposable, Event, FileSystemWatcher } from '../common/vscode/vscode-types';
-import { getCurrentBranch, isGitRepository } from '../views/replacements/git-utils';
-import { GIT_CONSTANTS, WATCHER_CONSTANTS } from './utils';
-
-type GitAPI = {
-  repositories: GitRepository[];
-  onDidOpenRepository: Event<GitRepository>;
-};
-
-type GitRepository = {
-  state: {
-    HEAD?: { name?: string };
-  };
-  onDidCheckout: Event<void>;
-};
-
-type GitExtension = {
-  getAPI: (version: number) => GitAPI;
-};
+import type { Disposable, FileSystemWatcher } from '../common/vscode/vscode-types';
+import { WATCHER_CONSTANTS } from '../common/vscode/vscode-watcher';
 
 type BranchChangeCallback = (newBranch: string) => void;
 
 const logger = createLogger('BranchWatcher');
-
-async function getGitAPI(): Promise<GitAPI | null> {
-  const gitExtension = VscodeHelper.getExtension<GitExtension>(GIT_CONSTANTS.EXTENSION_ID);
-  if (!gitExtension) {
-    return null;
-  }
-  if (!gitExtension.isActive) {
-    await gitExtension.activate();
-  }
-  return gitExtension.exports.getAPI(GIT_CONSTANTS.API_VERSION);
-}
 
 export function createBranchWatcher(onBranchChange: BranchChangeCallback): Disposable {
   const disposables: Disposable[] = [];
@@ -43,23 +16,23 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
   let pollInterval: ReturnType<typeof setInterval> | null = null;
 
   const handleBranchChange = async () => {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
     try {
-      const newBranch = await getCurrentBranch(workspace);
+      const newBranch = await Git.getCurrentBranch(workspace);
       if (newBranch !== currentBranch) {
         logger.info(`[branchWatcher] Branch changed from '${currentBranch}' to '${newBranch}'`);
         currentBranch = newBranch;
         onBranchChange(newBranch);
       }
-    } catch (error) {
-      logger.error(`Failed to get current branch: ${String(error)}`);
+    } catch (error: unknown) {
+      logger.error(`Failed to get current branch: ${TypeGuardsHelper.getErrorMessage(error)}`);
     }
   };
 
   const setupGitWatcher = async () => {
-    const gitAPI = await getGitAPI();
+    const gitAPI = await Git.getAPI();
     if (!gitAPI) return;
 
     for (const repo of gitAPI.repositories) {
@@ -84,11 +57,11 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
   };
 
   const setupHeadFileWatcher = () => {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
     headWatcher = VscodeHelper.createFileSystemWatcher(
-      VscodeHelper.createRelativePattern(workspace, GIT_CONSTANTS.HEAD_FILE_PATH),
+      VscodeHelper.createRelativePattern(workspace, Git.INTEGRATION.HEAD_FILE_PATH),
     );
 
     headWatcher.onDidChange(() => void handleBranchChange());
@@ -102,11 +75,11 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
   };
 
   const initializeBranch = async () => {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
-    if (await isGitRepository(workspace)) {
-      currentBranch = await getCurrentBranch(workspace);
+    if (await Git.isRepository(workspace)) {
+      currentBranch = await Git.getCurrentBranch(workspace);
       onBranchChange(currentBranch);
     }
   };

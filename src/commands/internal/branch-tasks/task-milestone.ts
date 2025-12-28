@@ -1,26 +1,26 @@
-import { type ItemOrLineIndex, extractLineIndex } from '../../../common/utils/item-utils';
-import { VscodeConstants } from '../../../common/vscode/vscode-constants';
+import { type ItemOrLineIndex, TreeItemUtils } from '../../../common/core/tree-item-utils';
+import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
+import { VscodeConstants, VscodeIcon } from '../../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable, QuickPickItem } from '../../../common/vscode/vscode-types';
-import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { BranchTasksProvider } from '../../../views/branch-tasks/provider';
 
 async function handleSetTaskMilestone(provider: BranchTasksProvider, item: ItemOrLineIndex) {
-  const lineIndex = extractLineIndex(item);
+  const lineIndex = TreeItemUtils.extractLineIndex(item);
   const milestones = provider.getMilestoneNames();
 
   const NEW_MILESTONE = '__new__';
   type MilestoneQuickPickItem = QuickPickItem & { value: string | null };
 
   const items: MilestoneQuickPickItem[] = [
-    { label: '$(inbox) No Milestone', value: null },
-    { label: '$(add) New Milestone...', value: NEW_MILESTONE },
+    { label: `$(${VscodeIcon.Inbox}) No Milestone`, value: null },
+    { label: `$(${VscodeIcon.Add}) New Milestone...`, value: NEW_MILESTONE },
   ];
 
   if (milestones.length > 0) {
     items.push({ label: '', kind: VscodeConstants.QuickPickItemKind.Separator, value: null });
     for (const m of milestones) {
-      items.push({ label: `$(milestone) ${m}`, value: m });
+      items.push({ label: `$(${VscodeIcon.Milestone}) ${m}`, value: m });
     }
   }
 

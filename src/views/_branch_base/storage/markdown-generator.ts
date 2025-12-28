@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import {
   BRANCH_CONTEXT_DEFAULT_TODOS,
   BRANCH_CONTEXT_NA,
@@ -9,11 +8,14 @@ import {
   METADATA_SEPARATOR,
   METADATA_SUFFIX,
 } from '../../../common/constants';
-import { ConfigManager } from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/core/config-manager';
+import { Git } from '../../../common/lib/git';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext } from '../../../common/schemas/types';
-import { getFirstWorkspacePath } from '../../../common/utils/workspace-utils';
-import { getChangedFilesTree } from '../providers/default/file-changes-utils';
+import { replaceTemplatePlaceholders } from '../../../common/utils/functions/template-replace';
+import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
+import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import { detectBranchType, generateBranchTypeCheckboxes } from './branch-type-utils';
 import { loadTemplate } from './template-parser';
 
@@ -28,7 +30,7 @@ export async function generateBranchContextMarkdown(
 ): Promise<string | undefined> {
   logger.info(`[generateBranchContextMarkdown] Called for branch: ${branchName}`);
 
-  const workspace = getFirstWorkspacePath();
+  const workspace = VscodeHelper.getFirstWorkspacePath();
   if (!workspace) {
     logger.warn('[generateBranchContextMarkdown] No workspace found');
     return;
@@ -42,9 +44,9 @@ export async function generateBranchContextMarkdown(
   logger.info(`[generateBranchContextMarkdown] Workspace: ${workspace}`);
 
   const dirPath = ConfigManager.getBranchDirectory(workspace, branchName);
-  if (!fs.existsSync(dirPath)) {
+  if (!FileIOHelper.fileExists(dirPath)) {
     logger.info(`[generateBranchContextMarkdown] Creating directory: ${dirPath}`);
-    fs.mkdirSync(dirPath, { recursive: true });
+    FileIOHelper.ensureDirectoryExists(dirPath);
   }
 
   const mdPath = ConfigManager.getBranchContextFilePath(workspace, branchName);
@@ -55,7 +57,7 @@ export async function generateBranchContextMarkdown(
   const useExistingChanges = !!context.changedFiles;
   logger.info(`[generateBranchContextMarkdown] Using existing changed files: ${useExistingChanges}`);
 
-  const changedFilesTree = context.changedFiles || (await getChangedFilesTree(workspace, ChangedFilesStyle.List));
+  const changedFilesTree = context.changedFiles || (await Git.getChangedFilesTree(workspace, ChangedFilesStyle.List));
   logger.info(
     `[generateBranchContextMarkdown] Changed files result (first 100 chars): ${changedFilesTree.substring(0, 100)}`,
   );
@@ -76,7 +78,7 @@ export async function generateBranchContextMarkdown(
   };
 
   for (const [key, value] of Object.entries(context)) {
-    if (typeof value === 'string' && !(key in replacements)) {
+    if (TypeGuardsHelper.isString(value) && !(key in replacements)) {
       const placeholderKey = key.toUpperCase().replace(/\s+/g, '_');
       replacements[placeholderKey] = value;
       logger.info(`[generateBranchContextMarkdown] Added custom replacement: ${placeholderKey}`);
@@ -85,11 +87,7 @@ export async function generateBranchContextMarkdown(
 
   logger.info(`[generateBranchContextMarkdown] All replacements: ${Object.keys(replacements).join(', ')}`);
 
-  let output = template;
-  for (const [placeholder, value] of Object.entries(replacements)) {
-    const regex = new RegExp(`\\{\\{${placeholder}\\}\\}`, 'g');
-    output = output.replace(regex, value);
-  }
+  let output = replaceTemplatePlaceholders(template, replacements);
 
   if (sectionMetadata) {
     output = appendSectionMetadata(output, sectionMetadata);
@@ -100,7 +98,7 @@ export async function generateBranchContextMarkdown(
     output += `\n\n${METADATA_SEPARATOR}\n\n${METADATA_DEVPANEL_PREFIX}${metadataJson}${METADATA_SUFFIX}`;
   }
 
-  fs.writeFileSync(mdPath, output);
+  FileIOHelper.writeFile(mdPath, output);
   logger.info(`[generateBranchContextMarkdown] Markdown written to: ${mdPath} (${output.length} bytes)`);
 
   return output;

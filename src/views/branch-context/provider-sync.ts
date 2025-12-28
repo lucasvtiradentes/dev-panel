@@ -1,21 +1,24 @@
-import { execSync } from 'node:child_process';
-import * as fs from 'node:fs';
+import { BranchContextMarkdownHelper } from 'src/common/core/branch-context-markdown';
 import {
   ChangedFilesStyle,
-  GIT_LOG_LAST_COMMIT_MESSAGE,
-  GIT_REV_PARSE_HEAD,
+  METADATA_SECTION_REGEX_CAPTURE,
+  METADATA_SECTION_REGEX_GLOBAL,
   SECTION_NAME_CHANGED_FILES,
   SYNC_DEBOUNCE_MS,
   WRITING_MARKDOWN_TIMEOUT_MS,
 } from '../../common/constants';
-import { ConfigManager } from '../../common/lib/config-manager';
-import { StoreKey, extensionStore } from '../../common/lib/extension-store';
+import { ConfigManager } from '../../common/core/config-manager';
+import { StoreKey, extensionStore } from '../../common/core/extension-store';
+import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
-import { extractSectionMetadata } from '../../common/utils/metadata-extractor';
-import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
-import { getChangedFilesWithSummary } from '../_branch_base/providers/default/file-changes-utils';
+import { execAsync } from '../../common/utils/functions/exec-async';
+import { extractSectionMetadata } from '../../common/utils/functions/extract-section-metadata';
+import { FileIOHelper } from '../../common/utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { SyncContext } from '../_branch_base/providers/interfaces';
 import {
+  extractAllFieldsRaw,
   generateBranchContextMarkdown,
   invalidateBranchContextCache,
   loadBranchContext,
@@ -72,13 +75,13 @@ export class SyncManager {
       return;
     }
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
     const rootPath = ConfigManager.getRootBranchContextFilePath(workspace);
     const branchPath = ConfigManager.getBranchContextFilePath(workspace, currentBranch);
 
-    if (!fs.existsSync(rootPath)) {
+    if (!FileIOHelper.fileExists(rootPath)) {
       return;
     }
 
@@ -88,11 +91,10 @@ export class SyncManager {
     this.lastSyncDirection = SyncDirection.RootToBranch;
 
     try {
-      const content = fs.readFileSync(rootPath, 'utf-8');
-      fs.writeFileSync(branchPath, content, 'utf-8');
+      const content = FileIOHelper.readFile(rootPath);
+      FileIOHelper.writeFile(branchPath, content);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      logger.error(`Error syncing root to branch: ${message}`);
+      logger.error(`Error syncing root to branch: ${TypeGuardsHelper.getErrorMessage(error)}`);
     } finally {
       setTimeout(() => {
         this.isSyncing = false;
@@ -116,13 +118,13 @@ export class SyncManager {
       return;
     }
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
     const rootPath = ConfigManager.getRootBranchContextFilePath(workspace);
     const branchPath = ConfigManager.getBranchContextFilePath(workspace, currentBranch);
 
-    if (!fs.existsSync(branchPath)) {
+    if (!FileIOHelper.fileExists(branchPath)) {
       return;
     }
 
@@ -132,11 +134,10 @@ export class SyncManager {
     this.lastSyncDirection = SyncDirection.BranchToRoot;
 
     try {
-      const content = fs.readFileSync(branchPath, 'utf-8');
-      fs.writeFileSync(rootPath, content, 'utf-8');
+      const content = FileIOHelper.readFile(branchPath);
+      FileIOHelper.writeFile(rootPath, content);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      logger.error(`Error syncing branch to root: ${message}`);
+      logger.error(`Error syncing branch to root: ${TypeGuardsHelper.getErrorMessage(error)}`);
     } finally {
       setTimeout(() => {
         this.isSyncing = false;
@@ -159,7 +160,7 @@ export class SyncManager {
       return;
     }
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) {
       logger.warn('[syncBranchContext] No workspace, skipping');
       return;
@@ -186,7 +187,7 @@ export class SyncManager {
       if (changedFilesConfig !== false) {
         logger.info(`[syncBranchContext] Fetching changedFiles (+${Date.now() - startTime}ms)`);
 
-        if (typeof changedFilesConfig === 'object' && changedFilesConfig.provider) {
+        if (TypeGuardsHelper.isObjectWithProperty(changedFilesConfig, 'provider')) {
           const registry = this.helpers.getSectionRegistry(workspace, config, changedFilesConfig);
           const changedFilesSection = registry.get(SECTION_NAME_CHANGED_FILES);
 
@@ -195,22 +196,21 @@ export class SyncManager {
             const data = await changedFilesSection.provider.fetch(syncContext);
             changedFiles = data;
 
-            const metadataMatch = data.match(/<!--\s*SECTION_METADATA:\s*(.+?)\s*-->/);
+            const metadataMatch = data.match(METADATA_SECTION_REGEX_CAPTURE);
             if (metadataMatch) {
               try {
                 const parsed = JSON.parse(metadataMatch[1]);
-                if (typeof parsed === 'object' && parsed !== null) {
+                if (TypeGuardsHelper.isObject(parsed)) {
                   changedFilesSectionMetadata = parsed as Record<string, unknown>;
-                  changedFiles = data.replace(/<!--\s*SECTION_METADATA:.*?-->/g, '').trim();
+                  changedFiles = data.replace(METADATA_SECTION_REGEX_GLOBAL, '').trim();
                 }
               } catch (error: unknown) {
-                const message = error instanceof Error ? error.message : String(error);
-                logger.error(`Failed to parse changedFiles metadata: ${message}`);
+                logger.error(`Failed to parse changedFiles metadata: ${TypeGuardsHelper.getErrorMessage(error)}`);
               }
             }
           }
         } else {
-          const result = await getChangedFilesWithSummary(workspace, ChangedFilesStyle.List);
+          const result = await Git.getChangedFilesWithSummary(workspace, ChangedFilesStyle.List);
           changedFiles = result.content;
           changedFilesSectionMetadata = result.sectionMetadata;
         }
@@ -224,31 +224,60 @@ export class SyncManager {
       if (config?.branchContext?.customSections) {
         const registry = this.helpers.getSectionRegistry(workspace, config);
         const autoSections = registry.getAutoSections();
+
+        let markdownFields: Record<string, string> = {};
+        const markdownPath = ConfigManager.getBranchContextFilePath(workspace, currentBranch);
+        const markdownContent = FileIOHelper.readFileIfExists(markdownPath);
+        if (markdownContent) {
+          markdownFields = extractAllFieldsRaw(markdownContent);
+        }
+
+        const sectionsToFetch = autoSections.filter((section) => {
+          if (!section.provider) return false;
+
+          const customSection = config.branchContext?.customSections?.find((cs) => cs.name === section.name);
+          if (customSection?.skipIfEmpty && customSection.skipIfEmpty.length > 0) {
+            for (const fieldName of customSection.skipIfEmpty) {
+              const fieldValue = markdownFields[fieldName];
+              if (BranchContextMarkdownHelper.isFieldEmpty(fieldValue)) {
+                logger.info(
+                  `[syncBranchContext] Skipping "${section.name}" - field "${fieldName}" is empty (+${Date.now() - startTime}ms)`,
+                );
+                customAutoData[section.name] = `No ${fieldName.toLowerCase()} set`;
+                customSectionMetadata[section.name] = { isEmpty: true, description: 'Skipped - field empty' };
+                return false;
+              }
+            }
+          }
+
+          return true;
+        });
+
         logger.info(
-          `[syncBranchContext] Fetching ${autoSections.length} auto sections in PARALLEL (+${Date.now() - startTime}ms)`,
+          `[syncBranchContext] Fetching ${sectionsToFetch.length}/${autoSections.length} auto sections in PARALLEL (+${Date.now() - startTime}ms)`,
         );
 
-        const fetchPromises = autoSections
-          .filter((section) => section.provider)
-          .map(async (section) => {
-            logger.info(`[syncBranchContext] Starting "${section.name}" (+${Date.now() - startTime}ms)`);
-            try {
-              if (!section.provider) {
-                throw new Error('Provider is not defined');
-              }
-              const sectionContext: SyncContext = {
-                ...syncContext,
-                sectionOptions: section.options,
-              };
-              const data = await section.provider.fetch(sectionContext);
-              logger.info(`[syncBranchContext] "${section.name}" done (+${Date.now() - startTime}ms)`);
-              return { name: section.name, data };
-            } catch (error: unknown) {
-              const message = error instanceof Error ? error.message : String(error);
-              logger.error(`[syncBranchContext] "${section.name}" FAILED (+${Date.now() - startTime}ms): ${message}`);
-              return { name: section.name, data: `Error: ${message}` };
+        const fetchPromises = sectionsToFetch.map(async (section) => {
+          logger.info(`[syncBranchContext] Starting "${section.name}" (+${Date.now() - startTime}ms)`);
+          try {
+            if (!section.provider) {
+              throw new Error('Provider is not defined');
             }
-          });
+            const sectionContext: SyncContext = {
+              ...syncContext,
+              sectionOptions: section.options,
+            };
+            const data = await section.provider.fetch(sectionContext);
+            logger.info(`[syncBranchContext] "${section.name}" done (+${Date.now() - startTime}ms)`);
+            return { name: section.name, data };
+          } catch (error: unknown) {
+            const errorMessage = TypeGuardsHelper.getErrorMessage(error);
+            logger.error(
+              `[syncBranchContext] "${section.name}" FAILED (+${Date.now() - startTime}ms): ${errorMessage}`,
+            );
+            return { name: section.name, data: `Error: ${errorMessage}` };
+          }
+        });
 
         const results = await Promise.all(fetchPromises);
         for (const { name, data } of results) {
@@ -274,23 +303,22 @@ export class SyncManager {
       for (const [name, metadata] of Object.entries(customSectionMetadata)) {
         sectionMetadataMap[name] = metadata;
       }
-      logger.info(
-        `[syncBranchContext] Section metadata map keys: ${Object.keys(sectionMetadataMap).join(', ') || 'none'}`,
-      );
+      logger.info(`[syncBranchContext] Section metadata map keys: ${Object.keys(sectionMetadataMap).join(', ')}`);
 
       let lastCommitHash: string | undefined;
       let lastCommitMessage: string | undefined;
       try {
-        lastCommitHash = execSync(GIT_REV_PARSE_HEAD, { cwd: workspace, encoding: 'utf-8' }).trim();
-        lastCommitMessage = execSync(GIT_LOG_LAST_COMMIT_MESSAGE, { cwd: workspace, encoding: 'utf-8' }).trim();
+        const hashResult = await execAsync(Git.COMMANDS.REV_PARSE_HEAD, { cwd: workspace });
+        lastCommitHash = hashResult.stdout.trim();
+        const msgResult = await execAsync(Git.COMMANDS.LOG_LAST_COMMIT_MESSAGE, { cwd: workspace });
+        lastCommitMessage = msgResult.stdout.trim();
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
-        logger.error(`Failed to get git commit info: ${message}`);
+        logger.error(`Failed to get git commit info: ${TypeGuardsHelper.getErrorMessage(error)}`);
       }
 
       logger.info(`[syncBranchContext] Building updated context (+${Date.now() - startTime}ms)`);
       logger.info(
-        `[syncBranchContext] Context before update - metadata.sections keys: ${Object.keys(context.metadata?.sections || {}).join(', ') || 'none'}`,
+        `[syncBranchContext] Context before update - metadata.sections keys: ${Object.keys(context.metadata?.sections || {}).join(', ')}`,
       );
 
       const updatedContext = {
@@ -307,11 +335,11 @@ export class SyncManager {
       };
 
       logger.info(
-        `[syncBranchContext] Updated context - metadata.sections keys: ${Object.keys(updatedContext.metadata?.sections || {}).join(', ') || 'none'}`,
+        `[syncBranchContext] Updated context - metadata.sections keys: ${Object.keys(updatedContext.metadata?.sections || {}).join(', ')}`,
       );
       if (updatedContext.metadata?.sections) {
-        for (const [name, metadata] of Object.entries(updatedContext.metadata.sections)) {
-          logger.info(`[syncBranchContext] Section "${name}" metadata: ${JSON.stringify(metadata)}`);
+        for (const [sectionName, sectionMetadata] of Object.entries(updatedContext.metadata.sections)) {
+          logger.info(`[syncBranchContext] Section "${sectionName}" metadata: ${JSON.stringify(sectionMetadata)}`);
         }
       }
 
@@ -358,6 +386,11 @@ export class SyncManager {
 
   getIsWritingMarkdown(): boolean {
     return this.isWritingMarkdown;
+  }
+
+  resetInitializing() {
+    logger.info('[SyncManager] [resetInitializing] Resetting isInitializing to true for new branch');
+    this.isInitializing = true;
   }
 
   dispose() {

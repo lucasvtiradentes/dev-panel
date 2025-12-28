@@ -1,20 +1,20 @@
 import { TaskPriority, TaskStatus } from '../../common/schemas';
-import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { VscodeConstants, VscodeIcon } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { QuickPickItem } from '../../common/vscode/vscode-types';
 import type { TaskFilter } from './filter-operations';
 
 export async function showFilterQuickPick(): Promise<TaskFilter | null> {
   const items: QuickPickItem[] = [
-    { label: '$(circle-large-outline) Todo only', description: 'Show only todo tasks' },
-    { label: '$(play-circle) Doing only', description: 'Show only in-progress tasks' },
-    { label: '$(error) Blocked only', description: 'Show only blocked tasks' },
-    { label: '$(warning) Overdue only', description: 'Show only overdue tasks' },
-    { label: '$(account) By assignee...', description: 'Filter by assignee name' },
-    { label: '$(flame) High priority+', description: 'Show urgent and high priority' },
-    { label: '$(link-external) With external link', description: 'Show only linked tasks' },
+    { label: `$(${VscodeIcon.CircleLargeOutline}) Todo only`, description: 'Show only todo tasks' },
+    { label: `$(${VscodeIcon.PlayCircle}) Doing only`, description: 'Show only in-progress tasks' },
+    { label: `$(${VscodeIcon.Error}) Blocked only`, description: 'Show only blocked tasks' },
+    { label: `$(${VscodeIcon.Warning}) Overdue only`, description: 'Show only overdue tasks' },
+    { label: `$(${VscodeIcon.Account}) By assignee...`, description: 'Filter by assignee name' },
+    { label: `$(${VscodeIcon.Flame}) High priority+`, description: 'Show urgent and high priority' },
+    { label: `$(${VscodeIcon.LinkExternal}) With external link`, description: 'Show only linked tasks' },
     { label: '', kind: VscodeConstants.QuickPickItemKind.Separator },
-    { label: '$(close) Clear filters', description: 'Show all tasks' },
+    { label: `$(${VscodeIcon.Close}) Clear filters`, description: 'Show all tasks' },
   ];
 
   const picked = await VscodeHelper.showQuickPickItems(items, {
@@ -24,26 +24,26 @@ export async function showFilterQuickPick(): Promise<TaskFilter | null> {
   if (!picked) return null;
 
   switch (picked.label) {
-    case '$(circle-large-outline) Todo only':
+    case `$(${VscodeIcon.CircleLargeOutline}) Todo only`:
       return { status: [TaskStatus.Todo] };
-    case '$(play-circle) Doing only':
+    case `$(${VscodeIcon.PlayCircle}) Doing only`:
       return { status: [TaskStatus.Doing] };
-    case '$(error) Blocked only':
+    case `$(${VscodeIcon.Error}) Blocked only`:
       return { status: [TaskStatus.Blocked] };
-    case '$(warning) Overdue only':
+    case `$(${VscodeIcon.Warning}) Overdue only`:
       return { overdue: true };
-    case '$(account) By assignee...': {
+    case `$(${VscodeIcon.Account}) By assignee...`: {
       const assignee = await VscodeHelper.showInputBox({
         prompt: 'Enter assignee name',
         placeHolder: 'e.g., lucas',
       });
       return assignee ? { assignee } : null;
     }
-    case '$(flame) High priority+':
+    case `$(${VscodeIcon.Flame}) High priority+`:
       return { priority: [TaskPriority.Urgent, TaskPriority.High] };
-    case '$(link-external) With external link':
+    case `$(${VscodeIcon.LinkExternal}) With external link`:
       return { hasExternalLink: true };
-    case '$(close) Clear filters':
+    case `$(${VscodeIcon.Close}) Clear filters`:
       return {};
     default:
       return null;

@@ -1,10 +1,9 @@
 import { TOOL_TASK_TYPE, getGlobalConfigDir, getToolCommandId, getToolCommandPrefix } from '../../common/constants';
-import { ConfigManager } from '../../common/lib/config-manager';
-import { syncKeybindings } from '../../common/lib/keybindings-sync';
+import { ConfigManager } from '../../common/core/config-manager';
+import { registerItemKeybindings } from '../../common/core/keybindings-registration';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { ExtensionContext } from '../../common/vscode/vscode-types';
-import { registerDynamicCommand } from '../../common/vscode/vscode-utils';
 import { KeybindingManager } from '../_view_base';
 
 const manager = new KeybindingManager({
@@ -16,44 +15,34 @@ export const getAllToolKeybindings = () => manager.getAllKeybindings();
 export const reloadToolKeybindings = () => manager.reload();
 
 export function registerToolKeybindings(context: ExtensionContext) {
-  ConfigManager.forEachWorkspaceConfig((folder, config) => {
-    const tools = config.tools ?? [];
-
-    for (const tool of tools) {
-      if (!tool.command) continue;
-      const commandId = getToolCommandId(tool.name);
-      const disposable = registerDynamicCommand(commandId, () => {
-        const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
-        const shellExec = VscodeHelper.createShellExecution(tool.command as string, { cwd: configDirPath });
-        const task = VscodeHelper.createTask({ type: TOOL_TASK_TYPE }, folder, tool.name, TOOL_TASK_TYPE, shellExec);
-        void VscodeHelper.executeTask(task);
+  registerItemKeybindings({
+    context,
+    getItems: (config) => config.tools,
+    getCommandId: getToolCommandId,
+    shouldSkip: (tool) => !tool.command,
+    createWorkspaceHandler: (tool, folder) => () => {
+      const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
+      const shellExec = VscodeHelper.createShellExecution(tool.command as string, { cwd: configDirPath });
+      const task = VscodeHelper.createTask({
+        definition: { type: TOOL_TASK_TYPE },
+        scope: folder,
+        name: tool.name,
+        source: TOOL_TASK_TYPE,
+        execution: shellExec,
       });
-      context.subscriptions.push(disposable);
-    }
+      void VscodeHelper.executeTask(task);
+    },
+    createGlobalHandler: (tool) => () => {
+      const globalConfigDir = getGlobalConfigDir();
+      const shellExec = VscodeHelper.createShellExecution(tool.command as string, { cwd: globalConfigDir });
+      const task = VscodeHelper.createTask({
+        definition: { type: TOOL_TASK_TYPE },
+        scope: VscodeConstants.TaskScope.Global,
+        name: tool.name,
+        source: TOOL_TASK_TYPE,
+        execution: shellExec,
+      });
+      void VscodeHelper.executeTask(task);
+    },
   });
-
-  const globalConfig = ConfigManager.loadGlobalConfig();
-  if (globalConfig) {
-    const globalTools = globalConfig.tools ?? [];
-    const globalConfigDir = getGlobalConfigDir();
-
-    for (const tool of globalTools) {
-      if (!tool.command) continue;
-      const commandId = getToolCommandId(tool.name);
-      const disposable = registerDynamicCommand(commandId, () => {
-        const shellExec = VscodeHelper.createShellExecution(tool.command as string, { cwd: globalConfigDir });
-        const task = VscodeHelper.createTask(
-          { type: TOOL_TASK_TYPE },
-          VscodeConstants.TaskScope.Global,
-          tool.name,
-          TOOL_TASK_TYPE,
-          shellExec,
-        );
-        void VscodeHelper.executeTask(task);
-      });
-      context.subscriptions.push(disposable);
-    }
-  }
-
-  syncKeybindings();
 }

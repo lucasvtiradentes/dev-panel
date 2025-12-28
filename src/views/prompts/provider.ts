@@ -7,15 +7,16 @@ import {
   getCommandId,
   getGlobalPromptFilePath,
 } from '../../common/constants';
-import { ConfigManager } from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/core/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import type { DevPanelConfig } from '../../common/schemas';
 import { globalPromptsState, promptsState } from '../../common/state';
+import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { ContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { TreeItem, TreeView, WorkspaceFolder } from '../../common/vscode/vscode-types';
-import { Command, ContextKey } from '../../common/vscode/vscode-utils';
 import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../_view_base';
 import { PromptGroupTreeItem, TreePrompt } from './items';
 import { isFavorite, isHidden } from './state';

@@ -1,7 +1,7 @@
-import * as fs from 'node:fs';
-import { ConfigManager } from '../../common/lib/config-manager';
-import { extensionStore } from '../../common/lib/extension-store';
+import { ConfigManager } from '../../common/core/config-manager';
+import { extensionStore } from '../../common/core/extension-store';
 import { createLogger } from '../../common/lib/logger';
+import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { getDefaultTemplate } from '../_branch_base/storage/default-template';
 
 const logger = createLogger('TemplateInitializer');
@@ -9,20 +9,20 @@ const logger = createLogger('TemplateInitializer');
 export function ensureTemplateExists(workspace: string) {
   const templatePath = ConfigManager.getBranchContextTemplatePath(workspace);
 
-  if (fs.existsSync(templatePath)) {
+  if (FileIOHelper.fileExists(templatePath)) {
     logger.info(`[ensureTemplateExists] Template already exists at ${templatePath}`);
     return;
   }
 
   const configDir = ConfigManager.getConfigDirPathFromWorkspacePath(workspace);
 
-  if (!fs.existsSync(configDir)) {
+  if (!FileIOHelper.fileExists(configDir)) {
     logger.info(`[ensureTemplateExists] Creating config directory: ${configDir}`);
-    fs.mkdirSync(configDir, { recursive: true });
+    FileIOHelper.ensureDirectoryExists(configDir);
   }
 
   logger.info(`[ensureTemplateExists] Creating default template at ${templatePath}`);
   const extensionPath = extensionStore.getExtensionPath();
   const defaultTemplate = getDefaultTemplate(extensionPath);
-  fs.writeFileSync(templatePath, defaultTemplate, 'utf-8');
+  FileIOHelper.writeFile(templatePath, defaultTemplate);
 }

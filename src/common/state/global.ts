@@ -36,7 +36,3 @@ const baseGlobalPromptsState = createStateManager<PromptsState>({
 export const globalPromptsState: StateManagerWithSource<PromptsState> = {
   ...baseGlobalPromptsState,
 };
-
-export function migrateGlobalState() {
-  return;
-}

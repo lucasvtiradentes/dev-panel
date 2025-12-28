@@ -1,6 +1,6 @@
 import { WORKSPACE_STATE_CONFIG_DIR_KEY } from '../constants/scripts-constants';
+import { logger } from '../lib/logger';
 import type { ExtensionContext, Uri } from '../vscode/vscode-types';
-import { logger } from './logger';
 
 export enum StoreKey {
   ConfigDir = 'configDir',

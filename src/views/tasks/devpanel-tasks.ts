@@ -1,3 +1,4 @@
+import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
 import {
   CONFIG_DIR_KEY,
   CONTEXT_VALUES,
@@ -7,16 +8,15 @@ import {
   getCommandId,
   getGlobalConfigDir,
 } from '../../common/constants';
-import { ConfigManager } from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/core/config-manager';
 import type { DevPanelConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
 import { globalTasksState } from '../../common/state';
-import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
+import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
-import { Command } from '../../common/vscode/vscode-utils';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
@@ -116,16 +116,16 @@ function createDevPanelTask(
   if (showOnlyFavorites && !favorite) return null;
 
   const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
-  const env = readDevPanelVariablesAsEnv(configDirPath);
+  const env = VariablesEnvManager.readDevPanelVariablesAsEnv(configDirPath);
   const cwd = task.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
   const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd });
-  const vsTask = VscodeHelper.createTask(
-    { type: CONFIG_DIR_KEY, task: task.name },
-    folder,
-    task.name,
-    CONFIG_DIR_KEY,
-    shellExec,
-  );
+  const vsTask = VscodeHelper.createTask({
+    definition: { type: CONFIG_DIR_KEY, task: task.name },
+    scope: folder,
+    name: task.name,
+    source: CONFIG_DIR_KEY,
+    execution: shellExec,
+  });
 
   vsTask.presentationOptions = {
     reveal: VscodeConstants.TaskRevealKind.Always,
@@ -176,17 +176,17 @@ function createGlobalTask(
   if (showOnlyFavorites && !favorite) return null;
 
   const globalConfigDir = getGlobalConfigDir();
-  const env = readDevPanelVariablesAsEnv(globalConfigDir);
+  const env = VariablesEnvManager.readDevPanelVariablesAsEnv(globalConfigDir);
   const cwd = globalConfigDir;
   const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd });
 
-  const vsTask = VscodeHelper.createTask(
-    { type: `${CONFIG_DIR_KEY}-global`, task: task.name },
-    VscodeConstants.TaskScope.Global,
-    task.name,
-    `${CONFIG_DIR_KEY}-global`,
-    shellExec,
-  );
+  const vsTask = VscodeHelper.createTask({
+    definition: { type: `${CONFIG_DIR_KEY}-global`, task: task.name },
+    scope: VscodeConstants.TaskScope.Global,
+    name: task.name,
+    source: `${CONFIG_DIR_KEY}-global`,
+    execution: shellExec,
+  });
 
   vsTask.presentationOptions = {
     reveal: VscodeConstants.TaskRevealKind.Always,

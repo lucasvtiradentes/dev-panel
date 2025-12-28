@@ -1,9 +1,9 @@
+import type { TaskMeta } from '../../common/core/task-markdown-helper';
 import { TaskPriority, TaskStatus } from '../../common/schemas';
 import { VscodeColor, VscodeIcon } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { MarkdownString, ThemeIcon } from '../../common/vscode/vscode-types';
-import type { TaskMeta } from '../_branch_base';
 
 export function formatTaskDescription(meta: TaskMeta, status: TaskStatus): string {
   if (status === TaskStatus.Done) {
@@ -16,7 +16,7 @@ export function formatTaskDescription(meta: TaskMeta, status: TaskStatus): strin
     parts.push(`@${meta.assignee}`);
   }
 
-  if (meta.priority && meta.priority !== 'none') {
+  if (meta.priority && meta.priority !== TaskPriority.None) {
     parts.push(`!${meta.priority}`);
   }
 
@@ -114,7 +114,7 @@ export function formatTaskTooltip(text: string, status: TaskStatus, meta: TaskMe
     md.appendMarkdown(`Assignee: @${meta.assignee}\n\n`);
   }
 
-  if (meta.priority && meta.priority !== 'none') {
+  if (meta.priority && meta.priority !== TaskPriority.None) {
     const emoji = getPriorityEmoji(meta.priority);
     md.appendMarkdown(`Priority: ${emoji} ${meta.priority}\n\n`);
   }

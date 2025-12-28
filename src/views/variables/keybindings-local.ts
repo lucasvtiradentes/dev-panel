@@ -1,8 +1,7 @@
 import { getVariableCommandId, getVariableCommandPrefix } from '../../common/constants';
-import { ConfigManager } from '../../common/lib/config-manager';
-import { syncKeybindings } from '../../common/lib/keybindings-sync';
+import { registerItemKeybindings } from '../../common/core/keybindings-registration';
+import { Command, executeCommand } from '../../common/vscode/vscode-commands';
 import type { ExtensionContext } from '../../common/vscode/vscode-types';
-import { Command, executeCommand, registerDynamicCommand } from '../../common/vscode/vscode-utils';
 import { KeybindingManager } from '../_view_base';
 
 const manager = new KeybindingManager({
@@ -13,30 +12,15 @@ const manager = new KeybindingManager({
 export const getAllVariableKeybindings = () => manager.getAllKeybindings();
 
 export function registerVariableKeybindings(context: ExtensionContext) {
-  ConfigManager.forEachWorkspaceConfig((_, config) => {
-    const variables = config.variables ?? [];
-
-    for (const variable of variables) {
-      const commandId = getVariableCommandId(variable.name);
-      const disposable = registerDynamicCommand(commandId, () => {
-        void executeCommand(Command.SelectConfigOption, variable);
-      });
-      context.subscriptions.push(disposable);
-    }
+  registerItemKeybindings({
+    context,
+    getItems: (config) => config.variables,
+    getCommandId: getVariableCommandId,
+    createWorkspaceHandler: (variable) => () => {
+      void executeCommand(Command.SelectConfigOption, variable);
+    },
+    createGlobalHandler: (variable) => () => {
+      void executeCommand(Command.SelectConfigOption, variable);
+    },
   });
-
-  const globalConfig = ConfigManager.loadGlobalConfig();
-  if (globalConfig) {
-    const globalVariables = globalConfig.variables ?? [];
-
-    for (const variable of globalVariables) {
-      const commandId = getVariableCommandId(variable.name);
-      const disposable = registerDynamicCommand(commandId, () => {
-        void executeCommand(Command.SelectConfigOption, variable);
-      });
-      context.subscriptions.push(disposable);
-    }
-  }
-
-  syncKeybindings();
 }

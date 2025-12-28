@@ -9,13 +9,13 @@ import {
   getViewIdTodos,
   getViewIdTools,
 } from './common/constants';
-import { extensionStore } from './common/lib/extension-store';
+import { extensionStore } from './common/core/extension-store';
 import { logger } from './common/lib/logger';
-import { initGlobalState, initWorkspaceState, migrateGlobalState } from './common/state';
-import { getFirstWorkspacePath } from './common/utils/workspace-utils';
+import { initGlobalState, initWorkspaceState } from './common/state';
+import { ContextKey, setContextKey } from './common/vscode/vscode-context';
 import { VscodeHelper } from './common/vscode/vscode-helper';
 import type { ExtensionContext } from './common/vscode/vscode-types';
-import { ContextKey, generateWorkspaceId, setContextKey, setWorkspaceId } from './common/vscode/vscode-utils';
+import { generateWorkspaceId, setWorkspaceId } from './common/vscode/vscode-workspace';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import { BranchContextProvider } from './views/branch-context';
 import { ensureTemplateExists } from './views/branch-context/template-initializer';
@@ -51,7 +51,6 @@ type Providers = {
 function setupStatesAndContext(context: ExtensionContext) {
   initWorkspaceState(context);
   initGlobalState(context);
-  migrateGlobalState();
   extensionStore.initialize(context);
 
   const workspaceId = generateWorkspaceId();
@@ -81,7 +80,7 @@ function setupProviders(activateStart: number): Providers {
   void branchContextProvider.initialize();
   void VscodeHelper.fetchTasks();
 
-  const workspace = getFirstWorkspacePath();
+  const workspace = VscodeHelper.getFirstWorkspacePath();
   if (workspace) {
     ensureTemplateExists(workspace);
   }

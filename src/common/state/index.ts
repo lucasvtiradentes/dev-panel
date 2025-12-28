@@ -1,5 +1,5 @@
 export { initGlobalState, initWorkspaceState } from './base';
-export { migrateGlobalState, globalToolsState, globalTasksState, globalPromptsState } from './global';
+export { globalToolsState, globalTasksState, globalPromptsState } from './global';
 export {
   toolsState,
   promptsState,

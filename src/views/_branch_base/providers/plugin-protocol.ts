@@ -1,5 +1,6 @@
+import type { TaskMeta } from '../../../common/core/task-markdown-helper';
 import type { PluginAction, TaskStatus } from '../../../common/schemas';
-import type { SyncResult, TaskMeta, TaskNode } from './interfaces';
+import type { SyncResult, TaskNode } from './interfaces';
 
 export type PluginRequest = {
   action: PluginAction;

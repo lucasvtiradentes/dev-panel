@@ -1,58 +1,72 @@
+import * as vscode from 'vscode';
+
 export const VscodeConstants = {
   get TreeItemCollapsibleState() {
-    return require('vscode').TreeItemCollapsibleState;
+    return vscode.TreeItemCollapsibleState;
   },
   get TaskScope() {
-    return require('vscode').TaskScope;
+    return vscode.TaskScope;
   },
   get ProgressLocation() {
-    return require('vscode').ProgressLocation;
+    return vscode.ProgressLocation;
   },
   get TaskRevealKind() {
-    return require('vscode').TaskRevealKind;
+    return vscode.TaskRevealKind;
   },
   get TaskPanelKind() {
-    return require('vscode').TaskPanelKind;
+    return vscode.TaskPanelKind;
   },
   get QuickPickItemKind() {
-    return require('vscode').QuickPickItemKind;
+    return vscode.QuickPickItemKind;
   },
   get FileType() {
-    return require('vscode').FileType;
+    return vscode.FileType;
   },
   get ViewColumn() {
-    return require('vscode').ViewColumn;
+    return vscode.ViewColumn;
   },
   get StatusBarAlignment() {
-    return require('vscode').StatusBarAlignment;
+    return vscode.StatusBarAlignment;
   },
 };
 
 export enum VscodeIcon {
-  EyeClosed = 'eye-closed',
-  HeartFilled = 'heart-filled',
+  Account = 'account',
+  Add = 'add',
+  ArrowLeft = 'arrow-left',
+  ArrowUp = 'arrow-up',
+  Beaker = 'beaker',
+  Check = 'check',
+  Checklist = 'checklist',
   CircleFilled = 'circle-filled',
-  Inbox = 'inbox',
-  Milestone = 'milestone',
-  PassFilled = 'pass-filled',
-  PlayCircle = 'play-circle',
-  Error = 'error',
   CircleLargeOutline = 'circle-large-outline',
+  Close = 'close',
+  CommentDiscussion = 'comment-discussion',
+  Diff = 'diff',
+  Error = 'error',
+  Extensions = 'extensions',
+  EyeClosed = 'eye-closed',
+  FileAdd = 'file-add',
+  Flame = 'flame',
+  Folder = 'folder',
   GitBranch = 'git-branch',
   GitPullRequest = 'git-pull-request',
+  HeartFilled = 'heart-filled',
+  Inbox = 'inbox',
   Link = 'link',
-  Target = 'target',
-  Checklist = 'checklist',
+  LinkExternal = 'link-external',
+  Milestone = 'milestone',
   Note = 'note',
-  Tasklist = 'tasklist',
-  Diff = 'diff',
-  SymbolField = 'symbol-field',
-  Tools = 'tools',
   Package = 'package',
-  Beaker = 'beaker',
-  Extensions = 'extensions',
-  CommentDiscussion = 'comment-discussion',
+  PassFilled = 'pass-filled',
+  PlayCircle = 'play-circle',
+  SettingsGear = 'settings-gear',
+  SymbolField = 'symbol-field',
+  Target = 'target',
+  Tasklist = 'tasklist',
   Terminal = 'terminal',
+  Tools = 'tools',
+  Warning = 'warning',
 }
 
 export type VscodeIconString = VscodeIcon | (string & {});

@@ -1,5 +1,8 @@
 import { CONTEXT_VALUES, DND_MIME_TYPE_BRANCH_TASKS, getCommandId } from '../../common/constants';
 import { createLogger } from '../../common/lib/logger';
+import { TaskStatus } from '../../common/schemas/types';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
+import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
@@ -10,7 +13,6 @@ import {
   type TreeItem,
   TreeItemClass,
 } from '../../common/vscode/vscode-types';
-import { Command } from '../../common/vscode/vscode-utils';
 import type { MilestoneNode, TaskNode } from '../_branch_base';
 import { formatTaskDescription, formatTaskTooltip, getStatusIcon } from './task-item-utils';
 
@@ -82,7 +84,7 @@ export class BranchMilestoneItem extends TreeItemClass {
   private countDoneTasks(tasks: TaskNode[]): number {
     let count = 0;
     for (const task of tasks) {
-      if (task.status === 'done') count++;
+      if (task.status === TaskStatus.Done) count++;
       count += this.countDoneTasks(task.children);
     }
     return count;
@@ -116,7 +118,7 @@ export class BranchTasksDragAndDropController implements TreeDragAndDropControll
       lineIndex: item.node.lineIndex,
       milestoneName: this.provider.findMilestoneForTask(item.node.lineIndex),
     };
-    logger.info(`[handleDrag] Dragging task at line ${data.lineIndex}, milestone: ${data.milestoneName ?? 'none'}`);
+    logger.info(`[handleDrag] Dragging task at line ${data.lineIndex}, milestone: ${data.milestoneName}`);
     dataTransfer.set(DND_MIME_TYPE_BRANCH_TASKS, VscodeHelper.createDataTransferItem(JSON.stringify(data)));
   }
 
@@ -130,7 +132,7 @@ export class BranchTasksDragAndDropController implements TreeDragAndDropControll
     let dragData: DragData;
     try {
       const parsed = JSON.parse(transferItem.value as string);
-      if (typeof parsed !== 'object' || parsed === null || parsed.type !== DragItemType.Task) {
+      if (!TypeGuardsHelper.isObject(parsed) || parsed.type !== DragItemType.Task) {
         logger.info('[handleDrop] Ignoring drop - invalid drag data');
         return;
       }
@@ -149,7 +151,7 @@ export class BranchTasksDragAndDropController implements TreeDragAndDropControll
       const targetMilestone = target.isNoMilestone ? null : target.milestone.name;
       if (dragData.milestoneName !== targetMilestone) {
         logger.info(
-          `[handleDrop] Moving task ${dragData.lineIndex} from milestone "${dragData.milestoneName ?? 'none'}" to "${targetMilestone ?? 'none'}"`,
+          `[handleDrop] Moving task ${dragData.lineIndex} from milestone "${dragData.milestoneName}" to "${targetMilestone}"`,
         );
         await this.provider.moveTaskToMilestone(dragData.lineIndex, targetMilestone);
       } else {
@@ -160,7 +162,7 @@ export class BranchTasksDragAndDropController implements TreeDragAndDropControll
 
       if (dragData.milestoneName !== targetMilestone) {
         logger.info(
-          `[handleDrop] Moving task ${dragData.lineIndex} from milestone "${dragData.milestoneName ?? 'none'}" to "${targetMilestone ?? 'none'}"`,
+          `[handleDrop] Moving task ${dragData.lineIndex} from milestone "${dragData.milestoneName}" to "${targetMilestone}"`,
         );
         await this.provider.moveTaskToMilestone(dragData.lineIndex, targetMilestone ?? null);
         await new Promise((resolve) => setTimeout(resolve, 100));

@@ -1,6 +1,3 @@
-import * as fs from 'node:fs';
-import * as https from 'node:https';
-import * as path from 'node:path';
 import {
   PLUGINS_DIR_NAME,
   PROMPTS_DIR_NAME,
@@ -14,7 +11,7 @@ import {
   TOOLS_DIR,
 } from '../../../common/constants';
 import { ConfigKey } from '../../../common/constants/enums';
-import { ConfigManager } from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/core/config-manager';
 import { logger } from '../../../common/lib/logger';
 import {
   type RegistryIndex,
@@ -22,6 +19,8 @@ import {
   type RegistryItemEntry,
   RegistryItemKind,
 } from '../../../common/schemas';
+import { fetchUrl } from '../../../common/utils/functions/fetch-url';
+import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
 import type { WorkspaceFolder } from '../../../common/vscode/vscode-types';
 
 type RegistryConfigKey = Exclude<ConfigKey, ConfigKey.Tasks>;
@@ -51,28 +50,10 @@ const KIND_CONFIG: Record<RegistryItemKind, KindConfig> = {
   },
 };
 
-function httpsGet(url: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    https
-      .get(url, (res) => {
-        if (res.statusCode !== 200) {
-          reject(new Error(`HTTP ${res.statusCode}: ${url}`));
-          return;
-        }
-        let data = '';
-        res.on('data', (chunk) => {
-          data += chunk;
-        });
-        res.on('end', () => resolve(data));
-      })
-      .on('error', reject);
-  });
-}
-
 export async function fetchRegistryIndex(): Promise<RegistryIndex> {
   const url = `${REGISTRY_BASE_URL}/${REGISTRY_INDEX_FILE}`;
   logger.info(`Fetching registry index from ${url}`);
-  const content = await httpsGet(url);
+  const content = await fetchUrl(url);
   const rawIndex = JSON.parse(content);
   return RegistryIndexSchema.parse(rawIndex);
 }
@@ -91,19 +72,19 @@ async function fetchItemFile(
   const file = fileName ?? config.defaultFile;
   const url = `${REGISTRY_BASE_URL}/${config.dirName}/${itemName}/${file}`;
   logger.info(`Fetching item file from ${url}`);
-  const content = await httpsGet(url);
+  const content = await fetchUrl(url);
   return { fileName: file, content };
 }
 
 export function getInstalledItems(workspacePath: string, kind: RegistryItemKind): string[] {
   const config = KIND_CONFIG[kind];
-  const dirPath = path.join(ConfigManager.getConfigDirPathFromWorkspacePath(workspacePath), config.dirName);
+  const dirPath = NodePathHelper.join(ConfigManager.getConfigDirPathFromWorkspacePath(workspacePath), config.dirName);
 
-  if (!fs.existsSync(dirPath)) return [];
+  if (!FileIOHelper.fileExists(dirPath)) return [];
 
   try {
-    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
-    return entries.filter((e) => e.isFile()).map((e) => path.parse(e.name).name);
+    const entries = FileIOHelper.readDirectory(dirPath, { withFileTypes: true });
+    return entries.filter((e) => e.isFile()).map((e) => NodePathHelper.parse(e.name).name);
   } catch {
     return [];
   }
@@ -117,21 +98,21 @@ export async function installItem(
 ) {
   const config = KIND_CONFIG[kind];
   const configDirPath = ConfigManager.getWorkspaceConfigDirPath(workspaceFolder);
-  const targetDir = path.join(configDirPath, config.dirName);
+  const targetDir = NodePathHelper.join(configDirPath, config.dirName);
 
-  if (!fs.existsSync(targetDir)) {
-    fs.mkdirSync(targetDir, { recursive: true });
+  if (!FileIOHelper.fileExists(targetDir)) {
+    FileIOHelper.ensureDirectoryExists(targetDir);
   }
 
   const { fileName, content } = await fetchItemFile(kind, item.name, item.file);
-  const ext = path.extname(fileName);
+  const ext = NodePathHelper.extname(fileName);
   const targetFileName = `${item.name}${ext}`;
-  const targetPath = path.join(targetDir, targetFileName);
+  const targetPath = NodePathHelper.join(targetDir, targetFileName);
 
-  if (fs.existsSync(targetPath) && !force) {
+  if (FileIOHelper.fileExists(targetPath) && !force) {
     throw new Error(`Item "${item.name}" already exists. Use force to overwrite.`);
   }
 
-  fs.writeFileSync(targetPath, content, 'utf8');
+  FileIOHelper.writeFile(targetPath, content);
   logger.info(`Installed ${kind} "${item.name}" to ${targetPath}`);
 }

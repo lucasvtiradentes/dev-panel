@@ -1,26 +1,31 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import json5 from 'json5';
 import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
   ERROR_REPLACEMENTS_REQUIRE_GIT,
   ERROR_SOURCE_FILE_NOT_FOUND,
   ERROR_TARGET_FILE_NOT_FOUND,
-  NO_GROUP_NAME,
   getCommandId,
 } from '../../common/constants';
-import { ConfigManager } from '../../common/lib/config-manager';
-import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
+import { ConfigManager } from '../../common/core/config-manager';
+import { Git } from '../../common/lib/git';
+import {
+  type DevPanelConfig,
+  type DevPanelReplacement,
+  type NormalizedPatchItem,
+  ReplacementType,
+  normalizePatchItem,
+} from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
-import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { readJsoncFile } from '../../common/utils/functions/read-jsonc-file';
+import { GroupHelper } from '../../common/utils/helpers/group-helper';
+import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
+import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import { type TreeDataProvider, type TreeItem, TreeItemClass } from '../../common/vscode/vscode-types';
-import { Command, ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
-import { fileExistsInGit, getCurrentBranch, isGitRepository, restoreFileFromGit, setSkipWorktree } from './git-utils';
 import {
   addActiveReplacement,
   getActiveReplacements,
@@ -31,26 +36,11 @@ import {
   setLastBranch,
 } from './state';
 
-type NormalizedPatchReplacement = {
-  type: 'patch';
-  name: string;
-  target: string;
-  description?: string;
-  group?: string;
-  patches: NormalizedPatchItem[];
-};
+const normalizedPatchesMap = new Map<string, NormalizedPatchItem[]>();
 
-function normalizePatchItem(item: { search: unknown; replace: unknown }): NormalizedPatchItem {
-  const normalizeValue = (value: unknown): string[] => {
-    if (Array.isArray(value)) return value;
-    if (typeof value === 'string') return [value];
-    return [];
-  };
-
-  return {
-    search: normalizeValue(item.search),
-    replace: normalizeValue(item.replace),
-  };
+function getNormalizedPatches(replacement: DevPanelReplacement): NormalizedPatchItem[] | undefined {
+  if (replacement.type !== ReplacementType.Patch) return undefined;
+  return normalizedPatchesMap.get(replacement.name);
 }
 
 class ReplacementGroupTreeItem extends TreeItemClass {
@@ -126,16 +116,16 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
   }
 
   private async handleStartup() {
-    const workspace = getFirstWorkspacePath();
-    if (workspace && (await isGitRepository(workspace))) {
-      const currentBranch = await getCurrentBranch(workspace);
+    const workspace = VscodeHelper.getFirstWorkspacePath();
+    if (workspace && (await Git.isRepository(workspace))) {
+      const currentBranch = await Git.getCurrentBranch(workspace);
       setLastBranch(currentBranch);
     }
     this.syncReplacementState();
   }
 
   private syncReplacementState() {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
     const config = this.loadConfig();
@@ -143,7 +133,8 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
 
     const activeReplacements: string[] = [];
     for (const replacement of config.replacements) {
-      if (isReplacementActive(workspace, replacement)) {
+      const normalizedPatches = getNormalizedPatches(replacement);
+      if (isReplacementActive({ workspace, replacement, normalizedPatches })) {
         activeReplacements.push(replacement.name);
       }
     }
@@ -189,19 +180,7 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
       );
     }
 
-    const grouped = new Map<string, DevPanelReplacement[]>();
-
-    for (const r of config.replacements) {
-      const groupName = r.group ?? NO_GROUP_NAME;
-      if (!grouped.has(groupName)) {
-        grouped.set(groupName, []);
-      }
-      const group = grouped.get(groupName);
-      if (group) {
-        group.push(r);
-      }
-    }
-
+    const grouped = GroupHelper.groupItems(config.replacements);
     const items: TreeItem[] = [];
 
     for (const [groupName, replacements] of grouped) {
@@ -212,20 +191,21 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
   }
 
   private loadConfig(): DevPanelConfig | null {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return null;
 
     const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
-    if (!fs.existsSync(configPath)) return null;
+    if (!FileIOHelper.fileExists(configPath)) return null;
 
-    const content = fs.readFileSync(configPath, 'utf-8');
-    const rawConfig = json5.parse(content);
+    const content = FileIOHelper.readFile(configPath);
+    const rawConfig = readJsoncFile(content);
     const config = DevPanelConfigSchema.parse(rawConfig);
 
+    normalizedPatchesMap.clear();
     if (config.replacements) {
       for (const replacement of config.replacements) {
-        if (replacement.type === 'patch') {
-          (replacement as unknown as NormalizedPatchReplacement).patches = replacement.patches.map(normalizePatchItem);
+        if (replacement.type === ReplacementType.Patch) {
+          normalizedPatchesMap.set(replacement.name, replacement.patches.map(normalizePatchItem));
         }
       }
     }
@@ -247,52 +227,55 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
   }
 
   private async activateReplacement(replacement: DevPanelReplacement) {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
-    if (!(await isGitRepository(workspace))) {
+    if (!(await Git.isRepository(workspace))) {
       VscodeHelper.showToastMessage(ToastKind.Error, ERROR_REPLACEMENTS_REQUIRE_GIT);
       return;
     }
 
-    if (replacement.type === 'patch' && !fileExists(workspace, replacement.target)) {
+    if (replacement.type === ReplacementType.Patch && !fileExists(workspace, replacement.target)) {
       VscodeHelper.showToastMessage(ToastKind.Error, `${ERROR_TARGET_FILE_NOT_FOUND}: ${replacement.target}`);
       return;
     }
 
-    if (replacement.type === 'file' && !fileExists(workspace, replacement.source)) {
+    if (replacement.type === ReplacementType.File && !fileExists(workspace, replacement.source)) {
       VscodeHelper.showToastMessage(ToastKind.Error, `${ERROR_SOURCE_FILE_NOT_FOUND}: ${replacement.source}`);
       return;
     }
 
-    const targetExistsInGit = await fileExistsInGit(workspace, replacement.target);
+    const targetExistsInGit = await Git.fileExistsInGit(workspace, replacement.target);
     if (targetExistsInGit) {
-      await setSkipWorktree(workspace, replacement.target, true);
+      await Git.setSkipWorktree(workspace, replacement.target, true);
     }
 
-    if (replacement.type === 'file') {
+    if (replacement.type === ReplacementType.File) {
       applyFileReplacement(workspace, replacement.source, replacement.target);
     } else {
-      applyPatches(workspace, replacement.target, (replacement as unknown as NormalizedPatchReplacement).patches);
+      const patches = getNormalizedPatches(replacement);
+      if (patches) {
+        applyPatches(workspace, replacement.target, patches);
+      }
     }
 
     addActiveReplacement(replacement.name);
   }
 
   private async deactivateReplacement(replacement: DevPanelReplacement) {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
-    if (await isGitRepository(workspace)) {
-      const targetExistsInGit = await fileExistsInGit(workspace, replacement.target);
+    if (await Git.isRepository(workspace)) {
+      const targetExistsInGit = await Git.fileExistsInGit(workspace, replacement.target);
 
       if (targetExistsInGit) {
-        await setSkipWorktree(workspace, replacement.target, false);
-        await restoreFileFromGit(workspace, replacement.target);
+        await Git.setSkipWorktree(workspace, replacement.target, false);
+        await Git.restoreFile(workspace, replacement.target);
       } else {
-        const targetPath = path.join(workspace, replacement.target);
-        if (fs.existsSync(targetPath)) {
-          fs.unlinkSync(targetPath);
+        const targetPath = NodePathHelper.join(workspace, replacement.target);
+        if (FileIOHelper.fileExists(targetPath)) {
+          FileIOHelper.deleteFile(targetPath);
         }
       }
     }

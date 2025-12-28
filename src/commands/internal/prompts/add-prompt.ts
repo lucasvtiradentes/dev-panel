@@ -1,5 +1,3 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import {
   CONFIG_FILE_NAME,
   CONFIG_INDENT,
@@ -9,15 +7,16 @@ import {
   TOOL_NAME_PATTERN,
   TOOL_NAME_VALIDATION_MESSAGE,
 } from '../../../common/constants';
-import { ConfigManager } from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/core/config-manager';
 import type { DevPanelConfig } from '../../../common/schemas';
-import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
+import { findClosingBracketIndex } from '../../../common/utils/functions/find-closing-bracket';
+import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
+import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 
 async function handleAddPrompt() {
-  const workspaceFolder = requireWorkspaceFolder();
+  const workspaceFolder = VscodeHelper.requireWorkspaceFolder();
   if (!workspaceFolder) return;
 
   const name = await VscodeHelper.showInputBox({
@@ -55,12 +54,12 @@ async function handleAddPrompt() {
   });
 
   const configPath = ConfigManager.getWorkspaceConfigFilePath(workspaceFolder, CONFIG_FILE_NAME);
-  if (!fs.existsSync(configPath)) {
+  if (!FileIOHelper.fileExists(configPath)) {
     VscodeHelper.showToastMessage(ToastKind.Error, `Config file not found: ${configPath}`);
     return;
   }
 
-  const configContent = fs.readFileSync(configPath, 'utf8');
+  const configContent = FileIOHelper.readFile(configPath);
   const config = ConfigManager.parseConfig(configContent);
   if (!config) {
     VscodeHelper.showToastMessage(ToastKind.Error, 'Failed to parse config file');
@@ -101,17 +100,7 @@ async function handleAddPrompt() {
 
   const matchIndex = promptsStartMatch.index;
   const startIndex = matchIndex + promptsStartMatch[0].length;
-  let bracketCount = 1;
-  let endIndex = startIndex;
-
-  for (let i = startIndex; i < configContent.length; i++) {
-    if (configContent[i] === '[') bracketCount++;
-    if (configContent[i] === ']') bracketCount--;
-    if (bracketCount === 0) {
-      endIndex = i;
-      break;
-    }
-  }
+  const endIndex = findClosingBracketIndex(configContent, startIndex);
 
   const promptJson = JSON.stringify(newPrompt, null, JSON_INDENT_SPACES)
     .split('\n')
@@ -126,14 +115,12 @@ async function handleAddPrompt() {
 
   const updatedContent = configContent.substring(0, startIndex) + newPromptsContent + configContent.substring(endIndex);
 
-  fs.writeFileSync(configPath, updatedContent, 'utf8');
+  FileIOHelper.writeFile(configPath, updatedContent);
 
   const promptsDir = ConfigManager.getWorkspacePromptsDir(workspaceFolder);
-  if (!fs.existsSync(promptsDir)) {
-    fs.mkdirSync(promptsDir, { recursive: true });
-  }
+  FileIOHelper.ensureDirectoryExists(promptsDir);
 
-  const promptFilePath = path.join(promptsDir, `${fileName}.md`);
+  const promptFilePath = NodePathHelper.join(promptsDir, `${fileName}.md`);
   const promptContent = `# ${name}
 
 ${description || `Prompt: ${name}`}
@@ -154,7 +141,7 @@ Example command or code
 \`\`\`
 `;
 
-  fs.writeFileSync(promptFilePath, promptContent, 'utf8');
+  FileIOHelper.writeFile(promptFilePath, promptContent);
 
   VscodeHelper.showToastMessage(ToastKind.Info, `Prompt "${name}" created successfully`);
 

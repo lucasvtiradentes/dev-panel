@@ -1,7 +1,22 @@
+import { TypeGuardsHelper } from '../utils/helpers/type-guards-helper';
+
 export type NormalizedPatchItem = {
   search: string[];
   replace: string[];
 };
+
+export function normalizePatchItem(item: { search: unknown; replace: unknown }): NormalizedPatchItem {
+  const normalizeValue = (value: unknown): string[] => {
+    if (Array.isArray(value)) return value;
+    if (TypeGuardsHelper.isString(value)) return [value];
+    return [];
+  };
+
+  return {
+    search: normalizeValue(item.search),
+    replace: normalizeValue(item.replace),
+  };
+}
 
 export enum TaskStatus {
   Todo = 'todo',

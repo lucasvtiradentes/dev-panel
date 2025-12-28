@@ -1,5 +1,4 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
 import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
@@ -8,16 +7,17 @@ import {
   NO_GROUP_NAME,
   NPM_RUN_COMMAND,
   PACKAGE_JSON,
+  ROOT_PACKAGE_LABEL,
   getCommandId,
 } from '../../common/constants';
-import { ConfigManager } from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/core/config-manager';
 import { TaskSource } from '../../common/schemas/types';
-import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
+import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
+import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
-import { Command } from '../../common/vscode/vscode-utils';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 
@@ -102,7 +102,7 @@ export async function getPackageScripts(
     return [];
   }
 
-  const isSinglePackage = allPackages.length === 1 && allPackages[0].relativePath === 'root';
+  const isSinglePackage = allPackages.length === 1 && allPackages[0].relativePath === ROOT_PACKAGE_LABEL;
 
   if (isSinglePackage && !grouped) {
     const pkg = allPackages[0];
@@ -140,8 +140,8 @@ async function findAllPackageJsons(folder: WorkspaceFolder): Promise<PackageLoca
     const scripts = readPackageScripts(pkgPath);
     if (Object.keys(scripts).length === 0) continue;
 
-    const pkgDir = path.dirname(pkgPath);
-    const relativePath = path.relative(rootPath, pkgDir) || 'root';
+    const pkgDir = NodePathHelper.dirname(pkgPath);
+    const relativePath = NodePathHelper.relative(rootPath, pkgDir) || ROOT_PACKAGE_LABEL;
 
     packages.push({
       relativePath,
@@ -152,8 +152,8 @@ async function findAllPackageJsons(folder: WorkspaceFolder): Promise<PackageLoca
   }
 
   packages.sort((a, b) => {
-    if (a.relativePath === 'root') return -1;
-    if (b.relativePath === 'root') return 1;
+    if (a.relativePath === ROOT_PACKAGE_LABEL) return -1;
+    if (b.relativePath === ROOT_PACKAGE_LABEL) return 1;
     return a.relativePath.localeCompare(b.relativePath);
   });
 
@@ -166,14 +166,14 @@ function findPackageJsonsRecursive(dir: string, excludedDirs: Set<string>, maxDe
   const results: string[] = [];
 
   try {
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    const entries = FileIOHelper.readDirectory(dir, { withFileTypes: true });
 
     for (const entry of entries) {
       if (entry.name === PACKAGE_JSON && entry.isFile()) {
-        results.push(path.join(dir, entry.name));
+        results.push(NodePathHelper.join(dir, entry.name));
       } else if (entry.isDirectory() && !excludedDirs.has(entry.name) && !entry.name.startsWith(DIST_DIR_PREFIX)) {
         results.push(
-          ...findPackageJsonsRecursive(path.join(dir, entry.name), excludedDirs, maxDepth, currentDepth + 1),
+          ...findPackageJsonsRecursive(NodePathHelper.join(dir, entry.name), excludedDirs, maxDepth, currentDepth + 1),
         );
       }
     }
@@ -195,7 +195,7 @@ function getGroupedByLocation(
   const taskElements: Array<TreeTask | GroupTreeItem> = [];
 
   for (const pkg of packages) {
-    const groupName = pkg.relativePath === 'root' ? 'root' : pkg.relativePath;
+    const groupName = pkg.relativePath === ROOT_PACKAGE_LABEL ? ROOT_PACKAGE_LABEL : pkg.relativePath;
     const group = new GroupTreeItem(groupName);
 
     for (const [name, command] of Object.entries(pkg.scripts)) {
@@ -256,9 +256,9 @@ function getGroupedByScriptPrefix(
 }
 
 function readPackageScripts(packageJsonPath: string): Record<string, string> {
-  if (!fs.existsSync(packageJsonPath)) return {};
+  if (!FileIOHelper.fileExists(packageJsonPath)) return {};
   try {
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as PackageJson;
+    const packageJson = JSON.parse(FileIOHelper.readFile(packageJsonPath)) as PackageJson;
     return packageJson.scripts ?? {};
   } catch {
     return {};
@@ -281,9 +281,15 @@ function createNpmTask(options: {
   if (showOnlyFavorites && !favorite) return null;
 
   const variablesPath = ConfigManager.getWorkspaceVariablesPath(folder);
-  const env = readDevPanelVariablesAsEnv(variablesPath);
+  const env = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);
   const shellExec = VscodeHelper.createShellExecution(`${NPM_RUN_COMMAND} ${name}`, { cwd, env });
-  const task = VscodeHelper.createTask({ type: 'npm' }, folder, name, 'npm', shellExec);
+  const task = VscodeHelper.createTask({
+    definition: { type: 'npm' },
+    scope: folder,
+    name,
+    source: 'npm',
+    execution: shellExec,
+  });
   const displayName = useDisplayName && name.includes(':') ? name.split(':').slice(1).join(':') : name;
 
   const treeTask = new TreeTask(

@@ -1,33 +1,13 @@
 import { CONFIG_FILE_NAME, EXTENSION_DISPLAY_NAME } from '../../common/constants';
 import { INIT_RESOURCES_DIR_NAME, RESOURCES_DIR_NAME } from '../../common/constants/scripts-constants';
-import { ConfigManager } from '../../common/lib/config-manager';
-import { extensionStore } from '../../common/lib/extension-store';
+import { ConfigManager } from '../../common/core/config-manager';
+import { extensionStore } from '../../common/core/extension-store';
 import { logger } from '../../common/lib/logger';
-import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
-import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { Uri } from '../../common/vscode/vscode-types';
-
-async function copyDirectoryRecursive(sourceUri: Uri, targetUri: Uri) {
-  await VscodeHelper.createDirectory(targetUri);
-
-  const entries = await VscodeHelper.readDirectory(sourceUri);
-
-  for (const [name, type] of entries) {
-    const sourceEntryUri = VscodeHelper.joinPath(sourceUri, name);
-    const targetEntryUri = VscodeHelper.joinPath(targetUri, name);
-
-    if (type === VscodeConstants.FileType.Directory) {
-      await copyDirectoryRecursive(sourceEntryUri, targetEntryUri);
-    } else {
-      const content = await VscodeHelper.readFile(sourceEntryUri);
-      await VscodeHelper.writeFile(targetEntryUri, content);
-    }
-  }
-}
 
 export async function showInitMenu() {
-  const workspaceFolder = requireWorkspaceFolder();
+  const workspaceFolder = VscodeHelper.requireWorkspaceFolder();
   if (!workspaceFolder) return;
 
   try {
@@ -40,15 +20,16 @@ export async function showInitMenu() {
     const configDirPath = ConfigManager.getWorkspaceConfigDirPath(workspaceFolder);
     const configDirUri = VscodeHelper.createFileUri(configDirPath);
 
-    await copyDirectoryRecursive(initResourcesUri, configDirUri);
+    await ConfigManager.copyDirectoryRecursive(initResourcesUri, configDirUri);
 
     logger.info(`${EXTENSION_DISPLAY_NAME} initialized successfully`);
     void VscodeHelper.showToastMessage(
       ToastKind.Info,
       `${EXTENSION_DISPLAY_NAME} initialized! Config created at ${CONFIG_FILE_NAME}`,
     );
-  } catch (error) {
-    logger.error('Failed to initialize ${EXTENSION_DISPLAY_NAME}: ${error}');
-    void VscodeHelper.showToastMessage(ToastKind.Error, `Failed to initialize: ${error}`);
+  } catch (error: unknown) {
+    const message = TypeGuardsHelper.getErrorMessage(error);
+    logger.error(`Failed to initialize ${EXTENSION_DISPLAY_NAME}: ${message}`);
+    void VscodeHelper.showToastMessage(ToastKind.Error, `Failed to initialize: ${message}`);
   }
 }

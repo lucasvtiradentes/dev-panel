@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import {
   DEFAULT_TASK_STATUS,
   INVALID_LINE_INDEX,
@@ -7,8 +6,10 @@ import {
   TASK_STATUS_MARKERS,
   TODO_SECTION_HEADER_PATTERN,
 } from '../../../common/constants';
+import type { TaskMeta } from '../../../common/core/task-markdown-helper';
 import type { TaskStatus } from '../../../common/schemas';
-import type { NewTask, SyncContext, TaskMeta, TaskNode } from '../providers/interfaces';
+import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
+import type { NewTask, SyncContext, TaskNode } from '../providers/interfaces';
 import { formatTaskLine, parseTaskText, statusToMarker } from './task-utils';
 
 function createEmptyTaskNode(text: string): TaskNode {
@@ -22,12 +23,12 @@ function createEmptyTaskNode(text: string): TaskNode {
 }
 
 export function onStatusChange(lineIndex: number, newStatus: TaskStatus, context: SyncContext) {
-  if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
+  if (!FileIOHelper.fileExists(context.markdownPath)) return Promise.resolve();
 
-  const content = fs.readFileSync(context.markdownPath, 'utf-8');
+  const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
   if (todoSectionIndex === -1) return Promise.resolve();
 
   const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
@@ -42,19 +43,19 @@ export function onStatusChange(lineIndex: number, newStatus: TaskStatus, context
 
   autoToggleParentTask(lines, actualLineIndex);
 
-  fs.writeFileSync(context.markdownPath, lines.join('\n'));
+  FileIOHelper.writeFile(context.markdownPath, lines.join('\n'));
   return Promise.resolve();
 }
 
 export function onCreateTask(task: NewTask, parentIndex: number | undefined, context: SyncContext): Promise<TaskNode> {
-  if (!fs.existsSync(context.markdownPath)) {
+  if (!FileIOHelper.fileExists(context.markdownPath)) {
     return Promise.resolve(createEmptyTaskNode(task.text));
   }
 
-  const content = fs.readFileSync(context.markdownPath, 'utf-8');
+  const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
   if (todoSectionIndex === -1) {
     return Promise.resolve(createEmptyTaskNode(task.text));
   }
@@ -84,7 +85,9 @@ export function onCreateTask(task: NewTask, parentIndex: number | undefined, con
 
     insertIndex = lastChildIndex + 1;
   } else {
-    const nextSectionIndex = lines.findIndex((l, i) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
+    const nextSectionIndex = lines.findIndex(
+      (l: string, i: number) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
+    );
     const endIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
 
     let lastTaskIndex = todoSectionIndex;
@@ -100,7 +103,7 @@ export function onCreateTask(task: NewTask, parentIndex: number | undefined, con
   const newLine = `${indent}- [ ] ${task.text}`;
   lines.splice(insertIndex, 0, newLine);
 
-  fs.writeFileSync(context.markdownPath, lines.join('\n'));
+  FileIOHelper.writeFile(context.markdownPath, lines.join('\n'));
 
   const taskNode = createEmptyTaskNode(task.text);
   taskNode.lineIndex = insertIndex - todoSectionIndex - 2;
@@ -108,12 +111,12 @@ export function onCreateTask(task: NewTask, parentIndex: number | undefined, con
 }
 
 export function onUpdateMeta(lineIndex: number, metaUpdate: Partial<TaskMeta>, context: SyncContext) {
-  if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
+  if (!FileIOHelper.fileExists(context.markdownPath)) return Promise.resolve();
 
-  const content = fs.readFileSync(context.markdownPath, 'utf-8');
+  const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
   if (todoSectionIndex === -1) return Promise.resolve();
 
   const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
@@ -133,17 +136,17 @@ export function onUpdateMeta(lineIndex: number, metaUpdate: Partial<TaskMeta>, c
 
   lines[actualLineIndex] = `${indent}- [${statusChar}] ${newContent}`;
 
-  fs.writeFileSync(context.markdownPath, lines.join('\n'));
+  FileIOHelper.writeFile(context.markdownPath, lines.join('\n'));
   return Promise.resolve();
 }
 
 export function onEditText(lineIndex: number, newText: string, context: SyncContext) {
-  if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
+  if (!FileIOHelper.fileExists(context.markdownPath)) return Promise.resolve();
 
-  const content = fs.readFileSync(context.markdownPath, 'utf-8');
+  const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
   if (todoSectionIndex === -1) return Promise.resolve();
 
   const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
@@ -162,17 +165,17 @@ export function onEditText(lineIndex: number, newText: string, context: SyncCont
 
   lines[actualLineIndex] = `${indent}- [${statusChar}] ${newContent}`;
 
-  fs.writeFileSync(context.markdownPath, lines.join('\n'));
+  FileIOHelper.writeFile(context.markdownPath, lines.join('\n'));
   return Promise.resolve();
 }
 
 export function onDeleteTask(lineIndex: number, context: SyncContext) {
-  if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
+  if (!FileIOHelper.fileExists(context.markdownPath)) return Promise.resolve();
 
-  const content = fs.readFileSync(context.markdownPath, 'utf-8');
+  const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
   if (todoSectionIndex === -1) return Promise.resolve();
 
   const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
@@ -196,7 +199,7 @@ export function onDeleteTask(lineIndex: number, context: SyncContext) {
 
   lines.splice(actualLineIndex, endIndex - actualLineIndex);
 
-  fs.writeFileSync(context.markdownPath, lines.join('\n'));
+  FileIOHelper.writeFile(context.markdownPath, lines.join('\n'));
   return Promise.resolve();
 }
 

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
+import { TypeGuardsHelper } from '../utils/helpers/type-guards-helper';
 import type { VscodeColor, VscodeColorString, VscodeIcon, VscodeIconString } from './vscode-constants';
-import type { ThemeIcon, TreeView, Uri } from './vscode-types';
+import type { ThemeIcon, TreeView, Uri, WorkspaceFolder } from './vscode-types';
 
 export enum ToastKind {
   Info = 'info',
@@ -9,6 +10,39 @@ export enum ToastKind {
 }
 
 export class VscodeHelper {
+  static getFirstWorkspaceFolder(): WorkspaceFolder | undefined {
+    return VscodeHelper.getWorkspaceFolders()[0];
+  }
+
+  static getFirstWorkspacePath(): string | null {
+    return VscodeHelper.getFirstWorkspaceFolder()?.uri.fsPath ?? null;
+  }
+
+  static requireWorkspaceFolder(): WorkspaceFolder | null {
+    const folder = VscodeHelper.getFirstWorkspaceFolder();
+    if (!folder) {
+      VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
+      return null;
+    }
+    return folder;
+  }
+
+  static async selectWorkspaceFolder(placeholder: string): Promise<WorkspaceFolder | null> {
+    const folders = VscodeHelper.getWorkspaceFolders();
+    if (folders.length === 0) {
+      VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
+      return null;
+    }
+
+    if (folders.length === 1) {
+      return folders[0];
+    }
+
+    const items = folders.map((f) => ({ label: f.name, folder: f }));
+    const selected = await VscodeHelper.showQuickPickItems(items, { placeHolder: placeholder });
+    return selected?.folder ?? null;
+  }
+
   static createIcon(icon: VscodeIcon, color?: VscodeColor): ThemeIcon {
     return color ? new vscode.ThemeIcon(icon, new vscode.ThemeColor(color)) : new vscode.ThemeIcon(icon);
   }
@@ -40,7 +74,7 @@ export class VscodeHelper {
     optionsOrFirstItem?: vscode.MessageOptions | string,
     ...items: string[]
   ): Thenable<string | undefined> {
-    const isOptions = typeof optionsOrFirstItem === 'object';
+    const isOptions = TypeGuardsHelper.isObject(optionsOrFirstItem);
     const options = isOptions ? optionsOrFirstItem : undefined;
     const allItems = isOptions
       ? items
@@ -253,15 +287,23 @@ export class VscodeHelper {
     return vscode.extensions.getExtension<T>(extensionId);
   }
 
-  static createTask(
-    definition: vscode.TaskDefinition,
-    scope: vscode.WorkspaceFolder | vscode.TaskScope.Global | vscode.TaskScope.Workspace,
-    name: string,
-    source: string,
-    execution?: vscode.ProcessExecution | vscode.ShellExecution | vscode.CustomExecution,
-    problemMatchers?: string | string[],
-  ): vscode.Task {
-    return new vscode.Task(definition, scope, name, source, execution, problemMatchers);
+  static createTask(options: {
+    definition: vscode.TaskDefinition;
+    scope: vscode.WorkspaceFolder | vscode.TaskScope.Global | vscode.TaskScope.Workspace;
+    name: string;
+    source: string;
+    execution?: vscode.ProcessExecution | vscode.ShellExecution | vscode.CustomExecution;
+    // tscanner-ignore-next-line no-single-or-array-union
+    problemMatchers?: string | string[];
+  }): vscode.Task {
+    return new vscode.Task(
+      options.definition,
+      options.scope,
+      options.name,
+      options.source,
+      options.execution,
+      options.problemMatchers,
+    );
   }
 
   static createEventEmitter<T>(): vscode.EventEmitter<T> {

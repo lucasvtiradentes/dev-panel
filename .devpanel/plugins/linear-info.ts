@@ -9,9 +9,7 @@ const CONSTANTS = {
 };
 
 type PluginContext = {
-  branchContext: {
-    linearLink: string;
-  };
+  fields: Record<string, string>;
 };
 
 type LinearLabel = string | { name?: string };
@@ -239,7 +237,7 @@ function handleProject(projectId: string) {
 
 function main() {
   const context = getPluginContext();
-  const linearLink = context.branchContext.linearLink;
+  const linearLink = context.fields['LINEAR LINK'];
 
   if (!isValidLink(linearLink)) {
     outputWithMetadata('No Linear link set', { isEmpty: true, description: 'No link' });

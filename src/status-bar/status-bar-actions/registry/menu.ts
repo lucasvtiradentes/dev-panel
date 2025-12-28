@@ -1,7 +1,7 @@
 import { EXTENSION_DISPLAY_NAME } from '../../../common/constants';
 import { logger } from '../../../common/lib/logger';
 import { type RegistryItemEntry, RegistryItemKind } from '../../../common/schemas';
-import { requireWorkspaceFolder } from '../../../common/utils/workspace-utils';
+import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { VscodeConstants, VscodeIcon } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { QuickPickItem, WorkspaceFolder } from '../../../common/vscode/vscode-types';
@@ -17,7 +17,7 @@ const KIND_LABELS: Record<RegistryItemKind, { label: string; icon: VscodeIcon }>
 };
 
 export async function showRegistryMenu() {
-  const workspaceFolder = requireWorkspaceFolder();
+  const workspaceFolder = VscodeHelper.requireWorkspaceFolder();
   if (!workspaceFolder) return;
 
   const kindItems: QuickPickItemWithId<RegistryItemKind>[] = Object.entries(KIND_LABELS).map(
@@ -63,7 +63,7 @@ async function showItemsForKind(workspaceFolder: WorkspaceFolder, kind: Registry
           const isInstalled = installedItems.includes(item.name);
           return {
             id: item,
-            label: `${isInstalled ? '$(check) ' : ''}${item.name}`,
+            label: `${isInstalled ? `$(${VscodeIcon.Check}) ` : ''}${item.name}`,
             description: item.category,
             detail: item.description,
             picked: false,
@@ -72,7 +72,7 @@ async function showItemsForKind(workspaceFolder: WorkspaceFolder, kind: Registry
 
         quickPickItems.unshift({
           id: null,
-          label: '$(arrow-left) Back',
+          label: `$(${VscodeIcon.ArrowLeft}) Back`,
           detail: 'Return to category selection',
         });
 
@@ -94,9 +94,10 @@ async function showItemsForKind(workspaceFolder: WorkspaceFolder, kind: Registry
         }
 
         await installItems(workspaceFolder, kind, itemsToInstall);
-      } catch (error) {
-        logger.error(`Failed to fetch registry: ${error}`);
-        void VscodeHelper.showToastMessage(ToastKind.Error, `Failed to fetch registry: ${error}`);
+      } catch (error: unknown) {
+        const message = TypeGuardsHelper.getErrorMessage(error);
+        logger.error(`Failed to fetch registry: ${message}`);
+        void VscodeHelper.showToastMessage(ToastKind.Error, `Failed to fetch registry: ${message}`);
       }
     },
   );
@@ -124,17 +125,18 @@ async function installItems(workspaceFolder: WorkspaceFolder, kind: RegistryItem
 
           await installItem(workspaceFolder, kind, item, false);
           installed++;
-        } catch (error) {
-          logger.error(`Failed to install ${item.name}: ${error}`);
+        } catch (error: unknown) {
+          logger.error(`Failed to install ${item.name}: ${TypeGuardsHelper.getErrorMessage(error)}`);
 
+          const choiceValue = 'Overwrite';
           const overwrite = await VscodeHelper.showToastMessage(
             ToastKind.Warning,
             `"${item.name}" already exists. Overwrite?`,
-            'Overwrite',
+            choiceValue,
             'Skip',
           );
 
-          if (overwrite === 'Overwrite') {
+          if (overwrite === choiceValue) {
             try {
               await installItem(workspaceFolder, kind, item, true);
               installed++;

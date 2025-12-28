@@ -1,5 +1,4 @@
 import {
-  METADATA_FIELD_IS_EMPTY,
   SECTION_NAME_BRANCH,
   SECTION_NAME_CHANGED_FILES,
   SECTION_NAME_LINEAR_LINK,
@@ -9,10 +8,12 @@ import {
   SECTION_NAME_REQUIREMENTS,
   SECTION_NAME_TASKS,
 } from '../../common/constants';
-import { BRANCH_CONTEXT_NA } from '../../common/constants/scripts-constants';
+import { BranchContextMarkdownHelper } from '../../common/core/branch-context-markdown';
+import { ConfigManager } from '../../common/core/config-manager';
 import { SimpleCache } from '../../common/lib/cache';
-import { ConfigManager } from '../../common/lib/config-manager';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
+import type { SectionType } from '../../common/schemas/types';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { SectionRegistry } from './section-registry';
 
 const CONFIG_CACHE_TTL_MS = 5000;
@@ -73,18 +74,10 @@ export class ProviderHelpers {
     }
 
     const value = context[sectionName];
-    return typeof value === 'string' ? value : undefined;
+    return TypeGuardsHelper.isString(value) ? value : undefined;
   }
 
-  isSectionEmpty(value: string | undefined, sectionType: string, metadata?: Record<string, unknown>): boolean {
-    if (sectionType === 'auto') {
-      if (metadata && metadata[METADATA_FIELD_IS_EMPTY] === true) return true;
-      return false;
-    }
-
-    if (!value) return true;
-    const trimmed = value.trim();
-    if (trimmed === '' || trimmed === BRANCH_CONTEXT_NA) return true;
-    return false;
+  isSectionEmpty(value: string | undefined, sectionType: SectionType, metadata?: Record<string, unknown>): boolean {
+    return BranchContextMarkdownHelper.isSectionEmpty(value, sectionType, metadata);
   }
 }

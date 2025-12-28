@@ -1,7 +1,6 @@
 import { VscodeColor, VscodeIcon } from './vscode-constants';
 import { VscodeHelper } from './vscode-helper';
 
-// TODO: talvez renomear para DevPanelIcons
 export class VscodeIcons {
   static readonly HiddenItem = VscodeHelper.createIcon(VscodeIcon.EyeClosed, VscodeColor.DisabledForeground);
   static readonly FavoriteItem = VscodeHelper.createIcon(VscodeIcon.HeartFilled, VscodeColor.ChartsRed);

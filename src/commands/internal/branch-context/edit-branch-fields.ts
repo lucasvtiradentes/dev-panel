@@ -7,8 +7,8 @@ import {
   SECTION_NAME_REQUIREMENTS,
   SECTION_NAME_TASKS,
 } from '../../../common/constants';
+import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { BranchContextProvider } from '../../../views/branch-context';
 
 export type EditBranchFieldParams = { branchName: string; value?: string };

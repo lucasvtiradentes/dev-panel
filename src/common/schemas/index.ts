@@ -1,30 +1,32 @@
 export {
-  type DevPanelConfig,
-  type DevPanelPrompt,
-  type DevPanelInput,
-  type DevPanelSettings,
-  type DevPanelVariable,
-  type DevPanelReplacement,
-  DevPanelConfigSchema,
   AIProvider,
+  DevPanelConfigSchema,
+  getAIProvidersListFormatted,
   PromptExecutionMode,
   PromptInputType,
+  ReplacementType,
   VariableKind,
-  getAIProvidersListFormatted,
+  type DevPanelConfig,
+  type DevPanelInput,
+  type DevPanelPrompt,
+  type DevPanelReplacement,
+  type DevPanelSettings,
+  type DevPanelVariable,
 } from './config-schema';
 
 export {
+  RegistryIndexSchema,
   RegistryItemKind,
   type RegistryIndex,
   type RegistryItemEntry,
-  RegistryIndexSchema,
 } from './registry-schema';
 
 export {
-  type NormalizedPatchItem,
-  type BranchContext,
-  TaskStatus,
-  TaskPriority,
-  SectionType,
+  normalizePatchItem,
   PluginAction,
+  SectionType,
+  TaskPriority,
+  TaskStatus,
+  type BranchContext,
+  type NormalizedPatchItem,
 } from './types';

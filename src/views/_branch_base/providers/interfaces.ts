@@ -1,5 +1,6 @@
 import type { Position } from '../../../common/constants/enums';
-import type { BranchContext, TaskPriority, TaskStatus } from '../../../common/schemas';
+import type { TaskMeta } from '../../../common/core/task-markdown-helper';
+import type { BranchContext, TaskStatus } from '../../../common/schemas';
 
 export type SyncContext = {
   branchName: string;
@@ -7,16 +8,6 @@ export type SyncContext = {
   markdownPath: string;
   branchContext: BranchContext;
   sectionOptions?: Record<string, unknown>;
-};
-
-export type TaskMeta = {
-  assignee?: string;
-  priority?: TaskPriority;
-  tags?: string[];
-  dueDate?: string;
-  estimate?: string;
-  externalId?: string;
-  externalUrl?: string;
 };
 
 export type TaskNode = {

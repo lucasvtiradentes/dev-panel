@@ -20,8 +20,9 @@ import {
 import { createLogger } from '../../common/lib/logger';
 import { SectionType } from '../../common/schemas';
 import type { BranchContextConfig } from '../../common/schemas/config-schema';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
+import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeIcon, type VscodeIconString } from '../../common/vscode/vscode-constants';
-import { Command } from '../../common/vscode/vscode-utils';
 import type { AutoSectionProvider } from '../_branch_base/providers/interfaces';
 import { loadAutoProvider } from '../_branch_base/providers/plugin-loader';
 
@@ -122,7 +123,7 @@ export class SectionRegistry {
     }
 
     if (showChangedFiles !== false) {
-      if (typeof showChangedFiles === 'object' && showChangedFiles.provider) {
+      if (TypeGuardsHelper.isObjectWithProperty(showChangedFiles, 'provider')) {
         const provider = loadAutoProvider(workspace, showChangedFiles.provider);
         this.register({
           name: SECTION_NAME_CHANGED_FILES,
@@ -189,14 +190,14 @@ export class SectionRegistry {
   }
 
   getAutoSections(): SectionDefinition[] {
-    return this.getAllSections().filter((s) => s.type === 'auto');
+    return this.getAllSections().filter((s) => s.type === SectionType.Auto);
   }
 
   getFieldSections(): SectionDefinition[] {
-    return this.getAllSections().filter((s) => s.type === 'field');
+    return this.getAllSections().filter((s) => s.type === SectionType.Field);
   }
 
   getTextSections(): SectionDefinition[] {
-    return this.getAllSections().filter((s) => s.type === 'text');
+    return this.getAllSections().filter((s) => s.type === SectionType.Text);
   }
 }

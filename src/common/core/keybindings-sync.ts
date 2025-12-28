@@ -1,12 +1,12 @@
-import * as fs from 'node:fs';
 import { getAllPromptKeybindings } from '../../views/prompts/keybindings-local';
 import { getAllTaskKeybindings } from '../../views/tasks/keybindings-local';
 import { getAllToolKeybindings } from '../../views/tools/keybindings-local';
 import { getAllVariableKeybindings } from '../../views/variables/keybindings-local';
 import { getPromptCommandId, getTaskCommandId, getToolCommandId, getVariableCommandId } from '../constants/functions';
+import { FileIOHelper } from '../utils/helpers/node-helper';
+import { Command, executeCommand } from '../vscode/vscode-commands';
 import { VscodeHelper } from '../vscode/vscode-helper';
 import { getVSCodeKeybindingsPath, loadKeybindings } from '../vscode/vscode-keybindings-utils';
-import { Command, executeCommand } from '../vscode/vscode-utils';
 
 export function syncKeybindings() {
   const folders = VscodeHelper.getWorkspaceFolders();
@@ -56,7 +56,7 @@ export function syncKeybindings() {
   const updated = [...filtered, ...keybindingsToAdd];
 
   try {
-    fs.writeFileSync(keybindingsPath, JSON.stringify(updated, null, 2), 'utf8');
+    FileIOHelper.writeFile(keybindingsPath, JSON.stringify(updated, null, 2));
   } catch {
     // Silent fail
   }

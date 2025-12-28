@@ -1,11 +1,11 @@
-import { type ItemOrLineIndex, extractLineIndex } from '../../../common/utils/item-utils';
+import { type ItemOrLineIndex, TreeItemUtils } from '../../../common/core/tree-item-utils';
+import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { BranchTasksProvider } from '../../../views/branch-tasks/provider';
 
 async function handleSetTaskAssignee(provider: BranchTasksProvider, item: ItemOrLineIndex) {
-  const lineIndex = extractLineIndex(item);
+  const lineIndex = TreeItemUtils.extractLineIndex(item);
   const assignee = await VscodeHelper.showInputBox({
     prompt: 'Enter assignee name',
     placeHolder: 'e.g., lucas',
@@ -15,7 +15,7 @@ async function handleSetTaskAssignee(provider: BranchTasksProvider, item: ItemOr
 }
 
 async function handleSetTaskDueDate(provider: BranchTasksProvider, item: ItemOrLineIndex) {
-  const lineIndex = extractLineIndex(item);
+  const lineIndex = TreeItemUtils.extractLineIndex(item);
   const dueDate = await VscodeHelper.showInputBox({
     prompt: 'Enter due date (YYYY-MM-DD)',
     placeHolder: 'e.g., 2025-01-15',

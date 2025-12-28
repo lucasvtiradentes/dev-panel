@@ -1,7 +1,4 @@
-import { exec } from 'node:child_process';
-import * as fs from 'node:fs';
-import { promisify } from 'node:util';
-import json5 from 'json5';
+import { readJsoncFile } from 'src/common/utils/functions/read-jsonc-file';
 import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
@@ -9,22 +6,24 @@ import {
   DEFAULT_INCLUDES,
   DESCRIPTION_NOT_SET,
   ERROR_VARIABLE_COMMAND_FAILED,
-  NO_GROUP_NAME,
+  ToggleLabel,
   VARIABLES_FILE_NAME,
   getCommandId,
 } from '../../common/constants';
-import { ConfigManager } from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/core/config-manager';
 import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
-import { getFirstWorkspaceFolder, getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { execAsync } from '../../common/utils/functions/exec-async';
+import { GroupHelper } from '../../common/utils/helpers/group-helper';
+import { FileIOHelper } from '../../common/utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
+import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/vscode/vscode-inputs';
 import { type TreeDataProvider, type TreeItem, TreeItemClass } from '../../common/vscode/vscode-types';
-import { Command, ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
 import { getIsGrouped, saveIsGrouped } from './state';
-
-const execAsync = promisify(exec);
 
 type PpVariables = {
   variables: DevPanelVariable[];
@@ -35,18 +34,18 @@ type PpState = {
 };
 
 function getStatePath(): string | null {
-  const workspace = getFirstWorkspacePath();
+  const workspace = VscodeHelper.getFirstWorkspacePath();
   if (!workspace) return null;
   return ConfigManager.getConfigFilePathFromWorkspacePath(workspace, VARIABLES_FILE_NAME);
 }
 
 function loadState(): PpState {
   const statePath = getStatePath();
-  if (!statePath || !fs.existsSync(statePath)) return {};
+  if (!statePath || !FileIOHelper.fileExists(statePath)) return {};
   try {
-    const content = fs.readFileSync(statePath, 'utf-8');
+    const content = FileIOHelper.readFile(statePath);
     const parsed = JSON.parse(content);
-    if (typeof parsed !== 'object' || parsed === null) {
+    if (!TypeGuardsHelper.isObject(parsed)) {
       return {};
     }
     return parsed as PpState;
@@ -58,7 +57,7 @@ function loadState(): PpState {
 function saveState(state: PpState) {
   const statePath = getStatePath();
   if (!statePath) return;
-  fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
+  FileIOHelper.writeFile(statePath, JSON.stringify(state, null, 2));
 }
 
 function formatValue(value: unknown, variable: DevPanelVariable): string {
@@ -68,7 +67,7 @@ function formatValue(value: unknown, variable: DevPanelVariable): string {
     }
     return DESCRIPTION_NOT_SET;
   }
-  if (typeof value === 'boolean') return value ? 'ON' : 'OFF';
+  if (TypeGuardsHelper.isBoolean(value)) return value ? ToggleLabel.On : ToggleLabel.Off;
   if (Array.isArray(value)) return value.length > 0 ? value.join(', ') : '(none)';
   return String(value);
 }
@@ -152,19 +151,7 @@ export class VariablesProvider implements TreeDataProvider<TreeItem> {
       return Promise.resolve(config.variables.map((v) => new VariableTreeItem(v, state[v.name])));
     }
 
-    const grouped = new Map<string, DevPanelVariable[]>();
-
-    for (const v of config.variables) {
-      const groupName = v.group ?? NO_GROUP_NAME;
-      if (!grouped.has(groupName)) {
-        grouped.set(groupName, []);
-      }
-      const group = grouped.get(groupName);
-      if (group) {
-        group.push(v);
-      }
-    }
-
+    const grouped = GroupHelper.groupItems(config.variables);
     const items: TreeItem[] = [];
 
     for (const [groupName, variables] of grouped) {
@@ -175,27 +162,27 @@ export class VariablesProvider implements TreeDataProvider<TreeItem> {
   }
 
   private loadConfig(): PpVariables | null {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return null;
 
     const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
-    if (!fs.existsSync(configPath)) return null;
+    if (!FileIOHelper.fileExists(configPath)) return null;
 
-    const content = fs.readFileSync(configPath, 'utf-8');
-    const rawConfig = json5.parse(content);
+    const content = FileIOHelper.readFile(configPath);
+    const rawConfig = readJsoncFile(content);
     const validatedConfig = DevPanelConfigSchema.parse(rawConfig);
     return { variables: validatedConfig.variables ?? [] };
   }
 
   public loadSettings(): DevPanelSettings | undefined {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return undefined;
 
     const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
-    if (!fs.existsSync(configPath)) return undefined;
+    if (!FileIOHelper.fileExists(configPath)) return undefined;
 
-    const content = fs.readFileSync(configPath, 'utf-8');
-    const rawConfig = json5.parse(content);
+    const content = FileIOHelper.readFile(configPath);
+    const rawConfig = readJsoncFile(content);
     const validatedConfig = DevPanelConfigSchema.parse(rawConfig);
     return validatedConfig.settings;
   }
@@ -204,7 +191,7 @@ export class VariablesProvider implements TreeDataProvider<TreeItem> {
 async function runCommand(variable: DevPanelVariable, value: unknown) {
   if (!variable.command) return;
 
-  const workspace = getFirstWorkspacePath();
+  const workspace = VscodeHelper.getFirstWorkspacePath();
   if (!workspace) return;
 
   const formattedValue = Array.isArray(value) ? value.join(',') : String(value);
@@ -279,7 +266,7 @@ export async function selectVariableOption(variable: DevPanelVariable) {
     }
 
     case VariableKind.File: {
-      const workspaceFolder = getFirstWorkspaceFolder();
+      const workspaceFolder = VscodeHelper.getFirstWorkspaceFolder();
       if (!workspaceFolder) return;
 
       const settings = providerInstance?.loadSettings();
@@ -314,7 +301,7 @@ export async function selectVariableOption(variable: DevPanelVariable) {
     }
 
     case VariableKind.Folder: {
-      const workspaceFolder = getFirstWorkspaceFolder();
+      const workspaceFolder = VscodeHelper.getFirstWorkspaceFolder();
       if (!workspaceFolder) return;
 
       const settings = providerInstance?.loadSettings();

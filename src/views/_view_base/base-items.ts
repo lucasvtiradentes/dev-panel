@@ -1,4 +1,5 @@
 import { CONTEXT_VALUES } from '../../common/constants';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { type Command, TreeItemClass, type TreeItemCollapsibleState } from '../../common/vscode/vscode-types';
 import type { GroupTreeItem as IGroupTreeItem, NamedTreeItem } from './types';
@@ -21,6 +22,6 @@ export class BaseGroupTreeItem<T extends NamedTreeItem> extends TreeItemClass im
   }
 
   getName(): string {
-    return typeof this.label === 'string' ? this.label : (this.label?.label ?? '');
+    return TypeGuardsHelper.getTreeItemLabel(this);
   }
 }

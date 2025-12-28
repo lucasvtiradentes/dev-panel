@@ -1,7 +1,7 @@
-import { type ItemOrLineIndex, extractLineIndex } from '../../../common/utils/item-utils';
+import { type ItemOrLineIndex, TreeItemUtils } from '../../../common/core/tree-item-utils';
+import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { BranchTasksProvider } from '../../../views/branch-tasks';
 import { createSetTaskMetadataCommands } from './set-task-metadata';
 import { createSetTaskPriorityCommands } from './set-task-priority';
@@ -30,7 +30,7 @@ export function createToggleBranchTasksCommands(branchTasksProvider: BranchTasks
     registerCommand(Command.ToggleBranchTasksGroupModeGrouped, () => branchTasksProvider.toggleGroupMode()),
     registerCommand(Command.ToggleTodo, (lineIndex: ToggleTodoParams) => branchTasksProvider.toggleTodo(lineIndex)),
     registerCommand(Command.CycleTaskStatus, (itemOrLineIndex: CycleTaskStatusParams) =>
-      branchTasksProvider.toggleTodo(extractLineIndex(itemOrLineIndex)),
+      branchTasksProvider.toggleTodo(TreeItemUtils.extractLineIndex(itemOrLineIndex)),
     ),
     registerCommand(Command.AddBranchTask, () => handleAddBranchTask(branchTasksProvider)),
     registerCommand(Command.SyncBranchTasks, async () => {

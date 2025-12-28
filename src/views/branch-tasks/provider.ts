@@ -1,15 +1,15 @@
-import * as fs from 'node:fs';
-import { FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
+import { BRANCH_CONTEXT_NA, FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
 import { Position } from '../../common/constants/enums';
-import { ConfigManager } from '../../common/lib/config-manager';
-import { StoreKey, extensionStore } from '../../common/lib/extension-store';
+import { ConfigManager } from '../../common/core/config-manager';
+import { StoreKey, extensionStore } from '../../common/core/extension-store';
 import { logger } from '../../common/lib/logger';
 import type { TaskPriority, TaskStatus } from '../../common/schemas';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
-import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { FileIOHelper } from '../../common/utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
+import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, Uri } from '../../common/vscode/vscode-types';
-import { ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
 import {
   type MilestoneNode,
   type SyncContext,
@@ -45,12 +45,12 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
   private isInitializing = true;
 
   constructor() {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     const config = workspace ? this.loadConfig(workspace) : null;
     const tasksConfig = config?.branchContext?.builtinSections?.tasks;
     this.taskProvider = createTaskProvider(tasksConfig, workspace ?? undefined);
     void setContextKey(ContextKey.BranchTasksHasFilter, false);
-    const hasExternalProvider = typeof tasksConfig === 'object' && 'provider' in tasksConfig;
+    const hasExternalProvider = TypeGuardsHelper.isObjectWithProperty(tasksConfig, 'provider');
     void setContextKey(ContextKey.BranchTasksHasExternalProvider, hasExternalProvider);
   }
 
@@ -129,15 +129,21 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
   setBranch(branchName: string) {
     if (branchName !== this.currentBranch) {
       logger.info(
-        `[BranchTasksProvider] Branch changed from '${this.currentBranch}' to '${branchName}' (isInitializing: ${this.isInitializing})`,
+        `[BranchTasksProvider] [setBranch] Branch changed from '${this.currentBranch}' to '${branchName}' (isInitializing: ${this.isInitializing})`,
       );
       this.currentBranch = branchName;
       const wasInitializing = this.isInitializing;
       this.isInitializing = false;
       if (!wasInitializing) {
+        logger.info('[BranchTasksProvider] [setBranch] NOT initializing, calling refresh immediately');
         this.refresh();
+      } else {
+        logger.info(
+          '[BranchTasksProvider] [setBranch] IS initializing, skipping immediate refresh - waiting for onSyncComplete',
+        );
       }
     } else {
+      logger.info(`[BranchTasksProvider] [setBranch] Branch unchanged: ${branchName}`);
       this.isInitializing = false;
     }
   }
@@ -147,9 +153,9 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
     const filePath = getBranchContextFilePath(this.currentBranch);
     logger.info(`[BranchTasksProvider] [loadBranchTasks] START - Branch: ${this.currentBranch}, FilePath: ${filePath}`);
 
-    if (!filePath || !fs.existsSync(filePath)) {
+    if (!filePath || !FileIOHelper.fileExists(filePath)) {
       logger.warn(
-        `[BranchTasksProvider] [loadBranchTasks] File not found, clearing cache. filePath: ${filePath}, exists: ${filePath ? fs.existsSync(filePath) : 'N/A'}`,
+        `[BranchTasksProvider] [loadBranchTasks] File not found, clearing cache. filePath: ${filePath}, exists: ${filePath ? FileIOHelper.fileExists(filePath) : BRANCH_CONTEXT_NA}`,
       );
       this.cachedNodes = [];
       this.cachedOrphanTasks = [];
@@ -158,7 +164,7 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
       return;
     }
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) {
       logger.warn('[BranchTasksProvider] [loadBranchTasks] No workspace, clearing cache');
       this.cachedNodes = [];
@@ -203,7 +209,9 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
   }
 
   refresh() {
-    logger.info(`[BranchTasksProvider] [refresh] START - Refreshing tasks for branch: ${this.currentBranch}`);
+    logger.info(
+      `[BranchTasksProvider] [refresh] CALLED - Branch: ${this.currentBranch}, isInitializing: ${this.isInitializing}`,
+    );
     void this.loadBranchTasks().then(() => {
       logger.info('[BranchTasksProvider] [refresh] Tasks loaded, firing tree data change event');
       this._onDidChangeTreeData.fire(undefined);
@@ -353,9 +361,9 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
 
   private getSyncContext(): SyncContext | null {
     const filePath = getBranchContextFilePath(this.currentBranch);
-    if (!filePath || !fs.existsSync(filePath)) return null;
+    if (!filePath || !FileIOHelper.fileExists(filePath)) return null;
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return null;
 
     const branchContext = loadBranchContext(this.currentBranch);

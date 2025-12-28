@@ -1,4 +1,4 @@
-import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
+import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { toggleAllReplacements } from '../../../views/replacements';
 
 export function createToggleAllReplacementsActivateCommand() {

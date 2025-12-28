@@ -1,4 +1,3 @@
-import { posix } from 'node:path';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
@@ -7,25 +6,24 @@ import {
   QUICK_PICK_ACTION_SEPARATOR,
   ROOT_FOLDER_LABEL,
 } from '../../common/constants';
-import { ConfigManager } from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/core/config-manager';
 import { logger } from '../../common/lib/logger';
-import { requireWorkspaceFolder } from '../../common/utils/workspace-utils';
-import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { NodePathHelper } from '../../common/utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
+import { VscodeConstants, VscodeIcon } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { QuickPickItem, Uri } from '../../common/vscode/vscode-types';
-
-type QuickPickItemWithId<T> = QuickPickItem & { id: T };
+import type { QuickPickItemWithId, Uri } from '../../common/vscode/vscode-types';
 
 function isRootPath(p: string): boolean {
-  return p === ROOT_FOLDER_LABEL || p === '';
+  return p === ROOT_FOLDER_LABEL || TypeGuardsHelper.isEmpty(p);
 }
 
 function joinPath(base: string, segment: string): string {
-  return isRootPath(base) ? segment : posix.join(base, segment);
+  return isRootPath(base) ? segment : NodePathHelper.posix.join(base, segment);
 }
 
 export async function showConfigLocationMenu() {
-  const workspaceFolder = requireWorkspaceFolder();
+  const workspaceFolder = VscodeHelper.requireWorkspaceFolder();
   if (!workspaceFolder) return;
 
   const workspacePath = workspaceFolder.uri.fsPath;
@@ -64,15 +62,16 @@ async function askToMoveConfig(fromDir: string | null, toDir: string | null): Pr
   const fromLabel = ConfigManager.getConfigDirLabel(fromDir);
   const toLabel = ConfigManager.getConfigDirLabel(toDir);
 
+  const choiceValue = 'Move';
   const result = await VscodeHelper.showToastMessage(
     ToastKind.Warning,
     `Move config from "${fromLabel}" to "${toLabel}"?`,
     { modal: true },
-    'Move',
+    choiceValue,
     'Just point to new location',
   );
 
-  return result === 'Move';
+  return result === choiceValue;
 }
 
 async function getSubfolders(dirUri: Uri): Promise<string[]> {
@@ -94,14 +93,14 @@ async function showFolderPicker(workspaceRoot: Uri, currentPath: string): Promis
 
   items.push({
     id: QUICK_PICK_ACTION_SELECT,
-    label: '$(check) Select this folder',
+    label: `$(${VscodeIcon.Check}) Select this folder`,
     detail: isRoot ? `Use: ${CONFIG_DIR_NAME} (project root)` : `Use: ${joinPath(currentPath, CONFIG_DIR_NAME)}`,
   });
 
   if (!isRoot) {
     items.push({
       id: QUICK_PICK_ACTION_PARENT,
-      label: '$(arrow-up) ..',
+      label: `$(${VscodeIcon.ArrowUp}) ..`,
       detail: 'Go to parent folder',
     });
   }
@@ -117,7 +116,7 @@ async function showFolderPicker(workspaceRoot: Uri, currentPath: string): Promis
   for (const folder of subfolders.sort()) {
     items.push({
       id: folder,
-      label: `$(folder) ${folder}`,
+      label: `$(${VscodeIcon.Folder}) ${folder}`,
       detail: joinPath(currentPath, folder),
     });
   }
@@ -134,7 +133,7 @@ async function showFolderPicker(workspaceRoot: Uri, currentPath: string): Promis
   }
 
   if (selected.id === QUICK_PICK_ACTION_PARENT) {
-    const parent = posix.dirname(currentPath);
+    const parent = NodePathHelper.posix.dirname(currentPath);
     return showFolderPicker(workspaceRoot, isRootPath(parent) ? ROOT_FOLDER_LABEL : parent);
   }
 

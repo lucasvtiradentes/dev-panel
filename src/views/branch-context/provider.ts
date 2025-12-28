@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import {
   BRANCH_CONTEXT_NO_CHANGES,
   NOT_GIT_REPO_MESSAGE,
@@ -12,18 +11,17 @@ import {
   SECTION_NAME_REQUIREMENTS,
 } from '../../common/constants';
 import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-constants';
-import { ConfigManager } from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/core/config-manager';
+import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
 import { branchContextState } from '../../common/state';
-import { formatRelativeTime } from '../../common/utils/common-utils';
-import { getFirstWorkspacePath } from '../../common/utils/workspace-utils';
+import { formatRelativeTime } from '../../common/utils/functions/format-relative-time';
+import { FileIOHelper } from '../../common/utils/helpers/node-helper';
+import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
-import { ContextKey, setContextKey } from '../../common/vscode/vscode-utils';
 import { createTaskProvider, loadBranchContext } from '../_branch_base';
-import { formatChangedFilesSummary } from '../_branch_base/providers/default/file-changes-utils';
 import { getFieldLineNumber } from '../_branch_base/storage/markdown-parser';
-import { getCurrentBranch, isGitRepository } from '../replacements/git-utils';
 import { validateBranchContext } from './config-validator';
 import { SectionItem } from './items';
 import { ProviderHelpers } from './provider-helpers';
@@ -50,7 +48,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     this.validationIndicator = new ValidationIndicator();
     this.helpers = new ProviderHelpers();
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     const config = workspace ? ConfigManager.loadWorkspaceConfigFromPath(workspace) : null;
     const tasksConfig = config?.branchContext?.builtinSections?.tasks;
     this.taskProvider = createTaskProvider(tasksConfig, workspace ?? undefined);
@@ -125,7 +123,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
       return;
     }
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace || !uri) return;
 
     const currentBranchPath = ConfigManager.getBranchContextFilePath(workspace, this.currentBranch);
@@ -152,13 +150,13 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   async initialize() {
     logger.info('[BranchContextProvider] initialize called');
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) {
       logger.warn('[BranchContextProvider] No workspace found');
       return;
     }
 
-    if (await isGitRepository(workspace)) {
+    if (await Git.isRepository(workspace)) {
       logger.info('[BranchContextProvider] Adding to git exclude');
       this.addToGitExclude(workspace);
     }
@@ -178,17 +176,17 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
 
   private addToGitExclude(workspace: string) {
     const excludePath = ConfigManager.getGitExcludeFilePath(workspace);
-    if (!fs.existsSync(excludePath)) return;
+    if (!FileIOHelper.fileExists(excludePath)) return;
 
     try {
-      const content = fs.readFileSync(excludePath, 'utf-8');
+      const content = FileIOHelper.readFile(excludePath);
 
       if (content.includes(ROOT_BRANCH_CONTEXT_FILE_NAME)) return;
 
       const newContent = content.endsWith('\n')
         ? `${content}${ROOT_BRANCH_CONTEXT_FILE_NAME}\n`
         : `${content}\n${ROOT_BRANCH_CONTEXT_FILE_NAME}\n`;
-      fs.writeFileSync(excludePath, newContent);
+      FileIOHelper.writeFile(excludePath, newContent);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       logger.error(`Failed to update .git/info/exclude: ${message}`);
@@ -206,6 +204,21 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
 
     if (branchName !== this.currentBranch) {
       this.currentBranch = branchName;
+
+      const workspace = VscodeHelper.getFirstWorkspacePath();
+      if (workspace) {
+        const branchFilePath = ConfigManager.getBranchContextFilePath(workspace, branchName);
+        const fileExists = FileIOHelper.fileExists(branchFilePath);
+        logger.info(`[BranchContextProvider] setBranch - File exists: ${fileExists}, path: ${branchFilePath}`);
+
+        if (!fileExists) {
+          logger.info(
+            '[BranchContextProvider] setBranch - New branch without context file, resetting SyncManager.isInitializing',
+          );
+          this.syncManager.resetInitializing();
+        }
+      }
+
       if (shouldRefresh && !this.isInitializing) {
         logger.info('[BranchContextProvider] Branch changed, refreshing');
         this.refresh();
@@ -226,20 +239,20 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   async getChildren(element?: TreeItem): Promise<TreeItem[]> {
     if (element) return [];
 
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return [];
 
-    if (!(await isGitRepository(workspace))) {
+    if (!(await Git.isRepository(workspace))) {
       return [VscodeHelper.createTreeItem(NOT_GIT_REPO_MESSAGE)];
     }
 
     if (!this.currentBranch) {
-      this.currentBranch = await getCurrentBranch(workspace);
+      this.currentBranch = await Git.getCurrentBranch(workspace);
     }
 
     const context = loadBranchContext(this.currentBranch);
     logger.info(
-      `[BranchContext] [getChildren] Loaded context - metadata.sections keys: ${Object.keys(context.metadata?.sections || {}).join(', ') || 'none'}`,
+      `[BranchContext] [getChildren] Loaded context - metadata.sections keys: ${Object.keys(context.metadata?.sections || {}).join(', ')}`,
     );
     const config = this.helpers.loadConfig(workspace);
     const hideEmpty = branchContextState.getHideEmptySections();
@@ -256,7 +269,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
         modified: (changedFilesSectionMetadata.modified as number) || 0,
         deleted: (changedFilesSectionMetadata.deleted as number) || 0,
       };
-      changedFilesValue = formatChangedFilesSummary(summary);
+      changedFilesValue = Git.formatChangedFilesSummary(summary);
     }
 
     const markdownPath = ConfigManager.getBranchContextFilePath(workspace, this.currentBranch);
@@ -314,7 +327,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   }
 
   async openMarkdownFile() {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
     const filePath = ConfigManager.getRootBranchContextFilePath(workspace);
@@ -323,7 +336,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   }
 
   async openMarkdownFileAtLine(fieldName: string) {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
     const filePath = ConfigManager.getRootBranchContextFilePath(workspace);
@@ -333,7 +346,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   }
 
   async syncBranchContext() {
-    const workspace = getFirstWorkspacePath();
+    const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace || !ConfigManager.configDirExists(workspace)) {
       logger.info('[syncBranchContext] No config directory, skipping');
       return;

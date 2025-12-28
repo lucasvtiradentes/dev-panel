@@ -34,6 +34,7 @@
         "type": "auto",
         "provider": "tsx ./plugins/github-pr-comments.ts",
         "icon": "github",
+        "skipIfEmpty": ["PR LINK"],
         "options": {
           "includeRegularComments": false,
           "includeReviewComments": true
@@ -44,7 +45,8 @@
         "label": "Linear info",
         "type": "auto",
         "provider": "tsx ./plugins/linear-info.ts",
-        "icon": "link-external"
+        "icon": "link-external",
+        "skipIfEmpty": ["LINEAR LINK"]
       }
     ]
   },
@@ -127,8 +129,8 @@
       "target": "src/extension.ts",
       "patches": [
         {
-          "search": "void vscode.tasks.fetchTasks();",
-          "replace": "// DEBUG ENABLED\n  void vscode.tasks.fetchTasks();"
+          "search": "void VscodeHelper.fetchTasks();",
+          "replace": "// DEBUG ENABLED\n  void VscodeHelper.fetchTasks();"
         }
       ],
       "group": "Debug"

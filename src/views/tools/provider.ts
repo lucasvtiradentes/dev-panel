@@ -1,25 +1,26 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import {
   CONTEXT_VALUES,
   DND_MIME_TYPE_TOOLS,
   GLOBAL_ITEM_PREFIX,
   GLOBAL_TOOL_TOOLTIP,
+  MARKDOWN_SECTION_DESCRIPTION,
   NO_GROUP_NAME,
   SHELL_SCRIPT_PATTERN,
   getCommandId,
   getGlobalConfigDir,
   getGlobalToolInstructionsPath,
 } from '../../common/constants';
-import { ConfigManager } from '../../common/lib/config-manager';
+import { ConfigManager } from '../../common/core/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import type { DevPanelConfig } from '../../common/schemas';
 import { globalToolsState, toolsState } from '../../common/state';
+import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
+import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { ContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { TreeItem, TreeView, WorkspaceFolder } from '../../common/vscode/vscode-types';
-import { Command, ContextKey } from '../../common/vscode/vscode-utils';
 import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../_view_base';
 import { ToolGroupTreeItem, TreeTool } from './items';
 import { addActiveTool, getActiveTools, isFavorite, isHidden, removeActiveTool, setActiveTools } from './state';
@@ -189,9 +190,9 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   }
 
   private readToolDescription(instructionsPath: string): string | null {
-    if (!fs.existsSync(instructionsPath)) return null;
+    if (!FileIOHelper.fileExists(instructionsPath)) return null;
 
-    const content = fs.readFileSync(instructionsPath, 'utf8');
+    const content = FileIOHelper.readFile(instructionsPath);
     const lines = content.split('\n');
     const descriptionBuffer: string[] = [];
     let inDescriptionSection = false;
@@ -199,7 +200,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     for (const line of lines) {
       if (line.startsWith('# ')) {
         const section = line.slice(2).toLowerCase().trim();
-        inDescriptionSection = section === 'description';
+        inDescriptionSection = section === MARKDOWN_SECTION_DESCRIPTION;
         continue;
       }
 
@@ -230,7 +231,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
 
     const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
     const toolFilePath = tool.command ? this.extractFileFromCommand(tool.command) : '';
-    const fullToolFilePath = toolFilePath ? path.join(configDirPath, toolFilePath) : '';
+    const fullToolFilePath = toolFilePath ? NodePathHelper.join(configDirPath, toolFilePath) : '';
 
     const treeTool = new TreeTool(tool.name, fullToolFilePath, VscodeConstants.TreeItemCollapsibleState.None);
 
@@ -272,7 +273,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
 
     const globalConfigDir = getGlobalConfigDir();
     const toolFilePath = tool.command ? this.extractFileFromCommand(tool.command) : '';
-    const fullToolFilePath = toolFilePath ? path.join(globalConfigDir, toolFilePath) : '';
+    const fullToolFilePath = toolFilePath ? NodePathHelper.join(globalConfigDir, toolFilePath) : '';
 
     const treeTool = new TreeTool(globalToolName, fullToolFilePath, VscodeConstants.TreeItemCollapsibleState.None);
 

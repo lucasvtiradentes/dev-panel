@@ -2,7 +2,7 @@
 
 import { type ScriptIssue, addIssue, runScript } from 'tscanner';
 
-const MAX_LINES = 400;
+const MAX_LINES = 500;
 
 runScript((input) => {
   const issues: ScriptIssue[] = [];

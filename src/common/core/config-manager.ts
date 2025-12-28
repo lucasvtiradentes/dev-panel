@@ -1,6 +1,3 @@
-import * as fs from 'node:fs';
-import { isAbsolute, join } from 'node:path';
-import JSON5 from 'json5';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
@@ -10,7 +7,7 @@ import {
   getGlobalConfigDir,
   getGlobalConfigPath,
 } from '../constants';
-import type { ConfigKey } from '../constants/enums';
+import { ConfigKey } from '../constants/enums';
 import { FILENAME_INVALID_CHARS_PATTERN } from '../constants/regex-constants';
 import {
   BRANCHES_DIR_NAME,
@@ -20,13 +17,15 @@ import {
   TOOL_INSTRUCTIONS_FILE,
 } from '../constants/scripts-constants';
 import type { DevPanelConfig } from '../schemas';
+import { readJsoncFile } from '../utils/functions/read-jsonc-file';
+import { FileIOHelper, NodePathHelper } from '../utils/helpers/node-helper';
 import { VscodeConstants } from '../vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
 import type { Uri, WorkspaceFolder } from '../vscode/vscode-types';
 import { StoreKey, extensionStore } from './extension-store';
 
-type ConfigArrayKey = ConfigKey.Prompts | ConfigKey.Tasks | ConfigKey.Tools;
-type ConfigArrayItem =
+export type ConfigArrayKey = ConfigKey.Prompts | ConfigKey.Tasks | ConfigKey.Tools;
+export type ConfigArrayItem =
   | NonNullable<DevPanelConfig['prompts']>[number]
   | NonNullable<DevPanelConfig['tasks']>[number]
   | NonNullable<DevPanelConfig['tools']>[number];
@@ -39,13 +38,13 @@ export class ConfigManager {
       return VscodeHelper.joinPath(baseDir, CONFIG_DIR_NAME);
     }
 
-    const customDir = isAbsolute(configDir)
+    const customDir = NodePathHelper.isAbsolute(configDir)
       ? VscodeHelper.createFileUri(configDir)
       : VscodeHelper.joinPath(baseDir, configDir);
     return VscodeHelper.joinPath(customDir, CONFIG_DIR_NAME);
   }
 
-  private static async copyDirectoryRecursive(source: Uri, target: Uri) {
+  static async copyDirectoryRecursive(source: Uri, target: Uri) {
     await VscodeHelper.createDirectory(target);
 
     const entries = await VscodeHelper.readDirectory(source);
@@ -112,7 +111,7 @@ export class ConfigManager {
   static joinConfigPath(folder: WorkspaceFolder, ...segments: string[]): string {
     const configDir = ConfigManager.getCurrentConfigDir();
     const basePath = ConfigManager.getConfigDirPath(folder.uri.fsPath, configDir);
-    return join(basePath, ...segments);
+    return NodePathHelper.join(basePath, ...segments);
   }
 
   static getWorkspaceToolDir(folder: WorkspaceFolder, toolName: string): string {
@@ -136,11 +135,11 @@ export class ConfigManager {
   }
 
   static getRootBranchContextFilePath(workspacePath: string): string {
-    return join(workspacePath, ROOT_BRANCH_CONTEXT_FILE_NAME);
+    return NodePathHelper.join(workspacePath, ROOT_BRANCH_CONTEXT_FILE_NAME);
   }
 
   static getGitExcludeFilePath(workspacePath: string): string {
-    return join(workspacePath, '.git', 'info', 'exclude');
+    return NodePathHelper.join(workspacePath, '.git', 'info', 'exclude');
   }
 
   static getConfigDirPathFromWorkspacePath(workspacePath: string): string {
@@ -150,7 +149,7 @@ export class ConfigManager {
 
   static configDirExists(workspacePath: string): boolean {
     const configDirPath = ConfigManager.getConfigDirPathFromWorkspacePath(workspacePath);
-    return fs.existsSync(configDirPath);
+    return FileIOHelper.fileExists(configDirPath);
   }
 
   static getConfigFilePathFromWorkspacePath(workspacePath: string, fileName: string): string {
@@ -169,15 +168,15 @@ export class ConfigManager {
   static getBranchDirectory(workspace: string, branchName: string): string {
     const sanitized = branchName.replace(FILENAME_INVALID_CHARS_PATTERN, '_');
     const configDirPath = ConfigManager.getConfigDirPathFromWorkspacePath(workspace);
-    return join(configDirPath, BRANCHES_DIR_NAME, sanitized);
+    return NodePathHelper.join(configDirPath, BRANCHES_DIR_NAME, sanitized);
   }
 
   static getBranchContextFilePath(workspace: string, branchName: string): string {
-    return join(ConfigManager.getBranchDirectory(workspace, branchName), BRANCH_CONTEXT_FILENAME);
+    return NodePathHelper.join(ConfigManager.getBranchDirectory(workspace, branchName), BRANCH_CONTEXT_FILENAME);
   }
 
   static getBranchPromptsDirectory(workspace: string, branchName: string): string {
-    return join(ConfigManager.getBranchDirectory(workspace, branchName), PROMPTS_DIR_NAME);
+    return NodePathHelper.join(ConfigManager.getBranchDirectory(workspace, branchName), PROMPTS_DIR_NAME);
   }
 
   static getPromptOutputFilePath(
@@ -191,29 +190,29 @@ export class ConfigManager {
 
     if (timestamped) {
       const datetime = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-      return join(promptsDir, `${safePromptName}-${datetime}.md`);
+      return NodePathHelper.join(promptsDir, `${safePromptName}-${datetime}.md`);
     }
 
-    return join(promptsDir, `${safePromptName}.md`);
+    return NodePathHelper.join(promptsDir, `${safePromptName}.md`);
   }
 
   static getBranchContextTemplatePath(workspace: string): string {
     const configDirPath = ConfigManager.getConfigDirPathFromWorkspacePath(workspace);
-    return join(configDirPath, BRANCH_CONTEXT_TEMPLATE_FILENAME);
+    return NodePathHelper.join(configDirPath, BRANCH_CONTEXT_TEMPLATE_FILENAME);
   }
 
   static parseConfig(content: string): DevPanelConfig | null {
     try {
-      return JSON5.parse(content) as DevPanelConfig;
+      return readJsoncFile(content) as DevPanelConfig;
     } catch {
       return null;
     }
   }
 
   static loadConfigFromPath(configPath: string): DevPanelConfig | null {
-    if (!fs.existsSync(configPath)) return null;
+    if (!FileIOHelper.fileExists(configPath)) return null;
     try {
-      return JSON5.parse(fs.readFileSync(configPath, 'utf8')) as DevPanelConfig;
+      return readJsoncFile(FileIOHelper.readFile(configPath)) as DevPanelConfig;
     } catch {
       return null;
     }
@@ -247,13 +246,11 @@ export class ConfigManager {
   }
 
   static ensureDirectoryExists(dirPath: string) {
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-    }
+    FileIOHelper.ensureDirectoryExists(dirPath);
   }
 
   static saveConfigToPath(configPath: string, config: DevPanelConfig) {
-    fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
+    FileIOHelper.writeFile(configPath, JSON.stringify(config, null, 2));
   }
 
   static saveGlobalConfig(config: DevPanelConfig) {
@@ -271,30 +268,32 @@ export class ConfigManager {
   }
 
   static async confirmOverwrite(itemType: string, itemName: string): Promise<boolean> {
+    const choiceValue = 'Overwrite';
     const choice = await VscodeHelper.showToastMessage(
       ToastKind.Warning,
       `${itemType} "${itemName}" already exists. Overwrite?`,
-      'Overwrite',
+      choiceValue,
       'Cancel',
     );
-    return choice === 'Overwrite';
+    return choice === choiceValue;
   }
 
   static async confirmDelete(itemType: string, itemName: string, isGlobal: boolean): Promise<boolean> {
+    const choiceValue = 'Delete';
     const choice = await VscodeHelper.showToastMessage(
       ToastKind.Warning,
       `Are you sure you want to delete ${itemType} "${itemName}"${isGlobal ? ' (global)' : ''}?`,
       { modal: true },
-      'Delete',
+      choiceValue,
     );
-    return choice === 'Delete';
+    return choice === choiceValue;
   }
 
   static addOrUpdateConfigItem(config: DevPanelConfig, arrayKey: ConfigArrayKey, item: ConfigArrayItem): boolean {
     if (!config[arrayKey]) {
-      if (arrayKey === 'prompts') config.prompts = [];
-      else if (arrayKey === 'tasks') config.tasks = [];
-      else if (arrayKey === 'tools') config.tools = [];
+      if (arrayKey === ConfigKey.Prompts) config.prompts = [];
+      else if (arrayKey === ConfigKey.Tasks) config.tasks = [];
+      else if (arrayKey === ConfigKey.Tools) config.tools = [];
     }
 
     const array = config[arrayKey] as ConfigArrayItem[];
@@ -318,5 +317,11 @@ export class ConfigManager {
 
     const [item] = array.splice(index, 1);
     return item;
+  }
+
+  static readSettings(folder: WorkspaceFolder): DevPanelConfig['settings'] | undefined {
+    const config = ConfigManager.loadWorkspaceConfig(folder);
+    if (!config) return undefined;
+    return config.settings;
   }
 }

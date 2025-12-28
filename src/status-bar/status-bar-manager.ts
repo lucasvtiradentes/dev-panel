@@ -1,8 +1,8 @@
 import { EXTENSION_DISPLAY_NAME, getCommandId } from '../common/constants';
-import { VscodeConstants } from '../common/vscode/vscode-constants';
+import { Command } from '../common/vscode/vscode-commands';
+import { VscodeConstants, VscodeIcon } from '../common/vscode/vscode-constants';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { StatusBarItem } from '../common/vscode/vscode-types';
-import { Command } from '../common/vscode/vscode-utils';
 
 export class StatusBarManager {
   private readonly statusBarItem: StatusBarItem;
@@ -22,14 +22,9 @@ export class StatusBarManager {
   }
 
   private updateDisplay() {
-    const icon = '$(settings-gear)';
+    const icon = `$(${VscodeIcon.SettingsGear})`;
     const text = this.hasConfig ? EXTENSION_DISPLAY_NAME : `${EXTENSION_DISPLAY_NAME} (No config)`;
     this.statusBarItem.text = `${icon} ${text}`;
-  }
-
-  private buildTooltip(): string {
-    const lines = [`${EXTENSION_DISPLAY_NAME} Settings`, '', 'Click to open settings menu'];
-    return lines.join('\n');
   }
 
   refresh() {

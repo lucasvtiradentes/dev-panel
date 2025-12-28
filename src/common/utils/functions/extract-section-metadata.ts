@@ -1,18 +1,20 @@
-import { createLogger } from '../lib/logger';
+import { METADATA_SECTION_REGEX_CAPTURE, METADATA_SECTION_REGEX_GLOBAL } from '../../constants';
+import { createLogger } from '../../lib/logger';
+import { TypeGuardsHelper } from '../helpers/type-guards-helper';
 
 const logger = createLogger('MetadataExtractor');
 
 export function extractSectionMetadata(content: string): { cleanContent: string; metadata?: Record<string, unknown> } {
-  const metadataMatch = content.match(/<!--\s*SECTION_METADATA:\s*(.+?)\s*-->/);
+  const metadataMatch = content.match(METADATA_SECTION_REGEX_CAPTURE);
   if (!metadataMatch) {
     return { cleanContent: content };
   }
 
   try {
     const parsed = JSON.parse(metadataMatch[1]);
-    if (typeof parsed === 'object' && parsed !== null) {
+    if (TypeGuardsHelper.isObject(parsed)) {
       const metadata = parsed as Record<string, unknown>;
-      const cleanContent = content.replace(/<!--\s*SECTION_METADATA:.*?-->/g, '').trim();
+      const cleanContent = content.replace(METADATA_SECTION_REGEX_GLOBAL, '').trim();
       logger.info(
         `[extractSectionMetadata] Found metadata: ${JSON.stringify(metadata).substring(0, 100)}, content length: ${cleanContent.length}`,
       );

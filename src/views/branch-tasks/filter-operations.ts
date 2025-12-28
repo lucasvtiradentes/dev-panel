@@ -1,4 +1,4 @@
-import type { TaskPriority, TaskStatus } from '../../common/schemas';
+import { type TaskPriority, TaskStatus } from '../../common/schemas';
 import type { TaskNode } from '../_branch_base';
 
 export type TaskFilter = {
@@ -72,7 +72,7 @@ export function filterTodoNodes(nodes: TaskNode[], showOnlyTodo: boolean): TaskN
 
   return nodes
     .map((node) => {
-      if (node.status !== 'done') {
+      if (node.status !== TaskStatus.Done) {
         if (node.children.length > 0) {
           const filteredChildren = filterTodoNodes(node.children, showOnlyTodo);
           return { ...node, children: filteredChildren };

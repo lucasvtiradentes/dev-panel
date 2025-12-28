@@ -1,6 +1,6 @@
-import { syncKeybindings } from '../common/lib/keybindings-sync';
+import { syncKeybindings } from '../common/core/keybindings-sync';
+import { Command, registerCommand } from '../common/vscode/vscode-commands';
 import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
-import { Command, registerCommand } from '../common/vscode/vscode-utils';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
 import type { BranchContextProvider } from '../views/branch-context';
 import type { BranchTasksProvider } from '../views/branch-tasks';

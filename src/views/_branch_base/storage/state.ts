@@ -1,9 +1,9 @@
-import * as crypto from 'node:crypto';
 import { BRANCH_CONTEXT_CACHE_TTL_MS } from '../../../common/constants';
 import { FileHashCache } from '../../../common/lib/cache';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext } from '../../../common/schemas/types';
-import { getFirstWorkspacePath } from '../../../common/utils/workspace-utils';
+import { generateHashForFileContent } from '../../../common/utils/functions/generate-cache-key';
+import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import { loadBranchContextFromFile } from './file-storage';
 import { getBranchContextFilePath } from './markdown-parser';
 
@@ -11,7 +11,7 @@ const logger = createLogger('BranchContextCache');
 const contextCache = new FileHashCache<BranchContext>(BRANCH_CONTEXT_CACHE_TTL_MS);
 
 export const loadBranchContext = (branchName: string): BranchContext => {
-  const workspace = getFirstWorkspacePath();
+  const workspace = VscodeHelper.getFirstWorkspacePath();
   if (!workspace) return {};
 
   const filePath = getBranchContextFilePath(branchName);
@@ -29,13 +29,14 @@ export const loadBranchContext = (branchName: string): BranchContext => {
   return context;
 };
 
-export const invalidateBranchContextCache = (branchName: string): void => {
+export const invalidateBranchContextCache = (branchName: string) => {
   logger.info(`[invalidateBranchContextCache] Invalidating cache for ${branchName}`);
   contextCache.invalidate(branchName);
 };
 
-export const updateBranchContextCache = (branchName: string, context: BranchContext, markdownContent: string): void => {
-  const contentHash = crypto.createHash('sha1').update(markdownContent).digest('hex');
+export const updateBranchContextCache = (branchName: string, context: BranchContext, markdownContent: string) => {
+  const contentHash = generateHashForFileContent(markdownContent);
+
   logger.info(
     `[updateBranchContextCache] Updating cache for ${branchName} (hash: ${contentHash.substring(0, 8)}..., content: ${markdownContent.length} bytes)`,
   );

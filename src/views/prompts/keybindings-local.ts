@@ -1,8 +1,8 @@
 import { getGlobalPromptFilePath, getPromptCommandId, getPromptCommandPrefix } from '../../common/constants';
-import { ConfigManager } from '../../common/lib/config-manager';
-import { syncKeybindings } from '../../common/lib/keybindings-sync';
+import { ConfigManager } from '../../common/core/config-manager';
+import { registerItemKeybindings } from '../../common/core/keybindings-registration';
+import { Command, executeCommand } from '../../common/vscode/vscode-commands';
 import type { ExtensionContext } from '../../common/vscode/vscode-types';
-import { Command, executeCommand, registerDynamicCommand } from '../../common/vscode/vscode-utils';
 import { KeybindingManager } from '../_view_base';
 
 const manager = new KeybindingManager({
@@ -14,32 +14,17 @@ export const getAllPromptKeybindings = () => manager.getAllKeybindings();
 export const reloadPromptKeybindings = () => manager.reload();
 
 export function registerPromptKeybindings(context: ExtensionContext) {
-  ConfigManager.forEachWorkspaceConfig((folder, config) => {
-    const prompts = config.prompts ?? [];
-
-    for (const prompt of prompts) {
-      const commandId = getPromptCommandId(prompt.name);
+  registerItemKeybindings({
+    context,
+    getItems: (config) => config.prompts,
+    getCommandId: getPromptCommandId,
+    createWorkspaceHandler: (prompt, folder) => () => {
       const promptFilePath = ConfigManager.getWorkspacePromptFilePath(folder, prompt.file);
-      const disposable = registerDynamicCommand(commandId, () => {
-        void executeCommand(Command.ExecutePrompt, { promptFilePath, folder, promptConfig: prompt });
-      });
-      context.subscriptions.push(disposable);
-    }
-  });
-
-  const globalConfig = ConfigManager.loadGlobalConfig();
-  if (globalConfig) {
-    const globalPrompts = globalConfig.prompts ?? [];
-
-    for (const prompt of globalPrompts) {
-      const commandId = getPromptCommandId(prompt.name);
+      void executeCommand(Command.ExecutePrompt, { promptFilePath, folder, promptConfig: prompt });
+    },
+    createGlobalHandler: (prompt) => () => {
       const promptFilePath = getGlobalPromptFilePath(prompt.file);
-      const disposable = registerDynamicCommand(commandId, () => {
-        void executeCommand(Command.ExecutePrompt, { promptFilePath, folder: null, promptConfig: prompt });
-      });
-      context.subscriptions.push(disposable);
-    }
-  }
-
-  syncKeybindings();
+      void executeCommand(Command.ExecutePrompt, { promptFilePath, folder: null, promptConfig: prompt });
+    },
+  });
 }

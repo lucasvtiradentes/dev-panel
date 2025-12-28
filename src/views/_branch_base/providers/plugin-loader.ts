@@ -1,17 +1,12 @@
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
-import { ConfigManager } from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/core/config-manager';
+import type { TaskMeta } from '../../../common/core/task-markdown-helper';
 import { createLogger } from '../../../common/lib/logger';
 import { PluginAction, TaskStatus } from '../../../common/schemas';
-import type {
-  AutoSectionProvider,
-  NewTask,
-  SyncContext,
-  SyncResult,
-  TaskMeta,
-  TaskNode,
-  TaskSyncProvider,
-} from './interfaces';
+import { execAsync } from '../../../common/utils/functions/exec-async';
+import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
+import { extractAllFieldsRaw } from '../storage/file-storage';
+import type { AutoSectionProvider, NewTask, SyncContext, SyncResult, TaskNode, TaskSyncProvider } from './interfaces';
 import type {
   CreateTaskPayload,
   CreateTaskResponse,
@@ -26,7 +21,6 @@ import type {
   UpdateMetaResponse,
 } from './plugin-protocol';
 
-const execAsync = promisify(exec);
 const logger = createLogger('PluginLoader');
 
 const PLUGIN_TIMEOUT = 60000;
@@ -37,11 +31,19 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
 
   return {
     async fetch(context: SyncContext): Promise<string> {
+      let fields: Record<string, string> = {};
+      if (context.markdownPath) {
+        const markdownContent = FileIOHelper.readFileIfExists(context.markdownPath);
+        if (markdownContent) {
+          fields = extractAllFieldsRaw(markdownContent);
+        }
+      }
+
       const contextJson = JSON.stringify({
         branchName: context.branchName,
         workspacePath: context.workspacePath,
         markdownPath: context.markdownPath,
-        branchContext: context.branchContext,
+        fields,
         sectionOptions: context.sectionOptions,
       });
 
@@ -49,7 +51,6 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
 
       try {
         const { stdout } = await execAsync(providerCommand, {
-          encoding: 'utf-8',
           timeout: PLUGIN_TIMEOUT,
           cwd: configDir,
           env: {
@@ -60,8 +61,7 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
 
         return stdout.trim();
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
-        logger.error(`[loadAutoProvider] Script error: ${message}`);
+        logger.error(`[loadAutoProvider] Script error: ${TypeGuardsHelper.getErrorMessage(error)}`);
         throw error;
       }
     },
@@ -90,7 +90,6 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
 
     try {
       const { stdout, stderr } = await execAsync(command, {
-        encoding: 'utf-8',
         timeout: PLUGIN_TIMEOUT,
         cwd: configDir,
         env: {
@@ -109,13 +108,12 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       }
 
       const parsed = JSON.parse(jsonMatch[0]);
-      if (typeof parsed !== 'object' || parsed === null) {
+      if (!TypeGuardsHelper.isObject(parsed)) {
         throw new Error('Invalid plugin response: expected object');
       }
       return parsed as T;
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      logger.error(`[loadTaskProvider] Plugin error: ${message}`);
+      logger.error(`[loadTaskProvider] Plugin error: ${TypeGuardsHelper.getErrorMessage(error)}`);
       throw error;
     }
   }

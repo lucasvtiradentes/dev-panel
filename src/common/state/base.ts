@@ -1,8 +1,7 @@
 import { GLOBAL_STATE_KEY } from '../constants';
 import { WORKSPACE_STATE_KEY } from '../constants/scripts-constants';
 import type { GlobalUIState } from '../schemas/global-state.schema';
-import type { SourceState, WorkspaceUIState } from '../schemas/workspace-state.schema';
-import { DEFAULT_SOURCE_STATE } from '../schemas/workspace-state.schema';
+import { DEFAULT_SOURCE_STATE, type SourceState, type WorkspaceUIState } from '../schemas/workspace-state.schema';
 import type { ExtensionContext } from '../vscode/vscode-types';
 
 export enum StateKey {

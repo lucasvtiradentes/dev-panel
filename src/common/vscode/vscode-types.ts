@@ -1,15 +1,8 @@
-import type * as vscode from 'vscode';
-import {
-  ProcessExecution as VscodeProcessExecutionClass,
-  ShellExecution as VscodeShellExecutionClass,
-  TreeItem as VscodeTreeItemClass,
-} from 'vscode';
+import * as vscode from 'vscode';
 
-export {
-  VscodeProcessExecutionClass as ProcessExecutionClass,
-  VscodeShellExecutionClass as ShellExecutionClass,
-  VscodeTreeItemClass as TreeItemClass,
-};
+export const ProcessExecutionClass = vscode.ProcessExecution;
+export const ShellExecutionClass = vscode.ShellExecution;
+export const TreeItemClass = vscode.TreeItem;
 
 export type CancellationToken = vscode.CancellationToken;
 export type Command = vscode.Command;
@@ -21,7 +14,7 @@ export type ExtensionContext = vscode.ExtensionContext;
 export type FileSystemWatcher = vscode.FileSystemWatcher;
 export type MarkdownString = vscode.MarkdownString;
 export type QuickPickItem = vscode.QuickPickItem;
-export type ShellExecution = vscode.ShellExecution;
+export type QuickPickItemWithId<T> = QuickPickItem & { id: T };
 export type StatusBarItem = vscode.StatusBarItem;
 export type Task = vscode.Task;
 

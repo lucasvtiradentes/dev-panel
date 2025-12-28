@@ -142,6 +142,13 @@
                   "type": "string"
                 },
                 "additionalProperties": {}
+              },
+              "skipIfEmpty": {
+                "description": "Skip plugin execution if these field names are empty/N/A (e.g., [\"PR LINK\", \"LINEAR LINK\"]). Improves performance by avoiding unnecessary plugin spawns.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
               }
             },
             "required": [

@@ -1,9 +1,9 @@
 import { getCommandId } from '../../common/constants';
-import { VscodeConstants } from '../../common/vscode/vscode-constants';
+import { Command } from '../../common/vscode/vscode-commands';
+import { VscodeConstants, VscodeIcon } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { StatusBarItem } from '../../common/vscode/vscode-types';
-import { Command } from '../../common/vscode/vscode-utils';
-import type { ValidationIssue } from './config-validator';
+import { type ValidationIssue, ValidationSeverity } from './config-validator';
 
 export class ValidationIndicator {
   private statusBarItem: StatusBarItem;
@@ -18,19 +18,19 @@ export class ValidationIndicator {
       return;
     }
 
-    const errorCount = issues.filter((i) => i.severity === 'error').length;
-    const warningCount = issues.filter((i) => i.severity === 'warning').length;
+    const errorCount = issues.filter((i) => i.severity === ValidationSeverity.Error).length;
+    const warningCount = issues.filter((i) => i.severity === ValidationSeverity.Warning).length;
 
     this.statusBarItem.text =
       errorCount > 0
-        ? `$(error) Branch Context (${errorCount} errors)`
-        : `$(warning) Branch Context (${warningCount} warnings)`;
+        ? `$(${VscodeIcon.Error}) Branch Context (${errorCount} errors)`
+        : `$(${VscodeIcon.Warning}) Branch Context (${warningCount} warnings)`;
 
     const tooltip = VscodeHelper.createMarkdownString();
     tooltip.appendMarkdown('### Branch Context Validation Issues\n\n');
 
     for (const issue of issues) {
-      const icon = issue.severity === 'error' ? '$(error)' : '$(warning)';
+      const icon = issue.severity === ValidationSeverity.Error ? `$(${VscodeIcon.Error})` : `$(${VscodeIcon.Warning})`;
       tooltip.appendMarkdown(`${icon} **${issue.section}**: ${issue.message}\n\n`);
     }
 

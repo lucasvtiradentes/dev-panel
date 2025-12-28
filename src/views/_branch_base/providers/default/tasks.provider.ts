@@ -1,39 +1,34 @@
-import * as fs from 'node:fs';
 import { MARKDOWN_SECTION_HEADER_PATTERN, TODO_SECTION_HEADER_PATTERN } from '../../../../common/constants';
 import type { Position } from '../../../../common/constants/enums';
-import type { TaskStatus } from '../../../../common/schemas';
+import type { TaskMeta } from '../../../../common/core/task-markdown-helper';
+import { TaskStatus } from '../../../../common/schemas';
+import { FileIOHelper } from '../../../../common/utils/helpers/node-helper';
 import * as milestoneOps from '../../tasks/milestone-operations';
 import * as taskCrud from '../../tasks/task-crud';
 import { fromMarkdown, toMarkdown } from '../../tasks/task-markdown';
 import { cycleStatus as cycleStatusUtil } from '../../tasks/task-utils';
-import type {
-  MilestoneNode,
-  NewTask,
-  SyncContext,
-  SyncResult,
-  TaskMeta,
-  TaskNode,
-  TaskSyncProvider,
-} from '../interfaces';
+import type { MilestoneNode, NewTask, SyncContext, SyncResult, TaskNode, TaskSyncProvider } from '../interfaces';
 
 export class DefaultTaskProvider implements TaskSyncProvider {
   fromMarkdown = fromMarkdown;
   toMarkdown = toMarkdown;
 
   async getTasks(context: SyncContext): Promise<TaskNode[]> {
-    if (!fs.existsSync(context.markdownPath)) {
+    if (!FileIOHelper.fileExists(context.markdownPath)) {
       return [];
     }
 
-    const content = fs.readFileSync(context.markdownPath, 'utf-8');
+    const content = FileIOHelper.readFile(context.markdownPath);
     const lines = content.split('\n');
-    const taskIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+    const taskIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
 
     if (taskIndex === -1) {
       return [];
     }
 
-    const nextSectionIndex = lines.findIndex((l, i) => i > taskIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
+    const nextSectionIndex = lines.findIndex(
+      (l: string, i: number) => i > taskIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
+    );
     const endIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
     const taskContent = lines
       .slice(taskIndex + 1, endIndex)
@@ -54,7 +49,7 @@ export class DefaultTaskProvider implements TaskSyncProvider {
 
     for (const node of nodes) {
       total++;
-      if (node.status === 'done') completed++;
+      if (node.status === TaskStatus.Done) completed++;
 
       const childStats = this.countTaskStats(node.children);
       completed += childStats.completed;

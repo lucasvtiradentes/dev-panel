@@ -1,9 +1,8 @@
 import { GLOBAL_ITEM_PREFIX, getGlobalToolInstructionsPath } from '../../../common/constants';
-import { ConfigManager } from '../../../common/lib/config-manager';
-import { getFirstWorkspaceFolder } from '../../../common/utils/workspace-utils';
+import { ConfigManager } from '../../../common/core/config-manager';
+import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { TreeTool } from '../../../views/tools';
 
 export type GoToToolFileParams = TreeTool;
@@ -17,7 +16,7 @@ async function handleGoToToolFile(item: GoToToolFileParams) {
     if (isGlobal) {
       instructionsPath = getGlobalToolInstructionsPath(toolName);
     } else {
-      const workspaceFolder = getFirstWorkspaceFolder();
+      const workspaceFolder = VscodeHelper.getFirstWorkspaceFolder();
       if (!workspaceFolder) return;
       instructionsPath = ConfigManager.getWorkspaceToolInstructionsPath(workspaceFolder, toolName);
     }

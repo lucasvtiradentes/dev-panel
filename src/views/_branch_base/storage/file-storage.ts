@@ -1,4 +1,4 @@
-import * as fs from 'node:fs';
+import { BranchContextMarkdownHelper } from 'src/common/core/branch-context-markdown';
 import {
   BRANCH_CONTEXT_FIELD_BRANCH,
   BRANCH_CONTEXT_FIELD_LINEAR_LINK,
@@ -9,6 +9,8 @@ import {
   BUILTIN_SECTION_NAMES,
   METADATA_DEVPANEL_PREFIX,
   METADATA_DEVPANEL_REGEX,
+  METADATA_SECTION_REGEX_GLOBAL,
+  METADATA_SECTION_WITH_CODEBLOCK_REGEX,
   METADATA_SEPARATOR_REGEX,
   METADATA_SUFFIX,
   SECTION_NAME_CHANGED_FILES,
@@ -17,10 +19,12 @@ import {
   SECTION_NAME_REQUIREMENTS,
   SECTION_NAME_TASKS,
 } from '../../../common/constants';
-import { ConfigManager } from '../../../common/lib/config-manager';
+import { ConfigManager } from '../../../common/core/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext, BranchContextMetadata, SectionMetadata } from '../../../common/schemas/types';
-import { extractSectionMetadata } from '../../../common/utils/metadata-extractor';
+import { extractSectionMetadata } from '../../../common/utils/functions/extract-section-metadata';
+import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { parseBranchTypeCheckboxes } from './branch-type-utils';
 
 const logger = createLogger('BranchContext');
@@ -28,16 +32,15 @@ const logger = createLogger('BranchContext');
 export function loadBranchContextFromFile(workspace: string, branchName: string): BranchContext {
   const filePath = ConfigManager.getBranchContextFilePath(workspace, branchName);
 
-  if (!fs.existsSync(filePath)) {
+  if (!FileIOHelper.fileExists(filePath)) {
     return {};
   }
 
   try {
-    const content = fs.readFileSync(filePath, 'utf-8');
+    const content = FileIOHelper.readFile(filePath);
     return parseBranchContext(content);
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
-    logger.error(`Failed to load branch context for ${branchName}: ${message}`);
+    logger.error(`Failed to load branch context for ${branchName}: ${TypeGuardsHelper.getErrorMessage(error)}`);
     return {};
   }
 }
@@ -48,7 +51,7 @@ function extractField(content: string, fieldName: string): string | undefined {
   if (!match) return undefined;
 
   const value = match[1].trim();
-  if (value === BRANCH_CONTEXT_NA) return undefined;
+  if (BranchContextMarkdownHelper.isFieldEmpty(value)) return undefined;
   return value;
 }
 
@@ -71,7 +74,7 @@ function extractSection(content: string, sectionName: string): string | undefine
   const endIndex = nextHeaderMatch && nextHeaderMatch.index !== undefined ? nextHeaderMatch.index : afterHeader.length;
   const sectionContent = afterHeader.slice(0, endIndex).trim();
 
-  if (sectionContent === BRANCH_CONTEXT_NA) return undefined;
+  if (BranchContextMarkdownHelper.isFieldEmpty(sectionContent)) return undefined;
   return sectionContent;
 }
 
@@ -87,7 +90,7 @@ function extractCodeBlockSection(content: string, sectionName: string): string |
   if (!codeBlockMatch) return undefined;
 
   const codeContent = codeBlockMatch[1].trim();
-  if (codeContent === '' || codeContent === BRANCH_CONTEXT_NO_CHANGES) return undefined;
+  if (BranchContextMarkdownHelper.isFieldEmpty(codeContent, BRANCH_CONTEXT_NO_CHANGES)) return undefined;
   return codeContent;
 }
 
@@ -98,7 +101,7 @@ type CodeBlockSection = {
 
 function extractAllCodeBlockSections(content: string): Record<string, CodeBlockSection> {
   const sections: Record<string, CodeBlockSection> = {};
-  const sectionRegex = /^#\s+([A-Z][A-Z\s]+)\s*\n+```\s*\n([\s\S]*?)\n```(\s*\n+<!-- SECTION_METADATA: (.+?) -->)?/gm;
+  const sectionRegex = METADATA_SECTION_WITH_CODEBLOCK_REGEX;
 
   const matches = content.matchAll(sectionRegex);
   for (const match of matches) {
@@ -110,12 +113,13 @@ function extractAllCodeBlockSections(content: string): Record<string, CodeBlockS
     if (externalMetadataJson) {
       try {
         const parsed = JSON.parse(externalMetadataJson);
-        if (typeof parsed === 'object' && parsed !== null) {
+        if (TypeGuardsHelper.isObject(parsed)) {
           metadata = parsed as SectionMetadata;
         }
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
-        logger.error(`[extractAllCodeBlockSections] Failed to parse metadata for ${sectionName}: ${message}`);
+        logger.error(
+          `[extractAllCodeBlockSections] Failed to parse metadata for ${sectionName}: ${TypeGuardsHelper.getErrorMessage(error)}`,
+        );
       }
     }
 
@@ -171,7 +175,7 @@ function extractMetadata(content: string): BranchContextMetadata | undefined {
 
   try {
     const parsed = JSON.parse(match[1]);
-    if (typeof parsed === 'object' && parsed !== null) {
+    if (TypeGuardsHelper.isObject(parsed)) {
       return parsed as BranchContextMetadata;
     }
     return undefined;
@@ -197,21 +201,15 @@ function parseBranchContext(content: string): BranchContext {
     }
   }
 
-  logger.info(
-    `[parseBranchContext] Inline metadata sections: ${Object.keys(inlineSectionsMetadata).join(', ') || 'none'}`,
-  );
-  logger.info(
-    `[parseBranchContext] Footer metadata sections: ${Object.keys(baseMetadata.sections || {}).join(', ') || 'none'}`,
-  );
+  logger.info(`[parseBranchContext] Inline metadata sections: ${Object.keys(inlineSectionsMetadata).join(', ')}`);
+  logger.info(`[parseBranchContext] Footer metadata sections: ${Object.keys(baseMetadata.sections || {}).join(', ')}`);
 
   const mergedSectionsMetadata = {
     ...(baseMetadata.sections || {}),
     ...inlineSectionsMetadata,
   };
 
-  logger.info(
-    `[parseBranchContext] Merged metadata sections: ${Object.keys(mergedSectionsMetadata).join(', ') || 'none'}`,
-  );
+  logger.info(`[parseBranchContext] Merged metadata sections: ${Object.keys(mergedSectionsMetadata).join(', ')}`);
 
   const context: BranchContext = {
     branchName: extractField(content, BRANCH_CONTEXT_FIELD_BRANCH.replace(':', '')),
@@ -237,4 +235,50 @@ function parseBranchContext(content: string): BranchContext {
   }
 
   return context;
+}
+
+export function extractAllFieldsRaw(content: string): Record<string, string> {
+  const fields: Record<string, string> = {};
+
+  const fieldRegex = /^([A-Z][A-Z\s]+):\s*(.*)$/gm;
+  const fieldMatches = content.matchAll(fieldRegex);
+  for (const match of fieldMatches) {
+    const fieldName = match[1].trim();
+    const fieldValue = match[2].trim();
+    if (BranchContextMarkdownHelper.isFieldValid(fieldValue)) {
+      fields[fieldName] = fieldValue;
+    }
+  }
+
+  const sectionRegex = /^#\s+([A-Z][A-Z\s]+)\s*$/gm;
+  const matches = [...content.matchAll(sectionRegex)];
+  for (let i = 0; i < matches.length; i++) {
+    const sectionMatch = matches[i];
+    const sectionName = sectionMatch[1].trim();
+
+    if (sectionMatch.index === undefined) continue;
+
+    const startIndex = sectionMatch.index + sectionMatch[0].length;
+    const nextMatch = matches[i + 1];
+    const endIndex = nextMatch?.index ?? content.length;
+    let sectionContent = content.slice(startIndex, endIndex).trim();
+
+    sectionContent = sectionContent
+      .replace(METADATA_DEVPANEL_REGEX, '')
+      .replace(METADATA_SEPARATOR_REGEX, '')
+      .replace(METADATA_SECTION_REGEX_GLOBAL, '')
+      .trim();
+
+    const codeBlockMatch = sectionContent.match(/^```\s*\n([\s\S]*?)\n```/);
+    if (codeBlockMatch) {
+      const codeContent = codeBlockMatch[1].trim();
+      if (codeContent && codeContent !== BRANCH_CONTEXT_NO_CHANGES) {
+        fields[sectionName] = codeContent;
+      }
+    } else if (sectionContent && sectionContent !== BRANCH_CONTEXT_NA && !sectionContent.startsWith('```')) {
+      fields[sectionName] = sectionContent;
+    }
+  }
+
+  return fields;
 }

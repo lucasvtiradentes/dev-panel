@@ -1,11 +1,10 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import type { DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
+import { type DevPanelReplacement, type NormalizedPatchItem, ReplacementType } from '../../common/schemas';
+import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
 
 export function applyFileReplacement(workspace: string, source: string, target: string) {
-  const sourcePath = path.join(workspace, source);
-  const targetPath = path.join(workspace, target);
-  fs.copyFileSync(sourcePath, targetPath);
+  const sourcePath = NodePathHelper.join(workspace, source);
+  const targetPath = NodePathHelper.join(workspace, target);
+  FileIOHelper.copyFile(sourcePath, targetPath);
 }
 
 function normalizeSearchReplace(value: string[]): string {
@@ -13,8 +12,8 @@ function normalizeSearchReplace(value: string[]): string {
 }
 
 export function applyPatches(workspace: string, target: string, patches: NormalizedPatchItem[]) {
-  const targetPath = path.join(workspace, target);
-  let content = fs.readFileSync(targetPath, 'utf-8');
+  const targetPath = NodePathHelper.join(workspace, target);
+  let content = FileIOHelper.readFile(targetPath);
 
   for (const patch of patches) {
     const search = normalizeSearchReplace(patch.search);
@@ -22,35 +21,41 @@ export function applyPatches(workspace: string, target: string, patches: Normali
     content = content.split(search).join(replace);
   }
 
-  fs.writeFileSync(targetPath, content);
+  FileIOHelper.writeFile(targetPath, content);
 }
 
 export function fileExists(workspace: string, filePath: string): boolean {
-  return fs.existsSync(path.join(workspace, filePath));
+  return FileIOHelper.fileExists(NodePathHelper.join(workspace, filePath));
 }
 
-export function isReplacementActive(workspace: string, replacement: DevPanelReplacement): boolean {
-  const targetPath = path.join(workspace, replacement.target);
+type IsReplacementActiveOptions = {
+  workspace: string;
+  replacement: DevPanelReplacement;
+  normalizedPatches?: NormalizedPatchItem[];
+};
 
-  if (!fs.existsSync(targetPath)) {
+export function isReplacementActive(options: IsReplacementActiveOptions): boolean {
+  const { workspace, replacement, normalizedPatches } = options;
+  const targetPath = NodePathHelper.join(workspace, replacement.target);
+
+  if (!FileIOHelper.fileExists(targetPath)) {
     return false;
   }
 
-  const targetContent = fs.readFileSync(targetPath, 'utf-8');
+  const targetContent = FileIOHelper.readFile(targetPath);
 
-  if (replacement.type === 'patch') {
-    const patches = replacement.patches as unknown as NormalizedPatchItem[];
-    if (!patches || patches.length === 0) return false;
+  if (replacement.type === ReplacementType.Patch) {
+    if (!normalizedPatches || normalizedPatches.length === 0) return false;
 
-    const firstReplace = normalizeSearchReplace(patches[0].replace);
+    const firstReplace = normalizeSearchReplace(normalizedPatches[0].replace);
     return targetContent.includes(firstReplace);
   }
 
-  if (replacement.type === 'file') {
-    const sourcePath = path.join(workspace, replacement.source);
-    if (!fs.existsSync(sourcePath)) return false;
+  if (replacement.type === ReplacementType.File) {
+    const sourcePath = NodePathHelper.join(workspace, replacement.source);
+    if (!FileIOHelper.fileExists(sourcePath)) return false;
 
-    const sourceContent = fs.readFileSync(sourcePath, 'utf-8');
+    const sourceContent = FileIOHelper.readFile(sourcePath);
     return targetContent === sourceContent;
   }
 

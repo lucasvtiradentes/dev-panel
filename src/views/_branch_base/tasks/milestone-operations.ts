@@ -1,28 +1,31 @@
-import * as fs from 'node:fs';
 import {
   MARKDOWN_SECTION_HEADER_PATTERN,
   MILESTONE_HEADER_PATTERN,
   TASK_ITEM_PATTERN,
   TODO_SECTION_HEADER_PATTERN,
 } from '../../../common/constants';
-import type { Position } from '../../../common/constants/enums';
+import { Position } from '../../../common/constants/enums';
+import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import type { MilestoneNode, SyncContext, TaskNode } from '../providers/interfaces';
 import { fromMarkdownWithOffset } from './task-markdown';
 
 export function getMilestones(context: SyncContext): Promise<{ orphanTasks: TaskNode[]; milestones: MilestoneNode[] }> {
-  if (!fs.existsSync(context.markdownPath)) {
+  if (!FileIOHelper.fileExists(context.markdownPath)) {
     return Promise.resolve({ orphanTasks: [], milestones: [] });
   }
 
-  const content = fs.readFileSync(context.markdownPath, 'utf-8');
+  const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
-  const taskSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const taskSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
 
   if (taskSectionIndex === -1) {
     return Promise.resolve({ orphanTasks: [], milestones: [] });
   }
 
-  const nextSectionIndex = lines.findIndex((l, i) => i > taskSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
+  const nextSectionIndex = lines.findIndex(
+    (l: string, i: number) => i > taskSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
+  );
   const endIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
 
   const orphanTasks: TaskNode[] = [];
@@ -68,15 +71,17 @@ export function getMilestones(context: SyncContext): Promise<{ orphanTasks: Task
 }
 
 export function moveTaskToMilestone(taskLineIndex: number, targetMilestoneName: string | null, context: SyncContext) {
-  if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
+  if (!FileIOHelper.fileExists(context.markdownPath)) return Promise.resolve();
 
-  const content = fs.readFileSync(context.markdownPath, 'utf-8');
+  const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
   if (todoSectionIndex === -1) return Promise.resolve();
 
-  const nextSectionIndex = lines.findIndex((l, i) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
+  const nextSectionIndex = lines.findIndex(
+    (l: string, i: number) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
+  );
   const sectionEndIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
 
   const actualLineIndex = todoSectionIndex + 1 + taskLineIndex + 1;
@@ -91,7 +96,7 @@ export function moveTaskToMilestone(taskLineIndex: number, targetMilestoneName: 
   for (let i = actualLineIndex + 1; i < sectionEndIndex; i++) {
     const match = lines[i].match(TASK_ITEM_PATTERN);
     if (!match) {
-      if (lines[i].trim() === '' || MILESTONE_HEADER_PATTERN.test(lines[i])) break;
+      if (TypeGuardsHelper.isEmptyString(lines[i]) || MILESTONE_HEADER_PATTERN.test(lines[i])) break;
       continue;
     }
     const lineIndent = Math.floor(match[1].length / 2);
@@ -158,25 +163,27 @@ export function moveTaskToMilestone(taskLineIndex: number, targetMilestoneName: 
 
   lines.splice(insertIndex, 0, ...taskLines);
 
-  fs.writeFileSync(context.markdownPath, lines.join('\n'));
+  FileIOHelper.writeFile(context.markdownPath, lines.join('\n'));
   return Promise.resolve();
 }
 
 export function createMilestone(name: string, context: SyncContext) {
-  if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
+  if (!FileIOHelper.fileExists(context.markdownPath)) return Promise.resolve();
 
-  const content = fs.readFileSync(context.markdownPath, 'utf-8');
+  const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
   if (todoSectionIndex === -1) return Promise.resolve();
 
-  const nextSectionIndex = lines.findIndex((l, i) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
+  const nextSectionIndex = lines.findIndex(
+    (l: string, i: number) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
+  );
   const sectionEndIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
 
   let insertIndex = sectionEndIndex;
   for (let i = sectionEndIndex - 1; i > todoSectionIndex; i--) {
-    if (lines[i].trim() !== '') {
+    if (TypeGuardsHelper.isNonEmptyString(lines[i])) {
       insertIndex = i + 1;
       break;
     }
@@ -185,21 +192,23 @@ export function createMilestone(name: string, context: SyncContext) {
   const newMilestoneLines = ['', `## ${name}`, ''];
   lines.splice(insertIndex, 0, ...newMilestoneLines);
 
-  fs.writeFileSync(context.markdownPath, lines.join('\n'));
+  FileIOHelper.writeFile(context.markdownPath, lines.join('\n'));
   return Promise.resolve();
 }
 
 export function reorderTask(taskLineIndex: number, targetLineIndex: number, position: Position, context: SyncContext) {
-  if (!fs.existsSync(context.markdownPath)) return Promise.resolve();
+  if (!FileIOHelper.fileExists(context.markdownPath)) return Promise.resolve();
   if (taskLineIndex === targetLineIndex) return Promise.resolve();
 
-  const content = fs.readFileSync(context.markdownPath, 'utf-8');
+  const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
   if (todoSectionIndex === -1) return Promise.resolve();
 
-  const nextSectionIndex = lines.findIndex((l, i) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l));
+  const nextSectionIndex = lines.findIndex(
+    (l: string, i: number) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
+  );
   const sectionEndIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
 
   const actualTaskIndex = todoSectionIndex + 1 + taskLineIndex + 1;
@@ -216,7 +225,7 @@ export function reorderTask(taskLineIndex: number, targetLineIndex: number, posi
   for (let i = actualTaskIndex + 1; i < sectionEndIndex; i++) {
     const match = lines[i].match(TASK_ITEM_PATTERN);
     if (!match) {
-      if (lines[i].trim() === '' || MILESTONE_HEADER_PATTERN.test(lines[i])) break;
+      if (TypeGuardsHelper.isEmptyString(lines[i]) || MILESTONE_HEADER_PATTERN.test(lines[i])) break;
       continue;
     }
     const lineIndent = Math.floor(match[1].length / 2);
@@ -240,7 +249,7 @@ export function reorderTask(taskLineIndex: number, targetLineIndex: number, posi
   for (let i = newTargetIndex + 1; i < lines.length; i++) {
     const match = lines[i].match(TASK_ITEM_PATTERN);
     if (!match) {
-      if (lines[i].trim() === '' || MILESTONE_HEADER_PATTERN.test(lines[i])) break;
+      if (TypeGuardsHelper.isEmptyString(lines[i]) || MILESTONE_HEADER_PATTERN.test(lines[i])) break;
       continue;
     }
     const lineIndent = Math.floor(match[1].length / 2);
@@ -249,7 +258,7 @@ export function reorderTask(taskLineIndex: number, targetLineIndex: number, posi
   }
 
   const indentDiff = targetIndent - taskIndent;
-  const adjustedTaskLines = taskLines.map((line) => {
+  const adjustedTaskLines = taskLines.map((line: string) => {
     const match = line.match(TASK_ITEM_PATTERN);
     if (!match) return line;
 
@@ -259,9 +268,9 @@ export function reorderTask(taskLineIndex: number, targetLineIndex: number, posi
     return line.replace(/^(\s*)/, newIndent);
   });
 
-  const insertIndex = position === 'before' ? newTargetIndex : targetEndIndex;
+  const insertIndex = position === Position.Before ? newTargetIndex : targetEndIndex;
   lines.splice(insertIndex, 0, ...adjustedTaskLines);
 
-  fs.writeFileSync(context.markdownPath, lines.join('\n'));
+  FileIOHelper.writeFile(context.markdownPath, lines.join('\n'));
   return Promise.resolve();
 }

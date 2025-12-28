@@ -7,11 +7,11 @@ import {
   SECTION_NAME_BRANCH,
   getCommandId,
 } from '../../common/constants';
-import type { SectionMetadata } from '../../common/schemas/types';
+import { type SectionMetadata, SectionType } from '../../common/schemas/types';
+import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeColor, VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { TreeItemClass } from '../../common/vscode/vscode-types';
-import { Command } from '../../common/vscode/vscode-utils';
 import type { SectionDefinition } from './section-registry';
 
 function truncate(str: string, maxLen: number): string {
@@ -46,7 +46,7 @@ export class SectionItem extends TreeItemClass {
     }
 
     this.description = this.getDescription();
-    if (section.type === 'auto') {
+    if (section.type === SectionType.Auto) {
       this.tooltip = value ?? 'Auto-populated section. Click to view, use "Sync" to refresh.';
     } else {
       this.tooltip = value ?? `Click to set ${section.label.toLowerCase()}`;
@@ -68,7 +68,7 @@ export class SectionItem extends TreeItemClass {
   }
 
   private getDescription(): string {
-    const notSetLabel = this.section.type === 'auto' ? DESCRIPTION_NOT_SYNCED : DESCRIPTION_NOT_SET;
+    const notSetLabel = this.section.type === SectionType.Auto ? DESCRIPTION_NOT_SYNCED : DESCRIPTION_NOT_SET;
     if (!this.value) return notSetLabel;
 
     if (this.metadata && METADATA_FIELD_DESCRIPTION in this.metadata) {

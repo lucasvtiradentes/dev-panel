@@ -1,8 +1,7 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import JSON5 from 'json5';
 import * as vscode from 'vscode';
 import { EDITOR_NAMES, KEYBINDINGS_FILE, USER_CONFIG_DIR, USER_SETTINGS_DIR } from '../constants';
+import { readJsoncFile } from '../utils/functions/read-jsonc-file';
+import { FileIOHelper, NodePathHelper } from '../utils/helpers/node-helper';
 
 export type VSCodeKeybinding = { key: string; command: string; when?: string };
 
@@ -14,12 +13,14 @@ function detectEditor(): string {
 
 export function getVSCodeKeybindingsPath(): string {
   const editorName = detectEditor();
-  return path.join(process.env.HOME ?? '', USER_CONFIG_DIR, editorName, USER_SETTINGS_DIR, KEYBINDINGS_FILE);
+  return NodePathHelper.join(process.env.HOME ?? '', USER_CONFIG_DIR, editorName, USER_SETTINGS_DIR, KEYBINDINGS_FILE);
 }
 
-export function parseKeybindings(content: string): VSCodeKeybinding[] {
+export function parseKeybindings(content: string) {
   try {
-    return content.trim() ? JSON5.parse(content) : [];
+    if (!content.trim()) return [];
+    const parsedContent = readJsoncFile<VSCodeKeybinding[]>(content);
+    return parsedContent ?? [];
   } catch {
     return [];
   }
@@ -27,9 +28,9 @@ export function parseKeybindings(content: string): VSCodeKeybinding[] {
 
 export function loadKeybindings(): VSCodeKeybinding[] {
   const keybindingsPath = getVSCodeKeybindingsPath();
-  if (!fs.existsSync(keybindingsPath)) return [];
+  if (!FileIOHelper.fileExists(keybindingsPath)) return [];
   try {
-    const content = fs.readFileSync(keybindingsPath, 'utf8');
+    const content = FileIOHelper.readFile(keybindingsPath);
     return parseKeybindings(content);
   } catch {
     return [];

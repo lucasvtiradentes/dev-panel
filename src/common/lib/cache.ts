@@ -1,5 +1,5 @@
-import * as crypto from 'node:crypto';
-import * as fs from 'node:fs';
+import { generateHashForFileContent } from '../utils/functions/generate-cache-key';
+import { FileIOHelper } from '../utils/helpers/node-helper';
 
 type CacheEntry<T> = {
   value: T;
@@ -48,11 +48,11 @@ export class SimpleCache<T> {
 export class FileHashCache<T> extends SimpleCache<T> {
   getFileHash(filePath: string): string {
     try {
-      if (!fs.existsSync(filePath)) {
+      if (!FileIOHelper.fileExists(filePath)) {
         return '';
       }
-      const content = fs.readFileSync(filePath, 'utf-8');
-      return crypto.createHash('sha1').update(content).digest('hex');
+      const content = FileIOHelper.readFile(filePath);
+      return generateHashForFileContent(content);
     } catch {
       return '';
     }

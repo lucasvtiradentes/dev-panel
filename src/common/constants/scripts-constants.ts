@@ -1,5 +1,4 @@
-import { homedir } from 'node:os';
-import * as path from 'node:path';
+import { NodeOsHelper, NodePathHelper } from '../utils/helpers/node-helper';
 
 export const TOOLS_DIR = 'tools';
 export const TOOL_INSTRUCTIONS_FILE = 'instructions.md';
@@ -35,10 +34,16 @@ export const METADATA_SECTION_PREFIX = '<!-- SECTION_METADATA: ';
 export const METADATA_SUFFIX = ' -->';
 export const METADATA_SEPARATOR = '<!-- ------------------- -->';
 export const METADATA_DEVPANEL_REGEX = /<!--\s*DEVPANEL_METADATA:.*?-->/;
+export const METADATA_SECTION_REGEX_CAPTURE = /<!--\s*SECTION_METADATA:\s*(.+?)\s*-->/;
+export const METADATA_SECTION_REGEX_GLOBAL = /<!--\s*SECTION_METADATA:.*?-->/g;
+export const METADATA_SECTION_WITH_CODEBLOCK_REGEX =
+  /^#\s+([A-Z][A-Z\s]+)\s*\n+```\s*\n([\s\S]*?)\n```(\s*\n+<!-- SECTION_METADATA: (.+?) -->)?/gm;
 export const METADATA_SEPARATOR_REGEX = /<!--\s*-+\s*-->/;
 
 export const METADATA_FIELD_IS_EMPTY = 'isEmpty';
 export const METADATA_FIELD_DESCRIPTION = 'description';
+
+export const MARKDOWN_SECTION_DESCRIPTION = 'description';
 
 export const DND_MIME_TYPE_TASKS = `application/vnd.code.tree.${CONFIG_DIR_KEY}tasks`;
 export const DND_MIME_TYPE_PROMPTS = `application/vnd.code.tree.${CONFIG_DIR_KEY}prompts`;
@@ -98,43 +103,47 @@ export function buildLogFilename(isDev: boolean): string {
 }
 
 export function getGlobalConfigDir(): string {
-  return path.join(homedir(), CONFIG_DIR_NAME);
+  return NodePathHelper.join(NodeOsHelper.homedir(), CONFIG_DIR_NAME);
 }
 
 export function getGlobalConfigPath(): string {
-  return path.join(getGlobalConfigDir(), CONFIG_FILE_NAME);
+  return NodePathHelper.join(getGlobalConfigDir(), CONFIG_FILE_NAME);
+}
+
+export function getGlobalVariablesPath(): string {
+  return NodePathHelper.join(getGlobalConfigDir(), VARIABLES_FILE_NAME);
 }
 
 function getGlobalToolsDir(): string {
-  return path.join(getGlobalConfigDir(), TOOLS_DIR);
+  return NodePathHelper.join(getGlobalConfigDir(), TOOLS_DIR);
 }
 
 function getGlobalPromptsDir(): string {
-  return path.join(getGlobalConfigDir(), PROMPTS_DIR_NAME);
+  return NodePathHelper.join(getGlobalConfigDir(), PROMPTS_DIR_NAME);
 }
 
 export function getGlobalToolInstructionsPath(toolName: string): string {
-  return path.join(getGlobalToolsDir(), toolName, TOOL_INSTRUCTIONS_FILE);
+  return NodePathHelper.join(getGlobalToolsDir(), toolName, TOOL_INSTRUCTIONS_FILE);
 }
 
 export function getSkillDir(workspacePath: string, skillName: string): string {
-  return path.join(workspacePath, CLAUDE_DIR_NAME, SKILLS_DIR_NAME, skillName);
+  return NodePathHelper.join(workspacePath, CLAUDE_DIR_NAME, SKILLS_DIR_NAME, skillName);
 }
 
 export function getSkillFilePath(workspacePath: string, skillName: string): string {
-  return path.join(getSkillDir(workspacePath, skillName), SKILL_FILE_NAME);
+  return NodePathHelper.join(getSkillDir(workspacePath, skillName), SKILL_FILE_NAME);
 }
 
 export function getGlobalToolDir(toolName: string): string {
-  return path.join(getGlobalToolsDir(), toolName);
+  return NodePathHelper.join(getGlobalToolsDir(), toolName);
 }
 
 export function getGlobalPromptFilePath(promptFile: string): string {
-  return path.join(getGlobalPromptsDir(), promptFile);
+  return NodePathHelper.join(getGlobalPromptsDir(), promptFile);
 }
 
 export function getVscodeTasksFilePath(workspacePath: string): string {
-  return path.join(workspacePath, '.vscode', 'tasks.json');
+  return NodePathHelper.join(workspacePath, '.vscode', 'tasks.json');
 }
 
 export const AI_SPEC_DEV_TOOLS_REGEX = /<dev_tools>[\s\S]*?<\/dev_tools>/;
