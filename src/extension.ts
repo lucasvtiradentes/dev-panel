@@ -15,7 +15,7 @@ import { initGlobalState, initWorkspaceState } from './common/state';
 import { ContextKey, setContextKey } from './common/vscode/vscode-context';
 import { VscodeHelper } from './common/vscode/vscode-helper';
 import type { ExtensionContext } from './common/vscode/vscode-types';
-import { generateWorkspaceId, setWorkspaceId } from './common/vscode/vscode-utils';
+import { generateWorkspaceId, setWorkspaceId } from './common/vscode/vscode-workspace';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import { BranchContextProvider } from './views/branch-context';
 import { ensureTemplateExists } from './views/branch-context/template-initializer';

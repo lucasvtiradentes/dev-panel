@@ -3,7 +3,7 @@ import {
   type VSCodeKeybinding,
   loadKeybindings as loadVSCodeKeybindings,
 } from '../../common/vscode/vscode-keybindings-utils';
-import { getWorkspaceId } from '../../common/vscode/vscode-utils';
+import { getWorkspaceId } from '../../common/vscode/vscode-workspace';
 import type { KeybindingConfig } from './types';
 
 export class KeybindingManager {

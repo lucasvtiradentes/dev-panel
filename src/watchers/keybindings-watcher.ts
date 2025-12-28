@@ -4,7 +4,7 @@ import { FileIOHelper, NodePathHelper } from '../common/utils/helpers/node-helpe
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import { getVSCodeKeybindingsPath, parseKeybindings } from '../common/vscode/vscode-keybindings-utils';
 import type { Disposable } from '../common/vscode/vscode-types';
-import { getWorkspaceId } from '../common/vscode/vscode-utils';
+import { getWorkspaceId } from '../common/vscode/vscode-workspace';
 import { type RefreshCallback, WATCHER_CONSTANTS, attachFileWatcherHandlers } from './utils';
 
 const logger = createLogger('KeybindingsWatcher');

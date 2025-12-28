@@ -30,7 +30,8 @@ import {
   type TaskScope,
   type WorkspaceFolder,
 } from '../../common/vscode/vscode-types';
-import { Command, isMultiRootWorkspace, registerCommand } from '../../common/vscode/vscode-utils';
+import { Command, registerCommand } from '../../common/vscode/vscode-utils';
+import { isMultiRootWorkspace } from '../../common/vscode/vscode-workspace';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { TreeTool } from '../../views/tools/items';
 

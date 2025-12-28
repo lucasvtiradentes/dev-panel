@@ -12,7 +12,7 @@ import {
   type TreeItemCollapsibleState,
   type WorkspaceFolder,
 } from '../../common/vscode/vscode-types';
-import { isMultiRootWorkspace } from '../../common/vscode/vscode-utils';
+import { isMultiRootWorkspace } from '../../common/vscode/vscode-workspace';
 import { BaseGroupTreeItem } from '../_view_base';
 
 function loadCodeWorkspace(filePath: string): CodeWorkspaceFile | null {
