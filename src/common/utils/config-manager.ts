@@ -1,4 +1,3 @@
-import JSON5 from 'json5';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
@@ -22,6 +21,7 @@ import type { DevPanelConfig } from '../schemas';
 import { VscodeConstants } from '../vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
 import type { Uri, WorkspaceFolder } from '../vscode/vscode-types';
+import { readJsoncFile } from './functions/read-jsonc-file';
 import { FileIOHelper, NodePathHelper } from './helpers/node-helper';
 
 type ConfigArrayKey = ConfigKey.Prompts | ConfigKey.Tasks | ConfigKey.Tools;
@@ -203,7 +203,7 @@ export class ConfigManager {
 
   static parseConfig(content: string): DevPanelConfig | null {
     try {
-      return JSON5.parse(content) as DevPanelConfig;
+      return readJsoncFile(content) as DevPanelConfig;
     } catch {
       return null;
     }
@@ -212,7 +212,7 @@ export class ConfigManager {
   static loadConfigFromPath(configPath: string): DevPanelConfig | null {
     if (!FileIOHelper.fileExists(configPath)) return null;
     try {
-      return JSON5.parse(FileIOHelper.readFile(configPath)) as DevPanelConfig;
+      return readJsoncFile(FileIOHelper.readFile(configPath)) as DevPanelConfig;
     } catch {
       return null;
     }

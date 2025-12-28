@@ -1,4 +1,4 @@
-import JSON5 from 'json5';
+import { readJsoncFile } from 'src/common/utils/functions/read-jsonc-file';
 import { CONTEXT_VALUES, NO_GROUP_NAME, VSCODE_TASKS_PATH } from '../../common/constants';
 import type { CodeWorkspaceFile, TaskDefinition, TasksJson } from '../../common/schemas/types';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
@@ -18,7 +18,8 @@ import { BaseGroupTreeItem } from '../_view_base';
 function loadCodeWorkspace(filePath: string): CodeWorkspaceFile | null {
   if (!FileIOHelper.fileExists(filePath)) return null;
   try {
-    return JSON5.parse(FileIOHelper.readFile(filePath)) as CodeWorkspaceFile;
+    const content = FileIOHelper.readFile(filePath);
+    return readJsoncFile(content) as CodeWorkspaceFile;
   } catch {
     return null;
   }
@@ -27,7 +28,8 @@ function loadCodeWorkspace(filePath: string): CodeWorkspaceFile | null {
 function loadTasksJson(filePath: string): TasksJson | null {
   if (!FileIOHelper.fileExists(filePath)) return null;
   try {
-    return JSON5.parse(FileIOHelper.readFile(filePath)) as TasksJson;
+    const content = FileIOHelper.readFile(filePath);
+    return readJsoncFile(content) as TasksJson;
   } catch {
     return null;
   }

@@ -63,6 +63,12 @@
         "include": ["src/**/*.ts", "scripts/**/*.ts"],
         "exclude": ["src/common/lib/node-helper.ts"],
         "message": "Direct Node.js imports (from 'node:*') are only allowed in src/common/lib/node-helper.ts. Use helpers from NodePathHelper, FileIOHelper, etc. instead"
+      },
+      "no-json5-imports-outside-read-jsonc-file": {
+        "pattern": "from\\s+['\"]json5['\"]",
+        "include": ["src/**/*.ts"],
+        "exclude": ["src/common/utils/functions/read-jsonc-file.ts"],
+        "message": "Imports from 'json5' are only allowed in src/common/utils/functions/read-jsonc-file.ts. Use readJsoncFile() helper instead"
       }
     },
     "script": {

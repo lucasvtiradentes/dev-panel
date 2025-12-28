@@ -1,4 +1,4 @@
-import json5 from 'json5';
+import { readJsoncFile } from 'src/common/utils/functions/read-jsonc-file';
 import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
@@ -218,7 +218,7 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
     if (!FileIOHelper.fileExists(configPath)) return null;
 
     const content = FileIOHelper.readFile(configPath);
-    const rawConfig = json5.parse(content);
+    const rawConfig = readJsoncFile(content);
     const config = DevPanelConfigSchema.parse(rawConfig);
 
     if (config.replacements) {

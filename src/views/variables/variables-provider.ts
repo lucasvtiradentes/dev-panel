@@ -1,4 +1,4 @@
-import json5 from 'json5';
+import { readJsoncFile } from 'src/common/utils/functions/read-jsonc-file';
 import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
@@ -179,7 +179,7 @@ export class VariablesProvider implements TreeDataProvider<TreeItem> {
     if (!FileIOHelper.fileExists(configPath)) return null;
 
     const content = FileIOHelper.readFile(configPath);
-    const rawConfig = json5.parse(content);
+    const rawConfig = readJsoncFile(content);
     const validatedConfig = DevPanelConfigSchema.parse(rawConfig);
     return { variables: validatedConfig.variables ?? [] };
   }
@@ -192,7 +192,7 @@ export class VariablesProvider implements TreeDataProvider<TreeItem> {
     if (!FileIOHelper.fileExists(configPath)) return undefined;
 
     const content = FileIOHelper.readFile(configPath);
-    const rawConfig = json5.parse(content);
+    const rawConfig = readJsoncFile(content);
     const validatedConfig = DevPanelConfigSchema.parse(rawConfig);
     return validatedConfig.settings;
   }
