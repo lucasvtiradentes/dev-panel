@@ -6,9 +6,10 @@ import {
   TASK_STATUS_MARKERS,
   TODO_SECTION_HEADER_PATTERN,
 } from '../../../common/constants';
+import type { TaskMeta } from '../../../common/core/task-markdown-helper';
 import type { TaskStatus } from '../../../common/schemas';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
-import type { NewTask, SyncContext, TaskMeta, TaskNode } from '../providers/interfaces';
+import type { NewTask, SyncContext, TaskNode } from '../providers/interfaces';
 import { formatTaskLine, parseTaskText, statusToMarker } from './task-utils';
 
 function createEmptyTaskNode(text: string): TaskNode {

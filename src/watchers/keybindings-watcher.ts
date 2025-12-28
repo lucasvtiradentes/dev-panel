@@ -5,8 +5,8 @@ import { TypeGuardsHelper } from '../common/utils/helpers/type-guards-helper';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import { getVSCodeKeybindingsPath, parseKeybindings } from '../common/vscode/vscode-keybindings-utils';
 import type { Disposable } from '../common/vscode/vscode-types';
+import { type RefreshCallback, WATCHER_CONSTANTS, attachFileWatcherHandlers } from '../common/vscode/vscode-watcher';
 import { buildWorkspaceWhenClause, getWorkspaceId } from '../common/vscode/vscode-workspace';
-import { type RefreshCallback, WATCHER_CONSTANTS, attachFileWatcherHandlers } from './utils';
 
 const logger = createLogger('KeybindingsWatcher');
 

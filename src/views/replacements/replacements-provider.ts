@@ -8,8 +8,13 @@ import {
 } from '../../common/constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import { Git } from '../../common/lib/git';
-import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
-import { ReplacementType, normalizePatchItem } from '../../common/schemas';
+import {
+  type DevPanelConfig,
+  type DevPanelReplacement,
+  type NormalizedPatchItem,
+  ReplacementType,
+  normalizePatchItem,
+} from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { readJsoncFile } from '../../common/utils/functions/read-jsonc-file';
 import { GroupHelper } from '../../common/utils/helpers/group-helper';

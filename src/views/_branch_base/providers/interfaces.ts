@@ -2,8 +2,6 @@ import type { Position } from '../../../common/constants/enums';
 import type { TaskMeta } from '../../../common/core/task-markdown-helper';
 import type { BranchContext, TaskStatus } from '../../../common/schemas';
 
-export type { TaskMeta };
-
 export type SyncContext = {
   branchName: string;
   workspacePath: string;

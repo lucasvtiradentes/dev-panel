@@ -1,19 +1,12 @@
 import { ConfigManager } from '../../../common/core/config-manager';
+import type { TaskMeta } from '../../../common/core/task-markdown-helper';
 import { createLogger } from '../../../common/lib/logger';
 import { PluginAction, TaskStatus } from '../../../common/schemas';
 import { execAsync } from '../../../common/utils/functions/exec-async';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { extractAllFieldsRaw } from '../storage/file-storage';
-import type {
-  AutoSectionProvider,
-  NewTask,
-  SyncContext,
-  SyncResult,
-  TaskMeta,
-  TaskNode,
-  TaskSyncProvider,
-} from './interfaces';
+import type { AutoSectionProvider, NewTask, SyncContext, SyncResult, TaskNode, TaskSyncProvider } from './interfaces';
 import type {
   CreateTaskPayload,
   CreateTaskResponse,

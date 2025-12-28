@@ -4,7 +4,7 @@ import { StoreKey, extensionStore } from '../common/core/extension-store';
 import { createLogger } from '../common/lib/logger';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable, Uri } from '../common/vscode/vscode-types';
-import { type RefreshCallback, attachFileWatcherHandlers } from './utils';
+import { type RefreshCallback, attachFileWatcherHandlers } from '../common/vscode/vscode-watcher';
 
 const logger = createLogger('ConfigWatcher');
 

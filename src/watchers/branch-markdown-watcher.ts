@@ -2,7 +2,7 @@ import { ConfigManager } from '../common/core/config-manager';
 import { createLogger } from '../common/lib/logger';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable, Uri } from '../common/vscode/vscode-types';
-import { type UriChangeCallback, attachFileWatcherHandlers } from './utils';
+import { type UriChangeCallback, attachFileWatcherHandlers } from '../common/vscode/vscode-watcher';
 
 const logger = createLogger('BranchMarkdownWatcher');
 

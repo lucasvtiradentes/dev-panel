@@ -1,20 +1,13 @@
 import { MARKDOWN_SECTION_HEADER_PATTERN, TODO_SECTION_HEADER_PATTERN } from '../../../../common/constants';
 import type { Position } from '../../../../common/constants/enums';
+import type { TaskMeta } from '../../../../common/core/task-markdown-helper';
 import { TaskStatus } from '../../../../common/schemas';
 import { FileIOHelper } from '../../../../common/utils/helpers/node-helper';
 import * as milestoneOps from '../../tasks/milestone-operations';
 import * as taskCrud from '../../tasks/task-crud';
 import { fromMarkdown, toMarkdown } from '../../tasks/task-markdown';
 import { cycleStatus as cycleStatusUtil } from '../../tasks/task-utils';
-import type {
-  MilestoneNode,
-  NewTask,
-  SyncContext,
-  SyncResult,
-  TaskMeta,
-  TaskNode,
-  TaskSyncProvider,
-} from '../interfaces';
+import type { MilestoneNode, NewTask, SyncContext, SyncResult, TaskNode, TaskSyncProvider } from '../interfaces';
 
 export class DefaultTaskProvider implements TaskSyncProvider {
   fromMarkdown = fromMarkdown;

@@ -3,7 +3,7 @@ import { createLogger } from '../common/lib/logger';
 import { TypeGuardsHelper } from '../common/utils/helpers/type-guards-helper';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable, FileSystemWatcher } from '../common/vscode/vscode-types';
-import { WATCHER_CONSTANTS } from './utils';
+import { WATCHER_CONSTANTS } from '../common/vscode/vscode-watcher';
 
 type BranchChangeCallback = (newBranch: string) => void;
 
