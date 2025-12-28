@@ -1,8 +1,7 @@
-import { ConfigKey, LocationScope } from '../../../common/constants';
-import { ConfigManager } from '../../../common/core/config-manager';
+import { ConfigKey } from '../../../common/constants';
+import { ConfigItemOperations } from '../../../common/core/config-item-operations';
 import { TreeItemUtils } from '../../../common/core/tree-item-utils';
-import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-commands';
-import { VscodeHelper } from '../../../common/vscode/vscode-helper';
+import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import type { TreeTask } from '../../../views/tasks/items';
 
 async function handleCopyTaskToWorkspace(treeTask: TreeTask) {
@@ -18,31 +17,14 @@ async function handleCopyTaskToWorkspace(treeTask: TreeTask) {
 
   const taskName = TreeItemUtils.stripGlobalPrefix(treeTask.taskName);
 
-  const workspaceFolder = await VscodeHelper.selectWorkspaceFolder('Select workspace to copy task to');
-  if (!workspaceFolder) return;
-
-  const globalConfig = ConfigManager.loadGlobalConfig();
-  if (!globalConfig) {
-    TreeItemUtils.showConfigNotFoundError(LocationScope.Global);
-    return;
-  }
-
-  const task = globalConfig.tasks?.find((t) => t.name === taskName);
-  if (!task) {
-    TreeItemUtils.showNotFoundError('Task', taskName, LocationScope.Global);
-    return;
-  }
-
-  const workspaceConfig = ConfigManager.loadWorkspaceConfig(workspaceFolder) ?? {};
-  const exists = workspaceConfig.tasks?.some((t) => t.name === task.name);
-
-  if (exists && !(await ConfigManager.confirmOverwrite('Task', task.name))) return;
-
-  ConfigManager.addOrUpdateConfigItem(workspaceConfig, ConfigKey.Tasks, task);
-  ConfigManager.saveWorkspaceConfig(workspaceFolder, workspaceConfig);
-
-  TreeItemUtils.showCopySuccessMessage('Task', task.name, LocationScope.Workspace);
-  void executeCommand(Command.Refresh);
+  await ConfigItemOperations.copyToWorkspace({
+    itemName: taskName,
+    itemType: 'Task',
+    configKey: ConfigKey.Tasks,
+    findInConfig: (config) => config.tasks?.find((t) => t.name === taskName),
+    existsInConfig: (config, item) => config.tasks?.some((t) => t.name === item.name) ?? false,
+    refreshCommand: Command.Refresh,
+  });
 }
 
 export function createCopyTaskToWorkspaceCommand() {

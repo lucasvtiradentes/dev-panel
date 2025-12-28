@@ -1,10 +1,10 @@
-import { ConfigKey, LocationScope, getGlobalPromptFilePath } from '../../../common/constants';
+import { ConfigKey, getGlobalPromptFilePath } from '../../../common/constants';
+import { ConfigItemOperations } from '../../../common/core/config-item-operations';
 import { ConfigManager } from '../../../common/core/config-manager';
 import { TreeItemUtils } from '../../../common/core/tree-item-utils';
 import type { DevPanelPrompt } from '../../../common/schemas';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
-import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-commands';
-import { VscodeHelper } from '../../../common/vscode/vscode-helper';
+import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import type { TreePrompt } from '../../../views/prompts/items';
 
 async function handleDeletePrompt(treePrompt: TreePrompt) {
@@ -16,71 +16,23 @@ async function handleDeletePrompt(treePrompt: TreePrompt) {
   const isGlobal = TreeItemUtils.isGlobalItem(treePrompt.promptName);
   const promptName = TreeItemUtils.stripGlobalPrefix(treePrompt.promptName);
 
-  if (!(await ConfigManager.confirmDelete('prompt', promptName, isGlobal))) return;
-
-  if (isGlobal) {
-    const globalConfig = ConfigManager.loadGlobalConfig();
-    if (!globalConfig) {
-      TreeItemUtils.showConfigNotFoundError(LocationScope.Global);
-      return;
-    }
-
-    if (!globalConfig.prompts?.length) {
-      TreeItemUtils.showNoItemsFoundError('prompt', LocationScope.Global);
-      return;
-    }
-
-    const removed = ConfigManager.removeConfigItem(
-      globalConfig,
-      ConfigKey.Prompts,
-      promptName,
-    ) as DevPanelPrompt | null;
-    if (!removed) {
-      TreeItemUtils.showNotFoundError('Prompt', promptName, LocationScope.Global);
-      return;
-    }
-
-    ConfigManager.saveGlobalConfig(globalConfig);
-
-    const globalPromptFile = getGlobalPromptFilePath(removed.file);
-    FileIOHelper.deleteFile(globalPromptFile);
-
-    TreeItemUtils.showDeleteSuccessMessage('prompt', promptName, true);
-    void executeCommand(Command.RefreshPrompts);
-    return;
-  }
-
-  const workspaceFolder = VscodeHelper.requireWorkspaceFolder();
-  if (!workspaceFolder) return;
-
-  const workspaceConfig = ConfigManager.loadWorkspaceConfig(workspaceFolder);
-  if (!workspaceConfig) {
-    TreeItemUtils.showConfigNotFoundError(LocationScope.Workspace);
-    return;
-  }
-
-  if (!workspaceConfig.prompts?.length) {
-    TreeItemUtils.showNoItemsFoundError('prompt', LocationScope.Workspace);
-    return;
-  }
-
-  const removed = ConfigManager.removeConfigItem(
-    workspaceConfig,
-    ConfigKey.Prompts,
-    promptName,
-  ) as DevPanelPrompt | null;
-  if (!removed) {
-    TreeItemUtils.showNotFoundError('Prompt', promptName, LocationScope.Workspace);
-    return;
-  }
-
-  ConfigManager.saveWorkspaceConfig(workspaceFolder, workspaceConfig);
-
-  const workspacePromptFile = ConfigManager.getWorkspacePromptFilePath(workspaceFolder, removed.file);
-  FileIOHelper.deleteFile(workspacePromptFile);
-
-  TreeItemUtils.showDeleteSuccessMessage('prompt', promptName, false);
-  void executeCommand(Command.RefreshPrompts);
+  await ConfigItemOperations.deleteItem<DevPanelPrompt>({
+    itemName: promptName,
+    itemType: 'prompt',
+    configKey: ConfigKey.Prompts,
+    isGlobal,
+    hasItems: (config) => (config.prompts?.length ?? 0) > 0,
+    onDeleteSideEffect: (item, isGlobalItem, workspaceFolder) => {
+      if (isGlobalItem) {
+        const globalPromptFile = getGlobalPromptFilePath(item.file);
+        FileIOHelper.deleteFile(globalPromptFile);
+      } else if (workspaceFolder) {
+        const workspacePromptFile = ConfigManager.getWorkspacePromptFilePath(workspaceFolder, item.file);
+        FileIOHelper.deleteFile(workspacePromptFile);
+      }
+    },
+    refreshCommand: Command.RefreshPrompts,
+  });
 }
 
 export function createDeletePromptCommand() {

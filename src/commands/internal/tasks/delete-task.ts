@@ -1,8 +1,7 @@
-import { ConfigKey, LocationScope } from '../../../common/constants';
-import { ConfigManager } from '../../../common/core/config-manager';
+import { ConfigKey } from '../../../common/constants';
+import { ConfigItemOperations } from '../../../common/core/config-item-operations';
 import { TreeItemUtils } from '../../../common/core/tree-item-utils';
-import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-commands';
-import { VscodeHelper } from '../../../common/vscode/vscode-helper';
+import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import type { TreeTask } from '../../../views/tasks/items';
 
 async function handleDeleteTask(treeTask: TreeTask) {
@@ -14,55 +13,14 @@ async function handleDeleteTask(treeTask: TreeTask) {
   const isGlobal = TreeItemUtils.isGlobalItem(treeTask.taskName);
   const taskName = TreeItemUtils.stripGlobalPrefix(treeTask.taskName);
 
-  if (!(await ConfigManager.confirmDelete('task', taskName, isGlobal))) return;
-
-  if (isGlobal) {
-    const globalConfig = ConfigManager.loadGlobalConfig();
-    if (!globalConfig) {
-      TreeItemUtils.showConfigNotFoundError(LocationScope.Global);
-      return;
-    }
-
-    if (!globalConfig.tasks?.length) {
-      TreeItemUtils.showNoItemsFoundError('task', LocationScope.Global);
-      return;
-    }
-
-    const removed = ConfigManager.removeConfigItem(globalConfig, ConfigKey.Tasks, taskName);
-    if (!removed) {
-      TreeItemUtils.showNotFoundError('Task', taskName, LocationScope.Global);
-      return;
-    }
-
-    ConfigManager.saveGlobalConfig(globalConfig);
-    TreeItemUtils.showDeleteSuccessMessage('task', taskName, true);
-    void executeCommand(Command.Refresh);
-    return;
-  }
-
-  const workspaceFolder = VscodeHelper.requireWorkspaceFolder();
-  if (!workspaceFolder) return;
-
-  const workspaceConfig = ConfigManager.loadWorkspaceConfig(workspaceFolder);
-  if (!workspaceConfig) {
-    TreeItemUtils.showConfigNotFoundError(LocationScope.Workspace);
-    return;
-  }
-
-  if (!workspaceConfig.tasks?.length) {
-    TreeItemUtils.showNoItemsFoundError('task', LocationScope.Workspace);
-    return;
-  }
-
-  const removed = ConfigManager.removeConfigItem(workspaceConfig, ConfigKey.Tasks, taskName);
-  if (!removed) {
-    TreeItemUtils.showNotFoundError('Task', taskName, LocationScope.Workspace);
-    return;
-  }
-
-  ConfigManager.saveWorkspaceConfig(workspaceFolder, workspaceConfig);
-  TreeItemUtils.showDeleteSuccessMessage('task', taskName, false);
-  void executeCommand(Command.Refresh);
+  await ConfigItemOperations.deleteItem({
+    itemName: taskName,
+    itemType: 'task',
+    configKey: ConfigKey.Tasks,
+    isGlobal,
+    hasItems: (config) => (config.tasks?.length ?? 0) > 0,
+    refreshCommand: Command.Refresh,
+  });
 }
 
 export function createDeleteTaskCommand() {

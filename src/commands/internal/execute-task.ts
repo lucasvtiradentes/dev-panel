@@ -1,5 +1,6 @@
 import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
 import { execAsync } from 'src/common/utils/functions/exec-async';
+import { replaceVariablePlaceholders } from 'src/common/utils/functions/template-replace';
 import { GLOBAL_ITEM_PREFIX, GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
 import {
   CONFIG_DIR_KEY,
@@ -99,16 +100,6 @@ function cloneWithEnv(task: Task, env: Record<string, string>): Task {
   }
 
   return task;
-}
-
-function replaceVariablePlaceholders(content: string, variables: Record<string, unknown>): string {
-  let result = content;
-  for (const [key, value] of Object.entries(variables)) {
-    const stringValue = TypeGuardsHelper.isObject(value) ? JSON.stringify(value) : String(value);
-    const pattern = new RegExp(`\\$${key}`, 'g');
-    result = result.replace(pattern, stringValue);
-  }
-  return result;
 }
 
 export type ExecutePromptParams = {

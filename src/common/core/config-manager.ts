@@ -24,8 +24,8 @@ import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
 import type { Uri, WorkspaceFolder } from '../vscode/vscode-types';
 import { StoreKey, extensionStore } from './extension-store';
 
-type ConfigArrayKey = ConfigKey.Prompts | ConfigKey.Tasks | ConfigKey.Tools;
-type ConfigArrayItem =
+export type ConfigArrayKey = ConfigKey.Prompts | ConfigKey.Tasks | ConfigKey.Tools;
+export type ConfigArrayItem =
   | NonNullable<DevPanelConfig['prompts']>[number]
   | NonNullable<DevPanelConfig['tasks']>[number]
   | NonNullable<DevPanelConfig['tools']>[number];

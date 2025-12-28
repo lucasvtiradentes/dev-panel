@@ -1,9 +1,9 @@
-import { ConfigKey, LocationScope, getGlobalToolDir } from '../../../common/constants';
+import { ConfigKey, getGlobalToolDir } from '../../../common/constants';
+import { ConfigItemOperations } from '../../../common/core/config-item-operations';
 import { ConfigManager } from '../../../common/core/config-manager';
 import { TreeItemUtils } from '../../../common/core/tree-item-utils';
 import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
-import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-commands';
-import { VscodeHelper } from '../../../common/vscode/vscode-helper';
+import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import type { TreeTool } from '../../../views/tools/items';
 
 async function handleCopyToolToWorkspace(treeTool: TreeTool) {
@@ -19,40 +19,24 @@ async function handleCopyToolToWorkspace(treeTool: TreeTool) {
 
   const toolName = TreeItemUtils.stripGlobalPrefix(treeTool.toolName);
 
-  const workspaceFolder = await VscodeHelper.selectWorkspaceFolder('Select workspace to copy tool to');
-  if (!workspaceFolder) return;
+  await ConfigItemOperations.copyToWorkspace({
+    itemName: toolName,
+    itemType: 'Tool',
+    configKey: ConfigKey.Tools,
+    findInConfig: (config) => config.tools?.find((t) => t.name === toolName),
+    existsInConfig: (config, item) => config.tools?.some((t) => t.name === item.name) ?? false,
+    onCopySideEffect: (item, workspaceFolder) => {
+      const globalToolsDir = getGlobalToolDir(item.name);
+      const workspaceToolsDir = ConfigManager.getWorkspaceToolDir(workspaceFolder, item.name);
 
-  const globalConfig = ConfigManager.loadGlobalConfig();
-  if (!globalConfig) {
-    TreeItemUtils.showConfigNotFoundError(LocationScope.Global);
-    return;
-  }
-
-  const tool = globalConfig.tools?.find((t) => t.name === toolName);
-  if (!tool) {
-    TreeItemUtils.showNotFoundError('Tool', toolName, LocationScope.Global);
-    return;
-  }
-
-  const workspaceConfig = ConfigManager.loadWorkspaceConfig(workspaceFolder) ?? {};
-  const exists = workspaceConfig.tools?.some((t) => t.name === tool.name);
-
-  if (exists && !(await ConfigManager.confirmOverwrite('Tool', tool.name))) return;
-
-  ConfigManager.addOrUpdateConfigItem(workspaceConfig, ConfigKey.Tools, tool);
-  ConfigManager.saveWorkspaceConfig(workspaceFolder, workspaceConfig);
-
-  const globalToolsDir = getGlobalToolDir(tool.name);
-  const workspaceToolsDir = ConfigManager.getWorkspaceToolDir(workspaceFolder, tool.name);
-
-  if (FileIOHelper.fileExists(globalToolsDir)) {
-    FileIOHelper.ensureDirectoryExists(NodePathHelper.dirname(workspaceToolsDir));
-    FileIOHelper.deleteDirectory(workspaceToolsDir);
-    FileIOHelper.copyDirectory(globalToolsDir, workspaceToolsDir);
-  }
-
-  TreeItemUtils.showCopySuccessMessage('Tool', tool.name, LocationScope.Workspace);
-  void executeCommand(Command.RefreshTools);
+      if (FileIOHelper.fileExists(globalToolsDir)) {
+        FileIOHelper.ensureDirectoryExists(NodePathHelper.dirname(workspaceToolsDir));
+        FileIOHelper.deleteDirectory(workspaceToolsDir);
+        FileIOHelper.copyDirectory(globalToolsDir, workspaceToolsDir);
+      }
+    },
+    refreshCommand: Command.RefreshTools,
+  });
 }
 
 export function createCopyToolToWorkspaceCommand() {

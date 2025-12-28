@@ -1,8 +1,7 @@
-import { ConfigKey, LocationScope } from '../../../common/constants';
-import { ConfigManager } from '../../../common/core/config-manager';
+import { ConfigKey } from '../../../common/constants';
+import { ConfigItemOperations } from '../../../common/core/config-item-operations';
 import { TreeItemUtils } from '../../../common/core/tree-item-utils';
-import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-commands';
-import { VscodeHelper } from '../../../common/vscode/vscode-helper';
+import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import type { TreeTask } from '../../../views/tasks/items';
 
 async function handleCopyTaskToGlobal(treeTask: TreeTask) {
@@ -16,31 +15,14 @@ async function handleCopyTaskToGlobal(treeTask: TreeTask) {
     return;
   }
 
-  const workspaceFolder = VscodeHelper.requireWorkspaceFolder();
-  if (!workspaceFolder) return;
-
-  const workspaceConfig = ConfigManager.loadWorkspaceConfig(workspaceFolder);
-  if (!workspaceConfig) {
-    TreeItemUtils.showConfigNotFoundError(LocationScope.Workspace);
-    return;
-  }
-
-  const task = workspaceConfig.tasks?.find((t) => t.name === treeTask.taskName);
-  if (!task) {
-    TreeItemUtils.showNotFoundError('Task', treeTask.taskName, LocationScope.Workspace);
-    return;
-  }
-
-  const globalConfig = ConfigManager.loadGlobalConfig() ?? {};
-  const exists = globalConfig.tasks?.some((t) => t.name === task.name);
-
-  if (exists && !(await ConfigManager.confirmOverwrite('Task', task.name))) return;
-
-  ConfigManager.addOrUpdateConfigItem(globalConfig, ConfigKey.Tasks, task);
-  ConfigManager.saveGlobalConfig(globalConfig);
-
-  TreeItemUtils.showCopySuccessMessage('Task', task.name, LocationScope.Global);
-  void executeCommand(Command.Refresh);
+  await ConfigItemOperations.copyToGlobal({
+    itemName: treeTask.taskName,
+    itemType: 'Task',
+    configKey: ConfigKey.Tasks,
+    findInConfig: (config) => config.tasks?.find((t) => t.name === treeTask.taskName),
+    existsInConfig: (config, item) => config.tasks?.some((t) => t.name === item.name) ?? false,
+    refreshCommand: Command.Refresh,
+  });
 }
 
 export function createCopyTaskToGlobalCommand() {

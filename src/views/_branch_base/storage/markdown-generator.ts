@@ -12,6 +12,7 @@ import { ConfigManager } from '../../../common/core/config-manager';
 import { Git } from '../../../common/lib/git';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext } from '../../../common/schemas/types';
+import { replaceTemplatePlaceholders } from '../../../common/utils/functions/template-replace';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import { detectBranchType, generateBranchTypeCheckboxes } from './branch-type-utils';
@@ -85,11 +86,7 @@ export async function generateBranchContextMarkdown(
 
   logger.info(`[generateBranchContextMarkdown] All replacements: ${Object.keys(replacements).join(', ')}`);
 
-  let output = template;
-  for (const [placeholder, value] of Object.entries(replacements)) {
-    const regex = new RegExp(`\\{\\{${placeholder}\\}\\}`, 'g');
-    output = output.replace(regex, value);
-  }
+  let output = replaceTemplatePlaceholders(template, replacements);
 
   if (sectionMetadata) {
     output = appendSectionMetadata(output, sectionMetadata);

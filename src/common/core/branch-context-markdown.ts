@@ -1,4 +1,4 @@
-import { BRANCH_CONTEXT_NA, CONFIG_FILE_NAME } from '../constants';
+import { BRANCH_CONTEXT_NA, CONFIG_FILE_NAME, METADATA_FIELD_IS_EMPTY } from '../constants';
 import { FileIOHelper } from '../utils/helpers/node-helper';
 import { ConfigManager } from './config-manager';
 
@@ -29,6 +29,18 @@ export class BranchContextMarkdownHelper {
 
   static isFieldValid(value: string | undefined, customNaValue?: string): boolean {
     return !BranchContextMarkdownHelper.isFieldEmpty(value, customNaValue);
+  }
+
+  static isSectionEmpty(value: string | undefined, sectionType: string, metadata?: Record<string, unknown>): boolean {
+    if (sectionType === 'auto') {
+      if (metadata && metadata[METADATA_FIELD_IS_EMPTY] === true) return true;
+      return false;
+    }
+
+    if (!value) return true;
+    const trimmed = value.trim();
+    if (trimmed === '' || trimmed === BRANCH_CONTEXT_NA) return true;
+    return false;
   }
 
   static getValidationIssues<T>(

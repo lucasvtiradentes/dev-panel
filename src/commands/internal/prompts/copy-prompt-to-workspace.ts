@@ -1,9 +1,9 @@
-import { ConfigKey, LocationScope, getGlobalPromptFilePath } from '../../../common/constants';
+import { ConfigKey, getGlobalPromptFilePath } from '../../../common/constants';
+import { ConfigItemOperations } from '../../../common/core/config-item-operations';
 import { ConfigManager } from '../../../common/core/config-manager';
 import { TreeItemUtils } from '../../../common/core/tree-item-utils';
 import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
-import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-commands';
-import { VscodeHelper } from '../../../common/vscode/vscode-helper';
+import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import type { TreePrompt } from '../../../views/prompts/items';
 
 async function handleCopyPromptToWorkspace(treePrompt: TreePrompt) {
@@ -19,39 +19,23 @@ async function handleCopyPromptToWorkspace(treePrompt: TreePrompt) {
 
   const promptName = TreeItemUtils.stripGlobalPrefix(treePrompt.promptName);
 
-  const workspaceFolder = await VscodeHelper.selectWorkspaceFolder('Select workspace to copy prompt to');
-  if (!workspaceFolder) return;
+  await ConfigItemOperations.copyToWorkspace({
+    itemName: promptName,
+    itemType: 'Prompt',
+    configKey: ConfigKey.Prompts,
+    findInConfig: (config) => config.prompts?.find((p) => p.name === promptName),
+    existsInConfig: (config, item) => config.prompts?.some((p) => p.name === item.name) ?? false,
+    onCopySideEffect: (item, workspaceFolder) => {
+      const globalPromptFile = getGlobalPromptFilePath(item.file);
+      const workspacePromptFile = ConfigManager.getWorkspacePromptFilePath(workspaceFolder, item.file);
 
-  const globalConfig = ConfigManager.loadGlobalConfig();
-  if (!globalConfig) {
-    TreeItemUtils.showConfigNotFoundError(LocationScope.Global);
-    return;
-  }
-
-  const prompt = globalConfig.prompts?.find((p) => p.name === promptName);
-  if (!prompt) {
-    TreeItemUtils.showNotFoundError('Prompt', promptName, LocationScope.Global);
-    return;
-  }
-
-  const workspaceConfig = ConfigManager.loadWorkspaceConfig(workspaceFolder) ?? {};
-  const exists = workspaceConfig.prompts?.some((p) => p.name === prompt.name);
-
-  if (exists && !(await ConfigManager.confirmOverwrite('Prompt', prompt.name))) return;
-
-  ConfigManager.addOrUpdateConfigItem(workspaceConfig, ConfigKey.Prompts, prompt);
-  ConfigManager.saveWorkspaceConfig(workspaceFolder, workspaceConfig);
-
-  const globalPromptFile = getGlobalPromptFilePath(prompt.file);
-  const workspacePromptFile = ConfigManager.getWorkspacePromptFilePath(workspaceFolder, prompt.file);
-
-  if (FileIOHelper.fileExists(globalPromptFile)) {
-    FileIOHelper.ensureDirectoryExists(NodePathHelper.dirname(workspacePromptFile));
-    FileIOHelper.copyFile(globalPromptFile, workspacePromptFile);
-  }
-
-  TreeItemUtils.showCopySuccessMessage('Prompt', prompt.name, LocationScope.Workspace);
-  void executeCommand(Command.RefreshPrompts);
+      if (FileIOHelper.fileExists(globalPromptFile)) {
+        FileIOHelper.ensureDirectoryExists(NodePathHelper.dirname(workspacePromptFile));
+        FileIOHelper.copyFile(globalPromptFile, workspacePromptFile);
+      }
+    },
+    refreshCommand: Command.RefreshPrompts,
+  });
 }
 
 export function createCopyPromptToWorkspaceCommand() {

@@ -1,5 +1,4 @@
 import {
-  METADATA_FIELD_IS_EMPTY,
   SECTION_NAME_BRANCH,
   SECTION_NAME_CHANGED_FILES,
   SECTION_NAME_LINEAR_LINK,
@@ -9,7 +8,7 @@ import {
   SECTION_NAME_REQUIREMENTS,
   SECTION_NAME_TASKS,
 } from '../../common/constants';
-import { BRANCH_CONTEXT_NA } from '../../common/constants/scripts-constants';
+import { BranchContextMarkdownHelper } from '../../common/core/branch-context-markdown';
 import { ConfigManager } from '../../common/core/config-manager';
 import { SimpleCache } from '../../common/lib/cache';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
@@ -77,14 +76,6 @@ export class ProviderHelpers {
   }
 
   isSectionEmpty(value: string | undefined, sectionType: string, metadata?: Record<string, unknown>): boolean {
-    if (sectionType === 'auto') {
-      if (metadata && metadata[METADATA_FIELD_IS_EMPTY] === true) return true;
-      return false;
-    }
-
-    if (!value) return true;
-    const trimmed = value.trim();
-    if (trimmed === '' || trimmed === BRANCH_CONTEXT_NA) return true;
-    return false;
+    return BranchContextMarkdownHelper.isSectionEmpty(value, sectionType, metadata);
   }
 }
