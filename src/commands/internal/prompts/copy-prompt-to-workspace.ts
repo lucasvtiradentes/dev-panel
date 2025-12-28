@@ -1,44 +1,36 @@
 import { ConfigKey, LocationScope, getGlobalPromptFilePath } from '../../../common/constants';
 import { ConfigManager } from '../../../common/core/config-manager';
+import { TreeItemUtils } from '../../../common/core/tree-item-utils';
 import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
-import {
-  isGlobalItem,
-  showAlreadyWorkspaceMessage,
-  showConfigNotFoundError,
-  showCopySuccessMessage,
-  showInvalidItemError,
-  showNotFoundError,
-  stripGlobalPrefix,
-} from '../../../common/utils/tree-item-utils';
 import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { TreePrompt } from '../../../views/prompts/items';
 
 async function handleCopyPromptToWorkspace(treePrompt: TreePrompt) {
   if (!treePrompt?.promptName) {
-    showInvalidItemError('prompt');
+    TreeItemUtils.showInvalidItemError('prompt');
     return;
   }
 
-  if (!isGlobalItem(treePrompt.promptName)) {
-    showAlreadyWorkspaceMessage('prompt');
+  if (!TreeItemUtils.isGlobalItem(treePrompt.promptName)) {
+    TreeItemUtils.showAlreadyWorkspaceMessage('prompt');
     return;
   }
 
-  const promptName = stripGlobalPrefix(treePrompt.promptName);
+  const promptName = TreeItemUtils.stripGlobalPrefix(treePrompt.promptName);
 
   const workspaceFolder = await VscodeHelper.selectWorkspaceFolder('Select workspace to copy prompt to');
   if (!workspaceFolder) return;
 
   const globalConfig = ConfigManager.loadGlobalConfig();
   if (!globalConfig) {
-    showConfigNotFoundError(LocationScope.Global);
+    TreeItemUtils.showConfigNotFoundError(LocationScope.Global);
     return;
   }
 
   const prompt = globalConfig.prompts?.find((p) => p.name === promptName);
   if (!prompt) {
-    showNotFoundError('Prompt', promptName, LocationScope.Global);
+    TreeItemUtils.showNotFoundError('Prompt', promptName, LocationScope.Global);
     return;
   }
 
@@ -58,7 +50,7 @@ async function handleCopyPromptToWorkspace(treePrompt: TreePrompt) {
     FileIOHelper.copyFile(globalPromptFile, workspacePromptFile);
   }
 
-  showCopySuccessMessage('Prompt', prompt.name, LocationScope.Workspace);
+  TreeItemUtils.showCopySuccessMessage('Prompt', prompt.name, LocationScope.Workspace);
   void executeCommand(Command.RefreshPrompts);
 }
 

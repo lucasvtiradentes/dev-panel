@@ -1,43 +1,35 @@
 import { ConfigKey, LocationScope } from '../../../common/constants';
 import { ConfigManager } from '../../../common/core/config-manager';
-import {
-  isGlobalItem,
-  showAlreadyWorkspaceMessage,
-  showConfigNotFoundError,
-  showCopySuccessMessage,
-  showInvalidItemError,
-  showNotFoundError,
-  stripGlobalPrefix,
-} from '../../../common/utils/tree-item-utils';
+import { TreeItemUtils } from '../../../common/core/tree-item-utils';
 import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { TreeTask } from '../../../views/tasks/items';
 
 async function handleCopyTaskToWorkspace(treeTask: TreeTask) {
   if (!treeTask?.taskName) {
-    showInvalidItemError('task');
+    TreeItemUtils.showInvalidItemError('task');
     return;
   }
 
-  if (!isGlobalItem(treeTask.taskName)) {
-    showAlreadyWorkspaceMessage('task');
+  if (!TreeItemUtils.isGlobalItem(treeTask.taskName)) {
+    TreeItemUtils.showAlreadyWorkspaceMessage('task');
     return;
   }
 
-  const taskName = stripGlobalPrefix(treeTask.taskName);
+  const taskName = TreeItemUtils.stripGlobalPrefix(treeTask.taskName);
 
   const workspaceFolder = await VscodeHelper.selectWorkspaceFolder('Select workspace to copy task to');
   if (!workspaceFolder) return;
 
   const globalConfig = ConfigManager.loadGlobalConfig();
   if (!globalConfig) {
-    showConfigNotFoundError(LocationScope.Global);
+    TreeItemUtils.showConfigNotFoundError(LocationScope.Global);
     return;
   }
 
   const task = globalConfig.tasks?.find((t) => t.name === taskName);
   if (!task) {
-    showNotFoundError('Task', taskName, LocationScope.Global);
+    TreeItemUtils.showNotFoundError('Task', taskName, LocationScope.Global);
     return;
   }
 
@@ -49,7 +41,7 @@ async function handleCopyTaskToWorkspace(treeTask: TreeTask) {
   ConfigManager.addOrUpdateConfigItem(workspaceConfig, ConfigKey.Tasks, task);
   ConfigManager.saveWorkspaceConfig(workspaceFolder, workspaceConfig);
 
-  showCopySuccessMessage('Task', task.name, LocationScope.Workspace);
+  TreeItemUtils.showCopySuccessMessage('Task', task.name, LocationScope.Workspace);
   void executeCommand(Command.Refresh);
 }
 

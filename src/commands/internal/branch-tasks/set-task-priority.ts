@@ -1,17 +1,17 @@
+import { type ItemOrLineIndex, TreeItemUtils } from '../../../common/core/tree-item-utils';
 import { TaskPriority } from '../../../common/schemas';
-import { type ItemOrLineIndex, extractLineIndex } from '../../../common/utils/tree-item-utils';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { pickPriority } from '../../../common/vscode/vscode-inputs';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import type { BranchTasksProvider } from '../../../views/branch-tasks/provider';
 
 async function handleSetTaskPriority(provider: BranchTasksProvider, item: ItemOrLineIndex, priority: TaskPriority) {
-  const lineIndex = extractLineIndex(item);
+  const lineIndex = TreeItemUtils.extractLineIndex(item);
   await provider.setPriority(lineIndex, priority);
 }
 
 async function handleSetTaskPriorityWithPicker(provider: BranchTasksProvider, item: ItemOrLineIndex) {
-  const lineIndex = extractLineIndex(item);
+  const lineIndex = TreeItemUtils.extractLineIndex(item);
   const priority = await pickPriority();
   if (!priority) return;
   await provider.setPriority(lineIndex, priority);

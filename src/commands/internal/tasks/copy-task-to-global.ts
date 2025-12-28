@@ -1,25 +1,18 @@
 import { ConfigKey, LocationScope } from '../../../common/constants';
 import { ConfigManager } from '../../../common/core/config-manager';
-import {
-  isGlobalItem,
-  showAlreadyGlobalMessage,
-  showConfigNotFoundError,
-  showCopySuccessMessage,
-  showInvalidItemError,
-  showNotFoundError,
-} from '../../../common/utils/tree-item-utils';
+import { TreeItemUtils } from '../../../common/core/tree-item-utils';
 import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { TreeTask } from '../../../views/tasks/items';
 
 async function handleCopyTaskToGlobal(treeTask: TreeTask) {
   if (!treeTask?.taskName) {
-    showInvalidItemError('task');
+    TreeItemUtils.showInvalidItemError('task');
     return;
   }
 
-  if (isGlobalItem(treeTask.taskName)) {
-    showAlreadyGlobalMessage('task');
+  if (TreeItemUtils.isGlobalItem(treeTask.taskName)) {
+    TreeItemUtils.showAlreadyGlobalMessage('task');
     return;
   }
 
@@ -28,13 +21,13 @@ async function handleCopyTaskToGlobal(treeTask: TreeTask) {
 
   const workspaceConfig = ConfigManager.loadWorkspaceConfig(workspaceFolder);
   if (!workspaceConfig) {
-    showConfigNotFoundError(LocationScope.Workspace);
+    TreeItemUtils.showConfigNotFoundError(LocationScope.Workspace);
     return;
   }
 
   const task = workspaceConfig.tasks?.find((t) => t.name === treeTask.taskName);
   if (!task) {
-    showNotFoundError('Task', treeTask.taskName, LocationScope.Workspace);
+    TreeItemUtils.showNotFoundError('Task', treeTask.taskName, LocationScope.Workspace);
     return;
   }
 
@@ -46,7 +39,7 @@ async function handleCopyTaskToGlobal(treeTask: TreeTask) {
   ConfigManager.addOrUpdateConfigItem(globalConfig, ConfigKey.Tasks, task);
   ConfigManager.saveGlobalConfig(globalConfig);
 
-  showCopySuccessMessage('Task', task.name, LocationScope.Global);
+  TreeItemUtils.showCopySuccessMessage('Task', task.name, LocationScope.Global);
   void executeCommand(Command.Refresh);
 }
 

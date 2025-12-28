@@ -1,11 +1,11 @@
-import { type ItemOrLineIndex, extractLineIndex } from '../../../common/utils/tree-item-utils';
+import { type ItemOrLineIndex, TreeItemUtils } from '../../../common/core/tree-item-utils';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import type { BranchTasksProvider } from '../../../views/branch-tasks/provider';
 
 async function handleAddSubtask(provider: BranchTasksProvider, item: ItemOrLineIndex) {
-  const lineIndex = extractLineIndex(item);
+  const lineIndex = TreeItemUtils.extractLineIndex(item);
   const text = await VscodeHelper.showInputBox({
     prompt: 'Enter subtask text',
     placeHolder: 'New subtask',
@@ -15,7 +15,7 @@ async function handleAddSubtask(provider: BranchTasksProvider, item: ItemOrLineI
 }
 
 async function handleEditTaskText(provider: BranchTasksProvider, item: ItemOrLineIndex) {
-  const lineIndex = extractLineIndex(item);
+  const lineIndex = TreeItemUtils.extractLineIndex(item);
   const node = provider.findNodeByLineIndex(lineIndex);
   if (!node) return;
 
@@ -28,7 +28,7 @@ async function handleEditTaskText(provider: BranchTasksProvider, item: ItemOrLin
 }
 
 async function handleDeleteBranchTask(provider: BranchTasksProvider, item: ItemOrLineIndex) {
-  const lineIndex = extractLineIndex(item);
+  const lineIndex = TreeItemUtils.extractLineIndex(item);
   const confirm = await VscodeHelper.showToastMessage(
     ToastKind.Warning,
     'Delete this task?',
@@ -40,7 +40,7 @@ async function handleDeleteBranchTask(provider: BranchTasksProvider, item: ItemO
 }
 
 async function handleCopyTaskText(provider: BranchTasksProvider, item: ItemOrLineIndex) {
-  const lineIndex = extractLineIndex(item);
+  const lineIndex = TreeItemUtils.extractLineIndex(item);
   const node = provider.findNodeByLineIndex(lineIndex);
   if (!node) return;
   await VscodeHelper.writeToClipboard(node.text);

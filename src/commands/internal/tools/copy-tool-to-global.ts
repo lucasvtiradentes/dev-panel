@@ -1,26 +1,19 @@
 import { ConfigKey, LocationScope, getGlobalToolDir } from '../../../common/constants';
 import { ConfigManager } from '../../../common/core/config-manager';
+import { TreeItemUtils } from '../../../common/core/tree-item-utils';
 import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
-import {
-  isGlobalItem,
-  showAlreadyGlobalMessage,
-  showConfigNotFoundError,
-  showCopySuccessMessage,
-  showInvalidItemError,
-  showNotFoundError,
-} from '../../../common/utils/tree-item-utils';
 import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { TreeTool } from '../../../views/tools/items';
 
 async function handleCopyToolToGlobal(treeTool: TreeTool) {
   if (!treeTool?.toolName) {
-    showInvalidItemError('tool');
+    TreeItemUtils.showInvalidItemError('tool');
     return;
   }
 
-  if (isGlobalItem(treeTool.toolName)) {
-    showAlreadyGlobalMessage('tool');
+  if (TreeItemUtils.isGlobalItem(treeTool.toolName)) {
+    TreeItemUtils.showAlreadyGlobalMessage('tool');
     return;
   }
 
@@ -29,13 +22,13 @@ async function handleCopyToolToGlobal(treeTool: TreeTool) {
 
   const workspaceConfig = ConfigManager.loadWorkspaceConfig(workspaceFolder);
   if (!workspaceConfig) {
-    showConfigNotFoundError(LocationScope.Workspace);
+    TreeItemUtils.showConfigNotFoundError(LocationScope.Workspace);
     return;
   }
 
   const tool = workspaceConfig.tools?.find((t) => t.name === treeTool.toolName);
   if (!tool) {
-    showNotFoundError('Tool', treeTool.toolName, LocationScope.Workspace);
+    TreeItemUtils.showNotFoundError('Tool', treeTool.toolName, LocationScope.Workspace);
     return;
   }
 
@@ -56,7 +49,7 @@ async function handleCopyToolToGlobal(treeTool: TreeTool) {
     FileIOHelper.copyDirectory(workspaceToolsDir, globalToolsDir);
   }
 
-  showCopySuccessMessage('Tool', tool.name, LocationScope.Global);
+  TreeItemUtils.showCopySuccessMessage('Tool', tool.name, LocationScope.Global);
   void executeCommand(Command.RefreshTools);
 }
 

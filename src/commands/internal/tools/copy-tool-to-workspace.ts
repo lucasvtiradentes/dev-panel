@@ -1,44 +1,36 @@
 import { ConfigKey, LocationScope, getGlobalToolDir } from '../../../common/constants';
 import { ConfigManager } from '../../../common/core/config-manager';
+import { TreeItemUtils } from '../../../common/core/tree-item-utils';
 import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
-import {
-  isGlobalItem,
-  showAlreadyWorkspaceMessage,
-  showConfigNotFoundError,
-  showCopySuccessMessage,
-  showInvalidItemError,
-  showNotFoundError,
-  stripGlobalPrefix,
-} from '../../../common/utils/tree-item-utils';
 import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { TreeTool } from '../../../views/tools/items';
 
 async function handleCopyToolToWorkspace(treeTool: TreeTool) {
   if (!treeTool?.toolName) {
-    showInvalidItemError('tool');
+    TreeItemUtils.showInvalidItemError('tool');
     return;
   }
 
-  if (!isGlobalItem(treeTool.toolName)) {
-    showAlreadyWorkspaceMessage('tool');
+  if (!TreeItemUtils.isGlobalItem(treeTool.toolName)) {
+    TreeItemUtils.showAlreadyWorkspaceMessage('tool');
     return;
   }
 
-  const toolName = stripGlobalPrefix(treeTool.toolName);
+  const toolName = TreeItemUtils.stripGlobalPrefix(treeTool.toolName);
 
   const workspaceFolder = await VscodeHelper.selectWorkspaceFolder('Select workspace to copy tool to');
   if (!workspaceFolder) return;
 
   const globalConfig = ConfigManager.loadGlobalConfig();
   if (!globalConfig) {
-    showConfigNotFoundError(LocationScope.Global);
+    TreeItemUtils.showConfigNotFoundError(LocationScope.Global);
     return;
   }
 
   const tool = globalConfig.tools?.find((t) => t.name === toolName);
   if (!tool) {
-    showNotFoundError('Tool', toolName, LocationScope.Global);
+    TreeItemUtils.showNotFoundError('Tool', toolName, LocationScope.Global);
     return;
   }
 
@@ -59,7 +51,7 @@ async function handleCopyToolToWorkspace(treeTool: TreeTool) {
     FileIOHelper.copyDirectory(globalToolsDir, workspaceToolsDir);
   }
 
-  showCopySuccessMessage('Tool', tool.name, LocationScope.Workspace);
+  TreeItemUtils.showCopySuccessMessage('Tool', tool.name, LocationScope.Workspace);
   void executeCommand(Command.RefreshTools);
 }
 

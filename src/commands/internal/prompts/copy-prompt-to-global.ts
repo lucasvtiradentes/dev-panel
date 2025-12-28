@@ -1,26 +1,19 @@
 import { ConfigKey, LocationScope, getGlobalPromptFilePath } from '../../../common/constants';
 import { ConfigManager } from '../../../common/core/config-manager';
+import { TreeItemUtils } from '../../../common/core/tree-item-utils';
 import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
-import {
-  isGlobalItem,
-  showAlreadyGlobalMessage,
-  showConfigNotFoundError,
-  showCopySuccessMessage,
-  showInvalidItemError,
-  showNotFoundError,
-} from '../../../common/utils/tree-item-utils';
 import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { TreePrompt } from '../../../views/prompts/items';
 
 async function handleCopyPromptToGlobal(treePrompt: TreePrompt) {
   if (!treePrompt?.promptName) {
-    showInvalidItemError('prompt');
+    TreeItemUtils.showInvalidItemError('prompt');
     return;
   }
 
-  if (isGlobalItem(treePrompt.promptName)) {
-    showAlreadyGlobalMessage('prompt');
+  if (TreeItemUtils.isGlobalItem(treePrompt.promptName)) {
+    TreeItemUtils.showAlreadyGlobalMessage('prompt');
     return;
   }
 
@@ -29,13 +22,13 @@ async function handleCopyPromptToGlobal(treePrompt: TreePrompt) {
 
   const workspaceConfig = ConfigManager.loadWorkspaceConfig(workspaceFolder);
   if (!workspaceConfig) {
-    showConfigNotFoundError(LocationScope.Workspace);
+    TreeItemUtils.showConfigNotFoundError(LocationScope.Workspace);
     return;
   }
 
   const prompt = workspaceConfig.prompts?.find((p) => p.name === treePrompt.promptName);
   if (!prompt) {
-    showNotFoundError('Prompt', treePrompt.promptName, LocationScope.Workspace);
+    TreeItemUtils.showNotFoundError('Prompt', treePrompt.promptName, LocationScope.Workspace);
     return;
   }
 
@@ -55,7 +48,7 @@ async function handleCopyPromptToGlobal(treePrompt: TreePrompt) {
     FileIOHelper.copyFile(workspacePromptFile, globalPromptFile);
   }
 
-  showCopySuccessMessage('Prompt', prompt.name, LocationScope.Global);
+  TreeItemUtils.showCopySuccessMessage('Prompt', prompt.name, LocationScope.Global);
   void executeCommand(Command.RefreshPrompts);
 }
 
