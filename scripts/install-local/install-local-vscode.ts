@@ -19,6 +19,7 @@ import {
   VSCODE_EXTENSIONS_FILE,
 } from '../../src/common/constants/vscode-constants';
 import { FileIOHelper, NodeOsHelper, NodePathHelper } from '../../src/common/utils/helpers/node-helper';
+import { ENV } from '../../src/env';
 
 const logger = console;
 
@@ -27,7 +28,7 @@ const ROOT_DIR = NodePathHelper.join(SCRIPT_DIR, '..', '..');
 const EXTENSION_ID_DEV = buildExtensionId(true);
 
 function main() {
-  if (process.env.CI || process.env.GITHUB_ACTIONS) {
+  if (ENV.CI) {
     logger.log('Skipping local extension installation in CI environment');
     process.exit(0);
   }

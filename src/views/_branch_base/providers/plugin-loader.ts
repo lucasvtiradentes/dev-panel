@@ -5,6 +5,7 @@ import { PluginAction, TaskStatus } from '../../../common/schemas';
 import { execAsync } from '../../../common/utils/functions/exec-async';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
+import { ENV } from '../../../env';
 import { extractAllFieldsRaw } from '../storage/file-storage';
 import type { AutoSectionProvider, NewTask, SyncContext, SyncResult, TaskNode, TaskSyncProvider } from './interfaces';
 import type {
@@ -40,11 +41,8 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
       }
 
       const contextJson = JSON.stringify({
-        branchName: context.branchName,
-        workspacePath: context.workspacePath,
-        markdownPath: context.markdownPath,
+        ...context,
         fields,
-        sectionOptions: context.sectionOptions,
       });
 
       logger.info(`[loadAutoProvider] Running: ${providerCommand}`);
@@ -54,7 +52,7 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
           timeout: PLUGIN_TIMEOUT,
           cwd: configDir,
           env: {
-            ...process.env,
+            ...ENV,
             PLUGIN_CONTEXT: contextJson,
           },
         });
@@ -75,13 +73,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
   async function executePlugin<T>(action: PluginAction, context: SyncContext, payload?: unknown): Promise<T> {
     const request: PluginRequest = {
       action,
-      context: {
-        branchName: context.branchName,
-        workspacePath: context.workspacePath,
-        markdownPath: context.markdownPath,
-        branchContext: context.branchContext,
-        sectionOptions: context.sectionOptions,
-      },
+      context,
       payload,
     };
 
@@ -93,7 +85,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
         timeout: PLUGIN_TIMEOUT,
         cwd: configDir,
         env: {
-          ...process.env,
+          ...ENV,
           PLUGIN_CONTEXT: JSON.stringify(request),
         },
       });

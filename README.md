@@ -6,6 +6,11 @@
   - ex: ao fazer um booking, podemos fazer refund em até 7d depois da compra
   - ai a IA vai verificar se isso ta acontecendo (dar um jeito de cachear a solucao/analise) e ver se temos um test case para isso
   - talvez ter um arquivo desse por branch -> vai ajudar a cobrir todos os usecases e expeceted behaviors 
+- [ ] criar um prompt para revisar pr no kouto -> seleciono PR e ja era -> pegar ultimos 200 prs e os coments la 
+- [ ] adicionar project rules (endpoint create etc)
+- [ ] adicionar project agents 
+- [ ] ter codebase rules (tipo ter um arquivo para vscode utils)
+- [ ] ter um codebase patterns (swr, endpoints, etc)
 
 ## CLAUDE CODE MANAGER
 
@@ -43,12 +48,11 @@
 
 ## TODO
 
-- [ ] botao de IA para a gente preencher os dados do markdown com ia 
 - [ ] adicionar inline link para abrir issue do linear
-- [ ] bug: ao mudar de branch ta dando erro na "branch tasks" -> nao ta mostrando as duas tasks default -> mas no branch context mostra -> ai tenho que ctrl+s no .branch-context.md para poder dar certo
-- [ ] adicionar project rules (endpoint create etc)
-- [ ] adicionar project agents 
-- [ ] ter codebase rules (tipo ter um arquivo para vscode utils)
-- [ ] ter um codebase patterns (swr, endpoints, etc)
 - [ ] comand de branch-tasks tao errados, deveriam usar metodos de providers
 - [ ] deve dar um toast de error quando o replacement nao substituir de fato
+- [ ] criar algo para lsitar edge cases da branch
+- [ ] corrigir devpanel tasks view -> open confgig nao funcionando para custom path
+- [ ] milestones devem ter cores
+- [ ] criar um botao de popular requirements / notes etc a partir do linear / pr info
+- [ ] botao de IA para a gente preencher os dados do markdown com ia 
