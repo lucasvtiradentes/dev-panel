@@ -6,8 +6,8 @@ import {
   getTaskCommandId,
   getTaskCommandPrefix,
 } from '../../common/constants';
+import { syncKeybindings } from '../../common/core/keybindings-sync';
 import { ConfigManager } from '../../common/utils/config-manager';
-import { syncKeybindings } from '../../common/utils/keybindings-sync';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { registerDynamicCommand } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';

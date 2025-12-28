@@ -1,6 +1,6 @@
 import { getVariableCommandId, getVariableCommandPrefix } from '../../common/constants';
+import { syncKeybindings } from '../../common/core/keybindings-sync';
 import { ConfigManager } from '../../common/utils/config-manager';
-import { syncKeybindings } from '../../common/utils/keybindings-sync';
 import { Command, executeCommand, registerDynamicCommand } from '../../common/vscode/vscode-commands';
 import type { ExtensionContext } from '../../common/vscode/vscode-types';
 import { KeybindingManager } from '../_view_base';
