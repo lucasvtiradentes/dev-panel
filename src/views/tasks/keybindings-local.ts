@@ -31,7 +31,13 @@ export function registerTaskKeybindings(context: ExtensionContext) {
       const commandId = getTaskCommandId(task.name);
       const disposable = registerDynamicCommand(commandId, () => {
         const shellExec = VscodeHelper.createShellExecution(task.command);
-        const vsTask = VscodeHelper.createTask({ type: CONFIG_DIR_KEY }, folder, task.name, CONFIG_DIR_KEY, shellExec);
+        const vsTask = VscodeHelper.createTask({
+          definition: { type: CONFIG_DIR_KEY },
+          scope: folder,
+          name: task.name,
+          source: CONFIG_DIR_KEY,
+          execution: shellExec,
+        });
         void VscodeHelper.executeTask(vsTask);
       });
       context.subscriptions.push(disposable);
@@ -49,13 +55,13 @@ export function registerTaskKeybindings(context: ExtensionContext) {
       const env = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);
       const disposable = registerDynamicCommand(commandId, () => {
         const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd: globalConfigDir });
-        const vsTask = VscodeHelper.createTask(
-          { type: GLOBAL_TASK_TYPE },
-          VscodeConstants.TaskScope.Global,
-          task.name,
-          GLOBAL_TASK_TYPE,
-          shellExec,
-        );
+        const vsTask = VscodeHelper.createTask({
+          definition: { type: GLOBAL_TASK_TYPE },
+          scope: VscodeConstants.TaskScope.Global,
+          name: task.name,
+          source: GLOBAL_TASK_TYPE,
+          execution: shellExec,
+        });
         void VscodeHelper.executeTask(vsTask);
       });
       context.subscriptions.push(disposable);

@@ -286,16 +286,23 @@ export class VscodeHelper {
     return vscode.extensions.getExtension<T>(extensionId);
   }
 
-  static createTask(
-    definition: vscode.TaskDefinition,
-    scope: vscode.WorkspaceFolder | vscode.TaskScope.Global | vscode.TaskScope.Workspace,
-    name: string,
-    source: string,
-    execution?: vscode.ProcessExecution | vscode.ShellExecution | vscode.CustomExecution,
+  static createTask(options: {
+    definition: vscode.TaskDefinition;
+    scope: vscode.WorkspaceFolder | vscode.TaskScope.Global | vscode.TaskScope.Workspace;
+    name: string;
+    source: string;
+    execution?: vscode.ProcessExecution | vscode.ShellExecution | vscode.CustomExecution;
     // tscanner-ignore-next-line no-single-or-array-union
-    problemMatchers?: string | string[],
-  ): vscode.Task {
-    return new vscode.Task(definition, scope, name, source, execution, problemMatchers);
+    problemMatchers?: string | string[];
+  }): vscode.Task {
+    return new vscode.Task(
+      options.definition,
+      options.scope,
+      options.name,
+      options.source,
+      options.execution,
+      options.problemMatchers,
+    );
   }
 
   static createEventEmitter<T>(): vscode.EventEmitter<T> {

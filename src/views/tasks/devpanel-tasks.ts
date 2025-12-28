@@ -119,13 +119,13 @@ function createDevPanelTask(
   const env = VariablesEnvManager.readDevPanelVariablesAsEnv(configDirPath);
   const cwd = task.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
   const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd });
-  const vsTask = VscodeHelper.createTask(
-    { type: CONFIG_DIR_KEY, task: task.name },
-    folder,
-    task.name,
-    CONFIG_DIR_KEY,
-    shellExec,
-  );
+  const vsTask = VscodeHelper.createTask({
+    definition: { type: CONFIG_DIR_KEY, task: task.name },
+    scope: folder,
+    name: task.name,
+    source: CONFIG_DIR_KEY,
+    execution: shellExec,
+  });
 
   vsTask.presentationOptions = {
     reveal: VscodeConstants.TaskRevealKind.Always,
@@ -180,13 +180,13 @@ function createGlobalTask(
   const cwd = globalConfigDir;
   const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd });
 
-  const vsTask = VscodeHelper.createTask(
-    { type: `${CONFIG_DIR_KEY}-global`, task: task.name },
-    VscodeConstants.TaskScope.Global,
-    task.name,
-    `${CONFIG_DIR_KEY}-global`,
-    shellExec,
-  );
+  const vsTask = VscodeHelper.createTask({
+    definition: { type: `${CONFIG_DIR_KEY}-global`, task: task.name },
+    scope: VscodeConstants.TaskScope.Global,
+    name: task.name,
+    source: `${CONFIG_DIR_KEY}-global`,
+    execution: shellExec,
+  });
 
   vsTask.presentationOptions = {
     reveal: VscodeConstants.TaskRevealKind.Always,

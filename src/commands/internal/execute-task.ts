@@ -50,27 +50,27 @@ function cloneWithEnv(task: Task, env: Record<string, string>): Task {
 
     if (commandLine) {
       const newExecution = VscodeHelper.createShellExecution(commandLine, { ...execution.options, env: mergedEnv });
-      newTask = VscodeHelper.createTask(
-        task.definition,
-        task.scope ?? VscodeConstants.TaskScope.Workspace,
-        task.name,
-        task.source,
-        newExecution,
-        task.problemMatchers,
-      );
+      newTask = VscodeHelper.createTask({
+        definition: task.definition,
+        scope: task.scope ?? VscodeConstants.TaskScope.Workspace,
+        name: task.name,
+        source: task.source,
+        execution: newExecution,
+        problemMatchers: task.problemMatchers,
+      });
     } else if (command) {
       const newExecution = VscodeHelper.createShellExecution(command, execution.args ?? [], {
         ...execution.options,
         env: mergedEnv,
       });
-      newTask = VscodeHelper.createTask(
-        task.definition,
-        task.scope ?? VscodeConstants.TaskScope.Workspace,
-        task.name,
-        task.source,
-        newExecution,
-        task.problemMatchers,
-      );
+      newTask = VscodeHelper.createTask({
+        definition: task.definition,
+        scope: task.scope ?? VscodeConstants.TaskScope.Workspace,
+        name: task.name,
+        source: task.source,
+        execution: newExecution,
+        problemMatchers: task.problemMatchers,
+      });
     } else {
       return task;
     }
@@ -86,14 +86,14 @@ function cloneWithEnv(task: Task, env: Record<string, string>): Task {
       env: mergedEnv,
     });
 
-    newTask = VscodeHelper.createTask(
-      task.definition,
-      task.scope ?? VscodeConstants.TaskScope.Workspace,
-      task.name,
-      task.source,
-      newExecution,
-      task.problemMatchers,
-    );
+    newTask = VscodeHelper.createTask({
+      definition: task.definition,
+      scope: task.scope ?? VscodeConstants.TaskScope.Workspace,
+      name: task.name,
+      source: task.source,
+      execution: newExecution,
+      problemMatchers: task.problemMatchers,
+    });
     newTask.presentationOptions = task.presentationOptions;
     return newTask;
   }
@@ -139,14 +139,14 @@ async function handleExecuteTask(
       commandToReplace = replaceInputPlaceholders(commandToReplace, inputValues);
 
       const newExecution = VscodeHelper.createShellExecution(commandToReplace, execution.options);
-      modifiedTask = VscodeHelper.createTask(
-        task.definition,
-        task.scope ?? VscodeConstants.TaskScope.Workspace,
-        task.name,
-        task.source,
-        newExecution,
-        task.problemMatchers,
-      );
+      modifiedTask = VscodeHelper.createTask({
+        definition: task.definition,
+        scope: task.scope ?? VscodeConstants.TaskScope.Workspace,
+        name: task.name,
+        source: task.source,
+        execution: newExecution,
+        problemMatchers: task.problemMatchers,
+      });
     }
   }
 
@@ -223,13 +223,13 @@ function handleExecuteTool(context: ExtensionContext, item: TreeTool | Task) {
     }
 
     const shellExec = VscodeHelper.createShellExecution(toolConfig.command, { env, cwd });
-    const vsTask = VscodeHelper.createTask(
-      { type: `${CONFIG_DIR_KEY}-tool`, task: actualName },
-      folder ?? VscodeConstants.TaskScope.Global,
-      actualName,
-      `${CONFIG_DIR_KEY}-tool`,
-      shellExec,
-    );
+    const vsTask = VscodeHelper.createTask({
+      definition: { type: `${CONFIG_DIR_KEY}-tool`, task: actualName },
+      scope: folder ?? VscodeConstants.TaskScope.Global,
+      name: actualName,
+      source: `${CONFIG_DIR_KEY}-tool`,
+      execution: shellExec,
+    });
 
     vsTask.presentationOptions = {
       reveal: VscodeConstants.TaskRevealKind.Always,

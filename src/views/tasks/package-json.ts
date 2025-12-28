@@ -282,7 +282,13 @@ function createNpmTask(options: {
   const variablesPath = ConfigManager.getWorkspaceVariablesPath(folder);
   const env = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);
   const shellExec = VscodeHelper.createShellExecution(`${NPM_RUN_COMMAND} ${name}`, { cwd, env });
-  const task = VscodeHelper.createTask({ type: 'npm' }, folder, name, 'npm', shellExec);
+  const task = VscodeHelper.createTask({
+    definition: { type: 'npm' },
+    scope: folder,
+    name,
+    source: 'npm',
+    execution: shellExec,
+  });
   const displayName = useDisplayName && name.includes(':') ? name.split(':').slice(1).join(':') : name;
 
   const treeTask = new TreeTask(
