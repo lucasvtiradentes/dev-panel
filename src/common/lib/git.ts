@@ -303,10 +303,10 @@ export class Git {
 
       const lines: string[] = [];
       for (const file of sortedFiles) {
-        const status = statusMap.get(file);
-        if (!status) continue;
+        const fileStatus = statusMap.get(file);
+        if (!fileStatus) continue;
         const stats = statsMap.get(file) || { added: '0', deleted: '0' };
-        const statusSymbol = status.charAt(0);
+        const statusSymbol = fileStatus.charAt(0);
         const padding = ' '.repeat(Math.max(0, maxFileLength - file.length + 1));
         lines.push(`${statusSymbol}  ${file}${padding}(+${stats.added} -${stats.deleted})`);
       }
