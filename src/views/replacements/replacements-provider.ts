@@ -1,17 +1,17 @@
-import { readJsoncFile } from 'src/common/utils/functions/read-jsonc-file';
 import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
   ERROR_REPLACEMENTS_REQUIRE_GIT,
   ERROR_SOURCE_FILE_NOT_FOUND,
   ERROR_TARGET_FILE_NOT_FOUND,
-  NO_GROUP_NAME,
   getCommandId,
 } from '../../common/constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import { Git } from '../../common/lib/git';
 import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
+import { readJsoncFile } from '../../common/utils/functions/read-jsonc-file';
+import { GroupHelper } from '../../common/utils/helpers/group-helper';
 import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
@@ -188,19 +188,7 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
       );
     }
 
-    const grouped = new Map<string, DevPanelReplacement[]>();
-
-    for (const r of config.replacements) {
-      const groupName = r.group ?? NO_GROUP_NAME;
-      if (!grouped.has(groupName)) {
-        grouped.set(groupName, []);
-      }
-      const group = grouped.get(groupName);
-      if (group) {
-        group.push(r);
-      }
-    }
-
+    const grouped = GroupHelper.groupItems(config.replacements);
     const items: TreeItem[] = [];
 
     for (const [groupName, replacements] of grouped) {

@@ -6,7 +6,6 @@ import {
   DEFAULT_INCLUDES,
   DESCRIPTION_NOT_SET,
   ERROR_VARIABLE_COMMAND_FAILED,
-  NO_GROUP_NAME,
   VARIABLES_FILE_NAME,
   getCommandId,
 } from '../../common/constants';
@@ -14,6 +13,7 @@ import { ConfigManager } from '../../common/core/config-manager';
 import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { execAsync } from '../../common/utils/functions/exec-async';
+import { GroupHelper } from '../../common/utils/helpers/group-helper';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
@@ -149,19 +149,7 @@ export class VariablesProvider implements TreeDataProvider<TreeItem> {
       return Promise.resolve(config.variables.map((v) => new VariableTreeItem(v, state[v.name])));
     }
 
-    const grouped = new Map<string, DevPanelVariable[]>();
-
-    for (const v of config.variables) {
-      const groupName = v.group ?? NO_GROUP_NAME;
-      if (!grouped.has(groupName)) {
-        grouped.set(groupName, []);
-      }
-      const group = grouped.get(groupName);
-      if (group) {
-        group.push(v);
-      }
-    }
-
+    const grouped = GroupHelper.groupItems(config.variables);
     const items: TreeItem[] = [];
 
     for (const [groupName, variables] of grouped) {
