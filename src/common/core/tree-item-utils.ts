@@ -1,13 +1,14 @@
 import type { BranchTaskItem } from '../../views/branch-tasks/task-tree-items';
 import { GLOBAL_ITEM_PREFIX } from '../constants';
 import type { LocationScope } from '../constants/enums';
+import { TypeGuardsHelper } from '../utils/helpers/type-guards-helper';
 import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
 
 export type ItemOrLineIndex = BranchTaskItem | number;
 
 export class TreeItemUtils {
   static extractLineIndex(itemOrLineIndex: ItemOrLineIndex): number {
-    return typeof itemOrLineIndex === 'number' ? itemOrLineIndex : itemOrLineIndex.node.lineIndex;
+    return TypeGuardsHelper.isNumber(itemOrLineIndex) ? itemOrLineIndex : itemOrLineIndex.node.lineIndex;
   }
 
   static isGlobalItem(name: string): boolean {

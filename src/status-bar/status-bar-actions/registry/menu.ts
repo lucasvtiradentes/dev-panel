@@ -128,14 +128,15 @@ async function installItems(workspaceFolder: WorkspaceFolder, kind: RegistryItem
         } catch (error: unknown) {
           logger.error(`Failed to install ${item.name}: ${TypeGuardsHelper.getErrorMessage(error)}`);
 
+          const choiceValue = 'Overwrite';
           const overwrite = await VscodeHelper.showToastMessage(
             ToastKind.Warning,
             `"${item.name}" already exists. Overwrite?`,
-            'Overwrite',
+            choiceValue,
             'Skip',
           );
 
-          if (overwrite === 'Overwrite') {
+          if (overwrite === choiceValue) {
             try {
               await installItem(workspaceFolder, kind, item, true);
               installed++;

@@ -115,9 +115,11 @@ async function handleExecuteTask(
   taskConfig?: NonNullable<DevPanelConfig['tasks']>[number],
 ) {
   let modifiedTask = task;
+  const scopeIsWorkspaceFolder =
+    !!scope && !TypeGuardsHelper.isNumber(scope) && TypeGuardsHelper.isObjectWithProperty(scope, 'uri');
 
   if (taskConfig?.inputs && taskConfig.inputs.length > 0) {
-    const folder = scope && typeof scope !== 'number' && 'uri' in scope ? (scope as WorkspaceFolder) : null;
+    const folder = scopeIsWorkspaceFolder ? (scope as WorkspaceFolder) : null;
     const folderForSettings = folder ?? VscodeHelper.getFirstWorkspaceFolder();
     const settings = folderForSettings ? ConfigManager.readSettings(folderForSettings) : undefined;
 
@@ -141,7 +143,7 @@ async function handleExecuteTask(
     }
   }
 
-  if (scope && typeof scope !== 'number' && 'uri' in scope) {
+  if (scopeIsWorkspaceFolder) {
     const folder = scope as WorkspaceFolder;
     const variablesPath = ConfigManager.getWorkspaceVariablesPath(folder);
     const env = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);

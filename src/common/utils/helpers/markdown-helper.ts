@@ -1,6 +1,7 @@
 import { BRANCH_CONTEXT_NA, BRANCH_CONTEXT_NO_CHANGES } from '../../constants';
 import { BranchContextMarkdownHelper } from '../../core/branch-context-markdown';
 import { FileIOHelper } from './node-helper';
+import { TypeGuardsHelper } from './type-guards-helper';
 
 export class MarkdownHelper {
   static extractField(content: string, fieldName: string): string | undefined {
@@ -70,7 +71,7 @@ export class MarkdownHelper {
   static isSectionEmpty(value: string | undefined, customNaValue?: string): boolean {
     if (!value) return true;
     const trimmed = value.trim();
-    if (trimmed === '' || trimmed === BRANCH_CONTEXT_NA) return true;
+    if (TypeGuardsHelper.isEmpty(trimmed) || trimmed === BRANCH_CONTEXT_NA) return true;
     if (customNaValue !== undefined && trimmed === customNaValue) return true;
     return false;
   }

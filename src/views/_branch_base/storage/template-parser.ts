@@ -1,6 +1,7 @@
 import { ConfigManager } from '../../../common/core/config-manager';
 import { extensionStore } from '../../../common/core/extension-store';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { getDefaultTemplate } from './default-template';
 
 export enum TemplateSectionType {
@@ -51,7 +52,7 @@ export function parseTemplate(templateContent: string): TemplateSection[] {
       const sectionName = headingMatch[1].trim();
 
       let j = i + 1;
-      while (j < lines.length && lines[j].trim() === '') j++;
+      while (j < lines.length && TypeGuardsHelper.isEmptyString(lines[j])) j++;
 
       if (j < lines.length && lines[j].trim().startsWith('```')) {
         const placeholderMatch = lines[j + 1]?.match(/\{\{([A-Z_]+)\}\}/);

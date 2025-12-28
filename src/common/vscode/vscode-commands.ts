@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import type { CommandParams } from '../../commands/command-params';
 import { getCommandId } from '../constants/functions';
+import { TypeGuardsHelper } from '../utils/helpers/type-guards-helper';
 import type { Disposable } from './vscode-types';
 
 export enum Command {
@@ -154,15 +155,15 @@ export function executeCommand<T extends Command>(
 
   if (isNativeCommand && args.length > 0) {
     const params = args[0];
-    if (command === Command.VscodeOpen && params && typeof params === 'object' && 'uri' in params) {
+    if (command === Command.VscodeOpen && TypeGuardsHelper.isObjectWithProperty(params, 'uri')) {
       const vscodeOpenParams = params as CommandParams[Command.VscodeOpen];
       return vscode.commands.executeCommand(commandId, vscodeOpenParams.uri, vscodeOpenParams.viewColumn);
     }
-    if (command === Command.VscodeSetContext && params && typeof params === 'object' && 'key' in params) {
+    if (command === Command.VscodeSetContext && TypeGuardsHelper.isObjectWithProperty(params, 'key')) {
       const setContextParams = params as CommandParams[Command.VscodeSetContext];
       return vscode.commands.executeCommand(commandId, setContextParams.key, setContextParams.value);
     }
-    if (command === Command.VscodeOpenGlobalKeybindings && params && typeof params === 'object' && 'query' in params) {
+    if (command === Command.VscodeOpenGlobalKeybindings && TypeGuardsHelper.isObjectWithProperty(params, 'query')) {
       const openKeybindingsParams = params as CommandParams[Command.VscodeOpenGlobalKeybindings];
       return vscode.commands.executeCommand(commandId, openKeybindingsParams.query);
     }

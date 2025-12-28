@@ -9,12 +9,13 @@ import {
 import { ConfigManager } from '../../common/core/config-manager';
 import { logger } from '../../common/lib/logger';
 import { NodePathHelper } from '../../common/utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { VscodeConstants, VscodeIcon } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { QuickPickItemWithId, Uri } from '../../common/vscode/vscode-types';
 
 function isRootPath(p: string): boolean {
-  return p === ROOT_FOLDER_LABEL || p === '';
+  return p === ROOT_FOLDER_LABEL || TypeGuardsHelper.isEmpty(p);
 }
 
 function joinPath(base: string, segment: string): string {
@@ -61,15 +62,16 @@ async function askToMoveConfig(fromDir: string | null, toDir: string | null): Pr
   const fromLabel = ConfigManager.getConfigDirLabel(fromDir);
   const toLabel = ConfigManager.getConfigDirLabel(toDir);
 
+  const choiceValue = 'Move';
   const result = await VscodeHelper.showToastMessage(
     ToastKind.Warning,
     `Move config from "${fromLabel}" to "${toLabel}"?`,
     { modal: true },
-    'Move',
+    choiceValue,
     'Just point to new location',
   );
 
-  return result === 'Move';
+  return result === choiceValue;
 }
 
 async function getSubfolders(dirUri: Uri): Promise<string[]> {

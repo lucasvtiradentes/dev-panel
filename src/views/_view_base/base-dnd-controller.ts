@@ -1,3 +1,4 @@
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { CancellationToken, DataTransfer, TreeDragAndDropController } from '../../common/vscode/vscode-types';
 import type { NamedTreeItem, SimpleStateManager, StateManager } from './types';
@@ -41,7 +42,7 @@ export class BaseDragAndDropController<TItem extends NamedTreeItem, TSource = vo
   }
 
   private getItemLabel(item: TItem): string {
-    return typeof item.label === 'string' ? item.label : (item.label?.label ?? '');
+    return TypeGuardsHelper.getTreeItemLabel(item);
   }
 
   private reorderItems(draggedLabel: string, targetLabel: string) {

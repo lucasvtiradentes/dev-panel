@@ -1,9 +1,8 @@
-import { CONTEXT_PREFIX } from '../../common/constants';
 import {
   type VSCodeKeybinding,
   loadKeybindings as loadVSCodeKeybindings,
 } from '../../common/vscode/vscode-keybindings-utils';
-import { getWorkspaceId } from '../../common/vscode/vscode-workspace';
+import { buildWorkspaceWhenClause, getWorkspaceId } from '../../common/vscode/vscode-workspace';
 import type { KeybindingConfig } from './types';
 
 export class KeybindingManager {
@@ -25,7 +24,7 @@ export class KeybindingManager {
 
   private matchesWorkspace(kb: VSCodeKeybinding): boolean {
     if (!this.workspaceId) return !kb.when;
-    return kb.when?.includes(`${CONTEXT_PREFIX}.workspaceId == '${this.workspaceId}'`) ?? false;
+    return kb.when?.includes(buildWorkspaceWhenClause(this.workspaceId)) ?? false;
   }
 
   getKeybinding(itemName: string): string | undefined {

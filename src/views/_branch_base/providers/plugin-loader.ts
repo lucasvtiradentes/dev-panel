@@ -115,7 +115,7 @@ export function loadTaskProvider(workspace: string, providerCommand: string): Ta
       }
 
       const parsed = JSON.parse(jsonMatch[0]);
-      if (typeof parsed !== 'object' || parsed === null) {
+      if (!TypeGuardsHelper.isObject(parsed)) {
         throw new Error('Invalid plugin response: expected object');
       }
       return parsed as T;

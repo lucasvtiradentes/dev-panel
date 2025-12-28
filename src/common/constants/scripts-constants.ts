@@ -43,6 +43,8 @@ export const METADATA_SEPARATOR_REGEX = /<!--\s*-+\s*-->/;
 export const METADATA_FIELD_IS_EMPTY = 'isEmpty';
 export const METADATA_FIELD_DESCRIPTION = 'description';
 
+export const MARKDOWN_SECTION_DESCRIPTION = 'description';
+
 export const DND_MIME_TYPE_TASKS = `application/vnd.code.tree.${CONFIG_DIR_KEY}tasks`;
 export const DND_MIME_TYPE_PROMPTS = `application/vnd.code.tree.${CONFIG_DIR_KEY}prompts`;
 export const DND_MIME_TYPE_TOOLS = `application/vnd.code.tree.${CONFIG_DIR_KEY}tools`;

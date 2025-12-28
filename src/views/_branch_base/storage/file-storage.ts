@@ -113,7 +113,7 @@ function extractAllCodeBlockSections(content: string): Record<string, CodeBlockS
     if (externalMetadataJson) {
       try {
         const parsed = JSON.parse(externalMetadataJson);
-        if (typeof parsed === 'object' && parsed !== null) {
+        if (TypeGuardsHelper.isObject(parsed)) {
           metadata = parsed as SectionMetadata;
         }
       } catch (error: unknown) {
@@ -175,7 +175,7 @@ function extractMetadata(content: string): BranchContextMetadata | undefined {
 
   try {
     const parsed = JSON.parse(match[1]);
-    if (typeof parsed === 'object' && parsed !== null) {
+    if (TypeGuardsHelper.isObject(parsed)) {
       return parsed as BranchContextMetadata;
     }
     return undefined;

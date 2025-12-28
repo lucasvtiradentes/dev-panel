@@ -1,23 +1,14 @@
-import type { ReplacementType } from './config-schema';
+import { TypeGuardsHelper } from '../utils/helpers/type-guards-helper';
 
 export type NormalizedPatchItem = {
   search: string[];
   replace: string[];
 };
 
-export type NormalizedPatchReplacement = {
-  type: ReplacementType.Patch;
-  name: string;
-  target: string;
-  description?: string;
-  group?: string;
-  patches: NormalizedPatchItem[];
-};
-
 export function normalizePatchItem(item: { search: unknown; replace: unknown }): NormalizedPatchItem {
   const normalizeValue = (value: unknown): string[] => {
     if (Array.isArray(value)) return value;
-    if (typeof value === 'string') return [value];
+    if (TypeGuardsHelper.isString(value)) return [value];
     return [];
   };
 

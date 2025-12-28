@@ -1,6 +1,7 @@
 import { BRANCH_CONTEXT_NA, CONFIG_FILE_NAME, METADATA_FIELD_IS_EMPTY } from '../constants';
 import { SectionType } from '../schemas/types';
 import { FileIOHelper } from '../utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../utils/helpers/type-guards-helper';
 import { ConfigManager } from './config-manager';
 
 export enum BranchContextError {
@@ -29,7 +30,9 @@ export class BranchContextMarkdownHelper {
     if (!value) return true;
     const trimmed = value.trim();
     return (
-      trimmed === '' || trimmed === BRANCH_CONTEXT_NA || (customNaValue !== undefined && trimmed === customNaValue)
+      TypeGuardsHelper.isEmpty(trimmed) ||
+      trimmed === BRANCH_CONTEXT_NA ||
+      (customNaValue !== undefined && trimmed === customNaValue)
     );
   }
 
@@ -49,7 +52,7 @@ export class BranchContextMarkdownHelper {
 
     if (!value) return true;
     const trimmed = value.trim();
-    if (trimmed === '' || trimmed === BRANCH_CONTEXT_NA) return true;
+    if (TypeGuardsHelper.isEmpty(trimmed) || trimmed === BRANCH_CONTEXT_NA) return true;
     return false;
   }
 

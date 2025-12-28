@@ -29,13 +29,14 @@ async function handleEditTaskText(provider: BranchTasksProvider, item: ItemOrLin
 
 async function handleDeleteBranchTask(provider: BranchTasksProvider, item: ItemOrLineIndex) {
   const lineIndex = TreeItemUtils.extractLineIndex(item);
+  const choiceValue = 'Delete';
   const confirm = await VscodeHelper.showToastMessage(
     ToastKind.Warning,
     'Delete this task?',
     { modal: true },
-    'Delete',
+    choiceValue,
   );
-  if (confirm !== 'Delete') return;
+  if (confirm !== choiceValue) return;
   await provider.deleteTask(lineIndex);
 }
 

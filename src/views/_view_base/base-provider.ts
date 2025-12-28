@@ -1,4 +1,5 @@
 import { GLOBAL_ITEM_PREFIX, NO_GROUP_NAME } from '../../common/constants';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { type ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { Event, EventEmitter, TreeDataProvider, TreeItem } from '../../common/vscode/vscode-types';
@@ -225,7 +226,7 @@ export abstract class BaseTreeDataProvider<
   }
 
   protected getItemLabel(item: TItem | TGroup): string {
-    return typeof item.label === 'string' ? item.label : (item.label?.label ?? '');
+    return TypeGuardsHelper.getTreeItemLabel(item);
   }
 
   getTreeItem(item: TItem | TGroup): TreeItem {

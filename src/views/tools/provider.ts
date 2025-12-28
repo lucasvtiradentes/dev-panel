@@ -3,6 +3,7 @@ import {
   DND_MIME_TYPE_TOOLS,
   GLOBAL_ITEM_PREFIX,
   GLOBAL_TOOL_TOOLTIP,
+  MARKDOWN_SECTION_DESCRIPTION,
   NO_GROUP_NAME,
   SHELL_SCRIPT_PATTERN,
   getCommandId,
@@ -199,7 +200,7 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     for (const line of lines) {
       if (line.startsWith('# ')) {
         const section = line.slice(2).toLowerCase().trim();
-        inDescriptionSection = section === 'description';
+        inDescriptionSection = section === MARKDOWN_SECTION_DESCRIPTION;
         continue;
       }
 

@@ -13,6 +13,7 @@ import { ConfigManager } from '../../common/core/config-manager';
 import { SimpleCache } from '../../common/lib/cache';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import type { SectionType } from '../../common/schemas/types';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { SectionRegistry } from './section-registry';
 
 const CONFIG_CACHE_TTL_MS = 5000;
@@ -73,7 +74,7 @@ export class ProviderHelpers {
     }
 
     const value = context[sectionName];
-    return typeof value === 'string' ? value : undefined;
+    return TypeGuardsHelper.isString(value) ? value : undefined;
   }
 
   isSectionEmpty(value: string | undefined, sectionType: SectionType, metadata?: Record<string, unknown>): boolean {

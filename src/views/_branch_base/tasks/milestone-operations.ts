@@ -4,8 +4,9 @@ import {
   TASK_ITEM_PATTERN,
   TODO_SECTION_HEADER_PATTERN,
 } from '../../../common/constants';
-import type { Position } from '../../../common/constants/enums';
+import { Position } from '../../../common/constants/enums';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import type { MilestoneNode, SyncContext, TaskNode } from '../providers/interfaces';
 import { fromMarkdownWithOffset } from './task-markdown';
 
@@ -95,7 +96,7 @@ export function moveTaskToMilestone(taskLineIndex: number, targetMilestoneName: 
   for (let i = actualLineIndex + 1; i < sectionEndIndex; i++) {
     const match = lines[i].match(TASK_ITEM_PATTERN);
     if (!match) {
-      if (lines[i].trim() === '' || MILESTONE_HEADER_PATTERN.test(lines[i])) break;
+      if (TypeGuardsHelper.isEmptyString(lines[i]) || MILESTONE_HEADER_PATTERN.test(lines[i])) break;
       continue;
     }
     const lineIndent = Math.floor(match[1].length / 2);
@@ -182,7 +183,7 @@ export function createMilestone(name: string, context: SyncContext) {
 
   let insertIndex = sectionEndIndex;
   for (let i = sectionEndIndex - 1; i > todoSectionIndex; i--) {
-    if (lines[i].trim() !== '') {
+    if (TypeGuardsHelper.isNonEmptyString(lines[i])) {
       insertIndex = i + 1;
       break;
     }
@@ -224,7 +225,7 @@ export function reorderTask(taskLineIndex: number, targetLineIndex: number, posi
   for (let i = actualTaskIndex + 1; i < sectionEndIndex; i++) {
     const match = lines[i].match(TASK_ITEM_PATTERN);
     if (!match) {
-      if (lines[i].trim() === '' || MILESTONE_HEADER_PATTERN.test(lines[i])) break;
+      if (TypeGuardsHelper.isEmptyString(lines[i]) || MILESTONE_HEADER_PATTERN.test(lines[i])) break;
       continue;
     }
     const lineIndent = Math.floor(match[1].length / 2);
@@ -248,7 +249,7 @@ export function reorderTask(taskLineIndex: number, targetLineIndex: number, posi
   for (let i = newTargetIndex + 1; i < lines.length; i++) {
     const match = lines[i].match(TASK_ITEM_PATTERN);
     if (!match) {
-      if (lines[i].trim() === '' || MILESTONE_HEADER_PATTERN.test(lines[i])) break;
+      if (TypeGuardsHelper.isEmptyString(lines[i]) || MILESTONE_HEADER_PATTERN.test(lines[i])) break;
       continue;
     }
     const lineIndent = Math.floor(match[1].length / 2);
@@ -267,7 +268,7 @@ export function reorderTask(taskLineIndex: number, targetLineIndex: number, posi
     return line.replace(/^(\s*)/, newIndent);
   });
 
-  const insertIndex = position === 'before' ? newTargetIndex : targetEndIndex;
+  const insertIndex = position === Position.Before ? newTargetIndex : targetEndIndex;
   lines.splice(insertIndex, 0, ...adjustedTaskLines);
 
   FileIOHelper.writeFile(context.markdownPath, lines.join('\n'));

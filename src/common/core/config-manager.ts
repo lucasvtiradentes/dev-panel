@@ -268,23 +268,25 @@ export class ConfigManager {
   }
 
   static async confirmOverwrite(itemType: string, itemName: string): Promise<boolean> {
+    const choiceValue = 'Overwrite';
     const choice = await VscodeHelper.showToastMessage(
       ToastKind.Warning,
       `${itemType} "${itemName}" already exists. Overwrite?`,
-      'Overwrite',
+      choiceValue,
       'Cancel',
     );
-    return choice === 'Overwrite';
+    return choice === choiceValue;
   }
 
   static async confirmDelete(itemType: string, itemName: string, isGlobal: boolean): Promise<boolean> {
+    const choiceValue = 'Delete';
     const choice = await VscodeHelper.showToastMessage(
       ToastKind.Warning,
       `Are you sure you want to delete ${itemType} "${itemName}"${isGlobal ? ' (global)' : ''}?`,
       { modal: true },
-      'Delete',
+      choiceValue,
     );
-    return choice === 'Delete';
+    return choice === choiceValue;
   }
 
   static addOrUpdateConfigItem(config: DevPanelConfig, arrayKey: ConfigArrayKey, item: ConfigArrayItem): boolean {

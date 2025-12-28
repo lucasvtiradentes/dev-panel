@@ -1,6 +1,7 @@
 import { CONTEXT_VALUES, DND_MIME_TYPE_BRANCH_TASKS, getCommandId } from '../../common/constants';
 import { createLogger } from '../../common/lib/logger';
 import { TaskStatus } from '../../common/schemas/types';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -131,7 +132,7 @@ export class BranchTasksDragAndDropController implements TreeDragAndDropControll
     let dragData: DragData;
     try {
       const parsed = JSON.parse(transferItem.value as string);
-      if (typeof parsed !== 'object' || parsed === null || parsed.type !== DragItemType.Task) {
+      if (!TypeGuardsHelper.isObject(parsed) || parsed.type !== DragItemType.Task) {
         logger.info('[handleDrop] Ignoring drop - invalid drag data');
         return;
       }

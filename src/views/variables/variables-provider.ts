@@ -16,6 +16,7 @@ import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { execAsync } from '../../common/utils/functions/exec-async';
 import { GroupHelper } from '../../common/utils/helpers/group-helper';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
@@ -44,7 +45,7 @@ function loadState(): PpState {
   try {
     const content = FileIOHelper.readFile(statePath);
     const parsed = JSON.parse(content);
-    if (typeof parsed !== 'object' || parsed === null) {
+    if (!TypeGuardsHelper.isObject(parsed)) {
       return {};
     }
     return parsed as PpState;
@@ -66,7 +67,7 @@ function formatValue(value: unknown, variable: DevPanelVariable): string {
     }
     return DESCRIPTION_NOT_SET;
   }
-  if (typeof value === 'boolean') return value ? ToggleLabel.On : ToggleLabel.Off;
+  if (TypeGuardsHelper.isBoolean(value)) return value ? ToggleLabel.On : ToggleLabel.Off;
   if (Array.isArray(value)) return value.length > 0 ? value.join(', ') : '(none)';
   return String(value);
 }

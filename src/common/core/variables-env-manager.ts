@@ -1,5 +1,6 @@
 import { readJsoncFile } from '../utils/functions/read-jsonc-file';
 import { FileIOHelper } from '../utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../utils/helpers/type-guards-helper';
 
 export class VariablesEnvManager {
   static loadVariablesFromPath(variablesPath: string): Record<string, unknown> | null {
@@ -18,7 +19,7 @@ export class VariablesEnvManager {
 
     const env: Record<string, string> = {};
     for (const [key, value] of Object.entries(variables)) {
-      const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+      const stringValue = TypeGuardsHelper.isObjectLike(value) ? JSON.stringify(value) : String(value);
       env[key] = stringValue;
     }
     return env;

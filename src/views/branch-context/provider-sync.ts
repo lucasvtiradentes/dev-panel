@@ -187,7 +187,7 @@ export class SyncManager {
       if (changedFilesConfig !== false) {
         logger.info(`[syncBranchContext] Fetching changedFiles (+${Date.now() - startTime}ms)`);
 
-        if (typeof changedFilesConfig === 'object' && changedFilesConfig.provider) {
+        if (TypeGuardsHelper.isObjectWithProperty(changedFilesConfig, 'provider')) {
           const registry = this.helpers.getSectionRegistry(workspace, config, changedFilesConfig);
           const changedFilesSection = registry.get(SECTION_NAME_CHANGED_FILES);
 
@@ -200,7 +200,7 @@ export class SyncManager {
             if (metadataMatch) {
               try {
                 const parsed = JSON.parse(metadataMatch[1]);
-                if (typeof parsed === 'object' && parsed !== null) {
+                if (TypeGuardsHelper.isObject(parsed)) {
                   changedFilesSectionMetadata = parsed as Record<string, unknown>;
                   changedFiles = data.replace(METADATA_SECTION_REGEX_GLOBAL, '').trim();
                 }

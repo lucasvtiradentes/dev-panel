@@ -14,6 +14,7 @@ import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext } from '../../../common/schemas/types';
 import { replaceTemplatePlaceholders } from '../../../common/utils/functions/template-replace';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import { detectBranchType, generateBranchTypeCheckboxes } from './branch-type-utils';
 import { loadTemplate } from './template-parser';
@@ -77,7 +78,7 @@ export async function generateBranchContextMarkdown(
   };
 
   for (const [key, value] of Object.entries(context)) {
-    if (typeof value === 'string' && !(key in replacements)) {
+    if (TypeGuardsHelper.isString(value) && !(key in replacements)) {
       const placeholderKey = key.toUpperCase().replace(/\s+/g, '_');
       replacements[placeholderKey] = value;
       logger.info(`[generateBranchContextMarkdown] Added custom replacement: ${placeholderKey}`);

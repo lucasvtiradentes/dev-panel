@@ -1,5 +1,6 @@
 import { METADATA_SECTION_REGEX_CAPTURE, METADATA_SECTION_REGEX_GLOBAL } from '../../constants';
 import { createLogger } from '../../lib/logger';
+import { TypeGuardsHelper } from '../helpers/type-guards-helper';
 
 const logger = createLogger('MetadataExtractor');
 
@@ -11,7 +12,7 @@ export function extractSectionMetadata(content: string): { cleanContent: string;
 
   try {
     const parsed = JSON.parse(metadataMatch[1]);
-    if (typeof parsed === 'object' && parsed !== null) {
+    if (TypeGuardsHelper.isObject(parsed)) {
       const metadata = parsed as Record<string, unknown>;
       const cleanContent = content.replace(METADATA_SECTION_REGEX_GLOBAL, '').trim();
       logger.info(

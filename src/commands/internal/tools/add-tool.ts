@@ -9,10 +9,17 @@ import {
 } from '../../../common/constants';
 import { ConfigManager } from '../../../common/core/config-manager';
 import type { DevPanelConfig } from '../../../common/schemas';
+import { findClosingBracketIndex } from '../../../common/utils/functions/find-closing-bracket';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
+
+enum OpenFileOption {
+  Instructions = 'instructions',
+  Config = 'config',
+  Done = 'done',
+}
 
 async function handleAddTool() {
   const workspaceFolder = VscodeHelper.requireWorkspaceFolder();
@@ -90,17 +97,7 @@ async function handleAddTool() {
 
   const matchIndex = toolsStartMatch.index;
   const startIndex = matchIndex + toolsStartMatch[0].length;
-  let bracketCount = 1;
-  let endIndex = startIndex;
-
-  for (let i = startIndex; i < configContent.length; i++) {
-    if (configContent[i] === '[') bracketCount++;
-    if (configContent[i] === ']') bracketCount--;
-    if (bracketCount === 0) {
-      endIndex = i;
-      break;
-    }
-  }
+  const endIndex = findClosingBracketIndex(configContent, startIndex);
 
   const toolJson = JSON.stringify(newTool, null, JSON_INDENT_SPACES)
     .split('\n')
@@ -164,17 +161,17 @@ ${command}
 
   const openFile = await VscodeHelper.showQuickPickItems(
     [
-      { label: `Open ${TOOL_INSTRUCTIONS_FILE}`, value: 'instructions' },
-      { label: `Open ${CONFIG_FILE_NAME}`, value: 'config' },
-      { label: 'Done', value: 'done' },
+      { label: `Open ${TOOL_INSTRUCTIONS_FILE}`, value: OpenFileOption.Instructions },
+      { label: `Open ${CONFIG_FILE_NAME}`, value: OpenFileOption.Config },
+      { label: 'Done', value: OpenFileOption.Done },
     ],
     { placeHolder: 'What would you like to open?' },
   );
 
-  if (openFile?.value === 'instructions') {
+  if (openFile?.value === OpenFileOption.Instructions) {
     const uri = VscodeHelper.createFileUri(instructionsPath);
     await VscodeHelper.openDocument(uri);
-  } else if (openFile?.value === 'config') {
+  } else if (openFile?.value === OpenFileOption.Config) {
     const uri = VscodeHelper.createFileUri(configPath);
     await VscodeHelper.openDocument(uri);
   }

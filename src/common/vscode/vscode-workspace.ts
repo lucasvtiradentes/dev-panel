@@ -31,6 +31,10 @@ export function setWorkspaceId(id: string) {
   currentWorkspaceId = id;
 }
 
+export function buildWorkspaceWhenClause(workspaceId: string): string {
+  return `${CONTEXT_PREFIX}.workspaceId == '${workspaceId}'`;
+}
+
 export enum ExtensionConfigKey {
   AutoRefresh = 'autorefresh',
 }

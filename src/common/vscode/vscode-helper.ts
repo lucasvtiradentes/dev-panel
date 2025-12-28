@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { TypeGuardsHelper } from '../utils/helpers/type-guards-helper';
 import type { VscodeColor, VscodeColorString, VscodeIcon, VscodeIconString } from './vscode-constants';
 import type { ThemeIcon, TreeView, Uri, WorkspaceFolder } from './vscode-types';
 
@@ -73,7 +74,7 @@ export class VscodeHelper {
     optionsOrFirstItem?: vscode.MessageOptions | string,
     ...items: string[]
   ): Thenable<string | undefined> {
-    const isOptions = typeof optionsOrFirstItem === 'object';
+    const isOptions = TypeGuardsHelper.isObject(optionsOrFirstItem);
     const options = isOptions ? optionsOrFirstItem : undefined;
     const allItems = isOptions
       ? items

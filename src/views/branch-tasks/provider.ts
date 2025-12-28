@@ -6,6 +6,7 @@ import { logger } from '../../common/lib/logger';
 import type { TaskPriority, TaskStatus } from '../../common/schemas';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, Uri } from '../../common/vscode/vscode-types';
@@ -49,7 +50,7 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
     const tasksConfig = config?.branchContext?.builtinSections?.tasks;
     this.taskProvider = createTaskProvider(tasksConfig, workspace ?? undefined);
     void setContextKey(ContextKey.BranchTasksHasFilter, false);
-    const hasExternalProvider = typeof tasksConfig === 'object' && 'provider' in tasksConfig;
+    const hasExternalProvider = TypeGuardsHelper.isObjectWithProperty(tasksConfig, 'provider');
     void setContextKey(ContextKey.BranchTasksHasExternalProvider, hasExternalProvider);
   }
 

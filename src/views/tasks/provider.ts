@@ -1,6 +1,7 @@
 import { DND_MIME_TYPE_TASKS, NO_GROUP_NAME } from '../../common/constants';
 import { TASK_SOURCES, TaskSource } from '../../common/schemas/types';
 import { tasksState } from '../../common/state';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { Event, EventEmitter, TreeDataProvider, TreeItem, TreeView } from '../../common/vscode/vscode-types';
@@ -163,13 +164,8 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
     const order = getOrder(this._source, this._grouped);
 
     elements.sort((a, b) => {
-      const getLabel = (item: WorkspaceTreeItem | GroupTreeItem | TreeTask): string => {
-        const label = typeof item.label === 'string' ? item.label : (item.label?.label ?? '');
-        return label;
-      };
-
-      const aLabel = getLabel(a);
-      const bLabel = getLabel(b);
+      const aLabel = TypeGuardsHelper.getTreeItemLabel(a);
+      const bLabel = TypeGuardsHelper.getTreeItemLabel(b);
 
       const aIndex = order.indexOf(aLabel);
       const bIndex = order.indexOf(bLabel);
