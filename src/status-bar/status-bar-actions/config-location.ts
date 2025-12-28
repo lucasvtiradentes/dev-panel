@@ -6,8 +6,8 @@ import {
   QUICK_PICK_ACTION_SEPARATOR,
   ROOT_FOLDER_LABEL,
 } from '../../common/constants';
+import { ConfigManager } from '../../common/core/config-manager';
 import { logger } from '../../common/lib/logger';
-import { ConfigManager } from '../../common/utils/config-manager';
 import { NodePathHelper } from '../../common/utils/helpers/node-helper';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';

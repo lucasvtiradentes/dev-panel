@@ -1,6 +1,6 @@
 import { CONFIG_FILE_NAME } from '../../../common/constants';
 import { BranchContextMarkdownHelper } from '../../../common/core/branch-context-markdown';
-import { ConfigManager } from '../../../common/utils/config-manager';
+import { ConfigManager } from '../../../common/core/config-manager';
 import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';

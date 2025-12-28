@@ -7,6 +7,7 @@ import {
   CONFIG_FILE_NAME,
   getGlobalConfigDir,
 } from '../../common/constants/scripts-constants';
+import { ConfigManager } from '../../common/core/config-manager';
 import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
 import {
@@ -16,7 +17,6 @@ import {
   PromptExecutionMode,
   getAIProvidersListFormatted,
 } from '../../common/schemas';
-import { ConfigManager } from '../../common/utils/config-manager';
 import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { TaskUtils } from '../../common/utils/task-utils';

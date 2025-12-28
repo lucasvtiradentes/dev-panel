@@ -10,9 +10,9 @@ import {
   VARIABLES_FILE_NAME,
   getCommandId,
 } from '../../common/constants';
+import { ConfigManager } from '../../common/core/config-manager';
 import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
-import { ConfigManager } from '../../common/utils/config-manager';
 import { execAsync } from '../../common/utils/functions/exec-async';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { Command } from '../../common/vscode/vscode-commands';

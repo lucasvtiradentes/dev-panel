@@ -5,9 +5,9 @@ import {
   VSCODE_TASKS_PATH,
   getVscodeTasksFilePath,
 } from '../../../common/constants';
+import { ConfigManager } from '../../../common/core/config-manager';
 import { PackageJsonHelper } from '../../../common/core/package-json-helper';
 import { TaskSource } from '../../../common/schemas/types';
-import { ConfigManager } from '../../../common/utils/config-manager';
 import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';

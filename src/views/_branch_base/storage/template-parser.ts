@@ -1,5 +1,5 @@
+import { ConfigManager } from '../../../common/core/config-manager';
 import { extensionStore } from '../../../common/core/extension-store';
-import { ConfigManager } from '../../../common/utils/config-manager';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { getDefaultTemplate } from './default-template';
 

@@ -8,10 +8,10 @@ import {
   NO_GROUP_NAME,
   getCommandId,
 } from '../../common/constants';
+import { ConfigManager } from '../../common/core/config-manager';
 import { Git } from '../../common/lib/git';
 import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
-import { ConfigManager } from '../../common/utils/config-manager';
 import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';

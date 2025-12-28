@@ -7,8 +7,8 @@ import {
   getTaskCommandId,
   getTaskCommandPrefix,
 } from '../../common/constants';
+import { ConfigManager } from '../../common/core/config-manager';
 import { syncKeybindings } from '../../common/core/keybindings-sync';
-import { ConfigManager } from '../../common/utils/config-manager';
 import { registerDynamicCommand } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';

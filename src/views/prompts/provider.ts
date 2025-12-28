@@ -7,10 +7,10 @@ import {
   getCommandId,
   getGlobalPromptFilePath,
 } from '../../common/constants';
+import { ConfigManager } from '../../common/core/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import type { DevPanelConfig } from '../../common/schemas';
 import { globalPromptsState, promptsState } from '../../common/state';
-import { ConfigManager } from '../../common/utils/config-manager';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ContextKey } from '../../common/vscode/vscode-context';

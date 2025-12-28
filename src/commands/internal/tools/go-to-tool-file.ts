@@ -1,5 +1,5 @@
 import { GLOBAL_ITEM_PREFIX, getGlobalToolInstructionsPath } from '../../../common/constants';
-import { ConfigManager } from '../../../common/utils/config-manager';
+import { ConfigManager } from '../../../common/core/config-manager';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';

@@ -8,10 +8,10 @@ import {
   METADATA_SEPARATOR,
   METADATA_SUFFIX,
 } from '../../../common/constants';
+import { ConfigManager } from '../../../common/core/config-manager';
 import { Git } from '../../../common/lib/git';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext } from '../../../common/schemas/types';
-import { ConfigManager } from '../../../common/utils/config-manager';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import { detectBranchType, generateBranchTypeCheckboxes } from './branch-type-utils';

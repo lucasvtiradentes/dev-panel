@@ -1,6 +1,6 @@
 import { ConfigKey, LocationScope, getGlobalPromptFilePath } from '../../../common/constants';
+import { ConfigManager } from '../../../common/core/config-manager';
 import type { DevPanelPrompt } from '../../../common/schemas';
-import { ConfigManager } from '../../../common/utils/config-manager';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import {
   isGlobalItem,

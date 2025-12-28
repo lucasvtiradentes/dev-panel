@@ -7,10 +7,10 @@ import {
   SYNC_DEBOUNCE_MS,
   WRITING_MARKDOWN_TIMEOUT_MS,
 } from '../../common/constants';
+import { ConfigManager } from '../../common/core/config-manager';
 import { StoreKey, extensionStore } from '../../common/core/extension-store';
 import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
-import { ConfigManager } from '../../common/utils/config-manager';
 import { execAsync } from '../../common/utils/functions/exec-async';
 import { extractSectionMetadata } from '../../common/utils/functions/extract-section-metadata';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';

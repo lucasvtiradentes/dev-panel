@@ -8,10 +8,10 @@ import {
   getCommandId,
   getGlobalConfigDir,
 } from '../../common/constants';
+import { ConfigManager } from '../../common/core/config-manager';
 import type { DevPanelConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
 import { globalTasksState } from '../../common/state';
-import { ConfigManager } from '../../common/utils/config-manager';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';

@@ -12,10 +12,10 @@ import {
 } from '../constants';
 import type { DevPanelConfig } from '../schemas';
 import { toolsState } from '../state';
-import { ConfigManager } from '../utils/config-manager';
 import { FileIOHelper, NodePathHelper } from '../utils/helpers/node-helper';
 import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
 import type { WorkspaceFolder } from '../vscode/vscode-types';
+import { ConfigManager } from './config-manager';
 
 type ToolInstruction = {
   id: string;

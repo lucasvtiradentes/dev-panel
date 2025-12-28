@@ -10,9 +10,9 @@ import {
   SECTION_NAME_TASKS,
 } from '../../common/constants';
 import { BRANCH_CONTEXT_NA } from '../../common/constants/scripts-constants';
+import { ConfigManager } from '../../common/core/config-manager';
 import { SimpleCache } from '../../common/lib/cache';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
-import { ConfigManager } from '../../common/utils/config-manager';
 import { SectionRegistry } from './section-registry';
 
 const CONFIG_CACHE_TTL_MS = 5000;

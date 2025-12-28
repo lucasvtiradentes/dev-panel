@@ -1,4 +1,4 @@
-import { ConfigManager } from '../../../common/utils/config-manager';
+import { ConfigManager } from '../../../common/core/config-manager';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 

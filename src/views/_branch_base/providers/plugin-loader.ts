@@ -1,6 +1,6 @@
+import { ConfigManager } from '../../../common/core/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import { PluginAction, TaskStatus } from '../../../common/schemas';
-import { ConfigManager } from '../../../common/utils/config-manager';
 import { execAsync } from '../../../common/utils/functions/exec-async';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
