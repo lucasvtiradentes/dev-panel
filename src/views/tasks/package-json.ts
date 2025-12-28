@@ -1,3 +1,4 @@
+import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
 import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
@@ -11,7 +12,6 @@ import {
 import { TaskSource } from '../../common/schemas/types';
 import { ConfigManager } from '../../common/utils/config-manager';
 import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
-import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -280,7 +280,7 @@ function createNpmTask(options: {
   if (showOnlyFavorites && !favorite) return null;
 
   const variablesPath = ConfigManager.getWorkspaceVariablesPath(folder);
-  const env = readDevPanelVariablesAsEnv(variablesPath);
+  const env = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);
   const shellExec = VscodeHelper.createShellExecution(`${NPM_RUN_COMMAND} ${name}`, { cwd, env });
   const task = VscodeHelper.createTask({ type: 'npm' }, folder, name, 'npm', shellExec);
   const displayName = useDisplayName && name.includes(':') ? name.split(':').slice(1).join(':') : name;

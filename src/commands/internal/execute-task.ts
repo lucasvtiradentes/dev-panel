@@ -1,3 +1,4 @@
+import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
 import { execAsync } from 'src/common/utils/functions/exec-async';
 import { GLOBAL_ITEM_PREFIX, GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
 import {
@@ -19,7 +20,6 @@ import { ConfigManager } from '../../common/utils/config-manager';
 import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { TaskUtils } from '../../common/utils/task-utils';
-import { loadVariablesFromPath, readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { Command, registerCommand } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -79,7 +79,7 @@ async function handleExecuteTask(
   if (scope && typeof scope !== 'number' && 'uri' in scope) {
     const folder = scope as WorkspaceFolder;
     const variablesPath = ConfigManager.getWorkspaceVariablesPath(folder);
-    const env = readDevPanelVariablesAsEnv(variablesPath);
+    const env = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);
 
     if (Object.keys(env).length > 0) {
       modifiedTask = TaskUtils.cloneWithEnv(modifiedTask, env);
@@ -128,7 +128,9 @@ function handleExecuteTool(context: ExtensionContext, item: TreeTool | Task) {
     if (isGlobal) {
       toolConfig = globalConfig?.tools?.find((t) => t.name === actualName);
       cwd = folder ? folder.uri.fsPath : getGlobalConfigDir();
-      env = readDevPanelVariablesAsEnv(NodePathHelper.join(getGlobalConfigDir(), 'variables.json5'));
+      env = VariablesEnvManager.readDevPanelVariablesAsEnv(
+        NodePathHelper.join(getGlobalConfigDir(), 'variables.json5'),
+      );
     } else {
       if (!folder) {
         void VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
@@ -138,7 +140,7 @@ function handleExecuteTool(context: ExtensionContext, item: TreeTool | Task) {
       toolConfig = config?.tools?.find((t) => t.name === actualName);
       const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
       cwd = toolConfig?.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
-      env = readDevPanelVariablesAsEnv(ConfigManager.getWorkspaceVariablesPath(folder));
+      env = VariablesEnvManager.readDevPanelVariablesAsEnv(ConfigManager.getWorkspaceVariablesPath(folder));
     }
 
     if (!toolConfig?.command) {
@@ -205,7 +207,9 @@ async function handleExecutePrompt({ promptFilePath, folder, promptConfig }: Exe
   const settings = folderForSettings ? ConfigManager.readSettings(folderForSettings) : undefined;
   log.info(`settings: ${JSON.stringify(settings)}`);
 
-  const variables = folder ? loadVariablesFromPath(ConfigManager.getWorkspaceVariablesPath(folder)) : null;
+  const variables = folder
+    ? VariablesEnvManager.loadVariablesFromPath(ConfigManager.getWorkspaceVariablesPath(folder))
+    : null;
   if (variables) {
     promptContent = TaskUtils.replaceVariablePlaceholders(promptContent, variables);
   }

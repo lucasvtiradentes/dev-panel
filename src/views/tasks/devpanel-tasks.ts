@@ -1,3 +1,4 @@
+import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
 import {
   CONFIG_DIR_KEY,
   CONTEXT_VALUES,
@@ -11,7 +12,6 @@ import type { DevPanelConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
 import { globalTasksState } from '../../common/state';
 import { ConfigManager } from '../../common/utils/config-manager';
-import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -116,7 +116,7 @@ function createDevPanelTask(
   if (showOnlyFavorites && !favorite) return null;
 
   const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
-  const env = readDevPanelVariablesAsEnv(configDirPath);
+  const env = VariablesEnvManager.readDevPanelVariablesAsEnv(configDirPath);
   const cwd = task.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
   const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd });
   const vsTask = VscodeHelper.createTask(
@@ -176,7 +176,7 @@ function createGlobalTask(
   if (showOnlyFavorites && !favorite) return null;
 
   const globalConfigDir = getGlobalConfigDir();
-  const env = readDevPanelVariablesAsEnv(globalConfigDir);
+  const env = VariablesEnvManager.readDevPanelVariablesAsEnv(globalConfigDir);
   const cwd = globalConfigDir;
   const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd });
 

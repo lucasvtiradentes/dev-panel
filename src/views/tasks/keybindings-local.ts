@@ -1,3 +1,4 @@
+import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
 import { NodePathHelper } from 'src/common/utils/helpers/node-helper';
 import {
   CONFIG_DIR_KEY,
@@ -8,7 +9,6 @@ import {
 } from '../../common/constants';
 import { syncKeybindings } from '../../common/core/keybindings-sync';
 import { ConfigManager } from '../../common/utils/config-manager';
-import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
 import { registerDynamicCommand } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -46,7 +46,7 @@ export function registerTaskKeybindings(context: ExtensionContext) {
     for (const task of globalTasks) {
       const commandId = getTaskCommandId(task.name);
       const variablesPath = NodePathHelper.join(globalConfigDir, 'variables.json5');
-      const env = readDevPanelVariablesAsEnv(variablesPath);
+      const env = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);
       const disposable = registerDynamicCommand(commandId, () => {
         const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd: globalConfigDir });
         const vsTask = VscodeHelper.createTask(
