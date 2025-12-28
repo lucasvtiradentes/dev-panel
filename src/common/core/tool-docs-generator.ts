@@ -10,6 +10,7 @@ import {
   getSkillDir,
   getSkillFilePath,
 } from '../constants';
+import { DocSection } from '../constants/enums';
 import type { DevPanelConfig } from '../schemas';
 import { toolsState } from '../state';
 import { FileIOHelper, NodePathHelper } from '../utils/helpers/node-helper';
@@ -54,7 +55,7 @@ export class ToolDocsGenerator {
 
       if (line.startsWith('```')) {
         if (inCodeBlock) {
-          if (currentSection === 'examples' && exampleBuffer.length > 0) {
+          if (currentSection === DocSection.Examples && exampleBuffer.length > 0) {
             if (!instruction.example) {
               instruction.example = exampleBuffer.join('\n');
             }
@@ -66,7 +67,7 @@ export class ToolDocsGenerator {
       }
 
       if (inCodeBlock) {
-        if (currentSection === 'examples') {
+        if (currentSection === DocSection.Examples) {
           exampleBuffer.push(line);
         }
         continue;
@@ -75,32 +76,32 @@ export class ToolDocsGenerator {
       const trimmed = line.trim();
       if (!trimmed || trimmed.startsWith('#')) continue;
 
-      if (currentSection === 'description') {
+      if (currentSection === DocSection.Description) {
         descriptionBuffer.push(trimmed);
       }
 
-      if (currentSection === 'when to use it?') {
+      if (currentSection === DocSection.WhenToUse) {
         if (trimmed.startsWith('-')) {
           const text = trimmed.slice(1).trim();
           whenBuffer.push(text);
         }
       }
 
-      if (currentSection === 'rules') {
+      if (currentSection === DocSection.Rules) {
         if (trimmed.startsWith('-')) {
           const text = trimmed.slice(1).trim();
           rulesBuffer.push(text);
         }
       }
 
-      if (currentSection === 'notes') {
+      if (currentSection === DocSection.Notes) {
         if (trimmed.startsWith('-')) {
           const text = trimmed.slice(1).trim();
           notesBuffer.push(text);
         }
       }
 
-      if (currentSection === 'troubleshooting') {
+      if (currentSection === DocSection.Troubleshooting) {
         if (trimmed.startsWith('-')) {
           const text = trimmed.slice(1).trim();
           troubleshootingBuffer.push(text);
@@ -206,7 +207,7 @@ export class ToolDocsGenerator {
 
       if (!inCodeBlock && line.startsWith('# ')) {
         const section = line.slice(2).toLowerCase().trim();
-        if (section === 'description') {
+        if (section === DocSection.Description) {
           skipNextSection = true;
           continue;
         }

@@ -12,6 +12,7 @@ import { BranchContextMarkdownHelper } from '../../common/core/branch-context-ma
 import { ConfigManager } from '../../common/core/config-manager';
 import { SimpleCache } from '../../common/lib/cache';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
+import type { SectionType } from '../../common/schemas/types';
 import { SectionRegistry } from './section-registry';
 
 const CONFIG_CACHE_TTL_MS = 5000;
@@ -75,7 +76,7 @@ export class ProviderHelpers {
     return typeof value === 'string' ? value : undefined;
   }
 
-  isSectionEmpty(value: string | undefined, sectionType: string, metadata?: Record<string, unknown>): boolean {
+  isSectionEmpty(value: string | undefined, sectionType: SectionType, metadata?: Record<string, unknown>): boolean {
     return BranchContextMarkdownHelper.isSectionEmpty(value, sectionType, metadata);
   }
 }

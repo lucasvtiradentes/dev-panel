@@ -1,6 +1,6 @@
 import { MARKDOWN_SECTION_HEADER_PATTERN, TODO_SECTION_HEADER_PATTERN } from '../../../../common/constants';
 import type { Position } from '../../../../common/constants/enums';
-import type { TaskStatus } from '../../../../common/schemas';
+import { TaskStatus } from '../../../../common/schemas';
 import { FileIOHelper } from '../../../../common/utils/helpers/node-helper';
 import * as milestoneOps from '../../tasks/milestone-operations';
 import * as taskCrud from '../../tasks/task-crud';
@@ -56,7 +56,7 @@ export class DefaultTaskProvider implements TaskSyncProvider {
 
     for (const node of nodes) {
       total++;
-      if (node.status === 'done') completed++;
+      if (node.status === TaskStatus.Done) completed++;
 
       const childStats = this.countTaskStats(node.children);
       completed += childStats.completed;

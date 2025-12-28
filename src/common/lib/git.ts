@@ -1,4 +1,5 @@
 import { BASE_BRANCH, BRANCH_CONTEXT_NO_CHANGES, ChangedFilesStyle, NOT_GIT_REPO_MESSAGE } from '../constants';
+import { GitFileStatus } from '../constants/enums';
 import { execAsync } from '../utils/functions/exec-async';
 import { VscodeHelper } from '../vscode/vscode-helper';
 import type { Event } from '../vscode/vscode-types';
@@ -124,11 +125,11 @@ export class Git {
     let deleted = 0;
 
     for (const status of statusMap.values()) {
-      if (status === 'A') added++;
-      else if (status === 'M') modified++;
-      else if (status === 'D') deleted++;
-      else if (status === 'R') modified++;
-      else if (status === 'C') added++;
+      if (status === GitFileStatus.Added) added++;
+      else if (status === GitFileStatus.Modified) modified++;
+      else if (status === GitFileStatus.Deleted) deleted++;
+      else if (status === GitFileStatus.Renamed) modified++;
+      else if (status === GitFileStatus.Copied) added++;
     }
 
     return { added, modified, deleted };

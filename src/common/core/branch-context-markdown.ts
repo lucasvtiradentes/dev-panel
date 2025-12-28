@@ -1,4 +1,5 @@
 import { BRANCH_CONTEXT_NA, CONFIG_FILE_NAME, METADATA_FIELD_IS_EMPTY } from '../constants';
+import { SectionType } from '../schemas/types';
 import { FileIOHelper } from '../utils/helpers/node-helper';
 import { ConfigManager } from './config-manager';
 
@@ -36,8 +37,12 @@ export class BranchContextMarkdownHelper {
     return !BranchContextMarkdownHelper.isFieldEmpty(value, customNaValue);
   }
 
-  static isSectionEmpty(value: string | undefined, sectionType: string, metadata?: Record<string, unknown>): boolean {
-    if (sectionType === 'auto') {
+  static isSectionEmpty(
+    value: string | undefined,
+    sectionType: SectionType,
+    metadata?: Record<string, unknown>,
+  ): boolean {
+    if (sectionType === SectionType.Auto) {
       if (metadata && metadata[METADATA_FIELD_IS_EMPTY] === true) return true;
       return false;
     }

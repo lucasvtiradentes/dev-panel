@@ -189,14 +189,14 @@ export class SectionRegistry {
   }
 
   getAutoSections(): SectionDefinition[] {
-    return this.getAllSections().filter((s) => s.type === 'auto');
+    return this.getAllSections().filter((s) => s.type === SectionType.Auto);
   }
 
   getFieldSections(): SectionDefinition[] {
-    return this.getAllSections().filter((s) => s.type === 'field');
+    return this.getAllSections().filter((s) => s.type === SectionType.Field);
   }
 
   getTextSections(): SectionDefinition[] {
-    return this.getAllSections().filter((s) => s.type === 'text');
+    return this.getAllSections().filter((s) => s.type === SectionType.Text);
   }
 }

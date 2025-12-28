@@ -6,6 +6,7 @@ import {
   DEFAULT_INCLUDES,
   DESCRIPTION_NOT_SET,
   ERROR_VARIABLE_COMMAND_FAILED,
+  ToggleLabel,
   VARIABLES_FILE_NAME,
   getCommandId,
 } from '../../common/constants';
@@ -65,7 +66,7 @@ function formatValue(value: unknown, variable: DevPanelVariable): string {
     }
     return DESCRIPTION_NOT_SET;
   }
-  if (typeof value === 'boolean') return value ? 'ON' : 'OFF';
+  if (typeof value === 'boolean') return value ? ToggleLabel.On : ToggleLabel.Off;
   if (Array.isArray(value)) return value.length > 0 ? value.join(', ') : '(none)';
   return String(value);
 }

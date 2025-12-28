@@ -1,5 +1,6 @@
 import { CONTEXT_VALUES, DND_MIME_TYPE_BRANCH_TASKS, getCommandId } from '../../common/constants';
 import { createLogger } from '../../common/lib/logger';
+import { TaskStatus } from '../../common/schemas/types';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -82,7 +83,7 @@ export class BranchMilestoneItem extends TreeItemClass {
   private countDoneTasks(tasks: TaskNode[]): number {
     let count = 0;
     for (const task of tasks) {
-      if (task.status === 'done') count++;
+      if (task.status === TaskStatus.Done) count++;
       count += this.countDoneTasks(task.children);
     }
     return count;

@@ -7,6 +7,7 @@ import {
   NO_GROUP_NAME,
   NPM_RUN_COMMAND,
   PACKAGE_JSON,
+  ROOT_PACKAGE_LABEL,
   getCommandId,
 } from '../../common/constants';
 import { ConfigManager } from '../../common/core/config-manager';
@@ -101,7 +102,7 @@ export async function getPackageScripts(
     return [];
   }
 
-  const isSinglePackage = allPackages.length === 1 && allPackages[0].relativePath === 'root';
+  const isSinglePackage = allPackages.length === 1 && allPackages[0].relativePath === ROOT_PACKAGE_LABEL;
 
   if (isSinglePackage && !grouped) {
     const pkg = allPackages[0];
@@ -140,7 +141,7 @@ async function findAllPackageJsons(folder: WorkspaceFolder): Promise<PackageLoca
     if (Object.keys(scripts).length === 0) continue;
 
     const pkgDir = NodePathHelper.dirname(pkgPath);
-    const relativePath = NodePathHelper.relative(rootPath, pkgDir) || 'root';
+    const relativePath = NodePathHelper.relative(rootPath, pkgDir) || ROOT_PACKAGE_LABEL;
 
     packages.push({
       relativePath,
@@ -151,8 +152,8 @@ async function findAllPackageJsons(folder: WorkspaceFolder): Promise<PackageLoca
   }
 
   packages.sort((a, b) => {
-    if (a.relativePath === 'root') return -1;
-    if (b.relativePath === 'root') return 1;
+    if (a.relativePath === ROOT_PACKAGE_LABEL) return -1;
+    if (b.relativePath === ROOT_PACKAGE_LABEL) return 1;
     return a.relativePath.localeCompare(b.relativePath);
   });
 
@@ -194,7 +195,7 @@ function getGroupedByLocation(
   const taskElements: Array<TreeTask | GroupTreeItem> = [];
 
   for (const pkg of packages) {
-    const groupName = pkg.relativePath === 'root' ? 'root' : pkg.relativePath;
+    const groupName = pkg.relativePath === ROOT_PACKAGE_LABEL ? ROOT_PACKAGE_LABEL : pkg.relativePath;
     const group = new GroupTreeItem(groupName);
 
     for (const [name, command] of Object.entries(pkg.scripts)) {

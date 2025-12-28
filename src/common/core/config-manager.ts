@@ -7,7 +7,7 @@ import {
   getGlobalConfigDir,
   getGlobalConfigPath,
 } from '../constants';
-import type { ConfigKey } from '../constants/enums';
+import { ConfigKey } from '../constants/enums';
 import { FILENAME_INVALID_CHARS_PATTERN } from '../constants/regex-constants';
 import {
   BRANCHES_DIR_NAME,
@@ -289,9 +289,9 @@ export class ConfigManager {
 
   static addOrUpdateConfigItem(config: DevPanelConfig, arrayKey: ConfigArrayKey, item: ConfigArrayItem): boolean {
     if (!config[arrayKey]) {
-      if (arrayKey === 'prompts') config.prompts = [];
-      else if (arrayKey === 'tasks') config.tasks = [];
-      else if (arrayKey === 'tools') config.tools = [];
+      if (arrayKey === ConfigKey.Prompts) config.prompts = [];
+      else if (arrayKey === ConfigKey.Tasks) config.tasks = [];
+      else if (arrayKey === ConfigKey.Tools) config.tools = [];
     }
 
     const array = config[arrayKey] as ConfigArrayItem[];

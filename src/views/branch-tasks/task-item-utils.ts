@@ -16,7 +16,7 @@ export function formatTaskDescription(meta: TaskMeta, status: TaskStatus): strin
     parts.push(`@${meta.assignee}`);
   }
 
-  if (meta.priority && meta.priority !== 'none') {
+  if (meta.priority && meta.priority !== TaskPriority.None) {
     parts.push(`!${meta.priority}`);
   }
 
@@ -114,7 +114,7 @@ export function formatTaskTooltip(text: string, status: TaskStatus, meta: TaskMe
     md.appendMarkdown(`Assignee: @${meta.assignee}\n\n`);
   }
 
-  if (meta.priority && meta.priority !== 'none') {
+  if (meta.priority && meta.priority !== TaskPriority.None) {
     const emoji = getPriorityEmoji(meta.priority);
     md.appendMarkdown(`Priority: ${emoji} ${meta.priority}\n\n`);
   }
