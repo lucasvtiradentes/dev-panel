@@ -1,10 +1,10 @@
 import { CONFIG_FILE_NAME } from '../../../common/constants';
 import { BranchContextUtils } from '../../../common/core/branch-context-helper';
 import { ConfigManager } from '../../../common/utils/config-manager';
+import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-utils';
 import { validateBranchContext } from '../../../views/branch-context/config-validator';
 
 async function handleShowValidation() {

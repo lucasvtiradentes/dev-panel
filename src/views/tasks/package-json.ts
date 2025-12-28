@@ -12,11 +12,11 @@ import { TaskSource } from '../../common/schemas/types';
 import { ConfigManager } from '../../common/utils/config-manager';
 import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
 import { readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
+import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
-import { Command } from '../../common/vscode/vscode-utils';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
 

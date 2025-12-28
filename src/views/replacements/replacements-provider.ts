@@ -13,12 +13,12 @@ import type { DevPanelConfig, DevPanelReplacement, NormalizedPatchItem } from '.
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { ConfigManager } from '../../common/utils/config-manager';
 import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
+import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import { type TreeDataProvider, type TreeItem, TreeItemClass } from '../../common/vscode/vscode-types';
-import { Command } from '../../common/vscode/vscode-utils';
 import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
 import {
   addActiveReplacement,

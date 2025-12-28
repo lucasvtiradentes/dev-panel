@@ -1,8 +1,8 @@
 import { CONFIG_FILE_NAME } from '../../../common/constants';
 import { ConfigManager } from '../../../common/utils/config-manager';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
+import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
-import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 
 async function handleOpenVariablesConfig() {
   const workspace = VscodeHelper.getFirstWorkspaceFolder();

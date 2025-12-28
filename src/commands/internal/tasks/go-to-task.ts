@@ -1,8 +1,8 @@
 import { VSCODE_TASKS_PATH } from '../../../common/constants';
 import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
+import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
-import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 import { isMultiRootWorkspace } from '../../../common/vscode/vscode-workspace';
 import type { TreeTask } from '../../../views/tasks';
 

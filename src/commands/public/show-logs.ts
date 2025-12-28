@@ -1,7 +1,7 @@
 import { LOG_FILE_PATH } from '../../common/lib/logger';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
+import { Command, registerCommand } from '../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
-import { Command, registerCommand } from '../../common/vscode/vscode-utils';
 
 async function handleShowLogs() {
   try {

@@ -10,8 +10,8 @@ import {
   showNotFoundError,
   stripGlobalPrefix,
 } from '../../../common/utils/item-utils';
+import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
-import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { TreePrompt } from '../../../views/prompts/items';
 
 async function handleCopyPromptToWorkspace(treePrompt: TreePrompt) {

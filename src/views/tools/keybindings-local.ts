@@ -1,10 +1,10 @@
 import { TOOL_TASK_TYPE, getGlobalConfigDir, getToolCommandId, getToolCommandPrefix } from '../../common/constants';
 import { ConfigManager } from '../../common/utils/config-manager';
 import { syncKeybindings } from '../../common/utils/keybindings-sync';
+import { registerDynamicCommand } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { ExtensionContext } from '../../common/vscode/vscode-types';
-import { registerDynamicCommand } from '../../common/vscode/vscode-utils';
 import { KeybindingManager } from '../_view_base';
 
 const manager = new KeybindingManager({

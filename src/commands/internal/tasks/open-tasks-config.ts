@@ -10,8 +10,8 @@ import { ConfigManager } from '../../../common/utils/config-manager';
 import { FileOperations } from '../../../common/utils/file-operations';
 import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
+import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
-import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 import { getExcludedDirs } from '../../../views/tasks/package-json';
 import { getCurrentSource } from '../../../views/tasks/state';
 

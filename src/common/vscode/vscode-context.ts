@@ -1,5 +1,5 @@
 import { CONTEXT_PREFIX } from '../constants';
-import { Command, executeCommand } from './vscode-utils';
+import { Command, executeCommand } from './vscode-commands';
 
 export const ContextKey = {
   NoConfig: 'noConfig',

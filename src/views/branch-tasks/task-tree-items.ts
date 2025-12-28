@@ -1,5 +1,6 @@
 import { CONTEXT_VALUES, DND_MIME_TYPE_BRANCH_TASKS, getCommandId } from '../../common/constants';
 import { createLogger } from '../../common/lib/logger';
+import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
@@ -10,7 +11,6 @@ import {
   type TreeItem,
   TreeItemClass,
 } from '../../common/vscode/vscode-types';
-import { Command } from '../../common/vscode/vscode-utils';
 import type { MilestoneNode, TaskNode } from '../_branch_base';
 import { formatTaskDescription, formatTaskTooltip, getStatusIcon } from './task-item-utils';
 

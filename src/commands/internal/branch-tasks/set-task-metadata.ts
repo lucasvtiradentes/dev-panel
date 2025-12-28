@@ -1,7 +1,7 @@
 import { type ItemOrLineIndex, extractLineIndex } from '../../../common/utils/item-utils';
+import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { BranchTasksProvider } from '../../../views/branch-tasks/provider';
 
 async function handleSetTaskAssignee(provider: BranchTasksProvider, item: ItemOrLineIndex) {

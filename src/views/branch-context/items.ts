@@ -8,10 +8,10 @@ import {
   getCommandId,
 } from '../../common/constants';
 import type { SectionMetadata } from '../../common/schemas/types';
+import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeColor, VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { TreeItemClass } from '../../common/vscode/vscode-types';
-import { Command } from '../../common/vscode/vscode-utils';
 import type { SectionDefinition } from './section-registry';
 
 function truncate(str: string, maxLen: number): string {

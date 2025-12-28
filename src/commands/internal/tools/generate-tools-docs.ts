@@ -1,8 +1,8 @@
 import { CLAUDE_DIR_NAME, SKILLS_DIR_NAME } from '../../../common/constants';
 import { DocsGenerator } from '../../../common/utils/docs-generator';
+import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import { Command, registerCommand } from '../../../common/vscode/vscode-utils';
 
 async function handleGenerateToolsDocs() {
   const workspaceFolder = VscodeHelper.requireWorkspaceFolder();

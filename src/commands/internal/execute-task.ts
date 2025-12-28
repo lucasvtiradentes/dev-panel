@@ -20,6 +20,7 @@ import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-he
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { TaskUtils } from '../../common/utils/task-utils';
 import { loadVariablesFromPath, readDevPanelVariablesAsEnv } from '../../common/utils/variables-env';
+import { Command, registerCommand } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { collectInputs, replaceInputPlaceholders } from '../../common/vscode/vscode-inputs';
@@ -30,7 +31,6 @@ import {
   type TaskScope,
   type WorkspaceFolder,
 } from '../../common/vscode/vscode-types';
-import { Command, registerCommand } from '../../common/vscode/vscode-utils';
 import { isMultiRootWorkspace } from '../../common/vscode/vscode-workspace';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 import { TreeTool } from '../../views/tools/items';

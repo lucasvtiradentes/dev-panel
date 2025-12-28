@@ -1,8 +1,8 @@
 import { getReplacementCommandId } from '../../common/constants';
 import { ConfigManager } from '../../common/utils/config-manager';
 import { syncKeybindings } from '../../common/utils/keybindings-sync';
+import { Command, executeCommand, registerDynamicCommand } from '../../common/vscode/vscode-commands';
 import type { ExtensionContext } from '../../common/vscode/vscode-types';
-import { Command, executeCommand, registerDynamicCommand } from '../../common/vscode/vscode-utils';
 
 export function registerReplacementKeybindings(context: ExtensionContext) {
   ConfigManager.forEachWorkspaceConfig((_, config) => {

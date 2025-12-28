@@ -8,8 +8,8 @@ import {
   showInvalidItemError,
   showNotFoundError,
 } from '../../../common/utils/item-utils';
+import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
-import { Command, executeCommand, registerCommand } from '../../../common/vscode/vscode-utils';
 import type { TreeTask } from '../../../views/tasks/items';
 
 async function handleCopyTaskToGlobal(treeTask: TreeTask) {

@@ -1,5 +1,5 @@
+import { Command } from '../common/vscode/vscode-commands';
 import type { Uri } from '../common/vscode/vscode-types';
-import { Command } from '../common/vscode/vscode-utils';
 import type {
   EditBranchFieldParams,
   OpenBranchContextFileAtLineParams,
