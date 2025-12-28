@@ -11,9 +11,7 @@ import { logger } from '../../common/lib/logger';
 import { NodePathHelper } from '../../common/utils/helpers/node-helper';
 import { VscodeConstants, VscodeIcon } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { QuickPickItem, Uri } from '../../common/vscode/vscode-types';
-
-type QuickPickItemWithId<T> = QuickPickItem & { id: T };
+import type { QuickPickItemWithId, Uri } from '../../common/vscode/vscode-types';
 
 function isRootPath(p: string): boolean {
   return p === ROOT_FOLDER_LABEL || p === '';

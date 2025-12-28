@@ -27,11 +27,6 @@ export class StatusBarManager {
     this.statusBarItem.text = `${icon} ${text}`;
   }
 
-  private buildTooltip(): string {
-    const lines = [`${EXTENSION_DISPLAY_NAME} Settings`, '', 'Click to open settings menu'];
-    return lines.join('\n');
-  }
-
   refresh() {
     this.updateDisplay();
   }

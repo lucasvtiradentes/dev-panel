@@ -3,27 +3,7 @@ import { INIT_RESOURCES_DIR_NAME, RESOURCES_DIR_NAME } from '../../common/consta
 import { ConfigManager } from '../../common/core/config-manager';
 import { extensionStore } from '../../common/core/extension-store';
 import { logger } from '../../common/lib/logger';
-import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { Uri } from '../../common/vscode/vscode-types';
-
-async function copyDirectoryRecursive(sourceUri: Uri, targetUri: Uri) {
-  await VscodeHelper.createDirectory(targetUri);
-
-  const entries = await VscodeHelper.readDirectory(sourceUri);
-
-  for (const [name, type] of entries) {
-    const sourceEntryUri = VscodeHelper.joinPath(sourceUri, name);
-    const targetEntryUri = VscodeHelper.joinPath(targetUri, name);
-
-    if (type === VscodeConstants.FileType.Directory) {
-      await copyDirectoryRecursive(sourceEntryUri, targetEntryUri);
-    } else {
-      const content = await VscodeHelper.readFile(sourceEntryUri);
-      await VscodeHelper.writeFile(targetEntryUri, content);
-    }
-  }
-}
 
 export async function showInitMenu() {
   const workspaceFolder = VscodeHelper.requireWorkspaceFolder();
@@ -39,7 +19,7 @@ export async function showInitMenu() {
     const configDirPath = ConfigManager.getWorkspaceConfigDirPath(workspaceFolder);
     const configDirUri = VscodeHelper.createFileUri(configDirPath);
 
-    await copyDirectoryRecursive(initResourcesUri, configDirUri);
+    await ConfigManager.copyDirectoryRecursive(initResourcesUri, configDirUri);
 
     logger.info(`${EXTENSION_DISPLAY_NAME} initialized successfully`);
     void VscodeHelper.showToastMessage(

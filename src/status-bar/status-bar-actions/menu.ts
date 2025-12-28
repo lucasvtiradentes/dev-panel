@@ -4,7 +4,7 @@ import { logger } from '../../common/lib/logger';
 import { Command, registerCommand } from '../../common/vscode/vscode-commands';
 import { VscodeIcon } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { QuickPickItem } from '../../common/vscode/vscode-types';
+import type { QuickPickItemWithId } from '../../common/vscode/vscode-types';
 import { showConfigLocationMenu } from './config-location';
 import { showInitMenu } from './init';
 import { showRegistryMenu } from './registry/index';
@@ -14,8 +14,6 @@ enum SettingsMenuOption {
   Registry = 'registry',
   Init = 'init',
 }
-
-type QuickPickItemWithId<T> = QuickPickItem & { id: T };
 
 export function createOpenSettingsMenuCommand() {
   return registerCommand(Command.OpenSettingsMenu, async () => {

@@ -1,5 +1,3 @@
-export { TaskMarkdownHelper, type TaskMeta } from '../../../common/core/task-markdown-helper';
-
 import { TaskMarkdownHelper } from '../../../common/core/task-markdown-helper';
 
 export const parseStatusMarker = TaskMarkdownHelper.parseStatusMarker;

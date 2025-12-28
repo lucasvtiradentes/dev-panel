@@ -44,7 +44,7 @@ export class ConfigManager {
     return VscodeHelper.joinPath(customDir, CONFIG_DIR_NAME);
   }
 
-  private static async copyDirectoryRecursive(source: Uri, target: Uri) {
+  static async copyDirectoryRecursive(source: Uri, target: Uri) {
     await VscodeHelper.createDirectory(target);
 
     const entries = await VscodeHelper.readDirectory(source);
