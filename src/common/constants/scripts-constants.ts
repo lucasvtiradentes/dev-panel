@@ -108,10 +108,6 @@ function getGlobalToolsDir(): string {
   return NodePathHelper.join(getGlobalConfigDir(), TOOLS_DIR);
 }
 
-function getGlobalPromptsDir(): string {
-  return NodePathHelper.join(getGlobalConfigDir(), PROMPTS_DIR_NAME);
-}
-
 export function getGlobalToolInstructionsPath(toolName: string): string {
   return NodePathHelper.join(getGlobalToolsDir(), toolName, TOOL_INSTRUCTIONS_FILE);
 }
@@ -129,7 +125,7 @@ export function getGlobalToolDir(toolName: string): string {
 }
 
 export function getGlobalPromptFilePath(promptFile: string): string {
-  return NodePathHelper.join(getGlobalPromptsDir(), promptFile);
+  return NodePathHelper.join(getGlobalConfigDir(), promptFile);
 }
 
 export function getVscodeTasksFilePath(workspacePath: string): string {
