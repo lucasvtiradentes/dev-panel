@@ -760,6 +760,10 @@
           "useWorkspaceRoot": {
             "description": "If true, run command from workspace root instead of .devpanel directory",
             "type": "boolean"
+          },
+          "hideTerminal": {
+            "description": "If true, run command silently with progress notification instead of showing terminal",
+            "type": "boolean"
           }
         },
         "required": [

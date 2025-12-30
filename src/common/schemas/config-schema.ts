@@ -66,6 +66,10 @@ const DevPanelTaskSchema = z
       .boolean()
       .optional()
       .describe('If true, run command from workspace root instead of .devpanel directory'),
+    hideTerminal: z
+      .boolean()
+      .optional()
+      .describe('If true, run command silently with progress notification instead of showing terminal'),
   })
   .describe('A task that can be executed from the Tasks view');
 

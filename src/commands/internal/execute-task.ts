@@ -1,5 +1,5 @@
 import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
-import { execAsync } from 'src/common/utils/functions/exec-async';
+import { executeCommandWithProgress, executeTaskSilently } from 'src/common/utils/functions/execute-silent';
 import { replaceVariablePlaceholders } from 'src/common/utils/functions/template-replace';
 import { GLOBAL_ITEM_PREFIX, GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
 import {
@@ -119,6 +119,17 @@ async function handleExecuteTask(
   const scopeIsWorkspaceFolder =
     !!scope && !TypeGuardsHelper.isNumber(scope) && TypeGuardsHelper.isObjectWithProperty(scope, 'uri');
 
+  let command = '';
+  let cwd = '';
+  let env: Record<string, string> = {};
+
+  const execution = task.execution;
+  if (execution instanceof ShellExecutionClass) {
+    command = execution.commandLine ?? String(execution.command);
+    cwd = execution.options?.cwd ?? '';
+    env = (execution.options?.env as Record<string, string>) ?? {};
+  }
+
   if (taskConfig?.inputs && taskConfig.inputs.length > 0) {
     const folder = scopeIsWorkspaceFolder ? (scope as WorkspaceFolder) : null;
     const folderForSettings = folder ?? VscodeHelper.getFirstWorkspaceFolder();
@@ -127,12 +138,10 @@ async function handleExecuteTask(
     const inputValues = await collectInputs(taskConfig.inputs, folder, settings);
     if (inputValues === null) return;
 
-    const execution = task.execution;
-    if (execution instanceof ShellExecutionClass) {
-      let commandToReplace = execution.commandLine ?? String(execution.command);
-      commandToReplace = replaceInputPlaceholders(commandToReplace, inputValues);
+    command = replaceInputPlaceholders(command, inputValues);
 
-      const newExecution = VscodeHelper.createShellExecution(commandToReplace, execution.options);
+    if (execution instanceof ShellExecutionClass) {
+      const newExecution = VscodeHelper.createShellExecution(command, execution.options);
       modifiedTask = VscodeHelper.createTask({
         definition: task.definition,
         scope: task.scope ?? VscodeConstants.TaskScope.Workspace,
@@ -147,11 +156,18 @@ async function handleExecuteTask(
   if (scopeIsWorkspaceFolder) {
     const folder = scope as WorkspaceFolder;
     const variablesPath = ConfigManager.getWorkspaceVariablesPath(folder);
-    const env = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);
+    const varsEnv = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);
 
-    if (Object.keys(env).length > 0) {
-      modifiedTask = cloneWithEnv(modifiedTask, env);
+    if (Object.keys(varsEnv).length > 0) {
+      env = { ...env, ...varsEnv };
+      modifiedTask = cloneWithEnv(modifiedTask, varsEnv);
     }
+  }
+
+  if (taskConfig?.hideTerminal) {
+    log.info(`Executing task silently: ${task.name}`);
+    await executeTaskSilently({ command, cwd, env, taskName: task.name });
+    return;
   }
 
   if (isMultiRootWorkspace()) {
@@ -163,10 +179,10 @@ async function handleExecuteTask(
   log.info(`Executing task: ${modifiedTask.name}`);
   log.info(`Final presentation: ${JSON.stringify(modifiedTask.presentationOptions)}`);
 
-  void VscodeHelper.executeTask(modifiedTask).then((execution) => {
+  void VscodeHelper.executeTask(modifiedTask).then((taskExecution) => {
     log.info(`Task started successfully: ${modifiedTask.name}`);
     VscodeHelper.onDidEndTask((e) => {
-      if (e.execution === execution) {
+      if (e.execution === taskExecution) {
         log.info(`Task ended: ${modifiedTask.name}`);
         void context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, null);
       }
@@ -335,30 +351,23 @@ async function executePromptWithSave(options: {
   const tempFile = NodePathHelper.join(outputDir, '.prompt-temp.txt');
 
   FileIOHelper.ensureDirectoryExists(outputDir);
-
   FileIOHelper.writeFile(tempFile, promptContent);
 
-  await VscodeHelper.withProgress(
-    {
-      location: VscodeConstants.ProgressLocation.Notification,
-      title: `Running prompt: ${promptName}`,
-      cancellable: false,
+  const command = provider.getExecuteCommand(tempFile, outputFile);
+
+  await executeCommandWithProgress({
+    command,
+    cwd: workspacePath,
+    title: `Running prompt: ${promptName}`,
+    onSuccess: async () => {
+      FileIOHelper.deleteFile(tempFile);
+      await VscodeHelper.openDocument(VscodeHelper.createFileUri(outputFile));
     },
-    async () => {
-      try {
-        const command = provider.getExecuteCommand(tempFile, outputFile);
-        await execAsync(command, { cwd: workspacePath, env: process.env });
-        FileIOHelper.deleteFile(tempFile);
-        await VscodeHelper.openDocument(VscodeHelper.createFileUri(outputFile));
-      } catch (error: unknown) {
-        FileIOHelper.deleteFile(tempFile);
-        void VscodeHelper.showToastMessage(
-          ToastKind.Error,
-          `Prompt failed: ${TypeGuardsHelper.getErrorMessage(error)}`,
-        );
-      }
+    onError: (error) => {
+      FileIOHelper.deleteFile(tempFile);
+      void VscodeHelper.showToastMessage(ToastKind.Error, `Prompt failed: ${TypeGuardsHelper.getErrorMessage(error)}`);
     },
-  );
+  });
 }
 
 export function createExecutePromptCommand() {
