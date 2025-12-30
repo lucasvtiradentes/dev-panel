@@ -207,7 +207,7 @@ async function runCommand(variable: DevPanelVariable, value: unknown) {
     },
     async () => {
       try {
-        await execAsync(command, { cwd: configDirPath });
+        await execAsync(command, { cwd: configDirPath, env: process.env });
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         void VscodeHelper.showToastMessage(ToastKind.Error, `${ERROR_VARIABLE_COMMAND_FAILED}: ${errorMessage}`);

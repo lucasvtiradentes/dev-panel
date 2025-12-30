@@ -347,7 +347,7 @@ async function executePromptWithSave(options: {
     async () => {
       try {
         const command = provider.getExecuteCommand(tempFile, outputFile);
-        await execAsync(command, { cwd: workspacePath });
+        await execAsync(command, { cwd: workspacePath, env: process.env });
         FileIOHelper.deleteFile(tempFile);
         await VscodeHelper.openDocument(VscodeHelper.createFileUri(outputFile));
       } catch (error: unknown) {
