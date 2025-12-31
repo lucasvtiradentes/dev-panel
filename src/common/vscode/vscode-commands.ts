@@ -108,6 +108,8 @@ export enum Command {
   FilterBranchTasks = 'filterBranchTasks',
   FilterBranchTasksActive = 'filterBranchTasksActive',
   ShowLogs = 'showLogs',
+  ShowWorkspaceState = 'showWorkspaceState',
+  ClearWorkspaceState = 'clearWorkspaceState',
   OpenSettingsMenu = 'openSettingsMenu',
   SyncToolKeybindings = 'syncToolKeybindings',
   SetToolKeybinding = 'setToolKeybinding',

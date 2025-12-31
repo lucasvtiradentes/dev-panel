@@ -65,7 +65,9 @@ import {
   createSetVariableKeybindingCommand,
 } from './internal/variables/set-variable-keybinding';
 import { createToggleVariablesViewCommands } from './internal/variables/toggle-variables-view';
+import { createClearWorkspaceStateCommand } from './public/clear-workspace-state';
 import { createShowLogsCommand } from './public/show-logs';
+import { createShowWorkspaceStateCommand } from './public/show-workspace-state';
 
 export function registerAllCommands(options: {
   context: ExtensionContext;
@@ -129,6 +131,8 @@ export function registerAllCommands(options: {
     ...createToggleBranchContextHideEmptySectionsCommand(branchContextProvider),
     ...createToggleBranchTasksCommands(branchTasksProvider),
     createShowLogsCommand(),
+    createShowWorkspaceStateCommand(),
+    createClearWorkspaceStateCommand(),
     registerCommand(Command.SyncPromptKeybindings, () => syncKeybindings()),
     createSetPromptKeybindingCommand(),
     createOpenPromptsKeybindingsCommand(),

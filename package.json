@@ -554,6 +554,14 @@
         "title": "Dev Panel: Show Logs"
       },
       {
+        "command": "devPanel.showWorkspaceState",
+        "title": "Dev Panel: Show Workspace State"
+      },
+      {
+        "command": "devPanel.clearWorkspaceState",
+        "title": "Dev Panel: Clear Workspace State"
+      },
+      {
         "command": "devPanel.syncPromptKeybindings",
         "title": "Dev Panel: Sync Prompt Keybindings"
       },

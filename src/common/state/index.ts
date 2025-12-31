@@ -1,4 +1,4 @@
-export { initGlobalState, initWorkspaceState } from './base';
+export { initGlobalState, initWorkspaceState, loadWorkspaceState, clearWorkspaceState } from './base';
 export { globalToolsState, globalTasksState, globalPromptsState } from './global';
 export {
   toolsState,

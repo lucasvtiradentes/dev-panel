@@ -66,6 +66,15 @@ function saveWorkspaceState(state: WorkspaceUIState) {
   void workspaceContext.workspaceState.update(WORKSPACE_STATE_KEY, state);
 }
 
+export function loadWorkspaceState(): WorkspaceUIState {
+  return getWorkspaceState();
+}
+
+export function clearWorkspaceState() {
+  if (!workspaceContext) return;
+  void workspaceContext.workspaceState.update(WORKSPACE_STATE_KEY, undefined);
+}
+
 type StateManagerConfig<T> = {
   stateKey: StateKey;
   defaultState: T;

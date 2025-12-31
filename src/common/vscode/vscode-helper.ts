@@ -61,6 +61,11 @@ export class VscodeHelper {
     });
   }
 
+  static async openUntitledDocument(content: string, language?: string): Promise<vscode.TextEditor> {
+    const doc = await vscode.workspace.openTextDocument({ content, language });
+    return vscode.window.showTextDocument(doc);
+  }
+
   static showToastMessage(kind: ToastKind, message: string, ...items: string[]): Thenable<string | undefined>;
   static showToastMessage(
     kind: ToastKind,
