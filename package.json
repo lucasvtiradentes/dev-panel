@@ -971,40 +971,44 @@
       ],
       "view/item/context": [
         {
+          "command": "devPanel.toggleHide",
+          "when": "view == devPanelTasks && viewItem =~ /^task/",
+          "group": "1_common@1"
+        },
+        {
           "command": "devPanel.toggleFavorite",
-          "when": "view == devPanelTasks && (viewItem == task || viewItem == task-devpanel || viewItem == task-devpanel-global || viewItem == task-hidden || viewItem == task-devpanel-hidden || viewItem == task-devpanel-global-hidden)"
+          "when": "view == devPanelTasks && (viewItem == task || viewItem == task-devpanel || viewItem == task-devpanel-global || viewItem == task-hidden || viewItem == task-devpanel-hidden || viewItem == task-devpanel-global-hidden)",
+          "group": "1_common@2"
         },
         {
           "command": "devPanel.toggleUnfavorite",
-          "when": "view == devPanelTasks && (viewItem == task-favorite || viewItem == task-devpanel-favorite || viewItem == task-devpanel-global-favorite)"
-        },
-        {
-          "command": "devPanel.toggleHide",
-          "when": "view == devPanelTasks && viewItem =~ /^task/"
-        },
-        {
-          "command": "devPanel.setTaskKeybinding",
-          "when": "view == devPanelTasks && viewItem =~ /^task/ && taskSourceDevPanel"
-        },
-        {
-          "command": "devPanel.executeTask",
-          "when": "view == devPanelTasks"
+          "when": "view == devPanelTasks && (viewItem == task-favorite || viewItem == task-devpanel-favorite || viewItem == task-devpanel-global-favorite)",
+          "group": "1_common@2"
         },
         {
           "command": "devPanel.goToTask",
-          "when": "view == devPanelTasks"
-        },
-        {
-          "command": "devPanel.copyTaskToGlobal",
-          "when": "view == devPanelTasks && viewItem =~ /^task-devpanel(-hidden|-favorite)?$/"
-        },
-        {
-          "command": "devPanel.copyTaskToWorkspace",
-          "when": "view == devPanelTasks && viewItem =~ /^task-devpanel-global/"
+          "when": "view == devPanelTasks",
+          "group": "1_common@3"
         },
         {
           "command": "devPanel.deleteTask",
-          "when": "view == devPanelTasks && viewItem =~ /^task-devpanel/"
+          "when": "view == devPanelTasks && viewItem =~ /^task-devpanel/",
+          "group": "2_devpanel@1"
+        },
+        {
+          "command": "devPanel.setTaskKeybinding",
+          "when": "view == devPanelTasks && viewItem =~ /^task/ && taskSourceDevPanel",
+          "group": "2_devpanel@2"
+        },
+        {
+          "command": "devPanel.copyTaskToGlobal",
+          "when": "view == devPanelTasks && viewItem =~ /^task-devpanel(-hidden|-favorite)?$/",
+          "group": "2_devpanel@3"
+        },
+        {
+          "command": "devPanel.copyTaskToWorkspace",
+          "when": "view == devPanelTasks && viewItem =~ /^task-devpanel-global/",
+          "group": "2_devpanel@3"
         },
         {
           "command": "devPanel.goToReplacementTargetFile",
