@@ -169,17 +169,17 @@
       {
         "command": "devPanel.switchTaskSource",
         "title": "Switch to npm Scripts",
-        "icon": "$(tools)"
+        "icon": "$(arrow-swap)"
       },
       {
         "command": "devPanel.switchTaskSourceFromPackage",
         "title": "Switch to DevPanel Tasks",
-        "icon": "$(package)"
+        "icon": "$(arrow-swap)"
       },
       {
         "command": "devPanel.switchTaskSourceFromDevPanel",
         "title": "Switch to VSCode Tasks",
-        "icon": "$(beaker)"
+        "icon": "$(arrow-swap)"
       },
       {
         "command": "devPanel.toggleGroupMode",
@@ -769,57 +769,57 @@
           "group": "navigation@2"
         },
         {
-          "command": "devPanel.toggleGroupMode",
-          "when": "view == devPanelTasks && !tasksGrouped && tasksHasGroups",
-          "group": "navigation@1"
-        },
-        {
-          "command": "devPanel.toggleGroupModeGrouped",
-          "when": "view == devPanelTasks && tasksGrouped && tasksHasGroups",
-          "group": "navigation@1"
-        },
-        {
-          "command": "devPanel.switchTaskSource",
-          "when": "view == devPanelTasks && taskSourceVSCode",
-          "group": "navigation@2"
-        },
-        {
-          "command": "devPanel.switchTaskSourceFromPackage",
-          "when": "view == devPanelTasks && taskSourcePackage",
-          "group": "navigation@2"
-        },
-        {
-          "command": "devPanel.switchTaskSourceFromDevPanel",
-          "when": "view == devPanelTasks && taskSourceDevPanel",
-          "group": "navigation@2"
-        },
-        {
           "command": "devPanel.openTasksConfig",
           "when": "view == devPanelTasks",
-          "group": "navigation@3"
+          "group": "navigation@5"
         },
         {
           "command": "devPanel.toggleTasksShowOnlyFavorites",
           "when": "view == devPanelTasks && tasksHasFavorites && !tasksShowOnlyFavorites",
-          "group": "navigation@4"
+          "group": "navigation@2"
         },
         {
           "command": "devPanel.toggleTasksShowOnlyFavoritesActive",
           "when": "view == devPanelTasks && tasksHasFavorites && tasksShowOnlyFavorites",
-          "group": "navigation@4"
+          "group": "navigation@2"
         },
         {
           "command": "devPanel.toggleTasksShowHidden",
           "when": "view == devPanelTasks && tasksHasHidden && !tasksShowHidden",
-          "group": "navigation@5"
+          "group": "navigation@3"
         },
         {
           "command": "devPanel.toggleTasksShowHiddenActive",
           "when": "view == devPanelTasks && tasksHasHidden && tasksShowHidden",
-          "group": "navigation@5"
+          "group": "navigation@3"
         },
         {
           "command": "devPanel.openTasksKeybindings",
+          "when": "view == devPanelTasks && taskSourceDevPanel",
+          "group": "navigation@1"
+        },
+        {
+          "command": "devPanel.toggleGroupMode",
+          "when": "view == devPanelTasks && !tasksGrouped && tasksHasGroups",
+          "group": "navigation@4"
+        },
+        {
+          "command": "devPanel.toggleGroupModeGrouped",
+          "when": "view == devPanelTasks && tasksGrouped && tasksHasGroups",
+          "group": "navigation@4"
+        },
+        {
+          "command": "devPanel.switchTaskSource",
+          "when": "view == devPanelTasks && taskSourceVSCode",
+          "group": "navigation@6"
+        },
+        {
+          "command": "devPanel.switchTaskSourceFromPackage",
+          "when": "view == devPanelTasks && taskSourcePackage",
+          "group": "navigation@6"
+        },
+        {
+          "command": "devPanel.switchTaskSourceFromDevPanel",
           "when": "view == devPanelTasks && taskSourceDevPanel",
           "group": "navigation@6"
         },
