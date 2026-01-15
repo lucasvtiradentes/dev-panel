@@ -1,4 +1,12 @@
-import { VSCODE_TASKS_PATH } from '../../../common/constants';
+import {
+  CONFIG_DIR_KEY,
+  CONFIG_FILE_NAME,
+  GLOBAL_TASK_TYPE,
+  PACKAGE_JSON,
+  VSCODE_TASKS_PATH,
+  getGlobalConfigPath,
+} from '../../../common/constants';
+import { ConfigManager } from '../../../common/core/config-manager';
 import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
@@ -19,16 +27,48 @@ export function createGoToTaskCommand() {
       return;
     }
 
-    const tasksFilePath = NodePathHelper.join(folders[0].uri.fsPath, VSCODE_TASKS_PATH);
-    const tasksFileUri = VscodeHelper.createFileUri(tasksFilePath);
-    const tasksFileContent = FileIOHelper.readFile(tasksFilePath);
-    const lines = tasksFileContent.split('\n');
+    const workspacePath = folders[0].uri.fsPath;
+    const taskName = task.taskName ?? (task.label as string);
 
-    for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
-      if (lines[lineNumber].includes(task.label as string)) {
-        await VscodeHelper.openDocumentAtLine(tasksFileUri, lineNumber);
-        return;
-      }
+    if (task.type === GLOBAL_TASK_TYPE) {
+      const globalConfigPath = getGlobalConfigPath();
+      await openFileAtLabel(globalConfigPath, taskName);
+      return;
     }
+
+    if (task.type === CONFIG_DIR_KEY) {
+      const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspacePath, CONFIG_FILE_NAME);
+      await openFileAtLabel(configPath, taskName);
+      return;
+    }
+
+    if (task.type === 'npm') {
+      const packageJsonPath = NodePathHelper.join(workspacePath, PACKAGE_JSON);
+      await openFileAtLabel(packageJsonPath, taskName);
+      return;
+    }
+
+    const tasksFilePath = NodePathHelper.join(workspacePath, VSCODE_TASKS_PATH);
+    await openFileAtLabel(tasksFilePath, taskName);
   });
+}
+
+async function openFileAtLabel(filePath: string, label: string) {
+  if (!FileIOHelper.fileExists(filePath)) {
+    VscodeHelper.showToastMessage(ToastKind.Error, `File not found: ${filePath}`);
+    return;
+  }
+
+  const fileUri = VscodeHelper.createFileUri(filePath);
+  const fileContent = FileIOHelper.readFile(filePath);
+  const lines = fileContent.split('\n');
+
+  for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
+    if (lines[lineNumber].includes(label)) {
+      await VscodeHelper.openDocumentAtLine(fileUri, lineNumber);
+      return;
+    }
+  }
+
+  await VscodeHelper.openDocument(fileUri);
 }
