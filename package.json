@@ -1,7 +1,7 @@
 {
   "name": "dev-panel",
   "displayName": "Dev Panel",
-  "description": "all-in-one command center for ai-assisted development",
+  "description": "⚡ all-in-one command center for ai-assisted development",
   "icon": "resources/icon.png",
   "version": "0.0.1",
   "publisher": "lucasvtiradentes",
@@ -21,9 +21,12 @@
     "Other"
   ],
   "keywords": [
-    "tasks",
+    "ai-assisted",
     "task-runner",
-    "project-tools"
+    "productivity",
+    "branch-context",
+    "prompts",
+    "developer-tools"
   ],
   "galleryBanner": {
     "color": "#1e1e1e",
