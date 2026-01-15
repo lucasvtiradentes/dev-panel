@@ -13,7 +13,7 @@
     ".husky": true,
     // ".ignore": true,
     // ".devpanel": true,
-    ".tscanner": true,
+    // ".tscanner": true,
     // ".vscode": true,
     "dist-dev": true,
     "node_modules": true,

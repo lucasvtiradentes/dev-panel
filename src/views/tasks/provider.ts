@@ -1,4 +1,4 @@
-import { DND_MIME_TYPE_TASKS, NO_GROUP_NAME } from '../../common/constants';
+import { DND_MIME_TYPE_TASKS, IS_DEV, NO_GROUP_NAME, addDevLabel } from '../../common/constants';
 import { TASK_SOURCES, TaskSource } from '../../common/schemas/types';
 import { tasksState } from '../../common/state';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
@@ -77,7 +77,8 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
     if (!this._treeView) return;
     const source = TASK_SOURCES.find((s) => s.id === this._source);
     if (source) {
-      this._treeView.title = `Tasks - ${source.label}`;
+      const title = `Tasks - ${source.label}`;
+      this._treeView.title = IS_DEV ? addDevLabel(title) : title;
     }
   }
 
