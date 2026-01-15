@@ -173,11 +173,11 @@
       },
       {
         "command": "devPanel.switchTaskSourceFromPackage",
-        "title": "Switch to PP Tasks",
+        "title": "Switch to DevPanel Tasks",
         "icon": "$(package)"
       },
       {
-        "command": "devPanel.switchTaskSourceFromPP",
+        "command": "devPanel.switchTaskSourceFromDevPanel",
         "title": "Switch to VSCode Tasks",
         "icon": "$(beaker)"
       },
@@ -637,7 +637,7 @@
         { "command": "devPanel.refresh", "when": "false" },
         { "command": "devPanel.switchTaskSource", "when": "false" },
         { "command": "devPanel.switchTaskSourceFromPackage", "when": "false" },
-        { "command": "devPanel.switchTaskSourceFromPP", "when": "false" },
+        { "command": "devPanel.switchTaskSourceFromDevPanel", "when": "false" },
         { "command": "devPanel.toggleGroupMode", "when": "false" },
         { "command": "devPanel.toggleGroupModeGrouped", "when": "false" },
         { "command": "devPanel.toggleFavorite", "when": "false" },
@@ -789,7 +789,7 @@
           "group": "navigation@2"
         },
         {
-          "command": "devPanel.switchTaskSourceFromPP",
+          "command": "devPanel.switchTaskSourceFromDevPanel",
           "when": "view == devPanelTasks && taskSourceDevPanel",
           "group": "navigation@2"
         },
