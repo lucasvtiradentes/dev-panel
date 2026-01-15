@@ -43,7 +43,7 @@
     },
     "regex": {
       "no-useless-void-return": {
-        "pattern": ":\\s*(void|Promise<void>)\\s*[\\{;]",
+        "pattern": ":\\s*(void|Promise<void>)\\s*\\{",
         "include": ["src/**/*.ts"],
         "message": "Unnecessary explicit void return type annotation"
       },
