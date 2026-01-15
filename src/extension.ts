@@ -18,7 +18,6 @@ import type { ExtensionContext } from './common/vscode/vscode-types';
 import { generateWorkspaceId, setWorkspaceId } from './common/vscode/vscode-workspace';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import { BranchContextProvider } from './views/branch-context';
-import { ensureTemplateExists } from './views/branch-context/template-initializer';
 import { BranchTasksProvider } from './views/branch-tasks';
 import { PromptTreeDataProvider } from './views/prompts';
 import { registerPromptKeybindings, reloadPromptKeybindings } from './views/prompts/keybindings-local';
@@ -79,11 +78,6 @@ function setupProviders(activateStart: number): Providers {
   logger.info(`[activate] Calling branchContextProvider.initialize (+${Date.now() - activateStart}ms)`);
   void branchContextProvider.initialize();
   void VscodeHelper.fetchTasks();
-
-  const workspace = VscodeHelper.getFirstWorkspacePath();
-  if (workspace) {
-    ensureTemplateExists(workspace);
-  }
 
   return {
     statusBarManager,
@@ -229,6 +223,13 @@ export function activate(context: ExtensionContext): object {
   const activateStart = Date.now();
   logger.clear();
   logger.info('=== EXTENSION ACTIVATE START ===');
+
+  const workspace = VscodeHelper.getFirstWorkspacePath();
+  if (!workspace) {
+    logger.info('No workspace found, skipping extension initialization');
+    return {};
+  }
+
   void setContextKey(ContextKey.ExtensionInitializing, true);
 
   setupStatesAndContext(context);

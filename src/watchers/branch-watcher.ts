@@ -19,6 +19,9 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
     const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return;
 
+    const isGitRepo = await Git.isRepository(workspace);
+    if (!isGitRepo) return;
+
     try {
       const newBranch = await Git.getCurrentBranch(workspace);
       if (newBranch !== currentBranch) {

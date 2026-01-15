@@ -6,7 +6,7 @@ export type RefreshCallback = () => void;
 export type UriChangeCallback = (uri: Uri) => void;
 
 export const WATCHER_CONSTANTS = {
-  BRANCH_POLL_INTERVAL_MS: 2000,
+  BRANCH_POLL_INTERVAL_MS: 10000,
   KEYBINDING_UPDATE_DEBOUNCE_MS: 100,
 } as const;
 
