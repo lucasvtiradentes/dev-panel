@@ -1,17 +1,19 @@
-import * as fs from 'node:fs';
-import * as os from 'node:os';
-import * as path from 'node:path';
+import { CliPathHelper, FileIOHelper, NodeOsHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
 import type { Terminal } from '../../../common/vscode/vscode-types';
 import type { PromptProvider } from './types';
+
+const getGeminiPath = () => CliPathHelper.resolvePath('gemini');
 
 export const geminiProvider: PromptProvider = {
   name: 'Gemini',
   executeInteractive: (terminal: Terminal, promptContent: string) => {
-    const tempFile = path.join(os.tmpdir(), `devpanel-prompt-${Date.now()}.txt`);
-    fs.writeFileSync(tempFile, promptContent, 'utf-8');
-    terminal.sendText(`gemini < "${tempFile}" && rm "${tempFile}"`);
+    const tempFile = NodePathHelper.join(NodeOsHelper.tmpdir(), `devpanel-prompt-${Date.now()}.txt`);
+    FileIOHelper.writeFile(tempFile, promptContent);
+    const geminiPath = getGeminiPath();
+    terminal.sendText(`"${geminiPath}" < "${tempFile}" && rm "${tempFile}"`);
   },
   getExecuteCommand: (tempFile: string, outputFile: string) => {
-    return `gemini < "${tempFile}" > "${outputFile}"`;
+    const geminiPath = getGeminiPath();
+    return `"${geminiPath}" < "${tempFile}" > "${outputFile}"`;
   },
 };

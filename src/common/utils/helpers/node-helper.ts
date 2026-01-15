@@ -181,3 +181,25 @@ export class NodeCryptoHelper {
 export class NodeHttps {
   static get = get;
 }
+
+export class CliPathHelper {
+  private static CLI_PATHS: Record<string, string[]> = {
+    claude: [
+      join(homedir(), '.claude', 'local', 'claude'),
+      join(homedir(), '.local', 'bin', 'claude'),
+      '/usr/local/bin/claude',
+    ],
+    gemini: [join(homedir(), '.local', 'bin', 'gemini'), '/usr/local/bin/gemini'],
+    'cursor-agent': [join(homedir(), '.local', 'bin', 'cursor-agent'), '/usr/local/bin/cursor-agent'],
+  };
+
+  static resolvePath(cliName: string): string {
+    const knownPaths = CliPathHelper.CLI_PATHS[cliName] ?? [];
+    for (const p of knownPaths) {
+      if (existsSync(p)) {
+        return p;
+      }
+    }
+    return cliName;
+  }
+}
