@@ -39,15 +39,6 @@ export enum SectionType {
   Auto = 'auto',
 }
 
-export enum PluginAction {
-  GetTasks = 'getTasks',
-  SetStatus = 'setStatus',
-  CreateTask = 'createTask',
-  UpdateMeta = 'updateMeta',
-  DeleteTask = 'deleteTask',
-  Sync = 'sync',
-}
-
 export type SectionMetadata = Record<string, unknown>;
 
 export type BranchContextMetadata = {

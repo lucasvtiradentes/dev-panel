@@ -105,6 +105,10 @@
         {
           "id": "devPanelTodos",
           "name": "Branch Tasks"
+        },
+        {
+          "id": "devPanelChangedFiles",
+          "name": "Branch Changed Files"
         }
       ],
       "explorer": [
@@ -538,11 +542,6 @@
         "icon": "$(add)"
       },
       {
-        "command": "devPanel.syncBranchTasks",
-        "title": "Sync Tasks",
-        "icon": "$(sync)"
-      },
-      {
         "command": "devPanel.filterBranchTasks",
         "title": "Filter Tasks",
         "icon": "$(filter)"
@@ -622,6 +621,30 @@
       {
         "command": "devPanel.executePrompt",
         "title": "Execute Prompt"
+      },
+      {
+        "command": "devPanel.toggleBranchChangedFilesGroupMode",
+        "title": "Toggle Group Mode",
+        "icon": "$(list-flat)"
+      },
+      {
+        "command": "devPanel.toggleBranchChangedFilesGroupModeGrouped",
+        "title": "Toggle Group Mode",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "devPanel.syncBranchChangedFiles",
+        "title": "Sync Changed Files",
+        "icon": "$(sync)"
+      },
+      {
+        "command": "devPanel.openChangedFile",
+        "title": "Open File",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "devPanel.openChangedFileDiff",
+        "title": "Open Diff"
       }
     ],
     "keybindings": [],
@@ -716,7 +739,6 @@
         { "command": "devPanel.setTaskMilestone", "when": "false" },
         { "command": "devPanel.cycleTaskStatus", "when": "false" },
         { "command": "devPanel.addBranchTask", "when": "false" },
-        { "command": "devPanel.syncBranchTasks", "when": "false" },
         { "command": "devPanel.filterBranchTasks", "when": "false" },
         { "command": "devPanel.filterBranchTasksActive", "when": "false" },
         { "command": "devPanel.setPromptKeybinding", "when": "false" },
@@ -728,7 +750,12 @@
         { "command": "devPanel.openTasksKeybindings", "when": "false" },
         { "command": "devPanel.executeTask", "when": "false" },
         { "command": "devPanel.goToTask", "when": "false" },
-        { "command": "devPanel.executePrompt", "when": "false" }
+        { "command": "devPanel.executePrompt", "when": "false" },
+        { "command": "devPanel.toggleBranchChangedFilesGroupMode", "when": "false" },
+        { "command": "devPanel.toggleBranchChangedFilesGroupModeGrouped", "when": "false" },
+        { "command": "devPanel.syncBranchChangedFiles", "when": "false" },
+        { "command": "devPanel.openChangedFile", "when": "false" },
+        { "command": "devPanel.openChangedFileDiff", "when": "false" }
       ],
       "view/title": [
         {
@@ -912,18 +939,18 @@
           "group": "navigation@1"
         },
         {
-          "command": "devPanel.syncBranchContext",
-          "when": "view == devPanelBranchContext",
-          "group": "navigation@2"
-        },
-        {
           "command": "devPanel.toggleBranchContextHideEmptySections",
           "when": "view == devPanelBranchContext && !branchContextHideEmptySections",
-          "group": "navigation@3"
+          "group": "navigation@2"
         },
         {
           "command": "devPanel.toggleBranchContextHideEmptySectionsActive",
           "when": "view == devPanelBranchContext && branchContextHideEmptySections",
+          "group": "navigation@2"
+        },
+        {
+          "command": "devPanel.syncBranchContext",
+          "when": "view == devPanelBranchContext",
           "group": "navigation@3"
         },
         {
@@ -962,14 +989,19 @@
           "group": "navigation@4"
         },
         {
-          "command": "devPanel.syncBranchTasks",
-          "when": "view == devPanelTodos && branchTasksHasExternalProvider",
-          "group": "navigation@5"
-        },
-        {
           "command": "devPanel.editBranchTodos",
           "when": "view == devPanelTodos",
           "group": "navigation@6"
+        },
+        {
+          "command": "devPanel.toggleBranchChangedFilesGroupMode",
+          "when": "view == devPanelChangedFiles && !branchChangedFilesGrouped",
+          "group": "navigation@1"
+        },
+        {
+          "command": "devPanel.toggleBranchChangedFilesGroupModeGrouped",
+          "when": "view == devPanelChangedFiles && branchChangedFilesGrouped",
+          "group": "navigation@1"
         }
       ],
       "view/item/context": [
@@ -1270,6 +1302,16 @@
       {
         "view": "devPanelTasks",
         "contents": "No tasks available.\n\nAdd tasks in your config file or package.json.",
+        "when": "!extensionInitializing"
+      },
+      {
+        "view": "devPanelChangedFiles",
+        "contents": "Loading changed files...",
+        "when": "extensionInitializing"
+      },
+      {
+        "view": "devPanelChangedFiles",
+        "contents": "No changed files in current branch.",
         "when": "!extensionInitializing"
       }
     ],

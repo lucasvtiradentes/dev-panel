@@ -354,16 +354,9 @@ export class SyncManager {
       setTimeout(() => {
         this.isWritingMarkdown = false;
         extensionStore.set(StoreKey.IsWritingBranchContext, false);
-        const wasInitializing = this.isInitializing;
         this.isInitializing = false;
-        if (wasInitializing) {
-          logger.info('[syncBranchContext] First sync complete, calling onSyncComplete');
-          this.onSyncComplete?.();
-        } else {
-          logger.warn(
-            '[syncBranchContext] NOT first sync (isInitializing=false), NOT calling onSyncComplete - BranchTasksProvider may not refresh!',
-          );
-        }
+        logger.info('[syncBranchContext] Sync complete, calling onSyncComplete');
+        this.onSyncComplete?.();
       }, WRITING_MARKDOWN_TIMEOUT_MS);
       logger.info(`[syncBranchContext] END total time: ${Date.now() - startTime}ms`);
     }

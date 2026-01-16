@@ -23,7 +23,6 @@ export {
 
 export {
   normalizePatchItem,
-  PluginAction,
   SectionType,
   TaskPriority,
   TaskStatus,

@@ -211,8 +211,8 @@ class ChangedFilesTopicsHelper {
     const lines: string[] = [];
 
     const sortedTopics = Array.from(topics.entries()).sort((a, b) => {
-      if (a[0] === ChangedFilesTopicsHelper.UNCATEGORIZED_TOPIC) return 1;
-      if (b[0] === ChangedFilesTopicsHelper.UNCATEGORIZED_TOPIC) return -1;
+      if (a[0] === ChangedFilesTopicsHelper.UNCATEGORIZED_TOPIC) return -1;
+      if (b[0] === ChangedFilesTopicsHelper.UNCATEGORIZED_TOPIC) return 1;
       return a[0].localeCompare(b[0]);
     });
 

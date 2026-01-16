@@ -6,7 +6,6 @@ import {
   SECTION_NAME_OBJECTIVE,
   SECTION_NAME_PR_LINK,
   SECTION_NAME_REQUIREMENTS,
-  SECTION_NAME_TASKS,
 } from '../../common/constants';
 import { BranchContextMarkdownHelper } from '../../common/core/branch-context-markdown';
 import { ConfigManager } from '../../common/core/config-manager';
@@ -39,7 +38,9 @@ export class ProviderHelpers {
     config?: DevPanelConfig,
     showChangedFiles: boolean | { provider: string } = true,
   ): SectionRegistry {
-    const configHash = config ? JSON.stringify(config.branchContext) : '';
+    const configHash = config
+      ? JSON.stringify(config.branchContext) + JSON.stringify(showChangedFiles)
+      : JSON.stringify(showChangedFiles);
 
     if (this.sectionRegistryCache && this.configHashCache === configHash) {
       return this.sectionRegistryCache;
@@ -55,9 +56,8 @@ export class ProviderHelpers {
     sectionName: string;
     currentBranch: string;
     changedFilesValue?: string;
-    tasksValue?: string;
   }): string | undefined {
-    const { context, sectionName, currentBranch, changedFilesValue, tasksValue } = opts;
+    const { context, sectionName, currentBranch, changedFilesValue } = opts;
     const valueMap: Record<string, string | undefined> = {
       [SECTION_NAME_BRANCH]: currentBranch,
       [SECTION_NAME_PR_LINK]: context.prLink as string | undefined,
@@ -65,7 +65,6 @@ export class ProviderHelpers {
       [SECTION_NAME_OBJECTIVE]: context.objective as string | undefined,
       [SECTION_NAME_REQUIREMENTS]: context.requirements as string | undefined,
       [SECTION_NAME_NOTES]: context.notes as string | undefined,
-      [SECTION_NAME_TASKS]: tasksValue,
       [SECTION_NAME_CHANGED_FILES]: changedFilesValue,
     };
 

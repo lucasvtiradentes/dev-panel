@@ -288,6 +288,10 @@ export class VscodeHelper {
     return vscode.commands.executeCommand<T>(command, ...args);
   }
 
+  static async showDiff(leftUri: vscode.Uri, rightUri: vscode.Uri, title: string) {
+    return vscode.commands.executeCommand('vscode.diff', leftUri, rightUri, title);
+  }
+
   static getExtension<T = unknown>(extensionId: string): vscode.Extension<T> | undefined {
     return vscode.extensions.getExtension<T>(extensionId);
   }

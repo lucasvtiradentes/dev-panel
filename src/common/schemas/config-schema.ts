@@ -283,11 +283,7 @@ const BuiltinSectionsSchema = z.object({
     .optional()
     .describe('Changed files section: false = hide, true = default provider, { provider: string } = custom provider')
     .default(true),
-  tasks: z
-    .union([z.boolean(), BranchContextProviderSchema])
-    .optional()
-    .describe('Tasks section: false = hide, true = default provider, { provider: string } = custom provider')
-    .default(true),
+  tasks: z.boolean().optional().describe('Tasks section: false = hide, true = show (default)').default(true),
 });
 
 const BranchContextConfigSchema = z.object({

@@ -64,6 +64,7 @@ export const VIEW_ID_TOOLS = `${CONTEXT_PREFIX}Tools`;
 export const VIEW_ID_PROMPTS = `${CONTEXT_PREFIX}Prompts`;
 export const VIEW_ID_BRANCH_CONTEXT = `${CONTEXT_PREFIX}BranchContext`;
 export const VIEW_ID_TODOS = `${CONTEXT_PREFIX}Todos`;
+export const VIEW_ID_CHANGED_FILES = `${CONTEXT_PREFIX}ChangedFiles`;
 export const DEV_SUFFIX = 'dev';
 const LOG_BASENAME = EXTENSION_NAME;
 export const TOOL_COMMAND_SUFFIX = 'tool';

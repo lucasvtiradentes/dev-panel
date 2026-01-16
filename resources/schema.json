@@ -76,25 +76,8 @@
             },
             "tasks": {
               "default": true,
-              "description": "Tasks section: false = hide, true = default provider, { provider: string } = custom provider",
-              "anyOf": [
-                {
-                  "type": "boolean"
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "provider": {
-                      "description": "Command to execute (e.g., \"node ./plugins/my-provider.js\", \"bash ./scripts/fetch.sh\")",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "provider"
-                  ],
-                  "additionalProperties": false
-                }
-              ]
+              "description": "Tasks section: false = hide, true = show (default)",
+              "type": "boolean"
             }
           },
           "required": [

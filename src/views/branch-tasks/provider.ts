@@ -6,10 +6,9 @@ import { logger } from '../../common/lib/logger';
 import type { TaskPriority, TaskStatus } from '../../common/schemas';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
-import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
-import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { TreeDataProvider, TreeItem, Uri } from '../../common/vscode/vscode-types';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
+import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import {
   type MilestoneNode,
   type SyncContext,
@@ -43,19 +42,57 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
   private taskProvider: TaskSyncProvider;
   private fileChangeDebounce: NodeJS.Timeout | null = null;
   private isInitializing = true;
+  private treeView: TreeView<BranchTreeItem> | null = null;
 
   constructor() {
     const workspace = VscodeHelper.getFirstWorkspacePath();
     const config = workspace ? this.loadConfig(workspace) : null;
     const tasksConfig = config?.branchContext?.builtinSections?.tasks;
-    this.taskProvider = createTaskProvider(tasksConfig, workspace ?? undefined);
+    this.taskProvider = createTaskProvider(tasksConfig);
     void setContextKey(ContextKey.BranchTasksHasFilter, false);
-    const hasExternalProvider = TypeGuardsHelper.isObjectWithProperty(tasksConfig, 'provider');
-    void setContextKey(ContextKey.BranchTasksHasExternalProvider, hasExternalProvider);
   }
 
   private loadConfig(workspace: string): DevPanelConfig | null {
     return ConfigManager.loadWorkspaceConfigFromPath(workspace);
+  }
+
+  setTreeView(treeView: TreeView<BranchTreeItem>) {
+    this.treeView = treeView;
+    this.updateDescription();
+  }
+
+  private updateDescription() {
+    if (!this.treeView) return;
+
+    const allTasks = this.getAllTasksFlat();
+    if (allTasks.length === 0) {
+      this.treeView.description = undefined;
+      return;
+    }
+
+    const completed = allTasks.filter((t) => t.status === 'done').length;
+    this.treeView.description = `${completed}/${allTasks.length}`;
+  }
+
+  private getAllTasksFlat(): TaskNode[] {
+    const tasks: TaskNode[] = [];
+    const collectTasks = (nodes: TaskNode[]) => {
+      for (const node of nodes) {
+        tasks.push(node);
+        collectTasks(node.children);
+      }
+    };
+
+    if (this.cachedMilestones.length > 0) {
+      for (const milestone of this.cachedMilestones) {
+        collectTasks(milestone.tasks);
+      }
+      collectTasks(this.cachedOrphanTasks);
+    } else {
+      collectTasks(this.cachedNodes);
+    }
+
+    return tasks;
   }
 
   toggleShowOnlyTodo() {
@@ -76,27 +113,6 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
 
     await this.taskProvider.onCreateTask({ text }, undefined, syncContext);
     this.refresh();
-  }
-
-  async syncTasks() {
-    const syncContext = this.getSyncContext();
-    if (!syncContext) return;
-
-    try {
-      const result = await this.taskProvider.onSync(syncContext);
-      if (result.added > 0 || result.updated > 0 || result.deleted > 0) {
-        VscodeHelper.showToastMessage(
-          ToastKind.Info,
-          `Synced: ${result.added} added, ${result.updated} updated, ${result.deleted} deleted`,
-        );
-      } else {
-        VscodeHelper.showToastMessage(ToastKind.Info, 'Tasks are up to date');
-      }
-      this.refresh();
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      VscodeHelper.showToastMessage(ToastKind.Error, `Sync failed: ${message}`);
-    }
   }
 
   async showFilterQuickPick() {
@@ -215,6 +231,7 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
     void this.loadBranchTasks().then(() => {
       logger.info('[BranchTasksProvider] [refresh] Tasks loaded, firing tree data change event');
       this._onDidChangeTreeData.fire(undefined);
+      this.updateDescription();
     });
   }
 

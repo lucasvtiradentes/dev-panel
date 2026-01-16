@@ -33,9 +33,6 @@ export function createToggleBranchTasksCommands(branchTasksProvider: BranchTasks
       branchTasksProvider.toggleTodo(TreeItemUtils.extractLineIndex(itemOrLineIndex)),
     ),
     registerCommand(Command.AddBranchTask, () => handleAddBranchTask(branchTasksProvider)),
-    registerCommand(Command.SyncBranchTasks, async () => {
-      await branchTasksProvider.syncTasks();
-    }),
     registerCommand(Command.FilterBranchTasks, async () => {
       await branchTasksProvider.showFilterQuickPick();
     }),

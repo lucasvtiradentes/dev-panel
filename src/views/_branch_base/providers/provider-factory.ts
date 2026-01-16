@@ -1,34 +1,18 @@
 import { DEFAULT_TASK_STATUS, INVALID_LINE_INDEX } from '../../../common/constants';
 import { createLogger } from '../../../common/lib/logger';
-import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { DefaultTaskProvider } from './default/tasks.provider';
 import type { TaskSyncProvider } from './interfaces';
-import { loadTaskProvider } from './plugin-loader';
 
 const logger = createLogger('TaskProviderFactory');
 
-type ProviderConfig = boolean | { provider: string };
-
-export function createTaskProvider(config?: ProviderConfig, workspace?: string): TaskSyncProvider {
+export function createTaskProvider(config?: boolean): TaskSyncProvider {
   if (config === false) {
     logger.info('[createTaskProvider] Tasks disabled in config');
     return createNoopProvider();
   }
 
-  if (!config || config === true) {
-    logger.info('[createTaskProvider] Using DefaultTaskProvider');
-    return new DefaultTaskProvider();
-  }
-
-  if (TypeGuardsHelper.isObjectWithProperty(config, 'provider')) {
-    if (!workspace) {
-      throw new Error('Workspace path is required for custom task providers');
-    }
-    logger.info(`[createTaskProvider] Loading custom provider: ${config.provider}`);
-    return loadTaskProvider(workspace, config.provider);
-  }
-
-  throw new Error('Invalid tasks config');
+  logger.info('[createTaskProvider] Using DefaultTaskProvider');
+  return new DefaultTaskProvider();
 }
 
 function createNoopProvider(): TaskSyncProvider {
