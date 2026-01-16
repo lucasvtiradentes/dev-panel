@@ -2,6 +2,7 @@ import { syncKeybindings } from '../common/core/keybindings-sync';
 import { Command, registerCommand } from '../common/vscode/vscode-commands';
 import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
+import type { BranchChangedFilesProvider } from '../views/branch-changed-files';
 import type { BranchContextProvider } from '../views/branch-context';
 import type { BranchTasksProvider } from '../views/branch-tasks';
 import type { PromptTreeDataProvider } from '../views/prompts';
@@ -9,6 +10,7 @@ import type { ReplacementsProvider } from '../views/replacements';
 import type { TaskTreeDataProvider } from '../views/tasks';
 import type { ToolTreeDataProvider } from '../views/tools';
 import type { VariablesProvider } from '../views/variables';
+import { createBranchChangedFilesCommands } from './internal/branch-changed-files';
 import { createEditBranchFieldsCommands } from './internal/branch-context/edit-branch-fields';
 import { createOpenBranchContextFileCommand } from './internal/branch-context/open-branch-context-file';
 import { createShowBranchContextValidationCommand } from './internal/branch-context/show-validation';
@@ -78,6 +80,7 @@ export function registerAllCommands(options: {
   replacementsProvider: ReplacementsProvider;
   branchContextProvider: BranchContextProvider;
   branchTasksProvider: BranchTasksProvider;
+  branchChangedFilesProvider: BranchChangedFilesProvider;
 }): Disposable[] {
   const {
     context,
@@ -88,6 +91,7 @@ export function registerAllCommands(options: {
     replacementsProvider,
     branchContextProvider,
     branchTasksProvider,
+    branchChangedFilesProvider,
   } = options;
   return [
     createRefreshCommand(taskTreeDataProvider),
@@ -130,6 +134,7 @@ export function registerAllCommands(options: {
     createSyncBranchContextCommand(branchContextProvider),
     ...createToggleBranchContextHideEmptySectionsCommand(branchContextProvider),
     ...createToggleBranchTasksCommands(branchTasksProvider),
+    ...createBranchChangedFilesCommands(branchChangedFilesProvider),
     createShowLogsCommand(),
     createShowWorkspaceStateCommand(),
     createClearWorkspaceStateCommand(),

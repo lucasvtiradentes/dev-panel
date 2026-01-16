@@ -39,7 +39,9 @@ export class ProviderHelpers {
     config?: DevPanelConfig,
     showChangedFiles: boolean | { provider: string } = true,
   ): SectionRegistry {
-    const configHash = config ? JSON.stringify(config.branchContext) : '';
+    const configHash = config
+      ? JSON.stringify(config.branchContext) + JSON.stringify(showChangedFiles)
+      : JSON.stringify(showChangedFiles);
 
     if (this.sectionRegistryCache && this.configHashCache === configHash) {
       return this.sectionRegistryCache;

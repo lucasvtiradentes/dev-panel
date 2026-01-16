@@ -1,4 +1,4 @@
-import { exec } from 'node:child_process';
+import { exec, execSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
   type Dirent,
@@ -180,6 +180,21 @@ export class NodeCryptoHelper {
 
 export class NodeHttps {
   static get = get;
+}
+
+export class ShellHelper {
+  static execSync(command: string, cwd: string): string {
+    return execSync(command, { cwd, encoding: 'utf-8' });
+  }
+
+  static execSyncSilent(command: string, cwd: string): boolean {
+    try {
+      execSync(command, { cwd, stdio: 'ignore' });
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }
 
 export class CliPathHelper {

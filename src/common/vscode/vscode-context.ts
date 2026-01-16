@@ -30,6 +30,7 @@ export const ContextKey = {
   BranchTasksShowOnlyTodo: 'branchTasksShowOnlyTodo',
   BranchTasksGrouped: 'branchTasksGrouped',
   BranchTasksHasFilter: 'branchTasksHasFilter',
+  BranchChangedFilesGrouped: 'branchChangedFilesGrouped',
   WorkspaceId: `${CONTEXT_PREFIX}.workspaceId`,
 } as const;
 

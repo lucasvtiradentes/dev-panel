@@ -2,6 +2,7 @@ import { registerAllCommands } from './commands/register-all';
 import {
   GLOBAL_STATE_WORKSPACE_SOURCE,
   getViewIdBranchContext,
+  getViewIdChangedFiles,
   getViewIdConfigs,
   getViewIdPrompts,
   getViewIdReplacements,
@@ -17,6 +18,7 @@ import { VscodeHelper } from './common/vscode/vscode-helper';
 import type { ExtensionContext } from './common/vscode/vscode-types';
 import { generateWorkspaceId, setWorkspaceId } from './common/vscode/vscode-workspace';
 import { StatusBarManager } from './status-bar/status-bar-manager';
+import { BranchChangedFilesProvider } from './views/branch-changed-files';
 import { BranchContextProvider } from './views/branch-context';
 import { BranchTasksProvider } from './views/branch-tasks';
 import { PromptTreeDataProvider } from './views/prompts';
@@ -45,6 +47,7 @@ type Providers = {
   promptTreeDataProvider: PromptTreeDataProvider;
   branchContextProvider: BranchContextProvider;
   branchTasksProvider: BranchTasksProvider;
+  branchChangedFilesProvider: BranchChangedFilesProvider;
 };
 
 function setupStatesAndContext(context: ExtensionContext) {
@@ -71,7 +74,9 @@ function setupProviders(activateStart: number): Providers {
   const replacementsProvider = new ReplacementsProvider();
   const promptTreeDataProvider = new PromptTreeDataProvider();
   const branchTasksProvider = new BranchTasksProvider();
+  const branchChangedFilesProvider = new BranchChangedFilesProvider();
   const branchContextProvider = new BranchContextProvider(() => branchTasksProvider.refresh());
+  branchChangedFilesProvider.setSyncCallback(() => branchContextProvider.syncBranchContext());
   const toolTreeDataProvider = new ToolTreeDataProvider();
   setToolProviderInstance(toolTreeDataProvider);
 
@@ -88,6 +93,7 @@ function setupProviders(activateStart: number): Providers {
     promptTreeDataProvider,
     branchContextProvider,
     branchTasksProvider,
+    branchChangedFilesProvider,
   };
 }
 
@@ -120,6 +126,11 @@ function setupTreeViews(providers: Providers) {
     dragAndDropController: providers.branchTasksProvider.dragAndDropController,
   });
 
+  const changedFilesTreeView = VscodeHelper.createTreeView(getViewIdChangedFiles(), {
+    treeDataProvider: providers.branchChangedFilesProvider,
+  });
+  providers.branchChangedFilesProvider.setTreeView(changedFilesTreeView);
+
   VscodeHelper.registerTreeDataProvider(getViewIdConfigs(), providers.variablesProvider);
   VscodeHelper.registerTreeDataProvider(getViewIdReplacements(), providers.replacementsProvider);
 }
@@ -133,6 +144,7 @@ function setupDisposables(context: ExtensionContext, providers: Providers) {
   context.subscriptions.push({ dispose: () => providers.promptTreeDataProvider.dispose() });
   context.subscriptions.push({ dispose: () => providers.branchContextProvider.dispose() });
   context.subscriptions.push({ dispose: () => providers.branchTasksProvider.dispose() });
+  context.subscriptions.push({ dispose: () => providers.branchChangedFilesProvider.dispose() });
 }
 
 function setupWatchers(context: ExtensionContext, providers: Providers, activateStart: number) {
@@ -168,6 +180,7 @@ function setupWatchers(context: ExtensionContext, providers: Providers, activate
       logger.info(`[extension] [branchMarkdownWatcher onChange] File changed: ${uri.fsPath}`);
       providers.branchContextProvider.handleMarkdownChange(uri);
       providers.branchTasksProvider.handleMarkdownChange(uri);
+      providers.branchChangedFilesProvider.handleMarkdownChange(uri);
     },
   });
   context.subscriptions.push(branchMarkdownWatcher);
@@ -178,6 +191,8 @@ function setupWatchers(context: ExtensionContext, providers: Providers, activate
     providers.branchContextProvider.setBranch(newBranch, false);
     logger.info('[extension] [branchWatcher callback] Calling branchTasksProvider.setBranch');
     providers.branchTasksProvider.setBranch(newBranch);
+    logger.info('[extension] [branchWatcher callback] Calling branchChangedFilesProvider.setBranch');
+    providers.branchChangedFilesProvider.setBranch(newBranch);
     logger.info('[extension] [branchWatcher callback] Updating branchMarkdownWatcher');
     branchMarkdownWatcher.updateWatcher(newBranch);
     logger.info('[extension] [branchWatcher callback] Calling replacementsProvider.handleBranchChange');
@@ -209,6 +224,7 @@ function setupCommands(context: ExtensionContext, providers: Providers) {
     replacementsProvider: providers.replacementsProvider,
     branchContextProvider: providers.branchContextProvider,
     branchTasksProvider: providers.branchTasksProvider,
+    branchChangedFilesProvider: providers.branchChangedFilesProvider,
   });
   context.subscriptions.push(...commandDisposables);
 
