@@ -51,7 +51,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     const workspace = VscodeHelper.getFirstWorkspacePath();
     const config = workspace ? ConfigManager.loadWorkspaceConfigFromPath(workspace) : null;
     const tasksConfig = config?.branchContext?.builtinSections?.tasks;
-    this.taskProvider = createTaskProvider(tasksConfig, workspace ?? undefined);
+    this.taskProvider = createTaskProvider(tasksConfig);
 
     const wrappedOnSyncComplete = onSyncComplete
       ? () => {

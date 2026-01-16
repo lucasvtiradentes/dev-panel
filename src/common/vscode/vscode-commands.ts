@@ -104,7 +104,6 @@ export enum Command {
   ToggleBranchTasksGroupMode = 'toggleBranchTasksGroupMode',
   ToggleBranchTasksGroupModeGrouped = 'toggleBranchTasksGroupModeGrouped',
   AddBranchTask = 'addBranchTask',
-  SyncBranchTasks = 'syncBranchTasks',
   FilterBranchTasks = 'filterBranchTasks',
   FilterBranchTasksActive = 'filterBranchTasksActive',
   ShowLogs = 'showLogs',

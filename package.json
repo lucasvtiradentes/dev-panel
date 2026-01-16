@@ -538,11 +538,6 @@
         "icon": "$(add)"
       },
       {
-        "command": "devPanel.syncBranchTasks",
-        "title": "Sync Tasks",
-        "icon": "$(sync)"
-      },
-      {
         "command": "devPanel.filterBranchTasks",
         "title": "Filter Tasks",
         "icon": "$(filter)"
@@ -716,7 +711,6 @@
         { "command": "devPanel.setTaskMilestone", "when": "false" },
         { "command": "devPanel.cycleTaskStatus", "when": "false" },
         { "command": "devPanel.addBranchTask", "when": "false" },
-        { "command": "devPanel.syncBranchTasks", "when": "false" },
         { "command": "devPanel.filterBranchTasks", "when": "false" },
         { "command": "devPanel.filterBranchTasksActive", "when": "false" },
         { "command": "devPanel.setPromptKeybinding", "when": "false" },
@@ -960,11 +954,6 @@
           "command": "devPanel.addBranchTask",
           "when": "view == devPanelTodos",
           "group": "navigation@4"
-        },
-        {
-          "command": "devPanel.syncBranchTasks",
-          "when": "view == devPanelTodos && branchTasksHasExternalProvider",
-          "group": "navigation@5"
         },
         {
           "command": "devPanel.editBranchTodos",

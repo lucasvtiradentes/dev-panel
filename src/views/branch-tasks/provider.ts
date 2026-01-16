@@ -6,9 +6,8 @@ import { logger } from '../../common/lib/logger';
 import type { TaskPriority, TaskStatus } from '../../common/schemas';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
-import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
-import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, Uri } from '../../common/vscode/vscode-types';
 import {
   type MilestoneNode,
@@ -48,10 +47,8 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
     const workspace = VscodeHelper.getFirstWorkspacePath();
     const config = workspace ? this.loadConfig(workspace) : null;
     const tasksConfig = config?.branchContext?.builtinSections?.tasks;
-    this.taskProvider = createTaskProvider(tasksConfig, workspace ?? undefined);
+    this.taskProvider = createTaskProvider(tasksConfig);
     void setContextKey(ContextKey.BranchTasksHasFilter, false);
-    const hasExternalProvider = TypeGuardsHelper.isObjectWithProperty(tasksConfig, 'provider');
-    void setContextKey(ContextKey.BranchTasksHasExternalProvider, hasExternalProvider);
   }
 
   private loadConfig(workspace: string): DevPanelConfig | null {
@@ -76,27 +73,6 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
 
     await this.taskProvider.onCreateTask({ text }, undefined, syncContext);
     this.refresh();
-  }
-
-  async syncTasks() {
-    const syncContext = this.getSyncContext();
-    if (!syncContext) return;
-
-    try {
-      const result = await this.taskProvider.onSync(syncContext);
-      if (result.added > 0 || result.updated > 0 || result.deleted > 0) {
-        VscodeHelper.showToastMessage(
-          ToastKind.Info,
-          `Synced: ${result.added} added, ${result.updated} updated, ${result.deleted} deleted`,
-        );
-      } else {
-        VscodeHelper.showToastMessage(ToastKind.Info, 'Tasks are up to date');
-      }
-      this.refresh();
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      VscodeHelper.showToastMessage(ToastKind.Error, `Sync failed: ${message}`);
-    }
   }
 
   async showFilterQuickPick() {
