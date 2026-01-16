@@ -939,18 +939,18 @@
           "group": "navigation@1"
         },
         {
-          "command": "devPanel.syncBranchContext",
-          "when": "view == devPanelBranchContext",
-          "group": "navigation@2"
-        },
-        {
           "command": "devPanel.toggleBranchContextHideEmptySections",
           "when": "view == devPanelBranchContext && !branchContextHideEmptySections",
-          "group": "navigation@3"
+          "group": "navigation@2"
         },
         {
           "command": "devPanel.toggleBranchContextHideEmptySectionsActive",
           "when": "view == devPanelBranchContext && branchContextHideEmptySections",
+          "group": "navigation@2"
+        },
+        {
+          "command": "devPanel.syncBranchContext",
+          "when": "view == devPanelBranchContext",
           "group": "navigation@3"
         },
         {
@@ -1002,11 +1002,6 @@
           "command": "devPanel.toggleBranchChangedFilesGroupModeGrouped",
           "when": "view == devPanelChangedFiles && branchChangedFilesGrouped",
           "group": "navigation@1"
-        },
-        {
-          "command": "devPanel.syncBranchChangedFiles",
-          "when": "view == devPanelChangedFiles",
-          "group": "navigation@2"
         }
       ],
       "view/item/context": [
