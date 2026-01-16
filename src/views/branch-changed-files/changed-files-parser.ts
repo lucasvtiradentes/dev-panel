@@ -85,8 +85,8 @@ export class ChangedFilesParser {
     }
 
     const sortedTopics = Array.from(topics.values()).sort((a, b) => {
-      if (a.name === UNCATEGORIZED_TOPIC) return 1;
-      if (b.name === UNCATEGORIZED_TOPIC) return -1;
+      if (a.name === UNCATEGORIZED_TOPIC) return -1;
+      if (b.name === UNCATEGORIZED_TOPIC) return 1;
       return a.name.localeCompare(b.name);
     });
 
