@@ -1,12 +1,11 @@
-import { FILE_WATCHER_DEBOUNCE_MS, SECTION_NAME_CHANGED_FILES } from '../../common/constants';
-import { ConfigManager } from '../../common/core/config-manager';
+import { FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
 import { StoreKey, extensionStore } from '../../common/core/extension-store';
 import { createLogger } from '../../common/lib/logger';
-import { MarkdownHelper } from '../../common/utils/helpers/markdown-helper';
 import { FileIOHelper, NodePathHelper, ShellHelper } from '../../common/utils/helpers/node-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
+import { loadBranchContext } from '../_branch_base';
 import { ChangedFilesParser, type ParseResult } from './changed-files-parser';
 import { ChangedFilesTreeBuilder } from './tree-builder';
 import type { BranchChangedFilesTreeItem, TopicNode } from './tree-items';
@@ -105,28 +104,18 @@ export class BranchChangedFilesProvider implements TreeDataProvider<BranchChange
       return;
     }
 
-    const workspace = VscodeHelper.getFirstWorkspacePath();
-    if (!workspace) {
-      logger.warn('[loadChangedFiles] No workspace');
+    const context = loadBranchContext(this.currentBranch);
+    const changedFilesContent = context.changedFiles;
+
+    if (!changedFilesContent) {
+      logger.warn('[loadChangedFiles] No changed files in branch context');
       this.cachedTopics = [];
       this.cachedMetadata = null;
       this.updateDescription();
       return;
     }
 
-    const filePath = ConfigManager.getBranchContextFilePath(workspace, this.currentBranch);
-    const content = FileIOHelper.readFileIfExists(filePath);
-    if (!content) {
-      logger.warn('[loadChangedFiles] No branch context file');
-      this.cachedTopics = [];
-      this.cachedMetadata = null;
-      this.updateDescription();
-      return;
-    }
-
-    const changedFilesContent = MarkdownHelper.extractSection(content, SECTION_NAME_CHANGED_FILES);
     const result = ChangedFilesParser.parseFromMarkdown(changedFilesContent);
-
     this.cachedTopics = result.topics;
     this.cachedMetadata = result.metadata;
     this.updateDescription();
