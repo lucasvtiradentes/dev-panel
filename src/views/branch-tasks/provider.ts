@@ -8,7 +8,7 @@ import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { TreeDataProvider, TreeItem, Uri } from '../../common/vscode/vscode-types';
+import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import {
   type MilestoneNode,
   type SyncContext,
@@ -42,6 +42,7 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
   private taskProvider: TaskSyncProvider;
   private fileChangeDebounce: NodeJS.Timeout | null = null;
   private isInitializing = true;
+  private treeView: TreeView<BranchTreeItem> | null = null;
 
   constructor() {
     const workspace = VscodeHelper.getFirstWorkspacePath();
@@ -53,6 +54,45 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
 
   private loadConfig(workspace: string): DevPanelConfig | null {
     return ConfigManager.loadWorkspaceConfigFromPath(workspace);
+  }
+
+  setTreeView(treeView: TreeView<BranchTreeItem>) {
+    this.treeView = treeView;
+    this.updateDescription();
+  }
+
+  private updateDescription() {
+    if (!this.treeView) return;
+
+    const allTasks = this.getAllTasksFlat();
+    if (allTasks.length === 0) {
+      this.treeView.description = undefined;
+      return;
+    }
+
+    const completed = allTasks.filter((t) => t.status === 'done').length;
+    this.treeView.description = `${completed}/${allTasks.length}`;
+  }
+
+  private getAllTasksFlat(): TaskNode[] {
+    const tasks: TaskNode[] = [];
+    const collectTasks = (nodes: TaskNode[]) => {
+      for (const node of nodes) {
+        tasks.push(node);
+        collectTasks(node.children);
+      }
+    };
+
+    if (this.cachedMilestones.length > 0) {
+      for (const milestone of this.cachedMilestones) {
+        collectTasks(milestone.tasks);
+      }
+      collectTasks(this.cachedOrphanTasks);
+    } else {
+      collectTasks(this.cachedNodes);
+    }
+
+    return tasks;
   }
 
   toggleShowOnlyTodo() {
@@ -191,6 +231,7 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
     void this.loadBranchTasks().then(() => {
       logger.info('[BranchTasksProvider] [refresh] Tasks loaded, firing tree data change event');
       this._onDidChangeTreeData.fire(undefined);
+      this.updateDescription();
     });
   }
 

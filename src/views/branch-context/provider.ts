@@ -20,7 +20,7 @@ import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
-import { createTaskProvider, loadBranchContext } from '../_branch_base';
+import { loadBranchContext } from '../_branch_base';
 import { getFieldLineNumber } from '../_branch_base/storage/markdown-parser';
 import { validateBranchContext } from './config-validator';
 import { SectionItem } from './items';
@@ -41,17 +41,11 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   private lastSyncTimestamp: string | null = null;
   private helpers: ProviderHelpers;
   private syncManager: SyncManager;
-  private taskProvider;
   private isInitializing = true;
 
   constructor(onSyncComplete?: () => void) {
     this.validationIndicator = new ValidationIndicator();
     this.helpers = new ProviderHelpers();
-
-    const workspace = VscodeHelper.getFirstWorkspacePath();
-    const config = workspace ? ConfigManager.loadWorkspaceConfigFromPath(workspace) : null;
-    const tasksConfig = config?.branchContext?.builtinSections?.tasks;
-    this.taskProvider = createTaskProvider(tasksConfig);
 
     const wrappedOnSyncComplete = onSyncComplete
       ? () => {
@@ -272,16 +266,6 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
       changedFilesValue = Git.formatChangedFilesSummary(summary);
     }
 
-    const markdownPath = ConfigManager.getBranchContextFilePath(workspace, this.currentBranch);
-    const syncContext = {
-      branchName: this.currentBranch,
-      workspacePath: workspace,
-      markdownPath,
-      branchContext: context,
-    };
-    const taskStats = await this.taskProvider.getTaskStats(syncContext);
-    const tasksValue = taskStats.total > 0 ? `${taskStats.completed}/${taskStats.total}` : undefined;
-
     const items: TreeItem[] = [];
     for (const section of registry.getAllSections()) {
       const value = this.helpers.getSectionValue({
@@ -289,7 +273,6 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
         sectionName: section.name,
         currentBranch: this.currentBranch,
         changedFilesValue,
-        tasksValue,
       });
       const sectionMetadata = context.metadata?.sections?.[section.name];
 

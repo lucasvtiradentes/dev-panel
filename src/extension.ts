@@ -121,10 +121,11 @@ function setupTreeViews(providers: Providers) {
   });
   providers.branchContextProvider.setTreeView(branchContextTreeView);
 
-  VscodeHelper.createTreeView(getViewIdTodos(), {
+  const branchTasksTreeView = VscodeHelper.createTreeView(getViewIdTodos(), {
     treeDataProvider: providers.branchTasksProvider,
     dragAndDropController: providers.branchTasksProvider.dragAndDropController,
   });
+  providers.branchTasksProvider.setTreeView(branchTasksTreeView);
 
   const changedFilesTreeView = VscodeHelper.createTreeView(getViewIdChangedFiles(), {
     treeDataProvider: providers.branchChangedFilesProvider,
