@@ -223,10 +223,6 @@ const DevPanelReplacementSchema = z
 
 const DevPanelSettingsSchema = z
   .object({
-    aiProvider: z
-      .nativeEnum(AIProvider)
-      .optional()
-      .describe('AI provider to use for prompts: claude, gemini, or cursor-agent'),
     promptExecution: z
       .nativeEnum(PromptExecutionMode)
       .optional()
@@ -248,15 +244,19 @@ const DevPanelSettingsSchema = z
   })
   .describe(`Global settings for ${EXTENSION_DISPLAY_NAME} behavior`);
 
+const BranchContextFieldSchema = z.object({
+  name: z.string().describe('Field name exactly as it appears in template (e.g., "PR LINK")'),
+  label: z.string().optional().describe('Display label in the view. Defaults to name if not set'),
+  icon: z.string().optional().describe('VSCode icon name (optional, defaults to symbol-field)'),
+});
+
 const BranchContextSectionSchema = z.object({
   name: z.string().describe('Section heading name exactly as it appears in template (e.g., "TESTS SCENARIOS")'),
   label: z
     .string()
     .optional()
     .describe('Display label in the view (e.g., "Tests scenarios"). Defaults to name if not set'),
-  type: z
-    .enum(['field', 'text', 'auto'])
-    .describe('Section type: field = inline value, text = multi-line, auto = auto-populated'),
+  type: z.enum(['text', 'auto']).describe('Section type: text = multi-line, auto = auto-populated'),
   provider: z.string().optional().describe('Provider path for auto sections (e.g., "./plugins/github-pr.js")'),
   icon: z.string().optional().describe('VSCode icon name (optional, defaults to symbol-field)'),
   options: z
@@ -271,27 +271,16 @@ const BranchContextSectionSchema = z.object({
     ),
 });
 
-const BranchContextProviderSchema = z.object({
-  provider: z
-    .string()
-    .describe('Command to execute (e.g., "node ./plugins/my-provider.js", "bash ./scripts/fetch.sh")'),
-});
-
-const BuiltinSectionsSchema = z.object({
-  changedFiles: z
-    .union([z.boolean(), BranchContextProviderSchema])
-    .optional()
-    .describe('Changed files section: false = hide, true = default provider, { provider: string } = custom provider')
-    .default(true),
-  tasks: z.boolean().optional().describe('Tasks section: false = hide, true = show (default)').default(true),
-});
-
 const BranchContextConfigSchema = z.object({
-  builtinSections: BuiltinSectionsSchema.optional().describe('Configuration for built-in sections'),
-  customSections: z
+  fields: z
+    .array(BranchContextFieldSchema)
+    .optional()
+    .describe('Configurable inline fields in BRANCH INFO section (e.g., PR LINK, LINEAR LINK)')
+    .default([]),
+  sections: z
     .array(BranchContextSectionSchema)
     .optional()
-    .describe('Custom sections to include in branch context')
+    .describe('Configurable sections (text or auto-populated)')
     .default([]),
 });
 
@@ -315,3 +304,5 @@ export type DevPanelConfig = z.infer<typeof DevPanelConfigSchema>;
 export type DevPanelVariable = z.infer<typeof DevPanelVariableSchema>;
 export type DevPanelReplacement = z.infer<typeof DevPanelReplacementSchema>;
 export type BranchContextConfig = z.infer<typeof BranchContextConfigSchema>;
+export type BranchContextField = z.infer<typeof BranchContextFieldSchema>;
+export type BranchContextSection = z.infer<typeof BranchContextSectionSchema>;

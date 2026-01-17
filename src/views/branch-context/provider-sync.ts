@@ -63,55 +63,20 @@ export class SyncManager {
   }
 
   syncRootToBranch() {
-    const currentBranch = this.getCurrentBranch();
-    if (!currentBranch) {
-      return;
-    }
-
-    if (this.lastSyncDirection === SyncDirection.RootToBranch) {
-      this.lastSyncDirection = null;
-      return;
-    }
-
-    const workspace = VscodeHelper.getFirstWorkspacePath();
-    if (!workspace) return;
-
-    const rootPath = ConfigManager.getRootBranchContextFilePath(workspace);
-    const branchPath = ConfigManager.getBranchContextFilePath(workspace, currentBranch);
-
-    if (!FileIOHelper.fileExists(rootPath)) {
-      return;
-    }
-
-    this.isSyncing = true;
-    this.isWritingMarkdown = true;
-    extensionStore.set(StoreKey.IsWritingBranchContext, true);
-    this.lastSyncDirection = SyncDirection.RootToBranch;
-
-    try {
-      const content = FileIOHelper.readFile(rootPath);
-      FileIOHelper.writeFile(branchPath, content);
-    } catch (error: unknown) {
-      logger.error(`Error syncing root to branch: ${TypeGuardsHelper.getErrorMessage(error)}`);
-    } finally {
-      setTimeout(() => {
-        this.isSyncing = false;
-        this.isWritingMarkdown = false;
-        extensionStore.set(StoreKey.IsWritingBranchContext, false);
-        setTimeout(() => {
-          this.lastSyncDirection = null;
-        }, 300);
-      }, 200);
-    }
+    this.syncDirection(SyncDirection.RootToBranch);
   }
 
   syncBranchToRoot() {
+    this.syncDirection(SyncDirection.BranchToRoot);
+  }
+
+  private syncDirection(direction: SyncDirection) {
     const currentBranch = this.getCurrentBranch();
     if (!currentBranch) {
       return;
     }
 
-    if (this.lastSyncDirection === SyncDirection.BranchToRoot) {
+    if (this.lastSyncDirection === direction) {
       this.lastSyncDirection = null;
       return;
     }
@@ -122,20 +87,25 @@ export class SyncManager {
     const rootPath = ConfigManager.getRootBranchContextFilePath(workspace);
     const branchPath = ConfigManager.getBranchContextFilePath(workspace, currentBranch);
 
-    if (!FileIOHelper.fileExists(branchPath)) {
+    const isRootToBranch = direction === SyncDirection.RootToBranch;
+    const sourcePath = isRootToBranch ? rootPath : branchPath;
+    const targetPath = isRootToBranch ? branchPath : rootPath;
+
+    if (!FileIOHelper.fileExists(sourcePath)) {
       return;
     }
 
     this.isSyncing = true;
     this.isWritingMarkdown = true;
     extensionStore.set(StoreKey.IsWritingBranchContext, true);
-    this.lastSyncDirection = SyncDirection.BranchToRoot;
+    this.lastSyncDirection = direction;
 
     try {
-      const content = FileIOHelper.readFile(branchPath);
-      FileIOHelper.writeFile(rootPath, content);
+      const content = FileIOHelper.readFile(sourcePath);
+      FileIOHelper.writeFile(targetPath, content);
     } catch (error: unknown) {
-      logger.error(`Error syncing branch to root: ${TypeGuardsHelper.getErrorMessage(error)}`);
+      const directionLabel = isRootToBranch ? 'root to branch' : 'branch to root';
+      logger.error(`Error syncing ${directionLabel}: ${TypeGuardsHelper.getErrorMessage(error)}`);
     } finally {
       setTimeout(() => {
         this.isSyncing = false;
@@ -180,39 +150,36 @@ export class SyncManager {
 
       let changedFiles: string | undefined;
       let changedFilesSectionMetadata: Record<string, unknown> | undefined;
-      const changedFilesConfig = config?.branchContext?.builtinSections?.changedFiles;
 
-      if (changedFilesConfig !== false) {
-        logger.info(`[syncBranchContext] Fetching changedFiles (+${Date.now() - startTime}ms)`);
+      logger.info(`[syncBranchContext] Fetching changedFiles (+${Date.now() - startTime}ms)`);
 
-        const registry = this.helpers.getSectionRegistry(workspace, config, changedFilesConfig);
-        const changedFilesSection = registry.get(SECTION_NAME_CHANGED_FILES);
+      const registry = this.helpers.getSectionRegistry(workspace, config ?? undefined);
+      const changedFilesSection = registry.get(SECTION_NAME_CHANGED_FILES);
 
-        if (changedFilesSection?.provider) {
-          const data = await changedFilesSection.provider.fetch(syncContext);
-          changedFiles = data;
+      if (changedFilesSection?.provider) {
+        const data = await changedFilesSection.provider.fetch(syncContext);
+        changedFiles = data;
 
-          const metadataMatch = data.match(METADATA_SECTION_REGEX_CAPTURE);
-          if (metadataMatch) {
-            try {
-              const parsed = JSON.parse(metadataMatch[1]);
-              if (TypeGuardsHelper.isObject(parsed)) {
-                changedFilesSectionMetadata = parsed as Record<string, unknown>;
-                changedFiles = data.replace(METADATA_SECTION_REGEX_GLOBAL, '').trim();
-              }
-            } catch (error: unknown) {
-              logger.error(`Failed to parse changedFiles metadata: ${TypeGuardsHelper.getErrorMessage(error)}`);
+        const metadataMatch = data.match(METADATA_SECTION_REGEX_CAPTURE);
+        if (metadataMatch) {
+          try {
+            const parsed = JSON.parse(metadataMatch[1]);
+            if (TypeGuardsHelper.isObject(parsed)) {
+              changedFilesSectionMetadata = parsed as Record<string, unknown>;
+              changedFiles = data.replace(METADATA_SECTION_REGEX_GLOBAL, '').trim();
             }
+          } catch (error: unknown) {
+            logger.error(`Failed to parse changedFiles metadata: ${TypeGuardsHelper.getErrorMessage(error)}`);
           }
         }
-
-        logger.info(`[syncBranchContext] changedFiles done (+${Date.now() - startTime}ms)`);
       }
+
+      logger.info(`[syncBranchContext] changedFiles done (+${Date.now() - startTime}ms)`);
 
       const customAutoData: Record<string, string> = {};
       const customSectionMetadata: Record<string, Record<string, unknown>> = {};
 
-      if (config?.branchContext?.customSections) {
+      if (config?.branchContext?.sections) {
         const registry = this.helpers.getSectionRegistry(workspace, config);
         const autoSections = registry.getAutoSections();
 
@@ -226,7 +193,7 @@ export class SyncManager {
         const sectionsToFetch = autoSections.filter((section) => {
           if (!section.provider) return false;
 
-          const customSection = config.branchContext?.customSections?.find((cs) => cs.name === section.name);
+          const customSection = config.branchContext?.sections?.find((cs) => cs.name === section.name);
           if (customSection?.skipIfEmpty && customSection.skipIfEmpty.length > 0) {
             for (const fieldName of customSection.skipIfEmpty) {
               const fieldValue = markdownFields[fieldName];

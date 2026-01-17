@@ -11,15 +11,6 @@
       "description": "Global settings",
       "type": "object",
       "properties": {
-        "aiProvider": {
-          "description": "AI provider to use for prompts: claude, gemini, or cursor-agent",
-          "type": "string",
-          "enum": [
-            "claude",
-            "gemini",
-            "cursor-agent"
-          ]
-        },
         "promptExecution": {
           "description": "Execution mode for prompts with saveOutput: \"timestamped\" creates new file each time with timestamp, \"overwrite\" replaces previous file",
           "type": "string",
@@ -48,47 +39,35 @@
       "description": "Branch context configuration",
       "type": "object",
       "properties": {
-        "builtinSections": {
-          "description": "Configuration for built-in sections",
-          "type": "object",
-          "properties": {
-            "changedFiles": {
-              "default": true,
-              "description": "Changed files section: false = hide, true = default provider, { provider: string } = custom provider",
-              "anyOf": [
-                {
-                  "type": "boolean"
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "provider": {
-                      "description": "Command to execute (e.g., \"node ./plugins/my-provider.js\", \"bash ./scripts/fetch.sh\")",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "provider"
-                  ],
-                  "additionalProperties": false
-                }
-              ]
-            },
-            "tasks": {
-              "default": true,
-              "description": "Tasks section: false = hide, true = show (default)",
-              "type": "boolean"
-            }
-          },
-          "required": [
-            "changedFiles",
-            "tasks"
-          ],
-          "additionalProperties": false
-        },
-        "customSections": {
+        "fields": {
           "default": [],
-          "description": "Custom sections to include in branch context",
+          "description": "Configurable inline fields in BRANCH INFO section (e.g., PR LINK, LINEAR LINK)",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "Field name exactly as it appears in template (e.g., \"PR LINK\")",
+                "type": "string"
+              },
+              "label": {
+                "description": "Display label in the view. Defaults to name if not set",
+                "type": "string"
+              },
+              "icon": {
+                "description": "VSCode icon name (optional, defaults to symbol-field)",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "sections": {
+          "default": [],
+          "description": "Configurable sections (text or auto-populated)",
           "type": "array",
           "items": {
             "type": "object",
@@ -102,10 +81,9 @@
                 "type": "string"
               },
               "type": {
-                "description": "Section type: field = inline value, text = multi-line, auto = auto-populated",
+                "description": "Section type: text = multi-line, auto = auto-populated",
                 "type": "string",
                 "enum": [
-                  "field",
                   "text",
                   "auto"
                 ]
@@ -143,7 +121,8 @@
         }
       },
       "required": [
-        "customSections"
+        "fields",
+        "sections"
       ],
       "additionalProperties": false
     },

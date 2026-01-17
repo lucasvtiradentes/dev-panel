@@ -42,11 +42,19 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
 
   setTreeView(treeView: TreeView<TreePrompt | PromptGroupTreeItem>) {
     this._treeView = treeView;
+    this.updateDescription();
+  }
+
+  updateDescription() {
+    if (this._treeView) {
+      this._treeView.description = promptsState.getAiProvider() ?? '';
+    }
   }
 
   refresh() {
     log.info('refresh() called - tree will re-read config');
     this.updateContextKeys();
+    this.updateDescription();
     super.refresh();
   }
 

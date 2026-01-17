@@ -1,6 +1,5 @@
 {
   "settings": {
-    "aiProvider": "claude",
     "exclude": [
       "**/.devpanel/**",
       "**/.changeset/**",
@@ -15,19 +14,18 @@
       "**/registry/**",
       "**/resources/**",
       "**/scripts/**",
-      "**/docs/**"
-    ]
+      "**/docs/**",
+    ],
   },
   "branchContext": {
-    "builtinSections": {
-      // "changedFiles": {
-      //   "provider": "tsx ./plugins/tree-changed-files.ts"
-      // },
-      // "tasks": { "provider": "tsx ./plugins/linear-tasks.ts" },
-      "changedFiles": true,
-      "tasks": true
-    },
-    "customSections": [
+    "fields": [
+      { "name": "PR LINK", "label": "PR link", "icon": "git-pull-request" },
+      { "name": "LINEAR LINK", "label": "Linear link", "icon": "link" }
+    ],
+    "sections": [
+      { "name": "OBJECTIVE", "label": "Objective", "type": "text", "icon": "target" },
+      { "name": "REQUIREMENTS", "label": "Requirements", "type": "text", "icon": "checklist" },
+      { "name": "NOTES", "label": "Notes", "type": "text", "icon": "note" },
       {
         "name": "GH PR INFO",
         "label": "PR info",
@@ -54,17 +52,11 @@
     {
       "name": "environment",
       "kind": "choose",
-      "options": [
-        "local",
-        "local-staging",
-        "local-prod",
-        "staging",
-        "prod"
-      ],
+      "options": ["local", "local-staging", "local-prod", "staging", "prod"],
       "command": "bash scripts/environment-select.sh",
       "description": "Select the target environment",
       "default": "local",
-      "group": "Environment"
+      "group": "Environment",
     },
     {
       "name": "debug",
@@ -72,54 +64,47 @@
       "command": "bash scripts/toggle-debug.sh",
       "description": "Enable or disable debug mode",
       "default": false,
-      "group": "Environment"
+      "group": "Environment",
     },
     {
       "name": "api-url",
       "kind": "input",
       "command": "bash scripts/set-api-url.sh",
       "description": "Set the API base URL",
-      "group": "API"
+      "group": "API",
     },
     {
       "name": "features",
       "kind": "choose",
       "multiSelect": true,
-      "options": [
-        "auth",
-        "analytics",
-        "notifications",
-        "dark-mode"
-      ],
+      "options": ["auth", "analytics", "notifications", "dark-mode"],
       "command": "bash scripts/set-features.sh",
       "description": "Enable feature flags",
-      "default": [
-        "auth"
-      ],
-      "group": "API"
+      "default": ["auth"],
+      "group": "API",
     },
     {
       "name": "config-file",
       "kind": "file",
-      "description": "Select a configuration file"
+      "description": "Select a configuration file",
     },
     {
       "name": "output-dir",
       "kind": "folder",
-      "description": "Select output directory"
+      "description": "Select output directory",
     },
     {
       "name": "multiple-files",
       "kind": "file",
       "multiSelect": true,
-      "description": "Select multiple files"
+      "description": "Select multiple files",
     },
     {
       "name": "multiple-folders",
       "kind": "folder",
       "multiSelect": true,
-      "description": "Select multiple folders"
-    }
+      "description": "Select multiple folders",
+    },
   ],
   "replacements": [
     {
@@ -130,11 +115,11 @@
       "patches": [
         {
           "search": "void VscodeHelper.fetchTasks();",
-          "replace": "// DEBUG ENABLED\n  void VscodeHelper.fetchTasks();"
-        }
+          "replace": "// DEBUG ENABLED\n  void VscodeHelper.fetchTasks();",
+        },
       ],
-      "group": "Debug"
-    }
+      "group": "Debug",
+    },
   ],
   "tools": [],
   "tasks": [
@@ -142,7 +127,7 @@
       "name": "list-files",
       "command": "ls -la",
       "group": "Utils",
-      "hideTerminal": true
+      "hideTerminal": true,
     },
     {
       "name": "show-date",
@@ -153,10 +138,10 @@
           "name": "DUMP_NAME",
           "label": "type the name of the dump",
           "type": "text",
-          "placeholder": "name-of-the-dump"
-        }
-      ]
-    }
+          "placeholder": "name-of-the-dump",
+        },
+      ],
+    },
   ],
   "prompts": [
     {
@@ -165,7 +150,7 @@
       "description": "Review constants and suggest centralizing hardcoded values",
       "group": "Analysis",
       "inputs": [],
-      "saveOutput": true
+      "saveOutput": true,
     },
     {
       "name": "TypeSafety Review",
@@ -178,10 +163,10 @@
           "label": "Folders to analyze (comma-separated)",
           "type": "folder",
           "multiSelect": true,
-          "placeholder": "select folders"
-        }
+          "placeholder": "select folders",
+        },
       ],
-      "saveOutput": true
-    }
-  ]
+      "saveOutput": true,
+    },
+  ],
 }

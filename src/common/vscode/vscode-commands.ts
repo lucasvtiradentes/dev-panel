@@ -59,6 +59,7 @@ export enum Command {
   TogglePromptsShowHiddenActive = 'togglePromptsShowHiddenActive',
   TogglePromptsShowOnlyFavorites = 'togglePromptsShowOnlyFavorites',
   TogglePromptsShowOnlyFavoritesActive = 'togglePromptsShowOnlyFavoritesActive',
+  PromptsSelectProvider = 'promptsSelectProvider',
   ExecutePrompt = 'executePrompt',
   GoToPromptFile = 'goToPromptFile',
   AddPrompt = 'addPrompt',

@@ -25,6 +25,8 @@ export class BranchChangedFilesProvider implements TreeDataProvider<BranchChange
   private fileChangeDebounce: NodeJS.Timeout | null = null;
   private treeView: TreeView<BranchChangedFilesTreeItem> | null = null;
   private syncCallback: SyncCallback | null = null;
+  private lastChangedFilesHash = '';
+  private lastManualRefreshTime = 0;
 
   constructor() {
     void setContextKey(ContextKey.BranchChangedFilesGrouped, this.grouped);
@@ -65,59 +67,100 @@ export class BranchChangedFilesProvider implements TreeDataProvider<BranchChange
   }
 
   setBranch(branchName: string) {
+    logger.info(`[setBranch] Called with '${branchName}', current='${this.currentBranch}'`);
     if (branchName !== this.currentBranch) {
       logger.info(`[setBranch] Branch changed from '${this.currentBranch}' to '${branchName}'`);
       this.currentBranch = branchName;
+      this.lastChangedFilesHash = '';
       this.refresh();
     }
   }
 
   handleMarkdownChange(uri: Uri) {
+    logger.info(`[handleMarkdownChange] Called. currentBranch='${this.currentBranch}', uri=${uri.fsPath}`);
+
     if (extensionStore.get(StoreKey.IsWritingBranchContext)) {
       logger.info(`[handleMarkdownChange] Ignoring file change during sync: ${uri.fsPath}`);
       return;
     }
 
-    logger.info(`[handleMarkdownChange] File changed: ${uri.fsPath}`);
+    const context = loadBranchContext(this.currentBranch);
+    logger.info(`[handleMarkdownChange] context.changedFiles length=${context.changedFiles?.length ?? 'null'}`);
+
+    const newHash = this.computeHash(context.changedFiles || '');
+    logger.info(`[handleMarkdownChange] newHash='${newHash}', lastHash='${this.lastChangedFilesHash}'`);
+
+    if (newHash === this.lastChangedFilesHash) {
+      logger.info('[handleMarkdownChange] CHANGED FILES section unchanged, skipping refresh');
+      return;
+    }
+
+    logger.info('[handleMarkdownChange] Hash changed, scheduling refresh');
 
     if (this.fileChangeDebounce) {
       clearTimeout(this.fileChangeDebounce);
     }
 
     this.fileChangeDebounce = setTimeout(() => {
+      logger.info('[handleMarkdownChange] Debounce fired, calling refresh()');
       this.refresh();
       this.fileChangeDebounce = null;
     }, FILE_WATCHER_DEBOUNCE_MS);
   }
 
+  private computeHash(content: string): string {
+    return `${content.length}:${content.slice(0, 50)}:${content.slice(-50)}`;
+  }
+
+  private resetState() {
+    this.cachedTopics = [];
+    this.cachedMetadata = null;
+    this.lastChangedFilesHash = '';
+    this.updateDescription();
+  }
+
   refresh() {
+    logger.info(`[refresh] Called. currentBranch='${this.currentBranch}'`);
+    this.lastManualRefreshTime = Date.now();
     this.loadChangedFiles();
     this._onDidChangeTreeData.fire(undefined);
   }
 
+  private shouldSkipRefresh(): boolean {
+    const timeSinceManualRefresh = Date.now() - this.lastManualRefreshTime;
+    return timeSinceManualRefresh < FILE_WATCHER_DEBOUNCE_MS * 2;
+  }
+
+  refreshIfNeeded() {
+    if (!this.shouldSkipRefresh()) {
+      this.refresh();
+    }
+  }
+
   private loadChangedFiles() {
+    logger.info(`[loadChangedFiles] Called. currentBranch='${this.currentBranch}'`);
+
     if (!this.currentBranch) {
       logger.warn('[loadChangedFiles] No current branch');
-      this.cachedTopics = [];
-      this.cachedMetadata = null;
-      this.updateDescription();
+      this.resetState();
       return;
     }
 
     const context = loadBranchContext(this.currentBranch);
     const changedFilesContent = context.changedFiles;
+    logger.info(`[loadChangedFiles] changedFilesContent length=${changedFilesContent?.length ?? 'null'}`);
 
     if (!changedFilesContent) {
       logger.warn('[loadChangedFiles] No changed files in branch context');
-      this.cachedTopics = [];
-      this.cachedMetadata = null;
-      this.updateDescription();
+      this.resetState();
       return;
     }
 
     const result = ChangedFilesParser.parseFromMarkdown(changedFilesContent);
     this.cachedTopics = result.topics;
     this.cachedMetadata = result.metadata;
+    this.lastChangedFilesHash = this.computeHash(changedFilesContent);
+    logger.info(`[loadChangedFiles] Loaded ${result.topics.length} topics, hash='${this.lastChangedFilesHash}'`);
     this.updateDescription();
   }
 

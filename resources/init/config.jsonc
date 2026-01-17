@@ -1,12 +1,22 @@
 {
   "settings": {
-    "aiProvider": "claude",
     "exclude": [
       "**/.devpanel/**",
       "**/node_modules/**",
       "**/.git/**",
       "**/dist/**",
       "**/out/**"
+    ]
+  },
+  "branchContext": {
+    "fields": [
+      { "name": "PR LINK", "label": "PR link", "icon": "git-pull-request" },
+      { "name": "LINEAR LINK", "label": "Linear link", "icon": "link" }
+    ],
+    "sections": [
+      { "name": "OBJECTIVE", "label": "Objective", "type": "text", "icon": "target" },
+      { "name": "REQUIREMENTS", "label": "Requirements", "type": "text", "icon": "checklist" },
+      { "name": "NOTES", "label": "Notes", "type": "text", "icon": "note" }
     ]
   },
   "variables": [

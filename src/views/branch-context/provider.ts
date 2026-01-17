@@ -1,19 +1,14 @@
 import {
   BRANCH_CONTEXT_NO_CHANGES,
   NOT_GIT_REPO_MESSAGE,
-  SECTION_NAME_BRANCH,
   SECTION_NAME_BRANCH_INFO,
   SECTION_NAME_CHANGED_FILES,
-  SECTION_NAME_LINEAR_LINK,
-  SECTION_NAME_NOTES,
-  SECTION_NAME_OBJECTIVE,
-  SECTION_NAME_PR_LINK,
-  SECTION_NAME_REQUIREMENTS,
 } from '../../common/constants';
 import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
+import { SectionType } from '../../common/schemas';
 import { branchContextState } from '../../common/state';
 import { formatRelativeTime } from '../../common/utils/functions/format-relative-time';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
@@ -251,9 +246,8 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     const config = this.helpers.loadConfig(workspace);
     const hideEmpty = branchContextState.getHideEmptySections();
     logger.info(`[BranchContext] [getChildren] hideEmpty: ${hideEmpty}`);
-    const showChangedFiles = false;
 
-    const registry = this.helpers.getSectionRegistry(workspace, config ?? undefined, showChangedFiles);
+    const registry = this.helpers.getSectionRegistry(workspace, config ?? undefined);
 
     const changedFilesSectionMetadata = context.metadata?.sections?.[SECTION_NAME_CHANGED_FILES];
     let changedFilesValue = BRANCH_CONTEXT_NO_CHANGES;
@@ -296,16 +290,15 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   }
 
   async editField(sectionName: string) {
-    const lineKeyMap: Record<string, string> = {
-      [SECTION_NAME_BRANCH]: SECTION_NAME_BRANCH_INFO,
-      [SECTION_NAME_PR_LINK]: SECTION_NAME_BRANCH_INFO,
-      [SECTION_NAME_LINEAR_LINK]: SECTION_NAME_BRANCH_INFO,
-      [SECTION_NAME_OBJECTIVE]: SECTION_NAME_OBJECTIVE,
-      [SECTION_NAME_REQUIREMENTS]: SECTION_NAME_REQUIREMENTS,
-      [SECTION_NAME_NOTES]: SECTION_NAME_NOTES,
-    };
+    const workspace = VscodeHelper.getFirstWorkspacePath();
+    if (!workspace) return;
 
-    const lineKey = lineKeyMap[sectionName] ?? sectionName;
+    const config = this.helpers.loadConfig(workspace);
+    const registry = this.helpers.getSectionRegistry(workspace, config ?? undefined);
+    const section = registry.get(sectionName);
+
+    const isField = section?.type === SectionType.Field;
+    const lineKey = isField ? SECTION_NAME_BRANCH_INFO : sectionName;
     await this.openMarkdownFileAtLine(lineKey);
   }
 

@@ -1,10 +1,8 @@
 import { BRANCH_CONTEXT_NA, FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
 import { Position } from '../../common/constants/enums';
-import { ConfigManager } from '../../common/core/config-manager';
 import { StoreKey, extensionStore } from '../../common/core/extension-store';
 import { logger } from '../../common/lib/logger';
 import type { TaskPriority, TaskStatus } from '../../common/schemas';
-import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -14,10 +12,10 @@ import {
   type SyncContext,
   type TaskNode,
   type TaskSyncProvider,
-  createTaskProvider,
   getBranchContextFilePath,
   loadBranchContext,
 } from '../_branch_base';
+import { DefaultTaskProvider } from '../_branch_base/providers/default/tasks.provider';
 import type { TaskFilter } from './filter-operations';
 import { showFilterQuickPick as showFilterQuickPickDialog } from './filter-quick-pick';
 import { buildFlatTree, buildMilestoneChildren, buildMilestonesTree, buildTaskChildren } from './provider-tree-builder';
@@ -43,17 +41,11 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
   private fileChangeDebounce: NodeJS.Timeout | null = null;
   private isInitializing = true;
   private treeView: TreeView<BranchTreeItem> | null = null;
+  private lastManualRefreshTime = 0;
 
   constructor() {
-    const workspace = VscodeHelper.getFirstWorkspacePath();
-    const config = workspace ? this.loadConfig(workspace) : null;
-    const tasksConfig = config?.branchContext?.builtinSections?.tasks;
-    this.taskProvider = createTaskProvider(tasksConfig);
+    this.taskProvider = new DefaultTaskProvider();
     void setContextKey(ContextKey.BranchTasksHasFilter, false);
-  }
-
-  private loadConfig(workspace: string): DevPanelConfig | null {
-    return ConfigManager.loadWorkspaceConfigFromPath(workspace);
   }
 
   setTreeView(treeView: TreeView<BranchTreeItem>) {
@@ -127,6 +119,12 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
   handleMarkdownChange(uri: Uri) {
     if (extensionStore.get(StoreKey.IsWritingBranchContext)) {
       logger.info(`[BranchTasksProvider] Ignoring file change during sync: ${uri.fsPath}`);
+      return;
+    }
+
+    const timeSinceManualRefresh = Date.now() - this.lastManualRefreshTime;
+    if (timeSinceManualRefresh < FILE_WATCHER_DEBOUNCE_MS * 2) {
+      logger.info(`[BranchTasksProvider] Ignoring file change - manual refresh was ${timeSinceManualRefresh}ms ago`);
       return;
     }
 
@@ -235,6 +233,23 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
     });
   }
 
+  private refreshAfterTaskOperation() {
+    this.lastManualRefreshTime = Date.now();
+    this.refresh();
+  }
+
+  shouldSkipRefresh(): boolean {
+    const timeSinceManualRefresh = Date.now() - this.lastManualRefreshTime;
+    return timeSinceManualRefresh < FILE_WATCHER_DEBOUNCE_MS * 2;
+  }
+
+  refreshIfNeeded() {
+    if (!this.shouldSkipRefresh()) {
+      this.lastManualRefreshTime = Date.now();
+      this.refresh();
+    }
+  }
+
   getTreeItem(element: BranchTreeItem): TreeItem {
     return element;
   }
@@ -302,66 +317,81 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
     if (!task) return;
 
     const newStatus = this.taskProvider.cycleStatus(task.status);
+    this.lastManualRefreshTime = Date.now();
 
     this.taskProvider.onStatusChange(lineIndex, newStatus, syncContext).then(() => {
-      this.refresh();
+      this.refreshAfterTaskOperation();
     });
   }
 
   async setStatus(lineIndex: number, status: TaskStatus) {
+    logger.info(`[BranchTasksProvider] [setStatus] START - lineIndex=${lineIndex}, status=${status}`);
     const syncContext = this.getSyncContext();
-    if (!syncContext) return;
+    if (!syncContext) {
+      logger.warn('[BranchTasksProvider] [setStatus] No sync context, aborting');
+      return;
+    }
 
+    this.lastManualRefreshTime = Date.now();
+    logger.info('[BranchTasksProvider] [setStatus] Calling taskProvider.onStatusChange...');
     await this.taskProvider.onStatusChange(lineIndex, status, syncContext);
-    this.refresh();
+    logger.info('[BranchTasksProvider] [setStatus] onStatusChange complete, calling refresh...');
+    this.refreshAfterTaskOperation();
+    logger.info('[BranchTasksProvider] [setStatus] END');
   }
 
   async setPriority(lineIndex: number, priority: TaskPriority) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
+    this.lastManualRefreshTime = Date.now();
     await this.taskProvider.onUpdateMeta(lineIndex, { priority }, syncContext);
-    this.refresh();
+    this.refreshAfterTaskOperation();
   }
 
   async setAssignee(lineIndex: number, assignee: string | undefined) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
+    this.lastManualRefreshTime = Date.now();
     await this.taskProvider.onUpdateMeta(lineIndex, { assignee }, syncContext);
-    this.refresh();
+    this.refreshAfterTaskOperation();
   }
 
   async setDueDate(lineIndex: number, dueDate: string | undefined) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
+    this.lastManualRefreshTime = Date.now();
     await this.taskProvider.onUpdateMeta(lineIndex, { dueDate }, syncContext);
-    this.refresh();
+    this.refreshAfterTaskOperation();
   }
 
   async addSubtask(parentLineIndex: number, text: string) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
+    this.lastManualRefreshTime = Date.now();
     await this.taskProvider.onCreateTask({ text }, parentLineIndex, syncContext);
-    this.refresh();
+    this.refreshAfterTaskOperation();
   }
 
   async editTaskText(lineIndex: number, text: string) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
+    this.lastManualRefreshTime = Date.now();
     await this.taskProvider.onEditText(lineIndex, text, syncContext);
-    this.refresh();
+    this.refreshAfterTaskOperation();
   }
 
   async deleteTask(lineIndex: number) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
+    this.lastManualRefreshTime = Date.now();
     await this.taskProvider.onDeleteTask(lineIndex, syncContext);
-    this.refresh();
+    this.refreshAfterTaskOperation();
   }
 
   findNodeByLineIndex(lineIndex: number): TaskNode | null {
@@ -401,25 +431,28 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
+    this.lastManualRefreshTime = Date.now();
     await this.taskProvider.moveTaskToMilestone(lineIndex, milestoneName, syncContext);
-    this.refresh();
+    this.refreshAfterTaskOperation();
   }
 
   async createMilestone(name: string) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
+    this.lastManualRefreshTime = Date.now();
     await this.taskProvider.createMilestone(name, syncContext);
-    this.refresh();
+    this.refreshAfterTaskOperation();
   }
 
   async reorderTask(taskLineIndex: number, targetLineIndex: number) {
     const syncContext = this.getSyncContext();
     if (!syncContext) return;
 
+    this.lastManualRefreshTime = Date.now();
     const position = taskLineIndex < targetLineIndex ? Position.After : Position.Before;
     await this.taskProvider.reorderTask(taskLineIndex, targetLineIndex, position, syncContext);
-    this.refresh();
+    this.refreshAfterTaskOperation();
   }
 
   findMilestoneForTask(lineIndex: number): string | undefined {

@@ -78,22 +78,6 @@ function extractSection(content: string, sectionName: string): string | undefine
   return sectionContent;
 }
 
-function extractCodeBlockSection(content: string, sectionName: string): string | undefined {
-  const headerRegex = new RegExp(`^#\\s+${sectionName}\\s*$`, 'im');
-  const headerMatch = content.match(headerRegex);
-  if (!headerMatch || headerMatch.index === undefined) return undefined;
-
-  const startIndex = headerMatch.index + headerMatch[0].length;
-  const afterHeader = content.slice(startIndex);
-
-  const codeBlockMatch = afterHeader.match(/^```\s*\n([\s\S]*?)\n```/m);
-  if (!codeBlockMatch) return undefined;
-
-  const codeContent = codeBlockMatch[1].trim();
-  if (BranchContextMarkdownHelper.isFieldEmpty(codeContent, BRANCH_CONTEXT_NO_CHANGES)) return undefined;
-  return codeContent;
-}
-
 type CodeBlockSection = {
   content: string;
   metadata?: SectionMetadata;
@@ -220,7 +204,7 @@ function parseBranchContext(content: string): BranchContext {
     requirements: extractSection(content, SECTION_NAME_REQUIREMENTS),
     notes: extractSection(content, SECTION_NAME_NOTES),
     todos: extractSection(content, SECTION_NAME_TASKS),
-    changedFiles: extractCodeBlockSection(content, SECTION_NAME_CHANGED_FILES),
+    changedFiles: extractSection(content, SECTION_NAME_CHANGED_FILES),
     metadata: {
       ...baseMetadata,
       sections: Object.keys(mergedSectionsMetadata).length > 0 ? mergedSectionsMetadata : undefined,
