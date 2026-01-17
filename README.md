@@ -3,8 +3,13 @@
 ## prompts 
 
 - [ ] ter um changes-review vinculado a branch para ser facil de feedar novas secoes do claude code
-- [ ] find test cases
 - [ ] adicionar prompt de revisar pr/branch
+- [ ] criar algo para lsitar edge cases da branch
+
+## actions buttons
+
+- [ ] botao de IA para a gente preencher os dados do markdown com ia 
+- [ ] criar um botao de popular requirements / notes etc a partir do linear / pr info
 
 ## PLUGINS
 
@@ -12,13 +17,8 @@
 
 ## TODO
 
-- [ ] adicionar inline link para abrir issue do linear
-- [ ] comand de branch-tasks tao errados, deveriam usar metodos de providers
 - [ ] deve dar um toast de error quando o replacement nao substituir de fato
-- [ ] criar algo para lsitar edge cases da branch
 - [ ] corrigir devpanel tasks view -> open confgig nao funcionando para custom path
-- [ ] criar um botao de popular requirements / notes etc a partir do linear / pr info
-- [ ] botao de IA para a gente preencher os dados do markdown com ia 
 - [ ] JSON.parse -> criar json helper
 
 ## TOOLS 
