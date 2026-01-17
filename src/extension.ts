@@ -191,18 +191,16 @@ function setupWatchers(context: ExtensionContext, providers: Providers, activate
 
   const branchWatcher = createBranchWatcher((newBranch) => {
     logger.info(`[extension] [branchWatcher callback] Branch changed to: ${newBranch}`);
-    logger.info('[extension] [branchWatcher callback] Calling branchContextProvider.setBranch');
+
     providers.branchContextProvider.setBranch(newBranch, false);
-    logger.info('[extension] [branchWatcher callback] Calling branchTasksProvider.setBranch');
     providers.branchTasksProvider.setBranch(newBranch);
-    logger.info('[extension] [branchWatcher callback] Calling branchChangedFilesProvider.setBranch');
     providers.branchChangedFilesProvider.setBranch(newBranch);
-    logger.info('[extension] [branchWatcher callback] Updating branchMarkdownWatcher');
     branchMarkdownWatcher.updateWatcher(newBranch);
-    logger.info('[extension] [branchWatcher callback] Calling replacementsProvider.handleBranchChange');
-    void providers.replacementsProvider.handleBranchChange(newBranch);
-    logger.info('[extension] [branchWatcher callback] Calling branchContextProvider.syncBranchContext');
-    void providers.branchContextProvider.syncBranchContext();
+
+    void Promise.all([
+      providers.replacementsProvider.handleBranchChange(newBranch),
+      providers.branchContextProvider.syncBranchContext(),
+    ]);
   });
   context.subscriptions.push(branchWatcher);
   logger.info(`[activate] branchWatcher created (+${Date.now() - activateStart}ms)`);

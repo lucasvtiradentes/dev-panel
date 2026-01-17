@@ -124,8 +124,6 @@ function appendSectionMetadata(content: string, sectionMetadata: SectionMetadata
         headerMatch.index + headerMatch[0].length + codeBlockMatch.index + codeBlockMatch[0].length;
       const metadataStr = `\n\n${METADATA_SECTION_PREFIX}${JSON.stringify(metadata)}${METADATA_SUFFIX}`;
       result = result.slice(0, insertPosition) + metadataStr + result.slice(insertPosition);
-    } else {
-      logger.warn(`[appendSectionMetadata] Code block not found for section: ${sectionName}`);
     }
   }
 
