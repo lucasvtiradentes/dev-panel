@@ -89,6 +89,8 @@ export async function generateBranchContextMarkdown(
 
   let output = replaceTemplatePlaceholders(template, replacements);
 
+  output = output.replace(/\{\{[A-Z_]+\}\}/g, BRANCH_CONTEXT_NA);
+
   if (sectionMetadata) {
     output = appendSectionMetadata(output, sectionMetadata);
   }
