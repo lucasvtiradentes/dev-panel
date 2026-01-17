@@ -309,11 +309,18 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
   }
 
   async setStatus(lineIndex: number, status: TaskStatus) {
+    logger.info(`[BranchTasksProvider] [setStatus] START - lineIndex=${lineIndex}, status=${status}`);
     const syncContext = this.getSyncContext();
-    if (!syncContext) return;
+    if (!syncContext) {
+      logger.warn('[BranchTasksProvider] [setStatus] No sync context, aborting');
+      return;
+    }
 
+    logger.info('[BranchTasksProvider] [setStatus] Calling taskProvider.onStatusChange...');
     await this.taskProvider.onStatusChange(lineIndex, status, syncContext);
+    logger.info('[BranchTasksProvider] [setStatus] onStatusChange complete, calling refresh...');
     this.refresh();
+    logger.info('[BranchTasksProvider] [setStatus] END');
   }
 
   async setPriority(lineIndex: number, priority: TaskPriority) {

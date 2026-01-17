@@ -11,20 +11,30 @@ const logger = createLogger('BranchContextCache');
 const contextCache = new FileHashCache<BranchContext>(BRANCH_CONTEXT_CACHE_TTL_MS);
 
 export const loadBranchContext = (branchName: string): BranchContext => {
+  logger.info(`[loadBranchContext] Called for branch='${branchName}'`);
   const workspace = VscodeHelper.getFirstWorkspacePath();
-  if (!workspace) return {};
+  if (!workspace) {
+    logger.warn('[loadBranchContext] No workspace, returning empty');
+    return {};
+  }
 
   const filePath = getBranchContextFilePath(branchName);
-  if (!filePath) return {};
+  if (!filePath) {
+    logger.warn(`[loadBranchContext] No filePath for branch='${branchName}', returning empty`);
+    return {};
+  }
 
   const cached = contextCache.getWithFileHash(branchName, filePath);
   if (cached) {
-    logger.info(`[loadBranchContext] ✅ CACHE HIT for ${branchName}`);
+    logger.info(
+      `[loadBranchContext] ✅ CACHE HIT for ${branchName}, changedFiles length=${cached.changedFiles?.length ?? 'null'}`,
+    );
     return cached;
   }
 
   logger.info(`[loadBranchContext] ⚡ CACHE MISS - parsing ${branchName}`);
   const context = loadBranchContextFromFile(workspace, branchName);
+  logger.info(`[loadBranchContext] Loaded context, changedFiles length=${context.changedFiles?.length ?? 'null'}`);
   contextCache.setWithFileHash(branchName, context, filePath);
   return context;
 };
