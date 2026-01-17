@@ -67,9 +67,9 @@ export class BranchMilestoneItem extends TreeItemClass {
     super(milestone.name, VscodeConstants.TreeItemCollapsibleState.Expanded);
     this.contextValue = CONTEXT_VALUES.MILESTONE_ITEM;
 
-    const total = this.countAllTasks(milestone.tasks);
-    const done = this.countDoneTasks(milestone.tasks);
-    const doing = this.countDoingTasks(milestone.tasks);
+    const total = this.countTasks(milestone.tasks);
+    const done = this.countTasks(milestone.tasks, (t) => t.status === TaskStatus.Done);
+    const doing = this.countTasks(milestone.tasks, (t) => t.status === TaskStatus.Doing);
     this.description = `${done}/${total}`;
 
     this.iconPath = this.getMilestoneIcon(isNoMilestone, total, done, doing);
@@ -85,28 +85,11 @@ export class BranchMilestoneItem extends TreeItemClass {
     return isNoMilestone ? VscodeIcons.Inbox : VscodeIcons.Milestone;
   }
 
-  private countAllTasks(tasks: TaskNode[]): number {
+  private countTasks(tasks: TaskNode[], predicate?: (task: TaskNode) => boolean): number {
     let count = 0;
     for (const task of tasks) {
-      count += 1 + this.countAllTasks(task.children);
-    }
-    return count;
-  }
-
-  private countDoneTasks(tasks: TaskNode[]): number {
-    let count = 0;
-    for (const task of tasks) {
-      if (task.status === TaskStatus.Done) count++;
-      count += this.countDoneTasks(task.children);
-    }
-    return count;
-  }
-
-  private countDoingTasks(tasks: TaskNode[]): number {
-    let count = 0;
-    for (const task of tasks) {
-      if (task.status === TaskStatus.Doing) count++;
-      count += this.countDoingTasks(task.children);
+      if (!predicate || predicate(task)) count++;
+      count += this.countTasks(task.children, predicate);
     }
     return count;
   }

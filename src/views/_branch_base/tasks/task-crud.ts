@@ -1,15 +1,14 @@
 import {
   DEFAULT_TASK_STATUS,
   INVALID_LINE_INDEX,
-  MARKDOWN_SECTION_HEADER_PATTERN,
   TASK_ITEM_PATTERN,
   TASK_STATUS_MARKERS,
-  TODO_SECTION_HEADER_PATTERN,
 } from '../../../common/constants';
 import type { TaskMeta } from '../../../common/core/task-markdown-helper';
 import type { TaskStatus } from '../../../common/schemas';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import type { NewTask, SyncContext, TaskNode } from '../providers/interfaces';
+import { TaskLineUtils } from './task-line-utils';
 import { formatTaskLine, parseTaskText, statusToMarker } from './task-utils';
 
 function createEmptyTaskNode(text: string): TaskNode {
@@ -28,7 +27,7 @@ export function onStatusChange(lineIndex: number, newStatus: TaskStatus, context
   const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = TaskLineUtils.findTodoSectionIndex(lines);
   if (todoSectionIndex === -1) return Promise.resolve();
 
   const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
@@ -55,7 +54,7 @@ export function onCreateTask(task: NewTask, parentIndex: number | undefined, con
   const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = TaskLineUtils.findTodoSectionIndex(lines);
   if (todoSectionIndex === -1) {
     return Promise.resolve(createEmptyTaskNode(task.text));
   }
@@ -78,17 +77,14 @@ export function onCreateTask(task: NewTask, parentIndex: number | undefined, con
       const match = lines[i].match(TASK_ITEM_PATTERN);
       if (!match) continue;
 
-      const lineIndent = Math.floor(match[1].length / 2);
+      const lineIndent = TaskLineUtils.getIndentLevel(match);
       if (lineIndent <= parentIndentLevel) break;
       lastChildIndex = i;
     }
 
     insertIndex = lastChildIndex + 1;
   } else {
-    const nextSectionIndex = lines.findIndex(
-      (l: string, i: number) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
-    );
-    const endIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
+    const endIndex = TaskLineUtils.findNextSectionIndex(lines, todoSectionIndex);
 
     let lastTaskIndex = todoSectionIndex;
     for (let i = todoSectionIndex + 1; i < endIndex; i++) {
@@ -116,7 +112,7 @@ export function onUpdateMeta(lineIndex: number, metaUpdate: Partial<TaskMeta>, c
   const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = TaskLineUtils.findTodoSectionIndex(lines);
   if (todoSectionIndex === -1) return Promise.resolve();
 
   const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
@@ -146,7 +142,7 @@ export function onEditText(lineIndex: number, newText: string, context: SyncCont
   const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = TaskLineUtils.findTodoSectionIndex(lines);
   if (todoSectionIndex === -1) return Promise.resolve();
 
   const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
@@ -175,7 +171,7 @@ export function onDeleteTask(lineIndex: number, context: SyncContext) {
   const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = TaskLineUtils.findTodoSectionIndex(lines);
   if (todoSectionIndex === -1) return Promise.resolve();
 
   const actualLineIndex = todoSectionIndex + 1 + lineIndex + 1;
@@ -185,14 +181,14 @@ export function onDeleteTask(lineIndex: number, context: SyncContext) {
   const taskMatch = taskLine.match(TASK_ITEM_PATTERN);
   if (!taskMatch) return Promise.resolve();
 
-  const taskIndent = Math.floor(taskMatch[1].length / 2);
+  const taskIndent = TaskLineUtils.getIndentLevel(taskMatch);
 
   let endIndex = actualLineIndex + 1;
   for (let i = actualLineIndex + 1; i < lines.length; i++) {
     const match = lines[i].match(TASK_ITEM_PATTERN);
     if (!match) continue;
 
-    const lineIndent = Math.floor(match[1].length / 2);
+    const lineIndent = TaskLineUtils.getIndentLevel(match);
     if (lineIndent <= taskIndent) break;
     endIndex = i + 1;
   }
@@ -207,7 +203,7 @@ function autoToggleParentTask(lines: string[], childLineIndex: number) {
   const childMatch = lines[childLineIndex].match(TASK_ITEM_PATTERN);
   if (!childMatch) return;
 
-  const childIndent = Math.floor(childMatch[1].length / 2);
+  const childIndent = TaskLineUtils.getIndentLevel(childMatch);
   if (childIndent === 0) return;
 
   let parentLineIndex = -1;
@@ -215,7 +211,7 @@ function autoToggleParentTask(lines: string[], childLineIndex: number) {
     const match = lines[i].match(TASK_ITEM_PATTERN);
     if (!match) continue;
 
-    const indent = Math.floor(match[1].length / 2);
+    const indent = TaskLineUtils.getIndentLevel(match);
     if (indent < childIndent) {
       parentLineIndex = i;
       break;
@@ -227,14 +223,14 @@ function autoToggleParentTask(lines: string[], childLineIndex: number) {
   const parentMatch = lines[parentLineIndex].match(TASK_ITEM_PATTERN);
   if (!parentMatch) return;
 
-  const parentIndent = Math.floor(parentMatch[1].length / 2);
+  const parentIndent = TaskLineUtils.getIndentLevel(parentMatch);
 
   const children: number[] = [];
   for (let i = parentLineIndex + 1; i < lines.length; i++) {
     const match = lines[i].match(TASK_ITEM_PATTERN);
     if (!match) continue;
 
-    const indent = Math.floor(match[1].length / 2);
+    const indent = TaskLineUtils.getIndentLevel(match);
 
     if (indent <= parentIndent) break;
 

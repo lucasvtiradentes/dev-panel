@@ -76,8 +76,8 @@ function setupProviders(activateStart: number): Providers {
   const branchTasksProvider = new BranchTasksProvider();
   const branchChangedFilesProvider = new BranchChangedFilesProvider();
   const branchContextProvider = new BranchContextProvider(() => {
-    branchTasksProvider.refresh();
-    branchChangedFilesProvider.refresh();
+    branchTasksProvider.refreshIfNeeded();
+    branchChangedFilesProvider.refreshIfNeeded();
   });
   branchChangedFilesProvider.setSyncCallback(() => branchContextProvider.syncBranchContext());
   const toolTreeDataProvider = new ToolTreeDataProvider();

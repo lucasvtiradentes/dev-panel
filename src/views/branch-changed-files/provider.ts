@@ -26,6 +26,7 @@ export class BranchChangedFilesProvider implements TreeDataProvider<BranchChange
   private treeView: TreeView<BranchChangedFilesTreeItem> | null = null;
   private syncCallback: SyncCallback | null = null;
   private lastChangedFilesHash = '';
+  private lastManualRefreshTime = 0;
 
   constructor() {
     void setContextKey(ContextKey.BranchChangedFilesGrouped, this.grouped);
@@ -111,10 +112,29 @@ export class BranchChangedFilesProvider implements TreeDataProvider<BranchChange
     return `${content.length}:${content.slice(0, 50)}:${content.slice(-50)}`;
   }
 
+  private resetState() {
+    this.cachedTopics = [];
+    this.cachedMetadata = null;
+    this.lastChangedFilesHash = '';
+    this.updateDescription();
+  }
+
   refresh() {
     logger.info(`[refresh] Called. currentBranch='${this.currentBranch}'`);
+    this.lastManualRefreshTime = Date.now();
     this.loadChangedFiles();
     this._onDidChangeTreeData.fire(undefined);
+  }
+
+  private shouldSkipRefresh(): boolean {
+    const timeSinceManualRefresh = Date.now() - this.lastManualRefreshTime;
+    return timeSinceManualRefresh < FILE_WATCHER_DEBOUNCE_MS * 2;
+  }
+
+  refreshIfNeeded() {
+    if (!this.shouldSkipRefresh()) {
+      this.refresh();
+    }
   }
 
   private loadChangedFiles() {
@@ -122,10 +142,7 @@ export class BranchChangedFilesProvider implements TreeDataProvider<BranchChange
 
     if (!this.currentBranch) {
       logger.warn('[loadChangedFiles] No current branch');
-      this.cachedTopics = [];
-      this.cachedMetadata = null;
-      this.lastChangedFilesHash = '';
-      this.updateDescription();
+      this.resetState();
       return;
     }
 
@@ -135,10 +152,7 @@ export class BranchChangedFilesProvider implements TreeDataProvider<BranchChange
 
     if (!changedFilesContent) {
       logger.warn('[loadChangedFiles] No changed files in branch context');
-      this.cachedTopics = [];
-      this.cachedMetadata = null;
-      this.lastChangedFilesHash = '';
-      this.updateDescription();
+      this.resetState();
       return;
     }
 

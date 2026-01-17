@@ -1,13 +1,9 @@
-import {
-  MARKDOWN_SECTION_HEADER_PATTERN,
-  MILESTONE_HEADER_PATTERN,
-  TASK_ITEM_PATTERN,
-  TODO_SECTION_HEADER_PATTERN,
-} from '../../../common/constants';
+import { MILESTONE_HEADER_PATTERN, TASK_ITEM_PATTERN } from '../../../common/constants';
 import { Position } from '../../../common/constants/enums';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import type { MilestoneNode, SyncContext, TaskNode } from '../providers/interfaces';
+import { TaskLineUtils } from './task-line-utils';
 import { fromMarkdownWithOffset } from './task-markdown';
 
 export function getMilestones(context: SyncContext): Promise<{ orphanTasks: TaskNode[]; milestones: MilestoneNode[] }> {
@@ -17,16 +13,13 @@ export function getMilestones(context: SyncContext): Promise<{ orphanTasks: Task
 
   const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
-  const taskSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const taskSectionIndex = TaskLineUtils.findTodoSectionIndex(lines);
 
   if (taskSectionIndex === -1) {
     return Promise.resolve({ orphanTasks: [], milestones: [] });
   }
 
-  const nextSectionIndex = lines.findIndex(
-    (l: string, i: number) => i > taskSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
-  );
-  const endIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
+  const endIndex = TaskLineUtils.findNextSectionIndex(lines, taskSectionIndex);
 
   const orphanTasks: TaskNode[] = [];
   const milestones: MilestoneNode[] = [];
@@ -76,13 +69,10 @@ export function moveTaskToMilestone(taskLineIndex: number, targetMilestoneName: 
   const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = TaskLineUtils.findTodoSectionIndex(lines);
   if (todoSectionIndex === -1) return Promise.resolve();
 
-  const nextSectionIndex = lines.findIndex(
-    (l: string, i: number) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
-  );
-  const sectionEndIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
+  const sectionEndIndex = TaskLineUtils.findNextSectionIndex(lines, todoSectionIndex);
 
   const actualLineIndex = todoSectionIndex + 1 + taskLineIndex + 1;
   if (actualLineIndex >= lines.length) return Promise.resolve();
@@ -91,7 +81,7 @@ export function moveTaskToMilestone(taskLineIndex: number, targetMilestoneName: 
   const taskMatch = taskLine.match(TASK_ITEM_PATTERN);
   if (!taskMatch) return Promise.resolve();
 
-  const taskIndent = Math.floor(taskMatch[1].length / 2);
+  const taskIndent = TaskLineUtils.getIndentLevel(taskMatch);
   let taskEndIndex = actualLineIndex + 1;
   for (let i = actualLineIndex + 1; i < sectionEndIndex; i++) {
     const match = lines[i].match(TASK_ITEM_PATTERN);
@@ -99,7 +89,7 @@ export function moveTaskToMilestone(taskLineIndex: number, targetMilestoneName: 
       if (TypeGuardsHelper.isEmptyString(lines[i]) || MILESTONE_HEADER_PATTERN.test(lines[i])) break;
       continue;
     }
-    const lineIndent = Math.floor(match[1].length / 2);
+    const lineIndent = TaskLineUtils.getIndentLevel(match);
     if (lineIndent <= taskIndent) break;
     taskEndIndex = i + 1;
   }
@@ -173,13 +163,10 @@ export function createMilestone(name: string, context: SyncContext) {
   const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = TaskLineUtils.findTodoSectionIndex(lines);
   if (todoSectionIndex === -1) return Promise.resolve();
 
-  const nextSectionIndex = lines.findIndex(
-    (l: string, i: number) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
-  );
-  const sectionEndIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
+  const sectionEndIndex = TaskLineUtils.findNextSectionIndex(lines, todoSectionIndex);
 
   let insertIndex = sectionEndIndex;
   for (let i = sectionEndIndex - 1; i > todoSectionIndex; i--) {
@@ -203,13 +190,10 @@ export function reorderTask(taskLineIndex: number, targetLineIndex: number, posi
   const content = FileIOHelper.readFile(context.markdownPath);
   const lines = content.split('\n');
 
-  const todoSectionIndex = lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
+  const todoSectionIndex = TaskLineUtils.findTodoSectionIndex(lines);
   if (todoSectionIndex === -1) return Promise.resolve();
 
-  const nextSectionIndex = lines.findIndex(
-    (l: string, i: number) => i > todoSectionIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
-  );
-  const sectionEndIndex = nextSectionIndex === -1 ? lines.length : nextSectionIndex;
+  const sectionEndIndex = TaskLineUtils.findNextSectionIndex(lines, todoSectionIndex);
 
   const actualTaskIndex = todoSectionIndex + 1 + taskLineIndex + 1;
   const actualTargetIndex = todoSectionIndex + 1 + targetLineIndex + 1;
@@ -220,7 +204,7 @@ export function reorderTask(taskLineIndex: number, targetLineIndex: number, posi
   const taskMatch = taskLine.match(TASK_ITEM_PATTERN);
   if (!taskMatch) return Promise.resolve();
 
-  const taskIndent = Math.floor(taskMatch[1].length / 2);
+  const taskIndent = TaskLineUtils.getIndentLevel(taskMatch);
   let taskEndIndex = actualTaskIndex + 1;
   for (let i = actualTaskIndex + 1; i < sectionEndIndex; i++) {
     const match = lines[i].match(TASK_ITEM_PATTERN);
@@ -228,7 +212,7 @@ export function reorderTask(taskLineIndex: number, targetLineIndex: number, posi
       if (TypeGuardsHelper.isEmptyString(lines[i]) || MILESTONE_HEADER_PATTERN.test(lines[i])) break;
       continue;
     }
-    const lineIndent = Math.floor(match[1].length / 2);
+    const lineIndent = TaskLineUtils.getIndentLevel(match);
     if (lineIndent <= taskIndent) break;
     taskEndIndex = i + 1;
   }
@@ -244,7 +228,7 @@ export function reorderTask(taskLineIndex: number, targetLineIndex: number, posi
   const targetMatch = targetLine?.match(TASK_ITEM_PATTERN);
   if (!targetMatch) return Promise.resolve();
 
-  const targetIndent = Math.floor(targetMatch[1].length / 2);
+  const targetIndent = TaskLineUtils.getIndentLevel(targetMatch);
   let targetEndIndex = newTargetIndex + 1;
   for (let i = newTargetIndex + 1; i < lines.length; i++) {
     const match = lines[i].match(TASK_ITEM_PATTERN);
@@ -252,7 +236,7 @@ export function reorderTask(taskLineIndex: number, targetLineIndex: number, posi
       if (TypeGuardsHelper.isEmptyString(lines[i]) || MILESTONE_HEADER_PATTERN.test(lines[i])) break;
       continue;
     }
-    const lineIndent = Math.floor(match[1].length / 2);
+    const lineIndent = TaskLineUtils.getIndentLevel(match);
     if (lineIndent <= targetIndent) break;
     targetEndIndex = i + 1;
   }
