@@ -16,7 +16,7 @@ export type ParseResult = {
   metadata: ChangedFilesMetadata;
 };
 
-const FILE_LINE_REGEX = /^([AMD])\s{2}(.+?)\s+\(([+-]\d+)\s([+-]\d+)\)$/;
+const FILE_LINE_REGEX = /^([AMD?])\s{2}(.+?)\s+\(([+-]\d+)\s([+-]\d+)\)$/;
 const UNCATEGORIZED_TOPIC = 'Uncategorized';
 
 export class ChangedFilesParser {
@@ -68,7 +68,7 @@ export class ChangedFilesParser {
           deleted: fileMatch[4],
         };
 
-        if (status === 'A') added++;
+        if (status === 'A' || status === '?') added++;
         else if (status === 'M') modified++;
         else if (status === 'D') deleted++;
 

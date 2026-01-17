@@ -31,6 +31,10 @@
           "items": {
             "type": "string"
           }
+        },
+        "autoSyncGitChanges": {
+          "description": "Auto-sync branch changed files view when git working tree or index changes. Defaults to true",
+          "type": "boolean"
         }
       },
       "additionalProperties": false

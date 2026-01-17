@@ -34,6 +34,7 @@ import { registerVariableKeybindings } from './views/variables/keybindings-local
 import { createBranchMarkdownWatcher } from './watchers/branch-markdown-watcher';
 import { createBranchWatcher } from './watchers/branch-watcher';
 import { createConfigWatcher } from './watchers/config-watcher';
+import { createGitStatusWatcher } from './watchers/git-status-watcher';
 import { createKeybindingsWatcher } from './watchers/keybindings-watcher';
 import { createRootMarkdownWatcher } from './watchers/root-markdown-watcher';
 import { createTemplateWatcher } from './watchers/template-watcher';
@@ -214,6 +215,14 @@ function setupWatchers(context: ExtensionContext, providers: Providers, activate
     providers.branchContextProvider.handleTemplateChange();
   });
   context.subscriptions.push(templateWatcher);
+
+  logger.info('[extension] [setupWatchers] Creating gitStatusWatcher');
+  const gitStatusWatcher = createGitStatusWatcher(() => {
+    logger.info('[extension] [gitStatusWatcher] Callback triggered, calling syncChangedFiles');
+    void providers.branchChangedFilesProvider.syncChangedFiles();
+  });
+  context.subscriptions.push(gitStatusWatcher);
+  logger.info('[extension] [setupWatchers] gitStatusWatcher registered');
 }
 
 function setupCommands(context: ExtensionContext, providers: Providers) {

@@ -241,6 +241,10 @@ const DevPanelSettingsSchema = z
       .describe(
         `Glob patterns to exclude globally (package.json search, prompt file/folder selection, variable file/folder selection). Extends defaults: ${DEFAULT_EXCLUDES.join(', ')}. Add custom exclusions as needed (e.g. ["**/.devpanel/**", "**/.changeset/**", "**/out/**", "**/*.log"])`,
       ),
+    autoSyncGitChanges: z
+      .boolean()
+      .optional()
+      .describe('Auto-sync branch changed files view when git working tree or index changes. Defaults to true'),
   })
   .describe(`Global settings for ${EXTENSION_DISPLAY_NAME} behavior`);
 

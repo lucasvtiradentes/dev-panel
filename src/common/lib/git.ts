@@ -12,9 +12,17 @@ type GitAPI = {
   onDidOpenRepository: Event<GitRepository>;
 };
 
+type GitChange = {
+  uri: { fsPath: string };
+};
+
 export type GitRepository = {
   state: {
     HEAD?: { name?: string };
+    workingTreeChanges: GitChange[];
+    indexChanges: GitChange[];
+    untrackedChanges: GitChange[];
+    onDidChange: Event<void>;
   };
   onDidCheckout: Event<void>;
 };
@@ -127,6 +135,10 @@ export class Git {
     return Git.execCommand(workspace, ['diff', '--numstat']);
   }
 
+  static async getUntrackedFiles(workspace: string): Promise<string> {
+    return Git.execCommand(workspace, ['ls-files', '--others', '--exclude-standard']);
+  }
+
   static async getAPI(): Promise<GitAPI | null> {
     const gitExtension = VscodeHelper.getExtension<GitExtension>(Git.INTEGRATION.EXTENSION_ID);
     if (!gitExtension) {
@@ -155,7 +167,7 @@ export class Git {
     let deleted = 0;
 
     for (const status of statusMap.values()) {
-      if (status === GitFileStatus.Added) added++;
+      if (status === GitFileStatus.Added || status === '?') added++;
       else if (status === GitFileStatus.Modified) modified++;
       else if (status === GitFileStatus.Deleted) deleted++;
       else if (status === GitFileStatus.Renamed) modified++;
@@ -186,10 +198,13 @@ export class Git {
 
   private static async getChangedFilesSummaryFromGit(workspacePath: string): Promise<ChangedFilesSummary | null> {
     try {
-      const results = await Promise.all([
-        Git.diffBaseBranchNameStatus(workspacePath, BASE_BRANCH),
-        Git.diffCachedNameStatus(workspacePath),
-        Git.diffNameStatus(workspacePath),
+      const [results, untrackedFiles] = await Promise.all([
+        Promise.all([
+          Git.diffBaseBranchNameStatus(workspacePath, BASE_BRANCH),
+          Git.diffCachedNameStatus(workspacePath),
+          Git.diffNameStatus(workspacePath),
+        ]),
+        Git.getUntrackedFiles(workspacePath),
       ]);
 
       const statusMap = new Map<string, string>();
@@ -206,6 +221,15 @@ export class Git {
             }
           });
       }
+
+      untrackedFiles
+        .split('\n')
+        .filter((f) => f)
+        .forEach((file) => {
+          if (!statusMap.has(file)) {
+            statusMap.set(file, '?');
+          }
+        });
 
       if (statusMap.size === 0) {
         return null;
@@ -232,6 +256,7 @@ export class Git {
         Git.diffBaseBranchNameOnly(workspacePath, BASE_BRANCH),
         Git.diffCachedNameOnly(workspacePath),
         Git.diffNameOnly(workspacePath),
+        Git.getUntrackedFiles(workspacePath),
       ]);
 
       const allFiles = new Set<string>();
@@ -257,13 +282,16 @@ export class Git {
     logger.info(`[getChangedFilesListFormat] Starting git commands for workspace: ${workspacePath}`);
 
     try {
-      const results = await Promise.all([
+      const [results, untrackedFiles] = await Promise.all([
         Promise.all([
-          Git.diffBaseBranchNameStatus(workspacePath, BASE_BRANCH),
-          Git.diffBaseBranchNumstat(workspacePath, BASE_BRANCH),
+          Promise.all([
+            Git.diffBaseBranchNameStatus(workspacePath, BASE_BRANCH),
+            Git.diffBaseBranchNumstat(workspacePath, BASE_BRANCH),
+          ]),
+          Promise.all([Git.diffCachedNameStatus(workspacePath), Git.diffCachedNumstat(workspacePath)]),
+          Promise.all([Git.diffNameStatus(workspacePath), Git.diffNumstat(workspacePath)]),
         ]),
-        Promise.all([Git.diffCachedNameStatus(workspacePath), Git.diffCachedNumstat(workspacePath)]),
-        Promise.all([Git.diffNameStatus(workspacePath), Git.diffNumstat(workspacePath)]),
+        Git.getUntrackedFiles(workspacePath),
       ]);
 
       logger.info('[getChangedFilesListFormat] Git commands completed successfully');
@@ -290,6 +318,15 @@ export class Git {
             statsMap.set(file, { added, deleted });
           });
       }
+
+      untrackedFiles
+        .split('\n')
+        .filter((f) => f)
+        .forEach((file) => {
+          if (!statusMap.has(file)) {
+            statusMap.set(file, '?');
+          }
+        });
 
       if (statusMap.size === 0) {
         logger.info('[getChangedFilesListFormat] No changes detected');
@@ -321,13 +358,16 @@ export class Git {
 
   private static async getChangedFilesListFormatWithSummary(workspacePath: string): Promise<ChangedFilesResult> {
     try {
-      const results = await Promise.all([
+      const [results, untrackedFiles] = await Promise.all([
         Promise.all([
-          Git.diffBaseBranchNameStatus(workspacePath, BASE_BRANCH),
-          Git.diffBaseBranchNumstat(workspacePath, BASE_BRANCH),
+          Promise.all([
+            Git.diffBaseBranchNameStatus(workspacePath, BASE_BRANCH),
+            Git.diffBaseBranchNumstat(workspacePath, BASE_BRANCH),
+          ]),
+          Promise.all([Git.diffCachedNameStatus(workspacePath), Git.diffCachedNumstat(workspacePath)]),
+          Promise.all([Git.diffNameStatus(workspacePath), Git.diffNumstat(workspacePath)]),
         ]),
-        Promise.all([Git.diffCachedNameStatus(workspacePath), Git.diffCachedNumstat(workspacePath)]),
-        Promise.all([Git.diffNameStatus(workspacePath), Git.diffNumstat(workspacePath)]),
+        Git.getUntrackedFiles(workspacePath),
       ]);
 
       const statusMap = new Map<string, string>();
@@ -354,6 +394,15 @@ export class Git {
             statsMap.set(file, { added, deleted });
           });
       }
+
+      untrackedFiles
+        .split('\n')
+        .filter((f) => f)
+        .forEach((file) => {
+          if (!statusMap.has(file)) {
+            statusMap.set(file, '?');
+          }
+        });
 
       if (statusMap.size === 0) {
         return {
