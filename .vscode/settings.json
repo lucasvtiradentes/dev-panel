@@ -11,7 +11,7 @@
     // FOLDERS
     ".changeset": true,
     // ".claude": true,
-    ".github": true,
+    // ".github": true,
     ".husky": true,
     // ".ignore": true,
     // ".devpanel": true,
