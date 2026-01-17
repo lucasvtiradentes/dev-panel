@@ -223,10 +223,6 @@ const DevPanelReplacementSchema = z
 
 const DevPanelSettingsSchema = z
   .object({
-    aiProvider: z
-      .nativeEnum(AIProvider)
-      .optional()
-      .describe('AI provider to use for prompts: claude, gemini, or cursor-agent'),
     promptExecution: z
       .nativeEnum(PromptExecutionMode)
       .optional()

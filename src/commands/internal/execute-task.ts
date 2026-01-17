@@ -2,13 +2,7 @@ import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
 import { executeCommandWithProgress, executeTaskSilently } from 'src/common/utils/functions/execute-silent';
 import { replaceVariablePlaceholders } from 'src/common/utils/functions/template-replace';
 import { GLOBAL_ITEM_PREFIX, GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
-import {
-  CONFIG_DIR_KEY,
-  CONFIG_DIR_NAME,
-  CONFIG_FILE_NAME,
-  getGlobalConfigDir,
-  getGlobalVariablesPath,
-} from '../../common/constants/scripts-constants';
+import { CONFIG_DIR_KEY, getGlobalConfigDir, getGlobalVariablesPath } from '../../common/constants/scripts-constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
@@ -17,8 +11,8 @@ import {
   type DevPanelPrompt,
   type DevPanelSettings,
   PromptExecutionMode,
-  getAIProvidersListFormatted,
 } from '../../common/schemas';
+import { promptsState } from '../../common/state';
 import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { Command, registerCommand } from '../../common/vscode/vscode-commands';
@@ -303,12 +297,9 @@ async function handleExecutePrompt({ promptFilePath, folder, promptConfig }: Exe
     promptContent = replaceInputPlaceholders(promptContent, inputValues);
   }
 
-  const provider = getProvider(settings?.aiProvider);
+  const provider = getProvider(promptsState.getAiProvider());
   if (!provider) {
-    void VscodeHelper.showToastMessage(
-      ToastKind.Error,
-      `AI provider not configured. Set "settings.aiProvider" in ${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME} (${getAIProvidersListFormatted()})`,
-    );
+    void VscodeHelper.showToastMessage(ToastKind.Error, 'Select an AI provider first');
     return;
   }
 

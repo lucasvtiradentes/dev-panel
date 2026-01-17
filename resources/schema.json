@@ -11,15 +11,6 @@
       "description": "Global settings",
       "type": "object",
       "properties": {
-        "aiProvider": {
-          "description": "AI provider to use for prompts: claude, gemini, or cursor-agent",
-          "type": "string",
-          "enum": [
-            "claude",
-            "gemini",
-            "cursor-agent"
-          ]
-        },
         "promptExecution": {
           "description": "Execution mode for prompts with saveOutput: \"timestamped\" creates new file each time with timestamp, \"overwrite\" replaces previous file",
           "type": "string",

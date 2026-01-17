@@ -1,3 +1,4 @@
+import type { AIProvider } from '../schemas/config-schema';
 import { TaskSource } from '../schemas/types';
 import {
   type BranchContextState,
@@ -140,6 +141,8 @@ export const promptsState: StateManagerWithSource<PromptsState> & {
   getFavoriteItems(): string[];
   getOrder(isGrouped: boolean): string[];
   saveOrder(isGrouped: boolean, order: string[]): void;
+  getAiProvider(): AIProvider | undefined;
+  saveAiProvider(provider: AIProvider): void;
 } = {
   ...basePromptsState,
 
@@ -194,6 +197,16 @@ export const promptsState: StateManagerWithSource<PromptsState> & {
       sourceState.flatOrder = order;
     }
     this.saveSourceState(sourceState);
+  },
+
+  getAiProvider(): AIProvider | undefined {
+    return this.load().aiProvider;
+  },
+
+  saveAiProvider(provider: AIProvider) {
+    const prompts = this.load();
+    prompts.aiProvider = provider;
+    this.save(prompts);
   },
 };
 

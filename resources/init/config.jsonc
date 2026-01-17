@@ -1,6 +1,5 @@
 {
   "settings": {
-    "aiProvider": "claude",
     "exclude": [
       "**/.devpanel/**",
       "**/node_modules/**",

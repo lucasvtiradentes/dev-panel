@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { AIProvider } from './config-schema';
 import { TASK_SOURCE_VALUES } from './types';
 
 const TaskSourceEnum = z.enum(TASK_SOURCE_VALUES);
@@ -33,6 +34,7 @@ const PromptsStateSchema = z.object({
   showHidden: z.boolean().optional(),
   showOnlyFavorites: z.boolean().optional(),
   devpanel: SourceStateSchema,
+  aiProvider: z.nativeEnum(AIProvider).optional(),
 });
 
 const VariablesStateSchema = z.object({

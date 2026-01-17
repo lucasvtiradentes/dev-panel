@@ -405,6 +405,11 @@
         "icon": "$(add)"
       },
       {
+        "command": "devPanel.promptsSelectProvider",
+        "title": "Select AI Provider",
+        "icon": "$(settings-gear)"
+      },
+      {
         "command": "devPanel.openBranchContextFile",
         "title": "Open Branch Context File",
         "icon": "$(go-to-file)"
@@ -708,6 +713,7 @@
         { "command": "devPanel.goToPromptFile", "when": "false" },
         { "command": "devPanel.goToReplacementTargetFile", "when": "false" },
         { "command": "devPanel.addPrompt", "when": "false" },
+        { "command": "devPanel.promptsSelectProvider", "when": "false" },
         { "command": "devPanel.openBranchContextFile", "when": "false" },
         { "command": "devPanel.syncBranchContext", "when": "false" },
         { "command": "devPanel.toggleBranchContextHideEmptySections", "when": "false" },
@@ -932,6 +938,11 @@
           "command": "devPanel.openPromptsKeybindings",
           "when": "view == devPanelPrompts",
           "group": "navigation@5"
+        },
+        {
+          "command": "devPanel.promptsSelectProvider",
+          "when": "view == devPanelPrompts",
+          "group": "navigation@6"
         },
         {
           "command": "devPanel.openBranchContextFile",

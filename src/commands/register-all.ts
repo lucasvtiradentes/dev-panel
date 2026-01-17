@@ -28,6 +28,7 @@ import { createCopyPromptToWorkspaceCommand } from './internal/prompts/copy-prom
 import { createDeletePromptCommand } from './internal/prompts/delete-prompt';
 import { createGoToPromptFileCommand } from './internal/prompts/go-to-prompt-file';
 import { createRefreshPromptsCommand } from './internal/prompts/refresh-prompts';
+import { createSelectProviderCommand } from './internal/prompts/select-provider';
 import {
   createOpenPromptsKeybindingsCommand,
   createSetPromptKeybindingCommand,
@@ -123,6 +124,7 @@ export function registerAllCommands(options: {
     createDeleteToolCommand(),
     ...createTogglePromptsViewCommands(promptTreeDataProvider),
     createRefreshPromptsCommand(promptTreeDataProvider),
+    createSelectProviderCommand(promptTreeDataProvider),
     createExecutePromptCommand(),
     createAddPromptCommand(),
     createCopyPromptToGlobalCommand(),
