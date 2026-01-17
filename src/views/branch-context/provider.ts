@@ -1,4 +1,5 @@
 import {
+  BASE_BRANCH,
   BRANCH_CONTEXT_NO_CHANGES,
   NOT_GIT_REPO_MESSAGE,
   SECTION_NAME_BRANCH_INFO,
@@ -30,6 +31,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private currentBranch = '';
+  private lastComparisonBranch = BASE_BRANCH;
   private validationIndicator: ValidationIndicator;
   private treeView: TreeView<TreeItem> | null = null;
   private descriptionInterval: NodeJS.Timeout | null = null;
@@ -103,7 +105,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   handleTemplateChange() {
     if (!this.currentBranch) return;
     logger.info('[BranchContextProvider] Template changed, syncing branch context');
-    void this.syncBranchContext();
+    void this.syncBranchContext(this.lastComparisonBranch);
   }
 
   handleMarkdownChange(uri?: Uri) {
@@ -184,6 +186,10 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
 
   getCurrentBranch(): string {
     return this.currentBranch;
+  }
+
+  getLastComparisonBranch(): string {
+    return this.lastComparisonBranch;
   }
 
   setBranch(branchName: string, shouldRefresh = true) {
@@ -321,14 +327,16 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     await VscodeHelper.openDocumentAtLine(uri, lineNumber);
   }
 
-  async syncBranchContext() {
+  async syncBranchContext(comparisonBranch: string) {
+    this.lastComparisonBranch = comparisonBranch;
+
     const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace || !ConfigManager.configDirExists(workspace)) {
       logger.info('[syncBranchContext] No config directory, skipping');
       return;
     }
 
-    await this.syncManager.syncBranchContext();
+    await this.syncManager.syncBranchContext(comparisonBranch);
     this.isInitializing = false;
   }
 

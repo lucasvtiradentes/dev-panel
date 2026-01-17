@@ -118,10 +118,10 @@ export class SyncManager {
     }
   }
 
-  async syncBranchContext() {
+  async syncBranchContext(comparisonBranch: string) {
     const startTime = Date.now();
     const currentBranch = this.getCurrentBranch();
-    logger.info(`[syncBranchContext] START for branch: ${currentBranch}`);
+    logger.info(`[syncBranchContext] START for branch: ${currentBranch}, comparisonBranch: ${comparisonBranch}`);
 
     if (!currentBranch) {
       logger.warn('[syncBranchContext] No current branch, skipping');
@@ -146,6 +146,7 @@ export class SyncManager {
         workspacePath: workspace,
         markdownPath: ConfigManager.getBranchContextFilePath(workspace, currentBranch),
         branchContext: context,
+        comparisonBranch,
       };
 
       let changedFiles: string | undefined;

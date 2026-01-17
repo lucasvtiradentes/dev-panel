@@ -26,7 +26,11 @@ const EMPTY_METADATA = {
 
 export class DefaultChangedFilesProvider implements AutoSectionProvider {
   async fetch(context: SyncContext): Promise<string> {
-    const result = await Git.getChangedFilesWithSummary(context.workspacePath, ChangedFilesStyle.List);
+    const result = await Git.getChangedFilesWithSummary(
+      context.workspacePath,
+      ChangedFilesStyle.List,
+      context.comparisonBranch,
+    );
 
     if (result.content === BRANCH_CONTEXT_NO_CHANGES || !result.sectionMetadata) {
       return formatWithMetadata(BRANCH_CONTEXT_NO_CHANGES, EMPTY_METADATA);

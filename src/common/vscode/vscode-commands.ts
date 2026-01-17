@@ -110,6 +110,7 @@ export enum Command {
   ToggleBranchChangedFilesGroupMode = 'toggleBranchChangedFilesGroupMode',
   ToggleBranchChangedFilesGroupModeGrouped = 'toggleBranchChangedFilesGroupModeGrouped',
   SyncBranchChangedFiles = 'syncBranchChangedFiles',
+  SelectComparisonBranch = 'selectComparisonBranch',
   OpenChangedFile = 'openChangedFile',
   OpenChangedFileDiff = 'openChangedFileDiff',
   ShowLogs = 'showLogs',

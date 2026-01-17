@@ -1,4 +1,4 @@
-import { BRANCH_CONTEXT_NA, FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
+import { BASE_BRANCH, BRANCH_CONTEXT_NA, FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
 import { Position } from '../../common/constants/enums';
 import { StoreKey, extensionStore } from '../../common/core/extension-store';
 import { logger } from '../../common/lib/logger';
@@ -198,6 +198,7 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
       workspacePath: workspace,
       markdownPath: filePath,
       branchContext,
+      comparisonBranch: BASE_BRANCH,
     };
 
     logger.info(
@@ -420,6 +421,7 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
       workspacePath: workspace,
       markdownPath: filePath,
       branchContext,
+      comparisonBranch: BASE_BRANCH,
     };
   }
 

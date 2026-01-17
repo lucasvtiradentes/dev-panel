@@ -16,7 +16,22 @@ type GitChange = {
   uri: { fsPath: string };
 };
 
+type GitRef = {
+  type: number;
+  name?: string;
+  commit?: string;
+  remote?: string;
+};
+
+type GitBranchQuery = {
+  remote?: boolean;
+  pattern?: string;
+  count?: number;
+  contains?: string;
+};
+
 export type GitRepository = {
+  rootUri: { fsPath: string };
   state: {
     HEAD?: { name?: string };
     workingTreeChanges: GitChange[];
@@ -25,6 +40,7 @@ export type GitRepository = {
     onDidChange: Event<void>;
   };
   onDidCheckout: Event<void>;
+  getBranches: (query: GitBranchQuery) => Promise<GitRef[]>;
 };
 
 type GitExtension = {
@@ -62,6 +78,25 @@ export class Git {
 
   static async getCurrentBranch(workspace: string): Promise<string> {
     return Git.execCommand(workspace, ['rev-parse', '--abbrev-ref', 'HEAD']);
+  }
+
+  static async getRemoteBranches(workspace: string): Promise<string[]> {
+    const api = await Git.getAPI();
+    if (!api) return [];
+
+    const repository = api.repositories.find((repo) => repo.rootUri.fsPath === workspace);
+    if (!repository) return [];
+
+    const refs = await repository.getBranches({ remote: true });
+    return refs
+      .map((ref) => {
+        if (!ref.name) return '';
+        if (ref.remote && !ref.name.startsWith(`${ref.remote}/`)) {
+          return `${ref.remote}/${ref.name}`;
+        }
+        return ref.name;
+      })
+      .filter((name) => name && !name.includes('HEAD'));
   }
 
   static async setSkipWorktree(workspace: string, filePath: string, skip: boolean) {
@@ -180,10 +215,11 @@ export class Git {
   static async getChangedFilesWithSummary(
     workspacePath: string,
     style: ChangedFilesStyle,
+    baseBranch: string = BASE_BRANCH,
   ): Promise<ChangedFilesResult> {
     if (style === ChangedFilesStyle.Tree) {
-      const content = await Git.getChangedFilesTreeFormat(workspacePath);
-      const summary = await Git.getChangedFilesSummaryFromGit(workspacePath);
+      const content = await Git.getChangedFilesTreeFormat(workspacePath, baseBranch);
+      const summary = await Git.getChangedFilesSummaryFromGit(workspacePath, baseBranch);
       const sectionMetadata = summary
         ? { filesCount: summary.added + summary.modified + summary.deleted, ...summary }
         : { filesCount: 0, added: 0, modified: 0, deleted: 0 };
@@ -193,14 +229,17 @@ export class Git {
         sectionMetadata: content !== BRANCH_CONTEXT_NO_CHANGES ? sectionMetadata : undefined,
       };
     }
-    return Git.getChangedFilesListFormatWithSummary(workspacePath);
+    return Git.getChangedFilesListFormatWithSummary(workspacePath, baseBranch);
   }
 
-  private static async getChangedFilesSummaryFromGit(workspacePath: string): Promise<ChangedFilesSummary | null> {
+  private static async getChangedFilesSummaryFromGit(
+    workspacePath: string,
+    baseBranch: string = BASE_BRANCH,
+  ): Promise<ChangedFilesSummary | null> {
     try {
       const [results, untrackedFiles] = await Promise.all([
         Promise.all([
-          Git.diffBaseBranchNameStatus(workspacePath, BASE_BRANCH),
+          Git.diffBaseBranchNameStatus(workspacePath, baseBranch),
           Git.diffCachedNameStatus(workspacePath),
           Git.diffNameStatus(workspacePath),
         ]),
@@ -241,19 +280,26 @@ export class Git {
     }
   }
 
-  static async getChangedFilesTree(workspacePath: string, style: ChangedFilesStyle): Promise<string> {
+  static async getChangedFilesTree(
+    workspacePath: string,
+    style: ChangedFilesStyle,
+    baseBranch: string = BASE_BRANCH,
+  ): Promise<string> {
     logger.info(`[getChangedFilesTree] Called with workspace: ${workspacePath}, style: ${style}`);
 
     if (style === ChangedFilesStyle.Tree) {
-      return Git.getChangedFilesTreeFormat(workspacePath);
+      return Git.getChangedFilesTreeFormat(workspacePath, baseBranch);
     }
-    return Git.getChangedFilesListFormat(workspacePath);
+    return Git.getChangedFilesListFormat(workspacePath, baseBranch);
   }
 
-  private static async getChangedFilesTreeFormat(workspacePath: string): Promise<string> {
+  private static async getChangedFilesTreeFormat(
+    workspacePath: string,
+    baseBranch: string = BASE_BRANCH,
+  ): Promise<string> {
     try {
       const results = await Promise.all([
-        Git.diffBaseBranchNameOnly(workspacePath, BASE_BRANCH),
+        Git.diffBaseBranchNameOnly(workspacePath, baseBranch),
         Git.diffCachedNameOnly(workspacePath),
         Git.diffNameOnly(workspacePath),
         Git.getUntrackedFiles(workspacePath),
@@ -278,15 +324,18 @@ export class Git {
     }
   }
 
-  private static async getChangedFilesListFormat(workspacePath: string): Promise<string> {
+  private static async getChangedFilesListFormat(
+    workspacePath: string,
+    baseBranch: string = BASE_BRANCH,
+  ): Promise<string> {
     logger.info(`[getChangedFilesListFormat] Starting git commands for workspace: ${workspacePath}`);
 
     try {
       const [results, untrackedFiles] = await Promise.all([
         Promise.all([
           Promise.all([
-            Git.diffBaseBranchNameStatus(workspacePath, BASE_BRANCH),
-            Git.diffBaseBranchNumstat(workspacePath, BASE_BRANCH),
+            Git.diffBaseBranchNameStatus(workspacePath, baseBranch),
+            Git.diffBaseBranchNumstat(workspacePath, baseBranch),
           ]),
           Promise.all([Git.diffCachedNameStatus(workspacePath), Git.diffCachedNumstat(workspacePath)]),
           Promise.all([Git.diffNameStatus(workspacePath), Git.diffNumstat(workspacePath)]),
@@ -356,13 +405,16 @@ export class Git {
     }
   }
 
-  private static async getChangedFilesListFormatWithSummary(workspacePath: string): Promise<ChangedFilesResult> {
+  private static async getChangedFilesListFormatWithSummary(
+    workspacePath: string,
+    baseBranch: string = BASE_BRANCH,
+  ): Promise<ChangedFilesResult> {
     try {
       const [results, untrackedFiles] = await Promise.all([
         Promise.all([
           Promise.all([
-            Git.diffBaseBranchNameStatus(workspacePath, BASE_BRANCH),
-            Git.diffBaseBranchNumstat(workspacePath, BASE_BRANCH),
+            Git.diffBaseBranchNameStatus(workspacePath, baseBranch),
+            Git.diffBaseBranchNumstat(workspacePath, baseBranch),
           ]),
           Promise.all([Git.diffCachedNameStatus(workspacePath), Git.diffCachedNumstat(workspacePath)]),
           Promise.all([Git.diffNameStatus(workspacePath), Git.diffNumstat(workspacePath)]),

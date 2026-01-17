@@ -80,7 +80,9 @@ function setupProviders(activateStart: number): Providers {
     branchTasksProvider.refreshIfNeeded();
     branchChangedFilesProvider.refreshIfNeeded();
   });
-  branchChangedFilesProvider.setSyncCallback(() => branchContextProvider.syncBranchContext());
+  branchChangedFilesProvider.setSyncCallback((comparisonBranch) =>
+    branchContextProvider.syncBranchContext(comparisonBranch),
+  );
   const toolTreeDataProvider = new ToolTreeDataProvider();
   setToolProviderInstance(toolTreeDataProvider);
 
@@ -200,7 +202,7 @@ function setupWatchers(context: ExtensionContext, providers: Providers, activate
 
     void Promise.all([
       providers.replacementsProvider.handleBranchChange(newBranch),
-      providers.branchContextProvider.syncBranchContext(),
+      providers.branchContextProvider.syncBranchContext(providers.branchChangedFilesProvider.getComparisonBranch()),
     ]);
   });
   context.subscriptions.push(branchWatcher);

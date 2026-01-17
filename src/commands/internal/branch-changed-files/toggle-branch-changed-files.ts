@@ -1,6 +1,7 @@
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import { type BranchChangedFilesProvider, ChangedFileItem, type FileStatus } from '../../../views/branch-changed-files';
+import { showBranchSelectorQuickPick } from '../../../views/branch-changed-files/branch-selector';
 
 export function createBranchChangedFilesCommands(branchChangedFilesProvider: BranchChangedFilesProvider): Disposable[] {
   return [
@@ -9,6 +10,7 @@ export function createBranchChangedFilesCommands(branchChangedFilesProvider: Bra
       branchChangedFilesProvider.toggleGroupMode(),
     ),
     registerCommand(Command.SyncBranchChangedFiles, () => branchChangedFilesProvider.syncChangedFiles()),
+    registerCommand(Command.SelectComparisonBranch, () => showBranchSelectorQuickPick(branchChangedFilesProvider)),
     registerCommand(Command.OpenChangedFile, (item: ChangedFileItem | string) => {
       const filePath = item instanceof ChangedFileItem ? item.node.path : item;
       return branchChangedFilesProvider.openFile(filePath);

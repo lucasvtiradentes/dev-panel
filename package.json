@@ -643,6 +643,11 @@
         "icon": "$(sync)"
       },
       {
+        "command": "devPanel.selectComparisonBranch",
+        "title": "Select Comparison Branch",
+        "icon": "$(git-branch)"
+      },
+      {
         "command": "devPanel.openChangedFile",
         "title": "Open File",
         "icon": "$(go-to-file)"
@@ -760,6 +765,7 @@
         { "command": "devPanel.toggleBranchChangedFilesGroupMode", "when": "false" },
         { "command": "devPanel.toggleBranchChangedFilesGroupModeGrouped", "when": "false" },
         { "command": "devPanel.syncBranchChangedFiles", "when": "false" },
+        { "command": "devPanel.selectComparisonBranch", "when": "false" },
         { "command": "devPanel.openChangedFile", "when": "false" },
         { "command": "devPanel.openChangedFileDiff", "when": "false" }
       ],
@@ -1013,6 +1019,11 @@
           "command": "devPanel.toggleBranchChangedFilesGroupModeGrouped",
           "when": "view == devPanelChangedFiles && branchChangedFilesGrouped",
           "group": "navigation@1"
+        },
+        {
+          "command": "devPanel.selectComparisonBranch",
+          "when": "view == devPanelChangedFiles",
+          "group": "navigation@2"
         }
       ],
       "view/item/context": [

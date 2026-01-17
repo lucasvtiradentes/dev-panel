@@ -1,4 +1,4 @@
-import { FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
+import { BASE_BRANCH, FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
 import { StoreKey, extensionStore } from '../../common/core/extension-store';
 import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper, NodePathHelper, ShellHelper } from '../../common/utils/helpers/node-helper';
@@ -12,13 +12,14 @@ import type { BranchChangedFilesTreeItem, TopicNode } from './tree-items';
 
 const logger = createLogger('BranchChangedFiles');
 
-type SyncCallback = () => Promise<void>;
+type SyncCallback = (comparisonBranch: string) => Promise<void>;
 
 export class BranchChangedFilesProvider implements TreeDataProvider<BranchChangedFilesTreeItem> {
   private _onDidChangeTreeData = VscodeHelper.createEventEmitter<BranchChangedFilesTreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private currentBranch = '';
+  private comparisonBranch = BASE_BRANCH;
   private cachedTopics: TopicNode[] = [];
   private cachedMetadata: ParseResult['metadata'] | null = null;
   private grouped = true;
@@ -45,10 +46,21 @@ export class BranchChangedFilesProvider implements TreeDataProvider<BranchChange
     if (!this.treeView) return;
 
     if (this.cachedMetadata && !this.cachedMetadata.isEmpty) {
-      this.treeView.description = this.cachedMetadata.summary;
+      this.treeView.description = `${this.cachedMetadata.summary} (${this.comparisonBranch})`;
     } else {
       this.treeView.description = undefined;
     }
+  }
+
+  getComparisonBranch(): string {
+    return this.comparisonBranch;
+  }
+
+  async setComparisonBranch(branch: string) {
+    if (branch === this.comparisonBranch) return;
+    this.comparisonBranch = branch;
+    this.updateDescription();
+    await this.syncChangedFiles();
   }
 
   toggleGroupMode() {
@@ -59,8 +71,8 @@ export class BranchChangedFilesProvider implements TreeDataProvider<BranchChange
 
   async syncChangedFiles() {
     if (this.syncCallback) {
-      logger.info('[syncChangedFiles] Triggering branch context sync');
-      await this.syncCallback();
+      logger.info(`[syncChangedFiles] Triggering branch context sync with comparison branch: ${this.comparisonBranch}`);
+      await this.syncCallback(this.comparisonBranch);
     } else {
       logger.warn('[syncChangedFiles] No sync callback configured');
     }

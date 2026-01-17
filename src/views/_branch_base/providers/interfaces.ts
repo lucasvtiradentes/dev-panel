@@ -8,6 +8,7 @@ export type SyncContext = {
   markdownPath: string;
   branchContext: BranchContext;
   sectionOptions?: Record<string, unknown>;
+  comparisonBranch: string;
 };
 
 export type TaskNode = {
