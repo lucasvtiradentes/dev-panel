@@ -24,14 +24,6 @@ export enum AIProvider {
   CursorAgent = 'cursor-agent',
 }
 
-function getAIProvidersList(): string[] {
-  return Object.values(AIProvider);
-}
-
-export function getAIProvidersListFormatted(): string {
-  return getAIProvidersList().join(', ');
-}
-
 export enum PromptExecutionMode {
   Overwrite = 'overwrite',
 }
@@ -308,5 +300,3 @@ export type DevPanelConfig = z.infer<typeof DevPanelConfigSchema>;
 export type DevPanelVariable = z.infer<typeof DevPanelVariableSchema>;
 export type DevPanelReplacement = z.infer<typeof DevPanelReplacementSchema>;
 export type BranchContextConfig = z.infer<typeof BranchContextConfigSchema>;
-export type BranchContextField = z.infer<typeof BranchContextFieldSchema>;
-export type BranchContextSection = z.infer<typeof BranchContextSectionSchema>;

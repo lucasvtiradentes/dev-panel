@@ -1,7 +1,6 @@
 export {
   AIProvider,
   DevPanelConfigSchema,
-  getAIProvidersListFormatted,
   PromptExecutionMode,
   PromptInputType,
   ReplacementType,
