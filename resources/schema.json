@@ -39,9 +39,35 @@
       "description": "Branch context configuration",
       "type": "object",
       "properties": {
-        "customSections": {
+        "fields": {
           "default": [],
-          "description": "Custom sections to include in branch context",
+          "description": "Configurable inline fields in BRANCH INFO section (e.g., PR LINK, LINEAR LINK)",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "Field name exactly as it appears in template (e.g., \"PR LINK\")",
+                "type": "string"
+              },
+              "label": {
+                "description": "Display label in the view. Defaults to name if not set",
+                "type": "string"
+              },
+              "icon": {
+                "description": "VSCode icon name (optional, defaults to symbol-field)",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "sections": {
+          "default": [],
+          "description": "Configurable sections (text or auto-populated)",
           "type": "array",
           "items": {
             "type": "object",
@@ -55,10 +81,9 @@
                 "type": "string"
               },
               "type": {
-                "description": "Section type: field = inline value, text = multi-line, auto = auto-populated",
+                "description": "Section type: text = multi-line, auto = auto-populated",
                 "type": "string",
                 "enum": [
-                  "field",
                   "text",
                   "auto"
                 ]
@@ -96,7 +121,8 @@
         }
       },
       "required": [
-        "customSections"
+        "fields",
+        "sections"
       ],
       "additionalProperties": false
     },

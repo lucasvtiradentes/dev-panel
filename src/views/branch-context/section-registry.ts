@@ -2,23 +2,12 @@ import {
   BRANCH_CONTEXT_DEFAULT_ICON,
   SECTION_LABEL_BRANCH,
   SECTION_LABEL_CHANGED_FILES,
-  SECTION_LABEL_LINEAR_LINK,
-  SECTION_LABEL_NOTES,
-  SECTION_LABEL_OBJECTIVE,
-  SECTION_LABEL_PR_LINK,
-  SECTION_LABEL_REQUIREMENTS,
   SECTION_NAME_BRANCH,
   SECTION_NAME_CHANGED_FILES,
-  SECTION_NAME_LINEAR_LINK,
-  SECTION_NAME_NOTES,
-  SECTION_NAME_OBJECTIVE,
-  SECTION_NAME_PR_LINK,
-  SECTION_NAME_REQUIREMENTS,
 } from '../../common/constants';
 import { createLogger } from '../../common/lib/logger';
 import { SectionType } from '../../common/schemas';
 import type { BranchContextConfig } from '../../common/schemas/config-schema';
-import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeIcon, type VscodeIconString } from '../../common/vscode/vscode-constants';
 import { DefaultChangedFilesProvider } from '../_branch_base/providers/default/changed-files.provider';
 import type { AutoSectionProvider } from '../_branch_base/providers/interfaces';
@@ -32,7 +21,6 @@ export type SectionDefinition = {
   type: SectionType;
   icon: VscodeIconString;
   isBuiltin: boolean;
-  command?: Command;
   provider?: AutoSectionProvider;
   options?: Record<string, unknown>;
 };
@@ -43,7 +31,8 @@ export class SectionRegistry {
   constructor(workspace: string, config?: Partial<BranchContextConfig>) {
     this.registerBuiltins();
     if (config) {
-      this.registerCustom(workspace, config);
+      this.registerFields(config);
+      this.registerSections(workspace, config);
     }
   }
 
@@ -54,52 +43,6 @@ export class SectionRegistry {
       type: SectionType.Field,
       icon: VscodeIcon.GitBranch,
       isBuiltin: true,
-      command: Command.EditBranchName,
-    });
-
-    this.register({
-      name: SECTION_NAME_PR_LINK,
-      label: SECTION_LABEL_PR_LINK,
-      type: SectionType.Field,
-      icon: VscodeIcon.GitPullRequest,
-      isBuiltin: true,
-      command: Command.EditBranchPrLink,
-    });
-
-    this.register({
-      name: SECTION_NAME_LINEAR_LINK,
-      label: SECTION_LABEL_LINEAR_LINK,
-      type: SectionType.Field,
-      icon: VscodeIcon.Link,
-      isBuiltin: true,
-      command: Command.EditBranchLinearLink,
-    });
-
-    this.register({
-      name: SECTION_NAME_OBJECTIVE,
-      label: SECTION_LABEL_OBJECTIVE,
-      type: SectionType.Text,
-      icon: VscodeIcon.Target,
-      isBuiltin: true,
-      command: Command.EditBranchObjective,
-    });
-
-    this.register({
-      name: SECTION_NAME_REQUIREMENTS,
-      label: SECTION_LABEL_REQUIREMENTS,
-      type: SectionType.Text,
-      icon: VscodeIcon.Checklist,
-      isBuiltin: true,
-      command: Command.EditBranchRequirements,
-    });
-
-    this.register({
-      name: SECTION_NAME_NOTES,
-      label: SECTION_LABEL_NOTES,
-      type: SectionType.Text,
-      icon: VscodeIcon.Note,
-      isBuiltin: true,
-      command: Command.EditBranchNotes,
     });
 
     this.register({
@@ -112,22 +55,45 @@ export class SectionRegistry {
     });
   }
 
-  private registerCustom(workspace: string, config: Partial<BranchContextConfig>) {
-    if (!config.customSections) {
-      logger.info('[registerCustom] No custom sections in config');
+  private registerFields(config: Partial<BranchContextConfig>) {
+    if (!config.fields || config.fields.length === 0) {
+      logger.info('[registerFields] No fields in config');
       return;
     }
 
-    logger.info(`[registerCustom] Registering ${config.customSections.length} custom sections`);
+    logger.info(`[registerFields] Registering ${config.fields.length} fields`);
 
-    for (const section of config.customSections) {
-      logger.info(`[registerCustom] Processing section: ${section.name}, type: ${section.type}`);
+    for (const field of config.fields) {
+      logger.info(`[registerFields] Processing field: ${field.name}`);
+
+      this.register({
+        name: field.name,
+        label: field.label ?? field.name,
+        type: SectionType.Field,
+        icon: field.icon ?? BRANCH_CONTEXT_DEFAULT_ICON,
+        isBuiltin: false,
+      });
+
+      logger.info(`[registerFields] Registered field: ${field.name}`);
+    }
+  }
+
+  private registerSections(workspace: string, config: Partial<BranchContextConfig>) {
+    if (!config.sections || config.sections.length === 0) {
+      logger.info('[registerSections] No sections in config');
+      return;
+    }
+
+    logger.info(`[registerSections] Registering ${config.sections.length} sections`);
+
+    for (const section of config.sections) {
+      logger.info(`[registerSections] Processing section: ${section.name}, type: ${section.type}`);
 
       let provider: AutoSectionProvider | undefined;
       if (section.type === SectionType.Auto && section.provider) {
-        logger.info(`[registerCustom] Loading provider for ${section.name}: ${section.provider}`);
+        logger.info(`[registerSections] Loading provider for ${section.name}: ${section.provider}`);
         provider = loadAutoProvider(workspace, section.provider);
-        logger.info(`[registerCustom] Provider loaded successfully for ${section.name}`);
+        logger.info(`[registerSections] Provider loaded successfully for ${section.name}`);
       }
 
       this.register({
@@ -140,7 +106,7 @@ export class SectionRegistry {
         options: section.options,
       });
 
-      logger.info(`[registerCustom] Registered section: ${section.name}`);
+      logger.info(`[registerSections] Registered section: ${section.name}`);
     }
   }
 

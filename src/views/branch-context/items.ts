@@ -52,19 +52,11 @@ export class SectionItem extends TreeItemClass {
       this.tooltip = value ?? `Click to set ${section.label.toLowerCase()}`;
     }
 
-    if (section.command) {
-      this.command = {
-        command: getCommandId(section.command),
-        title: `Edit ${section.label}`,
-        arguments: [{ branchName, value }],
-      };
-    } else {
-      this.command = {
-        command: getCommandId(Command.OpenBranchContextFileAtLine),
-        title: `View ${section.label}`,
-        arguments: [{ branchName, sectionName: section.name }],
-      };
-    }
+    this.command = {
+      command: getCommandId(Command.OpenBranchContextFileAtLine),
+      title: `View ${section.label}`,
+      arguments: [{ branchName, sectionName: section.name }],
+    };
   }
 
   private getDescription(): string {

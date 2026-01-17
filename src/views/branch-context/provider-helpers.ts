@@ -1,12 +1,4 @@
-import {
-  SECTION_NAME_BRANCH,
-  SECTION_NAME_CHANGED_FILES,
-  SECTION_NAME_LINEAR_LINK,
-  SECTION_NAME_NOTES,
-  SECTION_NAME_OBJECTIVE,
-  SECTION_NAME_PR_LINK,
-  SECTION_NAME_REQUIREMENTS,
-} from '../../common/constants';
+import { SECTION_NAME_BRANCH, SECTION_NAME_CHANGED_FILES } from '../../common/constants';
 import { BranchContextMarkdownHelper } from '../../common/core/branch-context-markdown';
 import { ConfigManager } from '../../common/core/config-manager';
 import { SimpleCache } from '../../common/lib/cache';
@@ -52,18 +44,13 @@ export class ProviderHelpers {
     changedFilesValue?: string;
   }): string | undefined {
     const { context, sectionName, currentBranch, changedFilesValue } = opts;
-    const valueMap: Record<string, string | undefined> = {
-      [SECTION_NAME_BRANCH]: currentBranch,
-      [SECTION_NAME_PR_LINK]: context.prLink as string | undefined,
-      [SECTION_NAME_LINEAR_LINK]: context.linearLink as string | undefined,
-      [SECTION_NAME_OBJECTIVE]: context.objective as string | undefined,
-      [SECTION_NAME_REQUIREMENTS]: context.requirements as string | undefined,
-      [SECTION_NAME_NOTES]: context.notes as string | undefined,
-      [SECTION_NAME_CHANGED_FILES]: changedFilesValue,
-    };
 
-    if (sectionName in valueMap) {
-      return valueMap[sectionName];
+    if (sectionName === SECTION_NAME_BRANCH) {
+      return currentBranch;
+    }
+
+    if (sectionName === SECTION_NAME_CHANGED_FILES) {
+      return changedFilesValue;
     }
 
     const value = context[sectionName];
