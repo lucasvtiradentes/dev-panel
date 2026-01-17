@@ -1,10 +1,8 @@
 import { BRANCH_CONTEXT_NA, FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
 import { Position } from '../../common/constants/enums';
-import { ConfigManager } from '../../common/core/config-manager';
 import { StoreKey, extensionStore } from '../../common/core/extension-store';
 import { logger } from '../../common/lib/logger';
 import type { TaskPriority, TaskStatus } from '../../common/schemas';
-import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -14,10 +12,10 @@ import {
   type SyncContext,
   type TaskNode,
   type TaskSyncProvider,
-  createTaskProvider,
   getBranchContextFilePath,
   loadBranchContext,
 } from '../_branch_base';
+import { DefaultTaskProvider } from '../_branch_base/providers/default/tasks.provider';
 import type { TaskFilter } from './filter-operations';
 import { showFilterQuickPick as showFilterQuickPickDialog } from './filter-quick-pick';
 import { buildFlatTree, buildMilestoneChildren, buildMilestonesTree, buildTaskChildren } from './provider-tree-builder';
@@ -46,15 +44,8 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
   private lastManualRefreshTime = 0;
 
   constructor() {
-    const workspace = VscodeHelper.getFirstWorkspacePath();
-    const config = workspace ? this.loadConfig(workspace) : null;
-    const tasksConfig = config?.branchContext?.builtinSections?.tasks;
-    this.taskProvider = createTaskProvider(tasksConfig);
+    this.taskProvider = new DefaultTaskProvider();
     void setContextKey(ContextKey.BranchTasksHasFilter, false);
-  }
-
-  private loadConfig(workspace: string): DevPanelConfig | null {
-    return ConfigManager.loadWorkspaceConfigFromPath(workspace);
   }
 
   setTreeView(treeView: TreeView<BranchTreeItem>) {

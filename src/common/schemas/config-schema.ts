@@ -267,17 +267,7 @@ const BranchContextSectionSchema = z.object({
     ),
 });
 
-const BuiltinSectionsSchema = z.object({
-  changedFiles: z
-    .boolean()
-    .optional()
-    .describe('Changed files section: false = hide, true = show (default)')
-    .default(true),
-  tasks: z.boolean().optional().describe('Tasks section: false = hide, true = show (default)').default(true),
-});
-
 const BranchContextConfigSchema = z.object({
-  builtinSections: BuiltinSectionsSchema.optional().describe('Configuration for built-in sections'),
   customSections: z
     .array(BranchContextSectionSchema)
     .optional()

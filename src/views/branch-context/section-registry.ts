@@ -40,14 +40,14 @@ export type SectionDefinition = {
 export class SectionRegistry {
   private sections: Map<string, SectionDefinition> = new Map();
 
-  constructor(workspace: string, config?: Partial<BranchContextConfig>, showChangedFiles = true) {
-    this.registerBuiltins(workspace, config, showChangedFiles);
+  constructor(workspace: string, config?: Partial<BranchContextConfig>) {
+    this.registerBuiltins();
     if (config) {
       this.registerCustom(workspace, config);
     }
   }
 
-  private registerBuiltins(_workspace: string, _config?: Partial<BranchContextConfig>, showChangedFiles = true) {
+  private registerBuiltins() {
     this.register({
       name: SECTION_NAME_BRANCH,
       label: SECTION_LABEL_BRANCH,
@@ -102,16 +102,14 @@ export class SectionRegistry {
       command: Command.EditBranchNotes,
     });
 
-    if (showChangedFiles) {
-      this.register({
-        name: SECTION_NAME_CHANGED_FILES,
-        label: SECTION_LABEL_CHANGED_FILES,
-        type: SectionType.Auto,
-        icon: VscodeIcon.Diff,
-        isBuiltin: true,
-        provider: new DefaultChangedFilesProvider(),
-      });
-    }
+    this.register({
+      name: SECTION_NAME_CHANGED_FILES,
+      label: SECTION_LABEL_CHANGED_FILES,
+      type: SectionType.Auto,
+      icon: VscodeIcon.Diff,
+      isBuiltin: true,
+      provider: new DefaultChangedFilesProvider(),
+    });
   }
 
   private registerCustom(workspace: string, config: Partial<BranchContextConfig>) {

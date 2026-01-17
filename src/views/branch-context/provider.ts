@@ -251,9 +251,8 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     const config = this.helpers.loadConfig(workspace);
     const hideEmpty = branchContextState.getHideEmptySections();
     logger.info(`[BranchContext] [getChildren] hideEmpty: ${hideEmpty}`);
-    const showChangedFiles = false;
 
-    const registry = this.helpers.getSectionRegistry(workspace, config ?? undefined, showChangedFiles);
+    const registry = this.helpers.getSectionRegistry(workspace, config ?? undefined);
 
     const changedFilesSectionMetadata = context.metadata?.sections?.[SECTION_NAME_CHANGED_FILES];
     let changedFilesValue = BRANCH_CONTEXT_NO_CHANGES;

@@ -150,34 +150,31 @@ export class SyncManager {
 
       let changedFiles: string | undefined;
       let changedFilesSectionMetadata: Record<string, unknown> | undefined;
-      const showChangedFiles = config?.branchContext?.builtinSections?.changedFiles !== false;
 
-      if (showChangedFiles) {
-        logger.info(`[syncBranchContext] Fetching changedFiles (+${Date.now() - startTime}ms)`);
+      logger.info(`[syncBranchContext] Fetching changedFiles (+${Date.now() - startTime}ms)`);
 
-        const registry = this.helpers.getSectionRegistry(workspace, config ?? undefined, showChangedFiles);
-        const changedFilesSection = registry.get(SECTION_NAME_CHANGED_FILES);
+      const registry = this.helpers.getSectionRegistry(workspace, config ?? undefined);
+      const changedFilesSection = registry.get(SECTION_NAME_CHANGED_FILES);
 
-        if (changedFilesSection?.provider) {
-          const data = await changedFilesSection.provider.fetch(syncContext);
-          changedFiles = data;
+      if (changedFilesSection?.provider) {
+        const data = await changedFilesSection.provider.fetch(syncContext);
+        changedFiles = data;
 
-          const metadataMatch = data.match(METADATA_SECTION_REGEX_CAPTURE);
-          if (metadataMatch) {
-            try {
-              const parsed = JSON.parse(metadataMatch[1]);
-              if (TypeGuardsHelper.isObject(parsed)) {
-                changedFilesSectionMetadata = parsed as Record<string, unknown>;
-                changedFiles = data.replace(METADATA_SECTION_REGEX_GLOBAL, '').trim();
-              }
-            } catch (error: unknown) {
-              logger.error(`Failed to parse changedFiles metadata: ${TypeGuardsHelper.getErrorMessage(error)}`);
+        const metadataMatch = data.match(METADATA_SECTION_REGEX_CAPTURE);
+        if (metadataMatch) {
+          try {
+            const parsed = JSON.parse(metadataMatch[1]);
+            if (TypeGuardsHelper.isObject(parsed)) {
+              changedFilesSectionMetadata = parsed as Record<string, unknown>;
+              changedFiles = data.replace(METADATA_SECTION_REGEX_GLOBAL, '').trim();
             }
+          } catch (error: unknown) {
+            logger.error(`Failed to parse changedFiles metadata: ${TypeGuardsHelper.getErrorMessage(error)}`);
           }
         }
-
-        logger.info(`[syncBranchContext] changedFiles done (+${Date.now() - startTime}ms)`);
       }
+
+      logger.info(`[syncBranchContext] changedFiles done (+${Date.now() - startTime}ms)`);
 
       const customAutoData: Record<string, string> = {};
       const customSectionMetadata: Record<string, Record<string, unknown>> = {};

@@ -18,10 +18,6 @@
     ],
   },
   "branchContext": {
-    "builtinSections": {
-      "changedFiles": true,
-      "tasks": true,
-    },
     "customSections": [
       {
         "name": "GH PR INFO",

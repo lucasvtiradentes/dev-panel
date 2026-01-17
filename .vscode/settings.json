@@ -2,6 +2,8 @@
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit"
   },
+  "prettier.enable": false,
+  "eslint.enable": false,
   "editor.defaultFormatter": "biomejs.biome",
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
@@ -36,6 +38,6 @@
     "package.json": true,
     "pnpm-lock.yaml": true,
     // "README.md": true,
-    "tsconfig.json": true,
+    "tsconfig.json": true
   }
 }

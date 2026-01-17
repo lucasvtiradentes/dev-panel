@@ -39,27 +39,6 @@
       "description": "Branch context configuration",
       "type": "object",
       "properties": {
-        "builtinSections": {
-          "description": "Configuration for built-in sections",
-          "type": "object",
-          "properties": {
-            "changedFiles": {
-              "default": true,
-              "description": "Changed files section: false = hide, true = show (default)",
-              "type": "boolean"
-            },
-            "tasks": {
-              "default": true,
-              "description": "Tasks section: false = hide, true = show (default)",
-              "type": "boolean"
-            }
-          },
-          "required": [
-            "changedFiles",
-            "tasks"
-          ],
-          "additionalProperties": false
-        },
         "customSections": {
           "default": [],
           "description": "Custom sections to include in branch context",
