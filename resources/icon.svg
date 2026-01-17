@@ -1,25 +1,5 @@
 <svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Folder base -->
-  <path d="M 16 32 L 16 100 L 112 100 L 112 40 L 58 40 L 50 32 Z"
-        stroke="currentColor"
-        stroke-width="6"
-        stroke-linejoin="round"
-        fill="none"/>
-
-  <!-- Gear/cog representing configuration -->
-  <circle cx="52" cy="70" r="12"
-          stroke="currentColor"
-          stroke-width="5"
-          fill="none"/>
-  <line x1="52" y1="54" x2="52" y2="58" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
-  <line x1="52" y1="82" x2="52" y2="86" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
-  <line x1="36" y1="70" x2="40" y2="70" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
-  <line x1="64" y1="70" x2="68" y2="70" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
-
-  <!-- Lightning bolt for productivity/speed -->
-  <path d="M 92 52 L 82 68 L 90 68 L 80 88 L 100 64 L 92 64 Z"
-        stroke="currentColor"
-        stroke-width="4"
-        stroke-linejoin="round"
-        fill="none"/>
+  <path d="M40,24 L24,24 C20,24 16,28 16,32 L16,96 C16,100 20,104 24,104 L40,104" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M88,24 L104,24 C108,24 112,28 112,32 L112,96 C112,100 108,104 104,104 L88,104" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M72,32 L56,64 L72,64 L56,96" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
