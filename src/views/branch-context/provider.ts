@@ -264,6 +264,10 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
 
     const items: TreeItem[] = [];
     for (const section of registry.getAllSections()) {
+      if (section.name === SECTION_NAME_CHANGED_FILES) {
+        continue;
+      }
+
       const value = this.helpers.getSectionValue({
         context,
         sectionName: section.name,

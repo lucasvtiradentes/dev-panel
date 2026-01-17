@@ -1,6 +1,9 @@
 import { BRANCH_CONTEXT_NO_CHANGES, MILESTONE_HEADER_PATTERN } from '../../common/constants';
+import { createLogger } from '../../common/lib/logger';
 import { NodePathHelper } from '../../common/utils/helpers/node-helper';
 import type { ChangedFileNode, FileStatus, TopicNode } from './tree-items';
+
+const logger = createLogger('ChangedFilesParser');
 
 type ChangedFilesMetadata = {
   filesCount: number;
@@ -16,7 +19,7 @@ export type ParseResult = {
   metadata: ChangedFilesMetadata;
 };
 
-const FILE_LINE_REGEX = /^([AMD?])\s{2}(.+?)\s+\(([+-]\d+)\s([+-]\d+)\)$/;
+const FILE_LINE_REGEX = /^([AMD?])\s{2}(.+?)\s+\(([+-][\d-]+)\s([+-][\d-]+)\)$/;
 const UNCATEGORIZED_TOPIC = 'Uncategorized';
 
 export class ChangedFilesParser {
@@ -57,6 +60,9 @@ export class ChangedFilesParser {
       }
 
       const fileMatch = trimmed.match(FILE_LINE_REGEX);
+      if (!fileMatch && trimmed.length > 0 && /^[AMD?]\s/.test(trimmed)) {
+        logger.warn(`[parseFromMarkdown] Line looks like a file but didn't match regex: "${trimmed}"`);
+      }
       if (fileMatch) {
         const status = fileMatch[1] as FileStatus;
         const path = fileMatch[2].trim();
@@ -95,6 +101,8 @@ export class ChangedFilesParser {
     if (added > 0) summaryParts.push(`${added}A`);
     if (modified > 0) summaryParts.push(`${modified}M`);
     if (deleted > 0) summaryParts.push(`${deleted}D`);
+
+    logger.info(`[parseFromMarkdown] Parsed ${filesCount} files: ${summaryParts.join(', ')}`);
 
     return {
       topics: sortedTopics,
