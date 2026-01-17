@@ -16,7 +16,9 @@
 All-in-one command center for AI-assisted development. A VSCode extension that integrates task management, AI prompt execution, branch context tracking, and productivity tools into a unified sidebar.
 
 <div align="center">
-  <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/dev-panel@main/.github/image/demo.png" target="_blank"><img height="400" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/dev-panel@main/.github/image/demo1.png" alt="Dev Panel sidebar"></a>
+  <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/dev-panel@main/.github/image/demo.png" target="_blank">
+    <img height="400" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/dev-panel@main/.github/image/demo.png" alt="Dev Panel sidebar">
+  </a>
   <br>
   <em>manage tasks, prompts, and branch context in the sidebar</em>
 </div>
