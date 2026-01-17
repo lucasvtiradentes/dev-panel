@@ -249,7 +249,14 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
     } else {
       const patches = getNormalizedPatches(replacement);
       if (patches) {
-        applyPatches(workspace, replacement.target, patches);
+        const result = applyPatches(workspace, replacement.target, patches);
+        if (result.unmatchedPatches.length > 0) {
+          const patchList = result.unmatchedPatches.join(', ');
+          VscodeHelper.showToastMessage(
+            ToastKind.Warning,
+            `Replacement "${replacement.name}": patch(es) #${patchList} not found in target`,
+          );
+        }
       }
     }
 

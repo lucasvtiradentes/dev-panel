@@ -11,17 +11,27 @@ function normalizeSearchReplace(value: string[]): string {
   return value.join('\n');
 }
 
-export function applyPatches(workspace: string, target: string, patches: NormalizedPatchItem[]) {
+type ApplyPatchesResult = {
+  unmatchedPatches: number[];
+};
+
+export function applyPatches(workspace: string, target: string, patches: NormalizedPatchItem[]): ApplyPatchesResult {
   const targetPath = NodePathHelper.join(workspace, target);
   let content = FileIOHelper.readFile(targetPath);
+  const unmatchedPatches: number[] = [];
 
-  for (const patch of patches) {
-    const search = normalizeSearchReplace(patch.search);
-    const replace = normalizeSearchReplace(patch.replace);
+  for (let i = 0; i < patches.length; i++) {
+    const search = normalizeSearchReplace(patches[i].search);
+    const replace = normalizeSearchReplace(patches[i].replace);
+
+    if (!content.includes(search)) {
+      unmatchedPatches.push(i + 1);
+    }
     content = content.split(search).join(replace);
   }
 
   FileIOHelper.writeFile(targetPath, content);
+  return { unmatchedPatches };
 }
 
 export function fileExists(workspace: string, filePath: string): boolean {
