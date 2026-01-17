@@ -257,57 +257,30 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
 
   async getChildren(element?: BranchTreeItem): Promise<BranchTreeItem[]> {
     if (element instanceof BranchMilestoneItem) {
-      logger.info(`[BranchTasksProvider] [getChildren] Returning milestone children for: ${element.milestone.name}`);
       return buildMilestoneChildren(element.milestone, this.showOnlyTodo, this.activeFilters, this.grouped);
     }
 
     if (element instanceof BranchTaskItem) {
-      logger.info(`[BranchTasksProvider] [getChildren] Returning task children for line: ${element.node.lineIndex}`);
       return buildTaskChildren(element.node);
     }
 
-    logger.info(
-      `[BranchTasksProvider] [getChildren] ROOT CALL - Branch: ${this.currentBranch}, using CACHED data (nodes: ${this.cachedNodes.length}, milestones: ${this.cachedMilestones.length}, orphans: ${this.cachedOrphanTasks.length})`,
-    );
-
     if (!this.currentBranch) {
-      logger.warn('[BranchTasksProvider] [getChildren] No current branch, returning empty array');
       return [];
     }
 
     const hasMilestones = this.cachedMilestones.length > 0;
 
     if (hasMilestones) {
-      const result = buildMilestonesTree({
+      return buildMilestonesTree({
         orphanTasks: this.cachedOrphanTasks,
         milestones: this.cachedMilestones,
         showOnlyTodo: this.showOnlyTodo,
         activeFilters: this.activeFilters,
         grouped: this.grouped,
       });
-
-      if (result.length === 0) {
-        logger.info(
-          '[BranchTasksProvider] [getChildren] Milestones tree is empty, returning empty array (viewsWelcome will show)',
-        );
-        return [];
-      }
-
-      logger.info(`[BranchTasksProvider] [getChildren] Returning ${result.length} milestone items from cache`);
-      return result;
     }
 
-    const result = buildFlatTree(this.cachedNodes, this.showOnlyTodo, this.activeFilters, this.grouped);
-
-    if (result.length === 0) {
-      logger.info(
-        '[BranchTasksProvider] [getChildren] Flat tree is empty, returning empty array (viewsWelcome will show)',
-      );
-      return [];
-    }
-
-    logger.info(`[BranchTasksProvider] [getChildren] Returning ${result.length} task items from cache`);
-    return result;
+    return buildFlatTree(this.cachedNodes, this.showOnlyTodo, this.activeFilters, this.grouped);
   }
 
   toggleTodo(lineIndex: number) {

@@ -186,7 +186,6 @@ export class SyncManager {
       const customSectionMetadata: Record<string, Record<string, unknown>> = {};
 
       if (config?.branchContext?.sections) {
-        const registry = this.helpers.getSectionRegistry(workspace, config);
         const autoSections = registry.getAutoSections();
 
         let markdownFields: Record<string, string> = {};
@@ -198,6 +197,7 @@ export class SyncManager {
 
         const sectionsToFetch = autoSections.filter((section) => {
           if (!section.provider) return false;
+          if (section.name === SECTION_NAME_CHANGED_FILES) return false;
 
           const customSection = config.branchContext?.sections?.find((cs) => cs.name === section.name);
           if (customSection?.skipIfEmpty && customSection.skipIfEmpty.length > 0) {

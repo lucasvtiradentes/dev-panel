@@ -246,12 +246,8 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     }
 
     const context = loadBranchContext(this.currentBranch);
-    logger.info(
-      `[BranchContext] [getChildren] Loaded context - metadata.sections keys: ${Object.keys(context.metadata?.sections || {}).join(', ')}`,
-    );
     const config = this.helpers.loadConfig(workspace);
     const hideEmpty = branchContextState.getHideEmptySections();
-    logger.info(`[BranchContext] [getChildren] hideEmpty: ${hideEmpty}`);
 
     const registry = this.helpers.getSectionRegistry(workspace, config ?? undefined);
 
@@ -275,20 +271,12 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
         changedFilesValue,
       });
       const sectionMetadata = context.metadata?.sections?.[section.name];
-
-      logger.info(
-        `[BranchContext] [getChildren] Section "${section.name}": value="${value?.substring(0, 50)}", metadata=${JSON.stringify(sectionMetadata)}`,
-      );
-
       const isEmpty = this.helpers.isSectionEmpty(value, section.type, sectionMetadata);
-      logger.info(`[BranchContext] [getChildren] Section "${section.name}": isEmpty=${isEmpty}`);
 
       if (hideEmpty && isEmpty) {
-        logger.info(`[BranchContext] [getChildren] Section "${section.name}": HIDING (empty and hideEmpty=true)`);
         continue;
       }
 
-      logger.info(`[BranchContext] [getChildren] Section "${section.name}": SHOWING`);
       items.push(new SectionItem(section, value, this.currentBranch, sectionMetadata, context.branchType));
     }
 
