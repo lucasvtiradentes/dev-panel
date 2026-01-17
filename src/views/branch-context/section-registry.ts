@@ -18,7 +18,6 @@ import {
 import { createLogger } from '../../common/lib/logger';
 import { SectionType } from '../../common/schemas';
 import type { BranchContextConfig } from '../../common/schemas/config-schema';
-import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeIcon, type VscodeIconString } from '../../common/vscode/vscode-constants';
 import { DefaultChangedFilesProvider } from '../_branch_base/providers/default/changed-files.provider';
@@ -41,22 +40,14 @@ export type SectionDefinition = {
 export class SectionRegistry {
   private sections: Map<string, SectionDefinition> = new Map();
 
-  constructor(
-    workspace: string,
-    config?: Partial<BranchContextConfig>,
-    showChangedFiles: boolean | { provider: string } = true,
-  ) {
+  constructor(workspace: string, config?: Partial<BranchContextConfig>, showChangedFiles = true) {
     this.registerBuiltins(workspace, config, showChangedFiles);
     if (config) {
       this.registerCustom(workspace, config);
     }
   }
 
-  private registerBuiltins(
-    workspace: string,
-    _config?: Partial<BranchContextConfig>,
-    showChangedFiles: boolean | { provider: string } = true,
-  ) {
+  private registerBuiltins(_workspace: string, _config?: Partial<BranchContextConfig>, showChangedFiles = true) {
     this.register({
       name: SECTION_NAME_BRANCH,
       label: SECTION_LABEL_BRANCH,
@@ -111,27 +102,15 @@ export class SectionRegistry {
       command: Command.EditBranchNotes,
     });
 
-    if (showChangedFiles !== false) {
-      if (TypeGuardsHelper.isObjectWithProperty(showChangedFiles, 'provider')) {
-        const provider = loadAutoProvider(workspace, showChangedFiles.provider);
-        this.register({
-          name: SECTION_NAME_CHANGED_FILES,
-          label: SECTION_LABEL_CHANGED_FILES,
-          type: SectionType.Auto,
-          icon: VscodeIcon.Diff,
-          isBuiltin: true,
-          provider,
-        });
-      } else {
-        this.register({
-          name: SECTION_NAME_CHANGED_FILES,
-          label: SECTION_LABEL_CHANGED_FILES,
-          type: SectionType.Auto,
-          icon: VscodeIcon.Diff,
-          isBuiltin: true,
-          provider: new DefaultChangedFilesProvider(),
-        });
-      }
+    if (showChangedFiles) {
+      this.register({
+        name: SECTION_NAME_CHANGED_FILES,
+        label: SECTION_LABEL_CHANGED_FILES,
+        type: SectionType.Auto,
+        icon: VscodeIcon.Diff,
+        isBuiltin: true,
+        provider: new DefaultChangedFilesProvider(),
+      });
     }
   }
 

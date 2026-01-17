@@ -150,12 +150,12 @@ export class SyncManager {
 
       let changedFiles: string | undefined;
       let changedFilesSectionMetadata: Record<string, unknown> | undefined;
-      const changedFilesConfig = config?.branchContext?.builtinSections?.changedFiles;
+      const showChangedFiles = config?.branchContext?.builtinSections?.changedFiles !== false;
 
-      if (changedFilesConfig !== false) {
+      if (showChangedFiles) {
         logger.info(`[syncBranchContext] Fetching changedFiles (+${Date.now() - startTime}ms)`);
 
-        const registry = this.helpers.getSectionRegistry(workspace, config, changedFilesConfig);
+        const registry = this.helpers.getSectionRegistry(workspace, config ?? undefined, showChangedFiles);
         const changedFilesSection = registry.get(SECTION_NAME_CHANGED_FILES);
 
         if (changedFilesSection?.provider) {

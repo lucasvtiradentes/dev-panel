@@ -45,25 +45,8 @@
           "properties": {
             "changedFiles": {
               "default": true,
-              "description": "Changed files section: false = hide, true = default provider, { provider: string } = custom provider",
-              "anyOf": [
-                {
-                  "type": "boolean"
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "provider": {
-                      "description": "Command to execute (e.g., \"node ./plugins/my-provider.js\", \"bash ./scripts/fetch.sh\")",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "provider"
-                  ],
-                  "additionalProperties": false
-                }
-              ]
+              "description": "Changed files section: false = hide, true = show (default)",
+              "type": "boolean"
             },
             "tasks": {
               "default": true,

@@ -267,17 +267,11 @@ const BranchContextSectionSchema = z.object({
     ),
 });
 
-const BranchContextProviderSchema = z.object({
-  provider: z
-    .string()
-    .describe('Command to execute (e.g., "node ./plugins/my-provider.js", "bash ./scripts/fetch.sh")'),
-});
-
 const BuiltinSectionsSchema = z.object({
   changedFiles: z
-    .union([z.boolean(), BranchContextProviderSchema])
+    .boolean()
     .optional()
-    .describe('Changed files section: false = hide, true = default provider, { provider: string } = custom provider')
+    .describe('Changed files section: false = hide, true = show (default)')
     .default(true),
   tasks: z.boolean().optional().describe('Tasks section: false = hide, true = show (default)').default(true),
 });

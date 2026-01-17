@@ -33,14 +33,10 @@ export class ProviderHelpers {
     return config;
   }
 
-  getSectionRegistry(
-    workspace: string,
-    config?: DevPanelConfig,
-    showChangedFiles: boolean | { provider: string } = true,
-  ): SectionRegistry {
+  getSectionRegistry(workspace: string, config?: DevPanelConfig, showChangedFiles = true): SectionRegistry {
     const configHash = config
-      ? JSON.stringify(config.branchContext) + JSON.stringify(showChangedFiles)
-      : JSON.stringify(showChangedFiles);
+      ? JSON.stringify(config.branchContext) + String(showChangedFiles)
+      : String(showChangedFiles);
 
     if (this.sectionRegistryCache && this.configHashCache === configHash) {
       return this.sectionRegistryCache;
