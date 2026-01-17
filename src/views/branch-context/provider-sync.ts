@@ -176,6 +176,11 @@ export class SyncManager {
 
       logger.info(`[syncBranchContext] changedFiles done (+${Date.now() - startTime}ms)`);
 
+      const gitInfoPromise = Promise.all([
+        Git.getLastCommitHash(workspace).catch(() => undefined),
+        Git.getLastCommitMessage(workspace).catch(() => undefined),
+      ]);
+
       const customAutoData: Record<string, string> = {};
       const customSectionMetadata: Record<string, Record<string, unknown>> = {};
 
@@ -263,14 +268,7 @@ export class SyncManager {
       }
       logger.info(`[syncBranchContext] Section metadata map keys: ${Object.keys(sectionMetadataMap).join(', ')}`);
 
-      let lastCommitHash: string | undefined;
-      let lastCommitMessage: string | undefined;
-      try {
-        lastCommitHash = await Git.getLastCommitHash(workspace);
-        lastCommitMessage = await Git.getLastCommitMessage(workspace);
-      } catch (error: unknown) {
-        logger.error(`Failed to get git commit info: ${TypeGuardsHelper.getErrorMessage(error)}`);
-      }
+      const [lastCommitHash, lastCommitMessage] = await gitInfoPromise;
 
       logger.info(`[syncBranchContext] Building updated context (+${Date.now() - startTime}ms)`);
       logger.info(
