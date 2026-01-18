@@ -16,25 +16,8 @@ on:
         type: boolean
         required: false
         default: false
-    outputs:
-      should_release:
-        description: 'Whether version was bumped and should trigger release'
-        value: ${{ jobs.check_version.outputs.should_release }}
 
 jobs:
-  check_version:
-    runs-on: ubuntu-latest
-    outputs:
-      should_release: ${{ steps.check.outputs.should_release }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Check if version was bumped
-        id: check
-        run: bash scripts/release/check-version-bump.sh
-
   lint:
     if: inputs.run_lint
     runs-on: ubuntu-latest

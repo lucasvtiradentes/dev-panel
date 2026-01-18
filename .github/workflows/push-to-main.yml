@@ -4,13 +4,10 @@ on:
   push:
     branches:
       - main
-    tags:
-      - 'v*'
 
 permissions:
   pull-requests: write
   contents: write
-  id-token: write
 
 concurrency:
   group: main-${{ github.workflow }}-${{ github.ref }}
@@ -24,39 +21,32 @@ jobs:
       run_lint: true
       run_build: true
 
-  prepare_release:
-    name: 'Prepare Release'
+  release:
+    name: 'Release'
     needs: [ci]
     runs-on: ubuntu-latest
     outputs:
-      has_changesets: ${{ steps.changesets.outputs.hasChangesets }}
+      published: ${{ steps.changesets.outputs.published }}
     env:
       HUSKY: 0
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
 
       - uses: ./.github/actions/setup-and-install
 
-      - name: Create Release Pull Request (if changesets exist)
+      - name: Create Release Pull Request or Publish
         id: changesets
         uses: changesets/action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  release_vscode:
-    name: 'Release VSCode Extension'
-    needs: [ci, prepare_release]
-    if: needs.prepare_release.outputs.has_changesets == 'false' && needs.ci.outputs.should_release == 'true'
+  publish_vscode:
+    name: 'Publish VSCode Extension'
+    needs: [release]
+    if: needs.release.outputs.published == 'true'
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
 
       - uses: ./.github/actions/setup-and-install
 
