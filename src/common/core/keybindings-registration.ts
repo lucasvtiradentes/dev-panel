@@ -20,6 +20,7 @@ type RegisterKeybindingsOptions<T extends KeybindingItem> = {
 
 export function registerItemKeybindings<T extends KeybindingItem>(opts: RegisterKeybindingsOptions<T>) {
   const { context, getItems, getCommandId, createWorkspaceHandler, createGlobalHandler, shouldSkip } = opts;
+  const registeredCommands = new Set<string>();
 
   ConfigManager.forEachWorkspaceConfig((folder, config) => {
     const items = getItems(config) ?? [];
@@ -28,9 +29,12 @@ export function registerItemKeybindings<T extends KeybindingItem>(opts: Register
       if (shouldSkip?.(item)) continue;
 
       const commandId = getCommandId(item.name);
+      if (registeredCommands.has(commandId)) continue;
+
       const handler = createWorkspaceHandler(item, folder);
       const disposable = registerDynamicCommand(commandId, handler);
       context.subscriptions.push(disposable);
+      registeredCommands.add(commandId);
     }
   });
 
@@ -42,9 +46,12 @@ export function registerItemKeybindings<T extends KeybindingItem>(opts: Register
       if (shouldSkip?.(item)) continue;
 
       const commandId = getCommandId(item.name);
+      if (registeredCommands.has(commandId)) continue;
+
       const handler = createGlobalHandler(item);
       const disposable = registerDynamicCommand(commandId, handler);
       context.subscriptions.push(disposable);
+      registeredCommands.add(commandId);
     }
   }
 
