@@ -1,5 +1,11 @@
 # dev-panel
 
+## 0.0.7
+
+### Patch Changes
+
+- 7a667ed: fix duplicated command register
+
 ## 0.0.6
 
 ### Patch Changes
