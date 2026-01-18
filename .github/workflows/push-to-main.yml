@@ -4,10 +4,13 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
 
 permissions:
   pull-requests: write
   contents: write
+  id-token: write
 
 concurrency:
   group: main-${{ github.workflow }}-${{ github.ref }}
@@ -35,17 +38,7 @@ jobs:
         with:
           fetch-depth: 2
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup-and-install
 
       - name: Create Release Pull Request (if changesets exist)
         id: changesets
@@ -65,17 +58,7 @@ jobs:
         with:
           fetch-depth: 2
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup-and-install
 
       - uses: ./.github/actions/release-vscode
         with:

@@ -9,7 +9,7 @@
   "editor.formatOnSaveMode": "file",
   "files.exclude": {
     // FOLDERS
-    ".changeset": true,
+    // ".changeset": true,
     // ".claude": true,
     // ".github": true,
     ".husky": true,
