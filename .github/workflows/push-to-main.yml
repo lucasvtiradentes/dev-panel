@@ -26,7 +26,7 @@ jobs:
     needs: [ci]
     runs-on: ubuntu-latest
     outputs:
-      published: ${{ steps.changesets.outputs.published }}
+      has_changesets: ${{ steps.changesets.outputs.hasChangesets }}
     env:
       HUSKY: 0
     steps:
@@ -34,18 +34,16 @@ jobs:
 
       - uses: ./.github/actions/setup-and-install
 
-      - name: Create Release Pull Request or Publish
+      - name: Create Release Pull Request (if changesets exist)
         id: changesets
         uses: changesets/action@v1
-        with:
-          publish: pnpm run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish_vscode:
-    name: 'Publish VSCode Extension'
-    needs: [release]
-    if: needs.release.outputs.published == 'true'
+    name: 'Release VSCode Extension'
+    needs: [ci, release]
+    if: needs.release.outputs.has_changesets == 'false' && needs.ci.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
