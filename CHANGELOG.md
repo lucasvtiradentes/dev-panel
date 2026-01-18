@@ -1,5 +1,11 @@
 # dev-panel
 
+## 0.0.6
+
+### Patch Changes
+
+- a9ac494: fix template file
+
 ## 0.0.5
 
 ### Patch Changes
