@@ -46,6 +46,7 @@
     "vscode:prepublish": "pnpm run build",
     "vscode:package": "vsce package --no-dependencies",
     "vscode:publish": "vsce publish --no-dependencies",
+    "release": "echo 'Release triggered by changesets'",
     "clean": "rimraf out dist-dev node_modules",
     "knip": "knip",
     "schema": "tsx scripts/generate-schema.ts"
