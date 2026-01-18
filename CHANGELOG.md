@@ -1,5 +1,11 @@
 # dev-panel
 
+## 0.0.5
+
+### Patch Changes
+
+- a621dde: revert deployment process
+
 ## 0.0.4
 
 ### Patch Changes
