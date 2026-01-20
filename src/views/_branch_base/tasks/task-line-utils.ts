@@ -1,19 +1,13 @@
-import {
-  MARKDOWN_SECTION_HEADER_PATTERN,
-  TASK_ITEM_PATTERN,
-  TODO_SECTION_HEADER_PATTERN,
-} from '../../../common/constants';
+import { TASK_ITEM_PATTERN, TODO_SECTION_HEADER_PATTERN } from '../../../common/constants';
+import { MarkdownSectionHelper } from '../../../common/utils/helpers/markdown-section-helper';
 
 export class TaskLineUtils {
   static findTodoSectionIndex(lines: string[]): number {
-    return lines.findIndex((l: string) => TODO_SECTION_HEADER_PATTERN.test(l));
+    return MarkdownSectionHelper.findSectionIndex(lines, TODO_SECTION_HEADER_PATTERN);
   }
 
   static findNextSectionIndex(lines: string[], startIndex: number): number {
-    const nextIndex = lines.findIndex(
-      (l: string, i: number) => i > startIndex && MARKDOWN_SECTION_HEADER_PATTERN.test(l),
-    );
-    return nextIndex === -1 ? lines.length : nextIndex;
+    return MarkdownSectionHelper.findNextSectionIndex(lines, startIndex);
   }
 
   static getIndentLevel(match: RegExpMatchArray): number {

@@ -1,21 +1,18 @@
-import { BASE_BRANCH, BRANCH_CONTEXT_NA, FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
+import { FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
 import { Position } from '../../common/constants/enums';
-import { StoreKey, extensionStore } from '../../common/core/extension-store';
 import { logger } from '../../common/lib/logger';
 import type { TaskPriority, TaskStatus } from '../../common/schemas';
-import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
-import { VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
+import type { TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import {
   type MilestoneNode,
   type SyncContext,
+  SyncContextHelper,
   type TaskNode,
   type TaskSyncProvider,
-  getBranchContextFilePath,
-  loadBranchContext,
 } from '../_branch_base';
 import { DefaultTaskProvider } from '../_branch_base/providers/default/tasks.provider';
+import { BaseBranchProvider } from '../_view_base';
 import type { TaskFilter } from './filter-operations';
 import { showFilterQuickPick as showFilterQuickPickDialog } from './filter-quick-pick';
 import { buildFlatTree, buildMilestoneChildren, buildMilestonesTree, buildTaskChildren } from './provider-tree-builder';
@@ -26,11 +23,7 @@ import {
   type BranchTreeItem,
 } from './task-tree-items';
 
-export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
-  private _onDidChangeTreeData = VscodeHelper.createEventEmitter<BranchTreeItem | undefined>();
-  readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
-
-  private currentBranch = '';
+export class BranchTasksProvider extends BaseBranchProvider<BranchTreeItem> {
   private cachedNodes: TaskNode[] = [];
   private cachedOrphanTasks: TaskNode[] = [];
   private cachedMilestones: MilestoneNode[] = [];
@@ -38,22 +31,18 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
   private grouped = true;
   private activeFilters: TaskFilter = {};
   private taskProvider: TaskSyncProvider;
-  private fileChangeDebounce: NodeJS.Timeout | null = null;
-  private isInitializing = true;
-  private treeView: TreeView<BranchTreeItem> | null = null;
-  private lastManualRefreshTime = 0;
 
   constructor() {
+    super();
     this.taskProvider = new DefaultTaskProvider();
     void setContextKey(ContextKey.BranchTasksHasFilter, false);
   }
 
   setTreeView(treeView: TreeView<BranchTreeItem>) {
-    this.treeView = treeView;
-    this.updateDescription();
+    super.setTreeView(treeView);
   }
 
-  private updateDescription() {
+  updateDescription() {
     if (!this.treeView) return;
 
     const allTasks = this.getAllTasksFlat();
@@ -117,27 +106,13 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
   }
 
   handleMarkdownChange(uri: Uri) {
-    if (extensionStore.get(StoreKey.IsWritingBranchContext)) {
-      logger.info(`[BranchTasksProvider] Ignoring file change during sync: ${uri.fsPath}`);
-      return;
-    }
-
     const timeSinceManualRefresh = Date.now() - this.lastManualRefreshTime;
     if (timeSinceManualRefresh < FILE_WATCHER_DEBOUNCE_MS * 2) {
       logger.info(`[BranchTasksProvider] Ignoring file change - manual refresh was ${timeSinceManualRefresh}ms ago`);
       return;
     }
 
-    logger.info(`[BranchTasksProvider] File changed: ${uri.fsPath}, currentBranch: ${this.currentBranch}`);
-
-    if (this.fileChangeDebounce) {
-      clearTimeout(this.fileChangeDebounce);
-    }
-
-    this.fileChangeDebounce = setTimeout(() => {
-      this.refresh();
-      this.fileChangeDebounce = null;
-    }, FILE_WATCHER_DEBOUNCE_MS);
+    super.handleMarkdownChange(uri);
   }
 
   setBranch(branchName: string) {
@@ -164,42 +139,22 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
 
   private async loadBranchTasks() {
     const loadStartTime = Date.now();
-    const filePath = getBranchContextFilePath(this.currentBranch);
-    logger.info(`[BranchTasksProvider] [loadBranchTasks] START - Branch: ${this.currentBranch}, FilePath: ${filePath}`);
+    const syncContext = this.getSyncContext();
 
-    if (!filePath || !FileIOHelper.fileExists(filePath)) {
-      logger.warn(
-        `[BranchTasksProvider] [loadBranchTasks] File not found, clearing cache. filePath: ${filePath}, exists: ${filePath ? FileIOHelper.fileExists(filePath) : BRANCH_CONTEXT_NA}`,
-      );
+    logger.info(`[BranchTasksProvider] [loadBranchTasks] START - Branch: ${this.currentBranch}`);
+
+    if (!syncContext) {
+      logger.warn('[BranchTasksProvider] [loadBranchTasks] No sync context, clearing cache');
       this.cachedNodes = [];
       this.cachedOrphanTasks = [];
       this.cachedMilestones = [];
-      logger.info('[BranchTasksProvider] [loadBranchTasks] END - Cache cleared (no file)');
+      logger.info('[BranchTasksProvider] [loadBranchTasks] END - Cache cleared (no context)');
       return;
     }
 
-    const workspace = VscodeHelper.getFirstWorkspacePath();
-    if (!workspace) {
-      logger.warn('[BranchTasksProvider] [loadBranchTasks] No workspace, clearing cache');
-      this.cachedNodes = [];
-      this.cachedOrphanTasks = [];
-      this.cachedMilestones = [];
-      logger.info('[BranchTasksProvider] [loadBranchTasks] END - Cache cleared (no workspace)');
-      return;
-    }
-
-    const branchContext = loadBranchContext(this.currentBranch);
     logger.info(
-      `[BranchTasksProvider] [loadBranchTasks] Loaded branchContext, todos section length: ${branchContext.todos?.length ?? 0} (+${Date.now() - loadStartTime}ms)`,
+      `[BranchTasksProvider] [loadBranchTasks] Loaded branchContext, todos section length: ${syncContext.branchContext.todos?.length ?? 0} (+${Date.now() - loadStartTime}ms)`,
     );
-
-    const syncContext: SyncContext = {
-      branchName: this.currentBranch,
-      workspacePath: workspace,
-      markdownPath: filePath,
-      branchContext,
-      comparisonBranch: BASE_BRANCH,
-    };
 
     logger.info(
       `[BranchTasksProvider] [loadBranchTasks] Fetching tasks and milestones in PARALLEL (+${Date.now() - loadStartTime}ms)`,
@@ -237,11 +192,6 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
   private refreshAfterTaskOperation() {
     this.lastManualRefreshTime = Date.now();
     this.refresh();
-  }
-
-  shouldSkipRefresh(): boolean {
-    const timeSinceManualRefresh = Date.now() - this.lastManualRefreshTime;
-    return timeSinceManualRefresh < FILE_WATCHER_DEBOUNCE_MS * 2;
   }
 
   refreshIfNeeded() {
@@ -381,21 +331,7 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
   }
 
   private getSyncContext(): SyncContext | null {
-    const filePath = getBranchContextFilePath(this.currentBranch);
-    if (!filePath || !FileIOHelper.fileExists(filePath)) return null;
-
-    const workspace = VscodeHelper.getFirstWorkspacePath();
-    if (!workspace) return null;
-
-    const branchContext = loadBranchContext(this.currentBranch);
-
-    return {
-      branchName: this.currentBranch,
-      workspacePath: workspace,
-      markdownPath: filePath,
-      branchContext,
-      comparisonBranch: BASE_BRANCH,
-    };
+    return SyncContextHelper.create(this.currentBranch);
   }
 
   getMilestoneNames(): string[] {
@@ -452,11 +388,5 @@ export class BranchTasksProvider implements TreeDataProvider<BranchTreeItem> {
 
   get dragAndDropController(): BranchTasksDragAndDropController {
     return new BranchTasksDragAndDropController(this);
-  }
-
-  dispose() {
-    if (this.fileChangeDebounce) {
-      clearTimeout(this.fileChangeDebounce);
-    }
   }
 }

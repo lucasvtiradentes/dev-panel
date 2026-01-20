@@ -7,7 +7,6 @@ import {
   BRANCH_CONTEXT_NA,
   BRANCH_CONTEXT_NO_CHANGES,
   BUILTIN_SECTION_NAMES,
-  MARKDOWN_H1_HEADER_PATTERN,
   METADATA_DEVPANEL_PREFIX,
   METADATA_DEVPANEL_REGEX,
   METADATA_SECTION_REGEX_GLOBAL,
@@ -24,6 +23,7 @@ import { ConfigManager } from '../../../common/core/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext, BranchContextMetadata, SectionMetadata } from '../../../common/schemas/types';
 import { extractSectionMetadata } from '../../../common/utils/functions/extract-section-metadata';
+import { MarkdownSectionHelper } from '../../../common/utils/helpers/markdown-section-helper';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { parseBranchTypeCheckboxes } from './branch-type-utils';
@@ -64,19 +64,7 @@ function extractBranchType(content: string): string | undefined {
 }
 
 function extractSection(content: string, sectionName: string): string | undefined {
-  const headerRegex = new RegExp(`^#\\s+${sectionName}\\s*$`, 'im');
-  const headerMatch = content.match(headerRegex);
-  if (!headerMatch || headerMatch.index === undefined) return undefined;
-
-  const startIndex = headerMatch.index + headerMatch[0].length;
-  const afterHeader = content.slice(startIndex);
-  const nextHeaderRegex = MARKDOWN_H1_HEADER_PATTERN;
-  const nextHeaderMatch = afterHeader.match(nextHeaderRegex);
-  const endIndex = nextHeaderMatch && nextHeaderMatch.index !== undefined ? nextHeaderMatch.index : afterHeader.length;
-  const sectionContent = afterHeader.slice(0, endIndex).trim();
-
-  if (BranchContextMarkdownHelper.isFieldEmpty(sectionContent)) return undefined;
-  return sectionContent;
+  return MarkdownSectionHelper.extractSection(content, sectionName);
 }
 
 type CodeBlockSection = {

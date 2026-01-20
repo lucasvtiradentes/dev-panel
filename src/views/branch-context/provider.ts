@@ -19,9 +19,10 @@ import { formatRelativeTime } from '../../common/utils/functions/format-relative
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
+import type { TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import { loadBranchContext } from '../_branch_base';
 import { getFieldLineNumber } from '../_branch_base/storage/markdown-parser';
+import { BaseBranchProvider } from '../_view_base';
 import { validateBranchContext } from './config-validator';
 import { SectionItem } from './items';
 import { ProviderHelpers } from './provider-helpers';
@@ -30,21 +31,16 @@ import { ValidationIndicator } from './validation-indicator';
 
 const logger = createLogger('BranchContext');
 
-export class BranchContextProvider implements TreeDataProvider<TreeItem> {
-  private _onDidChangeTreeData = VscodeHelper.createEventEmitter<TreeItem | undefined>();
-  readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
-
-  private currentBranch = '';
+export class BranchContextProvider extends BaseBranchProvider<TreeItem> {
   private lastComparisonBranch = BASE_BRANCH;
   private validationIndicator: ValidationIndicator;
-  private treeView: TreeView<TreeItem> | null = null;
   private descriptionInterval: NodeJS.Timeout | null = null;
   private lastSyncTimestamp: string | null = null;
   private helpers: ProviderHelpers;
   private syncManager: SyncManager;
-  private isInitializing = true;
 
   constructor(onSyncComplete?: () => void) {
+    super();
     this.validationIndicator = new ValidationIndicator();
     this.helpers = new ProviderHelpers();
 
@@ -67,14 +63,13 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   }
 
   setTreeView(treeView: TreeView<TreeItem>) {
-    this.treeView = treeView;
-    this.updateDescription();
+    super.setTreeView(treeView);
     this.descriptionInterval = setInterval(() => {
       this.updateDescription();
     }, 60000);
   }
 
-  private updateDescription() {
+  updateDescription() {
     if (!this.treeView) {
       logger.info('[BranchContext] [updateDescription] No treeView, skipping');
       return;
@@ -340,6 +335,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   }
 
   dispose() {
+    super.dispose();
     if (this.descriptionInterval) {
       clearInterval(this.descriptionInterval);
       this.descriptionInterval = null;
