@@ -27,7 +27,7 @@ export const DEFAULT_EXCLUDED_DIRS = ['node_modules', 'dist', '.git'];
 
 export const BRANCH_CONTEXT_NA = 'N/A';
 export const BRANCH_CONTEXT_NO_CHANGES = 'No changes';
-export const BRANCH_CONTEXT_DEFAULT_TODOS = '- [ ] task1\n- [ ] task2';
+export const BRANCH_CONTEXT_DEFAULT_TODOS = 'N/A';
 
 const METADATA_DEVPANEL = 'DEVPANEL_METADATA';
 export const METADATA_DEVPANEL_PREFIX = `<!-- ${METADATA_DEVPANEL}: `;
