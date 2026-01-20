@@ -57,7 +57,7 @@ const DevPanelTaskSchema = z
     useWorkspaceRoot: z
       .boolean()
       .optional()
-      .describe('If true, run command from workspace root instead of .devpanel directory'),
+      .describe(`If true, run command from workspace root instead of ${CONFIG_DIR_NAME} directory`),
     hideTerminal: z
       .boolean()
       .optional()
@@ -73,7 +73,7 @@ const DevPanelToolSchema = z
     useWorkspaceRoot: z
       .boolean()
       .optional()
-      .describe('If true, run command from workspace root instead of .devpanel directory'),
+      .describe(`If true, run command from workspace root instead of ${CONFIG_DIR_NAME} directory`),
   })
   .describe('A tool that can be executed from the Tools view');
 
@@ -93,7 +93,7 @@ const DevPanelPromptSchema = z
     useWorkspaceRoot: z
       .boolean()
       .optional()
-      .describe('If true, resolve file path from workspace root instead of .devpanel directory'),
+      .describe(`If true, resolve file path from workspace root instead of ${CONFIG_DIR_NAME} directory`),
   })
   .describe('A prompt that can be executed in Claude Code');
 
@@ -231,7 +231,7 @@ const DevPanelSettingsSchema = z
       .array(z.string())
       .optional()
       .describe(
-        `Glob patterns to exclude globally (package.json search, prompt file/folder selection, variable file/folder selection). Extends defaults: ${DEFAULT_EXCLUDES.join(', ')}. Add custom exclusions as needed (e.g. ["**/.devpanel/**", "**/.changeset/**", "**/out/**", "**/*.log"])`,
+        `Glob patterns to exclude globally (package.json search, prompt file/folder selection, variable file/folder selection). Extends defaults: ${DEFAULT_EXCLUDES.join(', ')}. Add custom exclusions as needed (e.g. ["**/${CONFIG_DIR_NAME}/**", "**/.changeset/**", "**/out/**", "**/*.log"])`,
       ),
     autoSyncGitChanges: z
       .boolean()

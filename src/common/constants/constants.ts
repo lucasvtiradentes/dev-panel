@@ -8,6 +8,14 @@ export const GLOBAL_STATE_WORKSPACE_SOURCE = `______${CONTEXT_PREFIX}WorkspaceSo
 export const GLOBAL_STATE_KEY = `${CONFIG_DIR_KEY}.globalUIState`;
 export const GLOBAL_ITEM_PREFIX = '(G) ';
 
+export function stripGlobalPrefix(name: string): string {
+  return name.startsWith(GLOBAL_ITEM_PREFIX) ? name.substring(GLOBAL_ITEM_PREFIX.length) : name;
+}
+
+export function isGlobalItem(name: string): boolean {
+  return name.startsWith(GLOBAL_ITEM_PREFIX);
+}
+
 export const BRANCH_FIELD_DESCRIPTION_MAX_LENGTH = 50;
 
 const BRANCH_CONTEXT_SECTION_BRANCH_INFO = '# BRANCH INFO';
@@ -63,6 +71,8 @@ export const BRANCH_CONTEXT_DEFAULT_ICON = VscodeIcon.SymbolField;
 
 export const DESCRIPTION_NOT_SET = '(not set)';
 export const DESCRIPTION_NOT_SYNCED = '(not synced)';
+
+export const UNCATEGORIZED_TOPIC = 'Uncategorized';
 
 export enum ChangedFilesStyle {
   Tree = 'tree',

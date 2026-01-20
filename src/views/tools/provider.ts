@@ -19,9 +19,14 @@ import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
-import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { TreeItem, TreeView, WorkspaceFolder } from '../../common/vscode/vscode-types';
-import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../_view_base';
+import {
+  BaseTreeDataProvider,
+  type ProviderConfig,
+  applyItemStyle,
+  createDragAndDropController,
+  shouldShowItem,
+} from '../_view_base';
 import { ToolGroupTreeItem, TreeTool } from './items';
 import { addActiveTool, getActiveTools, isFavorite, isHidden, removeActiveTool, setActiveTools } from './state';
 
@@ -223,11 +228,20 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   ): TreeTool | null {
     const hidden = isHidden(tool.name);
     const favorite = isFavorite(tool.name);
+
+    if (
+      !shouldShowItem({
+        isHidden: hidden,
+        isFavorite: favorite,
+        showHidden: this._showHidden,
+        showOnlyFavorites: this._showOnlyFavorites,
+      })
+    ) {
+      return null;
+    }
+
     const activeTools = getActiveTools();
     const isActive = activeTools.includes(tool.name);
-
-    if (hidden && !this._showHidden) return null;
-    if (this._showOnlyFavorites && !favorite) return null;
 
     const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
     const toolFilePath = tool.command ? this.extractFileFromCommand(tool.command) : '';
@@ -241,16 +255,16 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
       treeTool.tooltip = description;
     }
 
-    if (hidden) {
-      treeTool.iconPath = VscodeIcons.HiddenItem;
-      treeTool.contextValue = CONTEXT_VALUES.TOOL_HIDDEN;
-    } else if (favorite) {
-      treeTool.iconPath = VscodeIcons.FavoriteItem;
-      treeTool.contextValue = CONTEXT_VALUES.TOOL_FAVORITE;
-    } else if (isActive) {
-      treeTool.iconPath = VscodeIcons.ActiveItem;
-      treeTool.contextValue = CONTEXT_VALUES.TOOL;
-    }
+    applyItemStyle(treeTool, {
+      isHidden: hidden,
+      isFavorite: favorite,
+      isActive,
+      contextValues: {
+        default: CONTEXT_VALUES.TOOL,
+        hidden: CONTEXT_VALUES.TOOL_HIDDEN,
+        favorite: CONTEXT_VALUES.TOOL_FAVORITE,
+      },
+    });
 
     treeTool.command = {
       command: getCommandId(Command.ToggleTool),
@@ -264,12 +278,21 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
   private createGlobalTool(tool: NonNullable<DevPanelConfig['tools']>[number]): TreeTool | null {
     const hidden = globalToolsState.isHidden(tool.name);
     const favorite = globalToolsState.isFavorite(tool.name);
-    const activeTools = getActiveTools();
-    const globalToolName = `${GLOBAL_ITEM_PREFIX}${tool.name}`;
-    const isActive = activeTools.includes(globalToolName);
 
-    if (hidden && !this._showHidden) return null;
-    if (this._showOnlyFavorites && !favorite) return null;
+    if (
+      !shouldShowItem({
+        isHidden: hidden,
+        isFavorite: favorite,
+        showHidden: this._showHidden,
+        showOnlyFavorites: this._showOnlyFavorites,
+      })
+    ) {
+      return null;
+    }
+
+    const globalToolName = `${GLOBAL_ITEM_PREFIX}${tool.name}`;
+    const activeTools = getActiveTools();
+    const isActive = activeTools.includes(globalToolName);
 
     const globalConfigDir = getGlobalConfigDir();
     const toolFilePath = tool.command ? this.extractFileFromCommand(tool.command) : '';
@@ -281,18 +304,16 @@ export class ToolTreeDataProvider extends BaseTreeDataProvider<TreeTool, ToolGro
     const description = this.readToolDescription(instructionsPath);
     treeTool.tooltip = description ? `Global: ${description}` : GLOBAL_TOOL_TOOLTIP;
 
-    if (hidden) {
-      treeTool.iconPath = VscodeIcons.HiddenItem;
-      treeTool.contextValue = CONTEXT_VALUES.TOOL_GLOBAL_HIDDEN;
-    } else if (favorite) {
-      treeTool.iconPath = VscodeIcons.FavoriteItem;
-      treeTool.contextValue = CONTEXT_VALUES.TOOL_GLOBAL_FAVORITE;
-    } else if (isActive) {
-      treeTool.iconPath = VscodeIcons.ActiveItem;
-      treeTool.contextValue = CONTEXT_VALUES.TOOL_GLOBAL;
-    } else {
-      treeTool.contextValue = CONTEXT_VALUES.TOOL_GLOBAL;
-    }
+    applyItemStyle(treeTool, {
+      isHidden: hidden,
+      isFavorite: favorite,
+      isActive,
+      contextValues: {
+        default: CONTEXT_VALUES.TOOL_GLOBAL,
+        hidden: CONTEXT_VALUES.TOOL_GLOBAL_HIDDEN,
+        favorite: CONTEXT_VALUES.TOOL_GLOBAL_FAVORITE,
+      },
+    });
 
     treeTool.command = {
       command: getCommandId(Command.ToggleTool),

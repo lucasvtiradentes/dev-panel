@@ -1,4 +1,4 @@
-import { GLOBAL_ITEM_PREFIX, NO_GROUP_NAME } from '../../common/constants';
+import { GLOBAL_ITEM_PREFIX, NO_GROUP_NAME, isGlobalItem, stripGlobalPrefix } from '../../common/constants';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { type ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -140,8 +140,8 @@ export abstract class BaseTreeDataProvider<
     const name = item.getName();
     if (!name) return;
 
-    if (name.startsWith(GLOBAL_ITEM_PREFIX) && this.globalStateManager) {
-      this.globalStateManager.toggleFavorite(name.substring(GLOBAL_ITEM_PREFIX.length));
+    if (isGlobalItem(name) && this.globalStateManager) {
+      this.globalStateManager.toggleFavorite(stripGlobalPrefix(name));
     } else if (this.isSimpleStateManager(this.stateManager)) {
       this.stateManager.toggleFavorite(name);
     } else if (this.getSource) {
@@ -166,8 +166,8 @@ export abstract class BaseTreeDataProvider<
     const name = item.getName();
     if (!name) return;
 
-    if (name.startsWith(GLOBAL_ITEM_PREFIX) && this.globalStateManager) {
-      this.globalStateManager.toggleHidden(name.substring(GLOBAL_ITEM_PREFIX.length));
+    if (isGlobalItem(name) && this.globalStateManager) {
+      this.globalStateManager.toggleHidden(stripGlobalPrefix(name));
     } else if (this.isSimpleStateManager(this.stateManager)) {
       this.stateManager.toggleHidden(name);
     } else if (this.getSource) {

@@ -1,11 +1,11 @@
-import { BASE_BRANCH, FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
-import { StoreKey, extensionStore } from '../../common/core/extension-store';
+import { BASE_BRANCH, GitFileStatus } from '../../common/constants';
 import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper, NodePathHelper, ShellHelper } from '../../common/utils/helpers/node-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
+import type { TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import { loadBranchContext } from '../_branch_base';
+import { BaseBranchProvider } from '../_view_base';
 import { ChangedFilesParser, type ParseResult } from './changed-files-parser';
 import { ChangedFilesTreeBuilder } from './tree-builder';
 import type { BranchChangedFilesTreeItem, TopicNode } from './tree-items';
@@ -14,22 +14,16 @@ const logger = createLogger('BranchChangedFiles');
 
 type SyncCallback = (comparisonBranch: string) => Promise<void>;
 
-export class BranchChangedFilesProvider implements TreeDataProvider<BranchChangedFilesTreeItem> {
-  private _onDidChangeTreeData = VscodeHelper.createEventEmitter<BranchChangedFilesTreeItem | undefined>();
-  readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
-
-  private currentBranch = '';
+export class BranchChangedFilesProvider extends BaseBranchProvider<BranchChangedFilesTreeItem> {
   private comparisonBranch = BASE_BRANCH;
   private cachedTopics: TopicNode[] = [];
   private cachedMetadata: ParseResult['metadata'] | null = null;
   private grouped = true;
-  private fileChangeDebounce: NodeJS.Timeout | null = null;
-  private treeView: TreeView<BranchChangedFilesTreeItem> | null = null;
   private syncCallback: SyncCallback | null = null;
   private lastChangedFilesHash = '';
-  private lastManualRefreshTime = 0;
 
   constructor() {
+    super();
     void setContextKey(ContextKey.BranchChangedFilesGrouped, this.grouped);
   }
 
@@ -38,11 +32,10 @@ export class BranchChangedFilesProvider implements TreeDataProvider<BranchChange
   }
 
   setTreeView(treeView: TreeView<BranchChangedFilesTreeItem>) {
-    this.treeView = treeView;
-    this.updateDescription();
+    super.setTreeView(treeView);
   }
 
-  private updateDescription() {
+  updateDescription() {
     if (!this.treeView) return;
 
     if (this.cachedMetadata && !this.cachedMetadata.isEmpty) {
@@ -84,18 +77,14 @@ export class BranchChangedFilesProvider implements TreeDataProvider<BranchChange
       logger.info(`[setBranch] Branch changed from '${this.currentBranch}' to '${branchName}'`);
       this.currentBranch = branchName;
       this.lastChangedFilesHash = '';
+      this.isInitializing = false;
       this.refresh();
+    } else {
+      this.isInitializing = false;
     }
   }
 
-  handleMarkdownChange(uri: Uri) {
-    logger.info(`[handleMarkdownChange] Called. currentBranch='${this.currentBranch}', uri=${uri.fsPath}`);
-
-    if (extensionStore.get(StoreKey.IsWritingBranchContext)) {
-      logger.info(`[handleMarkdownChange] Ignoring file change during sync: ${uri.fsPath}`);
-      return;
-    }
-
+  protected shouldSkipMarkdownChange(_uri: Uri): boolean {
     const context = loadBranchContext(this.currentBranch);
     logger.info(`[handleMarkdownChange] context.changedFiles length=${context.changedFiles?.length ?? 'null'}`);
 
@@ -104,20 +93,11 @@ export class BranchChangedFilesProvider implements TreeDataProvider<BranchChange
 
     if (newHash === this.lastChangedFilesHash) {
       logger.info('[handleMarkdownChange] CHANGED FILES section unchanged, skipping refresh');
-      return;
+      return true;
     }
 
     logger.info('[handleMarkdownChange] Hash changed, scheduling refresh');
-
-    if (this.fileChangeDebounce) {
-      clearTimeout(this.fileChangeDebounce);
-    }
-
-    this.fileChangeDebounce = setTimeout(() => {
-      logger.info('[handleMarkdownChange] Debounce fired, calling refresh()');
-      this.refresh();
-      this.fileChangeDebounce = null;
-    }, FILE_WATCHER_DEBOUNCE_MS);
+    return false;
   }
 
   private computeHash(content: string): string {
@@ -136,17 +116,6 @@ export class BranchChangedFilesProvider implements TreeDataProvider<BranchChange
     this.lastManualRefreshTime = Date.now();
     this.loadChangedFiles();
     this._onDidChangeTreeData.fire(undefined);
-  }
-
-  private shouldSkipRefresh(): boolean {
-    const timeSinceManualRefresh = Date.now() - this.lastManualRefreshTime;
-    return timeSinceManualRefresh < FILE_WATCHER_DEBOUNCE_MS * 2;
-  }
-
-  refreshIfNeeded() {
-    if (!this.shouldSkipRefresh()) {
-      this.refresh();
-    }
   }
 
   private loadChangedFiles() {
@@ -209,12 +178,12 @@ export class BranchChangedFilesProvider implements TreeDataProvider<BranchChange
     const fullPath = NodePathHelper.join(workspace, filePath);
     const fileUri = VscodeHelper.createFileUri(fullPath);
 
-    if (status === 'A') {
+    if (status === GitFileStatus.Added) {
       await VscodeHelper.openDocument(fileUri);
       return;
     }
 
-    if (status === 'D') {
+    if (status === GitFileStatus.Deleted) {
       const baseRef = this.getBaseBranch(workspace);
       try {
         const gitUri = this.createGitUri(fullPath, filePath, baseRef);
@@ -261,11 +230,5 @@ export class BranchChangedFilesProvider implements TreeDataProvider<BranchChange
     }
 
     return 'HEAD~10';
-  }
-
-  dispose() {
-    if (this.fileChangeDebounce) {
-      clearTimeout(this.fileChangeDebounce);
-    }
   }
 }

@@ -1,15 +1,17 @@
 import { CONTEXT_VALUES } from '../../common/constants';
-import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { Command, TreeItemCollapsibleState } from '../../common/vscode/vscode-types';
-import { BaseGroupTreeItem, BaseNamedTreeItem } from '../_view_base';
+import { BaseGroupTreeItem, ConfigTreeItem } from '../_view_base';
 
-// tscanner-ignore-next-line no-empty-class
 export class PromptGroupTreeItem extends BaseGroupTreeItem<TreePrompt> {}
 
-export class TreePrompt extends BaseNamedTreeItem {
-  promptName: string;
-  promptFile: string;
-  group: string | undefined;
+export class TreePrompt extends ConfigTreeItem {
+  get promptName(): string {
+    return this.itemName;
+  }
+
+  get promptFile(): string {
+    return this.itemFile;
+  }
 
   constructor(
     label: string,
@@ -18,20 +20,13 @@ export class TreePrompt extends BaseNamedTreeItem {
     command?: Command,
     group?: string,
   ) {
-    super(label, collapsibleState, command);
-    this.group = group;
-    this.promptName = label;
-    this.promptFile = file;
-    this.contextValue = CONTEXT_VALUES.PROMPT;
-  }
-
-  getName(): string {
-    return this.promptName;
-  }
-
-  setFavorite(isFavorite: boolean) {
-    if (isFavorite) {
-      this.iconPath = VscodeIcons.FavoriteItem;
-    }
+    super({
+      label,
+      file,
+      collapsibleState,
+      contextValue: CONTEXT_VALUES.PROMPT,
+      command,
+      group,
+    });
   }
 }

@@ -1,6 +1,13 @@
-import { DND_MIME_TYPE_TASKS, IS_DEV, NO_GROUP_NAME, addDevLabel } from '../../common/constants';
+import {
+  DND_MIME_TYPE_TASKS,
+  IS_DEV,
+  NO_GROUP_NAME,
+  addDevLabel,
+  isGlobalItem,
+  stripGlobalPrefix,
+} from '../../common/constants';
 import { TASK_SOURCES, TaskSource } from '../../common/schemas/types';
-import { tasksState } from '../../common/state';
+import { globalTasksState, tasksState } from '../../common/state';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -130,19 +137,29 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
   }
 
   toggleFavorite(item: TreeTask) {
-    if (item?.taskName) {
+    if (!item?.taskName) return;
+
+    if (isGlobalItem(item.taskName)) {
+      globalTasksState.toggleFavorite(stripGlobalPrefix(item.taskName));
+    } else {
       toggleFavoriteState(this._source, item.taskName);
-      this.updateContextKeys();
-      this._onDidChangeTreeData.fire(null);
     }
+
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire(null);
   }
 
   toggleHide(item: TreeTask) {
-    if (item?.taskName) {
+    if (!item?.taskName) return;
+
+    if (isGlobalItem(item.taskName)) {
+      globalTasksState.toggleHidden(stripGlobalPrefix(item.taskName));
+    } else {
       toggleHidden(this._source, item.taskName);
-      this.updateContextKeys();
-      this._onDidChangeTreeData.fire(null);
     }
+
+    this.updateContextKeys();
+    this._onDidChangeTreeData.fire(null);
   }
 
   get currentSource(): TaskSource {

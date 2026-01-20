@@ -23,6 +23,7 @@ import { ConfigManager } from '../../../common/core/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext, BranchContextMetadata, SectionMetadata } from '../../../common/schemas/types';
 import { extractSectionMetadata } from '../../../common/utils/functions/extract-section-metadata';
+import { MarkdownSectionHelper } from '../../../common/utils/helpers/markdown-section-helper';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { parseBranchTypeCheckboxes } from './branch-type-utils';
@@ -63,19 +64,7 @@ function extractBranchType(content: string): string | undefined {
 }
 
 function extractSection(content: string, sectionName: string): string | undefined {
-  const headerRegex = new RegExp(`^#\\s+${sectionName}\\s*$`, 'im');
-  const headerMatch = content.match(headerRegex);
-  if (!headerMatch || headerMatch.index === undefined) return undefined;
-
-  const startIndex = headerMatch.index + headerMatch[0].length;
-  const afterHeader = content.slice(startIndex);
-  const nextHeaderRegex = /^#\s+/m;
-  const nextHeaderMatch = afterHeader.match(nextHeaderRegex);
-  const endIndex = nextHeaderMatch && nextHeaderMatch.index !== undefined ? nextHeaderMatch.index : afterHeader.length;
-  const sectionContent = afterHeader.slice(0, endIndex).trim();
-
-  if (BranchContextMarkdownHelper.isFieldEmpty(sectionContent)) return undefined;
-  return sectionContent;
+  return MarkdownSectionHelper.extractSection(content, sectionName);
 }
 
 type CodeBlockSection = {
@@ -175,9 +164,6 @@ function parseBranchContext(content: string): BranchContext {
   const textSections = extractAllTextSections(content, BUILTIN_SECTION_NAMES);
   const allCustomSections = { ...codeBlockSections, ...textSections };
 
-  logger.info(`[parseBranchContext] Found code block sections: ${Object.keys(codeBlockSections).join(', ')}`);
-  logger.info(`[parseBranchContext] Found text sections: ${Object.keys(textSections).join(', ')}`);
-
   const inlineSectionsMetadata: Record<string, SectionMetadata> = {};
   for (const [name, section] of Object.entries(allCustomSections)) {
     if (section.metadata) {
@@ -185,15 +171,10 @@ function parseBranchContext(content: string): BranchContext {
     }
   }
 
-  logger.info(`[parseBranchContext] Inline metadata sections: ${Object.keys(inlineSectionsMetadata).join(', ')}`);
-  logger.info(`[parseBranchContext] Footer metadata sections: ${Object.keys(baseMetadata.sections || {}).join(', ')}`);
-
   const mergedSectionsMetadata = {
     ...(baseMetadata.sections || {}),
     ...inlineSectionsMetadata,
   };
-
-  logger.info(`[parseBranchContext] Merged metadata sections: ${Object.keys(mergedSectionsMetadata).join(', ')}`);
 
   const context: BranchContext = {
     branchName: extractField(content, BRANCH_CONTEXT_FIELD_BRANCH.replace(':', '')),
@@ -213,7 +194,6 @@ function parseBranchContext(content: string): BranchContext {
 
   for (const [name, section] of Object.entries(allCustomSections)) {
     if (name !== SECTION_NAME_CHANGED_FILES) {
-      logger.info(`[parseBranchContext] Adding custom section: ${name}`);
       (context as Record<string, unknown>)[name] = section.content;
     }
   }

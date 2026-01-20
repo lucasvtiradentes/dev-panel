@@ -5,7 +5,11 @@ import {
   SECTION_NAME_BRANCH_INFO,
   SECTION_NAME_CHANGED_FILES,
 } from '../../common/constants';
-import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-constants';
+import {
+  BRANCHES_DIR_NAME,
+  CONFIG_DIR_NAME,
+  ROOT_BRANCH_CONTEXT_FILE_NAME,
+} from '../../common/constants/scripts-constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
@@ -15,9 +19,10 @@ import { formatRelativeTime } from '../../common/utils/functions/format-relative
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { TreeDataProvider, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
+import type { TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import { loadBranchContext } from '../_branch_base';
 import { getFieldLineNumber } from '../_branch_base/storage/markdown-parser';
+import { BaseBranchProvider } from '../_view_base';
 import { validateBranchContext } from './config-validator';
 import { SectionItem } from './items';
 import { ProviderHelpers } from './provider-helpers';
@@ -26,21 +31,16 @@ import { ValidationIndicator } from './validation-indicator';
 
 const logger = createLogger('BranchContext');
 
-export class BranchContextProvider implements TreeDataProvider<TreeItem> {
-  private _onDidChangeTreeData = VscodeHelper.createEventEmitter<TreeItem | undefined>();
-  readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
-
-  private currentBranch = '';
+export class BranchContextProvider extends BaseBranchProvider<TreeItem> {
   private lastComparisonBranch = BASE_BRANCH;
   private validationIndicator: ValidationIndicator;
-  private treeView: TreeView<TreeItem> | null = null;
   private descriptionInterval: NodeJS.Timeout | null = null;
   private lastSyncTimestamp: string | null = null;
   private helpers: ProviderHelpers;
   private syncManager: SyncManager;
-  private isInitializing = true;
 
   constructor(onSyncComplete?: () => void) {
+    super();
     this.validationIndicator = new ValidationIndicator();
     this.helpers = new ProviderHelpers();
 
@@ -63,14 +63,13 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   }
 
   setTreeView(treeView: TreeView<TreeItem>) {
-    this.treeView = treeView;
-    this.updateDescription();
+    super.setTreeView(treeView);
     this.descriptionInterval = setInterval(() => {
       this.updateDescription();
     }, 60000);
   }
 
-  private updateDescription() {
+  updateDescription() {
     if (!this.treeView) {
       logger.info('[BranchContext] [updateDescription] No treeView, skipping');
       return;
@@ -148,8 +147,8 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     }
 
     if (await Git.isRepository(workspace)) {
-      logger.info('[BranchContextProvider] Adding to git exclude');
-      this.addToGitExclude(workspace);
+      logger.info('[BranchContextProvider] Adding to gitignore');
+      this.addToGitignore(workspace);
     }
 
     const config = ConfigManager.loadWorkspaceConfigFromPath(workspace);
@@ -165,22 +164,24 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     }
   }
 
-  private addToGitExclude(workspace: string) {
-    const excludePath = ConfigManager.getGitExcludeFilePath(workspace);
-    if (!FileIOHelper.fileExists(excludePath)) return;
+  private addToGitignore(workspace: string) {
+    const gitignorePath = `${workspace}/.gitignore`;
+    const entriesToAdd = [`**/${CONFIG_DIR_NAME}/${BRANCHES_DIR_NAME}/`, ROOT_BRANCH_CONTEXT_FILE_NAME];
 
     try {
-      const content = FileIOHelper.readFile(excludePath);
+      let content = '';
+      if (FileIOHelper.fileExists(gitignorePath)) {
+        content = FileIOHelper.readFile(gitignorePath);
+      }
 
-      if (content.includes(ROOT_BRANCH_CONTEXT_FILE_NAME)) return;
+      const missingEntries = entriesToAdd.filter((entry) => !content.includes(entry));
+      if (missingEntries.length === 0) return;
 
-      const newContent = content.endsWith('\n')
-        ? `${content}${ROOT_BRANCH_CONTEXT_FILE_NAME}\n`
-        : `${content}\n${ROOT_BRANCH_CONTEXT_FILE_NAME}\n`;
-      FileIOHelper.writeFile(excludePath, newContent);
+      const newContent = content.endsWith('\n') || content === '' ? content : `${content}\n`;
+      FileIOHelper.writeFile(gitignorePath, `${newContent}${missingEntries.join('\n')}\n`);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(`Failed to update .git/info/exclude: ${message}`);
+      logger.error(`Failed to update .gitignore: ${message}`);
     }
   }
 
@@ -258,6 +259,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
         added: (changedFilesSectionMetadata.added as number) || 0,
         modified: (changedFilesSectionMetadata.modified as number) || 0,
         deleted: (changedFilesSectionMetadata.deleted as number) || 0,
+        renamed: (changedFilesSectionMetadata.renamed as number) || 0,
       };
       changedFilesValue = Git.formatChangedFilesSummary(summary);
     }
@@ -333,6 +335,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
   }
 
   dispose() {
+    super.dispose();
     if (this.descriptionInterval) {
       clearInterval(this.descriptionInterval);
       this.descriptionInterval = null;
