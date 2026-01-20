@@ -138,10 +138,6 @@ export class ConfigManager {
     return NodePathHelper.join(workspacePath, ROOT_BRANCH_CONTEXT_FILE_NAME);
   }
 
-  static getGitExcludeFilePath(workspacePath: string): string {
-    return NodePathHelper.join(workspacePath, '.git', 'info', 'exclude');
-  }
-
   static getConfigDirPathFromWorkspacePath(workspacePath: string): string {
     const configDir = ConfigManager.getCurrentConfigDir();
     return ConfigManager.getConfigDirPath(workspacePath, configDir);

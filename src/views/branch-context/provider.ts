@@ -5,7 +5,11 @@ import {
   SECTION_NAME_BRANCH_INFO,
   SECTION_NAME_CHANGED_FILES,
 } from '../../common/constants';
-import { ROOT_BRANCH_CONTEXT_FILE_NAME } from '../../common/constants/scripts-constants';
+import {
+  BRANCHES_DIR_NAME,
+  CONFIG_DIR_NAME,
+  ROOT_BRANCH_CONTEXT_FILE_NAME,
+} from '../../common/constants/scripts-constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
@@ -148,8 +152,8 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     }
 
     if (await Git.isRepository(workspace)) {
-      logger.info('[BranchContextProvider] Adding to git exclude');
-      this.addToGitExclude(workspace);
+      logger.info('[BranchContextProvider] Adding to gitignore');
+      this.addToGitignore(workspace);
     }
 
     const config = ConfigManager.loadWorkspaceConfigFromPath(workspace);
@@ -165,22 +169,24 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
     }
   }
 
-  private addToGitExclude(workspace: string) {
-    const excludePath = ConfigManager.getGitExcludeFilePath(workspace);
-    if (!FileIOHelper.fileExists(excludePath)) return;
+  private addToGitignore(workspace: string) {
+    const gitignorePath = `${workspace}/.gitignore`;
+    const entriesToAdd = [`**/${CONFIG_DIR_NAME}/${BRANCHES_DIR_NAME}/`, ROOT_BRANCH_CONTEXT_FILE_NAME];
 
     try {
-      const content = FileIOHelper.readFile(excludePath);
+      let content = '';
+      if (FileIOHelper.fileExists(gitignorePath)) {
+        content = FileIOHelper.readFile(gitignorePath);
+      }
 
-      if (content.includes(ROOT_BRANCH_CONTEXT_FILE_NAME)) return;
+      const missingEntries = entriesToAdd.filter((entry) => !content.includes(entry));
+      if (missingEntries.length === 0) return;
 
-      const newContent = content.endsWith('\n')
-        ? `${content}${ROOT_BRANCH_CONTEXT_FILE_NAME}\n`
-        : `${content}\n${ROOT_BRANCH_CONTEXT_FILE_NAME}\n`;
-      FileIOHelper.writeFile(excludePath, newContent);
+      const newContent = content.endsWith('\n') || content === '' ? content : `${content}\n`;
+      FileIOHelper.writeFile(gitignorePath, `${newContent}${missingEntries.join('\n')}\n`);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error(`Failed to update .git/info/exclude: ${message}`);
+      logger.error(`Failed to update .gitignore: ${message}`);
     }
   }
 
