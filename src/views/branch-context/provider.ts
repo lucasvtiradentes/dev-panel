@@ -264,6 +264,7 @@ export class BranchContextProvider implements TreeDataProvider<TreeItem> {
         added: (changedFilesSectionMetadata.added as number) || 0,
         modified: (changedFilesSectionMetadata.modified as number) || 0,
         deleted: (changedFilesSectionMetadata.deleted as number) || 0,
+        renamed: (changedFilesSectionMetadata.renamed as number) || 0,
       };
       changedFilesValue = Git.formatChangedFilesSummary(summary);
     }

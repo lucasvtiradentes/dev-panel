@@ -51,6 +51,7 @@ type ChangedFilesSummary = {
   added: number;
   modified: number;
   deleted: number;
+  renamed: number;
 };
 
 type ChangedFilesResult = {
@@ -192,6 +193,7 @@ export class Git {
     if (summary.added > 0) parts.push(`${summary.added}A`);
     if (summary.modified > 0) parts.push(`${summary.modified}M`);
     if (summary.deleted > 0) parts.push(`${summary.deleted}D`);
+    if (summary.renamed > 0) parts.push(`${summary.renamed}R`);
 
     return parts.length > 0 ? parts.join(', ') : BRANCH_CONTEXT_NO_CHANGES;
   }
@@ -200,16 +202,18 @@ export class Git {
     let added = 0;
     let modified = 0;
     let deleted = 0;
+    let renamed = 0;
 
     for (const status of statusMap.values()) {
-      if (status === GitFileStatus.Added || status === '?') added++;
-      else if (status === GitFileStatus.Modified) modified++;
-      else if (status === GitFileStatus.Deleted) deleted++;
-      else if (status === GitFileStatus.Renamed) modified++;
-      else if (status === GitFileStatus.Copied) added++;
+      const statusChar = status.charAt(0);
+      if (statusChar === GitFileStatus.Added || statusChar === '?') added++;
+      else if (statusChar === GitFileStatus.Modified) modified++;
+      else if (statusChar === GitFileStatus.Deleted) deleted++;
+      else if (statusChar === GitFileStatus.Renamed) renamed++;
+      else if (statusChar === GitFileStatus.Copied) added++;
     }
 
-    return { added, modified, deleted };
+    return { added, modified, deleted, renamed };
   }
 
   static async getChangedFilesWithSummary(
@@ -221,8 +225,8 @@ export class Git {
       const content = await Git.getChangedFilesTreeFormat(workspacePath, baseBranch);
       const summary = await Git.getChangedFilesSummaryFromGit(workspacePath, baseBranch);
       const sectionMetadata = summary
-        ? { filesCount: summary.added + summary.modified + summary.deleted, ...summary }
-        : { filesCount: 0, added: 0, modified: 0, deleted: 0 };
+        ? { filesCount: summary.added + summary.modified + summary.deleted + summary.renamed, ...summary }
+        : { filesCount: 0, added: 0, modified: 0, deleted: 0, renamed: 0 };
       return {
         content,
         summary: Git.formatChangedFilesSummary(summary),
@@ -254,9 +258,11 @@ export class Git {
           .filter((line) => line)
           .forEach((line) => {
             const [status, ...fileParts] = line.split('\t');
-            const file = fileParts.join('\t');
+            const statusChar = status.charAt(0);
+            const file =
+              statusChar === 'R' && fileParts.length > 1 ? fileParts[fileParts.length - 1] : fileParts.join('\t');
             if (file && !statusMap.has(file)) {
-              statusMap.set(file, status.charAt(0));
+              statusMap.set(file, statusChar);
             }
           });
       }
@@ -354,7 +360,9 @@ export class Git {
           .filter((line) => line)
           .forEach((line) => {
             const [st, ...fileParts] = line.split('\t');
-            const file = fileParts.join('\t');
+            const statusChar = st.charAt(0);
+            const file =
+              statusChar === 'R' && fileParts.length > 1 ? fileParts[fileParts.length - 1] : fileParts.join('\t');
             statusMap.set(file, st);
           });
 
@@ -363,7 +371,7 @@ export class Git {
           .filter((line) => line)
           .forEach((line) => {
             const [added, deleted, ...fileParts] = line.split('\t');
-            const file = fileParts.join('\t');
+            const file = fileParts.length > 1 ? fileParts[fileParts.length - 1] : fileParts.join('\t');
             statsMap.set(file, { added, deleted });
           });
       }
@@ -431,7 +439,9 @@ export class Git {
           .filter((line) => line)
           .forEach((line) => {
             const [st, ...fileParts] = line.split('\t');
-            const file = fileParts.join('\t');
+            const statusChar = st.charAt(0);
+            const file =
+              statusChar === 'R' && fileParts.length > 1 ? fileParts[fileParts.length - 1] : fileParts.join('\t');
             if (!statusMap.has(file)) {
               statusMap.set(file, st);
             }
@@ -442,7 +452,7 @@ export class Git {
           .filter((line) => line)
           .forEach((line) => {
             const [added, deleted, ...fileParts] = line.split('\t');
-            const file = fileParts.join('\t');
+            const file = fileParts.length > 1 ? fileParts[fileParts.length - 1] : fileParts.join('\t');
             statsMap.set(file, { added, deleted });
           });
       }
@@ -465,6 +475,7 @@ export class Git {
             added: 0,
             modified: 0,
             deleted: 0,
+            renamed: 0,
             isEmpty: true,
             description: 'No changes',
           },
@@ -492,6 +503,7 @@ export class Git {
         added: computedSummary.added,
         modified: computedSummary.modified,
         deleted: computedSummary.deleted,
+        renamed: computedSummary.renamed,
         summary: formattedSummary,
         isEmpty: statusMap.size === 0,
         description: formattedSummary,

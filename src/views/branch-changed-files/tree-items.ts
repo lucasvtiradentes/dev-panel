@@ -4,7 +4,7 @@ import { VscodeColor, VscodeConstants, VscodeIcon } from '../../common/vscode/vs
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { TreeItemClass } from '../../common/vscode/vscode-types';
 
-export type FileStatus = 'A' | 'M' | 'D' | '?';
+export type FileStatus = 'A' | 'M' | 'D' | 'R' | '?';
 
 export type ChangedFileNode = {
   status: FileStatus;
@@ -24,6 +24,7 @@ const STATUS_ICONS: Record<FileStatus, { icon: VscodeIcon; color: VscodeColor }>
   A: { icon: VscodeIcon.FileAdd, color: VscodeColor.ChartsGreen },
   M: { icon: VscodeIcon.Diff, color: VscodeColor.ChartsBlue },
   D: { icon: VscodeIcon.Close, color: VscodeColor.ChartsRed },
+  R: { icon: VscodeIcon.ArrowUp, color: VscodeColor.ChartsPurple },
   '?': { icon: VscodeIcon.FileAdd, color: VscodeColor.ChartsGreen },
 };
 
