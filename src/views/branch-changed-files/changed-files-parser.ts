@@ -1,15 +1,18 @@
-import { BRANCH_CONTEXT_NO_CHANGES, MILESTONE_HEADER_PATTERN } from '../../common/constants';
-import { createLogger } from '../../common/lib/logger';
+import {
+  BRANCH_CONTEXT_NO_CHANGES,
+  CHANGED_FILE_LINE_PATTERN,
+  MILESTONE_HEADER_PATTERN,
+  UNCATEGORIZED_TOPIC,
+} from '../../common/constants';
 import { NodePathHelper } from '../../common/utils/helpers/node-helper';
 import type { ChangedFileNode, FileStatus, TopicNode } from './tree-items';
-
-const logger = createLogger('ChangedFilesParser');
 
 type ChangedFilesMetadata = {
   filesCount: number;
   added: number;
   modified: number;
   deleted: number;
+  renamed: number;
   summary: string;
   isEmpty: boolean;
 };
@@ -18,9 +21,6 @@ export type ParseResult = {
   topics: TopicNode[];
   metadata: ChangedFilesMetadata;
 };
-
-const FILE_LINE_REGEX = /^([AMD?])\s{2}(.+?)\s+\(([+-][\d-]+)\s([+-][\d-]+)\)$/;
-const UNCATEGORIZED_TOPIC = 'Uncategorized';
 
 export class ChangedFilesParser {
   static parseFromMarkdown(changedFilesContent: string | undefined): ParseResult {
@@ -32,6 +32,7 @@ export class ChangedFilesParser {
           added: 0,
           modified: 0,
           deleted: 0,
+          renamed: 0,
           summary: '',
           isEmpty: true,
         },
@@ -45,6 +46,7 @@ export class ChangedFilesParser {
     let added = 0;
     let modified = 0;
     let deleted = 0;
+    let renamed = 0;
 
     for (const line of lines) {
       const trimmed = line.trim();
@@ -59,10 +61,7 @@ export class ChangedFilesParser {
         continue;
       }
 
-      const fileMatch = trimmed.match(FILE_LINE_REGEX);
-      if (!fileMatch && trimmed.length > 0 && /^[AMD?]\s/.test(trimmed)) {
-        logger.warn(`[parseFromMarkdown] Line looks like a file but didn't match regex: "${trimmed}"`);
-      }
+      const fileMatch = trimmed.match(CHANGED_FILE_LINE_PATTERN);
       if (fileMatch) {
         const status = fileMatch[1] as FileStatus;
         const path = fileMatch[2].trim();
@@ -77,6 +76,7 @@ export class ChangedFilesParser {
         if (status === 'A' || status === '?') added++;
         else if (status === 'M') modified++;
         else if (status === 'D') deleted++;
+        else if (status === 'R') renamed++;
 
         const targetTopic = currentTopic ?? UNCATEGORIZED_TOPIC;
         if (!topics.has(targetTopic)) {
@@ -96,13 +96,12 @@ export class ChangedFilesParser {
       return a.name.localeCompare(b.name);
     });
 
-    const filesCount = added + modified + deleted;
+    const filesCount = added + modified + deleted + renamed;
     const summaryParts: string[] = [];
     if (added > 0) summaryParts.push(`${added}A`);
     if (modified > 0) summaryParts.push(`${modified}M`);
     if (deleted > 0) summaryParts.push(`${deleted}D`);
-
-    logger.info(`[parseFromMarkdown] Parsed ${filesCount} files: ${summaryParts.join(', ')}`);
+    if (renamed > 0) summaryParts.push(`${renamed}R`);
 
     return {
       topics: sortedTopics,
@@ -111,6 +110,7 @@ export class ChangedFilesParser {
         added,
         modified,
         deleted,
+        renamed,
         summary: summaryParts.join(', '),
         isEmpty: filesCount === 0,
       },

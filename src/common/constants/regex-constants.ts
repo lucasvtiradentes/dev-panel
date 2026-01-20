@@ -14,6 +14,16 @@ export const TASK_META_ESTIMATE_PATTERN = /est:(\d+[hmd])/;
 export const TASK_META_EXTERNAL_ID_PATTERN = /id:([A-Za-z]+-\d+)/;
 
 export const MARKDOWN_SECTION_HEADER_PATTERN = /^#\s+/;
+export const MARKDOWN_H1_HEADER_PATTERN = /^#(?!#)\s+/m;
+export const MARKDOWN_SECTION_NAME_PATTERN = /^#\s+([A-Z][A-Z\s]+)\s*$/gm;
+export const MARKDOWN_FIELD_PATTERN = /^([A-Z][A-Z\s]+):\s*(.*)$/gm;
+
+export const CHANGED_FILE_LINE_PATTERN = /^([AMD?R])\s+(.+?)\s+\(([+-][\d-]+)\s([+-][\d-]+)\)$/;
+
+export const createChangedFilesSectionRegex = (sectionName: string, metadataSection: string) =>
+  new RegExp(`# ${sectionName}\\s*\\n([\\s\\S]*?)(?=\\n#[^#]|\\n<!-- ${metadataSection}|$)`);
+
+export const DATE_YYYY_MM_DD_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 export const CONFIG_TOOLS_ARRAY_PATTERN = /"tools":\s*\[/;
 export const CONFIG_TASKS_ARRAY_PATTERN = /"tasks"\s*:\s*\[/;

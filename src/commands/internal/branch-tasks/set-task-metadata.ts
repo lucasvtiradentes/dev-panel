@@ -1,3 +1,4 @@
+import { DATE_YYYY_MM_DD_PATTERN } from '../../../common/constants';
 import { type ItemOrLineIndex, TreeItemUtils } from '../../../common/core/tree-item-utils';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
@@ -21,7 +22,7 @@ async function handleSetTaskDueDate(provider: BranchTasksProvider, item: ItemOrL
     placeHolder: 'e.g., 2025-01-15',
     validateInput: (value) => {
       if (!value) return null;
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      if (!DATE_YYYY_MM_DD_PATTERN.test(value)) {
         return 'Use format YYYY-MM-DD';
       }
       return null;

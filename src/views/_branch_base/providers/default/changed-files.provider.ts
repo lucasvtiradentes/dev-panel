@@ -1,11 +1,14 @@
 import {
   BRANCH_CONTEXT_NO_CHANGES,
+  CHANGED_FILE_LINE_PATTERN,
   ChangedFilesStyle,
   METADATA_SECTION,
   METADATA_SECTION_PREFIX,
   METADATA_SUFFIX,
   MILESTONE_HEADER_PATTERN,
   SECTION_NAME_CHANGED_FILES,
+  UNCATEGORIZED_TOPIC,
+  createChangedFilesSectionRegex,
 } from '../../../../common/constants';
 import { Git } from '../../../../common/lib/git';
 import { FileIOHelper } from '../../../../common/utils/helpers/node-helper';
@@ -20,6 +23,7 @@ const EMPTY_METADATA = {
   added: 0,
   modified: 0,
   deleted: 0,
+  renamed: 0,
   isEmpty: true,
   description: 'No changes',
 };
@@ -70,10 +74,9 @@ type TopicFiles = {
 };
 
 class ChangedFilesTopicsHelper {
-  private static readonly UNCATEGORIZED_TOPIC = 'Uncategorized';
-  private static readonly FILE_LINE_REGEX = /^([AMD])\s{2}(.+?)\s+\(([+-]\d+)\s([+-]\d+)\)$/;
-  private static readonly CHANGED_FILES_SECTION_REGEX = new RegExp(
-    `# ${SECTION_NAME_CHANGED_FILES}\\s*\\n([\\s\\S]*?)(?=\\n#[^#]|\\n<!-- ${METADATA_SECTION}|$)`,
+  private static readonly CHANGED_FILES_SECTION_REGEX = createChangedFilesSectionRegex(
+    SECTION_NAME_CHANGED_FILES,
+    METADATA_SECTION,
   );
 
   static parseExistingTopics(markdownContent: string): Map<string, TopicFiles> {
@@ -102,7 +105,7 @@ class ChangedFilesTopicsHelper {
         continue;
       }
 
-      const fileMatch = trimmed.match(ChangedFilesTopicsHelper.FILE_LINE_REGEX);
+      const fileMatch = trimmed.match(CHANGED_FILE_LINE_PATTERN);
       if (fileMatch && currentTopic) {
         const file: ChangedFile = {
           status: fileMatch[1],
@@ -132,7 +135,7 @@ class ChangedFilesTopicsHelper {
       const trimmed = line.trim();
       if (!trimmed) continue;
 
-      const match = trimmed.match(ChangedFilesTopicsHelper.FILE_LINE_REGEX);
+      const match = trimmed.match(CHANGED_FILE_LINE_PATTERN);
       if (match) {
         files.push({
           status: match[1],
@@ -182,12 +185,12 @@ class ChangedFilesTopicsHelper {
     }
 
     if (uncategorizedFiles.length > 0) {
-      const existing = result.get(ChangedFilesTopicsHelper.UNCATEGORIZED_TOPIC);
+      const existing = result.get(UNCATEGORIZED_TOPIC);
       if (existing) {
         existing.files.push(...uncategorizedFiles);
       } else {
-        result.set(ChangedFilesTopicsHelper.UNCATEGORIZED_TOPIC, {
-          name: ChangedFilesTopicsHelper.UNCATEGORIZED_TOPIC,
+        result.set(UNCATEGORIZED_TOPIC, {
+          name: UNCATEGORIZED_TOPIC,
           files: uncategorizedFiles,
           isUserCreated: false,
         });
@@ -215,8 +218,8 @@ class ChangedFilesTopicsHelper {
     const lines: string[] = [];
 
     const sortedTopics = Array.from(topics.entries()).sort((a, b) => {
-      if (a[0] === ChangedFilesTopicsHelper.UNCATEGORIZED_TOPIC) return -1;
-      if (b[0] === ChangedFilesTopicsHelper.UNCATEGORIZED_TOPIC) return 1;
+      if (a[0] === UNCATEGORIZED_TOPIC) return -1;
+      if (b[0] === UNCATEGORIZED_TOPIC) return 1;
       return a[0].localeCompare(b[0]);
     });
 
@@ -241,7 +244,7 @@ class ChangedFilesTopicsHelper {
 
   static hasUserDefinedTopics(existingTopics: Map<string, TopicFiles>): boolean {
     for (const [name, topic] of existingTopics) {
-      if (name !== ChangedFilesTopicsHelper.UNCATEGORIZED_TOPIC && topic.isUserCreated) {
+      if (name !== UNCATEGORIZED_TOPIC && topic.isUserCreated) {
         return true;
       }
     }

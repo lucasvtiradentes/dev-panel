@@ -7,6 +7,7 @@ import {
   BRANCH_CONTEXT_NA,
   BRANCH_CONTEXT_NO_CHANGES,
   BUILTIN_SECTION_NAMES,
+  MARKDOWN_H1_HEADER_PATTERN,
   METADATA_DEVPANEL_PREFIX,
   METADATA_DEVPANEL_REGEX,
   METADATA_SECTION_REGEX_GLOBAL,
@@ -69,7 +70,7 @@ function extractSection(content: string, sectionName: string): string | undefine
 
   const startIndex = headerMatch.index + headerMatch[0].length;
   const afterHeader = content.slice(startIndex);
-  const nextHeaderRegex = /^#\s+/m;
+  const nextHeaderRegex = MARKDOWN_H1_HEADER_PATTERN;
   const nextHeaderMatch = afterHeader.match(nextHeaderRegex);
   const endIndex = nextHeaderMatch && nextHeaderMatch.index !== undefined ? nextHeaderMatch.index : afterHeader.length;
   const sectionContent = afterHeader.slice(0, endIndex).trim();
@@ -175,9 +176,6 @@ function parseBranchContext(content: string): BranchContext {
   const textSections = extractAllTextSections(content, BUILTIN_SECTION_NAMES);
   const allCustomSections = { ...codeBlockSections, ...textSections };
 
-  logger.info(`[parseBranchContext] Found code block sections: ${Object.keys(codeBlockSections).join(', ')}`);
-  logger.info(`[parseBranchContext] Found text sections: ${Object.keys(textSections).join(', ')}`);
-
   const inlineSectionsMetadata: Record<string, SectionMetadata> = {};
   for (const [name, section] of Object.entries(allCustomSections)) {
     if (section.metadata) {
@@ -185,15 +183,10 @@ function parseBranchContext(content: string): BranchContext {
     }
   }
 
-  logger.info(`[parseBranchContext] Inline metadata sections: ${Object.keys(inlineSectionsMetadata).join(', ')}`);
-  logger.info(`[parseBranchContext] Footer metadata sections: ${Object.keys(baseMetadata.sections || {}).join(', ')}`);
-
   const mergedSectionsMetadata = {
     ...(baseMetadata.sections || {}),
     ...inlineSectionsMetadata,
   };
-
-  logger.info(`[parseBranchContext] Merged metadata sections: ${Object.keys(mergedSectionsMetadata).join(', ')}`);
 
   const context: BranchContext = {
     branchName: extractField(content, BRANCH_CONTEXT_FIELD_BRANCH.replace(':', '')),
@@ -213,7 +206,6 @@ function parseBranchContext(content: string): BranchContext {
 
   for (const [name, section] of Object.entries(allCustomSections)) {
     if (name !== SECTION_NAME_CHANGED_FILES) {
-      logger.info(`[parseBranchContext] Adding custom section: ${name}`);
       (context as Record<string, unknown>)[name] = section.content;
     }
   }

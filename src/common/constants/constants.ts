@@ -64,6 +64,8 @@ export const BRANCH_CONTEXT_DEFAULT_ICON = VscodeIcon.SymbolField;
 export const DESCRIPTION_NOT_SET = '(not set)';
 export const DESCRIPTION_NOT_SYNCED = '(not synced)';
 
+export const UNCATEGORIZED_TOPIC = 'Uncategorized';
+
 export enum ChangedFilesStyle {
   Tree = 'tree',
   List = 'list',

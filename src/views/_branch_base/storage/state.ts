@@ -1,13 +1,11 @@
 import { BRANCH_CONTEXT_CACHE_TTL_MS } from '../../../common/constants';
 import { FileHashCache } from '../../../common/lib/cache';
-import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext } from '../../../common/schemas/types';
 import { generateHashForFileContent } from '../../../common/utils/functions/generate-cache-key';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import { loadBranchContextFromFile } from './file-storage';
 import { getBranchContextFilePath } from './markdown-parser';
 
-const logger = createLogger('BranchContextCache');
 const contextCache = new FileHashCache<BranchContext>(BRANCH_CONTEXT_CACHE_TTL_MS);
 
 export const loadBranchContext = (branchName: string): BranchContext => {
@@ -26,7 +24,6 @@ export const loadBranchContext = (branchName: string): BranchContext => {
     return cached;
   }
 
-  logger.info(`[loadBranchContext] CACHE MISS - parsing ${branchName}`);
   const context = loadBranchContextFromFile(workspace, branchName);
   contextCache.setWithFileHash(branchName, context, filePath);
   return context;
