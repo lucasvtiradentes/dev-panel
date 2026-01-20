@@ -1,15 +1,17 @@
 import { CONTEXT_VALUES } from '../../common/constants';
-import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { Command, TreeItemCollapsibleState } from '../../common/vscode/vscode-types';
-import { BaseGroupTreeItem, BaseNamedTreeItem } from '../_view_base';
+import { BaseGroupTreeItem, ConfigTreeItem } from '../_view_base';
 
-// tscanner-ignore-next-line no-empty-class
 export class ToolGroupTreeItem extends BaseGroupTreeItem<TreeTool> {}
 
-export class TreeTool extends BaseNamedTreeItem {
-  toolName: string;
-  toolFile: string;
-  group: string | undefined;
+export class TreeTool extends ConfigTreeItem {
+  get toolName(): string {
+    return this.itemName;
+  }
+
+  get toolFile(): string {
+    return this.itemFile;
+  }
 
   constructor(
     label: string,
@@ -18,20 +20,13 @@ export class TreeTool extends BaseNamedTreeItem {
     command?: Command,
     group?: string,
   ) {
-    super(label, collapsibleState, command);
-    this.group = group;
-    this.toolName = label;
-    this.toolFile = file;
-    this.contextValue = CONTEXT_VALUES.TOOL;
-  }
-
-  getName(): string {
-    return this.toolName;
-  }
-
-  setFavorite(isFavorite: boolean) {
-    if (isFavorite) {
-      this.iconPath = VscodeIcons.FavoriteItem;
-    }
+    super({
+      label,
+      file,
+      collapsibleState,
+      contextValue: CONTEXT_VALUES.TOOL,
+      command,
+      group,
+    });
   }
 }

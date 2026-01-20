@@ -135,40 +135,59 @@ export class Git {
     }
   }
 
+  static async diff(options: {
+    workspace: string;
+    type: 'base' | 'cached' | 'working';
+    format: 'name-status' | 'name-only' | 'numstat';
+    baseBranch?: string;
+  }): Promise<string> {
+    const { workspace, type, format, baseBranch } = options;
+    const args = ['diff'];
+
+    if (type === 'base' && baseBranch) {
+      args.push(`${baseBranch}...HEAD`);
+    } else if (type === 'cached') {
+      args.push('--cached');
+    }
+
+    args.push(`--${format}`);
+    return Git.execCommand(workspace, args);
+  }
+
   static async diffBaseBranchNameStatus(workspace: string, baseBranch: string): Promise<string> {
-    return Git.execCommand(workspace, ['diff', `${baseBranch}...HEAD`, '--name-status']);
+    return Git.diff({ workspace, type: 'base', format: 'name-status', baseBranch });
   }
 
   static async diffBaseBranchNameOnly(workspace: string, baseBranch: string): Promise<string> {
-    return Git.execCommand(workspace, ['diff', `${baseBranch}...HEAD`, '--name-only']);
+    return Git.diff({ workspace, type: 'base', format: 'name-only', baseBranch });
   }
 
   static async diffBaseBranchNumstat(workspace: string, baseBranch: string): Promise<string> {
-    return Git.execCommand(workspace, ['diff', `${baseBranch}...HEAD`, '--numstat']);
+    return Git.diff({ workspace, type: 'base', format: 'numstat', baseBranch });
   }
 
   static async diffCachedNameStatus(workspace: string): Promise<string> {
-    return Git.execCommand(workspace, ['diff', '--cached', '--name-status']);
+    return Git.diff({ workspace, type: 'cached', format: 'name-status' });
   }
 
   static async diffCachedNameOnly(workspace: string): Promise<string> {
-    return Git.execCommand(workspace, ['diff', '--cached', '--name-only']);
+    return Git.diff({ workspace, type: 'cached', format: 'name-only' });
   }
 
   static async diffCachedNumstat(workspace: string): Promise<string> {
-    return Git.execCommand(workspace, ['diff', '--cached', '--numstat']);
+    return Git.diff({ workspace, type: 'cached', format: 'numstat' });
   }
 
   static async diffNameStatus(workspace: string): Promise<string> {
-    return Git.execCommand(workspace, ['diff', '--name-status']);
+    return Git.diff({ workspace, type: 'working', format: 'name-status' });
   }
 
   static async diffNameOnly(workspace: string): Promise<string> {
-    return Git.execCommand(workspace, ['diff', '--name-only']);
+    return Git.diff({ workspace, type: 'working', format: 'name-only' });
   }
 
   static async diffNumstat(workspace: string): Promise<string> {
-    return Git.execCommand(workspace, ['diff', '--numstat']);
+    return Git.diff({ workspace, type: 'working', format: 'numstat' });
   }
 
   static async getUntrackedFiles(workspace: string): Promise<string> {

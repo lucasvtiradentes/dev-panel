@@ -1,17 +1,12 @@
 import { z } from 'zod';
 import { AIProvider } from './config-schema';
+import { DEFAULT_SOURCE_STATE, SourceStateSchema } from './shared-state.schema';
 import { TASK_SOURCE_VALUES } from './types';
 
-const TaskSourceEnum = z.enum(TASK_SOURCE_VALUES);
+export type { SourceState } from './shared-state.schema';
+export { DEFAULT_SOURCE_STATE } from './shared-state.schema';
 
-const SourceStateSchema = z.object({
-  flatOrder: z.array(z.string()),
-  groupOrder: z.array(z.string()),
-  favorites: z.array(z.string()),
-  hidden: z.array(z.string()),
-  showHidden: z.boolean().optional(),
-  showOnlyFavorites: z.boolean().optional(),
-});
+const TaskSourceEnum = z.enum(TASK_SOURCE_VALUES);
 
 const TasksStateSchema = z.object({
   current: TaskSourceEnum,
@@ -60,7 +55,6 @@ const WorkspaceUIStateSchema = z.object({
   branchContext: BranchContextStateSchema.optional(),
 });
 
-export type SourceState = z.infer<typeof SourceStateSchema>;
 export type TasksState = z.infer<typeof TasksStateSchema>;
 export type ToolsState = z.infer<typeof ToolsStateSchema>;
 export type PromptsState = z.infer<typeof PromptsStateSchema>;
@@ -68,13 +62,6 @@ export type VariablesState = z.infer<typeof VariablesStateSchema>;
 export type ReplacementsState = z.infer<typeof ReplacementsStateSchema>;
 export type BranchContextState = z.infer<typeof BranchContextStateSchema>;
 export type WorkspaceUIState = z.infer<typeof WorkspaceUIStateSchema>;
-
-export const DEFAULT_SOURCE_STATE: SourceState = {
-  flatOrder: [],
-  groupOrder: [],
-  favorites: [],
-  hidden: [],
-};
 
 export const DEFAULT_TASKS_STATE: TasksState = {
   current: 'vscode',

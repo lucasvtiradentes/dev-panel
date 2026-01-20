@@ -15,7 +15,16 @@ import {
   type ToolsState,
   type VariablesState,
 } from '../schemas/workspace-state.schema';
-import { StateKey, type StateManager, type StateManagerWithSource, StorageType, createStateManager } from './base';
+import {
+  StateKey,
+  type StateManager,
+  type StateManagerWithSource,
+  StorageType,
+  type ViewStateMethods,
+  createGroupedStateMethods,
+  createStateManager,
+  createViewStateMethods,
+} from './base';
 
 const baseToolsState = createStateManager<ToolsState>({
   stateKey: StateKey.Tools,
@@ -23,76 +32,17 @@ const baseToolsState = createStateManager<ToolsState>({
   storageType: StorageType.Workspace,
 });
 
-export const toolsState: StateManagerWithSource<ToolsState> & {
-  getIsGrouped(): boolean;
-  saveIsGrouped(isGrouped: boolean): void;
-  getShowHidden(): boolean;
-  saveShowHidden(showHidden: boolean): void;
-  getHiddenItems(): string[];
-  getShowOnlyFavorites(): boolean;
-  saveShowOnlyFavorites(showOnlyFavorites: boolean): void;
-  getFavoriteItems(): string[];
-  getOrder(isGrouped: boolean): string[];
-  saveOrder(isGrouped: boolean, order: string[]): void;
-  getActiveTools(): string[];
-  setActiveTools(active: string[]): void;
-  addActiveTool(name: string): void;
-  removeActiveTool(name: string): void;
-} = {
+const toolsViewMethods = createViewStateMethods(baseToolsState);
+
+export const toolsState: StateManagerWithSource<ToolsState> &
+  ViewStateMethods & {
+    getActiveTools(): string[];
+    setActiveTools(active: string[]): void;
+    addActiveTool(name: string): void;
+    removeActiveTool(name: string): void;
+  } = {
   ...baseToolsState,
-
-  getIsGrouped(): boolean {
-    return this.load().isGrouped ?? false;
-  },
-
-  saveIsGrouped(isGrouped: boolean) {
-    const tools = this.load();
-    tools.isGrouped = isGrouped;
-    this.save(tools);
-  },
-
-  getShowHidden(): boolean {
-    return this.load().showHidden ?? false;
-  },
-
-  saveShowHidden(showHidden: boolean) {
-    const tools = this.load();
-    tools.showHidden = showHidden;
-    this.save(tools);
-  },
-
-  getHiddenItems(): string[] {
-    return this.getSourceState().hidden;
-  },
-
-  getShowOnlyFavorites(): boolean {
-    return this.load().showOnlyFavorites ?? false;
-  },
-
-  saveShowOnlyFavorites(showOnlyFavorites: boolean) {
-    const tools = this.load();
-    tools.showOnlyFavorites = showOnlyFavorites;
-    this.save(tools);
-  },
-
-  getFavoriteItems(): string[] {
-    return this.getSourceState().favorites;
-  },
-
-  getOrder(isGrouped: boolean): string[] {
-    const sourceState = this.getSourceState();
-    return isGrouped ? sourceState.groupOrder : sourceState.flatOrder;
-  },
-
-  saveOrder(isGrouped: boolean, order: string[]) {
-    const sourceState = this.getSourceState();
-    if (isGrouped) {
-      sourceState.groupOrder = order;
-    } else {
-      sourceState.flatOrder = order;
-    }
-    this.saveSourceState(sourceState);
-  },
+  ...toolsViewMethods,
 
   getActiveTools(): string[] {
     return this.load().activeTools ?? [];
@@ -130,74 +80,15 @@ const basePromptsState = createStateManager<PromptsState>({
   storageType: StorageType.Workspace,
 });
 
-export const promptsState: StateManagerWithSource<PromptsState> & {
-  getIsGrouped(): boolean;
-  saveIsGrouped(isGrouped: boolean): void;
-  getShowHidden(): boolean;
-  saveShowHidden(showHidden: boolean): void;
-  getHiddenItems(): string[];
-  getShowOnlyFavorites(): boolean;
-  saveShowOnlyFavorites(showOnlyFavorites: boolean): void;
-  getFavoriteItems(): string[];
-  getOrder(isGrouped: boolean): string[];
-  saveOrder(isGrouped: boolean, order: string[]): void;
-  getAiProvider(): AIProvider | undefined;
-  saveAiProvider(provider: AIProvider): void;
-} = {
+const promptsViewMethods = createViewStateMethods(basePromptsState);
+
+export const promptsState: StateManagerWithSource<PromptsState> &
+  ViewStateMethods & {
+    getAiProvider(): AIProvider | undefined;
+    saveAiProvider(provider: AIProvider): void;
+  } = {
   ...basePromptsState,
-
-  getIsGrouped(): boolean {
-    return this.load().isGrouped ?? false;
-  },
-
-  saveIsGrouped(isGrouped: boolean) {
-    const prompts = this.load();
-    prompts.isGrouped = isGrouped;
-    this.save(prompts);
-  },
-
-  getShowHidden(): boolean {
-    return this.load().showHidden ?? false;
-  },
-
-  saveShowHidden(showHidden: boolean) {
-    const prompts = this.load();
-    prompts.showHidden = showHidden;
-    this.save(prompts);
-  },
-
-  getHiddenItems(): string[] {
-    return this.getSourceState().hidden;
-  },
-
-  getShowOnlyFavorites(): boolean {
-    return this.load().showOnlyFavorites ?? false;
-  },
-
-  saveShowOnlyFavorites(showOnlyFavorites: boolean) {
-    const prompts = this.load();
-    prompts.showOnlyFavorites = showOnlyFavorites;
-    this.save(prompts);
-  },
-
-  getFavoriteItems(): string[] {
-    return this.getSourceState().favorites;
-  },
-
-  getOrder(isGrouped: boolean): string[] {
-    const sourceState = this.getSourceState();
-    return isGrouped ? sourceState.groupOrder : sourceState.flatOrder;
-  },
-
-  saveOrder(isGrouped: boolean, order: string[]) {
-    const sourceState = this.getSourceState();
-    if (isGrouped) {
-      sourceState.groupOrder = order;
-    } else {
-      sourceState.flatOrder = order;
-    }
-    this.saveSourceState(sourceState);
-  },
+  ...promptsViewMethods,
 
   getAiProvider(): AIProvider | undefined {
     return this.load().aiProvider;
@@ -358,6 +249,8 @@ const baseReplacementsState = createStateManager<ReplacementsState>({
   storageType: StorageType.Workspace,
 });
 
+const replacementsGroupedMethods = createGroupedStateMethods(baseReplacementsState, true);
+
 export const replacementsState: StateManager<ReplacementsState> & {
   getIsGrouped(): boolean;
   saveIsGrouped(isGrouped: boolean): void;
@@ -369,16 +262,7 @@ export const replacementsState: StateManager<ReplacementsState> & {
   setLastBranch(branch: string): void;
 } = {
   ...baseReplacementsState,
-
-  getIsGrouped(): boolean {
-    return this.load().isGrouped ?? true;
-  },
-
-  saveIsGrouped(isGrouped: boolean) {
-    const replacements = this.load();
-    replacements.isGrouped = isGrouped;
-    this.save(replacements);
-  },
+  ...replacementsGroupedMethods,
 
   getActiveReplacements(): string[] {
     return this.load().activeReplacements ?? [];
@@ -421,21 +305,14 @@ const baseVariablesState = createStateManager<VariablesState>({
   storageType: StorageType.Workspace,
 });
 
+const variablesGroupedMethods = createGroupedStateMethods(baseVariablesState, true);
+
 export const variablesState: StateManager<VariablesState> & {
   getIsGrouped(): boolean;
   saveIsGrouped(isGrouped: boolean): void;
 } = {
   ...baseVariablesState,
-
-  getIsGrouped(): boolean {
-    return this.load().isGrouped ?? true;
-  },
-
-  saveIsGrouped(isGrouped: boolean) {
-    const variables = this.load();
-    variables.isGrouped = isGrouped;
-    this.save(variables);
-  },
+  ...variablesGroupedMethods,
 };
 
 const baseBranchContextState = createStateManager<BranchContextState>({

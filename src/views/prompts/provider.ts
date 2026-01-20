@@ -15,9 +15,14 @@ import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
-import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { TreeItem, TreeView, WorkspaceFolder } from '../../common/vscode/vscode-types';
-import { BaseTreeDataProvider, type ProviderConfig, createDragAndDropController } from '../_view_base';
+import {
+  BaseTreeDataProvider,
+  type ProviderConfig,
+  applyItemStyle,
+  createDragAndDropController,
+  shouldShowItem,
+} from '../_view_base';
 import { PromptGroupTreeItem, TreePrompt } from './items';
 import { isFavorite, isHidden } from './state';
 
@@ -158,8 +163,17 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
   ): TreePrompt | null {
     const hidden = isHidden(prompt.name);
     const favorite = isFavorite(prompt.name);
-    if (hidden && !this._showHidden) return null;
-    if (this._showOnlyFavorites && !favorite) return null;
+
+    if (
+      !shouldShowItem({
+        isHidden: hidden,
+        isFavorite: favorite,
+        showHidden: this._showHidden,
+        showOnlyFavorites: this._showOnlyFavorites,
+      })
+    ) {
+      return null;
+    }
 
     const promptFilePath = ConfigManager.getWorkspacePromptFilePath(folder, prompt.file);
 
@@ -173,13 +187,15 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
       treePrompt.tooltip = prompt.description;
     }
 
-    if (hidden) {
-      treePrompt.iconPath = VscodeIcons.HiddenItem;
-      treePrompt.contextValue = CONTEXT_VALUES.PROMPT_HIDDEN;
-    } else if (favorite) {
-      treePrompt.iconPath = VscodeIcons.FavoriteItem;
-      treePrompt.contextValue = CONTEXT_VALUES.PROMPT_FAVORITE;
-    }
+    applyItemStyle(treePrompt, {
+      isHidden: hidden,
+      isFavorite: favorite,
+      contextValues: {
+        default: CONTEXT_VALUES.PROMPT,
+        hidden: CONTEXT_VALUES.PROMPT_HIDDEN,
+        favorite: CONTEXT_VALUES.PROMPT_FAVORITE,
+      },
+    });
 
     return treePrompt;
   }
@@ -188,8 +204,16 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     const hidden = globalPromptsState.isHidden(prompt.name);
     const favorite = globalPromptsState.isFavorite(prompt.name);
 
-    if (hidden && !this._showHidden) return null;
-    if (this._showOnlyFavorites && !favorite) return null;
+    if (
+      !shouldShowItem({
+        isHidden: hidden,
+        isFavorite: favorite,
+        showHidden: this._showHidden,
+        showOnlyFavorites: this._showOnlyFavorites,
+      })
+    ) {
+      return null;
+    }
 
     const promptFilePath = getGlobalPromptFilePath(prompt.file);
 
@@ -210,15 +234,15 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
       treePrompt.tooltip = GLOBAL_PROMPT_TOOLTIP;
     }
 
-    if (hidden) {
-      treePrompt.iconPath = VscodeIcons.HiddenItem;
-      treePrompt.contextValue = CONTEXT_VALUES.PROMPT_GLOBAL_HIDDEN;
-    } else if (favorite) {
-      treePrompt.iconPath = VscodeIcons.FavoriteItem;
-      treePrompt.contextValue = CONTEXT_VALUES.PROMPT_GLOBAL_FAVORITE;
-    } else {
-      treePrompt.contextValue = CONTEXT_VALUES.PROMPT_GLOBAL;
-    }
+    applyItemStyle(treePrompt, {
+      isHidden: hidden,
+      isFavorite: favorite,
+      contextValues: {
+        default: CONTEXT_VALUES.PROMPT_GLOBAL,
+        hidden: CONTEXT_VALUES.PROMPT_GLOBAL_HIDDEN,
+        favorite: CONTEXT_VALUES.PROMPT_GLOBAL_FAVORITE,
+      },
+    });
 
     return treePrompt;
   }
