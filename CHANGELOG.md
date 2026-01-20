@@ -1,5 +1,13 @@
 # dev-panel
 
+## 0.0.8
+
+### Patch Changes
+
+- 3dce25b: feat: add renamed files (R) status support in changed files view
+- 3dce25b: refactor: consolidate state management, extract shared utilities and base providers
+- d9ced1c: fix: global items toggle and keybinding now work correctly
+
 ## 0.0.7
 
 ### Patch Changes
