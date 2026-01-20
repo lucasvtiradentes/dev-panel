@@ -1,6 +1,7 @@
 import {
   BRANCH_CONTEXT_NO_CHANGES,
   CHANGED_FILE_LINE_PATTERN,
+  GitFileStatus,
   MILESTONE_HEADER_PATTERN,
   UNCATEGORIZED_TOPIC,
 } from '../../common/constants';
@@ -73,10 +74,10 @@ export class ChangedFilesParser {
           deleted: fileMatch[4],
         };
 
-        if (status === 'A' || status === '?') added++;
-        else if (status === 'M') modified++;
-        else if (status === 'D') deleted++;
-        else if (status === 'R') renamed++;
+        if (status === GitFileStatus.Added || status === '?') added++;
+        else if (status === GitFileStatus.Modified) modified++;
+        else if (status === GitFileStatus.Deleted) deleted++;
+        else if (status === GitFileStatus.Renamed) renamed++;
 
         const targetTopic = currentTopic ?? UNCATEGORIZED_TOPIC;
         if (!topics.has(targetTopic)) {

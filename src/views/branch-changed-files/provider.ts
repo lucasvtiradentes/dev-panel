@@ -1,4 +1,4 @@
-import { BASE_BRANCH, FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
+import { BASE_BRANCH, FILE_WATCHER_DEBOUNCE_MS, GitFileStatus } from '../../common/constants';
 import { StoreKey, extensionStore } from '../../common/core/extension-store';
 import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper, NodePathHelper, ShellHelper } from '../../common/utils/helpers/node-helper';
@@ -209,12 +209,12 @@ export class BranchChangedFilesProvider implements TreeDataProvider<BranchChange
     const fullPath = NodePathHelper.join(workspace, filePath);
     const fileUri = VscodeHelper.createFileUri(fullPath);
 
-    if (status === 'A') {
+    if (status === GitFileStatus.Added) {
       await VscodeHelper.openDocument(fileUri);
       return;
     }
 
-    if (status === 'D') {
+    if (status === GitFileStatus.Deleted) {
       const baseRef = this.getBaseBranch(workspace);
       try {
         const gitUri = this.createGitUri(fullPath, filePath, baseRef);

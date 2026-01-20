@@ -260,7 +260,9 @@ export class Git {
             const [status, ...fileParts] = line.split('\t');
             const statusChar = status.charAt(0);
             const file =
-              statusChar === 'R' && fileParts.length > 1 ? fileParts[fileParts.length - 1] : fileParts.join('\t');
+              statusChar === GitFileStatus.Renamed && fileParts.length > 1
+                ? fileParts[fileParts.length - 1]
+                : fileParts.join('\t');
             if (file && !statusMap.has(file)) {
               statusMap.set(file, statusChar);
             }
@@ -362,7 +364,9 @@ export class Git {
             const [st, ...fileParts] = line.split('\t');
             const statusChar = st.charAt(0);
             const file =
-              statusChar === 'R' && fileParts.length > 1 ? fileParts[fileParts.length - 1] : fileParts.join('\t');
+              statusChar === GitFileStatus.Renamed && fileParts.length > 1
+                ? fileParts[fileParts.length - 1]
+                : fileParts.join('\t');
             statusMap.set(file, st);
           });
 
@@ -441,7 +445,9 @@ export class Git {
             const [st, ...fileParts] = line.split('\t');
             const statusChar = st.charAt(0);
             const file =
-              statusChar === 'R' && fileParts.length > 1 ? fileParts[fileParts.length - 1] : fileParts.join('\t');
+              statusChar === GitFileStatus.Renamed && fileParts.length > 1
+                ? fileParts[fileParts.length - 1]
+                : fileParts.join('\t');
             if (!statusMap.has(file)) {
               statusMap.set(file, st);
             }

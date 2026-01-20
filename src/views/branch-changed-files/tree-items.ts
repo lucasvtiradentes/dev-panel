@@ -1,10 +1,10 @@
-import { getCommandId } from '../../common/constants';
+import { GitFileStatus, getCommandId } from '../../common/constants';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeColor, VscodeConstants, VscodeIcon } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { TreeItemClass } from '../../common/vscode/vscode-types';
 
-export type FileStatus = 'A' | 'M' | 'D' | 'R' | '?';
+export type FileStatus = GitFileStatus | '?';
 
 export type ChangedFileNode = {
   status: FileStatus;
@@ -21,10 +21,11 @@ export type TopicNode = {
 };
 
 const STATUS_ICONS: Record<FileStatus, { icon: VscodeIcon; color: VscodeColor }> = {
-  A: { icon: VscodeIcon.FileAdd, color: VscodeColor.ChartsGreen },
-  M: { icon: VscodeIcon.Diff, color: VscodeColor.ChartsBlue },
-  D: { icon: VscodeIcon.Close, color: VscodeColor.ChartsRed },
-  R: { icon: VscodeIcon.ArrowUp, color: VscodeColor.ChartsPurple },
+  [GitFileStatus.Added]: { icon: VscodeIcon.FileAdd, color: VscodeColor.ChartsGreen },
+  [GitFileStatus.Modified]: { icon: VscodeIcon.Diff, color: VscodeColor.ChartsBlue },
+  [GitFileStatus.Deleted]: { icon: VscodeIcon.Close, color: VscodeColor.ChartsRed },
+  [GitFileStatus.Renamed]: { icon: VscodeIcon.ArrowUp, color: VscodeColor.ChartsPurple },
+  [GitFileStatus.Copied]: { icon: VscodeIcon.FileAdd, color: VscodeColor.ChartsGreen },
   '?': { icon: VscodeIcon.FileAdd, color: VscodeColor.ChartsGreen },
 };
 
