@@ -231,7 +231,7 @@ const DevPanelSettingsSchema = z
       .array(z.string())
       .optional()
       .describe(
-        `Glob patterns to exclude globally (package.json search, prompt file/folder selection, variable file/folder selection). Extends defaults: ${DEFAULT_EXCLUDES.join(', ')}. Add custom exclusions as needed (e.g. ['**/${CONFIG_DIR_NAME}/**', "**/.changeset/**", "**/out/**", "**/*.log"])`,
+        `Glob patterns to exclude globally (package.json search, prompt file/folder selection, variable file/folder selection). Extends defaults: ${DEFAULT_EXCLUDES.join(', ')}. Add custom exclusions as needed (e.g. ["**/${CONFIG_DIR_NAME}/**", "**/.changeset/**", "**/out/**", "**/*.log"])`,
       ),
     autoSyncGitChanges: z
       .boolean()
