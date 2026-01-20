@@ -47,7 +47,7 @@ type GitExtension = {
   getAPI: (version: number) => GitAPI;
 };
 
-type ChangedFilesSummary = {
+export type ChangedFilesSummary = {
   added: number;
   modified: number;
   deleted: number;

@@ -1,16 +1,19 @@
 import {
   BRANCH_CONTEXT_NO_CHANGES,
-  CHANGED_FILE_LINE_PATTERN,
   ChangedFilesStyle,
   METADATA_SECTION,
   METADATA_SECTION_PREFIX,
   METADATA_SUFFIX,
-  MILESTONE_HEADER_PATTERN,
   SECTION_NAME_CHANGED_FILES,
   UNCATEGORIZED_TOPIC,
   createChangedFilesSectionRegex,
 } from '../../../../common/constants';
 import { Git } from '../../../../common/lib/git';
+import {
+  type BaseChangedFile,
+  ChangedFilesUtils,
+  type ParsedTopic,
+} from '../../../../common/utils/changed-files-utils';
 import { FileIOHelper } from '../../../../common/utils/helpers/node-helper';
 import type { AutoSectionProvider, SyncContext } from '../interfaces';
 
@@ -60,18 +63,7 @@ export class DefaultChangedFilesProvider implements AutoSectionProvider {
   }
 }
 
-type ChangedFile = {
-  status: string;
-  path: string;
-  added: string;
-  deleted: string;
-};
-
-type TopicFiles = {
-  name: string;
-  files: ChangedFile[];
-  isUserCreated: boolean;
-};
+type TopicFiles = ParsedTopic<BaseChangedFile>;
 
 class ChangedFilesTopicsHelper {
   private static readonly CHANGED_FILES_SECTION_REGEX = createChangedFilesSectionRegex(
@@ -80,77 +72,31 @@ class ChangedFilesTopicsHelper {
   );
 
   static parseExistingTopics(markdownContent: string): Map<string, TopicFiles> {
-    const topics = new Map<string, TopicFiles>();
     const changedFilesMatch = markdownContent.match(ChangedFilesTopicsHelper.CHANGED_FILES_SECTION_REGEX);
-
     if (!changedFilesMatch) {
-      return topics;
+      return new Map();
     }
 
-    const sectionContent = changedFilesMatch[1];
-    const lines = sectionContent.split('\n');
-
-    let currentTopic: string | null = null;
-
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed === '```') continue;
-
-      const topicMatch = trimmed.match(MILESTONE_HEADER_PATTERN);
-      if (topicMatch) {
-        currentTopic = topicMatch[1].trim();
-        if (!topics.has(currentTopic)) {
-          topics.set(currentTopic, { name: currentTopic, files: [], isUserCreated: true });
-        }
-        continue;
-      }
-
-      const fileMatch = trimmed.match(CHANGED_FILE_LINE_PATTERN);
-      if (fileMatch && currentTopic) {
-        const file: ChangedFile = {
-          status: fileMatch[1],
-          path: fileMatch[2].trim(),
-          added: fileMatch[3],
-          deleted: fileMatch[4],
-        };
-        const topicData = topics.get(currentTopic);
-        if (topicData) {
-          topicData.files.push(file);
-        }
-      }
-    }
+    const { topics } = ChangedFilesUtils.parseFileLines<BaseChangedFile>(
+      changedFilesMatch[1],
+      (status, path, added, deleted) => ({ status, path, added, deleted }),
+    );
 
     return topics;
   }
 
-  static parseGitChanges(gitContent: string): ChangedFile[] {
-    if (gitContent === BRANCH_CONTEXT_NO_CHANGES) {
-      return [];
-    }
-
-    const files: ChangedFile[] = [];
-    const lines = gitContent.split('\n');
-
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed) continue;
-
-      const match = trimmed.match(CHANGED_FILE_LINE_PATTERN);
-      if (match) {
-        files.push({
-          status: match[1],
-          path: match[2].trim(),
-          added: match[3],
-          deleted: match[4],
-        });
-      }
-    }
-
+  static parseGitChanges(gitContent: string): BaseChangedFile[] {
+    const { files } = ChangedFilesUtils.parseFileLines<BaseChangedFile>(gitContent, (status, path, added, deleted) => ({
+      status,
+      path,
+      added,
+      deleted,
+    }));
     return files;
   }
 
   static mergeChangesWithTopics(
-    gitFiles: ChangedFile[],
+    gitFiles: BaseChangedFile[],
     existingTopics: Map<string, TopicFiles>,
   ): Map<string, TopicFiles> {
     const result = new Map<string, TopicFiles>();
@@ -158,7 +104,7 @@ class ChangedFilesTopicsHelper {
     const assignedFiles = new Set<string>();
 
     for (const [topicName, topic] of existingTopics) {
-      const updatedFiles: ChangedFile[] = [];
+      const updatedFiles: BaseChangedFile[] = [];
 
       for (const existingFile of topic.files) {
         const gitFile = gitFileMap.get(existingFile.path);
@@ -177,7 +123,7 @@ class ChangedFilesTopicsHelper {
       }
     }
 
-    const uncategorizedFiles: ChangedFile[] = [];
+    const uncategorizedFiles: BaseChangedFile[] = [];
     for (const gitFile of gitFiles) {
       if (!assignedFiles.has(gitFile.path)) {
         uncategorizedFiles.push(gitFile);
@@ -205,7 +151,7 @@ class ChangedFilesTopicsHelper {
       return BRANCH_CONTEXT_NO_CHANGES;
     }
 
-    const allFiles: ChangedFile[] = [];
+    const allFiles: BaseChangedFile[] = [];
     for (const topic of topics.values()) {
       allFiles.push(...topic.files);
     }
@@ -217,11 +163,7 @@ class ChangedFilesTopicsHelper {
     const maxFileLength = Math.max(...allFiles.map((f) => f.path.length));
     const lines: string[] = [];
 
-    const sortedTopics = Array.from(topics.entries()).sort((a, b) => {
-      if (a[0] === UNCATEGORIZED_TOPIC) return -1;
-      if (b[0] === UNCATEGORIZED_TOPIC) return 1;
-      return a[0].localeCompare(b[0]);
-    });
+    const sortedTopics = ChangedFilesUtils.sortTopicEntries(Array.from(topics.entries()));
 
     for (const [topicName, topic] of sortedTopics) {
       if (topic.files.length === 0 && !topic.isUserCreated) {
