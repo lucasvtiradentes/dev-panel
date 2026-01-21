@@ -55,7 +55,7 @@ export class ChangedFilesParser {
       else if (file.status === GitFileStatus.Renamed) renamed++;
     }
 
-    const sortedTopics = Array.from(topics.values());
+    const sortedTopics = ChangedFilesUtils.getOrderedTopics(topics);
     const filesCount = added + modified + deleted + renamed;
     const summary: ChangedFilesSummary = { added, modified, deleted, renamed };
 

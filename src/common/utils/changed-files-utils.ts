@@ -81,4 +81,12 @@ export class ChangedFilesUtils {
       return a[0].localeCompare(b[0]);
     });
   }
+
+  static getOrderedTopics<T extends ParsedTopic<BaseChangedFile>>(topics: Map<string, T>): T[] {
+    return Array.from(topics.values());
+  }
+
+  static getOrderedTopicEntries<T>(topics: Map<string, T>): [string, T][] {
+    return Array.from(topics.entries());
+  }
 }

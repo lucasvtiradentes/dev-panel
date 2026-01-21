@@ -163,7 +163,7 @@ class ChangedFilesTopicsHelper {
     const maxFileLength = Math.max(...allFiles.map((f) => f.path.length));
     const lines: string[] = [];
 
-    const sortedTopics = Array.from(topics.entries());
+    const sortedTopics = ChangedFilesUtils.getOrderedTopicEntries(topics);
 
     for (const [topicName, topic] of sortedTopics) {
       if (topic.files.length === 0 && !topic.isUserCreated) {
