@@ -1,6 +1,6 @@
 import { TASK_ITEM_PATTERN } from '../../../common/constants';
+import { TaskMarkdownHelper } from '../../../common/core/task-markdown-helper';
 import type { TaskNode } from '../providers/interfaces';
-import { formatTaskLine, parseStatusMarker, parseTaskText, statusToMarker } from './task-utils';
 
 export function fromMarkdown(content: string): TaskNode[] {
   const lines = content.split('\n');
@@ -14,9 +14,9 @@ export function fromMarkdown(content: string): TaskNode[] {
     if (!match) continue;
 
     const indent = Math.floor(match[1].length / 2);
-    const status = parseStatusMarker(match[2]);
+    const status = TaskMarkdownHelper.parseStatusMarker(match[2]);
     const rawText = match[3];
-    const { text, meta } = parseTaskText(rawText);
+    const { text, meta } = TaskMarkdownHelper.parseTaskText(rawText);
 
     const node: TaskNode = {
       text,
@@ -47,8 +47,8 @@ export function toMarkdown(tasks: TaskNode[]): string {
 
   const renderNode = (node: TaskNode, indent = 0) => {
     const prefix = '  '.repeat(indent);
-    const marker = statusToMarker(node.status);
-    const taskContent = formatTaskLine(node.text, node.meta);
+    const marker = TaskMarkdownHelper.statusToMarker(node.status);
+    const taskContent = TaskMarkdownHelper.formatTaskLine(node.text, node.meta);
     lines.push(`${prefix}- [${marker}] ${taskContent}`);
     for (const child of node.children) {
       renderNode(child, indent + 1);
@@ -73,9 +73,9 @@ export function fromMarkdownWithOffset(content: string, lineIndexBase: number): 
     if (!match) continue;
 
     const indent = Math.floor(match[1].length / 2);
-    const status = parseStatusMarker(match[2]);
+    const status = TaskMarkdownHelper.parseStatusMarker(match[2]);
     const rawText = match[3];
-    const { text, meta } = parseTaskText(rawText);
+    const { text, meta } = TaskMarkdownHelper.parseTaskText(rawText);
 
     const node: TaskNode = {
       text,

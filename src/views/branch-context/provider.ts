@@ -16,12 +16,12 @@ import { createLogger } from '../../common/lib/logger';
 import { SectionType } from '../../common/schemas';
 import { branchContextState } from '../../common/state';
 import { formatRelativeTime } from '../../common/utils/functions/format-relative-time';
+import { MarkdownHelper } from '../../common/utils/helpers/markdown-helper';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import { loadBranchContext } from '../_branch_base';
-import { getFieldLineNumber } from '../_branch_base/storage/markdown-parser';
 import { BaseBranchProvider } from '../_view_base';
 import { validateBranchContext } from './config-validator';
 import { SectionItem } from './items';
@@ -316,7 +316,7 @@ export class BranchContextProvider extends BaseBranchProvider<TreeItem> {
     if (!workspace) return;
 
     const filePath = ConfigManager.getRootBranchContextFilePath(workspace);
-    const lineNumber = getFieldLineNumber(filePath, fieldName);
+    const lineNumber = MarkdownHelper.getFieldLineNumber(filePath, fieldName);
     const uri = VscodeHelper.createFileUri(filePath);
     await VscodeHelper.openDocumentAtLine(uri, lineNumber);
   }

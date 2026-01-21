@@ -1,16 +1,23 @@
 import { BASE_BRANCH, GitFileStatus } from '../../common/constants';
+import { type ChangedFilesMetadata, ChangedFilesParser as CoreParser } from '../../common/core';
+import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
 import { FileIOHelper, NodePathHelper, ShellHelper } from '../../common/utils/helpers/node-helper';
+import { VscodeIcon } from '../../common/vscode/vscode-constants';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
-import { VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
+import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
+import type { QuickPickItem, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import { loadBranchContext } from '../_branch_base';
 import { BaseBranchProvider } from '../_view_base';
-import { ChangedFilesParser, type ParseResult } from './changed-files-parser';
 import { ChangedFilesTreeBuilder } from './tree-builder';
 import type { BranchChangedFilesTreeItem, TopicNode } from './tree-items';
 
 const logger = createLogger('BranchChangedFiles');
+
+type ParseResult = {
+  topics: TopicNode[];
+  metadata: ChangedFilesMetadata & { summary: string };
+};
 
 type SyncCallback = (comparisonBranch: string) => Promise<void>;
 
@@ -137,7 +144,11 @@ export class BranchChangedFilesProvider extends BaseBranchProvider<BranchChanged
       return;
     }
 
-    const result = ChangedFilesParser.parseFromMarkdown(changedFilesContent);
+    const model = CoreParser.parseMarkdown(changedFilesContent);
+    const result: ParseResult = {
+      topics: model.topics,
+      metadata: { ...model.metadata, summary: Git.formatChangedFilesSummary(model.metadata) },
+    };
     this.cachedTopics = result.topics;
     this.cachedMetadata = result.metadata;
     this.lastChangedFilesHash = this.computeHash(changedFilesContent);
@@ -231,4 +242,31 @@ export class BranchChangedFilesProvider extends BaseBranchProvider<BranchChanged
 
     return 'HEAD~10';
   }
+}
+
+export async function showBranchSelectorQuickPick(provider: BranchChangedFilesProvider) {
+  const workspace = VscodeHelper.getFirstWorkspacePath();
+  if (!workspace) return;
+
+  const branches = await Git.getRemoteBranches(workspace);
+  if (branches.length === 0) {
+    void VscodeHelper.showToastMessage(ToastKind.Warning, 'No remote branches found');
+    return;
+  }
+
+  const currentBranch = provider.getComparisonBranch();
+
+  const items: QuickPickItem[] = branches.map((branch) => ({
+    label: branch === currentBranch ? `$(${VscodeIcon.Check}) ${branch}` : branch,
+    description: branch === currentBranch ? 'current' : undefined,
+  }));
+
+  const picked = await VscodeHelper.showQuickPickItems(items, {
+    placeHolder: 'Select comparison branch',
+  });
+
+  if (!picked) return;
+
+  const selectedBranch = picked.label.replace(`$(${VscodeIcon.Check}) `, '');
+  await provider.setComparisonBranch(selectedBranch);
 }

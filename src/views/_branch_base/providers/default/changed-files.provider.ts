@@ -2,32 +2,23 @@ import {
   BRANCH_CONTEXT_NO_CHANGES,
   ChangedFilesStyle,
   METADATA_SECTION,
-  METADATA_SECTION_PREFIX,
-  METADATA_SUFFIX,
   SECTION_NAME_CHANGED_FILES,
   UNCATEGORIZED_TOPIC,
   createChangedFilesSectionRegex,
 } from '../../../../common/constants';
-import { Git } from '../../../../common/lib/git';
 import {
-  type BaseChangedFile,
-  ChangedFilesUtils,
-  type ParsedTopic,
-} from '../../../../common/utils/changed-files-utils';
+  type ChangedFile,
+  ChangedFilesFormatter,
+  ChangedFilesParser,
+  type ChangedFilesTopic,
+  EMPTY_METADATA,
+} from '../../../../common/core';
+import { Git } from '../../../../common/lib/git';
 import { FileIOHelper } from '../../../../common/utils/helpers/node-helper';
 import type { AutoSectionProvider, SyncContext } from '../interfaces';
 
-function formatWithMetadata(content: string, metadata: Record<string, unknown>): string {
-  return `${content}\n\n${METADATA_SECTION_PREFIX}${JSON.stringify(metadata)}${METADATA_SUFFIX}`;
-}
-
-const EMPTY_METADATA = {
-  filesCount: 0,
-  added: 0,
-  modified: 0,
-  deleted: 0,
-  renamed: 0,
-  isEmpty: true,
+const EMPTY_PROVIDER_METADATA = {
+  ...EMPTY_METADATA,
   description: 'No changes',
 };
 
@@ -40,71 +31,62 @@ export class DefaultChangedFilesProvider implements AutoSectionProvider {
     );
 
     if (result.content === BRANCH_CONTEXT_NO_CHANGES || !result.sectionMetadata) {
-      return formatWithMetadata(BRANCH_CONTEXT_NO_CHANGES, EMPTY_METADATA);
+      return ChangedFilesFormatter.formatToMarkdownWithMetadata(
+        { topics: [], metadata: EMPTY_METADATA },
+        EMPTY_PROVIDER_METADATA,
+      );
     }
 
     const metadata = { ...result.sectionMetadata, isEmpty: false, description: result.summary };
 
     const existingMarkdown = FileIOHelper.readFileIfExists(context.markdownPath);
     if (!existingMarkdown) {
-      return formatWithMetadata(result.content, metadata);
+      return ChangedFilesFormatter.formatToMarkdownWithMetadata(
+        ChangedFilesParser.parseMarkdown(result.content),
+        metadata,
+      );
     }
 
-    const existingTopics = ChangedFilesTopicsHelper.parseExistingTopics(existingMarkdown);
-    if (!ChangedFilesTopicsHelper.hasUserDefinedTopics(existingTopics)) {
-      return formatWithMetadata(result.content, metadata);
+    const existingTopics = ChangedFilesTopicsMerger.parseExistingTopics(existingMarkdown);
+    if (!ChangedFilesParser.hasUserDefinedTopics(existingTopics)) {
+      return ChangedFilesFormatter.formatToMarkdownWithMetadata(
+        ChangedFilesParser.parseMarkdown(result.content),
+        metadata,
+      );
     }
 
-    const gitFiles = ChangedFilesTopicsHelper.parseGitChanges(result.content);
-    const mergedTopics = ChangedFilesTopicsHelper.mergeChangesWithTopics(gitFiles, existingTopics);
-    const formattedContent = ChangedFilesTopicsHelper.formatTopicsToMarkdown(mergedTopics);
+    const gitFiles = ChangedFilesParser.parseFileLines(result.content);
+    const mergedTopics = ChangedFilesTopicsMerger.mergeChangesWithTopics(gitFiles, existingTopics);
+    const model = ChangedFilesParser.topicsMapToModel(mergedTopics);
 
-    return formatWithMetadata(formattedContent, metadata);
+    return ChangedFilesFormatter.formatToMarkdownWithMetadata(model, metadata);
   }
 }
 
-type TopicFiles = ParsedTopic<BaseChangedFile>;
-
-class ChangedFilesTopicsHelper {
+class ChangedFilesTopicsMerger {
   private static readonly CHANGED_FILES_SECTION_REGEX = createChangedFilesSectionRegex(
     SECTION_NAME_CHANGED_FILES,
     METADATA_SECTION,
   );
 
-  static parseExistingTopics(markdownContent: string): Map<string, TopicFiles> {
-    const changedFilesMatch = markdownContent.match(ChangedFilesTopicsHelper.CHANGED_FILES_SECTION_REGEX);
+  static parseExistingTopics(markdownContent: string): Map<string, ChangedFilesTopic> {
+    const changedFilesMatch = markdownContent.match(ChangedFilesTopicsMerger.CHANGED_FILES_SECTION_REGEX);
     if (!changedFilesMatch) {
       return new Map();
     }
-
-    const { topics } = ChangedFilesUtils.parseFileLines<BaseChangedFile>(
-      changedFilesMatch[1],
-      (status, path, added, deleted) => ({ status, path, added, deleted }),
-    );
-
-    return topics;
-  }
-
-  static parseGitChanges(gitContent: string): BaseChangedFile[] {
-    const { files } = ChangedFilesUtils.parseFileLines<BaseChangedFile>(gitContent, (status, path, added, deleted) => ({
-      status,
-      path,
-      added,
-      deleted,
-    }));
-    return files;
+    return ChangedFilesParser.parseMarkdownToMap(changedFilesMatch[1]);
   }
 
   static mergeChangesWithTopics(
-    gitFiles: BaseChangedFile[],
-    existingTopics: Map<string, TopicFiles>,
-  ): Map<string, TopicFiles> {
-    const result = new Map<string, TopicFiles>();
+    gitFiles: ChangedFile[],
+    existingTopics: Map<string, ChangedFilesTopic>,
+  ): Map<string, ChangedFilesTopic> {
+    const result = new Map<string, ChangedFilesTopic>();
     const gitFileMap = new Map(gitFiles.map((f) => [f.path, f]));
     const assignedFiles = new Set<string>();
 
     for (const [topicName, topic] of existingTopics) {
-      const updatedFiles: BaseChangedFile[] = [];
+      const updatedFiles: ChangedFile[] = [];
 
       for (const existingFile of topic.files) {
         const gitFile = gitFileMap.get(existingFile.path);
@@ -123,7 +105,7 @@ class ChangedFilesTopicsHelper {
       }
     }
 
-    const uncategorizedFiles: BaseChangedFile[] = [];
+    const uncategorizedFiles: ChangedFile[] = [];
     for (const gitFile of gitFiles) {
       if (!assignedFiles.has(gitFile.path)) {
         uncategorizedFiles.push(gitFile);
@@ -144,52 +126,5 @@ class ChangedFilesTopicsHelper {
     }
 
     return result;
-  }
-
-  static formatTopicsToMarkdown(topics: Map<string, TopicFiles>): string {
-    if (topics.size === 0) {
-      return BRANCH_CONTEXT_NO_CHANGES;
-    }
-
-    const allFiles: BaseChangedFile[] = [];
-    for (const topic of topics.values()) {
-      allFiles.push(...topic.files);
-    }
-
-    if (allFiles.length === 0) {
-      return BRANCH_CONTEXT_NO_CHANGES;
-    }
-
-    const maxFileLength = Math.max(...allFiles.map((f) => f.path.length));
-    const lines: string[] = [];
-
-    const sortedTopics = ChangedFilesUtils.getOrderedTopicEntries(topics);
-
-    for (const [topicName, topic] of sortedTopics) {
-      if (topic.files.length === 0 && !topic.isUserCreated) {
-        continue;
-      }
-
-      lines.push(`## ${topicName}`);
-
-      const sortedFiles = [...topic.files].sort((a, b) => a.path.localeCompare(b.path));
-      for (const file of sortedFiles) {
-        const padding = ' '.repeat(Math.max(0, maxFileLength - file.path.length + 1));
-        lines.push(`${file.status}  ${file.path}${padding}(${file.added} ${file.deleted})`);
-      }
-
-      lines.push('');
-    }
-
-    return lines.join('\n').trim();
-  }
-
-  static hasUserDefinedTopics(existingTopics: Map<string, TopicFiles>): boolean {
-    for (const [name, topic] of existingTopics) {
-      if (name !== UNCATEGORIZED_TOPIC && topic.isUserCreated) {
-        return true;
-      }
-    }
-    return false;
   }
 }

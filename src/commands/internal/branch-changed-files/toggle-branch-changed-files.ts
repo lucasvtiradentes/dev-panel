@@ -1,7 +1,11 @@
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import { type BranchChangedFilesProvider, ChangedFileItem, type FileStatus } from '../../../views/branch-changed-files';
-import { showBranchSelectorQuickPick } from '../../../views/branch-changed-files/branch-selector';
+import {
+  type BranchChangedFilesProvider,
+  ChangedFileItem,
+  type FileStatus,
+  showBranchSelectorQuickPick,
+} from '../../../views/branch-changed-files';
 
 export function createBranchChangedFilesCommands(branchChangedFilesProvider: BranchChangedFilesProvider): Disposable[] {
   return [

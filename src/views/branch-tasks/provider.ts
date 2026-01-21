@@ -1,20 +1,22 @@
-import { FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
+import { BASE_BRANCH, FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
 import { Position } from '../../common/constants/enums';
 import { logger } from '../../common/lib/logger';
 import type { TaskPriority, TaskStatus } from '../../common/schemas';
+import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import {
   type MilestoneNode,
   type SyncContext,
-  SyncContextHelper,
   type TaskNode,
   type TaskSyncProvider,
+  getBranchContextFilePath,
+  loadBranchContext,
 } from '../_branch_base';
 import { DefaultTaskProvider } from '../_branch_base/providers/default/tasks.provider';
 import { BaseBranchProvider } from '../_view_base';
-import type { TaskFilter } from './filter-operations';
-import { showFilterQuickPick as showFilterQuickPickDialog } from './filter-quick-pick';
+import { type TaskFilter, showFilterQuickPick as showFilterQuickPickDialog } from './filter-operations';
 import { buildFlatTree, buildMilestoneChildren, buildMilestonesTree, buildTaskChildren } from './provider-tree-builder';
 import {
   BranchMilestoneItem,
@@ -331,7 +333,19 @@ export class BranchTasksProvider extends BaseBranchProvider<BranchTreeItem> {
   }
 
   private getSyncContext(): SyncContext | null {
-    return SyncContextHelper.create(this.currentBranch);
+    const filePath = getBranchContextFilePath(this.currentBranch);
+    if (!filePath || !FileIOHelper.fileExists(filePath)) return null;
+
+    const workspace = VscodeHelper.getFirstWorkspacePath();
+    if (!workspace) return null;
+
+    return {
+      branchName: this.currentBranch,
+      workspacePath: workspace,
+      markdownPath: filePath,
+      branchContext: loadBranchContext(this.currentBranch),
+      comparisonBranch: BASE_BRANCH,
+    };
   }
 
   getMilestoneNames(): string[] {

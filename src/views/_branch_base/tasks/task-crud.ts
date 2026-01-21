@@ -4,12 +4,11 @@ import {
   TASK_ITEM_PATTERN,
   TASK_STATUS_MARKERS,
 } from '../../../common/constants';
-import type { TaskMeta } from '../../../common/core/task-markdown-helper';
+import { TaskMarkdownHelper, type TaskMeta } from '../../../common/core/task-markdown-helper';
 import type { TaskStatus } from '../../../common/schemas';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import type { NewTask, SyncContext, TaskNode } from '../providers/interfaces';
 import { TaskLineUtils } from './task-line-utils';
-import { formatTaskLine, parseTaskText, statusToMarker } from './task-utils';
 
 function createEmptyTaskNode(text: string): TaskNode {
   return {
@@ -37,7 +36,7 @@ export function onStatusChange(lineIndex: number, newStatus: TaskStatus, context
   const match = line.match(TASK_ITEM_PATTERN);
   if (!match) return Promise.resolve();
 
-  const newMarker = statusToMarker(newStatus);
+  const newMarker = TaskMarkdownHelper.statusToMarker(newStatus);
   lines[actualLineIndex] = line.replace(/\[([ xX>!])\]/, `[${newMarker}]`);
 
   autoToggleParentTask(lines, actualLineIndex);
@@ -126,9 +125,9 @@ export function onUpdateMeta(lineIndex: number, metaUpdate: Partial<TaskMeta>, c
   const statusChar = match[2];
   const rawText = match[3];
 
-  const { text, meta: existingMeta } = parseTaskText(rawText);
+  const { text, meta: existingMeta } = TaskMarkdownHelper.parseTaskText(rawText);
   const newMeta = { ...existingMeta, ...metaUpdate };
-  const newContent = formatTaskLine(text, newMeta);
+  const newContent = TaskMarkdownHelper.formatTaskLine(text, newMeta);
 
   lines[actualLineIndex] = `${indent}- [${statusChar}] ${newContent}`;
 
@@ -156,8 +155,8 @@ export function onEditText(lineIndex: number, newText: string, context: SyncCont
   const statusChar = match[2];
   const rawText = match[3];
 
-  const { meta: existingMeta } = parseTaskText(rawText);
-  const newContent = formatTaskLine(newText, existingMeta);
+  const { meta: existingMeta } = TaskMarkdownHelper.parseTaskText(rawText);
+  const newContent = TaskMarkdownHelper.formatTaskLine(newText, existingMeta);
 
   lines[actualLineIndex] = `${indent}- [${statusChar}] ${newContent}`;
 

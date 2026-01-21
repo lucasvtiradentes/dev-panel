@@ -1,3 +1,4 @@
+import { ChangedFilesFormatter } from '../../common/core';
 import { type BranchChangedFilesTreeItem, ChangedFileItem, TopicGroupItem, type TopicNode } from './tree-items';
 
 export class ChangedFilesTreeBuilder {
@@ -7,12 +8,12 @@ export class ChangedFilesTreeBuilder {
 
   static buildFlatTree(topics: TopicNode[]): ChangedFileItem[] {
     const allFiles = topics.flatMap((topic) => topic.files);
-    const sortedFiles = allFiles.sort((a, b) => a.path.localeCompare(b.path));
+    const sortedFiles = ChangedFilesFormatter.sortFiles(allFiles);
     return sortedFiles.map((file) => new ChangedFileItem(file));
   }
 
   static buildTopicChildren(topic: TopicNode): ChangedFileItem[] {
-    const sortedFiles = [...topic.files].sort((a, b) => a.path.localeCompare(b.path));
+    const sortedFiles = ChangedFilesFormatter.sortFiles(topic.files);
     return sortedFiles.map((file) => new ChangedFileItem(file));
   }
 
