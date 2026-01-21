@@ -233,7 +233,7 @@ type GroupedState = {
   isGrouped: boolean;
 };
 
-export type GroupedStateMethods = {
+type GroupedStateMethods = {
   getIsGrouped(): boolean;
   saveIsGrouped(isGrouped: boolean): void;
 };

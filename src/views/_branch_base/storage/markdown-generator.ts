@@ -7,6 +7,7 @@ import {
   METADATA_SECTION_PREFIX,
   METADATA_SEPARATOR,
   METADATA_SUFFIX,
+  createSectionHeaderPattern,
 } from '../../../common/constants';
 import { ConfigManager } from '../../../common/core/config-manager';
 import { Git } from '../../../common/lib/git';
@@ -110,8 +111,7 @@ function appendSectionMetadata(content: string, sectionMetadata: SectionMetadata
   let result = content;
 
   for (const [sectionName, metadata] of Object.entries(sectionMetadata)) {
-    const sectionHeaderRegex = new RegExp(`^#\\s+${sectionName}\\s*$`, 'im');
-    const headerMatch = result.match(sectionHeaderRegex);
+    const headerMatch = result.match(createSectionHeaderPattern(sectionName));
 
     if (!headerMatch || headerMatch.index === undefined) {
       logger.warn(`[appendSectionMetadata] Header not found for section: ${sectionName}`);

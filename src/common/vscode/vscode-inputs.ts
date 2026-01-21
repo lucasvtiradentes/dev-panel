@@ -1,4 +1,4 @@
-import { DEFAULT_EXCLUDES, DEFAULT_INCLUDES, ROOT_FOLDER_LABEL } from '../constants';
+import { DEFAULT_EXCLUDES, DEFAULT_INCLUDES, ROOT_FOLDER_LABEL, createVariablePlaceholderPattern } from '../constants';
 
 const ERROR_MSG_WORKSPACE_REQUIRED = 'File/folder input requires a workspace folder';
 const ERROR_MSG_INVALID_NUMBER = 'Please enter a valid number';
@@ -348,7 +348,7 @@ async function collectChoiceInput(input: DevPanelInput, multiple: boolean): Prom
 export function replaceInputPlaceholders(content: string, values: InputValues): string {
   let result = content;
   for (const [name, value] of Object.entries(values)) {
-    result = result.replace(new RegExp(`\\$${name}`, 'g'), value);
+    result = result.replace(createVariablePlaceholderPattern(name), value);
   }
   return result;
 }

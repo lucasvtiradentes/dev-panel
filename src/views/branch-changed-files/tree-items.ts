@@ -5,7 +5,7 @@ import { VscodeColor, VscodeConstants, VscodeIcon } from '../../common/vscode/vs
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { TreeItemClass } from '../../common/vscode/vscode-types';
 
-export type { ChangedFile as ChangedFileNode, ChangedFilesTopic as TopicNode, FileStatus };
+export type { ChangedFilesTopic as TopicNode, FileStatus };
 
 const STATUS_ICONS: Record<FileStatus, { icon: VscodeIcon; color: VscodeColor }> = {
   [GitFileStatus.Added]: { icon: VscodeIcon.FileAdd, color: VscodeColor.ChartsGreen },

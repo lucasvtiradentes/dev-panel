@@ -7,6 +7,9 @@ import {
   BRANCH_CONTEXT_NA,
   BRANCH_CONTEXT_NO_CHANGES,
   BUILTIN_SECTION_NAMES,
+  CODEBLOCK_CONTENT_PATTERN,
+  MARKDOWN_FIELD_PATTERN,
+  MARKDOWN_SECTION_NAME_PATTERN,
   METADATA_DEVPANEL_PREFIX,
   METADATA_DEVPANEL_REGEX,
   METADATA_SECTION_REGEX_GLOBAL,
@@ -18,6 +21,8 @@ import {
   SECTION_NAME_OBJECTIVE,
   SECTION_NAME_REQUIREMENTS,
   SECTION_NAME_TASKS,
+  createFieldValuePattern,
+  createMetadataPattern,
 } from '../../../common/constants';
 import { ConfigManager } from '../../../common/core/config-manager';
 import { createLogger } from '../../../common/lib/logger';
@@ -47,8 +52,7 @@ export function loadBranchContextFromFile(workspace: string, branchName: string)
 }
 
 function extractField(content: string, fieldName: string): string | undefined {
-  const regex = new RegExp(`^${fieldName}:\\s*(.*)$`, 'im');
-  const match = content.match(regex);
+  const match = content.match(createFieldValuePattern(fieldName));
   if (!match) return undefined;
 
   const value = match[1].trim();
@@ -111,9 +115,8 @@ function extractAllCodeBlockSections(content: string): Record<string, CodeBlockS
 
 function extractAllTextSections(content: string, excludeNames: string[]): Record<string, CodeBlockSection> {
   const sections: Record<string, CodeBlockSection> = {};
-  const sectionRegex = /^#\s+([A-Z][A-Z\s]+)\s*$/gm;
 
-  const matches = [...content.matchAll(sectionRegex)];
+  const matches = [...content.matchAll(MARKDOWN_SECTION_NAME_PATTERN)];
   for (let i = 0; i < matches.length; i++) {
     const match = matches[i];
     const sectionName = match[1].trim();
@@ -140,10 +143,7 @@ function extractAllTextSections(content: string, excludeNames: string[]): Record
 }
 
 function extractMetadata(content: string): BranchContextMetadata | undefined {
-  const prefix = METADATA_DEVPANEL_PREFIX.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const suffix = METADATA_SUFFIX.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const metadataRegex = new RegExp(`${prefix}(.+?)${suffix}`);
-  const match = content.match(metadataRegex);
+  const match = content.match(createMetadataPattern(METADATA_DEVPANEL_PREFIX, METADATA_SUFFIX));
   if (!match) return undefined;
 
   try {
@@ -204,8 +204,7 @@ function parseBranchContext(content: string): BranchContext {
 export function extractAllFieldsRaw(content: string): Record<string, string> {
   const fields: Record<string, string> = {};
 
-  const fieldRegex = /^([A-Z][A-Z\s]+):\s*(.*)$/gm;
-  const fieldMatches = content.matchAll(fieldRegex);
+  const fieldMatches = content.matchAll(MARKDOWN_FIELD_PATTERN);
   for (const match of fieldMatches) {
     const fieldName = match[1].trim();
     const fieldValue = match[2].trim();
@@ -214,8 +213,7 @@ export function extractAllFieldsRaw(content: string): Record<string, string> {
     }
   }
 
-  const sectionRegex = /^#\s+([A-Z][A-Z\s]+)\s*$/gm;
-  const matches = [...content.matchAll(sectionRegex)];
+  const matches = [...content.matchAll(MARKDOWN_SECTION_NAME_PATTERN)];
   for (let i = 0; i < matches.length; i++) {
     const sectionMatch = matches[i];
     const sectionName = sectionMatch[1].trim();
@@ -233,7 +231,7 @@ export function extractAllFieldsRaw(content: string): Record<string, string> {
       .replace(METADATA_SECTION_REGEX_GLOBAL, '')
       .trim();
 
-    const codeBlockMatch = sectionContent.match(/^```\s*\n([\s\S]*?)\n```/);
+    const codeBlockMatch = sectionContent.match(CODEBLOCK_CONTENT_PATTERN);
     if (codeBlockMatch) {
       const codeContent = codeBlockMatch[1].trim();
       if (codeContent && codeContent !== BRANCH_CONTEXT_NO_CHANGES) {
