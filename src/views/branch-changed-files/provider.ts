@@ -178,7 +178,7 @@ export class BranchChangedFilesProvider extends BaseBranchProvider<BranchChanged
     const fullPath = NodePathHelper.join(workspace, filePath);
     const fileUri = VscodeHelper.createFileUri(fullPath);
 
-    if (status === GitFileStatus.Added) {
+    if (status === GitFileStatus.Added || status === GitFileStatus.Renamed || status === GitFileStatus.Copied) {
       await VscodeHelper.openDocument(fileUri);
       return;
     }
