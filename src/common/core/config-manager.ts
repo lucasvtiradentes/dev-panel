@@ -320,4 +320,24 @@ export class ConfigManager {
     if (!config) return undefined;
     return config.settings;
   }
+
+  static addToGitignore(workspace: string) {
+    const gitignorePath = `${workspace}/.gitignore`;
+    const entriesToAdd = [`**/${CONFIG_DIR_NAME}/${BRANCHES_DIR_NAME}/`, ROOT_BRANCH_CONTEXT_FILE_NAME];
+
+    try {
+      let content = '';
+      if (FileIOHelper.fileExists(gitignorePath)) {
+        content = FileIOHelper.readFile(gitignorePath);
+      }
+
+      const missingEntries = entriesToAdd.filter((entry) => !content.includes(entry));
+      if (missingEntries.length === 0) return;
+
+      const newContent = content.endsWith('\n') || content === '' ? content : `${content}\n`;
+      FileIOHelper.writeFile(gitignorePath, `${newContent}${missingEntries.join('\n')}\n`);
+    } catch {
+      // Silently ignore gitignore errors
+    }
+  }
 }

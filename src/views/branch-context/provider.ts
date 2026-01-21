@@ -5,11 +5,6 @@ import {
   SECTION_NAME_BRANCH_INFO,
   SECTION_NAME_CHANGED_FILES,
 } from '../../common/constants';
-import {
-  BRANCHES_DIR_NAME,
-  CONFIG_DIR_NAME,
-  ROOT_BRANCH_CONTEXT_FILE_NAME,
-} from '../../common/constants/scripts-constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
@@ -137,18 +132,13 @@ export class BranchContextProvider extends BaseBranchProvider<TreeItem> {
     this.syncManager.debouncedSync(() => this.syncManager.syncRootToBranch(), true);
   }
 
-  async initialize() {
+  initialize() {
     logger.info('[BranchContextProvider] initialize called');
 
     const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) {
       logger.warn('[BranchContextProvider] No workspace found');
       return;
-    }
-
-    if (await Git.isRepository(workspace)) {
-      logger.info('[BranchContextProvider] Adding to gitignore');
-      this.addToGitignore(workspace);
     }
 
     const config = ConfigManager.loadWorkspaceConfigFromPath(workspace);
@@ -161,27 +151,6 @@ export class BranchContextProvider extends BaseBranchProvider<TreeItem> {
       }
     } else {
       this.validationIndicator.hide();
-    }
-  }
-
-  private addToGitignore(workspace: string) {
-    const gitignorePath = `${workspace}/.gitignore`;
-    const entriesToAdd = [`**/${CONFIG_DIR_NAME}/${BRANCHES_DIR_NAME}/`, ROOT_BRANCH_CONTEXT_FILE_NAME];
-
-    try {
-      let content = '';
-      if (FileIOHelper.fileExists(gitignorePath)) {
-        content = FileIOHelper.readFile(gitignorePath);
-      }
-
-      const missingEntries = entriesToAdd.filter((entry) => !content.includes(entry));
-      if (missingEntries.length === 0) return;
-
-      const newContent = content.endsWith('\n') || content === '' ? content : `${content}\n`;
-      FileIOHelper.writeFile(gitignorePath, `${newContent}${missingEntries.join('\n')}\n`);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      logger.error(`Failed to update .gitignore: ${message}`);
     }
   }
 
