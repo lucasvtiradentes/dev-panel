@@ -16,7 +16,7 @@ import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
-import { loadBranchContext } from '../_branch_base';
+import { getSyncCoordinator, loadBranchContext } from '../../features/branch-context-sync';
 import { BaseBranchProvider } from '../_view_base';
 import { validateBranchContext } from './config-validator';
 import { SectionItem } from './items';
@@ -103,7 +103,8 @@ export class BranchContextProvider extends BaseBranchProvider<TreeItem> {
   }
 
   handleMarkdownChange(uri?: Uri) {
-    if (this.syncManager.getIsWritingMarkdown() || this.syncManager.getIsSyncing()) {
+    const coordinator = getSyncCoordinator();
+    if (this.syncManager.getIsWritingMarkdown() || this.syncManager.getIsSyncing() || coordinator.isBlocked()) {
       logger.info('[handleMarkdownChange] Ignoring - currently writing/syncing');
       return;
     }
@@ -118,12 +119,13 @@ export class BranchContextProvider extends BaseBranchProvider<TreeItem> {
       return;
     }
 
-    logger.info(`[handleMarkdownChange] Syncing branch to root: ${uri.fsPath}`);
-    this.syncManager.debouncedSync(() => this.syncManager.syncBranchToRoot(), true);
+    logger.info(`[handleMarkdownChange] File changed: ${uri.fsPath}, refreshing view`);
+    this.refresh();
   }
 
   handleRootMarkdownChange() {
-    if (this.syncManager.getIsWritingMarkdown() || this.syncManager.getIsSyncing()) {
+    const coordinator = getSyncCoordinator();
+    if (this.syncManager.getIsWritingMarkdown() || this.syncManager.getIsSyncing() || coordinator.isBlocked()) {
       logger.info('[handleRootMarkdownChange] Ignoring - currently writing/syncing');
       return;
     }

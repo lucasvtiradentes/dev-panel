@@ -1,7 +1,7 @@
 import { BRANCH_CONTEXT_TEMPLATE_FILENAME, CONFIG_FILE_NAME } from 'src/common/constants';
 import type { BranchContextConfig } from '../../common/schemas/config-schema';
 import { SectionType } from '../../common/schemas/types';
-import { TemplateSectionType, loadTemplate, parseTemplate } from '../_branch_base/storage/template-parser';
+import { TemplateSectionType, loadTemplate, parseTemplate } from '../../features/branch-context-sync';
 
 enum ValidationIssueType {
   MissingInTemplate = 'missing-in-template',
@@ -32,7 +32,9 @@ export function validateBranchContext(workspace: string, config: BranchContextCo
   const templateSections = parseTemplate(template);
 
   for (const configSection of config.sections) {
-    const templateSection = templateSections.find((t) => t.name === configSection.name);
+    const templateSection = templateSections.find(
+      (t: { name: string; type: TemplateSectionType }) => t.name === configSection.name,
+    );
 
     if (!templateSection) {
       issues.push({

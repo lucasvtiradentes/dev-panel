@@ -3,8 +3,6 @@ import {
   METADATA_SECTION_REGEX_CAPTURE,
   METADATA_SECTION_REGEX_GLOBAL,
   SECTION_NAME_CHANGED_FILES,
-  SYNC_DEBOUNCE_MS,
-  WRITING_MARKDOWN_TIMEOUT_MS,
 } from '../../common/constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import { StoreKey, extensionStore } from '../../common/core/extension-store';
@@ -15,29 +13,25 @@ import { JsonHelper } from '../../common/utils/helpers/json-helper';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
-import type { SyncContext } from '../_branch_base/providers/interfaces';
 import {
+  SYNC_DEBOUNCE_MS,
+  WRITING_MARKDOWN_TIMEOUT_MS,
   extractAllFieldsRaw,
   generateBranchContextMarkdown,
+  getSyncCoordinator,
   invalidateBranchContextCache,
   loadBranchContext,
   updateBranchContextCache,
-} from '../_branch_base/storage';
+} from '../../features/branch-context-sync';
+import type { SyncContext } from '../_branch_base/providers/interfaces';
 import type { ProviderHelpers } from './provider-helpers';
 
 const logger = createLogger('BranchContextSync');
 
-enum SyncDirection {
-  RootToBranch = 'root-to-branch',
-  BranchToRoot = 'branch-to-root',
-}
-
 export class SyncManager {
   private isSyncing = false;
   private syncDebounceTimer: NodeJS.Timeout | null = null;
-  private lastSyncDirection: SyncDirection | null = null;
   private isWritingMarkdown = false;
-
   private isInitializing = true;
 
   constructor(
@@ -64,59 +58,10 @@ export class SyncManager {
   }
 
   syncRootToBranch() {
-    this.syncDirection(SyncDirection.RootToBranch);
-  }
-
-  syncBranchToRoot() {
-    this.syncDirection(SyncDirection.BranchToRoot);
-  }
-
-  private syncDirection(direction: SyncDirection) {
-    const currentBranch = this.getCurrentBranch();
-    if (!currentBranch) {
-      return;
-    }
-
-    if (this.lastSyncDirection === direction) {
-      this.lastSyncDirection = null;
-      return;
-    }
-
-    const workspace = VscodeHelper.getFirstWorkspacePath();
-    if (!workspace) return;
-
-    const rootPath = ConfigManager.getRootBranchContextFilePath(workspace);
-    const branchPath = ConfigManager.getBranchContextFilePath(workspace, currentBranch);
-
-    const isRootToBranch = direction === SyncDirection.RootToBranch;
-    const sourcePath = isRootToBranch ? rootPath : branchPath;
-    const targetPath = isRootToBranch ? branchPath : rootPath;
-
-    if (!FileIOHelper.fileExists(sourcePath)) {
-      return;
-    }
-
-    this.isSyncing = true;
-    this.isWritingMarkdown = true;
-    extensionStore.set(StoreKey.IsWritingBranchContext, true);
-    this.lastSyncDirection = direction;
-
-    try {
-      const content = FileIOHelper.readFile(sourcePath);
-      FileIOHelper.writeFile(targetPath, content);
-    } catch (error: unknown) {
-      const directionLabel = isRootToBranch ? 'root to branch' : 'branch to root';
-      logger.error(`Error syncing ${directionLabel}: ${TypeGuardsHelper.getErrorMessage(error)}`);
-    } finally {
-      setTimeout(() => {
-        this.isSyncing = false;
-        this.isWritingMarkdown = false;
-        extensionStore.set(StoreKey.IsWritingBranchContext, false);
-        setTimeout(() => {
-          this.lastSyncDirection = null;
-        }, 300);
-      }, 200);
-    }
+    const coordinator = getSyncCoordinator();
+    coordinator.syncRootToBranch();
+    this.refresh();
+    this.onSyncComplete?.();
   }
 
   async syncBranchContext(comparisonBranch: string) {
@@ -140,6 +85,9 @@ export class SyncManager {
     const config = this.helpers.loadConfig(workspace);
     this.isWritingMarkdown = true;
     extensionStore.set(StoreKey.IsWritingBranchContext, true);
+
+    const coordinator = getSyncCoordinator();
+    coordinator.markSyncStarted(currentBranch);
 
     try {
       const syncContext: SyncContext = {
@@ -269,9 +217,6 @@ export class SyncManager {
       const [lastCommitHash, lastCommitMessage] = await gitInfoPromise;
 
       logger.info(`[syncBranchContext] Building updated context (+${Date.now() - startTime}ms)`);
-      logger.info(
-        `[syncBranchContext] Context before update - metadata.sections keys: ${Object.keys(context.metadata?.sections || {}).join(', ')}`,
-      );
 
       const updatedContext = {
         ...context,
@@ -286,17 +231,6 @@ export class SyncManager {
         },
       };
 
-      logger.info(
-        `[syncBranchContext] Updated context - metadata.sections keys: ${Object.keys(updatedContext.metadata?.sections || {}).join(', ')}`,
-      );
-      if (updatedContext.metadata?.sections) {
-        for (const [sectionName, sectionMetadata] of Object.entries(updatedContext.metadata.sections)) {
-          logger.info(
-            `[syncBranchContext] Section "${sectionName}" metadata: ${JsonHelper.stringify(sectionMetadata)}`,
-          );
-        }
-      }
-
       const markdownContent = await generateBranchContextMarkdown(
         currentBranch,
         updatedContext,
@@ -306,13 +240,14 @@ export class SyncManager {
       if (markdownContent) {
         logger.info(`[syncBranchContext] Updating cache with new content (+${Date.now() - startTime}ms)`);
         updateBranchContextCache(currentBranch, updatedContext, markdownContent);
+
+        const rootPath = ConfigManager.getRootBranchContextFilePath(workspace);
+        FileIOHelper.writeFile(rootPath, markdownContent);
+        logger.info(`[syncBranchContext] Synced to root file (+${Date.now() - startTime}ms)`);
       } else {
         logger.warn('[syncBranchContext] No markdown content returned, invalidating cache');
         invalidateBranchContextCache(currentBranch);
       }
-
-      logger.info(`[syncBranchContext] Syncing to root (+${Date.now() - startTime}ms)`);
-      this.syncBranchToRoot();
     } finally {
       this.updateLastSyncTimestamp(new Date().toISOString());
       this.refresh();
@@ -320,7 +255,7 @@ export class SyncManager {
         this.isWritingMarkdown = false;
         extensionStore.set(StoreKey.IsWritingBranchContext, false);
         this.isInitializing = false;
-        logger.info('[syncBranchContext] Sync complete, calling onSyncComplete');
+        coordinator.markSyncCompleted(currentBranch);
         this.onSyncComplete?.();
       }, WRITING_MARKDOWN_TIMEOUT_MS);
       logger.info(`[syncBranchContext] END total time: ${Date.now() - startTime}ms`);

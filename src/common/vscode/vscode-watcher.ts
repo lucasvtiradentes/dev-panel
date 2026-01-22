@@ -3,7 +3,6 @@ import { VscodeHelper } from './vscode-helper';
 import type { Disposable, FileSystemWatcher, Uri } from './vscode-types';
 
 export type RefreshCallback = () => void;
-export type UriChangeCallback = (uri: Uri) => void;
 
 export const WATCHER_CONSTANTS = {
   BRANCH_POLL_INTERVAL_MS: 10000,

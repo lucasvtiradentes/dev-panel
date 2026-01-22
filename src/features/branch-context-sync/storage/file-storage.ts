@@ -1,4 +1,3 @@
-import { BranchContextMarkdownHelper } from 'src/common/core/branch-context-markdown';
 import {
   BRANCH_CONTEXT_FIELD_BRANCH,
   BRANCH_CONTEXT_FIELD_LINEAR_LINK,
@@ -24,6 +23,7 @@ import {
   createFieldValuePattern,
   createMetadataPattern,
 } from '../../../common/constants';
+import { BranchContextMarkdownHelper } from '../../../common/core/branch-context-markdown';
 import { ConfigManager } from '../../../common/core/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext, BranchContextMetadata, SectionMetadata } from '../../../common/schemas/types';
@@ -32,6 +32,7 @@ import { JsonHelper } from '../../../common/utils/helpers/json-helper';
 import { MarkdownSectionHelper } from '../../../common/utils/helpers/markdown-section-helper';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
+import type { CodeBlockSection } from '../types';
 import { parseBranchTypeCheckboxes } from './branch-type-utils';
 
 const logger = createLogger('BranchContext');
@@ -71,11 +72,6 @@ function extractBranchType(content: string): string | undefined {
 function extractSection(content: string, sectionName: string): string | undefined {
   return MarkdownSectionHelper.extractSection(content, sectionName);
 }
-
-type CodeBlockSection = {
-  content: string;
-  metadata?: SectionMetadata;
-};
 
 function extractAllCodeBlockSections(content: string): Record<string, CodeBlockSection> {
   const sections: Record<string, CodeBlockSection> = {};

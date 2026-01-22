@@ -18,10 +18,9 @@ import { JsonHelper } from '../../../common/utils/helpers/json-helper';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
+import type { SectionMetadataMap } from '../types';
 import { detectBranchType, generateBranchTypeCheckboxes } from './branch-type-utils';
 import { loadTemplate } from './template-parser';
-
-type SectionMetadataMap = Record<string, Record<string, unknown>>;
 
 const logger = createLogger('MarkdownGenerator');
 

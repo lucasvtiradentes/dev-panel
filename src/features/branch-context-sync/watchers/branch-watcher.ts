@@ -1,19 +1,19 @@
-import { Git, type GitRepository } from '../common/lib/git';
-import { createLogger } from '../common/lib/logger';
-import { TypeGuardsHelper } from '../common/utils/helpers/type-guards-helper';
-import { VscodeHelper } from '../common/vscode/vscode-helper';
-import type { Disposable, FileSystemWatcher } from '../common/vscode/vscode-types';
-import { WATCHER_CONSTANTS } from '../common/vscode/vscode-watcher';
-
-type BranchChangeCallback = (newBranch: string) => void;
+import { Git, type GitRepository } from '../../../common/lib/git';
+import { createLogger } from '../../../common/lib/logger';
+import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
+import { VscodeHelper } from '../../../common/vscode/vscode-helper';
+import type { Disposable, FileSystemWatcher } from '../../../common/vscode/vscode-types';
+import { WATCHER_CONSTANTS } from '../../../common/vscode/vscode-watcher';
+import { getSyncCoordinator } from '../coordinator';
 
 const logger = createLogger('BranchWatcher');
 
-export function createBranchWatcher(onBranchChange: BranchChangeCallback): Disposable {
+export function createBranchWatcher(): Disposable {
   const disposables: Disposable[] = [];
   let currentBranch = '';
   let headWatcher: FileSystemWatcher | null = null;
   let pollInterval: ReturnType<typeof setInterval> | null = null;
+  const coordinator = getSyncCoordinator();
 
   const handleBranchChange = async () => {
     const workspace = VscodeHelper.getFirstWorkspacePath();
@@ -27,7 +27,7 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
       if (newBranch !== currentBranch) {
         logger.info(`[branchWatcher] Branch changed from '${currentBranch}' to '${newBranch}'`);
         currentBranch = newBranch;
-        onBranchChange(newBranch);
+        coordinator.handleBranchChange(newBranch);
       }
     } catch (error: unknown) {
       logger.error(`Failed to get current branch: ${TypeGuardsHelper.getErrorMessage(error)}`);
@@ -55,7 +55,7 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
     const branchName = repo.state.HEAD?.name;
     if (branchName && !currentBranch) {
       currentBranch = branchName;
-      void onBranchChange(branchName);
+      coordinator.handleBranchChange(branchName);
     }
   };
 
@@ -83,7 +83,7 @@ export function createBranchWatcher(onBranchChange: BranchChangeCallback): Dispo
 
     if (await Git.isRepository(workspace)) {
       currentBranch = await Git.getCurrentBranch(workspace);
-      onBranchChange(currentBranch);
+      coordinator.handleBranchChange(currentBranch);
     }
   };
 

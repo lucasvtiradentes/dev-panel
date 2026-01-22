@@ -1,9 +1,9 @@
-import { BRANCH_CONTEXT_CACHE_TTL_MS } from '../../../common/constants';
 import { ConfigManager } from '../../../common/core/config-manager';
 import { FileHashCache } from '../../../common/lib/cache';
 import type { BranchContext } from '../../../common/schemas/types';
 import { generateHashForFileContent } from '../../../common/utils/functions/generate-cache-key';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
+import { BRANCH_CONTEXT_CACHE_TTL_MS } from '../constants';
 import { loadBranchContextFromFile } from './file-storage';
 
 export function getBranchContextFilePath(branchName: string): string | null {
