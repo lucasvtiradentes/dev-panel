@@ -3,7 +3,7 @@ import { createLogger } from '../../../common/lib/logger';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import { SYNC_DEBOUNCE_MS } from '../constants';
+import { SYNC_DEBOUNCE_MS, WRITING_MARKDOWN_TIMEOUT_MS } from '../constants';
 import { type BranchChangedPayload, type FileChangedPayload, type SyncCompletedPayload, SyncEvent } from '../types';
 import { SyncEventEmitter } from './sync-events';
 import { SyncState } from './sync-state';
@@ -103,6 +103,10 @@ export class SyncCoordinator {
       logger.info(`[syncRootToBranch] Synced root → branch: ${currentBranch}`);
     } finally {
       this.state.setIsSyncing(false);
+      setTimeout(() => {
+        this.state.setIsWritingMarkdown(false);
+        logger.info('[syncRootToBranch] Writing markdown timeout cleared');
+      }, WRITING_MARKDOWN_TIMEOUT_MS);
     }
   }
 

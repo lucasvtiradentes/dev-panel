@@ -16,7 +16,11 @@ import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
-import { getSyncCoordinator, loadBranchContext } from '../../features/branch-context-sync';
+import {
+  getSyncCoordinator,
+  invalidateBranchContextCache,
+  loadBranchContext,
+} from '../../features/branch-context-sync';
 import { BaseBranchProvider } from '../_view_base';
 import { validateBranchContext } from './config-validator';
 import { SectionItem } from './items';
@@ -124,14 +128,9 @@ export class BranchContextProvider extends BaseBranchProvider<TreeItem> {
   }
 
   handleRootMarkdownChange() {
-    const coordinator = getSyncCoordinator();
-    if (this.syncManager.getIsWritingMarkdown() || this.syncManager.getIsSyncing() || coordinator.isBlocked()) {
-      logger.info('[handleRootMarkdownChange] Ignoring - currently writing/syncing');
-      return;
-    }
-
-    logger.info('[handleRootMarkdownChange] Syncing root to branch');
-    this.syncManager.debouncedSync(() => this.syncManager.syncRootToBranch(), true);
+    logger.info('[handleRootMarkdownChange] Root markdown synced, invalidating cache and refreshing');
+    invalidateBranchContextCache(this.currentBranch);
+    this.refresh();
   }
 
   initialize() {
