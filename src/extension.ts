@@ -30,7 +30,7 @@ import { TaskTreeDataProvider } from './views/tasks';
 import { registerTaskKeybindings, reloadTaskKeybindings } from './views/tasks/keybindings-local';
 import { ToolTreeDataProvider, setToolProviderInstance } from './views/tools';
 import { registerToolKeybindings, reloadToolKeybindings } from './views/tools/keybindings-local';
-import { VariablesProvider } from './views/variables';
+import { VariablesProvider, loadVariablesState } from './views/variables';
 import { registerVariableKeybindings } from './views/variables/keybindings-local';
 import { createBranchMarkdownWatcher } from './watchers/branch-markdown-watcher';
 import { createBranchWatcher } from './watchers/branch-watcher';
@@ -72,6 +72,9 @@ function setupInitialKeybindings() {
 function setupProviders(activateStart: number, workspace: string): Providers {
   const hasConfig = ConfigManager.configDirExists(workspace);
   const statusBarManager = new StatusBarManager(hasConfig);
+  if (hasConfig) {
+    statusBarManager.setVariables(loadVariablesState());
+  }
   const taskTreeDataProvider = new TaskTreeDataProvider();
   const variablesProvider = new VariablesProvider();
   const replacementsProvider = new ReplacementsProvider();
@@ -159,7 +162,9 @@ function setupDisposables(context: ExtensionContext, providers: Providers) {
 function setupWatchers(context: ExtensionContext, providers: Providers, activateStart: number, workspace: string) {
   const configWatcher = createConfigWatcher(() => {
     logger.info('Config changed, refreshing views');
-    providers.statusBarManager.setHasConfig(ConfigManager.configDirExists(workspace));
+    const hasConfig = ConfigManager.configDirExists(workspace);
+    providers.statusBarManager.setHasConfig(hasConfig);
+    providers.statusBarManager.setVariables(hasConfig ? loadVariablesState() : {});
     providers.variablesProvider.refresh();
     providers.replacementsProvider.refresh();
     providers.toolTreeDataProvider.refresh();

@@ -30,7 +30,7 @@ type DevPanelVariables = {
   variables: DevPanelVariable[];
 };
 
-type DevPanelState = {
+export type DevPanelState = {
   [key: string]: unknown;
 };
 
@@ -40,7 +40,7 @@ function getStatePath(): string | null {
   return ConfigManager.getConfigFilePathFromWorkspacePath(workspace, VARIABLES_FILE_NAME);
 }
 
-function loadState(): DevPanelState {
+export function loadVariablesState(): DevPanelState {
   const statePath = getStatePath();
   if (!statePath || !FileIOHelper.fileExists(statePath)) return {};
   try {
@@ -142,7 +142,7 @@ export class VariablesProvider implements TreeDataProvider<TreeItem> {
     const config = this.loadConfig();
     if (!config) return Promise.resolve([]);
 
-    const state = loadState();
+    const state = loadVariablesState();
 
     if (element instanceof GroupTreeItem) {
       return Promise.resolve(element.variables.map((v) => new VariableTreeItem(v, state[v.name])));
@@ -217,7 +217,7 @@ async function runCommand(variable: DevPanelVariable, value: unknown) {
 }
 
 export async function selectVariableOption(variable: DevPanelVariable) {
-  const state = loadState();
+  const state = loadVariablesState();
   let newValue: unknown;
 
   switch (variable.kind) {
@@ -347,7 +347,7 @@ export async function selectVariableOption(variable: DevPanelVariable) {
 }
 
 export function resetVariableOption(item: VariableTreeItem) {
-  const state = loadState();
+  const state = loadVariablesState();
   delete state[item.variable.name];
   saveState(state);
   providerInstance?.refresh();

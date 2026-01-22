@@ -7,6 +7,7 @@ import type { StatusBarItem } from '../common/vscode/vscode-types';
 export class StatusBarManager {
   private readonly statusBarItem: StatusBarItem;
   private hasConfig = true;
+  private variables: Record<string, unknown> = {};
 
   constructor(hasConfig = true) {
     this.hasConfig = hasConfig;
@@ -21,12 +22,33 @@ export class StatusBarManager {
     this.updateDisplay();
   }
 
+  setVariables(variables: Record<string, unknown>) {
+    this.variables = variables;
+    this.updateDisplay();
+  }
+
   private updateDisplay() {
     const icon = this.hasConfig ? VscodeIcon.Flame : VscodeIcon.Warning;
     this.statusBarItem.text = `$(${icon}) ${EXTENSION_DISPLAY_NAME}`;
-    this.statusBarItem.tooltip = this.hasConfig
-      ? EXTENSION_DISPLAY_NAME
-      : `${EXTENSION_DISPLAY_NAME} - Not initialized. Click to setup.`;
+    this.statusBarItem.tooltip = this.buildTooltip();
+  }
+
+  private buildTooltip(): string {
+    if (!this.hasConfig) {
+      return `${EXTENSION_DISPLAY_NAME} - Not initialized. Click to setup.`;
+    }
+    const entries = Object.entries(this.variables);
+    if (entries.length === 0) {
+      return EXTENSION_DISPLAY_NAME;
+    }
+    const lines = entries.map(([k, v]) => `${k}: ${this.formatValue(v)}`);
+    return `${EXTENSION_DISPLAY_NAME}\n\n${lines.join('\n')}`;
+  }
+
+  private formatValue(value: unknown): string {
+    if (Array.isArray(value)) return value.join(', ') || '(none)';
+    if (typeof value === 'boolean') return value ? 'On' : 'Off';
+    return String(value ?? '(not set)');
   }
 
   refresh() {
