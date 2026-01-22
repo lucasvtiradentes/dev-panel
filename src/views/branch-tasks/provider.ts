@@ -1,5 +1,6 @@
 import { BASE_BRANCH, FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
 import { Position } from '../../common/constants/enums';
+import { ConfigManager } from '../../common/core/config-manager';
 import { logger } from '../../common/lib/logger';
 import type { TaskPriority, TaskStatus } from '../../common/schemas';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
@@ -333,16 +334,27 @@ export class BranchTasksProvider extends BaseBranchProvider<BranchTreeItem> {
   }
 
   private getSyncContext(): SyncContext | null {
-    const filePath = getBranchContextFilePath(this.currentBranch);
-    if (!filePath || !FileIOHelper.fileExists(filePath)) return null;
-
     const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) return null;
+
+    const rootFilePath = ConfigManager.getRootBranchContextFilePath(workspace);
+    if (!FileIOHelper.fileExists(rootFilePath)) {
+      const branchFilePath = getBranchContextFilePath(this.currentBranch);
+      if (!branchFilePath || !FileIOHelper.fileExists(branchFilePath)) return null;
+
+      return {
+        branchName: this.currentBranch,
+        workspacePath: workspace,
+        markdownPath: branchFilePath,
+        branchContext: loadBranchContext(this.currentBranch),
+        comparisonBranch: BASE_BRANCH,
+      };
+    }
 
     return {
       branchName: this.currentBranch,
       workspacePath: workspace,
-      markdownPath: filePath,
+      markdownPath: rootFilePath,
       branchContext: loadBranchContext(this.currentBranch),
       comparisonBranch: BASE_BRANCH,
     };
