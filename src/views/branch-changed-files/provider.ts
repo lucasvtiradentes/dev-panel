@@ -2,6 +2,7 @@ import { BASE_BRANCH, GitFileStatus } from '../../common/constants';
 import { type ChangedFilesMetadata, ChangedFilesParser as CoreParser } from '../../common/core';
 import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
+import { JsonHelper } from '../../common/utils/helpers/json-helper';
 import { FileIOHelper, NodePathHelper, ShellHelper } from '../../common/utils/helpers/node-helper';
 import { VscodeIcon } from '../../common/vscode/vscode-constants';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
@@ -218,7 +219,7 @@ export class BranchChangedFilesProvider extends BaseBranchProvider<BranchChanged
   }
 
   private createGitUri(fullPath: string, relativePath: string, ref: string) {
-    const params = JSON.stringify({ path: fullPath, ref });
+    const params = JsonHelper.stringify({ path: fullPath, ref });
     return VscodeHelper.parseUri(`git:/${relativePath}?${params}`);
   }
 

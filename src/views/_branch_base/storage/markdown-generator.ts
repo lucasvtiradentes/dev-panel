@@ -14,6 +14,7 @@ import { Git } from '../../../common/lib/git';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext } from '../../../common/schemas/types';
 import { replaceTemplatePlaceholders } from '../../../common/utils/functions/template-replace';
+import { JsonHelper } from '../../../common/utils/helpers/json-helper';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
@@ -97,7 +98,7 @@ export async function generateBranchContextMarkdown(
   }
 
   if (context.metadata) {
-    const metadataJson = JSON.stringify(context.metadata);
+    const metadataJson = JsonHelper.stringify(context.metadata);
     output += `\n\n${METADATA_SEPARATOR}\n\n${METADATA_DEVPANEL_PREFIX}${metadataJson}${METADATA_SUFFIX}`;
   }
 
@@ -124,7 +125,7 @@ function appendSectionMetadata(content: string, sectionMetadata: SectionMetadata
     if (codeBlockMatch && codeBlockMatch.index !== undefined) {
       const insertPosition =
         headerMatch.index + headerMatch[0].length + codeBlockMatch.index + codeBlockMatch[0].length;
-      const metadataStr = `\n\n${METADATA_SECTION_PREFIX}${JSON.stringify(metadata)}${METADATA_SUFFIX}`;
+      const metadataStr = `\n\n${METADATA_SECTION_PREFIX}${JsonHelper.stringify(metadata)}${METADATA_SUFFIX}`;
       result = result.slice(0, insertPosition) + metadataStr + result.slice(insertPosition);
     }
   }

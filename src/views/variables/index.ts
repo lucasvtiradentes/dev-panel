@@ -4,5 +4,4 @@ export {
   selectVariableOption,
   resetVariableOption,
   loadVariablesState,
-  type DevPanelState,
 } from './variables-provider';

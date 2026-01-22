@@ -10,6 +10,7 @@ import {
 import { ConfigManager } from '../../../common/core/config-manager';
 import type { DevPanelConfig } from '../../../common/schemas';
 import { findClosingBracketIndex } from '../../../common/utils/functions/find-closing-bracket';
+import { JsonHelper } from '../../../common/utils/helpers/json-helper';
 import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
@@ -102,7 +103,7 @@ async function handleAddPrompt() {
   const startIndex = matchIndex + promptsStartMatch[0].length;
   const endIndex = findClosingBracketIndex(configContent, startIndex);
 
-  const promptJson = JSON.stringify(newPrompt, null, JSON_INDENT_SPACES)
+  const promptJson = JsonHelper.stringify(newPrompt, JSON_INDENT_SPACES)
     .split('\n')
     .map((line, idx) => {
       if (idx === 0) return `\n${CONFIG_INDENT}${line}`;

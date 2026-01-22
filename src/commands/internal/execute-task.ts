@@ -13,6 +13,7 @@ import {
   PromptExecutionMode,
 } from '../../common/schemas';
 import { promptsState } from '../../common/state';
+import { JsonHelper } from '../../common/utils/helpers/json-helper';
 import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { Command, registerCommand } from '../../common/vscode/vscode-commands';
@@ -171,7 +172,7 @@ async function handleExecuteTask(
   }
 
   log.info(`Executing task: ${modifiedTask.name}`);
-  log.info(`Final presentation: ${JSON.stringify(modifiedTask.presentationOptions)}`);
+  log.info(`Final presentation: ${JsonHelper.stringify(modifiedTask.presentationOptions)}`);
 
   void VscodeHelper.executeTask(modifiedTask).then((taskExecution) => {
     log.info(`Task started successfully: ${modifiedTask.name}`);
@@ -263,7 +264,7 @@ async function handleExecutePrompt({ promptFilePath, folder, promptConfig }: Exe
   log.info('=== ExecutePrompt called ===');
   log.info(`promptFilePath: ${promptFilePath}`);
   log.info(`folder: ${folder ? folder.name : 'null (global)'}`);
-  log.info(`promptConfig (from tree): ${JSON.stringify(promptConfig)}`);
+  log.info(`promptConfig (from tree): ${JsonHelper.stringify(promptConfig)}`);
   log.info(`useWorkspaceRoot: ${promptConfig?.useWorkspaceRoot}`);
 
   let resolvedPromptFilePath = promptFilePath;
@@ -281,7 +282,7 @@ async function handleExecutePrompt({ promptFilePath, folder, promptConfig }: Exe
 
   const folderForSettings = folder ?? VscodeHelper.getFirstWorkspaceFolder();
   const settings = folderForSettings ? ConfigManager.readSettings(folderForSettings) : undefined;
-  log.info(`settings: ${JSON.stringify(settings)}`);
+  log.info(`settings: ${JsonHelper.stringify(settings)}`);
 
   const variables = folder
     ? VariablesEnvManager.loadVariablesFromPath(ConfigManager.getWorkspaceVariablesPath(folder))
@@ -291,7 +292,7 @@ async function handleExecutePrompt({ promptFilePath, folder, promptConfig }: Exe
   }
 
   if (promptConfig?.inputs && promptConfig.inputs.length > 0) {
-    log.info(`inputs from promptConfig: ${JSON.stringify(promptConfig.inputs)}`);
+    log.info(`inputs from promptConfig: ${JsonHelper.stringify(promptConfig.inputs)}`);
     const inputValues = await collectInputs(promptConfig.inputs, folder, settings);
     if (inputValues === null) return;
     promptContent = replaceInputPlaceholders(promptContent, inputValues);

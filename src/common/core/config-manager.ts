@@ -18,6 +18,7 @@ import {
 } from '../constants/scripts-constants';
 import type { DevPanelConfig } from '../schemas';
 import { readJsoncFile } from '../utils/functions/read-jsonc-file';
+import { JsonHelper } from '../utils/helpers/json-helper';
 import { FileIOHelper, NodePathHelper } from '../utils/helpers/node-helper';
 import { VscodeConstants } from '../vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
@@ -246,7 +247,7 @@ export class ConfigManager {
   }
 
   static saveConfigToPath(configPath: string, config: DevPanelConfig) {
-    FileIOHelper.writeFile(configPath, JSON.stringify(config, null, 2));
+    FileIOHelper.writeFile(configPath, JsonHelper.stringifyPretty(config));
   }
 
   static saveGlobalConfig(config: DevPanelConfig) {

@@ -6,7 +6,6 @@ import {
   DEFAULT_INCLUDES,
   DESCRIPTION_NOT_SET,
   ToggleLabel,
-  VARIABLES_FILE_NAME,
   getCommandId,
 } from '../../common/constants';
 
@@ -18,6 +17,7 @@ import { execAsync } from '../../common/utils/functions/exec-async';
 import { GroupHelper } from '../../common/utils/helpers/group-helper';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
+import { VariablesHelper, type VariablesState } from '../../common/utils/helpers/variables-helper';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
@@ -30,35 +30,18 @@ type DevPanelVariables = {
   variables: DevPanelVariable[];
 };
 
-export type DevPanelState = {
-  [key: string]: unknown;
-};
-
-function getStatePath(): string | null {
-  const workspace = VscodeHelper.getFirstWorkspacePath();
-  if (!workspace) return null;
-  return ConfigManager.getConfigFilePathFromWorkspacePath(workspace, VARIABLES_FILE_NAME);
-}
+type DevPanelState = VariablesState;
 
 export function loadVariablesState(): DevPanelState {
-  const statePath = getStatePath();
-  if (!statePath || !FileIOHelper.fileExists(statePath)) return {};
-  try {
-    const content = FileIOHelper.readFile(statePath);
-    const parsed = JSON.parse(content);
-    if (!TypeGuardsHelper.isObject(parsed)) {
-      return {};
-    }
-    return parsed as DevPanelState;
-  } catch {
-    return {};
-  }
+  const workspace = VscodeHelper.getFirstWorkspacePath();
+  if (!workspace) return {};
+  return VariablesHelper.load(workspace);
 }
 
 function saveState(state: DevPanelState) {
-  const statePath = getStatePath();
-  if (!statePath) return;
-  FileIOHelper.writeFile(statePath, JSON.stringify(state, null, 2));
+  const workspace = VscodeHelper.getFirstWorkspacePath();
+  if (!workspace) return;
+  VariablesHelper.save(workspace, state);
 }
 
 function formatValue(value: unknown, variable: DevPanelVariable): string {

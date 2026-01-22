@@ -1,6 +1,7 @@
 import { CONTEXT_VALUES, DND_MIME_TYPE_BRANCH_TASKS, getCommandId } from '../../common/constants';
 import { createLogger } from '../../common/lib/logger';
 import { TaskStatus } from '../../common/schemas/types';
+import { JsonHelper } from '../../common/utils/helpers/json-helper';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
@@ -123,7 +124,7 @@ export class BranchTasksDragAndDropController implements TreeDragAndDropControll
       milestoneName: this.provider.findMilestoneForTask(item.node.lineIndex),
     };
     logger.info(`[handleDrag] Dragging task at line ${data.lineIndex}, milestone: ${data.milestoneName}`);
-    dataTransfer.set(DND_MIME_TYPE_BRANCH_TASKS, VscodeHelper.createDataTransferItem(JSON.stringify(data)));
+    dataTransfer.set(DND_MIME_TYPE_BRANCH_TASKS, VscodeHelper.createDataTransferItem(JsonHelper.stringify(data)));
   }
 
   async handleDrop(target: BranchTreeItem | undefined, dataTransfer: DataTransfer, _token: CancellationToken) {
@@ -134,18 +135,12 @@ export class BranchTasksDragAndDropController implements TreeDragAndDropControll
     }
 
     let dragData: DragData;
-    try {
-      const parsed = JSON.parse(transferItem.value as string);
-      if (!TypeGuardsHelper.isObject(parsed) || parsed.type !== DragItemType.Task) {
-        logger.info('[handleDrop] Ignoring drop - invalid drag data');
-        return;
-      }
-      dragData = parsed as DragData;
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      logger.error(`[handleDrop] Failed to parse drag data: ${message}`);
+    const parsed = JsonHelper.parse(transferItem.value as string);
+    if (!parsed || !TypeGuardsHelper.isObject(parsed) || parsed.type !== DragItemType.Task) {
+      logger.info('[handleDrop] Ignoring drop - invalid drag data');
       return;
     }
+    dragData = parsed as DragData;
     if (dragData.type !== DragItemType.Task) {
       logger.info('[handleDrop] Ignoring drop - not a task drag');
       return;

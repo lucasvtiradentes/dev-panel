@@ -11,6 +11,7 @@ import {
   RegistryItemKind,
 } from '../../../common/schemas';
 import { fetchUrl } from '../../../common/utils/functions/fetch-url';
+import { JsonHelper } from '../../../common/utils/helpers/json-helper';
 import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
 import type { WorkspaceFolder } from '../../../common/vscode/vscode-types';
 
@@ -33,7 +34,7 @@ export async function fetchRegistryIndex(): Promise<RegistryIndex> {
   const url = `${REGISTRY_BASE_URL}/index.json`;
   logger.info(`Fetching registry index from ${url}`);
   const content = await fetchUrl(url);
-  const rawIndex = JSON.parse(content);
+  const rawIndex = JsonHelper.parseOrThrow(content);
   return RegistryIndexSchema.parse(rawIndex);
 }
 

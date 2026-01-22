@@ -1,4 +1,5 @@
 import { createTemplatePlaceholderPattern, createVariablePlaceholderPattern } from '../../constants';
+import { JsonHelper } from '../helpers/json-helper';
 import { TypeGuardsHelper } from '../helpers/type-guards-helper';
 
 export function replaceTemplatePlaceholders(template: string, replacements: Record<string, string>): string {
@@ -12,7 +13,7 @@ export function replaceTemplatePlaceholders(template: string, replacements: Reco
 export function replaceVariablePlaceholders(content: string, variables: Record<string, unknown>): string {
   let result = content;
   for (const [key, value] of Object.entries(variables)) {
-    const stringValue = TypeGuardsHelper.isObject(value) ? JSON.stringify(value) : String(value);
+    const stringValue = TypeGuardsHelper.isObject(value) ? JsonHelper.stringify(value) : String(value);
     result = result.replace(createVariablePlaceholderPattern(key), stringValue);
   }
   return result;

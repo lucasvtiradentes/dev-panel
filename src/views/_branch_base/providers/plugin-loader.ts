@@ -1,6 +1,7 @@
 import { ConfigManager } from '../../../common/core/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import { execAsync } from '../../../common/utils/functions/exec-async';
+import { JsonHelper } from '../../../common/utils/helpers/json-helper';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { extractAllFieldsRaw } from '../storage/file-storage';
@@ -24,7 +25,7 @@ export function loadAutoProvider(workspace: string, providerCommand: string): Au
         }
       }
 
-      const contextJson = JSON.stringify({
+      const contextJson = JsonHelper.stringify({
         ...context,
         fields,
       });

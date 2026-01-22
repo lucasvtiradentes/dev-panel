@@ -28,6 +28,7 @@ import { ConfigManager } from '../../../common/core/config-manager';
 import { createLogger } from '../../../common/lib/logger';
 import type { BranchContext, BranchContextMetadata, SectionMetadata } from '../../../common/schemas/types';
 import { extractSectionMetadata } from '../../../common/utils/functions/extract-section-metadata';
+import { JsonHelper } from '../../../common/utils/helpers/json-helper';
 import { MarkdownSectionHelper } from '../../../common/utils/helpers/markdown-section-helper';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
@@ -88,15 +89,9 @@ function extractAllCodeBlockSections(content: string): Record<string, CodeBlockS
 
     let metadata: SectionMetadata | undefined;
     if (externalMetadataJson) {
-      try {
-        const parsed = JSON.parse(externalMetadataJson);
-        if (TypeGuardsHelper.isObject(parsed)) {
-          metadata = parsed as SectionMetadata;
-        }
-      } catch (error: unknown) {
-        logger.error(
-          `[extractAllCodeBlockSections] Failed to parse metadata for ${sectionName}: ${TypeGuardsHelper.getErrorMessage(error)}`,
-        );
+      const parsed = JsonHelper.parse(externalMetadataJson);
+      if (parsed && TypeGuardsHelper.isObject(parsed)) {
+        metadata = parsed as SectionMetadata;
       }
     }
 
@@ -146,15 +141,11 @@ function extractMetadata(content: string): BranchContextMetadata | undefined {
   const match = content.match(createMetadataPattern(METADATA_DEVPANEL_PREFIX, METADATA_SUFFIX));
   if (!match) return undefined;
 
-  try {
-    const parsed = JSON.parse(match[1]);
-    if (TypeGuardsHelper.isObject(parsed)) {
-      return parsed as BranchContextMetadata;
-    }
-    return undefined;
-  } catch {
-    return undefined;
+  const parsed = JsonHelper.parse(match[1]);
+  if (parsed && TypeGuardsHelper.isObject(parsed)) {
+    return parsed as BranchContextMetadata;
   }
+  return undefined;
 }
 
 function parseBranchContext(content: string): BranchContext {

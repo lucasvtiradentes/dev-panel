@@ -11,6 +11,7 @@ import { StoreKey, extensionStore } from '../../common/core/extension-store';
 import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
 import { extractSectionMetadata } from '../../common/utils/functions/extract-section-metadata';
+import { JsonHelper } from '../../common/utils/helpers/json-helper';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -163,14 +164,10 @@ export class SyncManager {
 
         const metadataMatch = data.match(METADATA_SECTION_REGEX_CAPTURE);
         if (metadataMatch) {
-          try {
-            const parsed = JSON.parse(metadataMatch[1]);
-            if (TypeGuardsHelper.isObject(parsed)) {
-              changedFilesSectionMetadata = parsed as Record<string, unknown>;
-              changedFiles = data.replace(METADATA_SECTION_REGEX_GLOBAL, '').trim();
-            }
-          } catch (error: unknown) {
-            logger.error(`Failed to parse changedFiles metadata: ${TypeGuardsHelper.getErrorMessage(error)}`);
+          const parsed = JsonHelper.parse(metadataMatch[1]);
+          if (parsed && TypeGuardsHelper.isObject(parsed)) {
+            changedFilesSectionMetadata = parsed as Record<string, unknown>;
+            changedFiles = data.replace(METADATA_SECTION_REGEX_GLOBAL, '').trim();
           }
         }
       }
@@ -250,7 +247,7 @@ export class SyncManager {
             customSectionMetadata[name] = metadata;
             customAutoData[name] = cleanContent;
             logger.info(
-              `[syncBranchContext] Extracted metadata from "${name}": ${JSON.stringify(metadata).substring(0, 100)}`,
+              `[syncBranchContext] Extracted metadata from "${name}": ${JsonHelper.stringify(metadata).substring(0, 100)}`,
             );
           } else {
             customAutoData[name] = data;
@@ -294,7 +291,9 @@ export class SyncManager {
       );
       if (updatedContext.metadata?.sections) {
         for (const [sectionName, sectionMetadata] of Object.entries(updatedContext.metadata.sections)) {
-          logger.info(`[syncBranchContext] Section "${sectionName}" metadata: ${JSON.stringify(sectionMetadata)}`);
+          logger.info(
+            `[syncBranchContext] Section "${sectionName}" metadata: ${JsonHelper.stringify(sectionMetadata)}`,
+          );
         }
       }
 

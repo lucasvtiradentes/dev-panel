@@ -3,10 +3,10 @@ import { getAllTaskKeybindings } from '../../views/tasks/keybindings-local';
 import { getAllToolKeybindings } from '../../views/tools/keybindings-local';
 import { getAllVariableKeybindings } from '../../views/variables/keybindings-local';
 import { getPromptCommandId, getTaskCommandId, getToolCommandId, getVariableCommandId } from '../constants/functions';
-import { FileIOHelper } from '../utils/helpers/node-helper';
+import { KeybindingsHelper } from '../utils/helpers/keybindings-helper';
 import { Command, executeCommand } from '../vscode/vscode-commands';
 import { VscodeHelper } from '../vscode/vscode-helper';
-import { getVSCodeKeybindingsPath, loadKeybindings } from '../vscode/vscode-keybindings-utils';
+import { getVSCodeKeybindingsPath } from '../vscode/vscode-keybindings-utils';
 
 export function syncKeybindings() {
   const folders = VscodeHelper.getWorkspaceFolders();
@@ -49,14 +49,14 @@ export function syncKeybindings() {
   if (keybindingsToAdd.length === 0) return;
 
   const keybindingsPath = getVSCodeKeybindingsPath();
-  const existingKeybindings = loadKeybindings();
+  const existingKeybindings = KeybindingsHelper.load(keybindingsPath);
 
   const commandsToUpdate = new Set(keybindingsToAdd.map((k) => k.command));
   const filtered = existingKeybindings.filter((k) => !commandsToUpdate.has(k.command));
   const updated = [...filtered, ...keybindingsToAdd];
 
   try {
-    FileIOHelper.writeFile(keybindingsPath, JSON.stringify(updated, null, 2));
+    KeybindingsHelper.save(keybindingsPath, updated);
   } catch {
     // Silent fail
   }

@@ -2,6 +2,7 @@ import { FILE_WATCHER_DEBOUNCE_MS } from '../common/constants';
 import { ConfigManager } from '../common/core/config-manager';
 import { Git, type GitRepository } from '../common/lib/git';
 import { createLogger } from '../common/lib/logger';
+import { JsonHelper } from '../common/utils/helpers/json-helper';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable } from '../common/vscode/vscode-types';
 
@@ -14,7 +15,7 @@ function computeStateSignature(repo: GitRepository): string {
   for (const c of repo.state.workingTreeChanges) allFiles.add(c.uri.fsPath);
   for (const c of repo.state.indexChanges) allFiles.add(c.uri.fsPath);
   for (const c of repo.state.untrackedChanges) allFiles.add(c.uri.fsPath);
-  return JSON.stringify([...allFiles].sort());
+  return JsonHelper.stringify([...allFiles].sort());
 }
 
 const STARTUP_GRACE_PERIOD_MS = 3000;
@@ -80,7 +81,7 @@ export function createGitStatusWatcher(onGitStatusChange: GitStatusChangeCallbac
   const attachRepoListeners = (repo: GitRepository) => {
     const initialSignature = computeStateSignature(repo);
     previousSignatures.set(repo, initialSignature);
-    const parsed = JSON.parse(initialSignature) as string[];
+    const parsed = JsonHelper.parseOrThrow<string[]>(initialSignature);
     logger.info(`[attachRepoListeners] Initial signature set (${parsed.length} unique files)`);
     disposables.push(repo.state.onDidChange(() => handleGitStatusChange(repo)));
     logger.info('[attachRepoListeners] Attached state.onDidChange listener');

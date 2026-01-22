@@ -1,4 +1,5 @@
 import { BRANCH_CONTEXT_NO_CHANGES, METADATA_SECTION_PREFIX, METADATA_SUFFIX } from '../constants';
+import { JsonHelper } from '../utils/helpers/json-helper';
 import type { ChangedFile, ChangedFilesModel, ChangedFilesTopic } from './changed-files-model';
 
 export class ChangedFilesFormatter {
@@ -35,7 +36,7 @@ export class ChangedFilesFormatter {
 
   static formatToMarkdownWithMetadata(model: ChangedFilesModel, metadata: Record<string, unknown>): string {
     const content = ChangedFilesFormatter.formatToMarkdown(model);
-    return `${content}\n\n${METADATA_SECTION_PREFIX}${JSON.stringify(metadata)}${METADATA_SUFFIX}`;
+    return `${content}\n\n${METADATA_SECTION_PREFIX}${JsonHelper.stringify(metadata)}${METADATA_SUFFIX}`;
   }
 
   static formatFileLine(file: ChangedFile, maxFileLength: number): string {

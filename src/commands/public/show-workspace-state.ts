@@ -1,4 +1,5 @@
 import { loadWorkspaceState } from '../../common/state';
+import { JsonHelper } from '../../common/utils/helpers/json-helper';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { Command, registerCommand } from '../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -6,7 +7,7 @@ import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 async function handleShowWorkspaceState() {
   try {
     const state = loadWorkspaceState();
-    const content = JSON.stringify(state, null, 2);
+    const content = JsonHelper.stringifyPretty(state);
     await VscodeHelper.openUntitledDocument(content, 'json');
   } catch (error: unknown) {
     VscodeHelper.showToastMessage(
