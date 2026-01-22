@@ -1,5 +1,5 @@
 import { INVALID_LINE_INDEX } from '../../common/constants';
-import type { MilestoneNode, TaskNode } from '../_branch_base';
+import type { MilestoneNode, TaskNode } from '../../features/branch-context-sync';
 import { type TaskFilter, applyFilters, filterTodoNodes, flattenNodes } from './filter-operations';
 import { BranchMilestoneItem, BranchTaskItem, type BranchTreeItem, NO_MILESTONE_NAME } from './task-tree-items';
 

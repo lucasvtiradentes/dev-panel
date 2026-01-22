@@ -8,14 +8,14 @@ import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import {
+  DefaultTaskProvider,
   type MilestoneNode,
   type SyncContext,
   type TaskNode,
   type TaskSyncProvider,
   getBranchContextFilePath,
   loadBranchContext,
-} from '../_branch_base';
-import { DefaultTaskProvider } from '../_branch_base/providers/default/tasks.provider';
+} from '../../features/branch-context-sync';
 import { BaseBranchProvider } from '../_view_base';
 import { type TaskFilter, showFilterQuickPick as showFilterQuickPickDialog } from './filter-operations';
 import { buildFlatTree, buildMilestoneChildren, buildMilestonesTree, buildTaskChildren } from './provider-tree-builder';

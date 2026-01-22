@@ -2,7 +2,7 @@ import { TaskPriority, TaskStatus } from '../../common/schemas';
 import { VscodeConstants, VscodeIcon } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { QuickPickItem } from '../../common/vscode/vscode-types';
-import type { TaskNode } from '../_branch_base';
+import type { TaskNode } from '../../features/branch-context-sync';
 
 export type TaskFilter = {
   status?: TaskStatus[];

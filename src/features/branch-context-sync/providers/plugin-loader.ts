@@ -4,7 +4,7 @@ import { execAsync } from '../../../common/utils/functions/exec-async';
 import { JsonHelper } from '../../../common/utils/helpers/json-helper';
 import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
-import { extractAllFieldsRaw } from '../../../features/branch-context-sync';
+import { extractAllFieldsRaw } from '../storage';
 import type { AutoSectionProvider, SyncContext } from './interfaces';
 
 const logger = createLogger('PluginLoader');

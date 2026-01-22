@@ -14,7 +14,7 @@ import {
   type TreeItem,
   TreeItemClass,
 } from '../../common/vscode/vscode-types';
-import type { MilestoneNode, TaskNode } from '../_branch_base';
+import type { MilestoneNode, TaskNode } from '../../features/branch-context-sync';
 import { formatTaskDescription, formatTaskTooltip, getStatusIcon } from './task-item-utils';
 
 const logger = createLogger('BranchTasksDnD');

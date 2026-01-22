@@ -8,7 +8,7 @@ import { VscodeIcon } from '../../common/vscode/vscode-constants';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { QuickPickItem, TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
-import { loadBranchContext } from '../_branch_base';
+import { loadBranchContext } from '../../features/branch-context-sync';
 import { BaseBranchProvider } from '../_view_base';
 import { ChangedFilesTreeBuilder } from './tree-builder';
 import type { BranchChangedFilesTreeItem } from './tree-items';

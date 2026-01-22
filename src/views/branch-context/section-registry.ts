@@ -9,9 +9,11 @@ import { createLogger } from '../../common/lib/logger';
 import { SectionType } from '../../common/schemas';
 import type { BranchContextConfig } from '../../common/schemas/config-schema';
 import { VscodeIcon, type VscodeIconString } from '../../common/vscode/vscode-constants';
-import { DefaultChangedFilesProvider } from '../_branch_base/providers/default/changed-files.provider';
-import type { AutoSectionProvider } from '../_branch_base/providers/interfaces';
-import { loadAutoProvider } from '../_branch_base/providers/plugin-loader';
+import {
+  type AutoSectionProvider,
+  DefaultChangedFilesProvider,
+  loadAutoProvider,
+} from '../../features/branch-context-sync';
 
 const logger = createLogger('SectionRegistry');
 

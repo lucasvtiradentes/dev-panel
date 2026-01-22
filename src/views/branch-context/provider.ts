@@ -176,13 +176,6 @@ export class BranchContextProvider extends BaseBranchProvider<TreeItem> {
         const branchFilePath = ConfigManager.getBranchContextFilePath(workspace, branchName);
         const fileExists = FileIOHelper.fileExists(branchFilePath);
         logger.info(`[BranchContextProvider] setBranch - File exists: ${fileExists}, path: ${branchFilePath}`);
-
-        if (!fileExists) {
-          logger.info(
-            '[BranchContextProvider] setBranch - New branch without context file, resetting SyncManager.isInitializing',
-          );
-          this.syncManager.resetInitializing();
-        }
       }
 
       if (shouldRefresh && !this.isInitializing) {

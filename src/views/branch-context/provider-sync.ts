@@ -5,7 +5,6 @@ import {
   SECTION_NAME_CHANGED_FILES,
 } from '../../common/constants';
 import { ConfigManager } from '../../common/core/config-manager';
-import { StoreKey, extensionStore } from '../../common/core/extension-store';
 import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
 import { extractSectionMetadata } from '../../common/utils/functions/extract-section-metadata';
@@ -15,7 +14,7 @@ import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper'
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import {
   SYNC_DEBOUNCE_MS,
-  WRITING_MARKDOWN_TIMEOUT_MS,
+  type SyncContext,
   extractAllFieldsRaw,
   generateBranchContextMarkdown,
   getSyncCoordinator,
@@ -23,16 +22,12 @@ import {
   loadBranchContext,
   updateBranchContextCache,
 } from '../../features/branch-context-sync';
-import type { SyncContext } from '../_branch_base/providers/interfaces';
 import type { ProviderHelpers } from './provider-helpers';
 
 const logger = createLogger('BranchContextSync');
 
 export class SyncManager {
-  private isSyncing = false;
   private syncDebounceTimer: NodeJS.Timeout | null = null;
-  private isWritingMarkdown = false;
-  private isInitializing = true;
 
   constructor(
     private getCurrentBranch: () => string,
@@ -83,8 +78,6 @@ export class SyncManager {
     logger.info(`[syncBranchContext] Loading context (+${Date.now() - startTime}ms)`);
     const context = loadBranchContext(currentBranch);
     const config = this.helpers.loadConfig(workspace);
-    this.isWritingMarkdown = true;
-    extensionStore.set(StoreKey.IsWritingBranchContext, true);
 
     const coordinator = getSyncCoordinator();
     coordinator.markSyncStarted(currentBranch);
@@ -251,28 +244,18 @@ export class SyncManager {
     } finally {
       this.updateLastSyncTimestamp(new Date().toISOString());
       this.refresh();
-      setTimeout(() => {
-        this.isWritingMarkdown = false;
-        extensionStore.set(StoreKey.IsWritingBranchContext, false);
-        this.isInitializing = false;
-        coordinator.markSyncCompleted(currentBranch);
-        this.onSyncComplete?.();
-      }, WRITING_MARKDOWN_TIMEOUT_MS);
+      coordinator.markSyncCompleted(currentBranch);
+      this.onSyncComplete?.();
       logger.info(`[syncBranchContext] END total time: ${Date.now() - startTime}ms`);
     }
   }
 
   getIsSyncing(): boolean {
-    return this.isSyncing;
+    return getSyncCoordinator().isBlocked();
   }
 
   getIsWritingMarkdown(): boolean {
-    return this.isWritingMarkdown;
-  }
-
-  resetInitializing() {
-    logger.info('[SyncManager] [resetInitializing] Resetting isInitializing to true for new branch');
-    this.isInitializing = true;
+    return getSyncCoordinator().isBlocked();
   }
 
   dispose() {
