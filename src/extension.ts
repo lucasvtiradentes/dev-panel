@@ -192,6 +192,8 @@ function setupSyncCoordinatorEvents(providers: Providers) {
   coordinator.on(SyncEvent.RootMarkdownChanged, () => {
     logger.info('[SyncCoordinator] Root markdown changed');
     providers.branchContextProvider.handleRootMarkdownChange();
+    providers.branchTasksProvider.refresh();
+    providers.branchChangedFilesProvider.refresh();
   });
 
   coordinator.on(SyncEvent.TemplateChanged, () => {
