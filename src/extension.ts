@@ -10,6 +10,7 @@ import {
   getViewIdTodos,
   getViewIdTools,
 } from './common/constants';
+import { ConfigManager } from './common/core/config-manager';
 import { extensionStore } from './common/core/extension-store';
 import { logger } from './common/lib/logger';
 import { initGlobalState, initWorkspaceState } from './common/state';
@@ -68,8 +69,9 @@ function setupInitialKeybindings() {
   reloadTaskKeybindings();
 }
 
-function setupProviders(activateStart: number): Providers {
-  const statusBarManager = new StatusBarManager();
+function setupProviders(activateStart: number, workspace: string): Providers {
+  const hasConfig = ConfigManager.configDirExists(workspace);
+  const statusBarManager = new StatusBarManager(hasConfig);
   const taskTreeDataProvider = new TaskTreeDataProvider();
   const variablesProvider = new VariablesProvider();
   const replacementsProvider = new ReplacementsProvider();
@@ -154,9 +156,10 @@ function setupDisposables(context: ExtensionContext, providers: Providers) {
   context.subscriptions.push({ dispose: () => providers.branchChangedFilesProvider.dispose() });
 }
 
-function setupWatchers(context: ExtensionContext, providers: Providers, activateStart: number) {
+function setupWatchers(context: ExtensionContext, providers: Providers, activateStart: number, workspace: string) {
   const configWatcher = createConfigWatcher(() => {
     logger.info('Config changed, refreshing views');
+    providers.statusBarManager.setHasConfig(ConfigManager.configDirExists(workspace));
     providers.variablesProvider.refresh();
     providers.replacementsProvider.refresh();
     providers.toolTreeDataProvider.refresh();
@@ -264,10 +267,10 @@ export function activate(context: ExtensionContext): object {
   setupStatesAndContext(context);
   setupInitialKeybindings();
 
-  const providers = setupProviders(activateStart);
+  const providers = setupProviders(activateStart, workspace);
   setupTreeViews(providers);
   setupDisposables(context, providers);
-  setupWatchers(context, providers, activateStart);
+  setupWatchers(context, providers, activateStart, workspace);
   setupCommands(context, providers);
 
   void setContextKey(ContextKey.ExtensionInitializing, false);

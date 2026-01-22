@@ -22,9 +22,11 @@ export class StatusBarManager {
   }
 
   private updateDisplay() {
-    const icon = `$(${VscodeIcon.SettingsGear})`;
-    const text = this.hasConfig ? EXTENSION_DISPLAY_NAME : `${EXTENSION_DISPLAY_NAME} (No config)`;
-    this.statusBarItem.text = `${icon} ${text}`;
+    const icon = this.hasConfig ? VscodeIcon.Flame : VscodeIcon.Warning;
+    this.statusBarItem.text = `$(${icon}) ${EXTENSION_DISPLAY_NAME}`;
+    this.statusBarItem.tooltip = this.hasConfig
+      ? EXTENSION_DISPLAY_NAME
+      : `${EXTENSION_DISPLAY_NAME} - Not initialized. Click to setup.`;
   }
 
   refresh() {
