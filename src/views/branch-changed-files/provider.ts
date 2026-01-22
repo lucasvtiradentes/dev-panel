@@ -1,5 +1,5 @@
 import { BASE_BRANCH, GitFileStatus } from '../../common/constants';
-import { type ChangedFilesMetadata, ChangedFilesParser as CoreParser } from '../../common/core';
+import { type ChangedFilesMetadata, type ChangedFilesTopic, ChangedFilesParser as CoreParser } from '../../common/core';
 import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
 import { JsonHelper } from '../../common/utils/helpers/json-helper';
@@ -11,7 +11,9 @@ import type { QuickPickItem, TreeItem, TreeView, Uri } from '../../common/vscode
 import { loadBranchContext } from '../_branch_base';
 import { BaseBranchProvider } from '../_view_base';
 import { ChangedFilesTreeBuilder } from './tree-builder';
-import type { BranchChangedFilesTreeItem, TopicNode } from './tree-items';
+import type { BranchChangedFilesTreeItem } from './tree-items';
+
+type TopicNode = ChangedFilesTopic;
 
 const logger = createLogger('BranchChangedFiles');
 

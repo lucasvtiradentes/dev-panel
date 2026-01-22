@@ -1,5 +1,7 @@
-import { ChangedFilesFormatter } from '../../common/core';
-import { type BranchChangedFilesTreeItem, ChangedFileItem, TopicGroupItem, type TopicNode } from './tree-items';
+import { ChangedFilesFormatter, type ChangedFilesTopic } from '../../common/core';
+import { type BranchChangedFilesTreeItem, ChangedFileItem, TopicGroupItem } from './tree-items';
+
+type TopicNode = ChangedFilesTopic;
 
 export class ChangedFilesTreeBuilder {
   static buildGroupedTree(topics: TopicNode[]): TopicGroupItem[] {

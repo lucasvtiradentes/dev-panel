@@ -1,9 +1,9 @@
+import type { FileStatus } from '../../../common/core';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import {
   type BranchChangedFilesProvider,
   ChangedFileItem,
-  type FileStatus,
   showBranchSelectorQuickPick,
 } from '../../../views/branch-changed-files';
 

@@ -2,6 +2,7 @@ import { CONTEXT_VALUES } from '../../common/constants';
 import type { Command, TreeItemCollapsibleState } from '../../common/vscode/vscode-types';
 import { BaseGroupTreeItem, ConfigTreeItem } from '../_view_base';
 
+// tscanner-ignore-next-line no-empty-class
 export class PromptGroupTreeItem extends BaseGroupTreeItem<TreePrompt> {}
 
 export class TreePrompt extends ConfigTreeItem {
