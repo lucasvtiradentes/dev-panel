@@ -1,4 +1,6 @@
 import {
+  AI_SPEC_AVAILABLE_TOOLS_PATTERN,
+  AI_SPEC_DEV_TOOLS_PATTERN,
   AI_SPEC_FILES,
   CLAUDE_DIR_NAME,
   GLOBAL_ITEM_PREFIX,
@@ -8,9 +10,6 @@ import {
   getSkillDir,
   getSkillFilePath,
 } from '../constants';
-
-const AI_SPEC_DEV_TOOLS_REGEX = /<dev_tools>[\s\S]*?<\/dev_tools>/;
-const AI_SPEC_AVAILABLE_TOOLS_REGEX = /<available_tools>[\s\S]*?<\/available_tools>/;
 import { DocSection } from '../constants/enums';
 import type { DevPanelConfig } from '../schemas';
 import { toolsState } from '../state';
@@ -334,10 +333,10 @@ ${contentLines.join('\n').trim()}
     for (const filePath of foundFiles) {
       let content = FileIOHelper.readFile(filePath);
 
-      if (AI_SPEC_DEV_TOOLS_REGEX.test(content)) {
-        content = content.replace(AI_SPEC_DEV_TOOLS_REGEX, xml);
-      } else if (AI_SPEC_AVAILABLE_TOOLS_REGEX.test(content)) {
-        content = content.replace(AI_SPEC_AVAILABLE_TOOLS_REGEX, xml);
+      if (AI_SPEC_DEV_TOOLS_PATTERN.test(content)) {
+        content = content.replace(AI_SPEC_DEV_TOOLS_PATTERN, xml);
+      } else if (AI_SPEC_AVAILABLE_TOOLS_PATTERN.test(content)) {
+        content = content.replace(AI_SPEC_AVAILABLE_TOOLS_PATTERN, xml);
       } else {
         content = `${content.trimEnd()}\n\n${xml}\n`;
       }

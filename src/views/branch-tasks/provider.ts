@@ -1,20 +1,23 @@
-import { FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
+import { BASE_BRANCH, FILE_WATCHER_DEBOUNCE_MS } from '../../common/constants';
 import { Position } from '../../common/constants/enums';
+import { ConfigManager } from '../../common/core/config-manager';
 import { logger } from '../../common/lib/logger';
 import type { TaskPriority, TaskStatus } from '../../common/schemas';
+import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
 import {
+  DefaultTaskProvider,
   type MilestoneNode,
   type SyncContext,
-  SyncContextHelper,
   type TaskNode,
   type TaskSyncProvider,
-} from '../_branch_base';
-import { DefaultTaskProvider } from '../_branch_base/providers/default/tasks.provider';
+  getBranchContextFilePath,
+  loadBranchContext,
+} from '../../features/branch-context-sync';
 import { BaseBranchProvider } from '../_view_base';
-import type { TaskFilter } from './filter-operations';
-import { showFilterQuickPick as showFilterQuickPickDialog } from './filter-quick-pick';
+import { type TaskFilter, showFilterQuickPick as showFilterQuickPickDialog } from './filter-operations';
 import { buildFlatTree, buildMilestoneChildren, buildMilestonesTree, buildTaskChildren } from './provider-tree-builder';
 import {
   BranchMilestoneItem,
@@ -331,7 +334,30 @@ export class BranchTasksProvider extends BaseBranchProvider<BranchTreeItem> {
   }
 
   private getSyncContext(): SyncContext | null {
-    return SyncContextHelper.create(this.currentBranch);
+    const workspace = VscodeHelper.getFirstWorkspacePath();
+    if (!workspace) return null;
+
+    const rootFilePath = ConfigManager.getRootBranchContextFilePath(workspace);
+    if (!FileIOHelper.fileExists(rootFilePath)) {
+      const branchFilePath = getBranchContextFilePath(this.currentBranch);
+      if (!branchFilePath || !FileIOHelper.fileExists(branchFilePath)) return null;
+
+      return {
+        branchName: this.currentBranch,
+        workspacePath: workspace,
+        markdownPath: branchFilePath,
+        branchContext: loadBranchContext(this.currentBranch),
+        comparisonBranch: BASE_BRANCH,
+      };
+    }
+
+    return {
+      branchName: this.currentBranch,
+      workspacePath: workspace,
+      markdownPath: rootFilePath,
+      branchContext: loadBranchContext(this.currentBranch),
+      comparisonBranch: BASE_BRANCH,
+    };
   }
 
   getMilestoneNames(): string[] {

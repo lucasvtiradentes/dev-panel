@@ -1,7 +1,8 @@
 import { GLOBAL_STATE_KEY } from '../constants';
 import { WORKSPACE_STATE_KEY } from '../constants/scripts-constants';
 import type { GlobalUIState } from '../schemas/global-state.schema';
-import { DEFAULT_SOURCE_STATE, type SourceState, type WorkspaceUIState } from '../schemas/workspace-state.schema';
+import { DEFAULT_SOURCE_STATE, type SourceState } from '../schemas/shared-state.schema';
+import type { WorkspaceUIState } from '../schemas/workspace-state.schema';
 import type { ExtensionContext } from '../vscode/vscode-types';
 
 export enum StateKey {
@@ -233,7 +234,7 @@ type GroupedState = {
   isGrouped: boolean;
 };
 
-export type GroupedStateMethods = {
+type GroupedStateMethods = {
   getIsGrouped(): boolean;
   saveIsGrouped(isGrouped: boolean): void;
 };

@@ -1,1 +1,7 @@
-export { VariablesProvider, VariableTreeItem, selectVariableOption, resetVariableOption } from './variables-provider';
+export {
+  VariablesProvider,
+  VariableTreeItem,
+  selectVariableOption,
+  resetVariableOption,
+  loadVariablesState,
+} from './variables-provider';

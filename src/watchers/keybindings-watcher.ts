@@ -1,9 +1,10 @@
 import { CONTEXT_PREFIX, KEYBINDINGS_FILE } from '../common/constants';
 import { createLogger } from '../common/lib/logger';
+import { KeybindingsHelper } from '../common/utils/helpers/keybindings-helper';
 import { FileIOHelper, NodePathHelper } from '../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../common/utils/helpers/type-guards-helper';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
-import { getVSCodeKeybindingsPath, parseKeybindings } from '../common/vscode/vscode-keybindings-utils';
+import { getVSCodeKeybindingsPath } from '../common/vscode/vscode-keybindings-utils';
 import type { Disposable } from '../common/vscode/vscode-types';
 import { type RefreshCallback, WATCHER_CONSTANTS, attachFileWatcherHandlers } from '../common/vscode/vscode-watcher';
 import { buildWorkspaceWhenClause, getWorkspaceId } from '../common/vscode/vscode-workspace';
@@ -25,8 +26,7 @@ function createKeybindingsUpdater() {
 
       let keybindings: { key: string; command: string; when?: string }[];
       try {
-        const content = FileIOHelper.readFile(keybindingsPath);
-        keybindings = parseKeybindings(content);
+        keybindings = KeybindingsHelper.load(keybindingsPath);
       } catch (error: unknown) {
         logger.error(`Failed to read keybindings file: ${TypeGuardsHelper.getErrorMessage(error)}`);
         return;
@@ -47,7 +47,7 @@ function createKeybindingsUpdater() {
       if (modified) {
         isUpdating = true;
         try {
-          FileIOHelper.writeFile(keybindingsPath, JSON.stringify(keybindings, null, 2));
+          KeybindingsHelper.save(keybindingsPath, keybindings);
         } catch (error: unknown) {
           logger.error(`Failed to write keybindings file: ${TypeGuardsHelper.getErrorMessage(error)}`);
         } finally {

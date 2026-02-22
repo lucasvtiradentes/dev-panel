@@ -10,6 +10,7 @@ import {
   getViewIdTodos,
   getViewIdTools,
 } from './common/constants';
+import { ConfigManager } from './common/core/config-manager';
 import { extensionStore } from './common/core/extension-store';
 import { logger } from './common/lib/logger';
 import { initGlobalState, initWorkspaceState } from './common/state';
@@ -17,6 +18,16 @@ import { ContextKey, setContextKey } from './common/vscode/vscode-context';
 import { VscodeHelper } from './common/vscode/vscode-helper';
 import type { ExtensionContext } from './common/vscode/vscode-types';
 import { generateWorkspaceId, setWorkspaceId } from './common/vscode/vscode-workspace';
+import {
+  SyncEvent,
+  createBranchMarkdownWatcher,
+  createBranchWatcher,
+  createGitStatusWatcher,
+  createRootMarkdownWatcher,
+  createTemplateWatcher,
+  disposeSyncCoordinator,
+  getSyncCoordinator,
+} from './features/branch-context-sync';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import { BranchChangedFilesProvider } from './views/branch-changed-files';
 import { BranchContextProvider } from './views/branch-context';
@@ -29,15 +40,10 @@ import { TaskTreeDataProvider } from './views/tasks';
 import { registerTaskKeybindings, reloadTaskKeybindings } from './views/tasks/keybindings-local';
 import { ToolTreeDataProvider, setToolProviderInstance } from './views/tools';
 import { registerToolKeybindings, reloadToolKeybindings } from './views/tools/keybindings-local';
-import { VariablesProvider } from './views/variables';
+import { VariablesProvider, loadVariablesState } from './views/variables';
 import { registerVariableKeybindings } from './views/variables/keybindings-local';
-import { createBranchMarkdownWatcher } from './watchers/branch-markdown-watcher';
-import { createBranchWatcher } from './watchers/branch-watcher';
 import { createConfigWatcher } from './watchers/config-watcher';
-import { createGitStatusWatcher } from './watchers/git-status-watcher';
 import { createKeybindingsWatcher } from './watchers/keybindings-watcher';
-import { createRootMarkdownWatcher } from './watchers/root-markdown-watcher';
-import { createTemplateWatcher } from './watchers/template-watcher';
 
 type Providers = {
   statusBarManager: StatusBarManager;
@@ -68,8 +74,12 @@ function setupInitialKeybindings() {
   reloadTaskKeybindings();
 }
 
-function setupProviders(activateStart: number): Providers {
-  const statusBarManager = new StatusBarManager();
+function setupProviders(activateStart: number, workspace: string): Providers {
+  const hasConfig = ConfigManager.configDirExists(workspace);
+  const statusBarManager = new StatusBarManager(hasConfig);
+  if (hasConfig) {
+    statusBarManager.setVariables(loadVariablesState());
+  }
   const taskTreeDataProvider = new TaskTreeDataProvider();
   const variablesProvider = new VariablesProvider();
   const replacementsProvider = new ReplacementsProvider();
@@ -152,11 +162,57 @@ function setupDisposables(context: ExtensionContext, providers: Providers) {
   context.subscriptions.push({ dispose: () => providers.branchContextProvider.dispose() });
   context.subscriptions.push({ dispose: () => providers.branchTasksProvider.dispose() });
   context.subscriptions.push({ dispose: () => providers.branchChangedFilesProvider.dispose() });
+  context.subscriptions.push({ dispose: () => disposeSyncCoordinator() });
 }
 
-function setupWatchers(context: ExtensionContext, providers: Providers, activateStart: number) {
+function setupSyncCoordinatorEvents(providers: Providers) {
+  const coordinator = getSyncCoordinator();
+
+  coordinator.on(SyncEvent.BranchChanged, (data) => {
+    logger.info(`[SyncCoordinator] Branch changed to: ${data.branch}`);
+
+    providers.branchContextProvider.setBranch(data.branch, false);
+    providers.branchTasksProvider.setBranch(data.branch);
+    providers.branchChangedFilesProvider.setBranch(data.branch);
+
+    void Promise.all([
+      providers.replacementsProvider.handleBranchChange(data.branch),
+      providers.branchContextProvider.syncBranchContext(providers.branchChangedFilesProvider.getComparisonBranch()),
+    ]);
+  });
+
+  coordinator.on(SyncEvent.FileChanged, (data) => {
+    logger.info(`[SyncCoordinator] File changed: ${data.filePath}`);
+    const uri = VscodeHelper.createFileUri(data.filePath);
+    providers.branchContextProvider.handleMarkdownChange(uri);
+    providers.branchTasksProvider.handleMarkdownChange(uri);
+    providers.branchChangedFilesProvider.handleMarkdownChange(uri);
+  });
+
+  coordinator.on(SyncEvent.RootMarkdownChanged, () => {
+    logger.info('[SyncCoordinator] Root markdown changed');
+    providers.branchContextProvider.handleRootMarkdownChange();
+    providers.branchTasksProvider.refresh();
+    providers.branchChangedFilesProvider.refresh();
+  });
+
+  coordinator.on(SyncEvent.TemplateChanged, () => {
+    logger.info('[SyncCoordinator] Template changed');
+    providers.branchContextProvider.handleTemplateChange();
+  });
+
+  coordinator.on(SyncEvent.GitStatusChanged, () => {
+    logger.info('[SyncCoordinator] Git status changed');
+    void providers.branchChangedFilesProvider.syncChangedFiles();
+  });
+}
+
+function setupWatchers(context: ExtensionContext, providers: Providers, activateStart: number, workspace: string) {
   const configWatcher = createConfigWatcher(() => {
     logger.info('Config changed, refreshing views');
+    const hasConfig = ConfigManager.configDirExists(workspace);
+    providers.statusBarManager.setHasConfig(hasConfig);
+    providers.statusBarManager.setVariables(hasConfig ? loadVariablesState() : {});
     providers.variablesProvider.refresh();
     providers.replacementsProvider.refresh();
     providers.toolTreeDataProvider.refresh();
@@ -180,51 +236,31 @@ function setupWatchers(context: ExtensionContext, providers: Providers, activate
   });
   context.subscriptions.push(keybindingsWatcher);
 
-  logger.info(`[activate] Creating branchWatcher (+${Date.now() - activateStart}ms)`);
+  logger.info(`[activate] Creating watchers (+${Date.now() - activateStart}ms)`);
 
-  const branchMarkdownWatcher = createBranchMarkdownWatcher({
-    onChange: (uri) => {
-      logger.info(`[extension] [branchMarkdownWatcher onChange] File changed: ${uri.fsPath}`);
-      providers.branchContextProvider.handleMarkdownChange(uri);
-      providers.branchTasksProvider.handleMarkdownChange(uri);
-      providers.branchChangedFilesProvider.handleMarkdownChange(uri);
-    },
-  });
+  const branchMarkdownWatcher = createBranchMarkdownWatcher();
   context.subscriptions.push(branchMarkdownWatcher);
 
-  const branchWatcher = createBranchWatcher((newBranch) => {
-    logger.info(`[extension] [branchWatcher callback] Branch changed to: ${newBranch}`);
-
-    providers.branchContextProvider.setBranch(newBranch, false);
-    providers.branchTasksProvider.setBranch(newBranch);
-    providers.branchChangedFilesProvider.setBranch(newBranch);
-    branchMarkdownWatcher.updateWatcher(newBranch);
-
-    void Promise.all([
-      providers.replacementsProvider.handleBranchChange(newBranch),
-      providers.branchContextProvider.syncBranchContext(providers.branchChangedFilesProvider.getComparisonBranch()),
-    ]);
-  });
+  const branchWatcher = createBranchWatcher();
   context.subscriptions.push(branchWatcher);
+
+  const coordinator = getSyncCoordinator();
+  coordinator.on(SyncEvent.BranchChanged, (data) => {
+    branchMarkdownWatcher.updateWatcher(data.branch);
+  });
+
   logger.info(`[activate] branchWatcher created (+${Date.now() - activateStart}ms)`);
 
-  const rootMarkdownWatcher = createRootMarkdownWatcher(() => {
-    providers.branchContextProvider.handleRootMarkdownChange();
-  });
+  const rootMarkdownWatcher = createRootMarkdownWatcher();
   context.subscriptions.push(rootMarkdownWatcher);
 
-  const templateWatcher = createTemplateWatcher(() => {
-    providers.branchContextProvider.handleTemplateChange();
-  });
+  const templateWatcher = createTemplateWatcher();
   context.subscriptions.push(templateWatcher);
 
-  logger.info('[extension] [setupWatchers] Creating gitStatusWatcher');
-  const gitStatusWatcher = createGitStatusWatcher(() => {
-    logger.info('[extension] [gitStatusWatcher] Callback triggered, calling syncChangedFiles');
-    void providers.branchChangedFilesProvider.syncChangedFiles();
-  });
+  const gitStatusWatcher = createGitStatusWatcher();
   context.subscriptions.push(gitStatusWatcher);
-  logger.info('[extension] [setupWatchers] gitStatusWatcher registered');
+
+  logger.info('[extension] [setupWatchers] All watchers registered');
 }
 
 function setupCommands(context: ExtensionContext, providers: Providers) {
@@ -264,10 +300,11 @@ export function activate(context: ExtensionContext): object {
   setupStatesAndContext(context);
   setupInitialKeybindings();
 
-  const providers = setupProviders(activateStart);
+  const providers = setupProviders(activateStart, workspace);
   setupTreeViews(providers);
   setupDisposables(context, providers);
-  setupWatchers(context, providers, activateStart);
+  setupSyncCoordinatorEvents(providers);
+  setupWatchers(context, providers, activateStart, workspace);
   setupCommands(context, providers);
 
   void setContextKey(ContextKey.ExtensionInitializing, false);

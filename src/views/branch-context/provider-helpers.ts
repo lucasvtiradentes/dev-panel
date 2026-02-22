@@ -4,6 +4,7 @@ import { ConfigManager } from '../../common/core/config-manager';
 import { SimpleCache } from '../../common/lib/cache';
 import type { DevPanelConfig } from '../../common/schemas/config-schema';
 import type { SectionType } from '../../common/schemas/types';
+import { JsonHelper } from '../../common/utils/helpers/json-helper';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { SectionRegistry } from './section-registry';
 
@@ -26,7 +27,7 @@ export class ProviderHelpers {
   }
 
   getSectionRegistry(workspace: string, config?: DevPanelConfig): SectionRegistry {
-    const configHash = config ? JSON.stringify(config.branchContext) : '';
+    const configHash = config ? JsonHelper.stringify(config.branchContext) : '';
 
     if (this.sectionRegistryCache && this.configHashCache === configHash) {
       return this.sectionRegistryCache;

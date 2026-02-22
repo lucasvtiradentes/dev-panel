@@ -5,23 +5,22 @@ import {
   SECTION_NAME_BRANCH_INFO,
   SECTION_NAME_CHANGED_FILES,
 } from '../../common/constants';
-import {
-  BRANCHES_DIR_NAME,
-  CONFIG_DIR_NAME,
-  ROOT_BRANCH_CONTEXT_FILE_NAME,
-} from '../../common/constants/scripts-constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
 import { SectionType } from '../../common/schemas';
 import { branchContextState } from '../../common/state';
 import { formatRelativeTime } from '../../common/utils/functions/format-relative-time';
+import { MarkdownHelper } from '../../common/utils/helpers/markdown-helper';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeItem, TreeView, Uri } from '../../common/vscode/vscode-types';
-import { loadBranchContext } from '../_branch_base';
-import { getFieldLineNumber } from '../_branch_base/storage/markdown-parser';
+import {
+  getSyncCoordinator,
+  invalidateBranchContextCache,
+  loadBranchContext,
+} from '../../features/branch-context-sync';
 import { BaseBranchProvider } from '../_view_base';
 import { validateBranchContext } from './config-validator';
 import { SectionItem } from './items';
@@ -108,7 +107,8 @@ export class BranchContextProvider extends BaseBranchProvider<TreeItem> {
   }
 
   handleMarkdownChange(uri?: Uri) {
-    if (this.syncManager.getIsWritingMarkdown() || this.syncManager.getIsSyncing()) {
+    const coordinator = getSyncCoordinator();
+    if (this.syncManager.getIsWritingMarkdown() || this.syncManager.getIsSyncing() || coordinator.isBlocked()) {
       logger.info('[handleMarkdownChange] Ignoring - currently writing/syncing');
       return;
     }
@@ -123,32 +123,23 @@ export class BranchContextProvider extends BaseBranchProvider<TreeItem> {
       return;
     }
 
-    logger.info(`[handleMarkdownChange] Syncing branch to root: ${uri.fsPath}`);
-    this.syncManager.debouncedSync(() => this.syncManager.syncBranchToRoot(), true);
+    logger.info(`[handleMarkdownChange] File changed: ${uri.fsPath}, refreshing view`);
+    this.refresh();
   }
 
   handleRootMarkdownChange() {
-    if (this.syncManager.getIsWritingMarkdown() || this.syncManager.getIsSyncing()) {
-      logger.info('[handleRootMarkdownChange] Ignoring - currently writing/syncing');
-      return;
-    }
-
-    logger.info('[handleRootMarkdownChange] Syncing root to branch');
-    this.syncManager.debouncedSync(() => this.syncManager.syncRootToBranch(), true);
+    logger.info('[handleRootMarkdownChange] Root markdown synced, invalidating cache and refreshing');
+    invalidateBranchContextCache(this.currentBranch);
+    this.refresh();
   }
 
-  async initialize() {
+  initialize() {
     logger.info('[BranchContextProvider] initialize called');
 
     const workspace = VscodeHelper.getFirstWorkspacePath();
     if (!workspace) {
       logger.warn('[BranchContextProvider] No workspace found');
       return;
-    }
-
-    if (await Git.isRepository(workspace)) {
-      logger.info('[BranchContextProvider] Adding to gitignore');
-      this.addToGitignore(workspace);
     }
 
     const config = ConfigManager.loadWorkspaceConfigFromPath(workspace);
@@ -161,27 +152,6 @@ export class BranchContextProvider extends BaseBranchProvider<TreeItem> {
       }
     } else {
       this.validationIndicator.hide();
-    }
-  }
-
-  private addToGitignore(workspace: string) {
-    const gitignorePath = `${workspace}/.gitignore`;
-    const entriesToAdd = [`**/${CONFIG_DIR_NAME}/${BRANCHES_DIR_NAME}/`, ROOT_BRANCH_CONTEXT_FILE_NAME];
-
-    try {
-      let content = '';
-      if (FileIOHelper.fileExists(gitignorePath)) {
-        content = FileIOHelper.readFile(gitignorePath);
-      }
-
-      const missingEntries = entriesToAdd.filter((entry) => !content.includes(entry));
-      if (missingEntries.length === 0) return;
-
-      const newContent = content.endsWith('\n') || content === '' ? content : `${content}\n`;
-      FileIOHelper.writeFile(gitignorePath, `${newContent}${missingEntries.join('\n')}\n`);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      logger.error(`Failed to update .gitignore: ${message}`);
     }
   }
 
@@ -206,13 +176,6 @@ export class BranchContextProvider extends BaseBranchProvider<TreeItem> {
         const branchFilePath = ConfigManager.getBranchContextFilePath(workspace, branchName);
         const fileExists = FileIOHelper.fileExists(branchFilePath);
         logger.info(`[BranchContextProvider] setBranch - File exists: ${fileExists}, path: ${branchFilePath}`);
-
-        if (!fileExists) {
-          logger.info(
-            '[BranchContextProvider] setBranch - New branch without context file, resetting SyncManager.isInitializing',
-          );
-          this.syncManager.resetInitializing();
-        }
       }
 
       if (shouldRefresh && !this.isInitializing) {
@@ -316,7 +279,7 @@ export class BranchContextProvider extends BaseBranchProvider<TreeItem> {
     if (!workspace) return;
 
     const filePath = ConfigManager.getRootBranchContextFilePath(workspace);
-    const lineNumber = getFieldLineNumber(filePath, fieldName);
+    const lineNumber = MarkdownHelper.getFieldLineNumber(filePath, fieldName);
     const uri = VscodeHelper.createFileUri(filePath);
     await VscodeHelper.openDocumentAtLine(uri, lineNumber);
   }

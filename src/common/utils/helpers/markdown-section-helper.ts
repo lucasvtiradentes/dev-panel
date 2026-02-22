@@ -1,7 +1,11 @@
-import { MARKDOWN_H1_HEADER_PATTERN, MARKDOWN_SECTION_HEADER_PATTERN } from '../../constants';
+import {
+  MARKDOWN_H1_HEADER_PATTERN,
+  MARKDOWN_SECTION_HEADER_PATTERN,
+  createSectionHeaderPattern,
+} from '../../constants';
 import { BranchContextMarkdownHelper } from '../../core/branch-context-markdown';
 
-export type ExtractedSection = {
+type ExtractedSection = {
   startIndex: number;
   endIndex: number;
   content: string;
@@ -33,8 +37,7 @@ export class MarkdownSectionHelper {
   }
 
   static extractSection(content: string, sectionName: string): string | undefined {
-    const headerRegex = new RegExp(`^#\\s+${sectionName}\\s*$`, 'im');
-    const headerMatch = content.match(headerRegex);
+    const headerMatch = content.match(createSectionHeaderPattern(sectionName));
     if (!headerMatch || headerMatch.index === undefined) return undefined;
 
     const startIndex = headerMatch.index + headerMatch[0].length;

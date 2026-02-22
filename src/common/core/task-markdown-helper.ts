@@ -82,8 +82,7 @@ export class TaskMarkdownHelper {
     }
 
     const tags: string[] = [];
-    const tagRegex = new RegExp(TASK_META_TAG_PATTERN.source, 'g');
-    for (const tagMatch of metaBlock.matchAll(tagRegex)) {
+    for (const tagMatch of metaBlock.matchAll(TASK_META_TAG_PATTERN)) {
       tags.push(tagMatch[1]);
     }
     if (tags.length > 0) {

@@ -3,9 +3,6 @@ import { AIProvider } from './config-schema';
 import { DEFAULT_SOURCE_STATE, SourceStateSchema } from './shared-state.schema';
 import { TASK_SOURCE_VALUES } from './types';
 
-export type { SourceState } from './shared-state.schema';
-export { DEFAULT_SOURCE_STATE } from './shared-state.schema';
-
 const TaskSourceEnum = z.enum(TASK_SOURCE_VALUES);
 
 const TasksStateSchema = z.object({

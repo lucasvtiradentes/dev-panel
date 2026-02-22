@@ -11,6 +11,7 @@ import { ConfigManager } from '../../common/core/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import type { DevPanelConfig } from '../../common/schemas';
 import { globalPromptsState, promptsState } from '../../common/state';
+import { JsonHelper } from '../../common/utils/helpers/json-helper';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ContextKey } from '../../common/vscode/vscode-context';
@@ -144,7 +145,7 @@ export class PromptTreeDataProvider extends BaseTreeDataProvider<TreePrompt, Pro
     log.info(`readDevPanelPrompts - found ${prompts.length} prompts`);
     for (const p of prompts) {
       if (p.inputs) {
-        log.debug(`prompt "${p.name}" inputs: ${JSON.stringify(p.inputs)}`);
+        log.debug(`prompt "${p.name}" inputs: ${JsonHelper.stringify(p.inputs)}`);
       }
     }
     return prompts;

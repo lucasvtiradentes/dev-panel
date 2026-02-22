@@ -2,7 +2,7 @@ import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { Command, TreeItemCollapsibleState } from '../../common/vscode/vscode-types';
 import { BaseNamedTreeItem } from './base-items';
 
-export type ConfigTreeItemConfig = {
+type ConfigTreeItemConfig = {
   label: string;
   file: string;
   collapsibleState: TreeItemCollapsibleState;

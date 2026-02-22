@@ -12,6 +12,7 @@ import {
 import { ConfigManager } from '../../common/core/config-manager';
 import { TaskSource } from '../../common/schemas/types';
 import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
+import { PackageJsonHelper } from '../../common/utils/helpers/package-json-helper';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -19,10 +20,6 @@ import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
-
-type PackageJson = {
-  scripts?: Record<string, string>;
-};
 
 type PackageLocation = {
   relativePath: string;
@@ -255,13 +252,7 @@ function getGroupedByScriptPrefix(
 }
 
 function readPackageScripts(packageJsonPath: string): Record<string, string> {
-  if (!FileIOHelper.fileExists(packageJsonPath)) return {};
-  try {
-    const packageJson = JSON.parse(FileIOHelper.readFile(packageJsonPath)) as PackageJson;
-    return packageJson.scripts ?? {};
-  } catch {
-    return {};
-  }
+  return PackageJsonHelper.readScripts(packageJsonPath);
 }
 
 function createNpmTask(options: {

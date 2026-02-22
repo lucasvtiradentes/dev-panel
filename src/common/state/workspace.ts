@@ -1,4 +1,5 @@
 import type { AIProvider } from '../schemas/config-schema';
+import type { SourceState } from '../schemas/shared-state.schema';
 import { TaskSource } from '../schemas/types';
 import {
   type BranchContextState,
@@ -10,7 +11,6 @@ import {
   DEFAULT_VARIABLES_STATE,
   type PromptsState,
   type ReplacementsState,
-  type SourceState,
   type TasksState,
   type ToolsState,
   type VariablesState,

@@ -1,14 +1,14 @@
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { TreeItem } from '../../common/vscode/vscode-types';
 
-export type ItemVisibilityConfig = {
+type ItemVisibilityConfig = {
   isHidden: boolean;
   isFavorite: boolean;
   showHidden: boolean;
   showOnlyFavorites: boolean;
 };
 
-export type ItemStyleConfig = {
+type ItemStyleConfig = {
   isHidden: boolean;
   isFavorite: boolean;
   isActive?: boolean;

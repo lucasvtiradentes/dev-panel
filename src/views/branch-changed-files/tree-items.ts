@@ -1,24 +1,9 @@
 import { GitFileStatus, getCommandId } from '../../common/constants';
+import type { ChangedFile, ChangedFilesTopic, FileStatus } from '../../common/core';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeColor, VscodeConstants, VscodeIcon } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { TreeItemClass } from '../../common/vscode/vscode-types';
-
-export type FileStatus = GitFileStatus | '?';
-
-export type ChangedFileNode = {
-  status: FileStatus;
-  path: string;
-  filename: string;
-  added: string;
-  deleted: string;
-};
-
-export type TopicNode = {
-  name: string;
-  files: ChangedFileNode[];
-  isUserCreated: boolean;
-};
 
 const STATUS_ICONS: Record<FileStatus, { icon: VscodeIcon; color: VscodeColor }> = {
   [GitFileStatus.Added]: { icon: VscodeIcon.FileAdd, color: VscodeColor.ChartsGreen },
@@ -30,7 +15,7 @@ const STATUS_ICONS: Record<FileStatus, { icon: VscodeIcon; color: VscodeColor }>
 };
 
 export class ChangedFileItem extends TreeItemClass {
-  constructor(public readonly node: ChangedFileNode) {
+  constructor(public readonly node: ChangedFile) {
     super(node.filename, VscodeConstants.TreeItemCollapsibleState.None);
 
     const { icon, color } = STATUS_ICONS[node.status] ?? STATUS_ICONS.M;
@@ -49,7 +34,7 @@ export class ChangedFileItem extends TreeItemClass {
 }
 
 export class TopicGroupItem extends TreeItemClass {
-  constructor(public readonly topic: TopicNode) {
+  constructor(public readonly topic: ChangedFilesTopic) {
     super(topic.name, VscodeConstants.TreeItemCollapsibleState.Expanded);
 
     this.iconPath = VscodeHelper.createIcon(VscodeIcon.Folder);

@@ -29,7 +29,9 @@ import {
   VSCODE_EXTENSIONS_FILE,
 } from '../../src/common/constants/vscode-constants';
 import { FileIOHelper, NodeOsHelper, NodePathHelper } from '../../src/common/utils/helpers/node-helper';
+import { PackageJsonHelper } from '../../src/common/utils/helpers/package-json-helper';
 import { ENV } from '../../src/env';
+import { type ExtensionEntry, ExtensionsJsonHelper } from '../helpers/extensions-json-helper';
 
 const logger = console;
 
@@ -91,9 +93,9 @@ function patchExtensionCode() {
 function writePackageJson() {
   const targetDir = getLocalDistDirectory();
   const packageJsonPath = NodePathHelper.join(ROOT_DIR, PACKAGE_JSON);
-  const packageJson = JSON.parse(FileIOHelper.readFile(packageJsonPath));
+  const packageJson = PackageJsonHelper.readOrThrow(packageJsonPath) as Record<string, unknown>;
   const modifiedPackageJson = applyDevTransformations(packageJson);
-  FileIOHelper.writeFile(NodePathHelper.join(targetDir, PACKAGE_JSON), JSON.stringify(modifiedPackageJson, null, 2));
+  PackageJsonHelper.write(NodePathHelper.join(targetDir, PACKAGE_JSON), modifiedPackageJson);
 }
 
 function copyMetaFiles() {
@@ -135,7 +137,7 @@ function copyToVSCodeExtensions() {
 function registerExtensionInEditors() {
   const targetDir = getLocalDistDirectory();
   const packageJsonPath = NodePathHelper.join(targetDir, PACKAGE_JSON);
-  const packageJson = JSON.parse(FileIOHelper.readFile(packageJsonPath));
+  const packageJson = PackageJsonHelper.readOrThrow(packageJsonPath);
   const version = packageJson.version as string;
 
   for (const editor of Object.values(Editor)) {
@@ -146,9 +148,8 @@ function registerExtensionInEditors() {
     if (!FileIOHelper.fileExists(extensionsJsonPath)) continue;
 
     try {
-      const extensionsJson = JSON.parse(FileIOHelper.readFile(extensionsJsonPath)) as ExtensionEntry[];
-
-      const filteredExtensions = extensionsJson.filter((ext) => ext.identifier?.id !== EXTENSION_ID_DEV);
+      const extensionsJson = ExtensionsJsonHelper.read(extensionsJsonPath);
+      const filteredExtensions = ExtensionsJsonHelper.removeById(extensionsJson, EXTENSION_ID_DEV);
 
       const newEntry: ExtensionEntry = {
         identifier: {
@@ -165,20 +166,13 @@ function registerExtensionInEditors() {
 
       filteredExtensions.push(newEntry);
 
-      FileIOHelper.writeFile(extensionsJsonPath, JSON.stringify(filteredExtensions, null, 2));
+      ExtensionsJsonHelper.write(extensionsJsonPath, filteredExtensions);
       logger.log(`[VSCode] ✅ Registered in ${EDITOR_DISPLAY_NAMES[editor]} extensions.json`);
     } catch (error) {
       logger.log(`[VSCode] ⚠️  Failed to register in ${EDITOR_DISPLAY_NAMES[editor]}: ${error}`);
     }
   }
 }
-
-type ExtensionEntry = {
-  identifier?: { id: string };
-  version?: string;
-  location?: { $mid: number; path: string; scheme: string };
-  relativeLocation?: string;
-};
 
 function printSuccessMessage() {
   logger.log(`[VSCode] ✅ ID: ${EXTENSION_ID_DEV} - Reload editor to activate`);

@@ -1,4 +1,4 @@
-import { DEFAULT_EXCLUDES, DEFAULT_INCLUDES, ROOT_FOLDER_LABEL } from '../constants';
+import { DEFAULT_EXCLUDES, DEFAULT_INCLUDES, ROOT_FOLDER_LABEL, createVariablePlaceholderPattern } from '../constants';
 
 const ERROR_MSG_WORKSPACE_REQUIRED = 'File/folder input requires a workspace folder';
 const ERROR_MSG_INVALID_NUMBER = 'Please enter a valid number';
@@ -7,6 +7,7 @@ const CONFIRM_NO = 'No';
 const CONFIRM_OPTIONS = [CONFIRM_YES, CONFIRM_NO] as const;
 import { createLogger } from '../lib/logger';
 import { type DevPanelInput, type DevPanelSettings, PromptInputType, TaskPriority, TaskStatus } from '../schemas';
+import { JsonHelper } from '../utils/helpers/json-helper';
 import { VscodeIcon } from './vscode-constants';
 import { ToastKind, VscodeHelper } from './vscode-helper';
 import type { QuickPickItem, WorkspaceFolder } from './vscode-types';
@@ -208,17 +209,19 @@ function getIncludePatterns(input: DevPanelInput, settings: DevPanelSettings | u
   const defaultIncludes = [...DEFAULT_INCLUDES];
 
   if (input.includes && input.includes.length > 0) {
-    log.debug(`Using input.includes merged with defaults: ${JSON.stringify([...defaultIncludes, ...input.includes])}`);
+    log.debug(
+      `Using input.includes merged with defaults: ${JsonHelper.stringify([...defaultIncludes, ...input.includes])}`,
+    );
     return [...defaultIncludes, ...input.includes];
   }
 
   if (settings?.include && settings.include.length > 0) {
     const merged = [...defaultIncludes, ...settings.include];
-    log.debug(`Using settings.include merged with defaults: ${JSON.stringify(merged)}`);
+    log.debug(`Using settings.include merged with defaults: ${JsonHelper.stringify(merged)}`);
     return merged;
   }
 
-  log.debug(`Using default includes: ${JSON.stringify(defaultIncludes)}`);
+  log.debug(`Using default includes: ${JsonHelper.stringify(defaultIncludes)}`);
   return defaultIncludes;
 }
 
@@ -226,17 +229,19 @@ function getExcludePatterns(input: DevPanelInput, settings: DevPanelSettings | u
   const defaultExcludes = [...DEFAULT_EXCLUDES];
 
   if (input.excludes && input.excludes.length > 0) {
-    log.debug(`Using input.excludes merged with defaults: ${JSON.stringify([...defaultExcludes, ...input.excludes])}`);
+    log.debug(
+      `Using input.excludes merged with defaults: ${JsonHelper.stringify([...defaultExcludes, ...input.excludes])}`,
+    );
     return [...defaultExcludes, ...input.excludes];
   }
 
   if (settings?.exclude && settings.exclude.length > 0) {
     const merged = [...defaultExcludes, ...settings.exclude];
-    log.debug(`Using settings.exclude merged with defaults: ${JSON.stringify(merged)}`);
+    log.debug(`Using settings.exclude merged with defaults: ${JsonHelper.stringify(merged)}`);
     return merged;
   }
 
-  log.debug(`Using default excludes: ${JSON.stringify(defaultExcludes)}`);
+  log.debug(`Using default excludes: ${JsonHelper.stringify(defaultExcludes)}`);
   return defaultExcludes;
 }
 
@@ -247,7 +252,7 @@ async function collectFileInput(
   settings?: DevPanelSettings,
 ): Promise<string | undefined> {
   log.info(`collectFileInput called - multiple: ${multiple}`);
-  log.debug(`input: ${JSON.stringify(input)}`);
+  log.debug(`input: ${JsonHelper.stringify(input)}`);
 
   const folder = workspaceFolder ?? VscodeHelper.getFirstWorkspaceFolder();
   if (!folder) {
@@ -348,7 +353,7 @@ async function collectChoiceInput(input: DevPanelInput, multiple: boolean): Prom
 export function replaceInputPlaceholders(content: string, values: InputValues): string {
   let result = content;
   for (const [name, value] of Object.entries(values)) {
-    result = result.replace(new RegExp(`\\$${name}`, 'g'), value);
+    result = result.replace(createVariablePlaceholderPattern(name), value);
   }
   return result;
 }
