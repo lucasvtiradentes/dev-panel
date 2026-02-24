@@ -3,19 +3,12 @@ import {
   CONFIG_FILE_NAME,
   PROMPTS_DIR_NAME,
   TOOLS_DIR,
+  TOOL_INSTRUCTIONS_FILE,
   VARIABLES_FILE_NAME,
   getGlobalConfigDir,
   getGlobalConfigPath,
 } from '../constants';
 import { ConfigKey } from '../constants/enums';
-import { FILENAME_INVALID_CHARS_PATTERN } from '../constants/regex-constants';
-import {
-  BRANCHES_DIR_NAME,
-  BRANCH_CONTEXT_FILENAME,
-  BRANCH_CONTEXT_TEMPLATE_FILENAME,
-  ROOT_BRANCH_CONTEXT_FILE_NAME,
-  TOOL_INSTRUCTIONS_FILE,
-} from '../constants/scripts-constants';
 import type { DevPanelConfig } from '../schemas';
 import { readJsoncFile } from '../utils/functions/read-jsonc-file';
 import { JsonHelper } from '../utils/helpers/json-helper';
@@ -135,10 +128,6 @@ export class ConfigManager {
     return ConfigManager.joinConfigPath(folder, VARIABLES_FILE_NAME);
   }
 
-  static getRootBranchContextFilePath(workspacePath: string): string {
-    return NodePathHelper.join(workspacePath, ROOT_BRANCH_CONTEXT_FILE_NAME);
-  }
-
   static getConfigDirPathFromWorkspacePath(workspacePath: string): string {
     const configDir = ConfigManager.getCurrentConfigDir();
     return ConfigManager.getConfigDirPath(workspacePath, configDir);
@@ -162,27 +151,9 @@ export class ConfigManager {
     return `${configDir}/${CONFIG_DIR_NAME}`;
   }
 
-  static getBranchDirectory(workspace: string, branchName: string): string {
-    const sanitized = branchName.replace(FILENAME_INVALID_CHARS_PATTERN, '_');
+  static getPromptOutputFilePath(workspace: string, promptName: string, timestamped: boolean): string {
     const configDirPath = ConfigManager.getConfigDirPathFromWorkspacePath(workspace);
-    return NodePathHelper.join(configDirPath, BRANCHES_DIR_NAME, sanitized);
-  }
-
-  static getBranchContextFilePath(workspace: string, branchName: string): string {
-    return NodePathHelper.join(ConfigManager.getBranchDirectory(workspace, branchName), BRANCH_CONTEXT_FILENAME);
-  }
-
-  static getBranchPromptsDirectory(workspace: string, branchName: string): string {
-    return NodePathHelper.join(ConfigManager.getBranchDirectory(workspace, branchName), PROMPTS_DIR_NAME);
-  }
-
-  static getPromptOutputFilePath(
-    workspace: string,
-    branchName: string,
-    promptName: string,
-    timestamped: boolean,
-  ): string {
-    const promptsDir = ConfigManager.getBranchPromptsDirectory(workspace, branchName);
+    const promptsDir = NodePathHelper.join(configDirPath, 'prompt-outputs');
     const safePromptName = promptName.replace(/[/\\:*?"<>|]/g, '_');
 
     if (timestamped) {
@@ -191,11 +162,6 @@ export class ConfigManager {
     }
 
     return NodePathHelper.join(promptsDir, `${safePromptName}.md`);
-  }
-
-  static getBranchContextTemplatePath(workspace: string): string {
-    const configDirPath = ConfigManager.getConfigDirPathFromWorkspacePath(workspace);
-    return NodePathHelper.join(configDirPath, BRANCH_CONTEXT_TEMPLATE_FILENAME);
   }
 
   static parseConfig(content: string): DevPanelConfig | null {
@@ -320,25 +286,5 @@ export class ConfigManager {
     const config = ConfigManager.loadWorkspaceConfig(folder);
     if (!config) return undefined;
     return config.settings;
-  }
-
-  static addToGitignore(workspace: string) {
-    const gitignorePath = `${workspace}/.gitignore`;
-    const entriesToAdd = [`**/${CONFIG_DIR_NAME}/${BRANCHES_DIR_NAME}/`, ROOT_BRANCH_CONTEXT_FILE_NAME];
-
-    try {
-      let content = '';
-      if (FileIOHelper.fileExists(gitignorePath)) {
-        content = FileIOHelper.readFile(gitignorePath);
-      }
-
-      const missingEntries = entriesToAdd.filter((entry) => !content.includes(entry));
-      if (missingEntries.length === 0) return;
-
-      const newContent = content.endsWith('\n') || content === '' ? content : `${content}\n`;
-      FileIOHelper.writeFile(gitignorePath, `${newContent}${missingEntries.join('\n')}\n`);
-    } catch {
-      // Silently ignore gitignore errors
-    }
   }
 }

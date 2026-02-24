@@ -25,7 +25,6 @@
     "ai-assisted",
     "task-runner",
     "productivity",
-    "branch-context",
     "prompts",
     "developer-tools"
   ],
@@ -99,18 +98,6 @@
         {
           "id": "devPanelPrompts",
           "name": "Prompts"
-        },
-        {
-          "id": "devPanelBranchContext",
-          "name": "Branch Context"
-        },
-        {
-          "id": "devPanelTodos",
-          "name": "Branch Tasks"
-        },
-        {
-          "id": "devPanelChangedFiles",
-          "name": "Branch Changed Files"
         }
       ],
       "explorer": [
@@ -412,153 +399,6 @@
         "icon": "$(settings-gear)"
       },
       {
-        "command": "devPanel.openBranchContextFile",
-        "title": "Open Branch Context File",
-        "icon": "$(go-to-file)"
-      },
-      {
-        "command": "devPanel.syncBranchContext",
-        "title": "Sync Branch Context",
-        "icon": "$(sync)"
-      },
-      {
-        "command": "devPanel.toggleBranchContextHideEmptySections",
-        "title": "Hide Empty Sections",
-        "icon": "$(eye-closed)"
-      },
-      {
-        "command": "devPanel.toggleBranchContextHideEmptySectionsActive",
-        "title": "Show Empty Sections",
-        "icon": "$(eye)"
-      },
-      {
-        "command": "devPanel.editBranchObjective",
-        "title": "Edit Branch Objective"
-      },
-      {
-        "command": "devPanel.editBranchLinearLink",
-        "title": "Edit Branch Linear Link"
-      },
-      {
-        "command": "devPanel.editBranchNotes",
-        "title": "Edit Branch Notes"
-      },
-      {
-        "command": "devPanel.editBranchTodos",
-        "title": "Edit Branch Todos",
-        "icon": "$(go-to-file)"
-      },
-      {
-        "command": "devPanel.toggleBranchTasksShowOnlyTodo",
-        "title": "Show Only Pending Tasks",
-        "icon": "$(checklist)"
-      },
-      {
-        "command": "devPanel.toggleBranchTasksShowOnlyTodoActive",
-        "title": "Show All Tasks",
-        "icon": "$(check-all)"
-      },
-      {
-        "command": "devPanel.toggleBranchTasksGroupMode",
-        "title": "Toggle Branch Tasks Group Mode",
-        "icon": "$(list-flat)"
-      },
-      {
-        "command": "devPanel.toggleBranchTasksGroupModeGrouped",
-        "title": "Toggle Branch Tasks Group Mode",
-        "icon": "$(list-tree)"
-      },
-      {
-        "command": "devPanel.setTaskStatus.todo",
-        "title": "Todo"
-      },
-      {
-        "command": "devPanel.setTaskStatus.doing",
-        "title": "Doing"
-      },
-      {
-        "command": "devPanel.setTaskStatus.done",
-        "title": "Done"
-      },
-      {
-        "command": "devPanel.setTaskStatus.blocked",
-        "title": "Blocked"
-      },
-      {
-        "command": "devPanel.setTaskPriority.urgent",
-        "title": "Urgent"
-      },
-      {
-        "command": "devPanel.setTaskPriority.high",
-        "title": "High"
-      },
-      {
-        "command": "devPanel.setTaskPriority.medium",
-        "title": "Medium"
-      },
-      {
-        "command": "devPanel.setTaskPriority.low",
-        "title": "Low"
-      },
-      {
-        "command": "devPanel.setTaskPriority.none",
-        "title": "None"
-      },
-      {
-        "command": "devPanel.setTaskAssignee",
-        "title": "Set Assignee..."
-      },
-      {
-        "command": "devPanel.setTaskDueDate",
-        "title": "Set Due Date..."
-      },
-      {
-        "command": "devPanel.addSubtask",
-        "title": "Add Subtask"
-      },
-      {
-        "command": "devPanel.editTaskText",
-        "title": "Edit Task..."
-      },
-      {
-        "command": "devPanel.deleteBranchTask",
-        "title": "Delete Task"
-      },
-      {
-        "command": "devPanel.copyTaskText",
-        "title": "Copy Task Text"
-      },
-      {
-        "command": "devPanel.openTaskExternal",
-        "title": "Open in Browser",
-        "icon": "$(link-external)"
-      },
-      {
-        "command": "devPanel.setTaskMilestone",
-        "title": "Milestone...",
-        "icon": "$(milestone)"
-      },
-      {
-        "command": "devPanel.cycleTaskStatus",
-        "title": "Cycle Status",
-        "icon": "$(play)"
-      },
-      {
-        "command": "devPanel.addBranchTask",
-        "title": "Add Task",
-        "icon": "$(add)"
-      },
-      {
-        "command": "devPanel.filterBranchTasks",
-        "title": "Filter Tasks",
-        "icon": "$(filter)"
-      },
-      {
-        "command": "devPanel.filterBranchTasksActive",
-        "title": "Filter Tasks (Active)",
-        "icon": "$(filter-filled)"
-      },
-      {
         "command": "devPanel.showLogs",
         "title": "Dev Panel: Show Logs"
       },
@@ -628,35 +468,6 @@
       {
         "command": "devPanel.executePrompt",
         "title": "Execute Prompt"
-      },
-      {
-        "command": "devPanel.toggleBranchChangedFilesGroupMode",
-        "title": "Toggle Group Mode",
-        "icon": "$(list-flat)"
-      },
-      {
-        "command": "devPanel.toggleBranchChangedFilesGroupModeGrouped",
-        "title": "Toggle Group Mode",
-        "icon": "$(list-tree)"
-      },
-      {
-        "command": "devPanel.syncBranchChangedFiles",
-        "title": "Sync Changed Files",
-        "icon": "$(sync)"
-      },
-      {
-        "command": "devPanel.selectComparisonBranch",
-        "title": "Select Comparison Branch",
-        "icon": "$(git-branch)"
-      },
-      {
-        "command": "devPanel.openChangedFile",
-        "title": "Open File",
-        "icon": "$(go-to-file)"
-      },
-      {
-        "command": "devPanel.openChangedFileDiff",
-        "title": "Open Diff"
       }
     ],
     "keybindings": [],
@@ -899,138 +710,6 @@
           "when": "false"
         },
         {
-          "command": "devPanel.openBranchContextFile",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.syncBranchContext",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleBranchContextHideEmptySections",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleBranchContextHideEmptySectionsActive",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.editBranchObjective",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.editBranchLinearLink",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.editBranchNotes",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.editBranchTodos",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleBranchTasksShowOnlyTodo",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleBranchTasksShowOnlyTodoActive",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleBranchTasksGroupMode",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleBranchTasksGroupModeGrouped",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.setTaskStatus.todo",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.setTaskStatus.doing",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.setTaskStatus.done",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.setTaskStatus.blocked",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.setTaskPriority.urgent",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.setTaskPriority.high",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.setTaskPriority.medium",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.setTaskPriority.low",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.setTaskPriority.none",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.setTaskAssignee",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.setTaskDueDate",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.addSubtask",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.editTaskText",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.deleteBranchTask",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.copyTaskText",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.openTaskExternal",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.setTaskMilestone",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.cycleTaskStatus",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.addBranchTask",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.filterBranchTasks",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.filterBranchTasksActive",
-          "when": "false"
-        },
-        {
           "command": "devPanel.setPromptKeybinding",
           "when": "false"
         },
@@ -1068,30 +747,6 @@
         },
         {
           "command": "devPanel.executePrompt",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleBranchChangedFilesGroupMode",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleBranchChangedFilesGroupModeGrouped",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.syncBranchChangedFiles",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.selectComparisonBranch",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.openChangedFile",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.openChangedFileDiff",
           "when": "false"
         }
       ],
@@ -1275,81 +930,6 @@
           "command": "devPanel.promptsSelectProvider",
           "when": "view == devPanelPrompts",
           "group": "navigation@6"
-        },
-        {
-          "command": "devPanel.openBranchContextFile",
-          "when": "view == devPanelBranchContext",
-          "group": "navigation@1"
-        },
-        {
-          "command": "devPanel.toggleBranchContextHideEmptySections",
-          "when": "view == devPanelBranchContext && !branchContextHideEmptySections",
-          "group": "navigation@2"
-        },
-        {
-          "command": "devPanel.toggleBranchContextHideEmptySectionsActive",
-          "when": "view == devPanelBranchContext && branchContextHideEmptySections",
-          "group": "navigation@2"
-        },
-        {
-          "command": "devPanel.syncBranchContext",
-          "when": "view == devPanelBranchContext",
-          "group": "navigation@3"
-        },
-        {
-          "command": "devPanel.toggleBranchTasksGroupMode",
-          "when": "view == devPanelTodos && !branchTasksGrouped",
-          "group": "navigation@1"
-        },
-        {
-          "command": "devPanel.toggleBranchTasksGroupModeGrouped",
-          "when": "view == devPanelTodos && branchTasksGrouped",
-          "group": "navigation@1"
-        },
-        {
-          "command": "devPanel.toggleBranchTasksShowOnlyTodo",
-          "when": "view == devPanelTodos && !branchTasksShowOnlyTodo",
-          "group": "navigation@2"
-        },
-        {
-          "command": "devPanel.toggleBranchTasksShowOnlyTodoActive",
-          "when": "view == devPanelTodos && branchTasksShowOnlyTodo",
-          "group": "navigation@2"
-        },
-        {
-          "command": "devPanel.filterBranchTasks",
-          "when": "view == devPanelTodos && !branchTasksHasFilter",
-          "group": "navigation@3"
-        },
-        {
-          "command": "devPanel.filterBranchTasksActive",
-          "when": "view == devPanelTodos && branchTasksHasFilter",
-          "group": "navigation@3"
-        },
-        {
-          "command": "devPanel.addBranchTask",
-          "when": "view == devPanelTodos",
-          "group": "navigation@4"
-        },
-        {
-          "command": "devPanel.editBranchTodos",
-          "when": "view == devPanelTodos",
-          "group": "navigation@6"
-        },
-        {
-          "command": "devPanel.toggleBranchChangedFilesGroupMode",
-          "when": "view == devPanelChangedFiles && !branchChangedFilesGrouped",
-          "group": "navigation@1"
-        },
-        {
-          "command": "devPanel.toggleBranchChangedFilesGroupModeGrouped",
-          "when": "view == devPanelChangedFiles && branchChangedFilesGrouped",
-          "group": "navigation@1"
-        },
-        {
-          "command": "devPanel.selectComparisonBranch",
-          "when": "view == devPanelChangedFiles",
-          "group": "navigation@2"
         }
       ],
       "view/item/context": [
@@ -1476,121 +1056,11 @@
           "command": "devPanel.resetConfigOption",
           "when": "view == devPanelConfigs && viewItem == variableItem",
           "group": "inline@1"
-        },
-        {
-          "submenu": "branchTasks.status",
-          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
-          "group": "1_status"
-        },
-        {
-          "submenu": "branchTasks.priority",
-          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
-          "group": "1_status"
-        },
-        {
-          "command": "devPanel.setTaskMilestone",
-          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
-          "group": "1_status"
-        },
-        {
-          "command": "devPanel.setTaskAssignee",
-          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
-          "group": "2_meta"
-        },
-        {
-          "command": "devPanel.setTaskDueDate",
-          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
-          "group": "2_meta"
-        },
-        {
-          "command": "devPanel.addSubtask",
-          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
-          "group": "3_actions"
-        },
-        {
-          "command": "devPanel.editTaskText",
-          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
-          "group": "3_actions"
-        },
-        {
-          "command": "devPanel.deleteBranchTask",
-          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
-          "group": "3_actions"
-        },
-        {
-          "command": "devPanel.copyTaskText",
-          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
-          "group": "4_clipboard"
-        },
-        {
-          "command": "devPanel.openTaskExternal",
-          "when": "view == devPanelTodos && viewItem == todoItemWithExternal",
-          "group": "4_clipboard"
         }
       ],
-      "view/item/inline": [
-        {
-          "command": "devPanel.cycleTaskStatus",
-          "when": "view == devPanelTodos && (viewItem == todoItem || viewItem == todoItemWithExternal)",
-          "group": "inline@1"
-        },
-        {
-          "command": "devPanel.openTaskExternal",
-          "when": "view == devPanelTodos && viewItem == todoItemWithExternal",
-          "group": "inline@2"
-        }
-      ],
-      "branchTasks.status": [
-        {
-          "command": "devPanel.setTaskStatus.todo",
-          "group": "status"
-        },
-        {
-          "command": "devPanel.setTaskStatus.doing",
-          "group": "status"
-        },
-        {
-          "command": "devPanel.setTaskStatus.done",
-          "group": "status"
-        },
-        {
-          "command": "devPanel.setTaskStatus.blocked",
-          "group": "status"
-        }
-      ],
-      "branchTasks.priority": [
-        {
-          "command": "devPanel.setTaskPriority.urgent",
-          "group": "priority"
-        },
-        {
-          "command": "devPanel.setTaskPriority.high",
-          "group": "priority"
-        },
-        {
-          "command": "devPanel.setTaskPriority.medium",
-          "group": "priority"
-        },
-        {
-          "command": "devPanel.setTaskPriority.low",
-          "group": "priority"
-        },
-        {
-          "command": "devPanel.setTaskPriority.none",
-          "group": "priority"
-        }
-      ]
+      "view/item/inline": []
     },
-    "submenus": [
-      {
-        "id": "branchTasks.status",
-        "label": "Status"
-      },
-      {
-        "id": "branchTasks.priority",
-        "label": "Priority"
-      }
-    ],
+    "submenus": [],
     "viewsWelcome": [
       {
         "view": "devPanelConfigs",

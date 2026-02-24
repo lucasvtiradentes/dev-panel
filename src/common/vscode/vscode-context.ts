@@ -26,11 +26,6 @@ export const ContextKey = {
   ReplacementsGrouped: 'replacementsGrouped',
   ReplacementsAllActive: 'replacementsAllActive',
   ConfigsGrouped: 'configsGrouped',
-  BranchContextHideEmptySections: 'branchContextHideEmptySections',
-  BranchTasksShowOnlyTodo: 'branchTasksShowOnlyTodo',
-  BranchTasksGrouped: 'branchTasksGrouped',
-  BranchTasksHasFilter: 'branchTasksHasFilter',
-  BranchChangedFilesGrouped: 'branchChangedFilesGrouped',
   WorkspaceId: `${CONTEXT_PREFIX}.workspaceId`,
 } as const;
 

@@ -13,7 +13,7 @@
 
 ## 🎺 Overview<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/dev-panel@main/.github/image/up_arrow.png" width="22"></a>
 
-All-in-one command center for AI-assisted development. A VSCode extension that integrates task management, AI prompt execution, branch context tracking, and productivity tools into a unified sidebar.
+All-in-one command center for AI-assisted development. A VSCode extension that integrates task management, AI prompt execution, and productivity tools into a unified sidebar.
 
 <div align="center">
   <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/dev-panel@main/.github/image/demo.png" target="_blank">
@@ -27,9 +27,6 @@ All-in-one command center for AI-assisted development. A VSCode extension that i
 
 - **Multi-Source Task Runner** - Execute npm scripts, VSCode tasks, and custom DevPanel tasks from one place
 - **AI Prompts Management** - Create and run prompts for Claude, Gemini, or Cursor Agent with input collection
-- **Branch Context Tracking** - Track branch objective, notes, PR links, and Linear issues with auto-sync
-- **Branch Tasks** - Manage tasks with status (todo/doing/done/blocked), priority, milestones, and subtasks
-- **Changed Files View** - Visualize git diff with comparison branch selection and file categorization
 - **Dynamic Variables** - Configure project options with choose, input, toggle, file, and folder types
 - **Text Replacements** - Pattern-based text substitution with bulk activation control
 - **Shell Tools** - Execute shell commands with UI and organize by groups
@@ -133,76 +130,6 @@ Manage and execute AI prompts.
 </details>
 
 <details>
-<summary><strong>Branch Context View</strong></summary>
-<br />
-
-<div align="left">
-
-Track branch metadata in a `.branch-context.md` file.
-
-**Tracked Information:**
-- Branch name and type
-- Objective/goal
-- Linear issue link
-- PR link
-- Notes
-- Tasks summary
-- Changed files summary
-
-**Features:**
-- Auto-sync on branch checkout
-- Hide empty sections
-- Edit fields inline
-
-</div>
-
-</details>
-
-<details>
-<summary><strong>Branch Tasks View</strong></summary>
-<br />
-
-<div align="left">
-
-Manage tasks within the branch context file.
-
-**Task Properties:**
-- Status: todo, doing, done, blocked
-- Priority: urgent, high, medium, low, none
-- Assignee and due date
-- Milestone grouping
-- Subtasks
-
-**Features:**
-- Filter by status/priority
-- Cycle status with one click
-- Copy task text
-- Open external links (for tracked tasks)
-
-</div>
-
-</details>
-
-<details>
-<summary><strong>Changed Files View</strong></summary>
-<br />
-
-<div align="left">
-
-Visualize git changes for the current branch.
-
-**Features:**
-- Select comparison branch
-- Categorize by type (Added/Modified/Deleted)
-- Group by topic
-- Open file or diff view
-- Auto-sync on git status changes
-
-</div>
-
-</details>
-
-<details>
 <summary><strong>Task Runner (Explorer)</strong></summary>
 <br />
 
@@ -238,11 +165,8 @@ Configure Dev Panel in your workspace:
 workspace-root/
   .devpanel/
     config.jsonc              # Main configuration
-    .variables.jsonc          # Variable definitions
+    variables.json            # Variable values
     prompts/                  # Prompt files
-    branches/                 # Branch-specific context
-      <branch-name>/
-        .branch-context.md    # Branch metadata & tasks
 ```
 
 The extension provides JSON schema validation for `config.jsonc`.

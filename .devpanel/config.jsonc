@@ -1,6 +1,5 @@
 {
   "settings": {
-    "autoSyncGitChanges": true,
     "exclude": [
       "**/.devpanel/**",
       "**/.changeset/**",
@@ -16,37 +15,6 @@
       "**/resources/**",
       "**/scripts/**",
       "**/docs/**"
-    ]
-  },
-  "branchContext": {
-    "fields": [
-      { "name": "PR LINK", "label": "PR link", "icon": "git-pull-request" },
-      { "name": "LINEAR LINK", "label": "Linear link", "icon": "link" }
-    ],
-    "sections": [
-      { "name": "OBJECTIVE", "label": "Objective", "type": "text", "icon": "target" },
-      { "name": "REQUIREMENTS", "label": "Requirements", "type": "text", "icon": "checklist" },
-      { "name": "NOTES", "label": "Notes", "type": "text", "icon": "note" },
-      {
-        "name": "GH PR INFO",
-        "label": "PR info",
-        "type": "auto",
-        "provider": "tsx ./plugins/github-pr-comments.ts",
-        "icon": "github",
-        "skipIfEmpty": ["PR LINK"],
-        "options": {
-          "includeRegularComments": false,
-          "includeReviewComments": true
-        }
-      },
-      {
-        "name": "LINEAR INFO",
-        "label": "Linear info",
-        "type": "auto",
-        "provider": "tsx ./plugins/linear-info.ts",
-        "icon": "link-external",
-        "skipIfEmpty": ["LINEAR LINK"]
-      }
     ]
   },
   "variables": [

@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import {
-  BRANCHES_DIR_NAME,
   CONFIG_DIR_NAME,
   DEFAULT_EXCLUDES,
   DEFAULT_INCLUDES,
@@ -84,12 +83,7 @@ const DevPanelPromptSchema = z
     group: z.string().optional().describe('Group name for organizing prompts'),
     description: z.string().optional().describe('Human-readable description shown as tooltip'),
     inputs: z.array(DevPanelInputSchema).optional().describe('Inputs to collect before running the prompt'),
-    saveOutput: z
-      .boolean()
-      .optional()
-      .describe(
-        `If true, save response to ${CONFIG_DIR_NAME}/${BRANCHES_DIR_NAME}/{{branch}}/${PROMPTS_DIR_NAME}/{{promptname}}.md`,
-      ),
+    saveOutput: z.boolean().optional().describe('If true, save response to file'),
     useWorkspaceRoot: z
       .boolean()
       .optional()
@@ -233,58 +227,13 @@ const DevPanelSettingsSchema = z
       .describe(
         `Glob patterns to exclude globally (package.json search, prompt file/folder selection, variable file/folder selection). Extends defaults: ${DEFAULT_EXCLUDES.join(', ')}. Add custom exclusions as needed (e.g. ["**/${CONFIG_DIR_NAME}/**", "**/.changeset/**", "**/out/**", "**/*.log"])`,
       ),
-    autoSyncGitChanges: z
-      .boolean()
-      .optional()
-      .describe('Auto-sync branch changed files view when git working tree or index changes. Defaults to true'),
   })
   .describe(`Global settings for ${EXTENSION_DISPLAY_NAME} behavior`);
-
-const BranchContextFieldSchema = z.object({
-  name: z.string().describe('Field name exactly as it appears in template (e.g., "PR LINK")'),
-  label: z.string().optional().describe('Display label in the view. Defaults to name if not set'),
-  icon: z.string().optional().describe('VSCode icon name (optional, defaults to symbol-field)'),
-});
-
-const BranchContextSectionSchema = z.object({
-  name: z.string().describe('Section heading name exactly as it appears in template (e.g., "TESTS SCENARIOS")'),
-  label: z
-    .string()
-    .optional()
-    .describe('Display label in the view (e.g., "Tests scenarios"). Defaults to name if not set'),
-  type: z.enum(['text', 'auto']).describe('Section type: text = multi-line, auto = auto-populated'),
-  provider: z.string().optional().describe('Provider path for auto sections (e.g., "./plugins/github-pr.js")'),
-  icon: z.string().optional().describe('VSCode icon name (optional, defaults to symbol-field)'),
-  options: z
-    .record(z.string(), z.any())
-    .optional()
-    .describe('Custom options passed to the provider (e.g., { includeReviewComments: true })'),
-  skipIfEmpty: z
-    .array(z.string())
-    .optional()
-    .describe(
-      'Skip plugin execution if these field names are empty/N/A (e.g., ["PR LINK", "LINEAR LINK"]). Improves performance by avoiding unnecessary plugin spawns.',
-    ),
-});
-
-const BranchContextConfigSchema = z.object({
-  fields: z
-    .array(BranchContextFieldSchema)
-    .optional()
-    .describe('Configurable inline fields in BRANCH INFO section (e.g., PR LINK, LINEAR LINK)')
-    .default([]),
-  sections: z
-    .array(BranchContextSectionSchema)
-    .optional()
-    .describe('Configurable sections (text or auto-populated)')
-    .default([]),
-});
 
 export const DevPanelConfigSchema = z
   .object({
     $schema: z.string().optional().describe('JSON Schema reference'),
     settings: DevPanelSettingsSchema.optional().describe('Global settings'),
-    branchContext: BranchContextConfigSchema.optional().describe('Branch context configuration'),
     variables: z.array(DevPanelVariableSchema).optional().describe('Configuration variables'),
     replacements: z.array(DevPanelReplacementSchema).optional().describe('File replacements/patches'),
     tasks: z.array(DevPanelTaskSchema).optional().describe('Executable tasks'),
@@ -299,4 +248,3 @@ export type DevPanelSettings = z.infer<typeof DevPanelSettingsSchema>;
 export type DevPanelConfig = z.infer<typeof DevPanelConfigSchema>;
 export type DevPanelVariable = z.infer<typeof DevPanelVariableSchema>;
 export type DevPanelReplacement = z.infer<typeof DevPanelReplacementSchema>;
-export type BranchContextConfig = z.infer<typeof BranchContextConfigSchema>;

@@ -1,7 +1,6 @@
 export * from './constants';
 export * from './enums';
 export * from './functions';
-export * from './performance-constants';
 export * from './regex-constants';
 export * from './scripts-constants';
 export * from './task-constants';

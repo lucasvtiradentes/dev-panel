@@ -11,48 +11,19 @@ export const CONFIG_DIR_KEY = 'devpanel';
 export const CONFIG_DIR_NAME = `.${CONFIG_DIR_KEY}`;
 export const CONFIG_FILE_NAME = 'config.jsonc';
 export const VARIABLES_FILE_NAME = 'variables.json';
-export const BRANCHES_DIR_NAME = 'branches';
 export const PROMPTS_DIR_NAME = 'prompts';
 export const RESOURCES_DIR_NAME = 'resources';
 export const INIT_RESOURCES_DIR_NAME = 'init';
-export const BRANCH_CONTEXT_FILENAME = 'branch-context.md';
-export const BRANCH_CONTEXT_TEMPLATE_FILENAME = 'branch-context-template.md';
 export const CLAUDE_DIR_NAME = '.claude';
 export const SKILLS_DIR_NAME = 'skills';
 export const SKILL_FILE_NAME = 'SKILL.md';
-export const ROOT_BRANCH_CONTEXT_FILE_NAME = '.branch-context.md';
 export const DEFAULT_INCLUDES = ['**/*'];
 export const DEFAULT_EXCLUDES = ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/out/**'];
 export const DEFAULT_EXCLUDED_DIRS = ['node_modules', 'dist', '.git'];
 
-export const BRANCH_CONTEXT_NA = 'N/A';
-export const BRANCH_CONTEXT_NO_CHANGES = 'No changes';
-export const BRANCH_CONTEXT_DEFAULT_TODOS = 'N/A';
-
-const METADATA_DEVPANEL = 'DEVPANEL_METADATA';
-export const METADATA_DEVPANEL_PREFIX = `<!-- ${METADATA_DEVPANEL}: `;
-export const METADATA_DEVPANEL_REGEX = new RegExp(`<!--\\s*${METADATA_DEVPANEL}:.*?-->`);
-export const METADATA_SECTION = 'SECTION_METADATA';
-export const METADATA_SECTION_PREFIX = `<!-- ${METADATA_SECTION}: `;
-export const METADATA_SECTION_REGEX_CAPTURE = new RegExp(`<!--\\s*${METADATA_SECTION}:\\s*(.+?)\\s*-->`);
-export const METADATA_SECTION_REGEX_GLOBAL = new RegExp(`<!--\\s*${METADATA_SECTION}:.*?-->`, 'g');
-export const METADATA_SUFFIX = ' -->';
-export const METADATA_SEPARATOR = '<!-- ------------------- -->';
-export const METADATA_SECTION_WITH_CODEBLOCK_REGEX = new RegExp(
-  `^#\\s+([A-Z][A-Z\\s]+)\\s*\\n+\`\`\`\\s*\\n([\\s\\S]*?)\\n\`\`\`(\\s*\\n+<!-- ${METADATA_SECTION}: (.+?) -->)?`,
-  'gm',
-);
-export const METADATA_SEPARATOR_REGEX = /<!--\s*-+\s*-->/;
-
-export const METADATA_FIELD_IS_EMPTY = 'isEmpty';
-export const METADATA_FIELD_DESCRIPTION = 'description';
-
-export const MARKDOWN_SECTION_DESCRIPTION = 'description';
-
 export const DND_MIME_TYPE_TASKS = `application/vnd.code.tree.${CONFIG_DIR_KEY}tasks`;
 export const DND_MIME_TYPE_PROMPTS = `application/vnd.code.tree.${CONFIG_DIR_KEY}prompts`;
 export const DND_MIME_TYPE_TOOLS = `application/vnd.code.tree.${CONFIG_DIR_KEY}tools`;
-export const DND_MIME_TYPE_BRANCH_TASKS = `application/vnd.code.tree.${CONFIG_DIR_KEY}branchtasks`;
 
 export const WORKSPACE_STATE_KEY = `${CONFIG_DIR_KEY}.uiState`;
 
@@ -62,9 +33,6 @@ export const VIEW_ID_CONFIGS = `${CONTEXT_PREFIX}Configs`;
 export const VIEW_ID_REPLACEMENTS = `${CONTEXT_PREFIX}Replacements`;
 export const VIEW_ID_TOOLS = `${CONTEXT_PREFIX}Tools`;
 export const VIEW_ID_PROMPTS = `${CONTEXT_PREFIX}Prompts`;
-export const VIEW_ID_BRANCH_CONTEXT = `${CONTEXT_PREFIX}BranchContext`;
-export const VIEW_ID_TODOS = `${CONTEXT_PREFIX}Todos`;
-export const VIEW_ID_CHANGED_FILES = `${CONTEXT_PREFIX}ChangedFiles`;
 export const DEV_SUFFIX = 'dev';
 const LOG_BASENAME = EXTENSION_NAME;
 export const TOOL_COMMAND_SUFFIX = 'tool';

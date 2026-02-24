@@ -4,7 +4,6 @@ import { replaceVariablePlaceholders } from 'src/common/utils/functions/template
 import { GLOBAL_ITEM_PREFIX, GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
 import { CONFIG_DIR_KEY, getGlobalConfigDir, getGlobalVariablesPath } from '../../common/constants/scripts-constants';
 import { ConfigManager } from '../../common/core/config-manager';
-import { Git } from '../../common/lib/git';
 import { createLogger } from '../../common/lib/logger';
 import {
   type DevPanelConfig,
@@ -335,10 +334,9 @@ async function executePromptWithSave(options: {
 }) {
   const { promptContent, folder, promptName, provider, settings } = options;
   const workspacePath = folder.uri.fsPath;
-  const branch = await Git.getCurrentBranch(workspacePath).catch(() => 'unknown');
 
   const timestamped = settings?.promptExecution !== PromptExecutionMode.Overwrite;
-  const outputFile = ConfigManager.getPromptOutputFilePath(workspacePath, branch, promptName, timestamped);
+  const outputFile = ConfigManager.getPromptOutputFilePath(workspacePath, promptName, timestamped);
   const outputDir = NodePathHelper.dirname(outputFile);
   const tempFile = NodePathHelper.join(outputDir, '.prompt-temp.txt');
 

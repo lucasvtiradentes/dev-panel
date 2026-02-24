@@ -31,103 +31,8 @@
           "items": {
             "type": "string"
           }
-        },
-        "autoSyncGitChanges": {
-          "description": "Auto-sync branch changed files view when git working tree or index changes. Defaults to true",
-          "type": "boolean"
         }
       },
-      "additionalProperties": false
-    },
-    "branchContext": {
-      "description": "Branch context configuration",
-      "type": "object",
-      "properties": {
-        "fields": {
-          "default": [],
-          "description": "Configurable inline fields in BRANCH INFO section (e.g., PR LINK, LINEAR LINK)",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "description": "Field name exactly as it appears in template (e.g., \"PR LINK\")",
-                "type": "string"
-              },
-              "label": {
-                "description": "Display label in the view. Defaults to name if not set",
-                "type": "string"
-              },
-              "icon": {
-                "description": "VSCode icon name (optional, defaults to symbol-field)",
-                "type": "string"
-              }
-            },
-            "required": [
-              "name"
-            ],
-            "additionalProperties": false
-          }
-        },
-        "sections": {
-          "default": [],
-          "description": "Configurable sections (text or auto-populated)",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "description": "Section heading name exactly as it appears in template (e.g., \"TESTS SCENARIOS\")",
-                "type": "string"
-              },
-              "label": {
-                "description": "Display label in the view (e.g., \"Tests scenarios\"). Defaults to name if not set",
-                "type": "string"
-              },
-              "type": {
-                "description": "Section type: text = multi-line, auto = auto-populated",
-                "type": "string",
-                "enum": [
-                  "text",
-                  "auto"
-                ]
-              },
-              "provider": {
-                "description": "Provider path for auto sections (e.g., \"./plugins/github-pr.js\")",
-                "type": "string"
-              },
-              "icon": {
-                "description": "VSCode icon name (optional, defaults to symbol-field)",
-                "type": "string"
-              },
-              "options": {
-                "description": "Custom options passed to the provider (e.g., { includeReviewComments: true })",
-                "type": "object",
-                "propertyNames": {
-                  "type": "string"
-                },
-                "additionalProperties": {}
-              },
-              "skipIfEmpty": {
-                "description": "Skip plugin execution if these field names are empty/N/A (e.g., [\"PR LINK\", \"LINEAR LINK\"]). Improves performance by avoiding unnecessary plugin spawns.",
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            },
-            "required": [
-              "name",
-              "type"
-            ],
-            "additionalProperties": false
-          }
-        }
-      },
-      "required": [
-        "fields",
-        "sections"
-      ],
       "additionalProperties": false
     },
     "variables": {
@@ -859,7 +764,7 @@
             }
           },
           "saveOutput": {
-            "description": "If true, save response to .devpanel/branches/{{branch}}/prompts/{{promptname}}.md",
+            "description": "If true, save response to file",
             "type": "boolean"
           },
           "useWorkspaceRoot": {

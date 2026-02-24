@@ -2,21 +2,11 @@ import { syncKeybindings } from '../common/core/keybindings-sync';
 import { Command, registerCommand } from '../common/vscode/vscode-commands';
 import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
-import type { BranchChangedFilesProvider } from '../views/branch-changed-files';
-import type { BranchContextProvider } from '../views/branch-context';
-import type { BranchTasksProvider } from '../views/branch-tasks';
 import type { PromptTreeDataProvider } from '../views/prompts';
 import type { ReplacementsProvider } from '../views/replacements';
 import type { TaskTreeDataProvider } from '../views/tasks';
 import type { ToolTreeDataProvider } from '../views/tools';
 import type { VariablesProvider } from '../views/variables';
-import { createBranchChangedFilesCommands } from './internal/branch-changed-files';
-import { createEditBranchFieldsCommands } from './internal/branch-context/edit-branch-fields';
-import { createOpenBranchContextFileCommand } from './internal/branch-context/open-branch-context-file';
-import { createShowBranchContextValidationCommand } from './internal/branch-context/show-validation';
-import { createSyncBranchContextCommand } from './internal/branch-context/sync-branch-context';
-import { createToggleBranchContextHideEmptySectionsCommand } from './internal/branch-context/toggle-branch-context-hide-empty-sections';
-import { createToggleBranchTasksCommands } from './internal/branch-tasks/toggle-branch-tasks';
 import {
   createExecutePromptCommand,
   createExecuteTaskCommand,
@@ -79,9 +69,6 @@ export function registerAllCommands(options: {
   promptTreeDataProvider: PromptTreeDataProvider;
   variablesProvider: VariablesProvider;
   replacementsProvider: ReplacementsProvider;
-  branchContextProvider: BranchContextProvider;
-  branchTasksProvider: BranchTasksProvider;
-  branchChangedFilesProvider: BranchChangedFilesProvider;
 }): Disposable[] {
   const {
     context,
@@ -90,9 +77,6 @@ export function registerAllCommands(options: {
     promptTreeDataProvider,
     variablesProvider,
     replacementsProvider,
-    branchContextProvider,
-    branchTasksProvider,
-    branchChangedFilesProvider,
   } = options;
   return [
     createRefreshCommand(taskTreeDataProvider),
@@ -131,12 +115,6 @@ export function registerAllCommands(options: {
     createCopyPromptToWorkspaceCommand(),
     createDeletePromptCommand(),
     createGoToPromptFileCommand(),
-    ...createEditBranchFieldsCommands(branchContextProvider),
-    createOpenBranchContextFileCommand(branchContextProvider),
-    createSyncBranchContextCommand(branchContextProvider),
-    ...createToggleBranchContextHideEmptySectionsCommand(branchContextProvider),
-    ...createToggleBranchTasksCommands(branchTasksProvider),
-    ...createBranchChangedFilesCommands(branchChangedFilesProvider),
     createShowLogsCommand(),
     createShowWorkspaceStateCommand(),
     createClearWorkspaceStateCommand(),
@@ -150,6 +128,5 @@ export function registerAllCommands(options: {
     registerCommand(Command.SyncTaskKeybindings, () => syncKeybindings()),
     createSetTaskKeybindingCommand(),
     createOpenTasksKeybindingsCommand(),
-    createShowBranchContextValidationCommand(),
   ];
 }

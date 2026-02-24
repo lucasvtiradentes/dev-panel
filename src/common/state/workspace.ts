@@ -2,8 +2,6 @@ import type { AIProvider } from '../schemas/config-schema';
 import type { SourceState } from '../schemas/shared-state.schema';
 import { TaskSource } from '../schemas/types';
 import {
-  type BranchContextState,
-  DEFAULT_BRANCH_CONTEXT_STATE,
   DEFAULT_PROMPTS_STATE,
   DEFAULT_REPLACEMENTS_STATE,
   DEFAULT_TASKS_STATE,
@@ -313,27 +311,4 @@ export const variablesState: StateManager<VariablesState> & {
 } = {
   ...baseVariablesState,
   ...variablesGroupedMethods,
-};
-
-const baseBranchContextState = createStateManager<BranchContextState>({
-  stateKey: StateKey.BranchContext,
-  defaultState: DEFAULT_BRANCH_CONTEXT_STATE,
-  storageType: StorageType.Workspace,
-});
-
-export const branchContextState: StateManager<BranchContextState> & {
-  getHideEmptySections(): boolean;
-  saveHideEmptySections(hideEmptySections: boolean): void;
-} = {
-  ...baseBranchContextState,
-
-  getHideEmptySections(): boolean {
-    return this.load().hideEmptySections ?? false;
-  },
-
-  saveHideEmptySections(hideEmptySections: boolean) {
-    const branchContext = this.load();
-    branchContext.hideEmptySections = hideEmptySections;
-    this.save(branchContext);
-  },
 };

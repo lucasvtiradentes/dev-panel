@@ -21,7 +21,6 @@ export async function showInitMenu() {
     const configDirUri = VscodeHelper.createFileUri(configDirPath);
 
     await ConfigManager.copyDirectoryRecursive(initResourcesUri, configDirUri);
-    ConfigManager.addToGitignore(workspaceFolder.uri.fsPath);
 
     logger.info(`${EXTENSION_DISPLAY_NAME} initialized successfully`);
     void VscodeHelper.showToastMessage(

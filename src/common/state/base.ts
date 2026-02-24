@@ -11,7 +11,6 @@ export enum StateKey {
   Prompts = 'prompts',
   Replacements = 'replacements',
   Variables = 'variables',
-  BranchContext = 'branchContext',
 }
 
 export enum StorageType {

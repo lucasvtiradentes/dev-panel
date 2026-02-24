@@ -1,7 +1,5 @@
 import * as vscode from 'vscode';
-import type { CommandParams } from '../../commands/command-params';
 import { getCommandId } from '../constants/functions';
-import { TypeGuardsHelper } from '../utils/helpers/type-guards-helper';
 import type { Disposable } from './vscode-types';
 
 export enum Command {
@@ -66,53 +64,6 @@ export enum Command {
   CopyPromptToGlobal = 'copyPromptToGlobal',
   CopyPromptToWorkspace = 'copyPromptToWorkspace',
   DeletePrompt = 'deletePrompt',
-  EditBranchName = 'editBranchName',
-  EditBranchPrLink = 'editBranchPrLink',
-  EditBranchLinearLink = 'editBranchLinearLink',
-  EditBranchObjective = 'editBranchObjective',
-  EditBranchRequirements = 'editBranchRequirements',
-  EditBranchNotes = 'editBranchNotes',
-  EditBranchTodos = 'editBranchTodos',
-  OpenBranchContextFile = 'openBranchContextFile',
-  OpenBranchContextFileAtLine = 'openBranchContextFileAtLine',
-  SyncBranchContext = 'syncBranchContext',
-  ShowBranchContextValidation = 'showBranchContextValidation',
-  ToggleBranchContextHideEmptySections = 'toggleBranchContextHideEmptySections',
-  ToggleBranchContextHideEmptySectionsActive = 'toggleBranchContextHideEmptySectionsActive',
-  ToggleTodo = 'toggleTodo',
-  CycleTaskStatus = 'cycleTaskStatus',
-  SetTaskStatus = 'setTaskStatus',
-  SetTaskStatusTodo = 'setTaskStatus.todo',
-  SetTaskStatusDoing = 'setTaskStatus.doing',
-  SetTaskStatusDone = 'setTaskStatus.done',
-  SetTaskStatusBlocked = 'setTaskStatus.blocked',
-  SetTaskPriority = 'setTaskPriority',
-  SetTaskPriorityUrgent = 'setTaskPriority.urgent',
-  SetTaskPriorityHigh = 'setTaskPriority.high',
-  SetTaskPriorityMedium = 'setTaskPriority.medium',
-  SetTaskPriorityLow = 'setTaskPriority.low',
-  SetTaskPriorityNone = 'setTaskPriority.none',
-  SetTaskAssignee = 'setTaskAssignee',
-  SetTaskDueDate = 'setTaskDueDate',
-  AddSubtask = 'addSubtask',
-  EditTaskText = 'editTaskText',
-  DeleteBranchTask = 'deleteBranchTask',
-  CopyTaskText = 'copyTaskText',
-  OpenTaskExternal = 'openTaskExternal',
-  SetTaskMilestone = 'setTaskMilestone',
-  ToggleBranchTasksShowOnlyTodo = 'toggleBranchTasksShowOnlyTodo',
-  ToggleBranchTasksShowOnlyTodoActive = 'toggleBranchTasksShowOnlyTodoActive',
-  ToggleBranchTasksGroupMode = 'toggleBranchTasksGroupMode',
-  ToggleBranchTasksGroupModeGrouped = 'toggleBranchTasksGroupModeGrouped',
-  AddBranchTask = 'addBranchTask',
-  FilterBranchTasks = 'filterBranchTasks',
-  FilterBranchTasksActive = 'filterBranchTasksActive',
-  ToggleBranchChangedFilesGroupMode = 'toggleBranchChangedFilesGroupMode',
-  ToggleBranchChangedFilesGroupModeGrouped = 'toggleBranchChangedFilesGroupModeGrouped',
-  SyncBranchChangedFiles = 'syncBranchChangedFiles',
-  SelectComparisonBranch = 'selectComparisonBranch',
-  OpenChangedFile = 'openChangedFile',
-  OpenChangedFileDiff = 'openChangedFileDiff',
   ShowLogs = 'showLogs',
   ShowWorkspaceState = 'showWorkspaceState',
   ClearWorkspaceState = 'clearWorkspaceState',
@@ -148,34 +99,15 @@ export function registerDynamicCommand(commandId: string, callback: (...args: an
   return vscode.commands.registerCommand(commandId, callback);
 }
 
-const VSCODE_NATIVE_COMMANDS = [
-  Command.VscodeOpen,
-  Command.VscodeSetContext,
-  Command.VscodeOpenGlobalKeybindings,
-] as const;
+export function executeCommand(command: Command, ...args: unknown[]): Thenable<unknown> {
+  const VSCODE_NATIVE_COMMANDS = [
+    Command.VscodeOpen,
+    Command.VscodeSetContext,
+    Command.VscodeOpenGlobalKeybindings,
+  ] as const;
 
-export function executeCommand<T extends Command>(
-  command: T,
-  ...args: T extends keyof CommandParams ? [CommandParams[T]] : []
-): Thenable<unknown> {
   const isNativeCommand = (VSCODE_NATIVE_COMMANDS as readonly Command[]).includes(command);
   const commandId = isNativeCommand ? command : getCommandId(command);
-
-  if (isNativeCommand && args.length > 0) {
-    const params = args[0];
-    if (command === Command.VscodeOpen && TypeGuardsHelper.isObjectWithProperty(params, 'uri')) {
-      const vscodeOpenParams = params as CommandParams[Command.VscodeOpen];
-      return vscode.commands.executeCommand(commandId, vscodeOpenParams.uri, vscodeOpenParams.viewColumn);
-    }
-    if (command === Command.VscodeSetContext && TypeGuardsHelper.isObjectWithProperty(params, 'key')) {
-      const setContextParams = params as CommandParams[Command.VscodeSetContext];
-      return vscode.commands.executeCommand(commandId, setContextParams.key, setContextParams.value);
-    }
-    if (command === Command.VscodeOpenGlobalKeybindings && TypeGuardsHelper.isObjectWithProperty(params, 'query')) {
-      const openKeybindingsParams = params as CommandParams[Command.VscodeOpenGlobalKeybindings];
-      return vscode.commands.executeCommand(commandId, openKeybindingsParams.query);
-    }
-  }
 
   return vscode.commands.executeCommand(commandId, ...args);
 }

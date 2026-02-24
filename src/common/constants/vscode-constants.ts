@@ -3,7 +3,6 @@ import { CONFIG_DIR_KEY } from './scripts-constants';
 const TASK_DP = `task-${CONFIG_DIR_KEY}`;
 
 export const CONTEXT_VALUES = {
-  BRANCH_CONTEXT_FIELD: 'branchContextField',
   GROUP: 'group',
   TOOL: 'tool',
   TOOL_HIDDEN: 'tool-hidden',
@@ -26,9 +25,6 @@ export const CONTEXT_VALUES = {
   PROMPT_GLOBAL: 'prompt-global',
   PROMPT_GLOBAL_HIDDEN: 'prompt-global-hidden',
   PROMPT_GLOBAL_FAVORITE: 'prompt-global-favorite',
-  TODO_ITEM: 'todoItem',
-  TODO_ITEM_WITH_EXTERNAL: 'todoItemWithExternal',
-  MILESTONE_ITEM: 'milestoneItem',
   GROUP_ITEM: 'groupItem',
   VARIABLE_ITEM: 'variableItem',
   REPLACEMENT_GROUP: 'replacementGroup',

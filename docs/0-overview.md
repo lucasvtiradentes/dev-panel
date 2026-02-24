@@ -12,9 +12,9 @@ Developers often create helper scripts (db dumps, deployment shortcuts, code gen
 
 # Features
 
-- **Visual by default**: Control everything about your project with 7 views
+- **Visual by default**: Control everything about your project with multiple views
 - **Init withing seconds**: Quick run the "init" command to start with a minimal working config
-- **Customizable**: Extend functionality with custom providers for tasks, code changes sections
+- **Customizable**: Extend functionality with custom providers
 - **Comunity driven**: Install community tools/prompts/plugins from central registry
 
 # Extension parts
@@ -28,8 +28,6 @@ Developers often create helper scripts (db dumps, deployment shortcuts, code gen
 - **Prompts**: AI prompts with inputs, supports Claude/Gemini/Cursor
 - **Tasks**: Run npm scripts, VSCode tasks, or custom DevPanel tasks
 - **Tools**: Shell scripts with documentation, toggleable state
-- **Branch Context**: Per-branch markdown with objective, notes, PR/Linear links
-- **Branch Tasks**: Todo management with milestones, priorities, assignees
 
 ## Status bar
 
@@ -41,8 +39,6 @@ Config location picker - allows changing where `.devpanel/` directory is located
 |----------|----------|
 | **View toggles** | Group mode, show hidden, show only favorites |
 | **Item actions** | Execute, favorite, hide, delete, copy to global/workspace |
-| **Branch context** | Sync, open file, edit fields |
-| **Branch tasks** | Add, cycle status, set priority/assignee/due date, filter |
 | **Keybindings** | Set/sync keybindings for prompts, variables, tasks |
 | **Navigation** | Go to file, open config |
 
@@ -50,10 +46,7 @@ Config location picker - allows changing where `.devpanel/` directory is located
 
 | Watcher | Trigger | Action |
 |---------|---------|--------|
-| **Branch** | Git HEAD change | Refresh branch context/tasks, sync markdown |
 | **Config** | `.devpanel/config.jsonc` change | Reload all views |
-| **Markdown** | Branch context file change | Sync to root `.branch-context.md` |
-| **Template** | Template file change | Re-sync branch context |
 
 # Diagrams
 
@@ -97,7 +90,7 @@ Config location picker - allows changing where `.devpanel/` directory is located
 └────────────────────────┬────────────────────────────────┘
                          ▼
 ┌─────────────────────────────────────────────────────────┐
-│           Load .devpanel/config.jsonc + ~/.devpanel/                │
+│           Load .devpanel/config.jsonc + ~/.devpanel/   │
 │              Parse with JSON5 + Zod                     │
 └────────────────────────┬────────────────────────────────┘
                          ▼
@@ -112,16 +105,6 @@ Config location picker - allows changing where `.devpanel/` directory is located
                          ▼
 ┌─────────────────────────────────────────────────────────┐
 │               Setup File Watchers                       │
-│      (config, branch, markdown, template)               │
-└────────────────────────┬────────────────────────────────┘
-                         ▼
-┌─────────────────────────────────────────────────────────┐
-│            Detect current git branch                    │
-│         Load/create branch context file                 │
-└────────────────────────┬────────────────────────────────┘
-                         ▼
-┌─────────────────────────────────────────────────────────┐
-│              Sync .branch-context.md                    │
-│            (root ↔ .devpanel/branches/X/)                     │
+│                    (config)                             │
 └─────────────────────────────────────────────────────────┘
 ```

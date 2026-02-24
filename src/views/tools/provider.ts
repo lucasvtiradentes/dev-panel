@@ -3,13 +3,14 @@ import {
   DND_MIME_TYPE_TOOLS,
   GLOBAL_ITEM_PREFIX,
   GLOBAL_TOOL_TOOLTIP,
-  MARKDOWN_SECTION_DESCRIPTION,
   NO_GROUP_NAME,
   SHELL_SCRIPT_PATTERN,
   getCommandId,
   getGlobalConfigDir,
   getGlobalToolInstructionsPath,
 } from '../../common/constants';
+
+const MARKDOWN_SECTION_DESCRIPTION = 'description';
 import { ConfigManager } from '../../common/core/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import type { DevPanelConfig } from '../../common/schemas';

@@ -6,13 +6,10 @@ import {
   TASK_COMMAND_SUFFIX,
   TOOL_COMMAND_SUFFIX,
   VARIABLE_COMMAND_SUFFIX,
-  VIEW_ID_BRANCH_CONTEXT,
-  VIEW_ID_CHANGED_FILES,
   VIEW_ID_CONFIGS,
   VIEW_ID_PROMPTS,
   VIEW_ID_REPLACEMENTS,
   VIEW_ID_TASKS,
-  VIEW_ID_TODOS,
   VIEW_ID_TOOLS,
   addDevSuffix,
   buildLogFilename,
@@ -41,18 +38,6 @@ export function getViewIdTools(): string {
 
 export function getViewIdPrompts(): string {
   return IS_DEV ? addDevSuffix(VIEW_ID_PROMPTS) : VIEW_ID_PROMPTS;
-}
-
-export function getViewIdBranchContext(): string {
-  return IS_DEV ? addDevSuffix(VIEW_ID_BRANCH_CONTEXT) : VIEW_ID_BRANCH_CONTEXT;
-}
-
-export function getViewIdTodos(): string {
-  return IS_DEV ? addDevSuffix(VIEW_ID_TODOS) : VIEW_ID_TODOS;
-}
-
-export function getViewIdChangedFiles(): string {
-  return IS_DEV ? addDevSuffix(VIEW_ID_CHANGED_FILES) : VIEW_ID_CHANGED_FILES;
 }
 
 export function getLogFilename(): string {

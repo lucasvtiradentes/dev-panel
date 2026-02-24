@@ -1,4 +1,6 @@
-import { BASE_BRANCH, BRANCH_CONTEXT_NO_CHANGES, ChangedFilesStyle, NOT_GIT_REPO_MESSAGE } from '../constants';
+import { BASE_BRANCH, ChangedFilesStyle, NOT_GIT_REPO_MESSAGE } from '../constants';
+
+const NO_CHANGES = 'No changes';
 import { GitFileStatus } from '../constants/enums';
 import { execAsync } from '../utils/functions/exec-async';
 import { VscodeHelper } from '../vscode/vscode-helper';
@@ -206,7 +208,7 @@ export class Git {
   }
 
   static formatChangedFilesSummary(summary: ChangedFilesSummary | null): string {
-    if (!summary) return BRANCH_CONTEXT_NO_CHANGES;
+    if (!summary) return NO_CHANGES;
 
     const parts: string[] = [];
     if (summary.added > 0) parts.push(`${summary.added}A`);
@@ -214,7 +216,7 @@ export class Git {
     if (summary.deleted > 0) parts.push(`${summary.deleted}D`);
     if (summary.renamed > 0) parts.push(`${summary.renamed}R`);
 
-    return parts.length > 0 ? parts.join(', ') : BRANCH_CONTEXT_NO_CHANGES;
+    return parts.length > 0 ? parts.join(', ') : NO_CHANGES;
   }
 
   private static computeSummaryFromStatusMap(statusMap: Map<string, string>): ChangedFilesSummary {
@@ -249,7 +251,7 @@ export class Git {
       return {
         content,
         summary: Git.formatChangedFilesSummary(summary),
-        sectionMetadata: content !== BRANCH_CONTEXT_NO_CHANGES ? sectionMetadata : undefined,
+        sectionMetadata: content !== NO_CHANGES ? sectionMetadata : undefined,
       };
     }
     return Git.getChangedFilesListFormatWithSummary(workspacePath, baseBranch);
@@ -342,7 +344,7 @@ export class Git {
       }
 
       if (allFiles.size === 0) {
-        return BRANCH_CONTEXT_NO_CHANGES;
+        return NO_CHANGES;
       }
 
       return Git.buildFileTree(Array.from(allFiles));
@@ -410,7 +412,7 @@ export class Git {
 
       if (statusMap.size === 0) {
         logger.info('[getChangedFilesListFormat] No changes detected');
-        return BRANCH_CONTEXT_NO_CHANGES;
+        return NO_CHANGES;
       }
 
       const sortedFiles = Array.from(statusMap.keys()).sort();
@@ -493,8 +495,8 @@ export class Git {
 
       if (statusMap.size === 0) {
         return {
-          content: BRANCH_CONTEXT_NO_CHANGES,
-          summary: BRANCH_CONTEXT_NO_CHANGES,
+          content: NO_CHANGES,
+          summary: NO_CHANGES,
           sectionMetadata: {
             filesCount: 0,
             added: 0,
@@ -540,7 +542,7 @@ export class Git {
         sectionMetadata,
       };
     } catch {
-      return { content: NOT_GIT_REPO_MESSAGE, summary: BRANCH_CONTEXT_NO_CHANGES };
+      return { content: NOT_GIT_REPO_MESSAGE, summary: NO_CHANGES };
     }
   }
 
