@@ -14,13 +14,6 @@ export {
 } from './config-schema';
 
 export {
-  RegistryIndexSchema,
-  RegistryItemKind,
-  type RegistryIndex,
-  type RegistryItemEntry,
-} from './registry-schema';
-
-export {
   normalizePatchItem,
   SectionType,
   TaskPriority,

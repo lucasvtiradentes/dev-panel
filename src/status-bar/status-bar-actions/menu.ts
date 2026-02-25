@@ -7,11 +7,9 @@ import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { QuickPickItemWithId } from '../../common/vscode/vscode-types';
 import { showConfigLocationMenu } from './config-location';
 import { showInitMenu } from './init';
-import { showRegistryMenu } from './registry/index';
 
 enum SettingsMenuOption {
   ManageConfigLocation = 'manage-config-location',
-  Registry = 'registry',
   Init = 'init',
 }
 
@@ -40,18 +38,11 @@ export function createOpenSettingsMenuCommand() {
         detail: `Initialize ${EXTENSION_DISPLAY_NAME} in current workspace`,
       });
     } else {
-      mainMenuItems.push(
-        {
-          id: SettingsMenuOption.ManageConfigLocation,
-          label: `$(${VscodeIcon.Folder}) Change Config Location`,
-          detail: `Select where ${EXTENSION_DISPLAY_NAME} config should be located`,
-        },
-        {
-          id: SettingsMenuOption.Registry,
-          label: `$(${VscodeIcon.Package}) Registry`,
-          detail: 'Browse and install tools/prompts from registry',
-        },
-      );
+      mainMenuItems.push({
+        id: SettingsMenuOption.ManageConfigLocation,
+        label: `$(${VscodeIcon.Folder}) Change Config Location`,
+        detail: `Select where ${EXTENSION_DISPLAY_NAME} config should be located`,
+      });
     }
 
     const selected = await VscodeHelper.showQuickPickItems(mainMenuItems, {
@@ -64,9 +55,6 @@ export function createOpenSettingsMenuCommand() {
     switch (selected.id) {
       case SettingsMenuOption.ManageConfigLocation:
         await showConfigLocationMenu();
-        break;
-      case SettingsMenuOption.Registry:
-        await showRegistryMenu();
         break;
       case SettingsMenuOption.Init:
         await showInitMenu();

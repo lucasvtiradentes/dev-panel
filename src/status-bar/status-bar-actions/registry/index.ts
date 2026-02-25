@@ -1,1 +1,0 @@
-export { showRegistryMenu } from './menu';
