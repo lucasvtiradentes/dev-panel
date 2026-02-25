@@ -20,7 +20,7 @@ All-in-one command center for AI-assisted development. A VSCode extension that i
     <img height="400" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/dev-panel@main/.github/image/demo.png" alt="Dev Panel sidebar">
   </a>
   <br>
-  <em>manage tasks, prompts, and branch context in the sidebar</em>
+  <em>manage tasks, prompts, and tools in the sidebar</em>
 </div>
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/dev-panel@main/.github/image/up_arrow.png" width="22"></a>
