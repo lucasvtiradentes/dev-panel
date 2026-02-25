@@ -1,0 +1,9 @@
+{
+  "symlink": "_context",
+  "sound": true,
+  "template_rules": [],
+  "changed_files": {
+    "enabled": true,
+    "base_branch": "origin/main"
+  }
+}
