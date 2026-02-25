@@ -32,5 +32,5 @@ export const ContextKey = {
 export type ContextKey = (typeof ContextKey)[keyof typeof ContextKey];
 
 export function setContextKey(key: ContextKey, value: boolean | string): Thenable<unknown> {
-  return executeCommand(Command.VscodeSetContext, { key, value });
+  return executeCommand(Command.VscodeSetContext, key, value);
 }

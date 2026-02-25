@@ -22,6 +22,7 @@ const EDITOR_EXTENSIONS_PATHS = {
     linux: '.config/VSCodium/extensions',
   },
 } as const;
+import { CONTEXT_KEYS } from '../../src/common/constants/context-keys';
 import {
   LICENSE_FILE,
   PACKAGE_JSON,
@@ -85,6 +86,10 @@ function patchExtensionCode() {
   } else {
     patchedExtensionJs = patchedExtensionJs.replace(logFilePattern, logFileDev);
     patchedExtensionJs = patchedExtensionJs.replace(statusBarPattern, `${addDevLabel(EXTENSION_DISPLAY_NAME)}:`);
+  }
+
+  for (const key of CONTEXT_KEYS) {
+    patchedExtensionJs = patchedExtensionJs.replace(new RegExp(`"${key}"`, 'g'), `"${addDevSuffix(key)}"`);
   }
 
   FileIOHelper.writeFile(extensionJsPath, patchedExtensionJs);
@@ -225,14 +230,23 @@ function copyRecursive(src: string, dest: string) {
 }
 
 function transformContextKey(text: string): string {
-  return text
-    .replace(new RegExp(`view\\s*==\\s*${VIEW_ID_TASKS}\\b`, 'g'), `view == ${addDevSuffix(VIEW_ID_TASKS)}`)
-    .replace(/\b(\w+)(?=\s*==|\s*!=|\s|$)/g, (match) => {
-      if (match.startsWith(CONTEXT_PREFIX) && !match.endsWith(DEV_SUFFIX)) {
-        return addDevSuffix(match);
-      }
-      return match;
-    });
+  let result = text.replace(
+    new RegExp(`view\\s*==\\s*${VIEW_ID_TASKS}\\b`, 'g'),
+    `view == ${addDevSuffix(VIEW_ID_TASKS)}`,
+  );
+
+  result = result.replace(/\b(\w+)(?=\s*==|\s*!=|\s|$)/g, (match) => {
+    if (match.startsWith(CONTEXT_PREFIX) && !match.endsWith(DEV_SUFFIX)) {
+      return addDevSuffix(match);
+    }
+    return match;
+  });
+
+  for (const key of CONTEXT_KEYS) {
+    result = result.replace(new RegExp(`\\b${key}\\b`, 'g'), addDevSuffix(key));
+  }
+
+  return result;
 }
 
 function transformCommand(cmd: string): string {
