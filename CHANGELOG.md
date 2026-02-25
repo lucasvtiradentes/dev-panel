@@ -1,5 +1,12 @@
 # dev-panel
 
+## 0.0.9
+
+### Patch Changes
+
+- 032cd39: fix: add windows cross-platform compatibility for CLI paths and shell commands
+  refactor: remove registry feature
+
 ## 0.0.8
 
 ### Patch Changes
