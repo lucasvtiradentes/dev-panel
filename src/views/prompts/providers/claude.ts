@@ -1,4 +1,10 @@
-import { CliPathHelper, FileIOHelper, NodeOsHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
+import {
+  CliPathHelper,
+  FileIOHelper,
+  NodeOsHelper,
+  NodePathHelper,
+  ShellHelper,
+} from '../../../common/utils/helpers/node-helper';
 import type { Terminal } from '../../../common/vscode/vscode-types';
 import type { PromptProvider } from './types';
 
@@ -10,7 +16,9 @@ export const claudeProvider: PromptProvider = {
     const tempFile = NodePathHelper.join(NodeOsHelper.tmpdir(), `devpanel-prompt-${Date.now()}.txt`);
     FileIOHelper.writeFile(tempFile, promptContent);
     const claudePath = getClaudePath();
-    terminal.sendText(`"${claudePath}" --dangerously-skip-permissions < "${tempFile}" && rm "${tempFile}"`);
+    const mainCmd = `"${claudePath}" --dangerously-skip-permissions < "${tempFile}"`;
+    const cleanupCmd = ShellHelper.getDeleteCommand(tempFile);
+    terminal.sendText(ShellHelper.buildChainedCommand(mainCmd, cleanupCmd));
   },
   getExecuteCommand: (tempFile: string, outputFile: string) => {
     const claudePath = getClaudePath();

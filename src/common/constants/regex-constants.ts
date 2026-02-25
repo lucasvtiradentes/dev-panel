@@ -33,7 +33,8 @@ export const CONFIG_TASKS_ARRAY_PATTERN = /"tasks"\s*:\s*\[/;
 export const CONFIG_PROMPTS_ARRAY_PATTERN = /"prompts"\s*:\s*\[/;
 export const PACKAGE_JSON_SCRIPTS_PATTERN = /"scripts"\s*:\s*\{/;
 
-export const SHELL_SCRIPT_PATTERN = /(?:bash\s+|sh\s+|\.\/)?(.+\.sh)$/;
+export const SHELL_SCRIPT_PATTERN =
+  /(?:bash\s+|sh\s+|cmd\s+\/c\s+|powershell\s+(?:-[Ff]ile\s+)?|\.\/)?(.+\.(?:sh|bat|cmd|ps1))$/;
 
 export const DIST_DIR_PREFIX = 'dist-';
 

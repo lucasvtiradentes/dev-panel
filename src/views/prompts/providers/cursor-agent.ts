@@ -1,4 +1,10 @@
-import { CliPathHelper, FileIOHelper, NodeOsHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
+import {
+  CliPathHelper,
+  FileIOHelper,
+  NodeOsHelper,
+  NodePathHelper,
+  ShellHelper,
+} from '../../../common/utils/helpers/node-helper';
 import type { Terminal } from '../../../common/vscode/vscode-types';
 import type { PromptProvider } from './types';
 
@@ -10,7 +16,9 @@ export const cursorAgentProvider: PromptProvider = {
     const tempFile = NodePathHelper.join(NodeOsHelper.tmpdir(), `devpanel-prompt-${Date.now()}.txt`);
     FileIOHelper.writeFile(tempFile, promptContent);
     const cursorAgentPath = getCursorAgentPath();
-    terminal.sendText(`"${cursorAgentPath}" < "${tempFile}" && rm "${tempFile}"`);
+    const mainCmd = `"${cursorAgentPath}" < "${tempFile}"`;
+    const cleanupCmd = ShellHelper.getDeleteCommand(tempFile);
+    terminal.sendText(ShellHelper.buildChainedCommand(mainCmd, cleanupCmd));
   },
   getExecuteCommand: (tempFile: string, outputFile: string) => {
     const cursorAgentPath = getCursorAgentPath();
