@@ -1,9 +1,11 @@
 {
   "symlink": "_context",
+  "default_template": "_default",
   "sound": true,
-  "template_rules": [],
-  "changed_files": {
-    "enabled": true,
-    "base_branch": "origin/main"
-  }
+  "template_rules": [
+    {
+      "prefix": "feature/",
+      "template": "feature"
+    }
+  ]
 }

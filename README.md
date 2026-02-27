@@ -13,24 +13,22 @@
 
 ## 🎺 Overview<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/dev-panel@main/.github/image/up_arrow.png" width="22"></a>
 
-All-in-one command center for AI-assisted development. A VSCode extension that integrates task management, AI prompt execution, and productivity tools into a unified sidebar.
+All-in-one command center for development productivity. A VSCode extension that integrates task management, variables, and replacements into a unified sidebar.
 
 <div align="center">
   <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/dev-panel@main/.github/image/demo.png" target="_blank">
     <img height="400" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/dev-panel@main/.github/image/demo.png" alt="Dev Panel sidebar">
   </a>
   <br>
-  <em>manage tasks, prompts, and tools in the sidebar</em>
+  <em>manage tasks, variables, and replacements in the sidebar</em>
 </div>
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/dev-panel@main/.github/image/up_arrow.png" width="22"></a>
 
 - **Multi-Source Task Runner** - Execute npm scripts, VSCode tasks, and custom DevPanel tasks from one place
-- **AI Prompts Management** - Create and run prompts for Claude, Gemini, or Cursor Agent with input collection
 - **Dynamic Variables** - Configure project options with choose, input, toggle, file, and folder types
 - **Text Replacements** - Pattern-based text substitution with bulk activation control
-- **Shell Tools** - Execute shell commands with UI and organize by groups
-- **Keybinding Support** - Bind keyboard shortcuts to tasks, prompts, and variables
+- **Keybinding Support** - Bind keyboard shortcuts to tasks and variables
 - **Global & Workspace Scopes** - Share items globally or keep them workspace-specific
 
 ## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/dev-panel@main/.github/image/up_arrow.png" width="22"></a>
@@ -87,49 +85,6 @@ Manage dynamic configuration options for your project.
 </details>
 
 <details>
-<summary><strong>Tools View</strong></summary>
-<br />
-
-<div align="left">
-
-Execute shell commands with a visual interface.
-
-**Features:**
-- Global and workspace-scoped tools
-- Organize by groups
-- Favorites and hide functionality
-- Generate documentation for all tools
-- Copy tools between global and workspace
-
-</div>
-
-</details>
-
-<details>
-<summary><strong>Prompts View</strong></summary>
-<br />
-
-<div align="left">
-
-Manage and execute AI prompts.
-
-**Supported Providers:**
-- Claude
-- Gemini
-- Cursor Agent
-
-**Features:**
-- Collect inputs before execution
-- Save output to file
-- Organize by groups
-- Set keybindings for quick access
-- Global and workspace scopes
-
-</div>
-
-</details>
-
-<details>
 <summary><strong>Task Runner (Explorer)</strong></summary>
 <br />
 
@@ -166,7 +121,6 @@ workspace-root/
   .devpanel/
     config.jsonc              # Main configuration
     variables.json            # Variable values
-    prompts/                  # Prompt files
 ```
 
 The extension provides JSON schema validation for `config.jsonc`.

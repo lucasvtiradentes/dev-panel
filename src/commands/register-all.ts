@@ -2,28 +2,10 @@ import { syncKeybindings } from '../common/core/keybindings-sync';
 import { Command, registerCommand } from '../common/vscode/vscode-commands';
 import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
-import type { PromptTreeDataProvider } from '../views/prompts';
 import type { ReplacementsProvider } from '../views/replacements';
 import type { TaskTreeDataProvider } from '../views/tasks';
-import type { ToolTreeDataProvider } from '../views/tools';
 import type { VariablesProvider } from '../views/variables';
-import {
-  createExecutePromptCommand,
-  createExecuteTaskCommand,
-  createExecuteToolCommand,
-} from './internal/execute-task';
-import { createAddPromptCommand } from './internal/prompts/add-prompt';
-import { createCopyPromptToGlobalCommand } from './internal/prompts/copy-prompt-to-global';
-import { createCopyPromptToWorkspaceCommand } from './internal/prompts/copy-prompt-to-workspace';
-import { createDeletePromptCommand } from './internal/prompts/delete-prompt';
-import { createGoToPromptFileCommand } from './internal/prompts/go-to-prompt-file';
-import { createRefreshPromptsCommand } from './internal/prompts/refresh-prompts';
-import { createSelectProviderCommand } from './internal/prompts/select-provider';
-import {
-  createOpenPromptsKeybindingsCommand,
-  createSetPromptKeybindingCommand,
-} from './internal/prompts/set-prompt-keybinding';
-import { createTogglePromptsViewCommands } from './internal/prompts/toggle-prompts-view';
+import { createExecuteTaskCommand } from './internal/execute-task';
 import { createGoToReplacementTargetFileCommand } from './internal/replacements/go-to-replacement-target-file';
 import {
   createToggleAllReplacementsActivateCommand,
@@ -44,14 +26,6 @@ import {
 } from './internal/tasks/set-task-keybinding';
 import { createSwitchTaskSourceCommands } from './internal/tasks/switch-task-source';
 import { createToggleTasksViewCommands } from './internal/tasks/toggle-tasks-view';
-import { createAddToolCommand } from './internal/tools/add-tool';
-import { createCopyToolToGlobalCommand } from './internal/tools/copy-tool-to-global';
-import { createCopyToolToWorkspaceCommand } from './internal/tools/copy-tool-to-workspace';
-import { createDeleteToolCommand } from './internal/tools/delete-tool';
-import { createGenerateToolsDocsCommand } from './internal/tools/generate-tools-docs';
-import { createGoToToolFileCommand } from './internal/tools/go-to-tool-file';
-import { createRefreshToolsCommand } from './internal/tools/refresh-tools';
-import { createToggleToolsViewCommands } from './internal/tools/toggle-tools-view';
 import { createOpenVariablesConfigCommand } from './internal/variables/open-variables-config';
 import {
   createOpenVariablesKeybindingsCommand,
@@ -65,19 +39,10 @@ import { createShowWorkspaceStateCommand } from './public/show-workspace-state';
 export function registerAllCommands(options: {
   context: ExtensionContext;
   taskTreeDataProvider: TaskTreeDataProvider;
-  toolTreeDataProvider: ToolTreeDataProvider;
-  promptTreeDataProvider: PromptTreeDataProvider;
   variablesProvider: VariablesProvider;
   replacementsProvider: ReplacementsProvider;
 }): Disposable[] {
-  const {
-    context,
-    taskTreeDataProvider,
-    toolTreeDataProvider,
-    promptTreeDataProvider,
-    variablesProvider,
-    replacementsProvider,
-  } = options;
+  const { context, taskTreeDataProvider, variablesProvider, replacementsProvider } = options;
   return [
     createRefreshCommand(taskTreeDataProvider),
     ...createSwitchTaskSourceCommands(taskTreeDataProvider),
@@ -97,30 +62,9 @@ export function registerAllCommands(options: {
     createToggleAllReplacementsDeactivateCommand(),
     ...createToggleReplacementsViewCommands(replacementsProvider),
     createGoToReplacementTargetFileCommand(),
-    ...createToggleToolsViewCommands(toolTreeDataProvider),
-    createRefreshToolsCommand(toolTreeDataProvider),
-    createExecuteToolCommand(context),
-    createGoToToolFileCommand(),
-    createGenerateToolsDocsCommand(),
-    createAddToolCommand(),
-    createCopyToolToGlobalCommand(),
-    createCopyToolToWorkspaceCommand(),
-    createDeleteToolCommand(),
-    ...createTogglePromptsViewCommands(promptTreeDataProvider),
-    createRefreshPromptsCommand(promptTreeDataProvider),
-    createSelectProviderCommand(promptTreeDataProvider),
-    createExecutePromptCommand(),
-    createAddPromptCommand(),
-    createCopyPromptToGlobalCommand(),
-    createCopyPromptToWorkspaceCommand(),
-    createDeletePromptCommand(),
-    createGoToPromptFileCommand(),
     createShowLogsCommand(),
     createShowWorkspaceStateCommand(),
     createClearWorkspaceStateCommand(),
-    registerCommand(Command.SyncPromptKeybindings, () => syncKeybindings()),
-    createSetPromptKeybindingCommand(),
-    createOpenPromptsKeybindingsCommand(),
     registerCommand(Command.SyncVariableKeybindings, () => syncKeybindings()),
     createSetVariableKeybindingCommand(),
     createOpenVariablesKeybindingsCommand(),

@@ -6,9 +6,7 @@ import type { WorkspaceUIState } from '../schemas/workspace-state.schema';
 import type { ExtensionContext } from '../vscode/vscode-types';
 
 export enum StateKey {
-  Tools = 'tools',
   Tasks = 'tasks',
-  Prompts = 'prompts',
   Replacements = 'replacements',
   Variables = 'variables',
 }
@@ -148,83 +146,6 @@ export function createStateManager<T extends Record<string, unknown>>(
       }
       this.saveSourceState(sourceState);
       return index === -1;
-    },
-  };
-}
-
-type ViewState = {
-  isGrouped: boolean;
-  showHidden?: boolean;
-  showOnlyFavorites?: boolean;
-  devpanel: SourceState;
-};
-
-export type ViewStateMethods = {
-  getIsGrouped(): boolean;
-  saveIsGrouped(isGrouped: boolean): void;
-  getShowHidden(): boolean;
-  saveShowHidden(showHidden: boolean): void;
-  getShowOnlyFavorites(): boolean;
-  saveShowOnlyFavorites(showOnlyFavorites: boolean): void;
-  getHiddenItems(): string[];
-  getFavoriteItems(): string[];
-  getOrder(isGrouped: boolean): string[];
-  saveOrder(isGrouped: boolean, order: string[]): void;
-};
-
-export function createViewStateMethods<T extends ViewState>(baseState: StateManagerWithSource<T>): ViewStateMethods {
-  return {
-    getIsGrouped(): boolean {
-      return baseState.load().isGrouped ?? false;
-    },
-
-    saveIsGrouped(isGrouped: boolean) {
-      const state = baseState.load();
-      state.isGrouped = isGrouped;
-      baseState.save(state);
-    },
-
-    getShowHidden(): boolean {
-      return baseState.load().showHidden ?? false;
-    },
-
-    saveShowHidden(showHidden: boolean) {
-      const state = baseState.load();
-      state.showHidden = showHidden;
-      baseState.save(state);
-    },
-
-    getShowOnlyFavorites(): boolean {
-      return baseState.load().showOnlyFavorites ?? false;
-    },
-
-    saveShowOnlyFavorites(showOnlyFavorites: boolean) {
-      const state = baseState.load();
-      state.showOnlyFavorites = showOnlyFavorites;
-      baseState.save(state);
-    },
-
-    getHiddenItems(): string[] {
-      return baseState.getSourceState().hidden;
-    },
-
-    getFavoriteItems(): string[] {
-      return baseState.getSourceState().favorites;
-    },
-
-    getOrder(isGrouped: boolean): string[] {
-      const sourceState = baseState.getSourceState();
-      return isGrouped ? sourceState.groupOrder : sourceState.flatOrder;
-    },
-
-    saveOrder(isGrouped: boolean, order: string[]) {
-      const sourceState = baseState.getSourceState();
-      if (isGrouped) {
-        sourceState.groupOrder = order;
-      } else {
-        sourceState.flatOrder = order;
-      }
-      baseState.saveSourceState(sourceState);
     },
   };
 }

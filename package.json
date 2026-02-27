@@ -25,7 +25,6 @@
     "ai-assisted",
     "task-runner",
     "productivity",
-    "prompts",
     "developer-tools"
   ],
   "galleryBanner": {
@@ -90,14 +89,6 @@
         {
           "id": "devPanelReplacements",
           "name": "Replacements"
-        },
-        {
-          "id": "devPanelTools",
-          "name": "Tools"
-        },
-        {
-          "id": "devPanelPrompts",
-          "name": "Prompts"
         }
       ],
       "explorer": [
@@ -227,99 +218,6 @@
         "title": "Open Settings Menu"
       },
       {
-        "command": "devPanel.toggleToolsGroupMode",
-        "title": "Toggle Tools Group Mode",
-        "icon": "$(list-flat)"
-      },
-      {
-        "command": "devPanel.toggleToolsGroupModeGrouped",
-        "title": "Toggle Tools Group Mode",
-        "icon": "$(list-tree)"
-      },
-      {
-        "command": "devPanel.toggleToolFavorite",
-        "title": "Toggle Tool Favorite",
-        "icon": "$(heart)"
-      },
-      {
-        "command": "devPanel.toggleToolHide",
-        "title": "Toggle Tool Hide",
-        "icon": "$(eye-closed)"
-      },
-      {
-        "command": "devPanel.toggleToolUnfavorite",
-        "title": "Remove from Favorites",
-        "icon": "$(heart-filled)"
-      },
-      {
-        "command": "devPanel.toggleToolsShowHidden",
-        "title": "Show Hidden Tools",
-        "icon": "$(eye)"
-      },
-      {
-        "command": "devPanel.toggleToolsShowHiddenActive",
-        "title": "Hide Hidden Tools",
-        "icon": "$(eye-closed)"
-      },
-      {
-        "command": "devPanel.toggleToolsShowOnlyFavorites",
-        "title": "Show Only Favorites",
-        "icon": "$(heart)"
-      },
-      {
-        "command": "devPanel.toggleToolsShowOnlyFavoritesActive",
-        "title": "Show All Tools",
-        "icon": "$(heart-filled)"
-      },
-      {
-        "command": "devPanel.executeTool",
-        "title": "Execute Tool",
-        "icon": "$(terminal)"
-      },
-      {
-        "command": "devPanel.goToToolFile",
-        "title": "Go to Tool File",
-        "icon": "$(go-to-file)"
-      },
-      {
-        "command": "devPanel.generateToolsDocs",
-        "title": "Generate Tools Documentation",
-        "icon": "$(sync)"
-      },
-      {
-        "command": "devPanel.addTool",
-        "title": "Add Tool",
-        "icon": "$(add)"
-      },
-      {
-        "command": "devPanel.copyToolToGlobal",
-        "title": "Copy to Global",
-        "icon": "$(globe)"
-      },
-      {
-        "command": "devPanel.copyToolToWorkspace",
-        "title": "Copy to Workspace",
-        "icon": "$(file-directory)"
-      },
-      {
-        "command": "devPanel.deleteTool",
-        "title": "Delete Tool"
-      },
-      {
-        "command": "devPanel.copyPromptToGlobal",
-        "title": "Copy to Global",
-        "icon": "$(globe)"
-      },
-      {
-        "command": "devPanel.copyPromptToWorkspace",
-        "title": "Copy to Workspace",
-        "icon": "$(file-directory)"
-      },
-      {
-        "command": "devPanel.deletePrompt",
-        "title": "Delete Prompt"
-      },
-      {
         "command": "devPanel.deleteTask",
         "title": "Delete Task"
       },
@@ -334,69 +232,9 @@
         "icon": "$(file-directory)"
       },
       {
-        "command": "devPanel.togglePromptsGroupMode",
-        "title": "Toggle Prompts Group Mode",
-        "icon": "$(list-flat)"
-      },
-      {
-        "command": "devPanel.togglePromptsGroupModeGrouped",
-        "title": "Toggle Prompts Group Mode",
-        "icon": "$(list-tree)"
-      },
-      {
-        "command": "devPanel.togglePromptFavorite",
-        "title": "Add to Favorites",
-        "icon": "$(heart)"
-      },
-      {
-        "command": "devPanel.togglePromptUnfavorite",
-        "title": "Remove from Favorites",
-        "icon": "$(heart-filled)"
-      },
-      {
-        "command": "devPanel.togglePromptHide",
-        "title": "Toggle Prompt Hide",
-        "icon": "$(eye-closed)"
-      },
-      {
-        "command": "devPanel.togglePromptsShowHidden",
-        "title": "Show Hidden Prompts",
-        "icon": "$(eye)"
-      },
-      {
-        "command": "devPanel.togglePromptsShowHiddenActive",
-        "title": "Hide Hidden Prompts",
-        "icon": "$(eye-closed)"
-      },
-      {
-        "command": "devPanel.togglePromptsShowOnlyFavorites",
-        "title": "Show Only Favorites",
-        "icon": "$(heart)"
-      },
-      {
-        "command": "devPanel.togglePromptsShowOnlyFavoritesActive",
-        "title": "Show All Prompts",
-        "icon": "$(heart-filled)"
-      },
-      {
-        "command": "devPanel.goToPromptFile",
-        "title": "Go to Prompt File",
-        "icon": "$(go-to-file)"
-      },
-      {
         "command": "devPanel.goToReplacementTargetFile",
         "title": "Go to Replacement Target File",
         "icon": "$(go-to-file)"
-      },
-      {
-        "command": "devPanel.addPrompt",
-        "title": "Add Prompt",
-        "icon": "$(add)"
-      },
-      {
-        "command": "devPanel.promptsSelectProvider",
-        "title": "Select AI Provider",
-        "icon": "$(settings-gear)"
       },
       {
         "command": "devPanel.showLogs",
@@ -409,20 +247,6 @@
       {
         "command": "devPanel.clearWorkspaceState",
         "title": "Dev Panel: Clear Workspace State"
-      },
-      {
-        "command": "devPanel.syncPromptKeybindings",
-        "title": "Dev Panel: Sync Prompt Keybindings"
-      },
-      {
-        "command": "devPanel.setPromptKeybinding",
-        "title": "Set Keybinding",
-        "icon": "$(keyboard)"
-      },
-      {
-        "command": "devPanel.openPromptsKeybindings",
-        "title": "Open Prompts Keybindings",
-        "icon": "$(keyboard)"
       },
       {
         "command": "devPanel.syncVariableKeybindings",
@@ -464,10 +288,6 @@
       {
         "command": "devPanel.goToTask",
         "title": "Go to Task"
-      },
-      {
-        "command": "devPanel.executePrompt",
-        "title": "Execute Prompt"
       }
     ],
     "keybindings": [],
@@ -570,82 +390,6 @@
           "when": "false"
         },
         {
-          "command": "devPanel.toggleToolsGroupMode",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleToolsGroupModeGrouped",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleToolFavorite",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleToolHide",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleToolUnfavorite",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleToolsShowHidden",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleToolsShowHiddenActive",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleToolsShowOnlyFavorites",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleToolsShowOnlyFavoritesActive",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.executeTool",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.goToToolFile",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.generateToolsDocs",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.addTool",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.copyToolToGlobal",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.copyToolToWorkspace",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.deleteTool",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.copyPromptToGlobal",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.copyPromptToWorkspace",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.deletePrompt",
-          "when": "false"
-        },
-        {
           "command": "devPanel.deleteTask",
           "when": "false"
         },
@@ -658,63 +402,7 @@
           "when": "false"
         },
         {
-          "command": "devPanel.togglePromptsGroupMode",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.togglePromptsGroupModeGrouped",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.togglePromptFavorite",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.togglePromptUnfavorite",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.togglePromptHide",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.togglePromptsShowHidden",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.togglePromptsShowHiddenActive",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.togglePromptsShowOnlyFavorites",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.togglePromptsShowOnlyFavoritesActive",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.goToPromptFile",
-          "when": "false"
-        },
-        {
           "command": "devPanel.goToReplacementTargetFile",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.addPrompt",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.promptsSelectProvider",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.setPromptKeybinding",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.openPromptsKeybindings",
           "when": "false"
         },
         {
@@ -743,10 +431,6 @@
         },
         {
           "command": "devPanel.goToTask",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.executePrompt",
           "when": "false"
         }
       ],
@@ -845,91 +529,6 @@
           "command": "devPanel.switchTaskSourceFromDevPanel",
           "when": "view == devPanelTasks && taskSourceDevPanel",
           "group": "navigation@6"
-        },
-        {
-          "command": "devPanel.toggleToolsGroupMode",
-          "when": "view == devPanelTools && !toolsGrouped",
-          "group": "navigation@1"
-        },
-        {
-          "command": "devPanel.toggleToolsGroupModeGrouped",
-          "when": "view == devPanelTools && toolsGrouped",
-          "group": "navigation@1"
-        },
-        {
-          "command": "devPanel.toggleToolsShowOnlyFavorites",
-          "when": "view == devPanelTools && toolsHasFavorites && !toolsShowOnlyFavorites",
-          "group": "navigation@2"
-        },
-        {
-          "command": "devPanel.toggleToolsShowOnlyFavoritesActive",
-          "when": "view == devPanelTools && toolsHasFavorites && toolsShowOnlyFavorites",
-          "group": "navigation@2"
-        },
-        {
-          "command": "devPanel.toggleToolsShowHidden",
-          "when": "view == devPanelTools && toolsHasHidden && !toolsShowHidden",
-          "group": "navigation@3"
-        },
-        {
-          "command": "devPanel.toggleToolsShowHiddenActive",
-          "when": "view == devPanelTools && toolsHasHidden && toolsShowHidden",
-          "group": "navigation@3"
-        },
-        {
-          "command": "devPanel.generateToolsDocs",
-          "when": "view == devPanelTools",
-          "group": "navigation@4"
-        },
-        {
-          "command": "devPanel.addTool",
-          "when": "view == devPanelTools",
-          "group": "navigation@5"
-        },
-        {
-          "command": "devPanel.togglePromptsGroupMode",
-          "when": "view == devPanelPrompts && !promptsGrouped",
-          "group": "navigation@1"
-        },
-        {
-          "command": "devPanel.togglePromptsGroupModeGrouped",
-          "when": "view == devPanelPrompts && promptsGrouped",
-          "group": "navigation@1"
-        },
-        {
-          "command": "devPanel.togglePromptsShowOnlyFavorites",
-          "when": "view == devPanelPrompts && promptsHasFavorites && !promptsShowOnlyFavorites",
-          "group": "navigation@2"
-        },
-        {
-          "command": "devPanel.togglePromptsShowOnlyFavoritesActive",
-          "when": "view == devPanelPrompts && promptsHasFavorites && promptsShowOnlyFavorites",
-          "group": "navigation@2"
-        },
-        {
-          "command": "devPanel.togglePromptsShowHidden",
-          "when": "view == devPanelPrompts && promptsHasHidden && !promptsShowHidden",
-          "group": "navigation@3"
-        },
-        {
-          "command": "devPanel.togglePromptsShowHiddenActive",
-          "when": "view == devPanelPrompts && promptsHasHidden && promptsShowHidden",
-          "group": "navigation@3"
-        },
-        {
-          "command": "devPanel.addPrompt",
-          "when": "view == devPanelPrompts",
-          "group": "navigation@4"
-        },
-        {
-          "command": "devPanel.openPromptsKeybindings",
-          "when": "view == devPanelPrompts",
-          "group": "navigation@5"
-        },
-        {
-          "command": "devPanel.promptsSelectProvider",
-          "when": "view == devPanelPrompts",
-          "group": "navigation@6"
         }
       ],
       "view/item/context": [
@@ -979,76 +578,6 @@
           "group": "inline@1"
         },
         {
-          "command": "devPanel.toggleToolFavorite",
-          "when": "view == devPanelTools && (viewItem == tool || viewItem == tool-global || viewItem == tool-hidden || viewItem == tool-global-hidden)"
-        },
-        {
-          "command": "devPanel.toggleToolUnfavorite",
-          "when": "view == devPanelTools && (viewItem == tool-favorite || viewItem == tool-global-favorite)"
-        },
-        {
-          "command": "devPanel.toggleToolHide",
-          "when": "view == devPanelTools && viewItem =~ /^tool/"
-        },
-        {
-          "command": "devPanel.goToToolFile",
-          "when": "view == devPanelTools && viewItem =~ /^tool/"
-        },
-        {
-          "command": "devPanel.executeTool",
-          "when": "view == devPanelTools && viewItem =~ /^tool/",
-          "group": "inline@1"
-        },
-        {
-          "command": "devPanel.copyToolToGlobal",
-          "when": "view == devPanelTools && viewItem =~ /^tool(-hidden|-favorite)?$/"
-        },
-        {
-          "command": "devPanel.copyToolToWorkspace",
-          "when": "view == devPanelTools && viewItem =~ /^tool-global/"
-        },
-        {
-          "command": "devPanel.deleteTool",
-          "when": "view == devPanelTools && viewItem =~ /^tool/"
-        },
-        {
-          "command": "devPanel.togglePromptFavorite",
-          "when": "view == devPanelPrompts && (viewItem == prompt || viewItem == prompt-global || viewItem == prompt-hidden || viewItem == prompt-global-hidden)"
-        },
-        {
-          "command": "devPanel.togglePromptUnfavorite",
-          "when": "view == devPanelPrompts && (viewItem == prompt-favorite || viewItem == prompt-global-favorite)"
-        },
-        {
-          "command": "devPanel.togglePromptHide",
-          "when": "view == devPanelPrompts && viewItem =~ /^prompt/"
-        },
-        {
-          "command": "devPanel.setPromptKeybinding",
-          "when": "view == devPanelPrompts && viewItem =~ /^prompt/"
-        },
-        {
-          "command": "devPanel.goToPromptFile",
-          "when": "view == devPanelPrompts && viewItem =~ /^prompt/",
-          "group": "inline@1"
-        },
-        {
-          "command": "devPanel.executePrompt",
-          "when": "view == devPanelPrompts"
-        },
-        {
-          "command": "devPanel.copyPromptToGlobal",
-          "when": "view == devPanelPrompts && viewItem =~ /^prompt(-hidden|-favorite)?$/"
-        },
-        {
-          "command": "devPanel.copyPromptToWorkspace",
-          "when": "view == devPanelPrompts && viewItem =~ /^prompt-global/"
-        },
-        {
-          "command": "devPanel.deletePrompt",
-          "when": "view == devPanelPrompts && viewItem =~ /^prompt/"
-        },
-        {
           "command": "devPanel.setVariableKeybinding",
           "when": "view == devPanelConfigs && viewItem == variableItem"
         },
@@ -1080,26 +609,6 @@
       {
         "view": "devPanelReplacements",
         "contents": "No replacements configured.\n\nAdd replacements in your config file.",
-        "when": "!extensionInitializing"
-      },
-      {
-        "view": "devPanelTools",
-        "contents": "Loading tools...",
-        "when": "extensionInitializing"
-      },
-      {
-        "view": "devPanelTools",
-        "contents": "No tools configured.\n\nAdd tools in your config file.",
-        "when": "!extensionInitializing"
-      },
-      {
-        "view": "devPanelPrompts",
-        "contents": "Loading prompts...",
-        "when": "extensionInitializing"
-      },
-      {
-        "view": "devPanelPrompts",
-        "contents": "No prompts configured.\n\nAdd prompts in your config file.",
         "when": "!extensionInitializing"
       },
       {

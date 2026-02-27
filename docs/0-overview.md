@@ -1,21 +1,20 @@
 # Description
 
-A VSCode extension for managing project-specific tools, scripts, prompts, and configurations from the Explorer pane. Provides a centralized panel for developer productivity with support for both workspace and global configurations.
+A VSCode extension for managing project-specific tasks, variables, and configurations from the Explorer pane. Provides a centralized panel for developer productivity with support for both workspace and global configurations.
 
 # Motivation
 
 Developers often create helper scripts (db dumps, deployment shortcuts, code generators) that boost productivity but remain siloed in personal setups. **Dev Panel** solves this by:
 
-- Making tools/scripts **shareable** via `.devpanel/` directory in the repo
+- Making tasks/configs **shareable** via `.devpanel/` directory in the repo
 - Providing a **visual interface** instead of remembering CLI commands
-- Supporting **global configs** (`~/.devpanel/`) for cross-project tools
+- Supporting **global configs** (`~/.devpanel/`) for cross-project tasks
 
 # Features
 
 - **Visual by default**: Control everything about your project with multiple views
 - **Init withing seconds**: Quick run the "init" command to start with a minimal working config
 - **Customizable**: Extend functionality with custom providers
-- **Comunity driven**: Install community tools/prompts/plugins from central registry
 
 # Extension parts
 
@@ -25,9 +24,7 @@ Developers often create helper scripts (db dumps, deployment shortcuts, code gen
 
 - **Variables**: Configurable project options (toggle, choose, input, file/folder picker)
 - **Replacements**: File/patch swaps with one-click activation
-- **Prompts**: AI prompts with inputs, supports Claude/Gemini/Cursor
 - **Tasks**: Run npm scripts, VSCode tasks, or custom DevPanel tasks
-- **Tools**: Shell scripts with documentation, toggleable state
 
 ## Status bar
 
@@ -39,7 +36,7 @@ Config location picker - allows changing where `.devpanel/` directory is located
 |----------|----------|
 | **View toggles** | Group mode, show hidden, show only favorites |
 | **Item actions** | Execute, favorite, hide, delete, copy to global/workspace |
-| **Keybindings** | Set/sync keybindings for prompts, variables, tasks |
+| **Keybindings** | Set/sync keybindings for variables, tasks |
 | **Navigation** | Go to file, open config |
 
 ## Watchers
@@ -94,11 +91,11 @@ Config location picker - allows changing where `.devpanel/` directory is located
 │              Parse with JSON5 + Zod                     │
 └────────────────────────┬────────────────────────────────┘
                          ▼
-┌──────────┬──────────┬──────────┬──────────┬─────────────┐
-│Variables │Replacemts│ Prompts  │  Tasks   │   Tools     │
-└────┬─────┴────┬─────┴────┬─────┴────┬─────┴──────┬──────┘
-     │          │          │          │            │
-     ▼          ▼          ▼          ▼            ▼
+┌──────────┬──────────┬──────────┐
+│Variables │Replacemts│  Tasks   │
+└────┬─────┴────┬─────┴────┬─────┘
+     │          │          │
+     ▼          ▼          ▼
 ┌─────────────────────────────────────────────────────────┐
 │              Register Tree Data Providers               │
 └────────────────────────┬────────────────────────────────┘

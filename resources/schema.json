@@ -11,22 +11,15 @@
       "description": "Global settings",
       "type": "object",
       "properties": {
-        "promptExecution": {
-          "description": "Execution mode for prompts with saveOutput: \"timestamped\" creates new file each time with timestamp, \"overwrite\" replaces previous file",
-          "type": "string",
-          "enum": [
-            "overwrite"
-          ]
-        },
         "include": {
-          "description": "Glob patterns to include globally (package.json search, prompt file/folder selection, variable file/folder selection). Extends defaults: **/*. Add custom inclusions as needed (e.g. [\"**/*.ts\", \"**/*.json\"])",
+          "description": "Glob patterns to include globally (package.json search, variable file/folder selection). Extends defaults: **/*. Add custom inclusions as needed (e.g. [\"**/*.ts\", \"**/*.json\"])",
           "type": "array",
           "items": {
             "type": "string"
           }
         },
         "exclude": {
-          "description": "Glob patterns to exclude globally (package.json search, prompt file/folder selection, variable file/folder selection). Extends defaults: **/node_modules/**, **/.git/**, **/dist/**, **/out/**. Add custom exclusions as needed (e.g. [\"**/.devpanel/**\", \"**/.changeset/**\", \"**/out/**\", \"**/*.log\"])",
+          "description": "Glob patterns to exclude globally (package.json search, variable file/folder selection). Extends defaults: **/node_modules/**, **/.git/**, **/dist/**, **/out/**. Add custom exclusions as needed (e.g. [\"**/.devpanel/**\", \"**/.changeset/**\", \"**/out/**\", \"**/*.log\"])",
           "type": "array",
           "items": {
             "type": "string"
@@ -566,7 +559,7 @@
             "description": "Inputs to collect before running the task",
             "type": "array",
             "items": {
-              "description": "An input required before execution (used by prompts and tasks)",
+              "description": "An input required before execution (used by tasks)",
               "type": "object",
               "properties": {
                 "name": {
@@ -640,141 +633,6 @@
         "required": [
           "name",
           "command"
-        ],
-        "additionalProperties": false
-      }
-    },
-    "tools": {
-      "description": "Executable tools",
-      "type": "array",
-      "items": {
-        "description": "A tool that can be executed from the Tools view",
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "Unique identifier for the tool",
-            "type": "string"
-          },
-          "command": {
-            "description": "Shell command to execute",
-            "type": "string"
-          },
-          "group": {
-            "description": "Group name for organizing tools",
-            "type": "string"
-          },
-          "useWorkspaceRoot": {
-            "description": "If true, run command from workspace root instead of .devpanel directory",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "name"
-        ],
-        "additionalProperties": false
-      }
-    },
-    "prompts": {
-      "description": "Claude Code prompts",
-      "type": "array",
-      "items": {
-        "description": "A prompt that can be executed in Claude Code",
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "Unique identifier for the prompt",
-            "type": "string"
-          },
-          "file": {
-            "description": "Path to prompt file relative to .devpanel/prompts/",
-            "type": "string"
-          },
-          "group": {
-            "description": "Group name for organizing prompts",
-            "type": "string"
-          },
-          "description": {
-            "description": "Human-readable description shown as tooltip",
-            "type": "string"
-          },
-          "inputs": {
-            "description": "Inputs to collect before running the prompt",
-            "type": "array",
-            "items": {
-              "description": "An input required before execution (used by prompts and tasks)",
-              "type": "object",
-              "properties": {
-                "name": {
-                  "description": "Variable name used in template as $name",
-                  "type": "string"
-                },
-                "type": {
-                  "description": "Input type",
-                  "type": "string",
-                  "enum": [
-                    "file",
-                    "folder",
-                    "text",
-                    "number",
-                    "confirm",
-                    "choice",
-                    "multichoice"
-                  ]
-                },
-                "label": {
-                  "description": "Label shown in the input dialog",
-                  "type": "string"
-                },
-                "placeholder": {
-                  "description": "Placeholder text for text/number inputs",
-                  "type": "string"
-                },
-                "options": {
-                  "description": "Available options for choice/multichoice types",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "multiSelect": {
-                  "description": "Enable multi-selection for file/folder types",
-                  "type": "boolean"
-                },
-                "includes": {
-                  "description": "Glob patterns to include for this input. Extends global includes",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "excludes": {
-                  "description": "Glob patterns to exclude for this input. Extends global excludes",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              },
-              "required": [
-                "name",
-                "type",
-                "label"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "saveOutput": {
-            "description": "If true, save response to file",
-            "type": "boolean"
-          },
-          "useWorkspaceRoot": {
-            "description": "If true, resolve file path from workspace root instead of .devpanel directory",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "name",
-          "file"
         ],
         "additionalProperties": false
       }
