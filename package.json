@@ -92,10 +92,6 @@
           "name": "Replacements"
         },
         {
-          "id": "devPanelTools",
-          "name": "Tools"
-        },
-        {
           "id": "devPanelPrompts",
           "name": "Prompts"
         }
@@ -225,85 +221,6 @@
       {
         "command": "devPanel.openSettingsMenu",
         "title": "Open Settings Menu"
-      },
-      {
-        "command": "devPanel.toggleToolsGroupMode",
-        "title": "Toggle Tools Group Mode",
-        "icon": "$(list-flat)"
-      },
-      {
-        "command": "devPanel.toggleToolsGroupModeGrouped",
-        "title": "Toggle Tools Group Mode",
-        "icon": "$(list-tree)"
-      },
-      {
-        "command": "devPanel.toggleToolFavorite",
-        "title": "Toggle Tool Favorite",
-        "icon": "$(heart)"
-      },
-      {
-        "command": "devPanel.toggleToolHide",
-        "title": "Toggle Tool Hide",
-        "icon": "$(eye-closed)"
-      },
-      {
-        "command": "devPanel.toggleToolUnfavorite",
-        "title": "Remove from Favorites",
-        "icon": "$(heart-filled)"
-      },
-      {
-        "command": "devPanel.toggleToolsShowHidden",
-        "title": "Show Hidden Tools",
-        "icon": "$(eye)"
-      },
-      {
-        "command": "devPanel.toggleToolsShowHiddenActive",
-        "title": "Hide Hidden Tools",
-        "icon": "$(eye-closed)"
-      },
-      {
-        "command": "devPanel.toggleToolsShowOnlyFavorites",
-        "title": "Show Only Favorites",
-        "icon": "$(heart)"
-      },
-      {
-        "command": "devPanel.toggleToolsShowOnlyFavoritesActive",
-        "title": "Show All Tools",
-        "icon": "$(heart-filled)"
-      },
-      {
-        "command": "devPanel.executeTool",
-        "title": "Execute Tool",
-        "icon": "$(terminal)"
-      },
-      {
-        "command": "devPanel.goToToolFile",
-        "title": "Go to Tool File",
-        "icon": "$(go-to-file)"
-      },
-      {
-        "command": "devPanel.generateToolsDocs",
-        "title": "Generate Tools Documentation",
-        "icon": "$(sync)"
-      },
-      {
-        "command": "devPanel.addTool",
-        "title": "Add Tool",
-        "icon": "$(add)"
-      },
-      {
-        "command": "devPanel.copyToolToGlobal",
-        "title": "Copy to Global",
-        "icon": "$(globe)"
-      },
-      {
-        "command": "devPanel.copyToolToWorkspace",
-        "title": "Copy to Workspace",
-        "icon": "$(file-directory)"
-      },
-      {
-        "command": "devPanel.deleteTool",
-        "title": "Delete Tool"
       },
       {
         "command": "devPanel.copyPromptToGlobal",
@@ -570,70 +487,6 @@
           "when": "false"
         },
         {
-          "command": "devPanel.toggleToolsGroupMode",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleToolsGroupModeGrouped",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleToolFavorite",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleToolHide",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleToolUnfavorite",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleToolsShowHidden",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleToolsShowHiddenActive",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleToolsShowOnlyFavorites",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.toggleToolsShowOnlyFavoritesActive",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.executeTool",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.goToToolFile",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.generateToolsDocs",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.addTool",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.copyToolToGlobal",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.copyToolToWorkspace",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.deleteTool",
-          "when": "false"
-        },
-        {
           "command": "devPanel.copyPromptToGlobal",
           "when": "false"
         },
@@ -847,46 +700,6 @@
           "group": "navigation@6"
         },
         {
-          "command": "devPanel.toggleToolsGroupMode",
-          "when": "view == devPanelTools && !toolsGrouped",
-          "group": "navigation@1"
-        },
-        {
-          "command": "devPanel.toggleToolsGroupModeGrouped",
-          "when": "view == devPanelTools && toolsGrouped",
-          "group": "navigation@1"
-        },
-        {
-          "command": "devPanel.toggleToolsShowOnlyFavorites",
-          "when": "view == devPanelTools && toolsHasFavorites && !toolsShowOnlyFavorites",
-          "group": "navigation@2"
-        },
-        {
-          "command": "devPanel.toggleToolsShowOnlyFavoritesActive",
-          "when": "view == devPanelTools && toolsHasFavorites && toolsShowOnlyFavorites",
-          "group": "navigation@2"
-        },
-        {
-          "command": "devPanel.toggleToolsShowHidden",
-          "when": "view == devPanelTools && toolsHasHidden && !toolsShowHidden",
-          "group": "navigation@3"
-        },
-        {
-          "command": "devPanel.toggleToolsShowHiddenActive",
-          "when": "view == devPanelTools && toolsHasHidden && toolsShowHidden",
-          "group": "navigation@3"
-        },
-        {
-          "command": "devPanel.generateToolsDocs",
-          "when": "view == devPanelTools",
-          "group": "navigation@4"
-        },
-        {
-          "command": "devPanel.addTool",
-          "when": "view == devPanelTools",
-          "group": "navigation@5"
-        },
-        {
           "command": "devPanel.togglePromptsGroupMode",
           "when": "view == devPanelPrompts && !promptsGrouped",
           "group": "navigation@1"
@@ -979,39 +792,6 @@
           "group": "inline@1"
         },
         {
-          "command": "devPanel.toggleToolFavorite",
-          "when": "view == devPanelTools && (viewItem == tool || viewItem == tool-global || viewItem == tool-hidden || viewItem == tool-global-hidden)"
-        },
-        {
-          "command": "devPanel.toggleToolUnfavorite",
-          "when": "view == devPanelTools && (viewItem == tool-favorite || viewItem == tool-global-favorite)"
-        },
-        {
-          "command": "devPanel.toggleToolHide",
-          "when": "view == devPanelTools && viewItem =~ /^tool/"
-        },
-        {
-          "command": "devPanel.goToToolFile",
-          "when": "view == devPanelTools && viewItem =~ /^tool/"
-        },
-        {
-          "command": "devPanel.executeTool",
-          "when": "view == devPanelTools && viewItem =~ /^tool/",
-          "group": "inline@1"
-        },
-        {
-          "command": "devPanel.copyToolToGlobal",
-          "when": "view == devPanelTools && viewItem =~ /^tool(-hidden|-favorite)?$/"
-        },
-        {
-          "command": "devPanel.copyToolToWorkspace",
-          "when": "view == devPanelTools && viewItem =~ /^tool-global/"
-        },
-        {
-          "command": "devPanel.deleteTool",
-          "when": "view == devPanelTools && viewItem =~ /^tool/"
-        },
-        {
           "command": "devPanel.togglePromptFavorite",
           "when": "view == devPanelPrompts && (viewItem == prompt || viewItem == prompt-global || viewItem == prompt-hidden || viewItem == prompt-global-hidden)"
         },
@@ -1080,16 +860,6 @@
       {
         "view": "devPanelReplacements",
         "contents": "No replacements configured.\n\nAdd replacements in your config file.",
-        "when": "!extensionInitializing"
-      },
-      {
-        "view": "devPanelTools",
-        "contents": "Loading tools...",
-        "when": "extensionInitializing"
-      },
-      {
-        "view": "devPanelTools",
-        "contents": "No tools configured.\n\nAdd tools in your config file.",
         "when": "!extensionInitializing"
       },
       {

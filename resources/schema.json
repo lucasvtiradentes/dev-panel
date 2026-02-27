@@ -644,36 +644,6 @@
         "additionalProperties": false
       }
     },
-    "tools": {
-      "description": "Executable tools",
-      "type": "array",
-      "items": {
-        "description": "A tool that can be executed from the Tools view",
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "Unique identifier for the tool",
-            "type": "string"
-          },
-          "command": {
-            "description": "Shell command to execute",
-            "type": "string"
-          },
-          "group": {
-            "description": "Group name for organizing tools",
-            "type": "string"
-          },
-          "useWorkspaceRoot": {
-            "description": "If true, run command from workspace root instead of .devpanel directory",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "name"
-        ],
-        "additionalProperties": false
-      }
-    },
     "prompts": {
       "description": "Claude Code prompts",
       "type": "array",

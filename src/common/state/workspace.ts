@@ -5,12 +5,10 @@ import {
   DEFAULT_PROMPTS_STATE,
   DEFAULT_REPLACEMENTS_STATE,
   DEFAULT_TASKS_STATE,
-  DEFAULT_TOOLS_STATE,
   DEFAULT_VARIABLES_STATE,
   type PromptsState,
   type ReplacementsState,
   type TasksState,
-  type ToolsState,
   type VariablesState,
 } from '../schemas/workspace-state.schema';
 import {
@@ -23,54 +21,6 @@ import {
   createStateManager,
   createViewStateMethods,
 } from './base';
-
-const baseToolsState = createStateManager<ToolsState>({
-  stateKey: StateKey.Tools,
-  defaultState: DEFAULT_TOOLS_STATE,
-  storageType: StorageType.Workspace,
-});
-
-const toolsViewMethods = createViewStateMethods(baseToolsState);
-
-export const toolsState: StateManagerWithSource<ToolsState> &
-  ViewStateMethods & {
-    getActiveTools(): string[];
-    setActiveTools(active: string[]): void;
-    addActiveTool(name: string): void;
-    removeActiveTool(name: string): void;
-  } = {
-  ...baseToolsState,
-  ...toolsViewMethods,
-
-  getActiveTools(): string[] {
-    return this.load().activeTools ?? [];
-  },
-
-  setActiveTools(active: string[]) {
-    const tools = this.load();
-    tools.activeTools = active;
-    this.save(tools);
-  },
-
-  addActiveTool(name: string) {
-    const tools = this.load();
-    if (!tools.activeTools) {
-      tools.activeTools = [];
-    }
-    if (!tools.activeTools.includes(name)) {
-      tools.activeTools.push(name);
-      this.save(tools);
-    }
-  },
-
-  removeActiveTool(name: string) {
-    const tools = this.load();
-    if (tools.activeTools) {
-      tools.activeTools = tools.activeTools.filter((n: string) => n !== name);
-      this.save(tools);
-    }
-  },
-};
 
 const basePromptsState = createStateManager<PromptsState>({
   stateKey: StateKey.Prompts,

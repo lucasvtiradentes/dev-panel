@@ -1,8 +1,7 @@
 import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
 import { executeCommandWithProgress, executeTaskSilently } from 'src/common/utils/functions/execute-silent';
 import { replaceVariablePlaceholders } from 'src/common/utils/functions/template-replace';
-import { GLOBAL_ITEM_PREFIX, GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
-import { CONFIG_DIR_KEY, getGlobalConfigDir, getGlobalVariablesPath } from '../../common/constants/scripts-constants';
+import { GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import {
@@ -29,7 +28,6 @@ import {
 } from '../../common/vscode/vscode-types';
 import { isMultiRootWorkspace } from '../../common/vscode/vscode-workspace';
 import { type PromptProvider, getProvider } from '../../views/prompts/providers';
-import { TreeTool } from '../../views/tools/items';
 
 const log = createLogger('execute-task');
 
@@ -188,75 +186,6 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
   return registerCommand(Command.ExecuteTask, (task, scope, taskConfig) =>
     handleExecuteTask(context, task, scope, taskConfig),
   );
-}
-
-function handleExecuteTool(context: ExtensionContext, item: TreeTool | Task) {
-  if (item instanceof TreeTool) {
-    const toolName = item.toolName;
-    const isGlobal = toolName.startsWith(GLOBAL_ITEM_PREFIX);
-    const actualName = isGlobal ? toolName.replace(GLOBAL_ITEM_PREFIX, '') : toolName;
-
-    let toolConfig: { command?: string; useWorkspaceRoot?: boolean } | undefined;
-    let cwd: string;
-    let env: Record<string, string> = {};
-
-    const globalConfig = ConfigManager.loadGlobalConfig();
-    const folder = VscodeHelper.getFirstWorkspaceFolder();
-
-    if (isGlobal) {
-      toolConfig = globalConfig?.tools?.find((t) => t.name === actualName);
-      cwd = folder ? folder.uri.fsPath : getGlobalConfigDir();
-      env = VariablesEnvManager.readDevPanelVariablesAsEnv(getGlobalVariablesPath());
-    } else {
-      if (!folder) {
-        void VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
-        return;
-      }
-      const config = ConfigManager.loadWorkspaceConfig(folder);
-      toolConfig = config?.tools?.find((t) => t.name === actualName);
-      const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
-      cwd = toolConfig?.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
-      env = VariablesEnvManager.readDevPanelVariablesAsEnv(ConfigManager.getWorkspaceVariablesPath(folder));
-    }
-
-    if (!toolConfig?.command) {
-      void VscodeHelper.showToastMessage(ToastKind.Error, `Tool "${actualName}" has no command configured`);
-      return;
-    }
-
-    const shellExec = VscodeHelper.createShellExecution(toolConfig.command, { env, cwd });
-    const vsTask = VscodeHelper.createTask({
-      definition: { type: `${CONFIG_DIR_KEY}-tool`, task: actualName },
-      scope: folder ?? VscodeConstants.TaskScope.Global,
-      name: actualName,
-      source: `${CONFIG_DIR_KEY}-tool`,
-      execution: shellExec,
-    });
-
-    vsTask.presentationOptions = {
-      reveal: VscodeConstants.TaskRevealKind.Always,
-      panel: VscodeConstants.TaskPanelKind.New,
-      clear: false,
-      focus: false,
-      showReuseMessage: false,
-    };
-
-    void VscodeHelper.executeTask(vsTask);
-    return;
-  }
-
-  const task = item as Task;
-  void VscodeHelper.executeTask(task).then((execution) => {
-    VscodeHelper.onDidEndTask((e) => {
-      if (e.execution === execution) {
-        void context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, null);
-      }
-    });
-  });
-}
-
-export function createExecuteToolCommand(context: ExtensionContext) {
-  return registerCommand(Command.ExecuteTool, (item) => handleExecuteTool(context, item));
 }
 
 async function handleExecutePrompt({ promptFilePath, folder, promptConfig }: ExecutePromptParams) {

@@ -64,18 +64,6 @@ const DevPanelTaskSchema = z
   })
   .describe('A task that can be executed from the Tasks view');
 
-const DevPanelToolSchema = z
-  .object({
-    name: z.string().describe('Unique identifier for the tool'),
-    command: z.string().optional().describe('Shell command to execute'),
-    group: z.string().optional().describe('Group name for organizing tools'),
-    useWorkspaceRoot: z
-      .boolean()
-      .optional()
-      .describe(`If true, run command from workspace root instead of ${CONFIG_DIR_NAME} directory`),
-  })
-  .describe('A tool that can be executed from the Tools view');
-
 const DevPanelPromptSchema = z
   .object({
     name: z.string().describe('Unique identifier for the prompt'),
@@ -237,7 +225,6 @@ export const DevPanelConfigSchema = z
     variables: z.array(DevPanelVariableSchema).optional().describe('Configuration variables'),
     replacements: z.array(DevPanelReplacementSchema).optional().describe('File replacements/patches'),
     tasks: z.array(DevPanelTaskSchema).optional().describe('Executable tasks'),
-    tools: z.array(DevPanelToolSchema).optional().describe('Executable tools'),
     prompts: z.array(DevPanelPromptSchema).optional().describe('Claude Code prompts'),
   })
   .describe(`${EXTENSION_DISPLAY_NAME} configuration file`);

@@ -4,12 +4,6 @@ const TASK_DP = `task-${CONFIG_DIR_KEY}`;
 
 export const CONTEXT_VALUES = {
   GROUP: 'group',
-  TOOL: 'tool',
-  TOOL_HIDDEN: 'tool-hidden',
-  TOOL_FAVORITE: 'tool-favorite',
-  TOOL_GLOBAL: 'tool-global',
-  TOOL_GLOBAL_HIDDEN: 'tool-global-hidden',
-  TOOL_GLOBAL_FAVORITE: 'tool-global-favorite',
   TASK: 'task',
   TASK_HIDDEN: 'task-hidden',
   TASK_FAVORITE: 'task-favorite',

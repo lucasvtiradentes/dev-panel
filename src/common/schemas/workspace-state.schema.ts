@@ -13,14 +13,6 @@ const TasksStateSchema = z.object({
   devpanel: SourceStateSchema,
 });
 
-const ToolsStateSchema = z.object({
-  isGrouped: z.boolean(),
-  showHidden: z.boolean().optional(),
-  showOnlyFavorites: z.boolean().optional(),
-  devpanel: SourceStateSchema,
-  activeTools: z.array(z.string()),
-});
-
 const PromptsStateSchema = z.object({
   isGrouped: z.boolean(),
   showHidden: z.boolean().optional(),
@@ -41,14 +33,12 @@ const ReplacementsStateSchema = z.object({
 
 const WorkspaceUIStateSchema = z.object({
   tasks: TasksStateSchema.optional(),
-  tools: ToolsStateSchema.optional(),
   prompts: PromptsStateSchema.optional(),
   variables: VariablesStateSchema.optional(),
   replacements: ReplacementsStateSchema.optional(),
 });
 
 export type TasksState = z.infer<typeof TasksStateSchema>;
-export type ToolsState = z.infer<typeof ToolsStateSchema>;
 export type PromptsState = z.infer<typeof PromptsStateSchema>;
 export type VariablesState = z.infer<typeof VariablesStateSchema>;
 export type ReplacementsState = z.infer<typeof ReplacementsStateSchema>;
@@ -60,12 +50,6 @@ export const DEFAULT_TASKS_STATE: TasksState = {
   vscode: { ...DEFAULT_SOURCE_STATE },
   package: { ...DEFAULT_SOURCE_STATE },
   devpanel: { ...DEFAULT_SOURCE_STATE },
-};
-
-export const DEFAULT_TOOLS_STATE: ToolsState = {
-  isGrouped: false,
-  devpanel: { ...DEFAULT_SOURCE_STATE },
-  activeTools: [],
 };
 
 export const DEFAULT_PROMPTS_STATE: PromptsState = {

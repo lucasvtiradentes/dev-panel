@@ -2,8 +2,6 @@ import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   PROMPTS_DIR_NAME,
-  TOOLS_DIR,
-  TOOL_INSTRUCTIONS_FILE,
   VARIABLES_FILE_NAME,
   getGlobalConfigDir,
   getGlobalConfigPath,
@@ -18,11 +16,10 @@ import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
 import type { Uri, WorkspaceFolder } from '../vscode/vscode-types';
 import { StoreKey, extensionStore } from './extension-store';
 
-export type ConfigArrayKey = ConfigKey.Prompts | ConfigKey.Tasks | ConfigKey.Tools;
+export type ConfigArrayKey = ConfigKey.Prompts | ConfigKey.Tasks;
 export type ConfigArrayItem =
   | NonNullable<DevPanelConfig['prompts']>[number]
-  | NonNullable<DevPanelConfig['tasks']>[number]
-  | NonNullable<DevPanelConfig['tools']>[number];
+  | NonNullable<DevPanelConfig['tasks']>[number];
 
 export class ConfigManager {
   private static getConfigDir(workspacePath: string, configDir: string | null): Uri {
@@ -106,14 +103,6 @@ export class ConfigManager {
     const configDir = ConfigManager.getCurrentConfigDir();
     const basePath = ConfigManager.getConfigDirPath(folder.uri.fsPath, configDir);
     return NodePathHelper.join(basePath, ...segments);
-  }
-
-  static getWorkspaceToolDir(folder: WorkspaceFolder, toolName: string): string {
-    return ConfigManager.joinConfigPath(folder, TOOLS_DIR, toolName);
-  }
-
-  static getWorkspaceToolInstructionsPath(folder: WorkspaceFolder, toolName: string): string {
-    return ConfigManager.joinConfigPath(folder, TOOLS_DIR, toolName, TOOL_INSTRUCTIONS_FILE);
   }
 
   static getWorkspacePromptsDir(folder: WorkspaceFolder): string {
@@ -256,7 +245,6 @@ export class ConfigManager {
     if (!config[arrayKey]) {
       if (arrayKey === ConfigKey.Prompts) config.prompts = [];
       else if (arrayKey === ConfigKey.Tasks) config.tasks = [];
-      else if (arrayKey === ConfigKey.Tools) config.tools = [];
     }
 
     const array = config[arrayKey] as ConfigArrayItem[];
@@ -272,7 +260,7 @@ export class ConfigManager {
   }
 
   static removeConfigItem(config: DevPanelConfig, arrayKey: ConfigArrayKey, itemName: string): ConfigArrayItem | null {
-    const array = config[arrayKey] as ConfigArrayItem[] | undefined;
+    const array = config[arrayKey] as ConfigArrayItem[];
     if (!array) return null;
 
     const index = array.findIndex((i) => i.name === itemName);
