@@ -41,6 +41,7 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
   readonly onDidChangeTreeData: Event<TreeTask | null> = this._onDidChangeTreeData.event;
 
   private readonly autoRefresh: boolean;
+  private readonly _dragAndDropController;
   private _source: TaskSource;
   private _grouped: boolean;
   private _showHidden: boolean;
@@ -53,6 +54,13 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
     this._grouped = getIsGrouped();
     this._showHidden = getShowHidden(this._source);
     this._showOnlyFavorites = getShowOnlyFavorites(this._source);
+    this._dragAndDropController = createSourcedDragAndDropController<TreeTask, TaskSource>({
+      mimeType: DND_MIME_TYPE_TASKS,
+      stateManager: tasksState,
+      getIsGrouped: () => this._grouped,
+      getSource: () => this._source,
+      onReorder: () => this.refresh(),
+    });
     this.updateContextKeys();
   }
 
@@ -167,13 +175,7 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
   }
 
   get dragAndDropController() {
-    return createSourcedDragAndDropController<TreeTask, TaskSource>({
-      mimeType: DND_MIME_TYPE_TASKS,
-      stateManager: tasksState,
-      getIsGrouped: () => this._grouped,
-      getSource: () => this._source,
-      onReorder: () => this.refresh(),
-    });
+    return this._dragAndDropController;
   }
 
   private sortElements(

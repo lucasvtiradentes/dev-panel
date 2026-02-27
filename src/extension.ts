@@ -3,7 +3,8 @@ import {
   GLOBAL_STATE_WORKSPACE_SOURCE,
   getViewIdConfigs,
   getViewIdReplacements,
-  getViewIdTasks,
+  getViewIdTasksExplorer,
+  getViewIdTasksPanel,
 } from './common/constants';
 import { ConfigManager } from './common/core/config-manager';
 import { extensionStore } from './common/core/extension-store';
@@ -11,8 +12,14 @@ import { logger } from './common/lib/logger';
 import { initGlobalState, initWorkspaceState } from './common/state';
 import { ContextKey, setContextKey } from './common/vscode/vscode-context';
 import { VscodeHelper } from './common/vscode/vscode-helper';
-import type { ExtensionContext } from './common/vscode/vscode-types';
-import { generateWorkspaceId, setWorkspaceId } from './common/vscode/vscode-workspace';
+import type { Disposable, ExtensionContext, TreeView } from './common/vscode/vscode-types';
+import {
+  ExtensionConfigKey,
+  generateWorkspaceId,
+  getExtensionConfig,
+  getExtensionConfigSection,
+  setWorkspaceId,
+} from './common/vscode/vscode-workspace';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import { ReplacementsProvider } from './views/replacements';
 import { registerReplacementKeybindings } from './views/replacements/keybindings-local';
@@ -65,22 +72,57 @@ function setupProviders(workspace: string): Providers {
   };
 }
 
-function setupTreeViews(providers: Providers) {
-  const tasksTreeView = VscodeHelper.createTreeView(getViewIdTasks(), {
+type TasksTreeViews = {
+  explorerView: TreeView<unknown>;
+  panelView: TreeView<unknown>;
+};
+
+function setupTreeViews(providers: Providers): TasksTreeViews {
+  const tasksLocation = getExtensionConfig(ExtensionConfigKey.TasksLocation);
+  const dndController = providers.taskTreeDataProvider.dragAndDropController;
+
+  const explorerView = VscodeHelper.createTreeView(getViewIdTasksExplorer(), {
     treeDataProvider: providers.taskTreeDataProvider,
-    dragAndDropController: providers.taskTreeDataProvider.dragAndDropController,
+    dragAndDropController: dndController,
   });
-  providers.taskTreeDataProvider.setTreeView(tasksTreeView);
+
+  const panelView = VscodeHelper.createTreeView(getViewIdTasksPanel(), {
+    treeDataProvider: providers.taskTreeDataProvider,
+    dragAndDropController: dndController,
+  });
+
+  const activeView = tasksLocation === 'explorer' ? explorerView : panelView;
+  providers.taskTreeDataProvider.setTreeView(activeView);
 
   VscodeHelper.registerTreeDataProvider(getViewIdConfigs(), providers.variablesProvider);
   VscodeHelper.registerTreeDataProvider(getViewIdReplacements(), providers.replacementsProvider);
+
+  return { explorerView, panelView };
 }
 
-function setupDisposables(context: ExtensionContext, providers: Providers) {
+function setupDisposables(context: ExtensionContext, providers: Providers, tasksViews: TasksTreeViews) {
+  context.subscriptions.push(tasksViews.explorerView as Disposable);
+  context.subscriptions.push(tasksViews.panelView as Disposable);
   context.subscriptions.push({ dispose: () => providers.statusBarManager.dispose() });
   context.subscriptions.push({ dispose: () => providers.taskTreeDataProvider.dispose() });
   context.subscriptions.push({ dispose: () => providers.variablesProvider.dispose() });
   context.subscriptions.push({ dispose: () => providers.replacementsProvider.dispose() });
+}
+
+function setupConfigChangeListener(context: ExtensionContext, providers: Providers, tasksViews: TasksTreeViews) {
+  const configSection = getExtensionConfigSection();
+
+  const configWatcher = VscodeHelper.onDidChangeConfiguration((e) => {
+    if (e.affectsConfiguration(`${configSection}.${ExtensionConfigKey.TasksLocation}`)) {
+      const newLocation = getExtensionConfig(ExtensionConfigKey.TasksLocation);
+      const activeView = (newLocation === 'explorer' ? tasksViews.explorerView : tasksViews.panelView) as any;
+      providers.taskTreeDataProvider.setTreeView(activeView);
+      providers.taskTreeDataProvider.refresh();
+      logger.info(`Tasks location changed to: ${newLocation}`);
+    }
+  });
+
+  context.subscriptions.push(configWatcher);
 }
 
 function setupWatchers(context: ExtensionContext, providers: Providers, workspace: string) {
@@ -138,8 +180,9 @@ export function activate(context: ExtensionContext): object {
   setupInitialKeybindings();
 
   const providers = setupProviders(workspace);
-  setupTreeViews(providers);
-  setupDisposables(context, providers);
+  const tasksViews = setupTreeViews(providers);
+  setupDisposables(context, providers, tasksViews);
+  setupConfigChangeListener(context, providers, tasksViews);
   setupWatchers(context, providers, workspace);
   setupCommands(context, providers);
 

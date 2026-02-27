@@ -22,7 +22,8 @@ export const DND_MIME_TYPE_TASKS = `application/vnd.code.tree.${CONFIG_DIR_KEY}t
 export const WORKSPACE_STATE_KEY = `${CONFIG_DIR_KEY}.uiState`;
 
 export const CONTEXT_PREFIX = 'devPanel';
-export const VIEW_ID_TASKS = `${CONTEXT_PREFIX}Tasks`;
+export const VIEW_ID_TASKS_EXPLORER = `${CONTEXT_PREFIX}TasksExplorer`;
+export const VIEW_ID_TASKS_PANEL = `${CONTEXT_PREFIX}TasksPanel`;
 export const VIEW_ID_CONFIGS = `${CONTEXT_PREFIX}Configs`;
 export const VIEW_ID_REPLACEMENTS = `${CONTEXT_PREFIX}Replacements`;
 export const DEV_SUFFIX = 'dev';

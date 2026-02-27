@@ -349,4 +349,8 @@ export class VscodeHelper {
   static onDidEndTask(listener: (e: vscode.TaskEndEvent) => unknown): vscode.Disposable {
     return vscode.tasks.onDidEndTask(listener);
   }
+
+  static onDidChangeConfiguration(listener: (e: vscode.ConfigurationChangeEvent) => unknown): vscode.Disposable {
+    return vscode.workspace.onDidChangeConfiguration(listener);
+  }
 }

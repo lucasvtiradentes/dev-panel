@@ -37,17 +37,22 @@ export function buildWorkspaceWhenClause(workspaceId: string): string {
 
 export enum ExtensionConfigKey {
   AutoRefresh = 'autorefresh',
+  TasksLocation = 'tasksLocation',
 }
+
+export type TasksLocationValue = 'explorer' | 'devpanel';
 
 type ExtensionConfigSchema = {
   [ExtensionConfigKey.AutoRefresh]: boolean;
+  [ExtensionConfigKey.TasksLocation]: TasksLocationValue;
 };
 
 const extensionConfigDefaults: ExtensionConfigSchema = {
   [ExtensionConfigKey.AutoRefresh]: true,
+  [ExtensionConfigKey.TasksLocation]: 'devpanel',
 };
 
-function getExtensionConfigSection(): string {
+export function getExtensionConfigSection(): string {
   return IS_DEV ? `${CONTEXT_PREFIX}${DEV_SUFFIX}` : CONTEXT_PREFIX;
 }
 

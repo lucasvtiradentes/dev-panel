@@ -7,9 +7,11 @@ import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { QuickPickItemWithId } from '../../common/vscode/vscode-types';
 import { showConfigLocationMenu } from './config-location';
 import { showInitMenu } from './init';
+import { showTasksLocationMenu } from './tasks-location';
 
 enum SettingsMenuOption {
   ManageConfigLocation = 'manage-config-location',
+  TasksLocation = 'tasks-location',
   Init = 'init',
 }
 
@@ -43,6 +45,11 @@ export function createOpenSettingsMenuCommand() {
         label: `$(${VscodeIcon.Folder}) Change Config Location`,
         detail: `Select where ${EXTENSION_DISPLAY_NAME} config should be located`,
       });
+      mainMenuItems.push({
+        id: SettingsMenuOption.TasksLocation,
+        label: `$(${VscodeIcon.Layout}) Change Tasks Location`,
+        detail: 'Select where the Tasks view should appear',
+      });
     }
 
     const selected = await VscodeHelper.showQuickPickItems(mainMenuItems, {
@@ -55,6 +62,9 @@ export function createOpenSettingsMenuCommand() {
     switch (selected.id) {
       case SettingsMenuOption.ManageConfigLocation:
         await showConfigLocationMenu();
+        break;
+      case SettingsMenuOption.TasksLocation:
+        await showTasksLocationMenu();
         break;
       case SettingsMenuOption.Init:
         await showInitMenu();

@@ -3,7 +3,8 @@ import {
   DEV_SUFFIX,
   EXTENSION_DISPLAY_NAME,
   EXTENSION_NAME,
-  VIEW_ID_TASKS,
+  VIEW_ID_TASKS_EXPLORER,
+  VIEW_ID_TASKS_PANEL,
   addDevLabel,
   addDevSuffix,
   buildExtensionId,
@@ -231,8 +232,13 @@ function copyRecursive(src: string, dest: string) {
 
 function transformContextKey(text: string): string {
   let result = text.replace(
-    new RegExp(`view\\s*==\\s*${VIEW_ID_TASKS}\\b`, 'g'),
-    `view == ${addDevSuffix(VIEW_ID_TASKS)}`,
+    new RegExp(`view\\s*==\\s*${VIEW_ID_TASKS_EXPLORER}\\b`, 'g'),
+    `view == ${addDevSuffix(VIEW_ID_TASKS_EXPLORER)}`,
+  );
+
+  result = result.replace(
+    new RegExp(`view\\s*==\\s*${VIEW_ID_TASKS_PANEL}\\b`, 'g'),
+    `view == ${addDevSuffix(VIEW_ID_TASKS_PANEL)}`,
   );
 
   result = result.replace(/\b(\w+)(?=\s*==|\s*!=|\s|$)/g, (match) => {
@@ -252,6 +258,10 @@ function transformContextKey(text: string): string {
 function transformCommand(cmd: string): string {
   if (!cmd.startsWith(`${CONTEXT_PREFIX}.`)) return cmd;
   return cmd.replace(`${CONTEXT_PREFIX}.`, `${addDevSuffix(CONTEXT_PREFIX)}.`);
+}
+
+function transformConfigKey(when: string): string {
+  return when.replace(new RegExp(`config\\.${CONTEXT_PREFIX}\\.`, 'g'), `config.${addDevSuffix(CONTEXT_PREFIX)}.`);
 }
 
 function transformTitle(title: string): string {
@@ -285,11 +295,10 @@ function applyDevTransformations(pkg: Record<string, unknown>): Record<string, u
   }
 
   if (contributes.views) {
-    const views = contributes.views as Record<string, Array<{ id: string; name?: string }>>;
+    const views = contributes.views as Record<string, Array<{ id: string; name?: string; when?: string }>>;
     const newViews: Record<string, unknown> = {};
 
     for (const [containerKey, viewList] of Object.entries(views)) {
-      // Only transform custom containers, not standard ones
       const newContainerKey = VSCODE_STANDARD_CONTAINERS.includes(containerKey)
         ? containerKey
         : addDevSuffix(containerKey);
@@ -297,6 +306,7 @@ function applyDevTransformations(pkg: Record<string, unknown>): Record<string, u
         ...view,
         id: addDevSuffix(view.id),
         name: view.name ? addDevLabel(view.name) : undefined,
+        when: view.when ? transformConfigKey(view.when) : undefined,
       }));
     }
 

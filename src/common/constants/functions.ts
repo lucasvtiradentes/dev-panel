@@ -6,7 +6,8 @@ import {
   VARIABLE_COMMAND_SUFFIX,
   VIEW_ID_CONFIGS,
   VIEW_ID_REPLACEMENTS,
-  VIEW_ID_TASKS,
+  VIEW_ID_TASKS_EXPLORER,
+  VIEW_ID_TASKS_PANEL,
   addDevSuffix,
   buildLogFilename,
 } from './scripts-constants';
@@ -16,8 +17,12 @@ export function getCommandId(command: string): string {
   return `${prefix}.${command}`;
 }
 
-export function getViewIdTasks(): string {
-  return IS_DEV ? addDevSuffix(VIEW_ID_TASKS) : VIEW_ID_TASKS;
+export function getViewIdTasksExplorer(): string {
+  return IS_DEV ? addDevSuffix(VIEW_ID_TASKS_EXPLORER) : VIEW_ID_TASKS_EXPLORER;
+}
+
+export function getViewIdTasksPanel(): string {
+  return IS_DEV ? addDevSuffix(VIEW_ID_TASKS_PANEL) : VIEW_ID_TASKS_PANEL;
 }
 
 export function getViewIdConfigs(): string {

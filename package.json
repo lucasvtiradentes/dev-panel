@@ -71,6 +71,17 @@
     "onStartupFinished"
   ],
   "contributes": {
+    "configuration": {
+      "title": "Dev Panel",
+      "properties": {
+        "devPanel.tasksLocation": {
+          "type": "string",
+          "enum": ["explorer", "devpanel"],
+          "default": "devpanel",
+          "description": "Where to show the Tasks view (Explorer sidebar or Dev Panel sidebar)"
+        }
+      }
+    },
     "viewsContainers": {
       "activitybar": [
         {
@@ -89,13 +100,20 @@
         {
           "id": "devPanelReplacements",
           "name": "Replacements"
+        },
+        {
+          "id": "devPanelTasksPanel",
+          "name": "Task Runner",
+          "icon": "$(tasklist)",
+          "when": "config.devPanel.tasksLocation == devpanel"
         }
       ],
       "explorer": [
         {
-          "id": "devPanelTasks",
+          "id": "devPanelTasksExplorer",
           "name": "Task Runner",
-          "icon": "$(tasklist)"
+          "icon": "$(tasklist)",
+          "when": "config.devPanel.tasksLocation == explorer"
         }
       ]
     },
@@ -477,99 +495,99 @@
         },
         {
           "command": "devPanel.openTasksConfig",
-          "when": "view == devPanelTasks",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel)",
           "group": "navigation@5"
         },
         {
           "command": "devPanel.toggleTasksShowOnlyFavorites",
-          "when": "view == devPanelTasks && tasksHasFavorites && !tasksShowOnlyFavorites",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && tasksHasFavorites && !tasksShowOnlyFavorites",
           "group": "navigation@2"
         },
         {
           "command": "devPanel.toggleTasksShowOnlyFavoritesActive",
-          "when": "view == devPanelTasks && tasksHasFavorites && tasksShowOnlyFavorites",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && tasksHasFavorites && tasksShowOnlyFavorites",
           "group": "navigation@2"
         },
         {
           "command": "devPanel.toggleTasksShowHidden",
-          "when": "view == devPanelTasks && tasksHasHidden && !tasksShowHidden",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && tasksHasHidden && !tasksShowHidden",
           "group": "navigation@3"
         },
         {
           "command": "devPanel.toggleTasksShowHiddenActive",
-          "when": "view == devPanelTasks && tasksHasHidden && tasksShowHidden",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && tasksHasHidden && tasksShowHidden",
           "group": "navigation@3"
         },
         {
           "command": "devPanel.openTasksKeybindings",
-          "when": "view == devPanelTasks && taskSourceDevPanel",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceDevPanel",
           "group": "navigation@1"
         },
         {
           "command": "devPanel.toggleGroupMode",
-          "when": "view == devPanelTasks && !tasksGrouped && tasksHasGroups",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && !tasksGrouped && tasksHasGroups",
           "group": "navigation@4"
         },
         {
           "command": "devPanel.toggleGroupModeGrouped",
-          "when": "view == devPanelTasks && tasksGrouped && tasksHasGroups",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && tasksGrouped && tasksHasGroups",
           "group": "navigation@4"
         },
         {
           "command": "devPanel.switchTaskSource",
-          "when": "view == devPanelTasks && taskSourceVSCode",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceVSCode",
           "group": "navigation@6"
         },
         {
           "command": "devPanel.switchTaskSourceFromPackage",
-          "when": "view == devPanelTasks && taskSourcePackage",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourcePackage",
           "group": "navigation@6"
         },
         {
           "command": "devPanel.switchTaskSourceFromDevPanel",
-          "when": "view == devPanelTasks && taskSourceDevPanel",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceDevPanel",
           "group": "navigation@6"
         }
       ],
       "view/item/context": [
         {
           "command": "devPanel.toggleHide",
-          "when": "view == devPanelTasks && viewItem =~ /^task/",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && viewItem =~ /^task/",
           "group": "1_common@1"
         },
         {
           "command": "devPanel.toggleFavorite",
-          "when": "view == devPanelTasks && (viewItem == task || viewItem == task-devpanel || viewItem == task-devpanel-global || viewItem == task-hidden || viewItem == task-devpanel-hidden || viewItem == task-devpanel-global-hidden)",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && (viewItem == task || viewItem == task-devpanel || viewItem == task-devpanel-global || viewItem == task-hidden || viewItem == task-devpanel-hidden || viewItem == task-devpanel-global-hidden)",
           "group": "1_common@2"
         },
         {
           "command": "devPanel.toggleUnfavorite",
-          "when": "view == devPanelTasks && (viewItem == task-favorite || viewItem == task-devpanel-favorite || viewItem == task-devpanel-global-favorite)",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && (viewItem == task-favorite || viewItem == task-devpanel-favorite || viewItem == task-devpanel-global-favorite)",
           "group": "1_common@2"
         },
         {
           "command": "devPanel.goToTask",
-          "when": "view == devPanelTasks",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel)",
           "group": "1_common@3"
         },
         {
           "command": "devPanel.deleteTask",
-          "when": "view == devPanelTasks && viewItem =~ /^task-devpanel/",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && viewItem =~ /^task-devpanel/",
           "group": "2_devpanel@1"
         },
         {
           "command": "devPanel.setTaskKeybinding",
-          "when": "view == devPanelTasks && viewItem =~ /^task/ && taskSourceDevPanel",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && viewItem =~ /^task/ && taskSourceDevPanel",
           "group": "2_devpanel@2"
         },
         {
           "command": "devPanel.copyTaskToGlobal",
-          "when": "view == devPanelTasks && viewItem =~ /^task-devpanel(-hidden|-favorite)?$/",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && viewItem =~ /^task-devpanel(-hidden|-favorite)?$/",
           "group": "2_devpanel@3"
         },
         {
           "command": "devPanel.copyTaskToWorkspace",
-          "when": "view == devPanelTasks && viewItem =~ /^task-devpanel-global/",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && viewItem =~ /^task-devpanel-global/",
           "group": "2_devpanel@3"
         },
         {
@@ -622,12 +640,22 @@
         "when": "!extensionInitializing"
       },
       {
-        "view": "devPanelTasks",
+        "view": "devPanelTasksExplorer",
         "contents": "Loading tasks...",
         "when": "extensionInitializing"
       },
       {
-        "view": "devPanelTasks",
+        "view": "devPanelTasksExplorer",
+        "contents": "No tasks available.\n\nAdd tasks in your config file or package.json.",
+        "when": "!extensionInitializing"
+      },
+      {
+        "view": "devPanelTasksPanel",
+        "contents": "Loading tasks...",
+        "when": "extensionInitializing"
+      },
+      {
+        "view": "devPanelTasksPanel",
         "contents": "No tasks available.\n\nAdd tasks in your config file or package.json.",
         "when": "!extensionInitializing"
       },
