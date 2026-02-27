@@ -1,5 +1,11 @@
 # dev-panel
 
+## 0.2.0
+
+### Minor Changes
+
+- 4c33ae0: feat: add configurable tasks view location (explorer or devpanel sidebar)
+
 ## 0.1.0
 
 ### Minor Changes
