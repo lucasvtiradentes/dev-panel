@@ -1,5 +1,11 @@
 # dev-panel
 
+## 0.1.0
+
+### Minor Changes
+
+- b036649: refactor: remove tools and prompts features
+
 ## 0.0.9
 
 ### Patch Changes
