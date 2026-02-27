@@ -9,7 +9,6 @@ export enum Position {
 }
 
 export enum ConfigKey {
-  Prompts = 'prompts',
   Tasks = 'tasks',
 }
 

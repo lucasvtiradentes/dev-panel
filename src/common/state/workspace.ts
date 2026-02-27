@@ -1,53 +1,14 @@
-import type { AIProvider } from '../schemas/config-schema';
 import type { SourceState } from '../schemas/shared-state.schema';
 import { TaskSource } from '../schemas/types';
 import {
-  DEFAULT_PROMPTS_STATE,
   DEFAULT_REPLACEMENTS_STATE,
   DEFAULT_TASKS_STATE,
   DEFAULT_VARIABLES_STATE,
-  type PromptsState,
   type ReplacementsState,
   type TasksState,
   type VariablesState,
 } from '../schemas/workspace-state.schema';
-import {
-  StateKey,
-  type StateManager,
-  type StateManagerWithSource,
-  StorageType,
-  type ViewStateMethods,
-  createGroupedStateMethods,
-  createStateManager,
-  createViewStateMethods,
-} from './base';
-
-const basePromptsState = createStateManager<PromptsState>({
-  stateKey: StateKey.Prompts,
-  defaultState: DEFAULT_PROMPTS_STATE,
-  storageType: StorageType.Workspace,
-});
-
-const promptsViewMethods = createViewStateMethods(basePromptsState);
-
-export const promptsState: StateManagerWithSource<PromptsState> &
-  ViewStateMethods & {
-    getAiProvider(): AIProvider | undefined;
-    saveAiProvider(provider: AIProvider): void;
-  } = {
-  ...basePromptsState,
-  ...promptsViewMethods,
-
-  getAiProvider(): AIProvider | undefined {
-    return this.load().aiProvider;
-  },
-
-  saveAiProvider(provider: AIProvider) {
-    const prompts = this.load();
-    prompts.aiProvider = provider;
-    this.save(prompts);
-  },
-};
+import { StateKey, type StateManager, StorageType, createGroupedStateMethods, createStateManager } from './base';
 
 const baseTasksState = createStateManager<TasksState>({
   stateKey: StateKey.Tasks,

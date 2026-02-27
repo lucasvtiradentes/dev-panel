@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { AIProvider } from './config-schema';
 import { DEFAULT_SOURCE_STATE, SourceStateSchema } from './shared-state.schema';
 import { TASK_SOURCE_VALUES } from './types';
 
@@ -11,14 +10,6 @@ const TasksStateSchema = z.object({
   vscode: SourceStateSchema,
   package: SourceStateSchema,
   devpanel: SourceStateSchema,
-});
-
-const PromptsStateSchema = z.object({
-  isGrouped: z.boolean(),
-  showHidden: z.boolean().optional(),
-  showOnlyFavorites: z.boolean().optional(),
-  devpanel: SourceStateSchema,
-  aiProvider: z.nativeEnum(AIProvider).optional(),
 });
 
 const VariablesStateSchema = z.object({
@@ -33,13 +24,11 @@ const ReplacementsStateSchema = z.object({
 
 const WorkspaceUIStateSchema = z.object({
   tasks: TasksStateSchema.optional(),
-  prompts: PromptsStateSchema.optional(),
   variables: VariablesStateSchema.optional(),
   replacements: ReplacementsStateSchema.optional(),
 });
 
 export type TasksState = z.infer<typeof TasksStateSchema>;
-export type PromptsState = z.infer<typeof PromptsStateSchema>;
 export type VariablesState = z.infer<typeof VariablesStateSchema>;
 export type ReplacementsState = z.infer<typeof ReplacementsStateSchema>;
 export type WorkspaceUIState = z.infer<typeof WorkspaceUIStateSchema>;
@@ -49,11 +38,6 @@ export const DEFAULT_TASKS_STATE: TasksState = {
   isGrouped: false,
   vscode: { ...DEFAULT_SOURCE_STATE },
   package: { ...DEFAULT_SOURCE_STATE },
-  devpanel: { ...DEFAULT_SOURCE_STATE },
-};
-
-export const DEFAULT_PROMPTS_STATE: PromptsState = {
-  isGrouped: false,
   devpanel: { ...DEFAULT_SOURCE_STATE },
 };
 

@@ -4,10 +4,9 @@ import {
   DEFAULT_EXCLUDES,
   DEFAULT_INCLUDES,
   EXTENSION_DISPLAY_NAME,
-  PROMPTS_DIR_NAME,
 } from '../constants/scripts-constants';
 
-export enum PromptInputType {
+export enum InputType {
   File = 'file',
   Folder = 'folder',
   Text = 'text',
@@ -17,20 +16,10 @@ export enum PromptInputType {
   Multichoice = 'multichoice',
 }
 
-export enum AIProvider {
-  Claude = 'claude',
-  Gemini = 'gemini',
-  CursorAgent = 'cursor-agent',
-}
-
-export enum PromptExecutionMode {
-  Overwrite = 'overwrite',
-}
-
 const DevPanelInputSchema = z
   .object({
     name: z.string().describe('Variable name used in template as $name'),
-    type: z.enum(PromptInputType).describe('Input type'),
+    type: z.enum(InputType).describe('Input type'),
     label: z.string().describe('Label shown in the input dialog'),
     placeholder: z.string().optional().describe('Placeholder text for text/number inputs'),
     options: z.array(z.string()).optional().describe('Available options for choice/multichoice types'),
@@ -44,7 +33,7 @@ const DevPanelInputSchema = z
       .optional()
       .describe('Glob patterns to exclude for this input. Extends global excludes'),
   })
-  .describe('An input required before execution (used by prompts and tasks)');
+  .describe('An input required before execution (used by tasks)');
 
 const DevPanelTaskSchema = z
   .object({
@@ -63,21 +52,6 @@ const DevPanelTaskSchema = z
       .describe('If true, run command silently with progress notification instead of showing terminal'),
   })
   .describe('A task that can be executed from the Tasks view');
-
-const DevPanelPromptSchema = z
-  .object({
-    name: z.string().describe('Unique identifier for the prompt'),
-    file: z.string().describe(`Path to prompt file relative to ${CONFIG_DIR_NAME}/${PROMPTS_DIR_NAME}/`),
-    group: z.string().optional().describe('Group name for organizing prompts'),
-    description: z.string().optional().describe('Human-readable description shown as tooltip'),
-    inputs: z.array(DevPanelInputSchema).optional().describe('Inputs to collect before running the prompt'),
-    saveOutput: z.boolean().optional().describe('If true, save response to file'),
-    useWorkspaceRoot: z
-      .boolean()
-      .optional()
-      .describe(`If true, resolve file path from workspace root instead of ${CONFIG_DIR_NAME} directory`),
-  })
-  .describe('A prompt that can be executed in Claude Code');
 
 export enum VariableKind {
   Choose = 'choose',
@@ -197,23 +171,17 @@ const DevPanelReplacementSchema = z
 
 const DevPanelSettingsSchema = z
   .object({
-    promptExecution: z
-      .nativeEnum(PromptExecutionMode)
-      .optional()
-      .describe(
-        'Execution mode for prompts with saveOutput: "timestamped" creates new file each time with timestamp, "overwrite" replaces previous file',
-      ),
     include: z
       .array(z.string())
       .optional()
       .describe(
-        `Glob patterns to include globally (package.json search, prompt file/folder selection, variable file/folder selection). Extends defaults: ${DEFAULT_INCLUDES.join(', ')}. Add custom inclusions as needed (e.g. ["**/*.ts", "**/*.json"])`,
+        `Glob patterns to include globally (package.json search, variable file/folder selection). Extends defaults: ${DEFAULT_INCLUDES.join(', ')}. Add custom inclusions as needed (e.g. ["**/*.ts", "**/*.json"])`,
       ),
     exclude: z
       .array(z.string())
       .optional()
       .describe(
-        `Glob patterns to exclude globally (package.json search, prompt file/folder selection, variable file/folder selection). Extends defaults: ${DEFAULT_EXCLUDES.join(', ')}. Add custom exclusions as needed (e.g. ["**/${CONFIG_DIR_NAME}/**", "**/.changeset/**", "**/out/**", "**/*.log"])`,
+        `Glob patterns to exclude globally (package.json search, variable file/folder selection). Extends defaults: ${DEFAULT_EXCLUDES.join(', ')}. Add custom exclusions as needed (e.g. ["**/${CONFIG_DIR_NAME}/**", "**/.changeset/**", "**/out/**", "**/*.log"])`,
       ),
   })
   .describe(`Global settings for ${EXTENSION_DISPLAY_NAME} behavior`);
@@ -225,12 +193,10 @@ export const DevPanelConfigSchema = z
     variables: z.array(DevPanelVariableSchema).optional().describe('Configuration variables'),
     replacements: z.array(DevPanelReplacementSchema).optional().describe('File replacements/patches'),
     tasks: z.array(DevPanelTaskSchema).optional().describe('Executable tasks'),
-    prompts: z.array(DevPanelPromptSchema).optional().describe('Claude Code prompts'),
   })
   .describe(`${EXTENSION_DISPLAY_NAME} configuration file`);
 
 export type DevPanelInput = z.infer<typeof DevPanelInputSchema>;
-export type DevPanelPrompt = z.infer<typeof DevPanelPromptSchema>;
 export type DevPanelSettings = z.infer<typeof DevPanelSettingsSchema>;
 export type DevPanelConfig = z.infer<typeof DevPanelConfigSchema>;
 export type DevPanelVariable = z.infer<typeof DevPanelVariableSchema>;

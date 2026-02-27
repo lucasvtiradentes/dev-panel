@@ -8,7 +8,6 @@ export const CONFIG_DIR_KEY = 'devpanel';
 export const CONFIG_DIR_NAME = `.${CONFIG_DIR_KEY}`;
 export const CONFIG_FILE_NAME = 'config.jsonc';
 export const VARIABLES_FILE_NAME = 'variables.json';
-export const PROMPTS_DIR_NAME = 'prompts';
 export const RESOURCES_DIR_NAME = 'resources';
 export const INIT_RESOURCES_DIR_NAME = 'init';
 export const CLAUDE_DIR_NAME = '.claude';
@@ -19,7 +18,6 @@ export const DEFAULT_EXCLUDES = ['**/node_modules/**', '**/.git/**', '**/dist/**
 export const DEFAULT_EXCLUDED_DIRS = ['node_modules', 'dist', '.git'];
 
 export const DND_MIME_TYPE_TASKS = `application/vnd.code.tree.${CONFIG_DIR_KEY}tasks`;
-export const DND_MIME_TYPE_PROMPTS = `application/vnd.code.tree.${CONFIG_DIR_KEY}prompts`;
 
 export const WORKSPACE_STATE_KEY = `${CONFIG_DIR_KEY}.uiState`;
 
@@ -27,11 +25,9 @@ export const CONTEXT_PREFIX = 'devPanel';
 export const VIEW_ID_TASKS = `${CONTEXT_PREFIX}Tasks`;
 export const VIEW_ID_CONFIGS = `${CONTEXT_PREFIX}Configs`;
 export const VIEW_ID_REPLACEMENTS = `${CONTEXT_PREFIX}Replacements`;
-export const VIEW_ID_PROMPTS = `${CONTEXT_PREFIX}Prompts`;
 export const DEV_SUFFIX = 'dev';
 const LOG_BASENAME = EXTENSION_NAME;
 export const GLOBAL_TASK_TYPE = `${CONFIG_DIR_KEY}-global`;
-export const PROMPT_COMMAND_SUFFIX = 'prompt';
 export const REPLACEMENT_COMMAND_SUFFIX = 'replacement';
 export const VARIABLE_COMMAND_SUFFIX = 'variable';
 export const TASK_COMMAND_SUFFIX = 'task';
@@ -74,10 +70,6 @@ export function getSkillFilePath(workspacePath: string, skillName: string): stri
   return NodePathHelper.join(getSkillDir(workspacePath, skillName), SKILL_FILE_NAME);
 }
 
-export function getGlobalPromptFilePath(promptFile: string): string {
-  return NodePathHelper.join(getGlobalConfigDir(), promptFile);
-}
-
 export function getVscodeTasksFilePath(workspacePath: string): string {
   return NodePathHelper.join(workspacePath, '.vscode', 'tasks.json');
 }
@@ -85,7 +77,6 @@ export function getVscodeTasksFilePath(workspacePath: string): string {
 export const WORKSPACE_STATE_CONFIG_DIR_KEY = `${CONFIG_DIR_KEY}.configDir`;
 
 const GLOBAL_ITEM_TOOLTIP_SUFFIX = `from ~/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`;
-export const GLOBAL_PROMPT_TOOLTIP = `Global prompt ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
 export const GLOBAL_TASK_TOOLTIP = `Global task ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
 
 export const NOT_GIT_REPO_MESSAGE = 'Not a git repository';

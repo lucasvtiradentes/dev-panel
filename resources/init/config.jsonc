@@ -37,19 +37,5 @@
       "command": "echo 'Hello from Dev Panel!'",
       "group": "Utils"
     }
-  ],
-  "tools": [
-    {
-      "name": "example-tool",
-      "command": "echo",
-      "instructions": "tools/example-tool/instructions.md"
-    }
-  ],
-  "prompts": [
-    {
-      "name": "code-review",
-      "file": "prompts/code-review.md",
-      "description": "Review code changes in current branch"
-    }
   ]
 }

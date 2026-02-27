@@ -1,7 +1,6 @@
-import { getAllPromptKeybindings } from '../../views/prompts/keybindings-local';
 import { getAllTaskKeybindings } from '../../views/tasks/keybindings-local';
 import { getAllVariableKeybindings } from '../../views/variables/keybindings-local';
-import { getPromptCommandId, getTaskCommandId, getVariableCommandId } from '../constants/functions';
+import { getTaskCommandId, getVariableCommandId } from '../constants/functions';
 import { KeybindingsHelper } from '../utils/helpers/keybindings-helper';
 import { Command, executeCommand } from '../vscode/vscode-commands';
 import { VscodeHelper } from '../vscode/vscode-helper';
@@ -12,14 +11,6 @@ export function syncKeybindings() {
 
   const folders = VscodeHelper.getWorkspaceFolders();
   if (folders.length > 0) {
-    const promptKeybindings = getAllPromptKeybindings();
-    for (const [promptName, keybinding] of Object.entries(promptKeybindings)) {
-      keybindingsToAdd.push({
-        command: getPromptCommandId(promptName),
-        key: keybinding as string,
-      });
-    }
-
     const variableKeybindings = getAllVariableKeybindings();
     for (const [variableName, keybinding] of Object.entries(variableKeybindings)) {
       keybindingsToAdd.push({
@@ -40,12 +31,12 @@ export function syncKeybindings() {
   const keybindingsPath = getVSCodeKeybindingsPath();
   const existingKeybindings = KeybindingsHelper.load(keybindingsPath);
 
-  const deprecatedToolPrefixes = ['devPanel.tool.', 'devPaneldev.tool.'];
+  const deprecatedPrefixes = ['devPanel.tool.', 'devPaneldev.tool.', 'devPanel.prompt.', 'devPaneldev.prompt.'];
   const commandsToUpdate = new Set(keybindingsToAdd.map((k) => k.command));
   const filtered = existingKeybindings.filter(
     (k) =>
       typeof k.command !== 'string' ||
-      (!commandsToUpdate.has(k.command) && !deprecatedToolPrefixes.some((prefix) => k.command.startsWith(prefix))),
+      (!commandsToUpdate.has(k.command) && !deprecatedPrefixes.some((prefix) => k.command.startsWith(prefix))),
   );
   const updated = [...filtered, ...keybindingsToAdd];
 

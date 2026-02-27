@@ -1,22 +1,14 @@
 import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
-import { executeCommandWithProgress, executeTaskSilently } from 'src/common/utils/functions/execute-silent';
-import { replaceVariablePlaceholders } from 'src/common/utils/functions/template-replace';
+import { executeTaskSilently } from 'src/common/utils/functions/execute-silent';
 import { GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import { createLogger } from '../../common/lib/logger';
-import {
-  type DevPanelConfig,
-  type DevPanelPrompt,
-  type DevPanelSettings,
-  PromptExecutionMode,
-} from '../../common/schemas';
-import { promptsState } from '../../common/state';
+import type { DevPanelConfig } from '../../common/schemas';
 import { JsonHelper } from '../../common/utils/helpers/json-helper';
-import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { Command, registerCommand } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
-import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
+import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { collectInputs, replaceInputPlaceholders } from '../../common/vscode/vscode-inputs';
 import {
   type ExtensionContext,
@@ -27,7 +19,6 @@ import {
   type WorkspaceFolder,
 } from '../../common/vscode/vscode-types';
 import { isMultiRootWorkspace } from '../../common/vscode/vscode-workspace';
-import { type PromptProvider, getProvider } from '../../views/prompts/providers';
 
 const log = createLogger('execute-task');
 
@@ -94,12 +85,6 @@ function cloneWithEnv(task: Task, env: Record<string, string>): Task {
 
   return task;
 }
-
-export type ExecutePromptParams = {
-  promptFilePath: string;
-  folder: WorkspaceFolder | null;
-  promptConfig?: DevPanelPrompt;
-};
 
 async function handleExecuteTask(
   context: ExtensionContext,
@@ -186,109 +171,4 @@ export function createExecuteTaskCommand(context: ExtensionContext) {
   return registerCommand(Command.ExecuteTask, (task, scope, taskConfig) =>
     handleExecuteTask(context, task, scope, taskConfig),
   );
-}
-
-async function handleExecutePrompt({ promptFilePath, folder, promptConfig }: ExecutePromptParams) {
-  log.info('=== ExecutePrompt called ===');
-  log.info(`promptFilePath: ${promptFilePath}`);
-  log.info(`folder: ${folder ? folder.name : 'null (global)'}`);
-  log.info(`promptConfig (from tree): ${JsonHelper.stringify(promptConfig)}`);
-  log.info(`useWorkspaceRoot: ${promptConfig?.useWorkspaceRoot}`);
-
-  let resolvedPromptFilePath = promptFilePath;
-  if (promptConfig?.useWorkspaceRoot && folder) {
-    resolvedPromptFilePath = NodePathHelper.join(folder.uri.fsPath, promptConfig.file);
-    log.info(`Resolved prompt path from workspace root: ${resolvedPromptFilePath}`);
-  }
-
-  if (!FileIOHelper.fileExists(resolvedPromptFilePath)) {
-    void VscodeHelper.showToastMessage(ToastKind.Error, `Prompt file not found: ${resolvedPromptFilePath}`);
-    return;
-  }
-
-  let promptContent = FileIOHelper.readFile(resolvedPromptFilePath);
-
-  const folderForSettings = folder ?? VscodeHelper.getFirstWorkspaceFolder();
-  const settings = folderForSettings ? ConfigManager.readSettings(folderForSettings) : undefined;
-  log.info(`settings: ${JsonHelper.stringify(settings)}`);
-
-  const variables = folder
-    ? VariablesEnvManager.loadVariablesFromPath(ConfigManager.getWorkspaceVariablesPath(folder))
-    : null;
-  if (variables) {
-    promptContent = replaceVariablePlaceholders(promptContent, variables);
-  }
-
-  if (promptConfig?.inputs && promptConfig.inputs.length > 0) {
-    log.info(`inputs from promptConfig: ${JsonHelper.stringify(promptConfig.inputs)}`);
-    const inputValues = await collectInputs(promptConfig.inputs, folder, settings);
-    if (inputValues === null) return;
-    promptContent = replaceInputPlaceholders(promptContent, inputValues);
-  }
-
-  const provider = getProvider(promptsState.getAiProvider());
-  if (!provider) {
-    void VscodeHelper.showToastMessage(ToastKind.Error, 'Select an AI provider first');
-    return;
-  }
-
-  if (promptConfig?.saveOutput) {
-    const folderForOutput = folder ?? VscodeHelper.getFirstWorkspaceFolder();
-    if (!folderForOutput) {
-      void VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder available to save prompt output');
-      return;
-    }
-
-    await executePromptWithSave({
-      promptContent,
-      folder: folderForOutput,
-      promptName: promptConfig.name,
-      provider,
-      settings,
-    });
-    return;
-  }
-
-  const terminal = VscodeHelper.createTerminal({ name: provider.name });
-  terminal.show();
-  provider.executeInteractive(terminal, promptContent);
-}
-
-async function executePromptWithSave(options: {
-  promptContent: string;
-  folder: WorkspaceFolder;
-  promptName: string;
-  provider: PromptProvider;
-  settings?: DevPanelSettings;
-}) {
-  const { promptContent, folder, promptName, provider, settings } = options;
-  const workspacePath = folder.uri.fsPath;
-
-  const timestamped = settings?.promptExecution !== PromptExecutionMode.Overwrite;
-  const outputFile = ConfigManager.getPromptOutputFilePath(workspacePath, promptName, timestamped);
-  const outputDir = NodePathHelper.dirname(outputFile);
-  const tempFile = NodePathHelper.join(outputDir, '.prompt-temp.txt');
-
-  FileIOHelper.ensureDirectoryExists(outputDir);
-  FileIOHelper.writeFile(tempFile, promptContent);
-
-  const command = provider.getExecuteCommand(tempFile, outputFile);
-
-  await executeCommandWithProgress({
-    command,
-    cwd: workspacePath,
-    title: `Running prompt: ${promptName}`,
-    onSuccess: async () => {
-      FileIOHelper.deleteFile(tempFile);
-      await VscodeHelper.openDocument(VscodeHelper.createFileUri(outputFile));
-    },
-    onError: (error) => {
-      FileIOHelper.deleteFile(tempFile);
-      void VscodeHelper.showToastMessage(ToastKind.Error, `Prompt failed: ${TypeGuardsHelper.getErrorMessage(error)}`);
-    },
-  });
-}
-
-export function createExecutePromptCommand() {
-  return registerCommand(Command.ExecutePrompt, handleExecutePrompt);
 }

@@ -6,7 +6,7 @@ const CONFIRM_YES = 'Yes';
 const CONFIRM_NO = 'No';
 const CONFIRM_OPTIONS = [CONFIRM_YES, CONFIRM_NO] as const;
 import { createLogger } from '../lib/logger';
-import { type DevPanelInput, type DevPanelSettings, PromptInputType, TaskPriority, TaskStatus } from '../schemas';
+import { type DevPanelInput, type DevPanelSettings, InputType, TaskPriority, TaskStatus } from '../schemas';
 import { JsonHelper } from '../utils/helpers/json-helper';
 import { VscodeIcon } from './vscode-constants';
 import { ToastKind, VscodeHelper } from './vscode-helper';
@@ -186,19 +186,19 @@ async function collectSingleInput(
   settings?: DevPanelSettings,
 ): Promise<string | undefined> {
   switch (input.type) {
-    case PromptInputType.File:
+    case InputType.File:
       return collectFileInput(input, workspaceFolder, input.multiSelect ?? false, settings);
-    case PromptInputType.Folder:
+    case InputType.Folder:
       return collectFolderInput(input, workspaceFolder, input.multiSelect ?? false, settings);
-    case PromptInputType.Text:
+    case InputType.Text:
       return collectTextInput(input);
-    case PromptInputType.Number:
+    case InputType.Number:
       return collectNumberInput(input);
-    case PromptInputType.Confirm:
+    case InputType.Confirm:
       return collectConfirmInput(input);
-    case PromptInputType.Choice:
+    case InputType.Choice:
       return collectChoiceInput(input, false);
-    case PromptInputType.Multichoice:
+    case InputType.Multichoice:
       return collectChoiceInput(input, true);
     default:
       return undefined;
