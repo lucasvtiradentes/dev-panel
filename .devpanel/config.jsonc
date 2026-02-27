@@ -11,7 +11,6 @@
       "**/.tscanner/**",
       "**/.vscode/**",
       "**/out/**",
-      "**/registry/**",
       "**/resources/**",
       "**/scripts/**",
       "**/docs/**"
@@ -90,7 +89,6 @@
       "group": "Debug"
     }
   ],
-  "tools": [],
   "tasks": [
     {
       "name": "list-files",
@@ -110,32 +108,6 @@
           "placeholder": "name-of-the-dump"
         }
       ]
-    }
-  ],
-  "prompts": [
-    {
-      "name": "Review Constants",
-      "file": "prompts/review-constants.md",
-      "description": "Review constants and suggest centralizing hardcoded values",
-      "group": "Analysis",
-      "inputs": [],
-      "saveOutput": true
-    },
-    {
-      "name": "TypeSafety Review",
-      "file": "prompts/typesafety-review.md",
-      "description": "Analyze type safety issues and suspicious code patterns",
-      "group": "Analysis",
-      "inputs": [
-        {
-          "name": "FOLDERS",
-          "label": "Folders to analyze (comma-separated)",
-          "type": "folder",
-          "multiSelect": true,
-          "placeholder": "select folders"
-        }
-      ],
-      "saveOutput": true
     }
   ]
 }
