@@ -18,6 +18,7 @@ import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
+import { getTaskKeybinding } from './keybindings-local';
 import { isFavorite, isHidden } from './state';
 
 export function hasDevPanelGroups(): boolean {
@@ -151,6 +152,11 @@ function createDevPanelTask(
     treeTask.tooltip = task.description;
   }
 
+  const keybinding = getTaskKeybinding(task.name);
+  if (keybinding) {
+    treeTask.description = keybinding;
+  }
+
   if (hidden) {
     treeTask.iconPath = VscodeIcons.HiddenItem;
     treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_HIDDEN;
@@ -211,6 +217,11 @@ function createGlobalTask(
     treeTask.tooltip = `Global: ${task.description}`;
   } else {
     treeTask.tooltip = GLOBAL_TASK_TOOLTIP;
+  }
+
+  const keybinding = getTaskKeybinding(task.name);
+  if (keybinding) {
+    treeTask.description = keybinding;
   }
 
   if (hidden) {

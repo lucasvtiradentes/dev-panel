@@ -2,8 +2,8 @@ import { Command, registerCommand } from '../../../common/vscode/vscode-commands
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import type { TaskTreeDataProvider, TreeTask } from '../../../views/tasks';
 
-export type ToggleTaskFavoriteParams = TreeTask;
-export type ToggleTaskHideParams = TreeTask;
+type ToggleTaskFavoriteParams = TreeTask;
+type ToggleTaskHideParams = TreeTask;
 
 export function createToggleTasksViewCommands(taskTreeDataProvider: TaskTreeDataProvider): Disposable[] {
   return [
@@ -16,6 +16,7 @@ export function createToggleTasksViewCommands(taskTreeDataProvider: TaskTreeData
       taskTreeDataProvider.toggleFavorite(item),
     ),
     registerCommand(Command.ToggleHide, (item: ToggleTaskHideParams) => taskTreeDataProvider.toggleHide(item)),
+    registerCommand(Command.ToggleUnhide, (item: ToggleTaskHideParams) => taskTreeDataProvider.toggleHide(item)),
     registerCommand(Command.ToggleTasksShowHidden, () => taskTreeDataProvider.toggleShowHidden()),
     registerCommand(Command.ToggleTasksShowHiddenActive, () => taskTreeDataProvider.toggleShowHidden()),
     registerCommand(Command.ToggleTasksShowOnlyFavorites, () => taskTreeDataProvider.toggleShowOnlyFavorites()),

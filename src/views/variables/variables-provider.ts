@@ -24,6 +24,7 @@ import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/vscode/vscode-inputs';
 import { type TreeDataProvider, type TreeItem, TreeItemClass } from '../../common/vscode/vscode-types';
+import { getVariableKeybinding } from './keybindings-local';
 import { getIsGrouped, saveIsGrouped } from './state';
 
 type DevPanelVariables = {
@@ -74,7 +75,8 @@ export class VariableTreeItem extends TreeItemClass {
     super(variable.name, VscodeConstants.TreeItemCollapsibleState.None);
     this.contextValue = CONTEXT_VALUES.VARIABLE_ITEM;
     const value = formatValue(currentValue, variable);
-    this.description = value;
+    const keybinding = getVariableKeybinding(variable.name);
+    this.description = keybinding ? `${value} | ${keybinding}` : value;
     if (variable.description) {
       this.tooltip = variable.description;
     }

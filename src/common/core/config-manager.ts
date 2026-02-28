@@ -5,7 +5,7 @@ import {
   getGlobalConfigDir,
   getGlobalConfigPath,
 } from '../constants';
-import { ConfigKey } from '../constants/enums';
+import type { ConfigKey } from '../constants/enums';
 import type { DevPanelConfig } from '../schemas';
 import { readJsoncFile } from '../utils/functions/read-jsonc-file';
 import { JsonHelper } from '../utils/helpers/json-helper';
@@ -195,17 +195,6 @@ export class ConfigManager {
     ConfigManager.saveConfigToPath(workspaceConfigPath, config);
   }
 
-  static async confirmOverwrite(itemType: string, itemName: string): Promise<boolean> {
-    const choiceValue = 'Overwrite';
-    const choice = await VscodeHelper.showToastMessage(
-      ToastKind.Warning,
-      `${itemType} "${itemName}" already exists. Overwrite?`,
-      choiceValue,
-      'Cancel',
-    );
-    return choice === choiceValue;
-  }
-
   static async confirmDelete(itemType: string, itemName: string, isGlobal: boolean): Promise<boolean> {
     const choiceValue = 'Delete';
     const choice = await VscodeHelper.showToastMessage(
@@ -215,23 +204,6 @@ export class ConfigManager {
       choiceValue,
     );
     return choice === choiceValue;
-  }
-
-  static addOrUpdateConfigItem(config: DevPanelConfig, arrayKey: ConfigArrayKey, item: ConfigArrayItem): boolean {
-    if (!config[arrayKey]) {
-      if (arrayKey === ConfigKey.Tasks) config.tasks = [];
-    }
-
-    const array = config[arrayKey] as ConfigArrayItem[];
-    const existingIndex = array.findIndex((i) => i.name === item.name);
-
-    if (existingIndex !== -1) {
-      array[existingIndex] = item;
-      return true;
-    }
-
-    array.push(item);
-    return false;
   }
 
   static removeConfigItem(config: DevPanelConfig, arrayKey: ConfigArrayKey, itemName: string): ConfigArrayItem | null {

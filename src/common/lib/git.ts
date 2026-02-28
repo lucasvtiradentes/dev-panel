@@ -32,7 +32,7 @@ type GitBranchQuery = {
   contains?: string;
 };
 
-export type GitRepository = {
+type GitRepository = {
   rootUri: { fsPath: string };
   state: {
     HEAD?: { name?: string };

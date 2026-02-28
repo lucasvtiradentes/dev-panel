@@ -144,30 +144,31 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
     this._onDidChangeTreeData.fire(null);
   }
 
-  toggleFavorite(item: TreeTask) {
+  private toggleItemState(
+    item: TreeTask,
+    globalToggle: (name: string) => void,
+    localToggle: (source: TaskSource, name: string) => void,
+  ) {
     if (!item?.taskName) return;
 
+    const name = isGlobalItem(item.taskName) ? stripGlobalPrefix(item.taskName) : item.taskName;
+
     if (isGlobalItem(item.taskName)) {
-      globalTasksState.toggleFavorite(stripGlobalPrefix(item.taskName));
+      globalToggle(name);
     } else {
-      toggleFavoriteState(this._source, item.taskName);
+      localToggle(this._source, name);
     }
 
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
   }
 
+  toggleFavorite(item: TreeTask) {
+    this.toggleItemState(item, (name) => globalTasksState.toggleFavorite(name), toggleFavoriteState);
+  }
+
   toggleHide(item: TreeTask) {
-    if (!item?.taskName) return;
-
-    if (isGlobalItem(item.taskName)) {
-      globalTasksState.toggleHidden(stripGlobalPrefix(item.taskName));
-    } else {
-      toggleHidden(this._source, item.taskName);
-    }
-
-    this.updateContextKeys();
-    this._onDidChangeTreeData.fire(null);
+    this.toggleItemState(item, (name) => globalTasksState.toggleHidden(name), toggleHidden);
   }
 
   get currentSource(): TaskSource {

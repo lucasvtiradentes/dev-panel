@@ -10,11 +10,4 @@ export {
   type DevPanelVariable,
 } from './config-schema';
 
-export {
-  normalizePatchItem,
-  SectionType,
-  TaskPriority,
-  TaskStatus,
-  type BranchContext,
-  type NormalizedPatchItem,
-} from './types';
+export { normalizePatchItem, type NormalizedPatchItem } from './types';

@@ -2,7 +2,6 @@ import type { DevPanelConfig } from '../schemas';
 import { registerDynamicCommand } from '../vscode/vscode-commands';
 import type { ExtensionContext, WorkspaceFolder } from '../vscode/vscode-types';
 import { ConfigManager } from './config-manager';
-import { syncKeybindings } from './keybindings-sync';
 
 type KeybindingItem = { name: string };
 
@@ -54,6 +53,4 @@ export function registerItemKeybindings<T extends KeybindingItem>(opts: Register
       registeredCommands.add(commandId);
     }
   }
-
-  syncKeybindings();
 }

@@ -17,8 +17,6 @@ import {
 import { createToggleReplacementCommand } from './internal/replacements/toggle-replacement';
 import { createToggleReplacementsViewCommands } from './internal/replacements/toggle-replacements-view';
 import { createResetConfigOptionCommand, createSelectConfigOptionCommand } from './internal/select-config-option';
-import { createCopyTaskToGlobalCommand } from './internal/tasks/copy-task-to-global';
-import { createCopyTaskToWorkspaceCommand } from './internal/tasks/copy-task-to-workspace';
 import { createDeleteTaskCommand } from './internal/tasks/delete-task';
 import { createGoToTaskCommand } from './internal/tasks/go-to-task';
 import { createOpenTasksConfigCommand } from './internal/tasks/open-tasks-config';
@@ -53,8 +51,6 @@ export function registerAllCommands(options: {
     createGoToTaskCommand(),
     createOpenTasksConfigCommand(),
     createDeleteTaskCommand(),
-    createCopyTaskToGlobalCommand(),
-    createCopyTaskToWorkspaceCommand(),
     createExecuteTaskCommand(context),
     createOpenSettingsMenuCommand(),
     createSelectConfigOptionCommand(),

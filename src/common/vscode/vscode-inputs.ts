@@ -1,16 +1,15 @@
 import { DEFAULT_EXCLUDES, DEFAULT_INCLUDES, ROOT_FOLDER_LABEL, createVariablePlaceholderPattern } from '../constants';
+import { createLogger } from '../lib/logger';
+import { type DevPanelInput, type DevPanelSettings, InputType } from '../schemas';
+import { JsonHelper } from '../utils/helpers/json-helper';
+import { ToastKind, VscodeHelper } from './vscode-helper';
+import type { QuickPickItem, WorkspaceFolder } from './vscode-types';
 
 const ERROR_MSG_WORKSPACE_REQUIRED = 'File/folder input requires a workspace folder';
 const ERROR_MSG_INVALID_NUMBER = 'Please enter a valid number';
 const CONFIRM_YES = 'Yes';
 const CONFIRM_NO = 'No';
 const CONFIRM_OPTIONS = [CONFIRM_YES, CONFIRM_NO] as const;
-import { createLogger } from '../lib/logger';
-import { type DevPanelInput, type DevPanelSettings, InputType, TaskPriority, TaskStatus } from '../schemas';
-import { JsonHelper } from '../utils/helpers/json-helper';
-import { VscodeIcon } from './vscode-constants';
-import { ToastKind, VscodeHelper } from './vscode-helper';
-import type { QuickPickItem, WorkspaceFolder } from './vscode-types';
 
 const log = createLogger('inputs');
 
@@ -356,54 +355,4 @@ export function replaceInputPlaceholders(content: string, values: InputValues): 
     result = result.replace(createVariablePlaceholderPattern(name), value);
   }
   return result;
-}
-
-export async function pickStatus(): Promise<TaskStatus | undefined> {
-  const items: QuickPickItem[] = [
-    { label: `$(${VscodeIcon.CircleLargeOutline}) Todo`, description: 'Not started' },
-    { label: `$(${VscodeIcon.PlayCircle}) Doing`, description: 'In progress' },
-    { label: `$(${VscodeIcon.PassFilled}) Done`, description: 'Completed' },
-    { label: `$(${VscodeIcon.Error}) Blocked`, description: 'Blocked by something' },
-  ];
-
-  const picked = await VscodeHelper.showQuickPickItems(items, {
-    placeHolder: 'Select status',
-  });
-
-  if (!picked) return undefined;
-
-  const statusMap: Record<string, TaskStatus> = {
-    [`$(${VscodeIcon.CircleLargeOutline}) Todo`]: TaskStatus.Todo,
-    [`$(${VscodeIcon.PlayCircle}) Doing`]: TaskStatus.Doing,
-    [`$(${VscodeIcon.PassFilled}) Done`]: TaskStatus.Done,
-    [`$(${VscodeIcon.Error}) Blocked`]: TaskStatus.Blocked,
-  };
-
-  return statusMap[picked.label];
-}
-
-export async function pickPriority(): Promise<TaskPriority | undefined> {
-  const items: QuickPickItem[] = [
-    { label: '🔴 Urgent', description: 'Critical priority' },
-    { label: '🟠 High', description: 'High priority' },
-    { label: '🟡 Medium', description: 'Medium priority' },
-    { label: '🔵 Low', description: 'Low priority' },
-    { label: '○ None', description: 'No priority' },
-  ];
-
-  const picked = await VscodeHelper.showQuickPickItems(items, {
-    placeHolder: 'Select priority',
-  });
-
-  if (!picked) return undefined;
-
-  const priorityMap: Record<string, TaskPriority> = {
-    '🔴 Urgent': TaskPriority.Urgent,
-    '🟠 High': TaskPriority.High,
-    '🟡 Medium': TaskPriority.Medium,
-    '🔵 Low': TaskPriority.Low,
-    '○ None': TaskPriority.None,
-  };
-
-  return priorityMap[picked.label];
 }

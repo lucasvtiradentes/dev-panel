@@ -4,7 +4,7 @@ import { Command, registerCommand } from '../../../common/vscode/vscode-commands
 import { VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 
-export type GoToReplacementTargetFileParams = { replacement?: DevPanelReplacement };
+type GoToReplacementTargetFileParams = { replacement?: DevPanelReplacement };
 
 export function createGoToReplacementTargetFileCommand(): Disposable {
   return registerCommand(Command.GoToReplacementTargetFile, async (item: GoToReplacementTargetFileParams) => {

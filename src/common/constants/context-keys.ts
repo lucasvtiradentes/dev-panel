@@ -14,5 +14,3 @@ export const CONTEXT_KEYS = [
   'replacementsAllActive',
   'configsGrouped',
 ] as const;
-
-export type ContextKeyValue = (typeof CONTEXT_KEYS)[number];

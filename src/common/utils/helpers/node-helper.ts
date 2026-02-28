@@ -1,5 +1,4 @@
-import { exec, execSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { exec } from 'node:child_process';
 import {
   type Dirent,
   type Stats,
@@ -15,8 +14,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from 'node:fs';
-import { get } from 'node:https';
-import { homedir, tmpdir } from 'node:os';
+import { homedir, platform, tmpdir } from 'node:os';
 import {
   type ParsedPath,
   basename,
@@ -170,83 +168,6 @@ export class FileIOHelper {
 
 export class NodeOsHelper {
   static homedir = homedir;
-
+  static platform = platform;
   static tmpdir = tmpdir;
-}
-
-export class NodeCryptoHelper {
-  static createHash = createHash;
-}
-
-export class NodeHttps {
-  static get = get;
-}
-
-export class ShellHelper {
-  private static isWindows = process.platform === 'win32';
-
-  static execSync(command: string, cwd: string): string {
-    return execSync(command, { cwd, encoding: 'utf-8' });
-  }
-
-  static execSyncSilent(command: string, cwd: string): boolean {
-    try {
-      execSync(command, { cwd, stdio: 'ignore' });
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  static getDeleteCommand(filePath: string): string {
-    return ShellHelper.isWindows ? `del "${filePath}"` : `rm "${filePath}"`;
-  }
-
-  static buildChainedCommand(mainCmd: string, cleanupCmd: string): string {
-    return ShellHelper.isWindows ? `${mainCmd} & ${cleanupCmd}` : `${mainCmd} && ${cleanupCmd}`;
-  }
-}
-
-export class CliPathHelper {
-  private static isWindows = process.platform === 'win32';
-
-  private static getCliPaths(): Record<string, string[]> {
-    if (CliPathHelper.isWindows) {
-      const appData = process.env.APPDATA || join(homedir(), 'AppData', 'Roaming');
-      const localAppData = process.env.LOCALAPPDATA || join(homedir(), 'AppData', 'Local');
-      return {
-        claude: [
-          join(appData, 'Claude', 'claude.exe'),
-          join(localAppData, 'Programs', 'claude', 'claude.exe'),
-          join(homedir(), '.claude', 'local', 'claude.exe'),
-        ],
-        gemini: [join(appData, 'gemini', 'gemini.exe'), join(localAppData, 'Programs', 'gemini', 'gemini.exe')],
-        'cursor-agent': [
-          join(appData, 'cursor-agent', 'cursor-agent.exe'),
-          join(localAppData, 'Programs', 'cursor-agent', 'cursor-agent.exe'),
-        ],
-      };
-    }
-    return {
-      claude: [
-        join(homedir(), '.claude', 'local', 'claude'),
-        join(homedir(), '.local', 'bin', 'claude'),
-        '/usr/local/bin/claude',
-      ],
-      gemini: [join(homedir(), '.local', 'bin', 'gemini'), '/usr/local/bin/gemini'],
-      'cursor-agent': [join(homedir(), '.local', 'bin', 'cursor-agent'), '/usr/local/bin/cursor-agent'],
-    };
-  }
-
-  static resolvePath(cliName: string): string {
-    const cliPaths = CliPathHelper.getCliPaths();
-    const knownPaths = cliPaths[cliName] ?? [];
-    for (const p of knownPaths) {
-      if (existsSync(p)) {
-        return p;
-      }
-    }
-    const exeName = CliPathHelper.isWindows ? `${cliName}.exe` : cliName;
-    return exeName;
-  }
 }

@@ -10,9 +10,6 @@ export const CONFIG_FILE_NAME = 'config.jsonc';
 export const VARIABLES_FILE_NAME = 'variables.json';
 export const RESOURCES_DIR_NAME = 'resources';
 export const INIT_RESOURCES_DIR_NAME = 'init';
-export const CLAUDE_DIR_NAME = '.claude';
-export const SKILLS_DIR_NAME = 'skills';
-export const SKILL_FILE_NAME = 'SKILL.md';
 export const DEFAULT_INCLUDES = ['**/*'];
 export const DEFAULT_EXCLUDES = ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/out/**'];
 export const DEFAULT_EXCLUDED_DIRS = ['node_modules', 'dist', '.git'];
@@ -62,14 +59,6 @@ export function getGlobalConfigPath(): string {
 
 export function getGlobalVariablesPath(): string {
   return NodePathHelper.join(getGlobalConfigDir(), VARIABLES_FILE_NAME);
-}
-
-export function getSkillDir(workspacePath: string, skillName: string): string {
-  return NodePathHelper.join(workspacePath, CLAUDE_DIR_NAME, SKILLS_DIR_NAME, skillName);
-}
-
-export function getSkillFilePath(workspacePath: string, skillName: string): string {
-  return NodePathHelper.join(getSkillDir(workspacePath, skillName), SKILL_FILE_NAME);
 }
 
 export function getVscodeTasksFilePath(workspacePath: string): string {

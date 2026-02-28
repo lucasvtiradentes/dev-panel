@@ -28,7 +28,7 @@ import { registerReplacementKeybindings } from './views/replacements/keybindings
 import { TaskTreeDataProvider } from './views/tasks';
 import { registerTaskKeybindings, reloadTaskKeybindings } from './views/tasks/keybindings-local';
 import { VariablesProvider, loadVariablesState } from './views/variables';
-import { registerVariableKeybindings } from './views/variables/keybindings-local';
+import { registerVariableKeybindings, reloadVariableKeybindings } from './views/variables/keybindings-local';
 import { createConfigWatcher } from './watchers/config-watcher';
 import { createKeybindingsWatcher } from './watchers/keybindings-watcher';
 
@@ -53,6 +53,7 @@ function setupStatesAndContext(context: ExtensionContext) {
 
 function setupInitialKeybindings() {
   reloadTaskKeybindings();
+  reloadVariableKeybindings();
 }
 
 function setupProviders(workspace: string): Providers {
@@ -146,6 +147,7 @@ function setupWatchers(context: ExtensionContext, providers: Providers, workspac
 
   const keybindingsWatcher = createKeybindingsWatcher(() => {
     reloadTaskKeybindings();
+    reloadVariableKeybindings();
 
     providers.replacementsProvider.refresh();
     providers.variablesProvider.refresh();

@@ -42,27 +42,50 @@ export function getLogFilename(): string {
   return buildLogFilename(IS_DEV);
 }
 
+function getContextPrefix(): string {
+  return IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
+}
+
+function getReplacementCommandPrefix(): string {
+  return `${getContextPrefix()}.${REPLACEMENT_COMMAND_SUFFIX}.`;
+}
+
 export function getReplacementCommandId(replacementName: string): string {
-  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
-  return `${prefix}.${REPLACEMENT_COMMAND_SUFFIX}.${replacementName}`;
+  return `${getReplacementCommandPrefix()}${replacementName}`;
 }
 
 export function getVariableCommandId(variableName: string): string {
-  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
-  return `${prefix}.${VARIABLE_COMMAND_SUFFIX}.${variableName}`;
+  return `${getVariableCommandPrefix()}${variableName}`;
 }
 
 export function getVariableCommandPrefix(): string {
-  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
-  return `${prefix}.${VARIABLE_COMMAND_SUFFIX}.`;
+  return `${getContextPrefix()}.${VARIABLE_COMMAND_SUFFIX}.`;
 }
 
 export function getTaskCommandId(taskName: string): string {
-  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
-  return `${prefix}.${TASK_COMMAND_SUFFIX}.${taskName}`;
+  return `${getTaskCommandPrefix()}${taskName}`;
 }
 
 export function getTaskCommandPrefix(): string {
-  const prefix = IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
-  return `${prefix}.${TASK_COMMAND_SUFFIX}.`;
+  return `${getContextPrefix()}.${TASK_COMMAND_SUFFIX}.`;
+}
+
+export function isDevPanelCommand(command: string): boolean {
+  return (
+    command.startsWith(getTaskCommandPrefix()) ||
+    command.startsWith(getVariableCommandPrefix()) ||
+    command.startsWith(getReplacementCommandPrefix())
+  );
+}
+
+export function hasCurrentWorkspaceId(when: string | undefined, workspaceId: string): boolean {
+  if (!when) return false;
+  return when.includes(`${CONTEXT_PREFIX}.workspaceId == '${workspaceId}'`);
+}
+
+export function mergeWhenClause(existingWhen: string | undefined, workspaceWhen: string): string {
+  if (!existingWhen) return workspaceWhen;
+  const trimmed = existingWhen.trim();
+  if (trimmed === '') return workspaceWhen;
+  return `(${trimmed}) && ${workspaceWhen}`;
 }
