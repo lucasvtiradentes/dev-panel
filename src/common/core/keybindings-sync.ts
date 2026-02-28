@@ -1,4 +1,4 @@
-import { hasWorkspaceIdWhen, isDevPanelCommand } from '../constants/functions';
+import { hasCurrentWorkspaceId, isDevPanelCommand, mergeWhenClause } from '../constants/functions';
 import { createLogger } from '../lib/logger';
 import { KeybindingsHelper } from '../utils/helpers/keybindings-helper';
 import { TypeGuardsHelper } from '../utils/helpers/type-guards-helper';
@@ -16,18 +16,25 @@ export function syncKeybindings() {
   }
 
   const keybindingsPath = getVSCodeKeybindingsPath();
-  const keybindings = KeybindingsHelper.load(keybindingsPath);
-  const expectedWhen = buildWorkspaceWhenClause(workspaceId);
+  let keybindings;
+  try {
+    keybindings = KeybindingsHelper.load(keybindingsPath);
+  } catch (error: unknown) {
+    logger.error(`syncKeybindings: Failed to load: ${TypeGuardsHelper.getErrorMessage(error)}`);
+    return;
+  }
+
+  const workspaceWhen = buildWorkspaceWhenClause(workspaceId);
 
   let modified = false;
 
   for (const kb of keybindings) {
     if (typeof kb.command !== 'string') continue;
     if (!isDevPanelCommand(kb.command)) continue;
-    if (hasWorkspaceIdWhen(kb.when)) continue;
+    if (hasCurrentWorkspaceId(kb.when, workspaceId)) continue;
 
     logger.info(`Patching: ${kb.command}`);
-    kb.when = expectedWhen;
+    kb.when = mergeWhenClause(kb.when, workspaceWhen);
     modified = true;
   }
 

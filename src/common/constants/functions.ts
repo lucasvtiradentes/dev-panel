@@ -78,6 +78,14 @@ export function isDevPanelCommand(command: string): boolean {
   );
 }
 
-export function hasWorkspaceIdWhen(when: string | undefined): boolean {
-  return when?.includes(`${CONTEXT_PREFIX}.workspaceId`) ?? false;
+export function hasCurrentWorkspaceId(when: string | undefined, workspaceId: string): boolean {
+  if (!when) return false;
+  return when.includes(`${CONTEXT_PREFIX}.workspaceId == '${workspaceId}'`);
+}
+
+export function mergeWhenClause(existingWhen: string | undefined, workspaceWhen: string): string {
+  if (!existingWhen) return workspaceWhen;
+  const trimmed = existingWhen.trim();
+  if (trimmed === '') return workspaceWhen;
+  return `(${trimmed}) && ${workspaceWhen}`;
 }

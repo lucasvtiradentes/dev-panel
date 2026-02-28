@@ -1,5 +1,5 @@
 import { KEYBINDINGS_FILE } from '../common/constants';
-import { hasWorkspaceIdWhen, isDevPanelCommand } from '../common/constants/functions';
+import { hasCurrentWorkspaceId, isDevPanelCommand, mergeWhenClause } from '../common/constants/functions';
 import { createLogger } from '../common/lib/logger';
 import { type Keybinding, KeybindingsHelper } from '../common/utils/helpers/keybindings-helper';
 import { FileIOHelper, NodePathHelper } from '../common/utils/helpers/node-helper';
@@ -29,16 +29,22 @@ function getKeybindingsSnapshot(): Map<string, Keybinding> {
   }
 }
 
-function findNewUnscopedKeybindings(previous: Map<string, Keybinding>, current: Map<string, Keybinding>): Keybinding[] {
-  const newUnscoped: Keybinding[] = [];
+function findUnscopedKeybindings(previous: Map<string, Keybinding>, current: Map<string, Keybinding>): Keybinding[] {
+  const workspaceId = getWorkspaceId();
+  if (!workspaceId) return [];
+
+  const unscoped: Keybinding[] = [];
 
   for (const [key, kb] of current) {
-    if (!previous.has(key) && !hasWorkspaceIdWhen(kb.when)) {
-      newUnscoped.push(kb);
+    const wasNew = !previous.has(key);
+    const hasCurrentScope = hasCurrentWorkspaceId(kb.when, workspaceId);
+
+    if (!hasCurrentScope && wasNew) {
+      unscoped.push(kb);
     }
   }
 
-  return newUnscoped;
+  return unscoped;
 }
 
 function patchKeybindingsBatch(keybindings: Keybinding[]) {
@@ -55,13 +61,13 @@ function patchKeybindingsBatch(keybindings: Keybinding[]) {
     return;
   }
 
-  const expectedWhen = buildWorkspaceWhenClause(workspaceId);
+  const workspaceWhen = buildWorkspaceWhenClause(workspaceId);
   const toPatch = new Set(keybindings.map((kb) => `${kb.command}:${kb.key}`));
 
   for (const existing of allKeybindings) {
     const key = `${existing.command}:${existing.key}`;
     if (toPatch.has(key)) {
-      existing.when = expectedWhen;
+      existing.when = mergeWhenClause(existing.when, workspaceWhen);
     }
   }
 
@@ -117,15 +123,15 @@ export function createKeybindingsWatcher(onKeybindingsChange: RefreshCallback): 
     logger.info('Keybindings file changed');
 
     const currentSnapshot = getKeybindingsSnapshot();
-    const newUnscoped = findNewUnscopedKeybindings(previousSnapshot, currentSnapshot);
+    const unscoped = findUnscopedKeybindings(previousSnapshot, currentSnapshot);
 
     previousSnapshot = currentSnapshot;
 
-    if (newUnscoped.length > 0) {
-      logger.info(`Found ${newUnscoped.length} new unscoped keybinding(s)`);
+    if (unscoped.length > 0) {
+      logger.info(`Found ${unscoped.length} unscoped keybinding(s)`);
       isProcessing = true;
       try {
-        const patched = await promptToScopeKeybindings(newUnscoped);
+        const patched = await promptToScopeKeybindings(unscoped);
         if (patched) {
           previousSnapshot = getKeybindingsSnapshot();
         }
