@@ -10,6 +10,8 @@ const manager = new KeybindingManager({
 });
 
 export const getAllVariableKeybindings = () => manager.getAllKeybindings();
+export const getVariableKeybinding = (variableName: string) => manager.getKeybinding(variableName);
+export const reloadVariableKeybindings = () => manager.reload();
 
 export function registerVariableKeybindings(context: ExtensionContext) {
   registerItemKeybindings({

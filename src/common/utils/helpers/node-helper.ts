@@ -16,7 +16,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { get } from 'node:https';
-import { homedir, tmpdir } from 'node:os';
+import { homedir, platform, tmpdir } from 'node:os';
 import {
   type ParsedPath,
   basename,
@@ -170,7 +170,7 @@ export class FileIOHelper {
 
 export class NodeOsHelper {
   static homedir = homedir;
-
+  static platform = platform;
   static tmpdir = tmpdir;
 }
 

@@ -17,6 +17,7 @@ const manager = new KeybindingManager({
 });
 
 export const getAllTaskKeybindings = () => manager.getAllKeybindings();
+export const getTaskKeybinding = (taskName: string) => manager.getKeybinding(taskName);
 export const reloadTaskKeybindings = () => manager.reload();
 
 export function registerTaskKeybindings(context: ExtensionContext) {

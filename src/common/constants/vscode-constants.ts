@@ -38,5 +38,4 @@ export const EDITOR_NAMES = {
   VSCODIUM: 'VSCodium',
 } as const;
 
-export const USER_CONFIG_DIR = '.config';
 export const USER_SETTINGS_DIR = 'User';
