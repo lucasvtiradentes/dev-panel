@@ -5,6 +5,7 @@ import {
   TASK_COMMAND_SUFFIX,
   VARIABLE_COMMAND_SUFFIX,
   VIEW_ID_CONFIGS,
+  VIEW_ID_EXCLUDES,
   VIEW_ID_REPLACEMENTS,
   VIEW_ID_TASKS_EXPLORER,
   VIEW_ID_TASKS_PANEL,
@@ -31,6 +32,10 @@ export function getViewIdConfigs(): string {
 
 export function getViewIdReplacements(): string {
   return IS_DEV ? addDevSuffix(VIEW_ID_REPLACEMENTS) : VIEW_ID_REPLACEMENTS;
+}
+
+export function getViewIdExcludes(): string {
+  return IS_DEV ? addDevSuffix(VIEW_ID_EXCLUDES) : VIEW_ID_EXCLUDES;
 }
 
 export function getLogFilename(): string {

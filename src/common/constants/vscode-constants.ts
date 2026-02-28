@@ -17,6 +17,7 @@ export const CONTEXT_VALUES = {
   VARIABLE_ITEM: 'variableItem',
   REPLACEMENT_GROUP: 'replacementGroup',
   REPLACEMENT_ITEM: 'replacementItem',
+  EXCLUDE_ITEM: 'excludeItem',
 } as const;
 
 const VSCODE_DIR = '.vscode';

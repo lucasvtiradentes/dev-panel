@@ -5,6 +5,9 @@ import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions'
 import type { ReplacementsProvider } from '../views/replacements';
 import type { TaskTreeDataProvider } from '../views/tasks';
 import type { VariablesProvider } from '../views/variables';
+import { createAddExcludeCommand } from './internal/excludes/add-exclude';
+import { createOpenExcludeFileCommand } from './internal/excludes/open-exclude-file';
+import { createRemoveExcludeCommand } from './internal/excludes/remove-exclude';
 import { createExecuteTaskCommand } from './internal/execute-task';
 import { createGoToReplacementTargetFileCommand } from './internal/replacements/go-to-replacement-target-file';
 import {
@@ -62,6 +65,9 @@ export function registerAllCommands(options: {
     createToggleAllReplacementsDeactivateCommand(),
     ...createToggleReplacementsViewCommands(replacementsProvider),
     createGoToReplacementTargetFileCommand(),
+    createAddExcludeCommand(),
+    createRemoveExcludeCommand(),
+    createOpenExcludeFileCommand(),
     createShowLogsCommand(),
     createShowWorkspaceStateCommand(),
     createClearWorkspaceStateCommand(),

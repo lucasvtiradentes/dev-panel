@@ -26,6 +26,7 @@ export const VIEW_ID_TASKS_EXPLORER = `${CONTEXT_PREFIX}TasksExplorer`;
 export const VIEW_ID_TASKS_PANEL = `${CONTEXT_PREFIX}TasksPanel`;
 export const VIEW_ID_CONFIGS = `${CONTEXT_PREFIX}Configs`;
 export const VIEW_ID_REPLACEMENTS = `${CONTEXT_PREFIX}Replacements`;
+export const VIEW_ID_EXCLUDES = `${CONTEXT_PREFIX}Excludes`;
 export const DEV_SUFFIX = 'dev';
 const LOG_BASENAME = EXTENSION_NAME;
 export const GLOBAL_TASK_TYPE = `${CONFIG_DIR_KEY}-global`;

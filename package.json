@@ -105,6 +105,10 @@
           "name": "Replacements"
         },
         {
+          "id": "devPanelExcludes",
+          "name": "Excludes"
+        },
+        {
           "id": "devPanelTasksPanel",
           "name": "Task Runner",
           "icon": "$(tasklist)",
@@ -163,6 +167,21 @@
         "command": "devPanel.toggleReplacementsGroupModeGrouped",
         "title": "Toggle Replacements Group Mode",
         "icon": "$(list-tree)"
+      },
+      {
+        "command": "devPanel.addExclude",
+        "title": "Add Exclude",
+        "icon": "$(add)"
+      },
+      {
+        "command": "devPanel.removeExclude",
+        "title": "Remove Exclude",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "devPanel.openExcludeFile",
+        "title": "Open Exclude File",
+        "icon": "$(go-to-file)"
       },
       {
         "command": "devPanel.openTasksConfig",
@@ -351,6 +370,18 @@
           "when": "false"
         },
         {
+          "command": "devPanel.addExclude",
+          "when": "false"
+        },
+        {
+          "command": "devPanel.removeExclude",
+          "when": "false"
+        },
+        {
+          "command": "devPanel.openExcludeFile",
+          "when": "false"
+        },
+        {
           "command": "devPanel.openTasksConfig",
           "when": "false"
         },
@@ -497,6 +528,16 @@
           "group": "navigation@2"
         },
         {
+          "command": "devPanel.addExclude",
+          "when": "view == devPanelExcludes",
+          "group": "navigation@1"
+        },
+        {
+          "command": "devPanel.openExcludeFile",
+          "when": "view == devPanelExcludes",
+          "group": "navigation@2"
+        },
+        {
           "command": "devPanel.openTasksConfig",
           "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel)",
           "group": "navigation@5"
@@ -606,6 +647,11 @@
           "command": "devPanel.resetConfigOption",
           "when": "view == devPanelConfigs && viewItem == variableItem",
           "group": "inline@1"
+        },
+        {
+          "command": "devPanel.removeExclude",
+          "when": "view == devPanelExcludes && viewItem == excludeItem",
+          "group": "inline@1"
         }
       ],
       "view/item/inline": []
@@ -629,7 +675,17 @@
       },
       {
         "view": "devPanelReplacements",
-        "contents": "No replacements configured.\n\nAdd replacements in your config file.",
+        "contents": "No replacements configured.",
+        "when": "!extensionInitializing"
+      },
+      {
+        "view": "devPanelExcludes",
+        "contents": "Loading excludes...",
+        "when": "extensionInitializing"
+      },
+      {
+        "view": "devPanelExcludes",
+        "contents": "No local excludes.",
         "when": "!extensionInitializing"
       },
       {
