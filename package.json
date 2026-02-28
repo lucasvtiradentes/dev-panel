@@ -3,7 +3,7 @@
   "displayName": "Dev Panel",
   "description": "⚡ all-in-one command center for ai-assisted development",
   "icon": "resources/icon-colored.png",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "packageManager": "pnpm@9.15.4",
   "publisher": "lucasvtiradentes",
   "license": "MIT",

@@ -1,5 +1,20 @@
 # dev-panel
 
+## 0.3.0
+
+### Minor Changes
+
+- ec2b55e: feat: add Excludes view to manage .git/info/exclude patterns
+- feat: workspace-scoped keybindings with opt-in toast prompt
+  feat: show keybindings in task/variable tree item descriptions
+  refactor: unified toggle favorite/hide with context-aware labels
+  fix: keybindings filter not working when opening from view
+  chore: removed copy task to global/workspace commands
+
+### Patch Changes
+
+- fix: preserve user when clauses when scoping keybindings to workspace
+
 ## 0.2.0
 
 ### Minor Changes
