@@ -5,7 +5,7 @@ export type ExcludeEntry = {
   pattern: string;
 };
 
-export type AddExcludeResult = {
+type AddExcludeResult = {
   success: boolean;
   reason?: 'duplicate' | 'invalid_pattern' | 'file_error';
 };

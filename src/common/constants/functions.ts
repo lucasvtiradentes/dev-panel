@@ -42,11 +42,11 @@ export function getLogFilename(): string {
   return buildLogFilename(IS_DEV);
 }
 
-export function getContextPrefix(): string {
+function getContextPrefix(): string {
   return IS_DEV ? addDevSuffix(CONTEXT_PREFIX) : CONTEXT_PREFIX;
 }
 
-export function getReplacementCommandPrefix(): string {
+function getReplacementCommandPrefix(): string {
   return `${getContextPrefix()}.${REPLACEMENT_COMMAND_SUFFIX}.`;
 }
 

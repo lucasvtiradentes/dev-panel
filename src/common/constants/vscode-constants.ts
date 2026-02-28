@@ -29,8 +29,6 @@ export const KEYBINDINGS_FILE = 'keybindings.json';
 export const LICENSE_FILE = 'LICENSE';
 export const README_FILE = 'README.md';
 
-export const AI_SPEC_FILES = ['CLAUDE.md', 'AGENTS.md'] as const;
-
 export const EDITOR_NAMES = {
   CURSOR: 'Cursor',
   WINDSURF: 'Windsurf',

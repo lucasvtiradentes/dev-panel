@@ -2,8 +2,8 @@ import { Command, registerCommand } from '../../../common/vscode/vscode-commands
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import type { TaskTreeDataProvider, TreeTask } from '../../../views/tasks';
 
-export type ToggleTaskFavoriteParams = TreeTask;
-export type ToggleTaskHideParams = TreeTask;
+type ToggleTaskFavoriteParams = TreeTask;
+type ToggleTaskHideParams = TreeTask;
 
 export function createToggleTasksViewCommands(taskTreeDataProvider: TaskTreeDataProvider): Disposable[] {
   return [

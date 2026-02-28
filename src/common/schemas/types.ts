@@ -18,49 +18,6 @@ export function normalizePatchItem(item: { search: unknown; replace: unknown }):
   };
 }
 
-export enum TaskStatus {
-  Todo = 'todo',
-  Doing = 'doing',
-  Done = 'done',
-  Blocked = 'blocked',
-}
-
-export enum TaskPriority {
-  Urgent = 'urgent',
-  High = 'high',
-  Medium = 'medium',
-  Low = 'low',
-  None = 'none',
-}
-
-export enum SectionType {
-  Field = 'field',
-  Text = 'text',
-  Auto = 'auto',
-}
-
-export type SectionMetadata = Record<string, unknown>;
-
-export type BranchContextMetadata = {
-  lastCommitHash?: string;
-  lastCommitMessage?: string;
-  lastSyncedTime?: string;
-  sections?: Record<string, SectionMetadata>;
-};
-
-export type BranchContext = {
-  branchName?: string;
-  branchType?: string;
-  prLink?: string;
-  linearLink?: string;
-  objective?: string;
-  requirements?: string;
-  notes?: string;
-  todos?: string;
-  changedFiles?: string;
-  metadata?: BranchContextMetadata;
-};
-
 export enum TaskSource {
   VSCode = 'vscode',
   Package = 'package',

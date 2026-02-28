@@ -29,34 +29,6 @@ export type StateManager<TSource = void> = {
   getFavoriteItems(source: TSource): string[];
 };
 
-export type SimpleStateManager = {
-  getIsGrouped(): boolean;
-  saveIsGrouped(isGrouped: boolean): void;
-  getOrder(isGrouped: boolean): string[];
-  saveOrder(isGrouped: boolean, order: string[]): void;
-  getShowHidden(): boolean;
-  saveShowHidden(showHidden: boolean): void;
-  getShowOnlyFavorites(): boolean;
-  saveShowOnlyFavorites(showOnlyFavorites: boolean): void;
-  toggleFavorite(name: string): boolean;
-  toggleHidden(name: string): boolean;
-  isFavorite(name: string): boolean;
-  isHidden(name: string): boolean;
-  getHiddenItems(): string[];
-  getFavoriteItems(): string[];
-};
-
-export type GlobalStateManager = {
-  toggleFavorite(name: string): boolean;
-  toggleHidden(name: string): boolean;
-  isFavorite(name: string): boolean;
-  isHidden(name: string): boolean;
-  getSourceState(): {
-    hidden: string[];
-    favorites: string[];
-  };
-};
-
 export type KeybindingConfig = {
   commandPrefix: string;
   getCommandId: (name: string) => string;

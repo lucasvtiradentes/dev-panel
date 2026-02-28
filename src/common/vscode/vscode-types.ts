@@ -12,7 +12,6 @@ export type Event<T> = vscode.Event<T>;
 export type EventEmitter<T> = vscode.EventEmitter<T>;
 export type ExtensionContext = vscode.ExtensionContext;
 export type FileSystemWatcher = vscode.FileSystemWatcher;
-export type MarkdownString = vscode.MarkdownString;
 export type QuickPickItem = vscode.QuickPickItem;
 export type QuickPickItemWithId<T> = QuickPickItem & { id: T };
 export type StatusBarItem = vscode.StatusBarItem;
@@ -24,7 +23,6 @@ export type ExtendedTask = Task & {
   };
 };
 export type TaskScope = vscode.TaskScope;
-export type Terminal = vscode.Terminal;
 export type ThemeIcon = vscode.ThemeIcon;
 export type TreeItem = vscode.TreeItem;
 export type TreeItemCollapsibleState = vscode.TreeItemCollapsibleState;

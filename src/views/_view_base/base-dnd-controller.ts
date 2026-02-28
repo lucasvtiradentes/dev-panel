@@ -1,7 +1,7 @@
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { CancellationToken, DataTransfer, TreeDragAndDropController } from '../../common/vscode/vscode-types';
-import type { NamedTreeItem, SimpleStateManager, StateManager } from './types';
+import type { NamedTreeItem, StateManager } from './types';
 
 export class BaseDragAndDropController<TItem extends NamedTreeItem, TSource = void>
   implements TreeDragAndDropController<TItem>
@@ -11,9 +11,9 @@ export class BaseDragAndDropController<TItem extends NamedTreeItem, TSource = vo
 
   constructor(
     private readonly mimeType: string,
-    private readonly stateManager: StateManager<TSource> | SimpleStateManager,
+    private readonly stateManager: StateManager<TSource>,
     private readonly getIsGrouped: () => boolean,
-    private readonly getSource: (() => TSource) | null,
+    private readonly getSource: () => TSource,
     private readonly onReorder: () => void,
   ) {
     this.dropMimeTypes = [mimeType];
@@ -47,12 +47,8 @@ export class BaseDragAndDropController<TItem extends NamedTreeItem, TSource = vo
 
   private reorderItems(draggedLabel: string, targetLabel: string) {
     const isGrouped = this.getIsGrouped();
-    const source = this.getSource ? this.getSource() : (undefined as TSource);
-
-    const currentOrder = this.isSimpleStateManager(this.stateManager)
-      ? this.stateManager.getOrder(isGrouped)
-      : this.stateManager.getOrder(source, isGrouped);
-
+    const source = this.getSource();
+    const currentOrder = this.stateManager.getOrder(source, isGrouped);
     const order = [...currentOrder];
 
     const draggedIndex = order.indexOf(draggedLabel);
@@ -72,25 +68,8 @@ export class BaseDragAndDropController<TItem extends NamedTreeItem, TSource = vo
       order.splice(targetIndex, 0, draggedLabel);
     }
 
-    if (this.isSimpleStateManager(this.stateManager)) {
-      this.stateManager.saveOrder(isGrouped, order);
-    } else {
-      this.stateManager.saveOrder(source, isGrouped, order);
-    }
+    this.stateManager.saveOrder(source, isGrouped, order);
   }
-
-  private isSimpleStateManager(manager: StateManager<TSource> | SimpleStateManager): manager is SimpleStateManager {
-    return this.getSource === null && manager === this.stateManager;
-  }
-}
-
-export function createDragAndDropController<TItem extends NamedTreeItem>(
-  mimeType: string,
-  stateManager: SimpleStateManager,
-  getIsGrouped: () => boolean,
-  onReorder: () => void,
-) {
-  return new BaseDragAndDropController<TItem, void>(mimeType, stateManager, getIsGrouped, null, onReorder);
 }
 
 export function createSourcedDragAndDropController<TItem extends NamedTreeItem, TSource>(options: {

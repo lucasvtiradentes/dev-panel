@@ -9,7 +9,6 @@ const manager = new KeybindingManager({
   getCommandId: getVariableCommandId,
 });
 
-export const getAllVariableKeybindings = () => manager.getAllKeybindings();
 export const getVariableKeybinding = (variableName: string) => manager.getKeybinding(variableName);
 export const reloadVariableKeybindings = () => manager.reload();
 
