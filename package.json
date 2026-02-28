@@ -262,16 +262,6 @@
         "title": "Delete Task"
       },
       {
-        "command": "devPanel.copyTaskToGlobal",
-        "title": "Copy to Global",
-        "icon": "$(globe)"
-      },
-      {
-        "command": "devPanel.copyTaskToWorkspace",
-        "title": "Copy to Workspace",
-        "icon": "$(file-directory)"
-      },
-      {
         "command": "devPanel.goToReplacementTargetFile",
         "title": "Go to Replacement Target File",
         "icon": "$(go-to-file)"
@@ -446,14 +436,6 @@
           "when": "false"
         },
         {
-          "command": "devPanel.copyTaskToGlobal",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.copyTaskToWorkspace",
-          "when": "false"
-        },
-        {
           "command": "devPanel.goToReplacementTargetFile",
           "when": "false"
         },
@@ -623,16 +605,6 @@
           "command": "devPanel.setTaskKeybinding",
           "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && viewItem =~ /^task/ && taskSourceDevPanel",
           "group": "2_devpanel@2"
-        },
-        {
-          "command": "devPanel.copyTaskToGlobal",
-          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && viewItem =~ /^task-devpanel(-hidden|-favorite)?$/",
-          "group": "2_devpanel@3"
-        },
-        {
-          "command": "devPanel.copyTaskToWorkspace",
-          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && viewItem =~ /^task-devpanel-global/",
-          "group": "2_devpanel@3"
         },
         {
           "command": "devPanel.goToReplacementTargetFile",

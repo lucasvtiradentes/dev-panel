@@ -44,8 +44,6 @@ export enum Command {
   SetTaskKeybinding = 'setTaskKeybinding',
   OpenTasksKeybindings = 'openTasksKeybindings',
   DeleteTask = 'deleteTask',
-  CopyTaskToGlobal = 'copyTaskToGlobal',
-  CopyTaskToWorkspace = 'copyTaskToWorkspace',
   VscodeOpen = 'vscode.open',
   VscodeSetContext = 'setContext',
   VscodeOpenGlobalKeybindings = 'workbench.action.openGlobalKeybindings',
