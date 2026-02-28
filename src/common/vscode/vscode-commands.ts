@@ -12,6 +12,7 @@ export enum Command {
   ToggleFavorite = 'toggleFavorite',
   ToggleUnfavorite = 'toggleUnfavorite',
   ToggleHide = 'toggleHide',
+  ToggleUnhide = 'toggleUnhide',
   ToggleTasksShowHidden = 'toggleTasksShowHidden',
   ToggleTasksShowHiddenActive = 'toggleTasksShowHiddenActive',
   ToggleTasksShowOnlyFavorites = 'toggleTasksShowOnlyFavorites',

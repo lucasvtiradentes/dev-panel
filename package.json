@@ -220,18 +220,23 @@
       },
       {
         "command": "devPanel.toggleFavorite",
-        "title": "Toggle Favorite",
+        "title": "Add to Favorites",
         "icon": "$(heart)"
-      },
-      {
-        "command": "devPanel.toggleHide",
-        "title": "Toggle Hide",
-        "icon": "$(eye-closed)"
       },
       {
         "command": "devPanel.toggleUnfavorite",
         "title": "Remove from Favorites",
         "icon": "$(heart-filled)"
+      },
+      {
+        "command": "devPanel.toggleHide",
+        "title": "Hide Task",
+        "icon": "$(eye-closed)"
+      },
+      {
+        "command": "devPanel.toggleUnhide",
+        "title": "Unhide Task",
+        "icon": "$(eye)"
       },
       {
         "command": "devPanel.toggleTasksShowHidden",
@@ -404,11 +409,15 @@
           "when": "false"
         },
         {
+          "command": "devPanel.toggleUnfavorite",
+          "when": "false"
+        },
+        {
           "command": "devPanel.toggleHide",
           "when": "false"
         },
         {
-          "command": "devPanel.toggleUnfavorite",
+          "command": "devPanel.toggleUnhide",
           "when": "false"
         },
         {
@@ -578,17 +587,22 @@
       "view/item/context": [
         {
           "command": "devPanel.toggleHide",
-          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && viewItem =~ /^task/",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && viewItem =~ /^task/ && viewItem =~ /^((?!hidden).)*$/",
+          "group": "1_common@1"
+        },
+        {
+          "command": "devPanel.toggleUnhide",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && viewItem =~ /^task.*-hidden/",
           "group": "1_common@1"
         },
         {
           "command": "devPanel.toggleFavorite",
-          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && (viewItem == task || viewItem == task-devpanel || viewItem == task-devpanel-global || viewItem == task-hidden || viewItem == task-devpanel-hidden || viewItem == task-devpanel-global-hidden)",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && viewItem =~ /^task/ && viewItem =~ /^((?!favorite).)*$/",
           "group": "1_common@2"
         },
         {
           "command": "devPanel.toggleUnfavorite",
-          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && (viewItem == task-favorite || viewItem == task-devpanel-favorite || viewItem == task-devpanel-global-favorite)",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && viewItem =~ /^task.*-favorite/",
           "group": "1_common@2"
         },
         {
