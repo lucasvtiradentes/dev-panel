@@ -2,6 +2,7 @@ import { registerAllCommands } from './commands/register-all';
 import {
   GLOBAL_STATE_WORKSPACE_SOURCE,
   getViewIdConfigs,
+  getViewIdExcludes,
   getViewIdReplacements,
   getViewIdTasksExplorer,
   getViewIdTasksPanel,
@@ -21,6 +22,7 @@ import {
   setWorkspaceId,
 } from './common/vscode/vscode-workspace';
 import { StatusBarManager } from './status-bar/status-bar-manager';
+import { ExcludesProvider } from './views/excludes';
 import { ReplacementsProvider } from './views/replacements';
 import { registerReplacementKeybindings } from './views/replacements/keybindings-local';
 import { TaskTreeDataProvider } from './views/tasks';
@@ -35,6 +37,7 @@ type Providers = {
   taskTreeDataProvider: TaskTreeDataProvider;
   variablesProvider: VariablesProvider;
   replacementsProvider: ReplacementsProvider;
+  excludesProvider: ExcludesProvider;
 };
 
 function setupStatesAndContext(context: ExtensionContext) {
@@ -61,6 +64,7 @@ function setupProviders(workspace: string): Providers {
   const taskTreeDataProvider = new TaskTreeDataProvider();
   const variablesProvider = new VariablesProvider();
   const replacementsProvider = new ReplacementsProvider();
+  const excludesProvider = new ExcludesProvider();
 
   void VscodeHelper.fetchTasks();
 
@@ -69,6 +73,7 @@ function setupProviders(workspace: string): Providers {
     taskTreeDataProvider,
     variablesProvider,
     replacementsProvider,
+    excludesProvider,
   };
 }
 
@@ -96,6 +101,7 @@ function setupTreeViews(providers: Providers): TasksTreeViews {
 
   VscodeHelper.registerTreeDataProvider(getViewIdConfigs(), providers.variablesProvider);
   VscodeHelper.registerTreeDataProvider(getViewIdReplacements(), providers.replacementsProvider);
+  VscodeHelper.registerTreeDataProvider(getViewIdExcludes(), providers.excludesProvider);
 
   return { explorerView, panelView };
 }
@@ -107,6 +113,7 @@ function setupDisposables(context: ExtensionContext, providers: Providers, tasks
   context.subscriptions.push({ dispose: () => providers.taskTreeDataProvider.dispose() });
   context.subscriptions.push({ dispose: () => providers.variablesProvider.dispose() });
   context.subscriptions.push({ dispose: () => providers.replacementsProvider.dispose() });
+  context.subscriptions.push({ dispose: () => providers.excludesProvider.dispose() });
 }
 
 function setupConfigChangeListener(context: ExtensionContext, providers: Providers, tasksViews: TasksTreeViews) {
