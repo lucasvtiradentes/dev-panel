@@ -50,9 +50,9 @@ export function syncKeybindings() {
 }
 
 export async function openKeybindingsForCommand(commandId: string) {
-  await executeCommand(Command.VscodeOpenGlobalKeybindings, { query: `@command:${commandId}` });
+  await executeCommand(Command.VscodeOpenGlobalKeybindings, `@command:${commandId}`);
 }
 
 export async function openKeybindingsWithPrefix(prefix: string) {
-  await executeCommand(Command.VscodeOpenGlobalKeybindings, { query: prefix });
+  await executeCommand(Command.VscodeOpenGlobalKeybindings, prefix);
 }
