@@ -1,18 +1,18 @@
-# Feature: {{branch}}
+# Fix: {{branch}}
 
 Created: {{date}} by {{author}}
 
-## Description
+## Bug
 
-What is this feature about?
+What is the problem?
 
-## Decisions
+## Cause
 
--
+What was causing it?
 
-## Implementation
+## Fix
 
--
+How was it fixed?
 
 ## Testing
 

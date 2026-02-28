@@ -4,8 +4,20 @@
   "sound": true,
   "template_rules": [
     {
-      "prefix": "feature/",
-      "template": "feature"
+      "prefix": "chore/",
+      "template": "chore"
+    },
+    {
+      "prefix": "refactor/",
+      "template": "chore"
+    },
+    {
+      "prefix": "fix/",
+      "template": "fix"
+    },
+    {
+      "prefix": "bugfix/",
+      "template": "fix"
     }
   ]
 }
