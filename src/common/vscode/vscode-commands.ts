@@ -30,6 +30,7 @@ export enum Command {
   ToggleReplacementsGroupMode = 'toggleReplacementsGroupMode',
   ToggleReplacementsGroupModeGrouped = 'toggleReplacementsGroupModeGrouped',
   GoToReplacementTargetFile = 'goToReplacementTargetFile',
+  PreviewReplacementDiff = 'previewReplacementDiff',
   AddExclude = 'addExclude',
   RemoveExclude = 'removeExclude',
   OpenExcludeFile = 'openExcludeFile',

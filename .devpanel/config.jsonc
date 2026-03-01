@@ -78,15 +78,27 @@
     {
       "name": "enable-debug-logs",
       "type": "patch",
-      "description": "Enable debug logging in hello1 view",
+      "description": "Enable debug logging on startup",
       "target": "src/extension.ts",
       "patches": [
         {
           "search": "void VscodeHelper.fetchTasks();",
           "replace": "// DEBUG ENABLED\n  void VscodeHelper.fetchTasks();"
+        },
+        {
+          "search": "logger.info('=== EXTENSION ACTIVATE START ===');",
+          "replace": "logger.info('=== EXTENSION ACTIVATE START (DEBUG MODE) ===');"
         }
       ],
       "group": "Debug"
+    },
+    {
+      "name": "strict-linting",
+      "type": "file",
+      "description": "Enable strict biome linting rules",
+      "source": ".devpanel/replacements/biome-strict.json",
+      "target": "biome.json",
+      "group": "Config"
     }
   ],
   "tasks": [

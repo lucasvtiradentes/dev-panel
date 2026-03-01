@@ -10,6 +10,7 @@ import { createOpenExcludeFileCommand } from './internal/excludes/open-exclude-f
 import { createRemoveExcludeCommand } from './internal/excludes/remove-exclude';
 import { createExecuteTaskCommand } from './internal/execute-task';
 import { createGoToReplacementTargetFileCommand } from './internal/replacements/go-to-replacement-target-file';
+import { createPreviewReplacementDiffCommand } from './internal/replacements/preview-replacement-diff';
 import {
   createToggleAllReplacementsActivateCommand,
   createToggleAllReplacementsDeactivateCommand,
@@ -61,6 +62,7 @@ export function registerAllCommands(options: {
     createToggleAllReplacementsDeactivateCommand(),
     ...createToggleReplacementsViewCommands(replacementsProvider),
     createGoToReplacementTargetFileCommand(),
+    ...createPreviewReplacementDiffCommand(),
     createAddExcludeCommand(),
     createRemoveExcludeCommand(),
     createOpenExcludeFileCommand(),

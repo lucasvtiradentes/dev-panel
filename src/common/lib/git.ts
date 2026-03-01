@@ -137,6 +137,10 @@ export class Git {
     }
   }
 
+  static async getFileContent(workspace: string, filePath: string): Promise<string> {
+    return Git.execCommand(workspace, ['show', `HEAD:${filePath}`]);
+  }
+
   static async diff(options: {
     workspace: string;
     type: 'base' | 'cached' | 'working';

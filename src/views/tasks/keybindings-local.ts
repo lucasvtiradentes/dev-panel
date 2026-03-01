@@ -1,10 +1,5 @@
 import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
-import {
-  getGlobalConfigDir,
-  getGlobalVariablesPath,
-  getTaskCommandId,
-  getTaskCommandPrefix,
-} from '../../common/constants';
+import { getTaskCommandId, getTaskCommandPrefix } from '../../common/constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import { registerItemKeybindings } from '../../common/core/keybindings-registration';
 import type { ExtensionContext } from '../../common/vscode/vscode-types';
@@ -30,15 +25,6 @@ export function registerTaskKeybindings(context: ExtensionContext) {
       const env = VariablesEnvManager.readDevPanelVariablesAsEnv(ConfigManager.getWorkspaceVariablesPath(folder));
 
       void executeTaskFromKeybinding({ task, cwd, env });
-    },
-    createGlobalHandler: (task) => {
-      const globalConfigDir = getGlobalConfigDir();
-      const variablesPath = getGlobalVariablesPath();
-      const env = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);
-
-      return () => {
-        void executeTaskFromKeybinding({ task, cwd: globalConfigDir, env });
-      };
     },
   });
 }

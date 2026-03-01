@@ -1,8 +1,3 @@
-export enum LocationScope {
-  Global = 'global',
-  Workspace = 'workspace',
-}
-
 export enum ConfigKey {
   Tasks = 'tasks',
 }

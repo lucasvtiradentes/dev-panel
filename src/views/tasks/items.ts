@@ -1,6 +1,6 @@
 import { readJsoncFile } from 'src/common/utils/functions/read-jsonc-file';
 import { CONTEXT_VALUES, NO_GROUP_NAME, VSCODE_TASKS_PATH } from '../../common/constants';
-import type { CodeWorkspaceFile, TaskDefinition, TasksJson } from '../../common/schemas/types';
+import type { CodeWorkspaceFile, TaskDefinition, TaskSource, TasksJson } from '../../common/schemas/types';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
@@ -66,6 +66,7 @@ export class TreeTask extends TreeItemClass {
   workspace: string | null = null;
   group: string | undefined;
   taskName: string;
+  taskSource?: TaskSource;
 
   constructor(
     type: string,

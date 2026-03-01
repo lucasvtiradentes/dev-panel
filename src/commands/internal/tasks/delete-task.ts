@@ -10,14 +10,10 @@ async function handleDeleteTask(treeTask: TreeTask) {
     return;
   }
 
-  const isGlobal = TreeItemUtils.isGlobalItem(treeTask.taskName);
-  const taskName = TreeItemUtils.stripGlobalPrefix(treeTask.taskName);
-
   await ConfigItemOperations.deleteItem({
-    itemName: taskName,
+    itemName: treeTask.taskName,
     itemType: 'task',
     configKey: ConfigKey.Tasks,
-    isGlobal,
     hasItems: (config) => (config.tasks?.length ?? 0) > 0,
     refreshCommand: Command.Refresh,
   });

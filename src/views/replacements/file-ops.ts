@@ -11,6 +11,16 @@ function normalizeSearchReplace(value: string[]): string {
   return value.join('\n');
 }
 
+export function computePatchedContent(content: string, patches: NormalizedPatchItem[]): string {
+  let result = content;
+  for (const patch of patches) {
+    const search = normalizeSearchReplace(patch.search);
+    const replace = normalizeSearchReplace(patch.replace);
+    result = result.replaceAll(search, replace);
+  }
+  return result;
+}
+
 type ApplyPatchesResult = {
   unmatchedPatches: number[];
 };
@@ -22,14 +32,12 @@ export function applyPatches(workspace: string, target: string, patches: Normali
 
   for (let i = 0; i < patches.length; i++) {
     const search = normalizeSearchReplace(patches[i].search);
-    const replace = normalizeSearchReplace(patches[i].replace);
-
     if (!content.includes(search)) {
       unmatchedPatches.push(i + 1);
     }
-    content = content.split(search).join(replace);
   }
 
+  content = computePatchedContent(content, patches);
   FileIOHelper.writeFile(targetPath, content);
   return { unmatchedPatches };
 }

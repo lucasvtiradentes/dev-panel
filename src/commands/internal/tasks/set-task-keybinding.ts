@@ -1,4 +1,4 @@
-import { getTaskCommandId, getTaskCommandPrefix, stripGlobalPrefix } from '../../../common/constants';
+import { getTaskCommandId, getTaskCommandPrefix } from '../../../common/constants';
 import { openKeybindingsForCommand, openKeybindingsWithPrefix } from '../../../common/core/keybindings-sync';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import type { Disposable } from '../../../common/vscode/vscode-types';
@@ -6,7 +6,7 @@ import type { TreeTask } from '../../../views/tasks/items';
 
 async function handleSetTaskKeybinding(item: TreeTask) {
   if (!item?.taskName) return;
-  await openKeybindingsForCommand(getTaskCommandId(stripGlobalPrefix(item.taskName)));
+  await openKeybindingsForCommand(getTaskCommandId(item.taskName));
 }
 
 function handleOpenTasksKeybindings() {

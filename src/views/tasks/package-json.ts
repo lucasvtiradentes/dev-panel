@@ -294,6 +294,7 @@ function createNpmTask(options: {
     folder,
   );
   treeTask.taskName = name;
+  treeTask.taskSource = TaskSource.Package;
   treeTask.tooltip = command;
 
   if (hidden) {

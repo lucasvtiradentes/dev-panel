@@ -1,6 +1,4 @@
-import { GLOBAL_STATE_KEY } from '../constants';
 import { WORKSPACE_STATE_KEY } from '../constants/scripts-constants';
-import type { GlobalUIState } from '../schemas/global-state.schema';
 import { DEFAULT_SOURCE_STATE, type SourceState } from '../schemas/shared-state.schema';
 import type { WorkspaceUIState } from '../schemas/workspace-state.schema';
 import type { ExtensionContext } from '../vscode/vscode-types';
@@ -9,11 +7,6 @@ export enum StateKey {
   Tasks = 'tasks',
   Replacements = 'replacements',
   Variables = 'variables',
-}
-
-export enum StorageType {
-  Global = 'global',
-  Workspace = 'workspace',
 }
 
 type BaseStateManager<T> = {
@@ -30,28 +23,13 @@ type SourceStateManager = {
   toggleHidden(name: string): boolean;
 };
 
-export type StateManagerWithSource<T> = BaseStateManager<T> & SourceStateManager;
+type StateManagerWithSource<T> = BaseStateManager<T> & SourceStateManager;
 export type StateManager<T> = BaseStateManager<T>;
 
-let globalContext: ExtensionContext | null = null;
 let workspaceContext: ExtensionContext | null = null;
-
-export function initGlobalState(context: ExtensionContext) {
-  globalContext = context;
-}
 
 export function initWorkspaceState(context: ExtensionContext) {
   workspaceContext = context;
-}
-
-function getGlobalState(): GlobalUIState {
-  if (!globalContext) return {};
-  return globalContext.globalState.get<GlobalUIState>(GLOBAL_STATE_KEY) ?? {};
-}
-
-function saveGlobalState(state: GlobalUIState) {
-  if (!globalContext) return;
-  void globalContext.globalState.update(GLOBAL_STATE_KEY, state);
 }
 
 function getWorkspaceState(): WorkspaceUIState {
@@ -76,31 +54,24 @@ export function clearWorkspaceState() {
 type StateManagerConfig<T> = {
   stateKey: StateKey;
   defaultState: T;
-  storageType: StorageType;
   sourceKey?: string;
 };
 
 export function createStateManager<T extends Record<string, unknown>>(
   config: StateManagerConfig<T>,
 ): StateManagerWithSource<T> {
-  const { stateKey, defaultState, storageType, sourceKey } = config;
+  const { stateKey, defaultState, sourceKey } = config;
 
   return {
     load(): T {
-      const state = storageType === StorageType.Global ? getGlobalState() : getWorkspaceState();
+      const state = getWorkspaceState();
       return (state[stateKey as keyof typeof state] ?? { ...defaultState }) as T;
     },
 
     save(newState: T) {
-      if (storageType === StorageType.Global) {
-        const state = getGlobalState();
-        (state as Record<string, unknown>)[stateKey] = newState;
-        saveGlobalState(state);
-      } else {
-        const state = getWorkspaceState();
-        (state as Record<string, unknown>)[stateKey] = newState;
-        saveWorkspaceState(state);
-      }
+      const state = getWorkspaceState();
+      (state as Record<string, unknown>)[stateKey] = newState;
+      saveWorkspaceState(state);
     },
 
     getSourceState(): SourceState {

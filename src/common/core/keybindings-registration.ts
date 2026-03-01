@@ -6,19 +6,17 @@ import { ConfigManager } from './config-manager';
 type KeybindingItem = { name: string };
 
 type WorkspaceHandler<T> = (item: T, folder: WorkspaceFolder) => () => void;
-type GlobalHandler<T> = (item: T) => () => void;
 
 type RegisterKeybindingsOptions<T extends KeybindingItem> = {
   context: ExtensionContext;
   getItems: (config: DevPanelConfig) => T[] | undefined;
   getCommandId: (name: string) => string;
   createWorkspaceHandler: WorkspaceHandler<T>;
-  createGlobalHandler: GlobalHandler<T>;
   shouldSkip?: (item: T) => boolean;
 };
 
 export function registerItemKeybindings<T extends KeybindingItem>(opts: RegisterKeybindingsOptions<T>) {
-  const { context, getItems, getCommandId, createWorkspaceHandler, createGlobalHandler, shouldSkip } = opts;
+  const { context, getItems, getCommandId, createWorkspaceHandler, shouldSkip } = opts;
   const registeredCommands = new Set<string>();
 
   ConfigManager.forEachWorkspaceConfig((folder, config) => {
@@ -36,21 +34,4 @@ export function registerItemKeybindings<T extends KeybindingItem>(opts: Register
       registeredCommands.add(commandId);
     }
   });
-
-  const globalConfig = ConfigManager.loadGlobalConfig();
-  if (globalConfig) {
-    const globalItems = getItems(globalConfig) ?? [];
-
-    for (const item of globalItems) {
-      if (shouldSkip?.(item)) continue;
-
-      const commandId = getCommandId(item.name);
-      if (registeredCommands.has(commandId)) continue;
-
-      const handler = createGlobalHandler(item);
-      const disposable = registerDynamicCommand(commandId, handler);
-      context.subscriptions.push(disposable);
-      registeredCommands.add(commandId);
-    }
-  }
 }

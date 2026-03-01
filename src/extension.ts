@@ -10,7 +10,7 @@ import {
 import { ConfigManager } from './common/core/config-manager';
 import { extensionStore } from './common/core/extension-store';
 import { logger } from './common/lib/logger';
-import { initGlobalState, initWorkspaceState } from './common/state';
+import { initWorkspaceState } from './common/state';
 import { ContextKey, setContextKey } from './common/vscode/vscode-context';
 import { VscodeHelper } from './common/vscode/vscode-helper';
 import type { Disposable, ExtensionContext, TreeView } from './common/vscode/vscode-types';
@@ -30,6 +30,7 @@ import { registerTaskKeybindings, reloadTaskKeybindings } from './views/tasks/ke
 import { VariablesProvider, loadVariablesState } from './views/variables';
 import { registerVariableKeybindings, reloadVariableKeybindings } from './views/variables/keybindings-local';
 import { createConfigWatcher } from './watchers/config-watcher';
+import { createExcludesWatcher } from './watchers/excludes-watcher';
 import { createKeybindingsWatcher } from './watchers/keybindings-watcher';
 
 type Providers = {
@@ -42,7 +43,6 @@ type Providers = {
 
 function setupStatesAndContext(context: ExtensionContext) {
   initWorkspaceState(context);
-  initGlobalState(context);
   extensionStore.initialize(context);
 
   const workspaceId = generateWorkspaceId();
@@ -154,6 +154,11 @@ function setupWatchers(context: ExtensionContext, providers: Providers, workspac
     providers.taskTreeDataProvider.refresh();
   });
   context.subscriptions.push(keybindingsWatcher);
+
+  const excludesWatcher = createExcludesWatcher(() => {
+    providers.excludesProvider.refresh();
+  });
+  context.subscriptions.push(excludesWatcher);
 
   logger.info('[extension] [setupWatchers] All watchers registered');
 }
