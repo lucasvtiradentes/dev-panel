@@ -25,7 +25,7 @@ All-in-one command center for development productivity. A VSCode extension that 
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/dev-panel@main/.github/image/up_arrow.png" width="22"></a>
 
-- **Multi-Source Task Runner** - Execute npm scripts, VSCode tasks, and custom DevPanel tasks with optional inputs
+- **Multi-Source Task Runner** - Run npm scripts, VSCode tasks, and custom tasks with optional inputs
 - **Dynamic Variables** - Configure project options with choose, input, toggle, file, and folder types
 - **File Replacements** - Replace entire files or apply search/replace patches with git integration
 - **Git Excludes** - Manage `.git/info/exclude` patterns directly from the sidebar
