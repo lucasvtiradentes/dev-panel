@@ -26,7 +26,7 @@ export function registerTaskKeybindings(context: ExtensionContext) {
     getCommandId: getTaskCommandId,
     createWorkspaceHandler: (task, folder) => () => {
       const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
-      const cwd = task.useWorkspaceRoot ? folder.uri.fsPath : configDirPath;
+      const cwd = task.useConfigDir ? configDirPath : folder.uri.fsPath;
       const env = VariablesEnvManager.readDevPanelVariablesAsEnv(ConfigManager.getWorkspaceVariablesPath(folder));
 
       void executeTaskFromKeybinding({ task, cwd, env });
