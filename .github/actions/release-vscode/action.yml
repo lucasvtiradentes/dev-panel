@@ -44,7 +44,13 @@ runs:
         dependencies: false
         skipDuplicate: true
 
+    - name: Create and push tag
+      shell: bash
+      run: |
+        git tag "v${{ steps.version.outputs.current }}"
+        git push origin "v${{ steps.version.outputs.current }}"
+
     - name: Summary
       shell: bash
       run: |
-        echo "✅ VSCode extension v${{ steps.version.outputs.current }} published!"
+        echo "✅ VSCode extension v${{ steps.version.outputs.current }} published and tagged!"
