@@ -272,6 +272,11 @@
         "icon": "$(go-to-file)"
       },
       {
+        "command": "devPanel.previewReplacementDiff",
+        "title": "Preview Replacement Diff",
+        "icon": "$(diff)"
+      },
+      {
         "command": "devPanel.showLogs",
         "title": "Dev Panel: Show Logs"
       },
@@ -449,6 +454,10 @@
           "when": "false"
         },
         {
+          "command": "devPanel.previewReplacementDiff",
+          "when": "false"
+        },
+        {
           "command": "devPanel.setVariableKeybinding",
           "when": "false"
         },
@@ -621,9 +630,14 @@
           "group": "2_devpanel@2"
         },
         {
-          "command": "devPanel.goToReplacementTargetFile",
+          "command": "devPanel.previewReplacementDiff",
           "when": "view == devPanelReplacements && viewItem == replacementItem",
           "group": "inline@1"
+        },
+        {
+          "command": "devPanel.goToReplacementTargetFile",
+          "when": "view == devPanelReplacements && viewItem == replacementItem",
+          "group": "inline@2"
         },
         {
           "command": "devPanel.setVariableKeybinding",
