@@ -28,6 +28,8 @@ jobs:
       should_release: ${{ steps.check.outputs.should_release }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - name: Check if version was bumped
         id: check
         run: bash scripts/release/check-version-bump.sh
