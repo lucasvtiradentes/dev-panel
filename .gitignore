@@ -14,3 +14,4 @@ _branch
 *.vsix
 .devpanel/variables.json
 CLAUDE.local.md
+CLAUDE.md 
