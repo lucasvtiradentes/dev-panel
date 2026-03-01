@@ -1,5 +1,11 @@
 # dev-panel
 
+## 0.3.1
+
+### Patch Changes
+
+- 2167668: fix: tasks now run from workspace root by default, use `useConfigDir: true` to run from .devpanel dir
+
 ## 0.3.0
 
 ### Minor Changes
