@@ -23,8 +23,12 @@ runs:
       shell: bash
       run: |
         VERSION=$(node -p "require('./package.json').version")
+        TAG="v$VERSION"
         echo "current=$VERSION" >> $GITHUB_OUTPUT
-        echo "📦 Publishing version: $VERSION"
+        echo "📦 Version: $VERSION"
+        echo "📦 Tag: $TAG"
+        echo "📦 Commit: ${{ github.sha }}"
+        echo "📦 Ref: ${{ github.ref }}"
 
     - name: Publish to Open VSX Registry
       id: publishToOpenVSX
@@ -47,10 +51,26 @@ runs:
     - name: Create and push tag
       shell: bash
       run: |
-        git tag "v${{ steps.version.outputs.current }}"
-        git push origin "v${{ steps.version.outputs.current }}"
+        TAG="v${{ steps.version.outputs.current }}"
+        echo "🏷️ Checking tag: $TAG"
+        echo "🏷️ Remote tags:"
+        git ls-remote --tags origin | grep "$TAG" || echo "  (none matching)"
+        if git ls-remote --tags origin | grep -q "refs/tags/$TAG$"; then
+          echo "🏷️ Tag $TAG already exists, skipping"
+        else
+          echo "🏷️ Creating tag $TAG"
+          git tag "$TAG"
+          echo "🏷️ Pushing tag $TAG"
+          git push origin "$TAG"
+          echo "🏷️ Tag $TAG pushed successfully"
+        fi
 
     - name: Summary
       shell: bash
       run: |
-        echo "✅ VSCode extension v${{ steps.version.outputs.current }} published and tagged!"
+        TAG="v${{ steps.version.outputs.current }}"
+        if git ls-remote --tags origin | grep -q "refs/tags/$TAG$"; then
+          echo "✅ Extension v${{ steps.version.outputs.current }} - tag exists"
+        else
+          echo "✅ Extension v${{ steps.version.outputs.current }} published and tagged"
+        fi
