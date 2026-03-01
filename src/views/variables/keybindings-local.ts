@@ -20,8 +20,5 @@ export function registerVariableKeybindings(context: ExtensionContext) {
     createWorkspaceHandler: (variable) => () => {
       void executeCommand(Command.SelectConfigOption, variable);
     },
-    createGlobalHandler: (variable) => () => {
-      void executeCommand(Command.SelectConfigOption, variable);
-    },
   });
 }

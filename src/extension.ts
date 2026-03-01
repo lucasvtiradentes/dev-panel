@@ -10,7 +10,7 @@ import {
 import { ConfigManager } from './common/core/config-manager';
 import { extensionStore } from './common/core/extension-store';
 import { logger } from './common/lib/logger';
-import { initGlobalState, initWorkspaceState } from './common/state';
+import { initWorkspaceState } from './common/state';
 import { ContextKey, setContextKey } from './common/vscode/vscode-context';
 import { VscodeHelper } from './common/vscode/vscode-helper';
 import type { Disposable, ExtensionContext, TreeView } from './common/vscode/vscode-types';
@@ -42,7 +42,6 @@ type Providers = {
 
 function setupStatesAndContext(context: ExtensionContext) {
   initWorkspaceState(context);
-  initGlobalState(context);
   extensionStore.initialize(context);
 
   const workspaceId = generateWorkspaceId();

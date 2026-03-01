@@ -1,10 +1,4 @@
-import {
-  CONFIG_DIR_NAME,
-  CONFIG_FILE_NAME,
-  VARIABLES_FILE_NAME,
-  getGlobalConfigDir,
-  getGlobalConfigPath,
-} from '../constants';
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, VARIABLES_FILE_NAME } from '../constants';
 import type { ConfigKey } from '../constants/enums';
 import type { DevPanelConfig } from '../schemas';
 import { readJsoncFile } from '../utils/functions/read-jsonc-file';
@@ -168,24 +162,12 @@ export class ConfigManager {
     }
   }
 
-  static loadGlobalConfig(): DevPanelConfig | null {
-    const configPath = getGlobalConfigPath();
-    return ConfigManager.loadConfigFromPath(configPath);
-  }
-
   static ensureDirectoryExists(dirPath: string) {
     FileIOHelper.ensureDirectoryExists(dirPath);
   }
 
   static saveConfigToPath(configPath: string, config: DevPanelConfig) {
     FileIOHelper.writeFile(configPath, JsonHelper.stringifyPretty(config));
-  }
-
-  static saveGlobalConfig(config: DevPanelConfig) {
-    const globalConfigDir = getGlobalConfigDir();
-    const globalConfigPath = getGlobalConfigPath();
-    ConfigManager.ensureDirectoryExists(globalConfigDir);
-    ConfigManager.saveConfigToPath(globalConfigPath, config);
   }
 
   static saveWorkspaceConfig(folder: WorkspaceFolder, config: DevPanelConfig) {
@@ -195,11 +177,11 @@ export class ConfigManager {
     ConfigManager.saveConfigToPath(workspaceConfigPath, config);
   }
 
-  static async confirmDelete(itemType: string, itemName: string, isGlobal: boolean): Promise<boolean> {
+  static async confirmDelete(itemType: string, itemName: string): Promise<boolean> {
     const choiceValue = 'Delete';
     const choice = await VscodeHelper.showToastMessage(
       ToastKind.Warning,
-      `Are you sure you want to delete ${itemType} "${itemName}"${isGlobal ? ' (global)' : ''}?`,
+      `Are you sure you want to delete ${itemType} "${itemName}"?`,
       { modal: true },
       choiceValue,
     );

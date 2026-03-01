@@ -8,12 +8,11 @@ import {
   type TasksState,
   type VariablesState,
 } from '../schemas/workspace-state.schema';
-import { StateKey, type StateManager, StorageType, createGroupedStateMethods, createStateManager } from './base';
+import { StateKey, type StateManager, createGroupedStateMethods, createStateManager } from './base';
 
 const baseTasksState = createStateManager<TasksState>({
   stateKey: StateKey.Tasks,
   defaultState: DEFAULT_TASKS_STATE,
-  storageType: StorageType.Workspace,
 });
 
 export const tasksState: StateManager<TasksState> & {
@@ -155,7 +154,6 @@ export const tasksState: StateManager<TasksState> & {
 const baseReplacementsState = createStateManager<ReplacementsState>({
   stateKey: StateKey.Replacements,
   defaultState: DEFAULT_REPLACEMENTS_STATE,
-  storageType: StorageType.Workspace,
 });
 
 const replacementsGroupedMethods = createGroupedStateMethods(baseReplacementsState, true);
@@ -211,7 +209,6 @@ export const replacementsState: StateManager<ReplacementsState> & {
 const baseVariablesState = createStateManager<VariablesState>({
   stateKey: StateKey.Variables,
   defaultState: DEFAULT_VARIABLES_STATE,
-  storageType: StorageType.Workspace,
 });
 
 const variablesGroupedMethods = createGroupedStateMethods(baseVariablesState, true);

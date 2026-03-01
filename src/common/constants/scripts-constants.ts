@@ -1,4 +1,4 @@
-import { NodeOsHelper, NodePathHelper } from '../utils/helpers/node-helper';
+import { NodePathHelper } from '../utils/helpers/node-helper';
 
 const EXTENSION_PUBLISHER = 'lucasvtiradentes';
 export const EXTENSION_NAME = 'dev-panel';
@@ -26,7 +26,6 @@ export const VIEW_ID_REPLACEMENTS = `${CONTEXT_PREFIX}Replacements`;
 export const VIEW_ID_EXCLUDES = `${CONTEXT_PREFIX}Excludes`;
 export const DEV_SUFFIX = 'dev';
 const LOG_BASENAME = EXTENSION_NAME;
-export const GLOBAL_TASK_TYPE = `${CONFIG_DIR_KEY}-global`;
 export const REPLACEMENT_COMMAND_SUFFIX = 'replacement';
 export const VARIABLE_COMMAND_SUFFIX = 'variable';
 export const TASK_COMMAND_SUFFIX = 'task';
@@ -49,25 +48,10 @@ export function buildLogFilename(isDev: boolean): string {
   return isDev ? `${LOG_BASENAME}-${DEV_SUFFIX}.log` : `${LOG_BASENAME}.log`;
 }
 
-export function getGlobalConfigDir(): string {
-  return NodePathHelper.join(NodeOsHelper.homedir(), CONFIG_DIR_NAME);
-}
-
-export function getGlobalConfigPath(): string {
-  return NodePathHelper.join(getGlobalConfigDir(), CONFIG_FILE_NAME);
-}
-
-export function getGlobalVariablesPath(): string {
-  return NodePathHelper.join(getGlobalConfigDir(), VARIABLES_FILE_NAME);
-}
-
 export function getVscodeTasksFilePath(workspacePath: string): string {
   return NodePathHelper.join(workspacePath, '.vscode', 'tasks.json');
 }
 
 export const WORKSPACE_STATE_CONFIG_DIR_KEY = `${CONFIG_DIR_KEY}.configDir`;
-
-const GLOBAL_ITEM_TOOLTIP_SUFFIX = `from ~/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`;
-export const GLOBAL_TASK_TOOLTIP = `Global task ${GLOBAL_ITEM_TOOLTIP_SUFFIX}`;
 
 export const NOT_GIT_REPO_MESSAGE = 'Not a git repository';

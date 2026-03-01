@@ -11,8 +11,5 @@ export function registerReplacementKeybindings(context: ExtensionContext) {
     createWorkspaceHandler: (replacement) => () => {
       void executeCommand(Command.ToggleReplacement, replacement);
     },
-    createGlobalHandler: (replacement) => () => {
-      void executeCommand(Command.ToggleReplacement, replacement);
-    },
   });
 }
