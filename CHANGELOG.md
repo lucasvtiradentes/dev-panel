@@ -1,5 +1,11 @@
 # dev-panel
 
+## 0.4.1
+
+### Patch Changes
+
+- 076d4ef: fix: prevent duplicate release when tag already exists
+
 ## 0.4.0
 
 ### Minor Changes
