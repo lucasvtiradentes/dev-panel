@@ -5,6 +5,7 @@ export const EXTENSION_NAME = 'dev-panel';
 export const EXTENSION_DISPLAY_NAME = 'Dev Panel';
 
 export const CONFIG_DIR_KEY = 'devpanel';
+export const DEVPANEL_TASK_TYPE = 'devpanel-task';
 export const CONFIG_DIR_NAME = `.${CONFIG_DIR_KEY}`;
 export const CONFIG_FILE_NAME = 'config.jsonc';
 export const VARIABLES_FILE_NAME = 'variables.json';

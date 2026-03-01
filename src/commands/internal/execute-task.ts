@@ -1,10 +1,10 @@
 import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
 import { executeTaskSilently } from 'src/common/utils/functions/execute-silent';
+import { DEVPANEL_TASK_TYPE } from '../../common/constants';
 import { GLOBAL_STATE_WORKSPACE_SOURCE } from '../../common/constants/constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import type { DevPanelConfig } from '../../common/schemas';
-import { JsonHelper } from '../../common/utils/helpers/json-helper';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { Command, registerCommand } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
@@ -21,6 +21,24 @@ import {
 import { isMultiRootWorkspace } from '../../common/vscode/vscode-workspace';
 
 const log = createLogger('execute-task');
+
+function createTaskWithUniqueDefinition(task: Task): Task {
+  const execution = task.execution;
+  if (!execution) return task;
+
+  const uniqueDefinition = { type: DEVPANEL_TASK_TYPE, taskId: task.name };
+
+  const newTask = VscodeHelper.createTask({
+    definition: uniqueDefinition,
+    scope: task.scope ?? VscodeConstants.TaskScope.Workspace,
+    name: task.name,
+    source: DEVPANEL_TASK_TYPE,
+    execution,
+    problemMatchers: task.problemMatchers,
+  });
+  newTask.presentationOptions = task.presentationOptions;
+  return newTask;
+}
 
 function cloneWithEnv(task: Task, env: Record<string, string>): Task {
   const execution = task.execution;
@@ -153,15 +171,17 @@ async function handleExecuteTask(
     }
   }
 
-  log.info(`Executing task: ${modifiedTask.name}`);
-  log.info(`Final presentation: ${JsonHelper.stringify(modifiedTask.presentationOptions)}`);
+  const finalTask = createTaskWithUniqueDefinition(modifiedTask);
 
-  void VscodeHelper.executeTask(modifiedTask).then((taskExecution) => {
-    log.info(`Task started successfully: ${modifiedTask.name}`);
-    VscodeHelper.onDidEndTask((e) => {
+  log.info(`Executing task: ${finalTask.name}`);
+
+  void VscodeHelper.executeTask(finalTask).then((taskExecution) => {
+    log.info(`Task started successfully: ${finalTask.name}`);
+    const disposable = VscodeHelper.onDidEndTask((e) => {
       if (e.execution === taskExecution) {
-        log.info(`Task ended: ${modifiedTask.name}`);
+        log.info(`Task ended: ${finalTask.name}`);
         void context.globalState.update(GLOBAL_STATE_WORKSPACE_SOURCE, null);
+        disposable.dispose();
       }
     });
   });
