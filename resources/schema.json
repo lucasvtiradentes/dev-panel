@@ -621,8 +621,8 @@
               "additionalProperties": false
             }
           },
-          "useWorkspaceRoot": {
-            "description": "If true, run command from workspace root instead of .devpanel directory",
+          "useConfigDir": {
+            "description": "If true, run command from .devpanel directory instead of workspace root",
             "type": "boolean"
           },
           "hideTerminal": {

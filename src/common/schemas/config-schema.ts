@@ -42,10 +42,10 @@ const DevPanelTaskSchema = z
     group: z.string().optional().describe('Group name for organizing tasks'),
     description: z.string().optional().describe('Human-readable description shown as tooltip'),
     inputs: z.array(DevPanelInputSchema).optional().describe('Inputs to collect before running the task'),
-    useWorkspaceRoot: z
+    useConfigDir: z
       .boolean()
       .optional()
-      .describe(`If true, run command from workspace root instead of ${CONFIG_DIR_NAME} directory`),
+      .describe(`If true, run command from ${CONFIG_DIR_NAME} directory instead of workspace root`),
     hideTerminal: z
       .boolean()
       .optional()
