@@ -59,6 +59,6 @@ export class ExcludesProvider implements TreeDataProvider<TreeItem> {
   }
 }
 
-export function getProvider(): ExcludesProvider | null {
-  return providerInstance;
+export function refreshExcludes() {
+  providerInstance?.refresh();
 }

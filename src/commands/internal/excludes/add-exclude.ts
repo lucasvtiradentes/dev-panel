@@ -1,7 +1,7 @@
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import { addExcludeEntry, getProvider } from '../../../views/excludes';
+import { addExcludeEntry, refreshExcludes } from '../../../views/excludes';
 
 export function createAddExcludeCommand(): Disposable {
   return registerCommand(Command.AddExclude, async () => {
@@ -28,6 +28,6 @@ export function createAddExcludeCommand(): Disposable {
       return;
     }
 
-    getProvider()?.refresh();
+    refreshExcludes();
   });
 }
