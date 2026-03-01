@@ -1,5 +1,14 @@
 # dev-panel
 
+## 0.4.0
+
+### Minor Changes
+
+- a1a6bb7: feat: add preview diff button for replacements (shows diff before toggle)
+  feat: add excludes watcher (auto-refresh when .git/info/exclude changes)
+  fix: go-to-task opens correct file for VSCode tasks
+  fix: allow multiple VSCode tasks from same group to run simultaneously
+
 ## 0.3.1
 
 ### Patch Changes
