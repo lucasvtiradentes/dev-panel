@@ -13,7 +13,7 @@ export const QUICK_PICK_ACTION_SEPARATOR = '__separator__';
 
 export const BASE_BRANCH = 'origin/main';
 
-export const DESCRIPTION_NOT_SET = '(not set)';
+export const DESCRIPTION_NOT_SET = '';
 
 export enum ChangedFilesStyle {
   Tree = 'tree',

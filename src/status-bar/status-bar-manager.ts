@@ -48,7 +48,7 @@ export class StatusBarManager {
   private formatValue(value: unknown): string {
     if (Array.isArray(value)) return value.join(', ') || '(none)';
     if (typeof value === 'boolean') return value ? 'On' : 'Off';
-    return String(value ?? '(not set)');
+    return String(value ?? '');
   }
 
   refresh() {
