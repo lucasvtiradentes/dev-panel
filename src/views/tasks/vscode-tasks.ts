@@ -54,6 +54,7 @@ export async function getVSCodeTasks(options: {
     );
 
     treeTask.taskName = task.name;
+    treeTask.taskSource = TaskSource.VSCode;
 
     if (task.detail != null) {
       treeTask.tooltip = task.detail;

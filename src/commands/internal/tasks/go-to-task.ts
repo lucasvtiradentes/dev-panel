@@ -1,12 +1,6 @@
-import {
-  CONFIG_DIR_KEY,
-  CONFIG_FILE_NAME,
-  GLOBAL_TASK_TYPE,
-  PACKAGE_JSON,
-  VSCODE_TASKS_PATH,
-  getGlobalConfigPath,
-} from '../../../common/constants';
+import { CONFIG_FILE_NAME, PACKAGE_JSON, VSCODE_TASKS_PATH } from '../../../common/constants';
 import { ConfigManager } from '../../../common/core/config-manager';
+import { TaskSource } from '../../../common/schemas/types';
 import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
@@ -30,19 +24,13 @@ export function createGoToTaskCommand() {
     const workspacePath = folders[0].uri.fsPath;
     const taskName = task.taskName ?? (task.label as string);
 
-    if (task.type === GLOBAL_TASK_TYPE) {
-      const globalConfigPath = getGlobalConfigPath();
-      await openFileAtLabel(globalConfigPath, taskName);
-      return;
-    }
-
-    if (task.type === CONFIG_DIR_KEY) {
+    if (task.taskSource === TaskSource.DevPanel) {
       const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspacePath, CONFIG_FILE_NAME);
       await openFileAtLabel(configPath, taskName);
       return;
     }
 
-    if (task.type === 'npm') {
+    if (task.taskSource === TaskSource.Package) {
       const packageJsonPath = NodePathHelper.join(workspacePath, PACKAGE_JSON);
       await openFileAtLabel(packageJsonPath, taskName);
       return;

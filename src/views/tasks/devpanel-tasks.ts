@@ -1,17 +1,8 @@
 import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
-import {
-  CONFIG_DIR_KEY,
-  CONTEXT_VALUES,
-  GLOBAL_ITEM_PREFIX,
-  GLOBAL_TASK_TOOLTIP,
-  NO_GROUP_NAME,
-  getCommandId,
-  getGlobalConfigDir,
-} from '../../common/constants';
+import { CONFIG_DIR_KEY, CONTEXT_VALUES, NO_GROUP_NAME, getCommandId } from '../../common/constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import type { DevPanelConfig } from '../../common/schemas';
 import { TaskSource } from '../../common/schemas/types';
-import { globalTasksState } from '../../common/state';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -43,12 +34,6 @@ export async function getDevPanelTasks(
   if (!grouped) {
     const taskElements: TreeTask[] = [];
 
-    const globalTasks = readGlobalTasks();
-    for (const task of globalTasks) {
-      const treeTask = createGlobalTask(task, showHidden, showOnlyFavorites);
-      if (treeTask) taskElements.push(treeTask);
-    }
-
     for (const folder of folders) {
       const tasks = readDevPanelTasks(folder);
       for (const taskItem of tasks) {
@@ -61,20 +46,6 @@ export async function getDevPanelTasks(
 
   const taskElements: Array<TreeTask | GroupTreeItem> = [];
   const groups: Record<string, GroupTreeItem> = {};
-
-  const globalTasks = readGlobalTasks();
-  for (const task of globalTasks) {
-    const treeTask = createGlobalTask(task, showHidden, showOnlyFavorites);
-    if (!treeTask) continue;
-
-    const groupName = task.group ?? NO_GROUP_NAME;
-
-    if (!groups[groupName]) {
-      groups[groupName] = new GroupTreeItem(groupName);
-      taskElements.push(groups[groupName]);
-    }
-    groups[groupName].children.push(treeTask);
-  }
 
   for (const folder of folders) {
     const tasks = readDevPanelTasks(folder);
@@ -97,11 +68,6 @@ export async function getDevPanelTasks(
 
 function readDevPanelTasks(folder: WorkspaceFolder): NonNullable<DevPanelConfig['tasks']> {
   const config = ConfigManager.loadWorkspaceConfig(folder);
-  return config?.tasks ?? [];
-}
-
-function readGlobalTasks(): NonNullable<DevPanelConfig['tasks']> {
-  const config = ConfigManager.loadGlobalConfig();
   return config?.tasks ?? [];
 }
 
@@ -148,6 +114,8 @@ function createDevPanelTask(
     folder,
   );
 
+  treeTask.taskSource = TaskSource.DevPanel;
+
   if (task.description) {
     treeTask.tooltip = task.description;
   }
@@ -165,73 +133,6 @@ function createDevPanelTask(
     treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_FAVORITE;
   } else {
     treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL;
-  }
-
-  return treeTask;
-}
-
-function createGlobalTask(
-  task: NonNullable<DevPanelConfig['tasks']>[number],
-  showHidden: boolean,
-  showOnlyFavorites: boolean,
-): TreeTask | null {
-  const hidden = globalTasksState.isHidden(task.name);
-  const favorite = globalTasksState.isFavorite(task.name);
-
-  if (hidden && !showHidden) return null;
-  if (showOnlyFavorites && !favorite) return null;
-
-  const globalConfigDir = getGlobalConfigDir();
-  const env = VariablesEnvManager.readDevPanelVariablesAsEnv(globalConfigDir);
-  const cwd = globalConfigDir;
-  const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd });
-
-  const vsTask = VscodeHelper.createTask({
-    definition: { type: `${CONFIG_DIR_KEY}-global`, task: task.name },
-    scope: VscodeConstants.TaskScope.Global,
-    name: task.name,
-    source: `${CONFIG_DIR_KEY}-global`,
-    execution: shellExec,
-  });
-
-  vsTask.presentationOptions = {
-    reveal: VscodeConstants.TaskRevealKind.Always,
-    panel: VscodeConstants.TaskPanelKind.New,
-    clear: false,
-    focus: false,
-    showReuseMessage: false,
-  };
-
-  const treeTask = new TreeTask(
-    `${CONFIG_DIR_KEY}-global`,
-    `${GLOBAL_ITEM_PREFIX}${task.name}`,
-    VscodeConstants.TreeItemCollapsibleState.None,
-    {
-      command: getCommandId(Command.ExecuteTask),
-      title: 'Execute',
-      arguments: [vsTask, null, task],
-    },
-  );
-
-  if (task.description) {
-    treeTask.tooltip = `Global: ${task.description}`;
-  } else {
-    treeTask.tooltip = GLOBAL_TASK_TOOLTIP;
-  }
-
-  const keybinding = getTaskKeybinding(task.name);
-  if (keybinding) {
-    treeTask.description = keybinding;
-  }
-
-  if (hidden) {
-    treeTask.iconPath = VscodeIcons.HiddenItem;
-    treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_GLOBAL_HIDDEN;
-  } else if (favorite) {
-    treeTask.iconPath = VscodeIcons.FavoriteItem;
-    treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_GLOBAL_FAVORITE;
-  } else {
-    treeTask.contextValue = CONTEXT_VALUES.TASK_DEVPANEL_GLOBAL;
   }
 
   return treeTask;
