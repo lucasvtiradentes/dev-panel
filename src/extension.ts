@@ -30,6 +30,7 @@ import { registerTaskKeybindings, reloadTaskKeybindings } from './views/tasks/ke
 import { VariablesProvider, loadVariablesState } from './views/variables';
 import { registerVariableKeybindings, reloadVariableKeybindings } from './views/variables/keybindings-local';
 import { createConfigWatcher } from './watchers/config-watcher';
+import { createExcludesWatcher } from './watchers/excludes-watcher';
 import { createKeybindingsWatcher } from './watchers/keybindings-watcher';
 
 type Providers = {
@@ -153,6 +154,11 @@ function setupWatchers(context: ExtensionContext, providers: Providers, workspac
     providers.taskTreeDataProvider.refresh();
   });
   context.subscriptions.push(keybindingsWatcher);
+
+  const excludesWatcher = createExcludesWatcher(() => {
+    providers.excludesProvider.refresh();
+  });
+  context.subscriptions.push(excludesWatcher);
 
   logger.info('[extension] [setupWatchers] All watchers registered');
 }
