@@ -31,12 +31,11 @@ async function computeDiffContent(
   isActive: boolean,
 ): Promise<DiffContent | null> {
   const targetPath = NodePathHelper.join(workspace, replacement.target);
+  const targetExists = FileIOHelper.fileExists(targetPath);
 
-  let currentContent: string;
-  try {
+  let currentContent = '';
+  if (targetExists) {
     currentContent = FileIOHelper.readFile(targetPath);
-  } catch {
-    return null;
   }
 
   if (isActive) {
@@ -47,11 +46,12 @@ async function computeDiffContent(
       originalContent = '';
     }
 
+    const isNewFile = originalContent === '';
     return {
       left: currentContent,
       right: originalContent,
-      leftLabel: 'Current (with replacement)',
-      rightLabel: 'After toggle OFF (original)',
+      leftLabel: isNewFile ? 'Current (created by replacement)' : 'Current (with replacement)',
+      rightLabel: isNewFile ? 'After toggle OFF (file removed)' : 'After toggle OFF (original)',
     };
   }
 
@@ -65,15 +65,19 @@ async function computeDiffContent(
       return null;
     }
   } else {
+    if (!targetExists) {
+      return null;
+    }
     const patches = replacement.patches.map(normalizePatchItem);
     afterContent = computePatchedContent(currentContent, patches);
   }
 
+  const isNewFile = !targetExists;
   return {
     left: currentContent,
     right: afterContent,
-    leftLabel: 'Current (original)',
-    rightLabel: 'After toggle ON (with replacement)',
+    leftLabel: isNewFile ? 'Current (file does not exist)' : 'Current (original)',
+    rightLabel: isNewFile ? 'After toggle ON (file created)' : 'After toggle ON (with replacement)',
   };
 }
 
