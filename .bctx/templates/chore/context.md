@@ -25,13 +25,9 @@ General improvements, refactors, and bug fixes batch
 
 -
 
-## Blockers
+## Tasks
 
--
-
-## Follow-up
-
--
+- [ ]
 
 ## Commits
 
