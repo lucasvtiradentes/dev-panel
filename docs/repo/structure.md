@@ -48,7 +48,8 @@ dev-panel/
 │   └── workflows/                # CI/CD pipelines
 │       ├── prs.yml               # PR validation
 │       ├── push-to-main.yml      # Main branch CI + release
-│       └── callable-ci.yml       # Reusable CI workflow
+│       ├── callable-ci.yml       # Reusable CI workflow
+│       └── update-docs.yml       # Documentation updates
 │
 ├── scripts/                      # Build and utility scripts
 │   ├── generate-schema.ts        # Generate JSON schema from Zod
@@ -60,7 +61,7 @@ dev-panel/
 │   ├── icon.svg                  # Extension icon (sidebar)
 │   ├── icon-colored.png          # Extension icon (marketplace)
 │   ├── schema.json               # Generated config schema
-│   └── templates/                # Config templates
+│   └── init/                     # Config templates
 │
 ├── out/                          # Production build output
 │   └── extension.js              # Bundled extension

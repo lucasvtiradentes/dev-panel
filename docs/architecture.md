@@ -61,7 +61,7 @@ sources:
 │  │    └── ExcludesWatcher                                 │ │
 │  ├────────────────────────────────────────────────────────┤ │
 │  │ 6. setupCommands(context, providers)                   │ │
-│  │    └── registerAllCommands() → 30+ commands            │ │
+│  │    └── registerAllCommands() → 40+ commands            │ │
 │  └────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -137,7 +137,7 @@ sources:
 │  │   └── order (item ordering)                                │ │
 │  ├────────────────────────────────────────────────────────────┤ │
 │  │ variablesState                                             │ │
-│  │   └── { variableName: currentValue }                       │ │
+│  │   └── isGrouped (boolean)                                  │ │
 │  ├────────────────────────────────────────────────────────────┤ │
 │  │ replacementsState                                          │ │
 │  │   ├── activeReplacements (string[])                        │ │
@@ -193,11 +193,11 @@ sources:
 │                                                                 │
 │  ┌────────────────────────────────────────────────────────────┐ │
 │  │   ConfigWatcher                                            │ │
-│  │   Pattern: **/.devpanel/config.jsonc                       │ │
+│  │   Pattern: **/.devpanel/{config.jsonc,variables.json}      │ │
 │  │   Actions: refresh all providers, reload variables         │ │
 │  ├────────────────────────────────────────────────────────────┤ │
 │  │   KeybindingsWatcher                                       │ │
-│  │   Pattern: .vscode/keybindings.json (workspace)            │ │
+│  │   Pattern: <vscode-config>/User/keybindings.json           │ │
 │  │   Actions: reload task/variable keybindings                │ │
 │  ├────────────────────────────────────────────────────────────┤ │
 │  │   ExcludesWatcher                                          │ │
@@ -213,10 +213,11 @@ Commands are registered in `src/commands/register-all.ts`:
 
 | Command Category | Count | Examples                                   |
 |------------------|-------|--------------------------------------------|
-| Tasks            | 12    | executeTask, switchTaskSource, toggleHide  |
-| Variables        | 6     | selectConfigOption, setVariableKeybinding  |
-| Replacements     | 7     | toggleReplacement, previewReplacementDiff  |
+| Tasks            | 20    | executeTask, switchTaskSource, toggleHide  |
+| Variables        | 8     | selectConfigOption, setVariableKeybinding  |
+| Replacements     | 9     | toggleReplacement, previewReplacementDiff  |
 | Excludes         | 3     | addExclude, removeExclude, openExcludeFile |
+| General          | 1     | openSettingsMenu                           |
 | Debug            | 3     | showLogs, showWorkspaceState, clearState   |
 
 ## Logging

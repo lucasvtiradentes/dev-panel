@@ -152,7 +152,7 @@ Example:
 
 ## State Persistence
 
-Variables state is stored in VSCode workspace state:
+Variables state is stored in `.devpanel/variables.json`:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -168,12 +168,10 @@ Variables state is stored in VSCode workspace state:
                               │
                               v
 ┌─────────────────────────────────────────────────────────────────┐
-│              VSCode Workspace State API                         │
+│              .devpanel/variables.json                           │
 │         Persists across sessions per workspace                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
-
-Auto-generated `variables.json` in `.devpanel/` for external access.
 
 ## UI Features
 
@@ -183,7 +181,7 @@ Auto-generated `variables.json` in `.devpanel/` for external access.
 Variables
 ├── Config (group)
 │   ├── environment: production
-│   └── debugMode: On
+│   └── debugMode: ON
 └── Paths (group)
     └── outputDir: ./dist
 ```
@@ -194,7 +192,7 @@ Variables
 |--------|----------------------|
 | choose | Selected option      |
 | input  | Current value        |
-| toggle | "On" or "Off"        |
+| toggle | "ON" or "OFF"        |
 | file   | Filename or count    |
 | folder | Folder name or count |
 
@@ -222,4 +220,4 @@ File/folder pickers respect global include/exclude patterns:
 }
 ```
 
-Variable-level includes/excludes extend (not replace) global settings.
+Variable-level includes/excludes override (not extend) global settings. Both extend the built-in defaults.

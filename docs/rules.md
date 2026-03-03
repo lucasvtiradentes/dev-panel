@@ -22,7 +22,7 @@ Group related utility functions in static classes, not loose exports:
 // Correct
 export class GroupHelper {
   static groupItems<T>(items: T[]): Map<string, T[]> { ... }
-  static sortGroups(groups: Map<string, unknown>): void { ... }
+  static getGroupedOrFlat<T>(items: T[], isGrouped: boolean): Map<string, T[]> | null { ... }
 }
 
 // Incorrect - avoid loose functions
@@ -91,14 +91,12 @@ All config parsing uses Zod for validation:
 ```typescript
 import { z } from 'zod';
 
-export const DevPanelTaskSchema = z.object({
+const DevPanelTaskSchema = z.object({
   name: z.string(),
   command: z.string(),
   group: z.string().optional(),
   hideTerminal: z.boolean().optional(),
 });
-
-export type DevPanelTask = z.infer<typeof DevPanelTaskSchema>;
 ```
 
 Schema file: `src/common/schemas/config-schema.ts`
@@ -115,22 +113,21 @@ const config = DevPanelConfigSchema.parse(rawConfig);
 ### Base Types
 
 ```typescript
-// Named items with group support
-class NamedTreeItem extends TreeItemClass {
-  constructor(
-    public readonly name: string,
-    public readonly group?: string
-  ) {
-    super(name, TreeItemCollapsibleState.None);
-  }
-}
+// Named items with group support (type interface)
+type NamedTreeItem = BaseTreeItem & {
+  getName(): string;
+};
 
-// Group container
-class GroupTreeItem extends TreeItemClass {
-  constructor(
-    public readonly groupName: string,
-    public readonly children: NamedTreeItem[]
-  ) {
+// Group container (type interface)
+type GroupTreeItem<T extends NamedTreeItem> = BaseTreeItem & {
+  children: T[];
+};
+
+// Base class for group items
+class BaseGroupTreeItem<T extends NamedTreeItem> extends TreeItemClass {
+  children: T[] = [];
+
+  constructor(groupName: string) {
     super(groupName, TreeItemCollapsibleState.Expanded);
   }
 }
@@ -150,8 +147,8 @@ this.contextValue = CONTEXT_VALUES.VARIABLE_ITEM;
 
 ```typescript
 type StateManager<TSource> = {
-  getOrder(source: TSource, grouped: boolean): string[];
-  saveOrder(source: TSource, grouped: boolean, order: string[]): void;
+  getOrder(source: TSource, isGrouped: boolean): string[];
+  saveOrder(source: TSource, isGrouped: boolean, order: string[]): void;
 };
 ```
 

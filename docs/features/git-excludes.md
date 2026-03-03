@@ -4,8 +4,12 @@ description: Manage local git exclude patterns from the sidebar
 related_docs:
   - docs/features/replacements-view.md:  related git features
 sources:
-  - src/views/excludes/excludes-provider.ts: ExcludesProvider
-  - src/views/excludes/file-ops.ts:          exclude file operations
+  - src/views/excludes/excludes-provider.ts:             ExcludesProvider
+  - src/views/excludes/file-ops.ts:                      exclude file operations
+  - src/commands/internal/excludes/add-exclude.ts:       add exclude command
+  - src/commands/internal/excludes/remove-exclude.ts:    remove exclude command
+  - src/commands/internal/excludes/open-exclude-file.ts: open exclude file command
+  - src/watchers/excludes-watcher.ts:                    file watcher
 ---
 
 # Git Excludes
@@ -80,7 +84,7 @@ The ExcludesWatcher monitors `.git/info/exclude`:
 ## Requirements
 
 - Workspace must be a git repository
-- `.git/info/exclude` file must exist (created by git init)
+- `.git/info/exclude` file is created automatically if missing
 
 ## Use Cases
 
