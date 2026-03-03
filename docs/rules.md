@@ -2,8 +2,8 @@
 title:       Coding Rules
 description: Code conventions and patterns used in the codebase
 related_docs:
-  - docs/architecture.md:    system design context
-  - docs/repo/structure.md:  file organization
+  - docs/architecture.md:   system design context
+  - docs/repo/structure.md: file organization
 sources:
   - src/common/utils/helpers/: helper class examples
   - src/common/schemas/:       Zod schema usage
@@ -202,12 +202,12 @@ Benefits:
 
 ## Naming Conventions
 
-| Type           | Convention          | Example                   |
-|----------------|---------------------|---------------------------|
-| Classes        | PascalCase          | ConfigManager             |
-| Static methods | camelCase           | parseConfig               |
-| Constants      | UPPER_SNAKE         | CONFIG_DIR_NAME           |
-| Types          | PascalCase          | DevPanelConfig            |
-| Files          | kebab-case          | config-manager.ts         |
-| Enums          | PascalCase          | TaskSource                |
-| Enum values    | PascalCase          | TaskSource.DevPanel       |
+| Type           | Convention  | Example             |
+|----------------|-------------|---------------------|
+| Classes        | PascalCase  | ConfigManager       |
+| Static methods | camelCase   | parseConfig         |
+| Constants      | UPPER_SNAKE | CONFIG_DIR_NAME     |
+| Types          | PascalCase  | DevPanelConfig      |
+| Files          | kebab-case  | config-manager.ts   |
+| Enums          | PascalCase  | TaskSource          |
+| Enum values    | PascalCase  | TaskSource.DevPanel |

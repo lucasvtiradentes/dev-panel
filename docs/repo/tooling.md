@@ -2,8 +2,8 @@
 title:       Tooling
 description: Build tools, linting, and code quality configuration
 related_docs:
-  - docs/repo/local-setup.md:  development workflow
-  - docs/repo/cicd.md:         CI pipeline usage
+  - docs/repo/local-setup.md: development workflow
+  - docs/repo/cicd.md:        CI pipeline usage
 sources:
   - biome.json:        linter/formatter config
   - tsconfig.json:     TypeScript config

@@ -2,8 +2,8 @@
 title:       Overview
 description: Dev Panel - VSCode extension for AI-assisted development productivity
 related_docs:
-  - docs/architecture.md:           technical implementation details
-  - docs/features/task-runner.md:   task execution capabilities
+  - docs/architecture.md:         technical implementation details
+  - docs/features/task-runner.md: task execution capabilities
 sources:
   - package.json:     extension metadata and dependencies
   - src/extension.ts: entry point and activation

@@ -4,8 +4,8 @@ description: Technical architecture and data flow of the Dev Panel extension
 required_docs:
   - docs/overview.md:                    high-level project understanding
 related_docs:
-  - docs/features/task-runner.md:        task execution details
-  - docs/features/variables-manager.md:  variable system details
+  - docs/features/task-runner.md:       task execution details
+  - docs/features/variables-manager.md: variable system details
 sources:
   - src/extension.ts:             activation and setup
   - src/views/:                   tree data providers

@@ -2,8 +2,8 @@
 title:       Repository Structure
 description: Directory layout and file organization
 related_docs:
-  - docs/repo/tooling.md:      build tools and linting
-  - docs/repo/local-setup.md:  development workflow
+  - docs/repo/tooling.md:     build tools and linting
+  - docs/repo/local-setup.md: development workflow
 sources:
   - src/:     extension source code
   - scripts/: build and release scripts

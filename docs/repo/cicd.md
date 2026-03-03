@@ -2,8 +2,8 @@
 title:       CI/CD
 description: Continuous integration and deployment pipelines
 related_docs:
-  - docs/repo/tooling.md:      build tools
-  - docs/repo/local-setup.md:  local development
+  - docs/repo/tooling.md:     build tools
+  - docs/repo/local-setup.md: local development
 sources:
   - .github/workflows/prs.yml:          PR validation
   - .github/workflows/push-to-main.yml: main branch + release
