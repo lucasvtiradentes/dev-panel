@@ -1,0 +1,25 @@
+name: Update Docs
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+    inputs:
+      git_ref:
+        description: 'Git ref for affected detection (tag, branch, commit)'
+        required: false
+        default: 'docs-base'
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    uses: lucasvtiradentes/doc-update/.github/workflows/update-docs.yml@main
+    with:
+      docs_path: docs/
+      git_ref: ${{ inputs.git_ref || 'docs-base' }}
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
