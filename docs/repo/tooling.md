@@ -67,12 +67,10 @@ Configuration: `esbuild.config.ts`
 | Format    | cjs              |
 | Bundle    | true             |
 | External  | vscode           |
-| Minify    | production only  |
-| Sourcemap | development only |
+| Minify    | false            |
+| Sourcemap | false            |
 
-Output:
-- Production:  `out/extension.js`
-- Development: `dist-dev/extension.js`
+Output: `out/extension.js`
 
 Command:
 ```bash
@@ -91,7 +89,8 @@ Pre-commit hooks configured in `.husky/`:
 lint-staged config (`.lintstagedrc.json`):
 ```json
 {
-  "*.{ts,tsx}": ["biome check --fix"]
+  "*.{ts,tsx,js,jsx}": ["biome check --write --no-errors-on-unmatched"],
+  "*.json": ["biome check --write --no-errors-on-unmatched"]
 }
 ```
 

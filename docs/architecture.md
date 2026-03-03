@@ -55,12 +55,17 @@ sources:
 │  │    ├── Replacements view                               │ │
 │  │    └── Excludes view                                   │ │
 │  ├────────────────────────────────────────────────────────┤ │
-│  │ 5. setupWatchers(context, providers, workspace)        │ │
+│  │ 5. setupDisposables(context, providers, tasksViews)    │ │
+│  ├────────────────────────────────────────────────────────┤ │
+│  │ 6. setupConfigChangeListener(context, providers, ...)  │ │
+│  │    └── watches TasksLocation setting changes           │ │
+│  ├────────────────────────────────────────────────────────┤ │
+│  │ 7. setupWatchers(context, providers, workspace)        │ │
 │  │    ├── ConfigWatcher                                   │ │
 │  │    ├── KeybindingsWatcher                              │ │
 │  │    └── ExcludesWatcher                                 │ │
 │  ├────────────────────────────────────────────────────────┤ │
-│  │ 6. setupCommands(context, providers)                   │ │
+│  │ 8. setupCommands(context, providers)                   │ │
 │  │    └── registerAllCommands() → 30+ commands            │ │
 │  └────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
@@ -197,8 +202,9 @@ sources:
 │  │   Actions: refresh all providers, reload variables         │ │
 │  ├────────────────────────────────────────────────────────────┤ │
 │  │   KeybindingsWatcher                                       │ │
-│  │   Pattern: .vscode/keybindings.json (workspace)            │ │
-│  │   Actions: reload task/variable keybindings                │ │
+│  │   Pattern: keybindings.json (global user config)           │ │
+│  │   Actions: reload task/variable keybindings,               │ │
+│  │            prompt to scope new keybindings to workspace    │ │
 │  ├────────────────────────────────────────────────────────────┤ │
 │  │   ExcludesWatcher                                          │ │
 │  │   Pattern: .git/info/exclude                               │ │

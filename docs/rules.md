@@ -150,8 +150,8 @@ this.contextValue = CONTEXT_VALUES.VARIABLE_ITEM;
 
 ```typescript
 type StateManager<TSource> = {
-  getOrder(source: TSource, grouped: boolean): string[];
-  saveOrder(source: TSource, grouped: boolean, order: string[]): void;
+  getOrder(source: TSource, isGrouped: boolean): string[];
+  saveOrder(source: TSource, isGrouped: boolean, order: string[]): void;
 };
 ```
 

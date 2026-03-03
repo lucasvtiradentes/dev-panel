@@ -36,7 +36,7 @@ pnpm run build
 ```
 
 This runs:
-1. esbuild bundling to `dist-dev/`
+1. esbuild bundling to `out/`
 2. Schema generation to `resources/schema.json`
 3. Local installation script
 

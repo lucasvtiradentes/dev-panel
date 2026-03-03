@@ -80,7 +80,7 @@ The ExcludesWatcher monitors `.git/info/exclude`:
 ## Requirements
 
 - Workspace must be a git repository
-- `.git/info/exclude` file must exist (created by git init)
+- `.git/info/exclude` file is created automatically if missing
 
 ## Use Cases
 

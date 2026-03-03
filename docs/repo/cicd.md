@@ -92,6 +92,7 @@ Location: `.github/actions/release-vscode/`
 Publishes to:
 - VSCode Marketplace (via Azure PAT)
 - Open VSX Registry (via Open VSX PAT)
+- Creates and pushes a version tag (if not already present)
 
 ## Secrets Required
 
@@ -124,7 +125,8 @@ Publishes to:
    │
    ├── Package extension
    ├── Publish to VSCode Marketplace
-   └── Publish to Open VSX
+   ├── Publish to Open VSX
+   └── Create version tag (if not already present)
 ```
 
 ## Branch Strategy
