@@ -1,5 +1,7 @@
 import path from 'node:path';
 import { ROOT_FOLDER_LABEL, createVariablePlaceholderPattern } from '../constants';
+import { ConfigManager } from '../core/config-manager';
+import { VariablesEnvManager } from '../core/variables-env-manager';
 import { createLogger } from '../lib/logger';
 import { type DevPanelInput, InputType } from '../schemas';
 import { ToastKind, VscodeHelper } from './vscode-helper';
@@ -65,6 +67,23 @@ function resolveIncludesWithParentRefs(
   }
 
   return { resolvedBase: firstResult.resolvedBase, resolvedPatterns };
+}
+
+function replaceVariablesInPatterns(patterns: string[] | undefined, folder: WorkspaceFolder): string[] | undefined {
+  if (!patterns || patterns.length === 0) return patterns;
+
+  const variablesPath = ConfigManager.getWorkspaceVariablesPath(folder);
+  const variables = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);
+
+  if (Object.keys(variables).length === 0) return patterns;
+
+  return patterns.map((pattern) => {
+    let result = pattern;
+    for (const [key, value] of Object.entries(variables)) {
+      result = result.replace(new RegExp(`\\$${key}`, 'g'), value);
+    }
+    return result;
+  });
 }
 
 export async function selectFiles(
@@ -260,8 +279,8 @@ async function collectFileInput(
   const options: FileSelectionOptions = {
     label: input.label,
     multiSelect: multiple,
-    includes: input.includes,
-    excludes: input.excludes,
+    includes: replaceVariablesInPatterns(input.includes, folder),
+    excludes: replaceVariablesInPatterns(input.excludes, folder),
     basePath,
   };
 
@@ -283,8 +302,8 @@ async function collectFolderInput(
   const options: FileSelectionOptions = {
     label: input.label,
     multiSelect: multiple,
-    includes: input.includes,
-    excludes: input.excludes,
+    includes: replaceVariablesInPatterns(input.includes, folder),
+    excludes: replaceVariablesInPatterns(input.excludes, folder),
     basePath,
   };
 
