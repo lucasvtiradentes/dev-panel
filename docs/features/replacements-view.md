@@ -6,9 +6,10 @@ required_docs:
 related_docs:
   - docs/features/git-excludes.md:  related git features
 sources:
-  - src/views/replacements/replacements-provider.ts: ReplacementsProvider
-  - src/views/replacements/file-ops.ts:              file operations
-  - src/common/lib/git.ts:                           git operations
+  - src/views/replacements/replacements-provider.ts:                ReplacementsProvider
+  - src/views/replacements/file-ops.ts:                             file operations
+  - src/common/lib/git.ts:                                          git operations
+  - src/commands/internal/replacements/preview-replacement-diff.ts: preview diff command
 ---
 
 # Replacements View
@@ -80,9 +81,11 @@ Replacements allow temporary file modifications that are hidden from git status 
 ## Activation Flow
 
 ```
-┌──────────────┐    ┌──────────────────┐    ┌───────────────────┐
-│ Click toggle │───→│ Check git repo   │───→│ Set skip-worktree │
-└──────────────┘    └──────────────────┘    └───────────────────┘
+┌──────────────┐    ┌──────────────────┐    ┌─────────────────────┐
+│ Click toggle │───→│ Check git repo   │───→│ Target exists in    │
+└──────────────┘    └──────────────────┘    │ git? If yes, set    │
+                                            │ skip-worktree       │
+                                            └─────────────────────┘
                                                     │
                     ┌───────────────────────────────┘
                     v
@@ -100,13 +103,21 @@ Replacements allow temporary file modifications that are hidden from git status 
 ## Deactivation Flow
 
 ```
-┌──────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│ Click toggle │───→│ Unset skip-      │───→│ git checkout    │
-│ (active)     │    │ worktree         │    │ -- target       │
-└──────────────┘    └──────────────────┘    └─────────────────┘
+┌──────────────┐    ┌────────────────────┐
+│ Click toggle │───→│ Target exists in   │
+│ (active)     │    │ git?               │
+└──────────────┘    └────────────────────┘
+                        │            │
+                       yes           no
+                        v            v
+               ┌──────────────┐  ┌──────────────┐
+               │ Unset skip-  │  │ Delete       │
+               │ worktree     │  │ target file  │
+               │ + checkout   │  │              │
+               └──────────────┘  └──────────────┘
 ```
 
-The target file is restored to its git state.
+If the target exists in git, it is restored to its git state. If it was created by the replacement (not in git), it is deleted.
 
 ## Git Skip-Worktree
 
@@ -147,9 +158,11 @@ This allows:
 
 ### Preview Diff
 
-Opens a diff view comparing:
-- Left:  Original file (from git)
-- Right: Modified file (after replacement)
+Opens a diff view comparing the current file state against what it would look like after toggling:
+- **Inactive replacement**: Left = current (original), Right = after toggle ON (with replacement)
+- **Active replacement**:   Left = current (with replacement), Right = after toggle OFF (original)
+
+For new file replacements (target does not exist in git), the diff reflects file creation or removal.
 
 ## Patch Matching
 

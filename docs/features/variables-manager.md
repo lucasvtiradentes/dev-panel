@@ -152,7 +152,7 @@ Example:
 
 ## State Persistence
 
-Variables state is stored in VSCode workspace state:
+Variables state is stored in `.devpanel/variables.json`:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -168,12 +168,10 @@ Variables state is stored in VSCode workspace state:
                               │
                               v
 ┌─────────────────────────────────────────────────────────────────┐
-│              VSCode Workspace State API                         │
+│              .devpanel/variables.json                           │
 │         Persists across sessions per workspace                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
-
-Auto-generated `variables.json` in `.devpanel/` for external access.
 
 ## UI Features
 
@@ -183,7 +181,7 @@ Auto-generated `variables.json` in `.devpanel/` for external access.
 Variables
 ├── Config (group)
 │   ├── environment: production
-│   └── debugMode: On
+│   └── debugMode: ON
 └── Paths (group)
     └── outputDir: ./dist
 ```
@@ -194,7 +192,7 @@ Variables
 |--------|----------------------|
 | choose | Selected option      |
 | input  | Current value        |
-| toggle | "On" or "Off"        |
+| toggle | "ON" or "OFF"        |
 | file   | Filename or count    |
 | folder | Folder name or count |
 
@@ -209,17 +207,6 @@ Variables can have keyboard shortcuts:
 
 Right-click -> "Reset" removes the stored value, reverting to default.
 
-## Global Settings
+## File/Folder Defaults
 
-File/folder pickers respect global include/exclude patterns:
-
-```jsonc
-{
-  "settings": {
-    "include": ["**/*.ts", "**/*.json"],
-    "exclude": ["**/node_modules/**", "**/dist/**"]
-  }
-}
-```
-
-Variable-level includes/excludes extend (not replace) global settings.
+When a file/folder variable does not specify `includes` or `excludes`, the defaults are `["**/*"]` for includes and `[]` for excludes (i.e., all files are shown).

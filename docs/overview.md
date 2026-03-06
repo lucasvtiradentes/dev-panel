@@ -76,4 +76,4 @@ The extension reads configuration from `.devpanel/config.jsonc`:
 
 ## Version
 
-Current version: 0.4.1
+Current version: 0.5.0

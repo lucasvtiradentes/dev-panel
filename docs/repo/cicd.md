@@ -8,6 +8,7 @@ sources:
   - .github/workflows/prs.yml:          PR validation
   - .github/workflows/push-to-main.yml: main branch + release
   - .github/workflows/callable-ci.yml:  reusable CI
+  - .github/workflows/update-docs.yml:  docs sync
   - .github/actions/:                   composite actions
 ---
 
@@ -70,7 +71,7 @@ Reusable workflow with inputs:
 - `run_test`  - Run tests (optional)
 
 Jobs:
-- `check_version` - Detects if package.json version changed
+- `check_version` - Detects if package.json version changed and tag is missing
 - `lint`          - Biome check + format verification
 - `build`         - TypeScript + esbuild
 
@@ -89,9 +90,10 @@ Steps:
 
 Location: `.github/actions/release-vscode/`
 
-Publishes to:
-- VSCode Marketplace (via Azure PAT)
-- Open VSX Registry (via Open VSX PAT)
+Steps:
+- Publish to Open VSX Registry (via Open VSX PAT)
+- Publish to VSCode Marketplace (via Azure PAT)
+- Create and push version tag (if not exists)
 
 ## Secrets Required
 
@@ -100,7 +102,7 @@ Publishes to:
 | GITHUB_TOKEN            | PR creation, releases      |
 | AZURE_VSCODE_PAT        | VSCode Marketplace publish |
 | OPEN_VSX_PAT            | Open VSX publish           |
-| CLAUDE_CODE_OAUTH_TOKEN | TScanner AI analysis       |
+| CLAUDE_CODE_OAUTH_TOKEN | AI analysis + docs sync    |
 
 ## Release Process
 
@@ -117,14 +119,15 @@ Publishes to:
 4. Merge Version PR
    │
    v
-5. CI detects version bump (check_version job)
+5. CI detects version bump + tag missing (check_version job)
    │
    v
 6. publish_vscode job runs
    │
    ├── Package extension
+   ├── Publish to Open VSX
    ├── Publish to VSCode Marketplace
-   └── Publish to Open VSX
+   └── Create and push version tag
 ```
 
 ## Branch Strategy
