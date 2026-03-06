@@ -1,6 +1,5 @@
 import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
 import {
-  CONFIG_FILE_NAME,
   CONTEXT_VALUES,
   DEFAULT_EXCLUDED_DIRS,
   DIST_DIR_PREFIX,
@@ -28,34 +27,8 @@ type PackageLocation = {
   folder: WorkspaceFolder;
 };
 
-function extractDirNamesFromGlobs(patterns: string[]): string[] {
-  const dirs: string[] = [];
-  for (const pattern of patterns) {
-    const cleaned = pattern
-      .replace(/\*\*\//g, '')
-      .replace(/\/\*\*/g, '')
-      .replace(/\*/g, '');
-    if (cleaned && !cleaned.includes('/')) {
-      dirs.push(cleaned);
-    }
-  }
-  return dirs;
-}
-
-export function getExcludedDirs(workspacePath: string): Set<string> {
-  const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspacePath, CONFIG_FILE_NAME);
-  const excluded = new Set(DEFAULT_EXCLUDED_DIRS);
-
-  const config = ConfigManager.loadConfigFromPath(configPath);
-  if (config) {
-    const customExcludePatterns = config.settings?.exclude ?? [];
-    const customDirs = extractDirNamesFromGlobs(customExcludePatterns);
-    for (const dir of customDirs) {
-      excluded.add(dir);
-    }
-  }
-
-  return excluded;
+export function getExcludedDirs(): Set<string> {
+  return new Set(DEFAULT_EXCLUDED_DIRS);
 }
 
 export async function hasPackageGroups(): Promise<boolean> {
@@ -128,7 +101,7 @@ export async function getPackageScripts(
 async function findAllPackageJsons(folder: WorkspaceFolder): Promise<PackageLocation[]> {
   const packages: PackageLocation[] = [];
   const rootPath = folder.uri.fsPath;
-  const excludedDirs = getExcludedDirs(rootPath);
+  const excludedDirs = getExcludedDirs();
 
   const packageJsonPaths = findPackageJsonsRecursive(rootPath, excludedDirs);
 

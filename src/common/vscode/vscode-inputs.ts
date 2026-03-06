@@ -1,7 +1,6 @@
-import { DEFAULT_EXCLUDES, DEFAULT_INCLUDES, ROOT_FOLDER_LABEL, createVariablePlaceholderPattern } from '../constants';
+import { ROOT_FOLDER_LABEL, createVariablePlaceholderPattern } from '../constants';
 import { createLogger } from '../lib/logger';
-import { type DevPanelInput, type DevPanelSettings, InputType } from '../schemas';
-import { JsonHelper } from '../utils/helpers/json-helper';
+import { type DevPanelInput, InputType } from '../schemas';
 import { ToastKind, VscodeHelper } from './vscode-helper';
 import type { QuickPickItem, WorkspaceFolder } from './vscode-types';
 
@@ -37,8 +36,8 @@ export async function selectFiles(
   workspaceFolder: WorkspaceFolder,
   options: FileSelectionOptions,
 ): Promise<string | undefined> {
-  const includes = options.includes ?? DEFAULT_INCLUDES;
-  const excludes = options.excludes ?? DEFAULT_EXCLUDES;
+  const includes = options.includes ?? ['**/*'];
+  const excludes = options.excludes ?? [];
   log.info(`selectFiles - multiSelect: ${options.multiSelect ?? false}`);
   return selectFilesFlat({
     workspaceFolder,
@@ -95,8 +94,8 @@ export async function selectFolders(
   workspaceFolder: WorkspaceFolder,
   options: FileSelectionOptions,
 ): Promise<string | undefined> {
-  const includes = options.includes ?? DEFAULT_INCLUDES;
-  const excludes = options.excludes ?? DEFAULT_EXCLUDES;
+  const includes = options.includes ?? ['**/*'];
+  const excludes = options.excludes ?? [];
   log.info(`selectFolders - multiSelect: ${options.multiSelect ?? false}`);
   return selectFoldersFlat({
     workspaceFolder,
@@ -166,12 +165,11 @@ type InputValues = Record<string, string>;
 export async function collectInputs(
   inputs: DevPanelInput[],
   workspaceFolder: WorkspaceFolder | null,
-  settings?: DevPanelSettings,
 ): Promise<InputValues | null> {
   const values: InputValues = {};
 
   for (const input of inputs) {
-    const value = await collectSingleInput(input, workspaceFolder, settings);
+    const value = await collectSingleInput(input, workspaceFolder);
     if (value === undefined) return null;
     values[input.name] = value;
   }
@@ -182,13 +180,12 @@ export async function collectInputs(
 async function collectSingleInput(
   input: DevPanelInput,
   workspaceFolder: WorkspaceFolder | null,
-  settings?: DevPanelSettings,
 ): Promise<string | undefined> {
   switch (input.type) {
     case InputType.File:
-      return collectFileInput(input, workspaceFolder, input.multiSelect ?? false, settings);
+      return collectFileInput(input, workspaceFolder, input.multiSelect ?? false);
     case InputType.Folder:
-      return collectFolderInput(input, workspaceFolder, input.multiSelect ?? false, settings);
+      return collectFolderInput(input, workspaceFolder, input.multiSelect ?? false);
     case InputType.Text:
       return collectTextInput(input);
     case InputType.Number:
@@ -204,54 +201,12 @@ async function collectSingleInput(
   }
 }
 
-function getIncludePatterns(input: DevPanelInput, settings: DevPanelSettings | undefined): string[] {
-  const defaultIncludes = [...DEFAULT_INCLUDES];
-
-  if (input.includes && input.includes.length > 0) {
-    log.debug(
-      `Using input.includes merged with defaults: ${JsonHelper.stringify([...defaultIncludes, ...input.includes])}`,
-    );
-    return [...defaultIncludes, ...input.includes];
-  }
-
-  if (settings?.include && settings.include.length > 0) {
-    const merged = [...defaultIncludes, ...settings.include];
-    log.debug(`Using settings.include merged with defaults: ${JsonHelper.stringify(merged)}`);
-    return merged;
-  }
-
-  log.debug(`Using default includes: ${JsonHelper.stringify(defaultIncludes)}`);
-  return defaultIncludes;
-}
-
-function getExcludePatterns(input: DevPanelInput, settings: DevPanelSettings | undefined): string[] {
-  const defaultExcludes = [...DEFAULT_EXCLUDES];
-
-  if (input.excludes && input.excludes.length > 0) {
-    log.debug(
-      `Using input.excludes merged with defaults: ${JsonHelper.stringify([...defaultExcludes, ...input.excludes])}`,
-    );
-    return [...defaultExcludes, ...input.excludes];
-  }
-
-  if (settings?.exclude && settings.exclude.length > 0) {
-    const merged = [...defaultExcludes, ...settings.exclude];
-    log.debug(`Using settings.exclude merged with defaults: ${JsonHelper.stringify(merged)}`);
-    return merged;
-  }
-
-  log.debug(`Using default excludes: ${JsonHelper.stringify(defaultExcludes)}`);
-  return defaultExcludes;
-}
-
 async function collectFileInput(
   input: DevPanelInput,
   workspaceFolder: WorkspaceFolder | null,
   multiple: boolean,
-  settings?: DevPanelSettings,
 ): Promise<string | undefined> {
   log.info(`collectFileInput called - multiple: ${multiple}`);
-  log.debug(`input: ${JsonHelper.stringify(input)}`);
 
   const folder = workspaceFolder ?? VscodeHelper.getFirstWorkspaceFolder();
   if (!folder) {
@@ -259,15 +214,11 @@ async function collectFileInput(
     return undefined;
   }
 
-  const includes = getIncludePatterns(input, settings);
-  const excludes = getExcludePatterns(input, settings);
-  log.info(`Resolved includes: ${includes.length} patterns, excludes: ${excludes.length} patterns`);
-
   const options: FileSelectionOptions = {
     label: input.label,
     multiSelect: multiple,
-    includes,
-    excludes,
+    includes: input.includes,
+    excludes: input.excludes,
   };
 
   return selectFiles(folder, options);
@@ -277,7 +228,6 @@ async function collectFolderInput(
   input: DevPanelInput,
   workspaceFolder: WorkspaceFolder | null,
   multiple: boolean,
-  settings?: DevPanelSettings,
 ): Promise<string | undefined> {
   const folder = workspaceFolder ?? VscodeHelper.getFirstWorkspaceFolder();
   if (!folder) {
@@ -285,14 +235,11 @@ async function collectFolderInput(
     return undefined;
   }
 
-  const includes = getIncludePatterns(input, settings);
-  const excludes = getExcludePatterns(input, settings);
-
   const options: FileSelectionOptions = {
     label: input.label,
     multiSelect: multiple,
-    includes,
-    excludes,
+    includes: input.includes,
+    excludes: input.excludes,
   };
 
   return selectFolders(folder, options);

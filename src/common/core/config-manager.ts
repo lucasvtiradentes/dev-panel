@@ -198,10 +198,4 @@ export class ConfigManager {
     const [item] = array.splice(index, 1);
     return item;
   }
-
-  static readSettings(folder: WorkspaceFolder): DevPanelConfig['settings'] | undefined {
-    const config = ConfigManager.loadWorkspaceConfig(folder);
-    if (!config) return undefined;
-    return config.settings;
-  }
 }

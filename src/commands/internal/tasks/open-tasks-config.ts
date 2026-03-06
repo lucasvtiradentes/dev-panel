@@ -58,7 +58,7 @@ async function handleOpenTasksConfig() {
     }
 
     case TaskSource.Package: {
-      const excludedDirs = getExcludedDirs(workspace.uri.fsPath);
+      const excludedDirs = getExcludedDirs();
       const packageJsons = await PackageJsonHelper.findAllPackageJsons(workspace, excludedDirs);
 
       if (!TypeGuardsHelper.isNonEmptyArray(packageJsons)) {
