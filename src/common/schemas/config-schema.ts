@@ -1,10 +1,5 @@
 import { z } from 'zod';
-import {
-  CONFIG_DIR_NAME,
-  DEFAULT_EXCLUDES,
-  DEFAULT_INCLUDES,
-  EXTENSION_DISPLAY_NAME,
-} from '../constants/scripts-constants';
+import { CONFIG_DIR_NAME, EXTENSION_DISPLAY_NAME } from '../constants/scripts-constants';
 
 export enum InputType {
   File = 'file',
@@ -27,11 +22,8 @@ const DevPanelInputSchema = z
     includes: z
       .array(z.string())
       .optional()
-      .describe('Glob patterns to include for this input. Extends global includes'),
-    excludes: z
-      .array(z.string())
-      .optional()
-      .describe('Glob patterns to exclude for this input. Extends global excludes'),
+      .describe('Glob patterns to include for this input. If not specified, all files are shown'),
+    excludes: z.array(z.string()).optional().describe('Glob patterns to exclude for this input'),
   })
   .describe('An input required before execution (used by tasks)');
 
@@ -95,32 +87,32 @@ const DevPanelVariableInputSchema = DevPanelVariableBaseSchema.extend({
 const DevPanelVariableFileSingleSchema = DevPanelVariableBaseSchema.extend({
   kind: z.literal('file').describe('File selection'),
   multiSelect: z.literal(false).optional().describe('Single selection'),
-  includes: z.array(z.string()).optional().describe('Glob patterns to include. Extends global includes'),
-  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Extends global excludes'),
+  includes: z.array(z.string()).optional().describe('Glob patterns to include. If not specified, all files are shown'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude'),
   default: z.string().optional().describe('Default value'),
 });
 
 const DevPanelVariableFileMultiSchema = DevPanelVariableBaseSchema.extend({
   kind: z.literal('file').describe('File selection (multi-select)'),
   multiSelect: z.literal(true).describe('Multi-selection enabled'),
-  includes: z.array(z.string()).optional().describe('Glob patterns to include. Extends global includes'),
-  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Extends global excludes'),
+  includes: z.array(z.string()).optional().describe('Glob patterns to include. If not specified, all files are shown'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude'),
   default: z.array(z.string()).optional().describe('Default values'),
 });
 
 const DevPanelVariableFolderSingleSchema = DevPanelVariableBaseSchema.extend({
   kind: z.literal('folder').describe('Folder selection'),
   multiSelect: z.literal(false).optional().describe('Single selection'),
-  includes: z.array(z.string()).optional().describe('Glob patterns to include. Extends global includes'),
-  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Extends global excludes'),
+  includes: z.array(z.string()).optional().describe('Glob patterns to include. If not specified, all files are shown'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude'),
   default: z.string().optional().describe('Default value'),
 });
 
 const DevPanelVariableFolderMultiSchema = DevPanelVariableBaseSchema.extend({
   kind: z.literal('folder').describe('Folder selection (multi-select)'),
   multiSelect: z.literal(true).describe('Multi-selection enabled'),
-  includes: z.array(z.string()).optional().describe('Glob patterns to include. Extends global includes'),
-  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude. Extends global excludes'),
+  includes: z.array(z.string()).optional().describe('Glob patterns to include. If not specified, all files are shown'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude'),
   default: z.array(z.string()).optional().describe('Default values'),
 });
 
@@ -169,27 +161,9 @@ const DevPanelReplacementSchema = z
   .discriminatedUnion('type', [DevPanelReplacementFileSchema, DevPanelReplacementPatchTypeSchema])
   .describe('A file replacement/patch shown in the Replacements view');
 
-const DevPanelSettingsSchema = z
-  .object({
-    include: z
-      .array(z.string())
-      .optional()
-      .describe(
-        `Glob patterns to include globally (package.json search, variable file/folder selection). Extends defaults: ${DEFAULT_INCLUDES.join(', ')}. Add custom inclusions as needed (e.g. ["**/*.ts", "**/*.json"])`,
-      ),
-    exclude: z
-      .array(z.string())
-      .optional()
-      .describe(
-        `Glob patterns to exclude globally (package.json search, variable file/folder selection). Extends defaults: ${DEFAULT_EXCLUDES.join(', ')}. Add custom exclusions as needed (e.g. ["**/${CONFIG_DIR_NAME}/**", "**/.changeset/**", "**/out/**", "**/*.log"])`,
-      ),
-  })
-  .describe(`Global settings for ${EXTENSION_DISPLAY_NAME} behavior`);
-
 export const DevPanelConfigSchema = z
   .object({
     $schema: z.string().optional().describe('JSON Schema reference'),
-    settings: DevPanelSettingsSchema.optional().describe('Global settings'),
     variables: z.array(DevPanelVariableSchema).optional().describe('Configuration variables'),
     replacements: z.array(DevPanelReplacementSchema).optional().describe('File replacements/patches'),
     tasks: z.array(DevPanelTaskSchema).optional().describe('Executable tasks'),
@@ -197,7 +171,6 @@ export const DevPanelConfigSchema = z
   .describe(`${EXTENSION_DISPLAY_NAME} configuration file`);
 
 export type DevPanelInput = z.infer<typeof DevPanelInputSchema>;
-export type DevPanelSettings = z.infer<typeof DevPanelSettingsSchema>;
 export type DevPanelConfig = z.infer<typeof DevPanelConfigSchema>;
 export type DevPanelVariable = z.infer<typeof DevPanelVariableSchema>;
 export type DevPanelReplacement = z.infer<typeof DevPanelReplacementSchema>;

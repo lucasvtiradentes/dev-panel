@@ -20,11 +20,15 @@ export function registerTaskKeybindings(context: ExtensionContext) {
     getItems: (config) => config.tasks,
     getCommandId: getTaskCommandId,
     createWorkspaceHandler: (task, folder) => () => {
+      const config = ConfigManager.loadWorkspaceConfig(folder);
+      const currentTask = config?.tasks?.find((t) => t.name === task.name);
+      if (!currentTask) return;
+
       const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
-      const cwd = task.useConfigDir ? configDirPath : folder.uri.fsPath;
+      const cwd = currentTask.useConfigDir ? configDirPath : folder.uri.fsPath;
       const env = VariablesEnvManager.readDevPanelVariablesAsEnv(ConfigManager.getWorkspaceVariablesPath(folder));
 
-      void executeTaskFromKeybinding({ task, cwd, env });
+      void executeTaskFromKeybinding({ task: currentTask, cwd, env });
     },
   });
 }

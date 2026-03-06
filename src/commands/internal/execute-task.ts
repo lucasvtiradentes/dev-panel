@@ -127,10 +127,9 @@ async function handleExecuteTask(
 
   if (taskConfig?.inputs && taskConfig.inputs.length > 0) {
     const folder = scopeIsWorkspaceFolder ? (scope as WorkspaceFolder) : null;
-    const folderForSettings = folder ?? VscodeHelper.getFirstWorkspaceFolder();
-    const settings = folderForSettings ? ConfigManager.readSettings(folderForSettings) : undefined;
+    const basePath = taskConfig.useConfigDir && folder ? ConfigManager.getWorkspaceConfigDirPath(folder) : undefined;
 
-    const inputValues = await collectInputs(taskConfig.inputs, folder, settings);
+    const inputValues = await collectInputs(taskConfig.inputs, folder, basePath);
     if (inputValues === null) return;
 
     command = replaceInputPlaceholders(command, inputValues);

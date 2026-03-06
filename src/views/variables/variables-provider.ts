@@ -2,8 +2,6 @@ import { readJsoncFile } from 'src/common/utils/functions/read-jsonc-file';
 import {
   CONFIG_FILE_NAME,
   CONTEXT_VALUES,
-  DEFAULT_EXCLUDES,
-  DEFAULT_INCLUDES,
   DESCRIPTION_NOT_SET,
   ToggleLabel,
   getCommandId,
@@ -11,7 +9,7 @@ import {
 
 const ERROR_VARIABLE_COMMAND_FAILED = 'Variable command failed';
 import { ConfigManager } from '../../common/core/config-manager';
-import { type DevPanelSettings, type DevPanelVariable, VariableKind } from '../../common/schemas';
+import { type DevPanelVariable, VariableKind } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { execAsync } from '../../common/utils/functions/exec-async';
 import { GroupHelper } from '../../common/utils/helpers/group-helper';
@@ -159,19 +157,6 @@ export class VariablesProvider implements TreeDataProvider<TreeItem> {
     const validatedConfig = DevPanelConfigSchema.parse(rawConfig);
     return { variables: validatedConfig.variables ?? [] };
   }
-
-  public loadSettings(): DevPanelSettings | undefined {
-    const workspace = VscodeHelper.getFirstWorkspacePath();
-    if (!workspace) return undefined;
-
-    const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
-    if (!FileIOHelper.fileExists(configPath)) return undefined;
-
-    const content = FileIOHelper.readFile(configPath);
-    const rawConfig = readJsoncFile(content);
-    const validatedConfig = DevPanelConfigSchema.parse(rawConfig);
-    return validatedConfig.settings;
-  }
 }
 
 async function runCommand(variable: DevPanelVariable, value: unknown) {
@@ -255,29 +240,11 @@ export async function selectVariableOption(variable: DevPanelVariable) {
       const workspaceFolder = VscodeHelper.getFirstWorkspaceFolder();
       if (!workspaceFolder) return;
 
-      const settings = providerInstance?.loadSettings();
-
-      const defaultIncludes = [...DEFAULT_INCLUDES];
-      let includes = defaultIncludes;
-      if (variable.includes && variable.includes.length > 0) {
-        includes = [...defaultIncludes, ...variable.includes];
-      } else if (settings?.include && settings.include.length > 0) {
-        includes = [...defaultIncludes, ...settings.include];
-      }
-
-      const defaultExcludes = [...DEFAULT_EXCLUDES];
-      let excludes = defaultExcludes;
-      if (variable.excludes && variable.excludes.length > 0) {
-        excludes = [...defaultExcludes, ...variable.excludes];
-      } else if (settings?.exclude && settings.exclude.length > 0) {
-        excludes = [...defaultExcludes, ...settings.exclude];
-      }
-
       const options: FileSelectionOptions = {
         label: variable.description || `Select file for ${variable.name}`,
         multiSelect: variable.multiSelect ?? false,
-        includes,
-        excludes,
+        includes: variable.includes,
+        excludes: variable.excludes,
       };
 
       const result = await selectFiles(workspaceFolder, options);
@@ -290,29 +257,11 @@ export async function selectVariableOption(variable: DevPanelVariable) {
       const workspaceFolder = VscodeHelper.getFirstWorkspaceFolder();
       if (!workspaceFolder) return;
 
-      const settings = providerInstance?.loadSettings();
-
-      const defaultIncludes = [...DEFAULT_INCLUDES];
-      let includes = defaultIncludes;
-      if (variable.includes && variable.includes.length > 0) {
-        includes = [...defaultIncludes, ...variable.includes];
-      } else if (settings?.include && settings.include.length > 0) {
-        includes = [...defaultIncludes, ...settings.include];
-      }
-
-      const defaultExcludes = [...DEFAULT_EXCLUDES];
-      let excludes = defaultExcludes;
-      if (variable.excludes && variable.excludes.length > 0) {
-        excludes = [...defaultExcludes, ...variable.excludes];
-      } else if (settings?.exclude && settings.exclude.length > 0) {
-        excludes = [...defaultExcludes, ...settings.exclude];
-      }
-
       const options: FileSelectionOptions = {
         label: variable.description || `Select folder for ${variable.name}`,
         multiSelect: variable.multiSelect ?? false,
-        includes,
-        excludes,
+        includes: variable.includes,
+        excludes: variable.excludes,
       };
 
       const result = await selectFolders(workspaceFolder, options);

@@ -11,8 +11,6 @@ export const CONFIG_FILE_NAME = 'config.jsonc';
 export const VARIABLES_FILE_NAME = 'variables.json';
 export const RESOURCES_DIR_NAME = 'resources';
 export const INIT_RESOURCES_DIR_NAME = 'init';
-export const DEFAULT_INCLUDES = ['**/*'];
-export const DEFAULT_EXCLUDES = ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/out/**'];
 export const DEFAULT_EXCLUDED_DIRS = ['node_modules', 'dist', '.git'];
 
 export const DND_MIME_TYPE_TASKS = `application/vnd.code.tree.${CONFIG_DIR_KEY}tasks`;

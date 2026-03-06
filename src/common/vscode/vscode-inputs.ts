@@ -1,7 +1,9 @@
-import { DEFAULT_EXCLUDES, DEFAULT_INCLUDES, ROOT_FOLDER_LABEL, createVariablePlaceholderPattern } from '../constants';
+import path from 'node:path';
+import { ROOT_FOLDER_LABEL, createVariablePlaceholderPattern } from '../constants';
+import { ConfigManager } from '../core/config-manager';
+import { VariablesEnvManager } from '../core/variables-env-manager';
 import { createLogger } from '../lib/logger';
-import { type DevPanelInput, type DevPanelSettings, InputType } from '../schemas';
-import { JsonHelper } from '../utils/helpers/json-helper';
+import { type DevPanelInput, InputType } from '../schemas';
 import { ToastKind, VscodeHelper } from './vscode-helper';
 import type { QuickPickItem, WorkspaceFolder } from './vscode-types';
 
@@ -18,6 +20,7 @@ export type FileSelectionOptions = {
   multiSelect?: boolean;
   includes?: string[];
   excludes?: string[];
+  basePath?: string;
 };
 
 type InternalSelectionOptions = {
@@ -26,6 +29,7 @@ type InternalSelectionOptions = {
   multiSelect: boolean;
   includes: string[];
   excludes: string[];
+  basePath?: string;
 };
 
 function buildGlob(patterns: string[]): string {
@@ -33,12 +37,94 @@ function buildGlob(patterns: string[]): string {
   return `{${patterns.join(',')}}`;
 }
 
+type ResolvedPattern = { base: string; pattern: string };
+
+function resolvePatternWithParentRefs(basePath: string, pattern: string): ResolvedPattern {
+  let currentBase = basePath;
+  let currentPattern = pattern;
+
+  while (currentPattern.startsWith('../')) {
+    currentBase = path.dirname(currentBase);
+    currentPattern = currentPattern.slice(3);
+  }
+
+  return { base: currentBase, pattern: currentPattern };
+}
+
+function groupPatternsByBase(basePath: string, patterns: string[]): Map<string, string[]> {
+  const groups = new Map<string, string[]>();
+
+  for (const pattern of patterns) {
+    const resolved = resolvePatternWithParentRefs(basePath, pattern);
+    const existing = groups.get(resolved.base);
+    if (existing) {
+      existing.push(resolved.pattern);
+    } else {
+      groups.set(resolved.base, [resolved.pattern]);
+    }
+  }
+
+  return groups;
+}
+
+async function findFilesWithGroupedPatterns(
+  basePath: string,
+  includes: string[],
+  excludeGlob: string,
+): Promise<ReturnType<typeof VscodeHelper.findFiles>> {
+  const groups = groupPatternsByBase(basePath, includes);
+
+  if (groups.size === 0) {
+    return VscodeHelper.findFiles(VscodeHelper.createRelativePattern(basePath, '**/*'), excludeGlob);
+  }
+
+  if (groups.size === 1) {
+    const [base, patterns] = groups.entries().next().value as [string, string[]];
+    return VscodeHelper.findFiles(VscodeHelper.createRelativePattern(base, buildGlob(patterns)), excludeGlob);
+  }
+
+  const allFiles: Awaited<ReturnType<typeof VscodeHelper.findFiles>> = [];
+  const seenPaths = new Set<string>();
+
+  for (const [base, patterns] of groups) {
+    const files = await VscodeHelper.findFiles(
+      VscodeHelper.createRelativePattern(base, buildGlob(patterns)),
+      excludeGlob,
+    );
+    for (const file of files) {
+      if (!seenPaths.has(file.fsPath)) {
+        seenPaths.add(file.fsPath);
+        allFiles.push(file);
+      }
+    }
+  }
+
+  return allFiles;
+}
+
+function replaceVariablesInPatterns(patterns: string[] | undefined, folder: WorkspaceFolder): string[] | undefined {
+  if (!patterns || patterns.length === 0) return patterns;
+
+  const variablesPath = ConfigManager.getWorkspaceVariablesPath(folder);
+  const variables = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);
+
+  if (Object.keys(variables).length === 0) return patterns;
+
+  return patterns.map((pattern) => {
+    let result = pattern;
+    for (const [key, value] of Object.entries(variables)) {
+      result = result.replace(new RegExp(`\\$${key}`, 'g'), value);
+    }
+    return result;
+  });
+}
+
 export async function selectFiles(
   workspaceFolder: WorkspaceFolder,
   options: FileSelectionOptions,
 ): Promise<string | undefined> {
-  const includes = options.includes ?? DEFAULT_INCLUDES;
-  const excludes = options.excludes ?? DEFAULT_EXCLUDES;
+  const includes = options.includes ?? ['**/*'];
+  const excludes = options.excludes ?? [];
   log.info(`selectFiles - multiSelect: ${options.multiSelect ?? false}`);
   return selectFilesFlat({
     workspaceFolder,
@@ -46,19 +132,15 @@ export async function selectFiles(
     multiSelect: options.multiSelect ?? false,
     includes,
     excludes,
+    basePath: options.basePath,
   });
 }
 
 async function selectFilesFlat(opts: InternalSelectionOptions): Promise<string | undefined> {
-  const { workspaceFolder, label, multiSelect, includes, excludes } = opts;
-  log.info(`selectFilesFlat - workspaceFolder.name: ${workspaceFolder.name}`);
-  log.info(`selectFilesFlat - workspaceFolder.uri.fsPath: ${workspaceFolder.uri.fsPath}`);
-  const includeGlob = buildGlob(includes);
+  const { workspaceFolder, label, multiSelect, includes, excludes, basePath } = opts;
+  const initialBase = basePath ?? workspaceFolder.uri.fsPath;
   const excludeGlob = buildGlob(excludes);
-  const files = await VscodeHelper.findFiles(
-    VscodeHelper.createRelativePattern(workspaceFolder, includeGlob),
-    excludeGlob,
-  );
+  const files = await findFilesWithGroupedPatterns(initialBase, includes, excludeGlob);
   log.info(`selectFilesFlat - found ${files.length} files`);
 
   const items: QuickPickItem[] = files.map((uri) => ({
@@ -95,8 +177,8 @@ export async function selectFolders(
   workspaceFolder: WorkspaceFolder,
   options: FileSelectionOptions,
 ): Promise<string | undefined> {
-  const includes = options.includes ?? DEFAULT_INCLUDES;
-  const excludes = options.excludes ?? DEFAULT_EXCLUDES;
+  const includes = options.includes ?? ['**/*'];
+  const excludes = options.excludes ?? [];
   log.info(`selectFolders - multiSelect: ${options.multiSelect ?? false}`);
   return selectFoldersFlat({
     workspaceFolder,
@@ -104,17 +186,15 @@ export async function selectFolders(
     multiSelect: options.multiSelect ?? false,
     includes,
     excludes,
+    basePath: options.basePath,
   });
 }
 
 async function selectFoldersFlat(opts: InternalSelectionOptions): Promise<string | undefined> {
-  const { workspaceFolder, label, multiSelect, includes, excludes } = opts;
-  const includeGlob = buildGlob(includes);
+  const { workspaceFolder, label, multiSelect, includes, excludes, basePath } = opts;
+  const initialBase = basePath ?? workspaceFolder.uri.fsPath;
   const excludeGlob = buildGlob(excludes);
-  const files = await VscodeHelper.findFiles(
-    VscodeHelper.createRelativePattern(workspaceFolder, includeGlob),
-    excludeGlob,
-  );
+  const files = await findFilesWithGroupedPatterns(initialBase, includes, excludeGlob);
 
   const folderSet = new Set<string>();
   for (const file of files) {
@@ -166,12 +246,12 @@ type InputValues = Record<string, string>;
 export async function collectInputs(
   inputs: DevPanelInput[],
   workspaceFolder: WorkspaceFolder | null,
-  settings?: DevPanelSettings,
+  basePath?: string,
 ): Promise<InputValues | null> {
   const values: InputValues = {};
 
   for (const input of inputs) {
-    const value = await collectSingleInput(input, workspaceFolder, settings);
+    const value = await collectSingleInput(input, workspaceFolder, basePath);
     if (value === undefined) return null;
     values[input.name] = value;
   }
@@ -182,13 +262,13 @@ export async function collectInputs(
 async function collectSingleInput(
   input: DevPanelInput,
   workspaceFolder: WorkspaceFolder | null,
-  settings?: DevPanelSettings,
+  basePath?: string,
 ): Promise<string | undefined> {
   switch (input.type) {
     case InputType.File:
-      return collectFileInput(input, workspaceFolder, input.multiSelect ?? false, settings);
+      return collectFileInput(input, workspaceFolder, input.multiSelect ?? false, basePath);
     case InputType.Folder:
-      return collectFolderInput(input, workspaceFolder, input.multiSelect ?? false, settings);
+      return collectFolderInput(input, workspaceFolder, input.multiSelect ?? false, basePath);
     case InputType.Text:
       return collectTextInput(input);
     case InputType.Number:
@@ -204,54 +284,13 @@ async function collectSingleInput(
   }
 }
 
-function getIncludePatterns(input: DevPanelInput, settings: DevPanelSettings | undefined): string[] {
-  const defaultIncludes = [...DEFAULT_INCLUDES];
-
-  if (input.includes && input.includes.length > 0) {
-    log.debug(
-      `Using input.includes merged with defaults: ${JsonHelper.stringify([...defaultIncludes, ...input.includes])}`,
-    );
-    return [...defaultIncludes, ...input.includes];
-  }
-
-  if (settings?.include && settings.include.length > 0) {
-    const merged = [...defaultIncludes, ...settings.include];
-    log.debug(`Using settings.include merged with defaults: ${JsonHelper.stringify(merged)}`);
-    return merged;
-  }
-
-  log.debug(`Using default includes: ${JsonHelper.stringify(defaultIncludes)}`);
-  return defaultIncludes;
-}
-
-function getExcludePatterns(input: DevPanelInput, settings: DevPanelSettings | undefined): string[] {
-  const defaultExcludes = [...DEFAULT_EXCLUDES];
-
-  if (input.excludes && input.excludes.length > 0) {
-    log.debug(
-      `Using input.excludes merged with defaults: ${JsonHelper.stringify([...defaultExcludes, ...input.excludes])}`,
-    );
-    return [...defaultExcludes, ...input.excludes];
-  }
-
-  if (settings?.exclude && settings.exclude.length > 0) {
-    const merged = [...defaultExcludes, ...settings.exclude];
-    log.debug(`Using settings.exclude merged with defaults: ${JsonHelper.stringify(merged)}`);
-    return merged;
-  }
-
-  log.debug(`Using default excludes: ${JsonHelper.stringify(defaultExcludes)}`);
-  return defaultExcludes;
-}
-
 async function collectFileInput(
   input: DevPanelInput,
   workspaceFolder: WorkspaceFolder | null,
   multiple: boolean,
-  settings?: DevPanelSettings,
+  basePath?: string,
 ): Promise<string | undefined> {
-  log.info(`collectFileInput called - multiple: ${multiple}`);
-  log.debug(`input: ${JsonHelper.stringify(input)}`);
+  log.info(`collectFileInput called - multiple: ${multiple}, basePath: ${basePath ?? 'workspace'}`);
 
   const folder = workspaceFolder ?? VscodeHelper.getFirstWorkspaceFolder();
   if (!folder) {
@@ -259,15 +298,12 @@ async function collectFileInput(
     return undefined;
   }
 
-  const includes = getIncludePatterns(input, settings);
-  const excludes = getExcludePatterns(input, settings);
-  log.info(`Resolved includes: ${includes.length} patterns, excludes: ${excludes.length} patterns`);
-
   const options: FileSelectionOptions = {
     label: input.label,
     multiSelect: multiple,
-    includes,
-    excludes,
+    includes: replaceVariablesInPatterns(input.includes, folder),
+    excludes: replaceVariablesInPatterns(input.excludes, folder),
+    basePath,
   };
 
   return selectFiles(folder, options);
@@ -277,7 +313,7 @@ async function collectFolderInput(
   input: DevPanelInput,
   workspaceFolder: WorkspaceFolder | null,
   multiple: boolean,
-  settings?: DevPanelSettings,
+  basePath?: string,
 ): Promise<string | undefined> {
   const folder = workspaceFolder ?? VscodeHelper.getFirstWorkspaceFolder();
   if (!folder) {
@@ -285,14 +321,12 @@ async function collectFolderInput(
     return undefined;
   }
 
-  const includes = getIncludePatterns(input, settings);
-  const excludes = getExcludePatterns(input, settings);
-
   const options: FileSelectionOptions = {
     label: input.label,
     multiSelect: multiple,
-    includes,
-    excludes,
+    includes: replaceVariablesInPatterns(input.includes, folder),
+    excludes: replaceVariablesInPatterns(input.excludes, folder),
+    basePath,
   };
 
   return selectFolders(folder, options);
