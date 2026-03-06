@@ -213,9 +213,9 @@ Commands are registered in `src/commands/register-all.ts`:
 
 | Command Category | Count | Examples                                   |
 |------------------|-------|--------------------------------------------|
-| Tasks            | 20    | executeTask, switchTaskSource, toggleHide  |
+| Tasks            | 21    | executeTask, switchTaskSource, toggleHide  |
 | Variables        | 8     | selectConfigOption, setVariableKeybinding  |
-| Replacements     | 9     | toggleReplacement, previewReplacementDiff  |
+| Replacements     | 7     | toggleReplacement, previewReplacementDiff  |
 | Excludes         | 3     | addExclude, removeExclude, openExcludeFile |
 | General          | 1     | openSettingsMenu                           |
 | Debug            | 3     | showLogs, showWorkspaceState, clearState   |

@@ -207,17 +207,6 @@ Variables can have keyboard shortcuts:
 
 Right-click -> "Reset" removes the stored value, reverting to default.
 
-## Global Settings
+## File/Folder Defaults
 
-File/folder pickers respect global include/exclude patterns:
-
-```jsonc
-{
-  "settings": {
-    "include": ["**/*.ts", "**/*.json"],
-    "exclude": ["**/node_modules/**", "**/dist/**"]
-  }
-}
-```
-
-Variable-level includes/excludes override (not extend) global settings. Both extend the built-in defaults.
+When a file/folder variable does not specify `includes` or `excludes`, the defaults are `["**/*"]` for includes and `[]` for excludes (i.e., all files are shown).
