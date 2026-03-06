@@ -37,10 +37,9 @@ function buildGlob(patterns: string[]): string {
   return `{${patterns.join(',')}}`;
 }
 
-function resolvePatternWithParentRefs(
-  basePath: string,
-  pattern: string,
-): { resolvedBase: string; resolvedPattern: string } {
+type ResolvedPattern = { base: string; pattern: string };
+
+function resolvePatternWithParentRefs(basePath: string, pattern: string): ResolvedPattern {
   let currentBase = basePath;
   let currentPattern = pattern;
 
@@ -49,24 +48,58 @@ function resolvePatternWithParentRefs(
     currentPattern = currentPattern.slice(3);
   }
 
-  return { resolvedBase: currentBase, resolvedPattern: currentPattern };
+  return { base: currentBase, pattern: currentPattern };
 }
 
-function resolveIncludesWithParentRefs(
-  basePath: string,
-  patterns: string[],
-): { resolvedBase: string; resolvedPatterns: string[] } {
-  if (patterns.length === 0) return { resolvedBase: basePath, resolvedPatterns: patterns };
+function groupPatternsByBase(basePath: string, patterns: string[]): Map<string, string[]> {
+  const groups = new Map<string, string[]>();
 
-  const firstResult = resolvePatternWithParentRefs(basePath, patterns[0]);
-  const resolvedPatterns = [firstResult.resolvedPattern];
-
-  for (let i = 1; i < patterns.length; i++) {
-    const result = resolvePatternWithParentRefs(basePath, patterns[i]);
-    resolvedPatterns.push(result.resolvedPattern);
+  for (const pattern of patterns) {
+    const resolved = resolvePatternWithParentRefs(basePath, pattern);
+    const existing = groups.get(resolved.base);
+    if (existing) {
+      existing.push(resolved.pattern);
+    } else {
+      groups.set(resolved.base, [resolved.pattern]);
+    }
   }
 
-  return { resolvedBase: firstResult.resolvedBase, resolvedPatterns };
+  return groups;
+}
+
+async function findFilesWithGroupedPatterns(
+  basePath: string,
+  includes: string[],
+  excludeGlob: string,
+): Promise<ReturnType<typeof VscodeHelper.findFiles>> {
+  const groups = groupPatternsByBase(basePath, includes);
+
+  if (groups.size === 0) {
+    return VscodeHelper.findFiles(VscodeHelper.createRelativePattern(basePath, '**/*'), excludeGlob);
+  }
+
+  if (groups.size === 1) {
+    const [base, patterns] = groups.entries().next().value as [string, string[]];
+    return VscodeHelper.findFiles(VscodeHelper.createRelativePattern(base, buildGlob(patterns)), excludeGlob);
+  }
+
+  const allFiles: Awaited<ReturnType<typeof VscodeHelper.findFiles>> = [];
+  const seenPaths = new Set<string>();
+
+  for (const [base, patterns] of groups) {
+    const files = await VscodeHelper.findFiles(
+      VscodeHelper.createRelativePattern(base, buildGlob(patterns)),
+      excludeGlob,
+    );
+    for (const file of files) {
+      if (!seenPaths.has(file.fsPath)) {
+        seenPaths.add(file.fsPath);
+        allFiles.push(file);
+      }
+    }
+  }
+
+  return allFiles;
 }
 
 function replaceVariablesInPatterns(patterns: string[] | undefined, folder: WorkspaceFolder): string[] | undefined {
@@ -106,14 +139,8 @@ export async function selectFiles(
 async function selectFilesFlat(opts: InternalSelectionOptions): Promise<string | undefined> {
   const { workspaceFolder, label, multiSelect, includes, excludes, basePath } = opts;
   const initialBase = basePath ?? workspaceFolder.uri.fsPath;
-  const { resolvedBase, resolvedPatterns } = resolveIncludesWithParentRefs(initialBase, includes);
-  log.info(`selectFilesFlat - searchBase: ${resolvedBase}`);
-  const includeGlob = buildGlob(resolvedPatterns);
   const excludeGlob = buildGlob(excludes);
-  const files = await VscodeHelper.findFiles(
-    VscodeHelper.createRelativePattern(resolvedBase, includeGlob),
-    excludeGlob,
-  );
+  const files = await findFilesWithGroupedPatterns(initialBase, includes, excludeGlob);
   log.info(`selectFilesFlat - found ${files.length} files`);
 
   const items: QuickPickItem[] = files.map((uri) => ({
@@ -166,13 +193,8 @@ export async function selectFolders(
 async function selectFoldersFlat(opts: InternalSelectionOptions): Promise<string | undefined> {
   const { workspaceFolder, label, multiSelect, includes, excludes, basePath } = opts;
   const initialBase = basePath ?? workspaceFolder.uri.fsPath;
-  const { resolvedBase, resolvedPatterns } = resolveIncludesWithParentRefs(initialBase, includes);
-  const includeGlob = buildGlob(resolvedPatterns);
   const excludeGlob = buildGlob(excludes);
-  const files = await VscodeHelper.findFiles(
-    VscodeHelper.createRelativePattern(resolvedBase, includeGlob),
-    excludeGlob,
-  );
+  const files = await findFilesWithGroupedPatterns(initialBase, includes, excludeGlob);
 
   const folderSet = new Set<string>();
   for (const file of files) {
