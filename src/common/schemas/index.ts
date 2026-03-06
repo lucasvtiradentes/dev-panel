@@ -6,7 +6,6 @@ export {
   type DevPanelConfig,
   type DevPanelInput,
   type DevPanelReplacement,
-  type DevPanelSettings,
   type DevPanelVariable,
 } from './config-schema';
 
