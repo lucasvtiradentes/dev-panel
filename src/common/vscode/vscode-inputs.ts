@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { ROOT_FOLDER_LABEL, createVariablePlaceholderPattern } from '../constants';
 import { createLogger } from '../lib/logger';
 import { type DevPanelInput, InputType } from '../schemas';
@@ -17,6 +18,7 @@ export type FileSelectionOptions = {
   multiSelect?: boolean;
   includes?: string[];
   excludes?: string[];
+  basePath?: string;
 };
 
 type InternalSelectionOptions = {
@@ -25,11 +27,44 @@ type InternalSelectionOptions = {
   multiSelect: boolean;
   includes: string[];
   excludes: string[];
+  basePath?: string;
 };
 
 function buildGlob(patterns: string[]): string {
   if (patterns.length === 1) return patterns[0];
   return `{${patterns.join(',')}}`;
+}
+
+function resolvePatternWithParentRefs(
+  basePath: string,
+  pattern: string,
+): { resolvedBase: string; resolvedPattern: string } {
+  let currentBase = basePath;
+  let currentPattern = pattern;
+
+  while (currentPattern.startsWith('../')) {
+    currentBase = path.dirname(currentBase);
+    currentPattern = currentPattern.slice(3);
+  }
+
+  return { resolvedBase: currentBase, resolvedPattern: currentPattern };
+}
+
+function resolveIncludesWithParentRefs(
+  basePath: string,
+  patterns: string[],
+): { resolvedBase: string; resolvedPatterns: string[] } {
+  if (patterns.length === 0) return { resolvedBase: basePath, resolvedPatterns: patterns };
+
+  const firstResult = resolvePatternWithParentRefs(basePath, patterns[0]);
+  const resolvedPatterns = [firstResult.resolvedPattern];
+
+  for (let i = 1; i < patterns.length; i++) {
+    const result = resolvePatternWithParentRefs(basePath, patterns[i]);
+    resolvedPatterns.push(result.resolvedPattern);
+  }
+
+  return { resolvedBase: firstResult.resolvedBase, resolvedPatterns };
 }
 
 export async function selectFiles(
@@ -45,17 +80,19 @@ export async function selectFiles(
     multiSelect: options.multiSelect ?? false,
     includes,
     excludes,
+    basePath: options.basePath,
   });
 }
 
 async function selectFilesFlat(opts: InternalSelectionOptions): Promise<string | undefined> {
-  const { workspaceFolder, label, multiSelect, includes, excludes } = opts;
-  log.info(`selectFilesFlat - workspaceFolder.name: ${workspaceFolder.name}`);
-  log.info(`selectFilesFlat - workspaceFolder.uri.fsPath: ${workspaceFolder.uri.fsPath}`);
-  const includeGlob = buildGlob(includes);
+  const { workspaceFolder, label, multiSelect, includes, excludes, basePath } = opts;
+  const initialBase = basePath ?? workspaceFolder.uri.fsPath;
+  const { resolvedBase, resolvedPatterns } = resolveIncludesWithParentRefs(initialBase, includes);
+  log.info(`selectFilesFlat - searchBase: ${resolvedBase}`);
+  const includeGlob = buildGlob(resolvedPatterns);
   const excludeGlob = buildGlob(excludes);
   const files = await VscodeHelper.findFiles(
-    VscodeHelper.createRelativePattern(workspaceFolder, includeGlob),
+    VscodeHelper.createRelativePattern(resolvedBase, includeGlob),
     excludeGlob,
   );
   log.info(`selectFilesFlat - found ${files.length} files`);
@@ -103,15 +140,18 @@ export async function selectFolders(
     multiSelect: options.multiSelect ?? false,
     includes,
     excludes,
+    basePath: options.basePath,
   });
 }
 
 async function selectFoldersFlat(opts: InternalSelectionOptions): Promise<string | undefined> {
-  const { workspaceFolder, label, multiSelect, includes, excludes } = opts;
-  const includeGlob = buildGlob(includes);
+  const { workspaceFolder, label, multiSelect, includes, excludes, basePath } = opts;
+  const initialBase = basePath ?? workspaceFolder.uri.fsPath;
+  const { resolvedBase, resolvedPatterns } = resolveIncludesWithParentRefs(initialBase, includes);
+  const includeGlob = buildGlob(resolvedPatterns);
   const excludeGlob = buildGlob(excludes);
   const files = await VscodeHelper.findFiles(
-    VscodeHelper.createRelativePattern(workspaceFolder, includeGlob),
+    VscodeHelper.createRelativePattern(resolvedBase, includeGlob),
     excludeGlob,
   );
 
@@ -165,11 +205,12 @@ type InputValues = Record<string, string>;
 export async function collectInputs(
   inputs: DevPanelInput[],
   workspaceFolder: WorkspaceFolder | null,
+  basePath?: string,
 ): Promise<InputValues | null> {
   const values: InputValues = {};
 
   for (const input of inputs) {
-    const value = await collectSingleInput(input, workspaceFolder);
+    const value = await collectSingleInput(input, workspaceFolder, basePath);
     if (value === undefined) return null;
     values[input.name] = value;
   }
@@ -180,12 +221,13 @@ export async function collectInputs(
 async function collectSingleInput(
   input: DevPanelInput,
   workspaceFolder: WorkspaceFolder | null,
+  basePath?: string,
 ): Promise<string | undefined> {
   switch (input.type) {
     case InputType.File:
-      return collectFileInput(input, workspaceFolder, input.multiSelect ?? false);
+      return collectFileInput(input, workspaceFolder, input.multiSelect ?? false, basePath);
     case InputType.Folder:
-      return collectFolderInput(input, workspaceFolder, input.multiSelect ?? false);
+      return collectFolderInput(input, workspaceFolder, input.multiSelect ?? false, basePath);
     case InputType.Text:
       return collectTextInput(input);
     case InputType.Number:
@@ -205,8 +247,9 @@ async function collectFileInput(
   input: DevPanelInput,
   workspaceFolder: WorkspaceFolder | null,
   multiple: boolean,
+  basePath?: string,
 ): Promise<string | undefined> {
-  log.info(`collectFileInput called - multiple: ${multiple}`);
+  log.info(`collectFileInput called - multiple: ${multiple}, basePath: ${basePath ?? 'workspace'}`);
 
   const folder = workspaceFolder ?? VscodeHelper.getFirstWorkspaceFolder();
   if (!folder) {
@@ -219,6 +262,7 @@ async function collectFileInput(
     multiSelect: multiple,
     includes: input.includes,
     excludes: input.excludes,
+    basePath,
   };
 
   return selectFiles(folder, options);
@@ -228,6 +272,7 @@ async function collectFolderInput(
   input: DevPanelInput,
   workspaceFolder: WorkspaceFolder | null,
   multiple: boolean,
+  basePath?: string,
 ): Promise<string | undefined> {
   const folder = workspaceFolder ?? VscodeHelper.getFirstWorkspaceFolder();
   if (!folder) {
@@ -240,6 +285,7 @@ async function collectFolderInput(
     multiSelect: multiple,
     includes: input.includes,
     excludes: input.excludes,
+    basePath,
   };
 
   return selectFolders(folder, options);
