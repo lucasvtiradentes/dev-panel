@@ -25,7 +25,7 @@ import { StatusBarManager } from './status-bar/status-bar-manager';
 import { ExcludesProvider } from './views/excludes';
 import { ReplacementsProvider } from './views/replacements';
 import { registerReplacementKeybindings } from './views/replacements/keybindings-local';
-import { TaskTreeDataProvider } from './views/tasks';
+import { type GroupTreeItem, TaskTreeDataProvider, type TreeTask, type WorkspaceTreeItem } from './views/tasks';
 import { registerTaskKeybindings, reloadTaskKeybindings } from './views/tasks/keybindings-local';
 import { VariablesProvider, loadVariablesState } from './views/variables';
 import { registerVariableKeybindings, reloadVariableKeybindings } from './views/variables/keybindings-local';
@@ -78,9 +78,11 @@ function setupProviders(workspace: string): Providers {
   };
 }
 
+type TaskTreeItem = TreeTask | GroupTreeItem | WorkspaceTreeItem;
+
 type TasksTreeViews = {
-  explorerView: TreeView<unknown>;
-  panelView: TreeView<unknown>;
+  explorerView: TreeView<TaskTreeItem>;
+  panelView: TreeView<TaskTreeItem>;
 };
 
 function setupTreeViews(providers: Providers): TasksTreeViews {
@@ -123,7 +125,7 @@ function setupConfigChangeListener(context: ExtensionContext, providers: Provide
   const configWatcher = VscodeHelper.onDidChangeConfiguration((e) => {
     if (e.affectsConfiguration(`${configSection}.${ExtensionConfigKey.TasksLocation}`)) {
       const newLocation = getExtensionConfig(ExtensionConfigKey.TasksLocation);
-      const activeView = (newLocation === 'explorer' ? tasksViews.explorerView : tasksViews.panelView) as any;
+      const activeView = newLocation === 'explorer' ? tasksViews.explorerView : tasksViews.panelView;
       providers.taskTreeDataProvider.setTreeView(activeView);
       providers.taskTreeDataProvider.refresh();
       logger.info(`Tasks location changed to: ${newLocation}`);

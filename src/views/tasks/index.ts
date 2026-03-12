@@ -1,2 +1,2 @@
 export { TaskTreeDataProvider } from './provider';
-export { TreeTask } from './items';
+export { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
