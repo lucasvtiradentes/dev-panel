@@ -75,25 +75,6 @@ export class Git {
     return Git.execCommand(workspace, ['rev-parse', '--abbrev-ref', 'HEAD']);
   }
 
-  static async getRemoteBranches(workspace: string): Promise<string[]> {
-    const api = await Git.getAPI();
-    if (!api) return [];
-
-    const repository = api.repositories.find((repo) => repo.rootUri.fsPath === workspace);
-    if (!repository) return [];
-
-    const refs = await repository.getBranches({ remote: true });
-    return refs
-      .map((ref) => {
-        if (!ref.name) return '';
-        if (ref.remote && !ref.name.startsWith(`${ref.remote}/`)) {
-          return `${ref.remote}/${ref.name}`;
-        }
-        return ref.name;
-      })
-      .filter((name) => name && !name.includes('HEAD'));
-  }
-
   static async setSkipWorktree(workspace: string, filePath: string, skip: boolean) {
     const flag = skip ? '--skip-worktree' : '--no-skip-worktree';
     await Git.execCommand(workspace, ['update-index', flag, filePath]);
@@ -110,14 +91,6 @@ export class Git {
 
   static async restoreFile(workspace: string, filePath: string) {
     await Git.execCommand(workspace, ['checkout', '--', filePath]);
-  }
-
-  static async getLastCommitHash(workspace: string): Promise<string> {
-    return Git.execCommand(workspace, ['rev-parse', 'HEAD']);
-  }
-
-  static async getLastCommitMessage(workspace: string): Promise<string> {
-    return Git.execCommand(workspace, ['log', '-1', '--pretty=%B']);
   }
 
   static async fileExistsInGit(workspace: string, filePath: string): Promise<boolean> {

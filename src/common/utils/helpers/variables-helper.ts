@@ -30,21 +30,4 @@ export class VariablesHelper {
     const filePath = VariablesHelper.getPath(workspace);
     FileIOHelper.writeFile(filePath, JsonHelper.stringifyPretty(state));
   }
-
-  static getValue<T>(workspace: string, key: string): T | undefined {
-    const state = VariablesHelper.load(workspace);
-    return state[key] as T | undefined;
-  }
-
-  static setValue(workspace: string, key: string, value: unknown) {
-    const state = VariablesHelper.load(workspace);
-    state[key] = value;
-    VariablesHelper.save(workspace, state);
-  }
-
-  static deleteValue(workspace: string, key: string) {
-    const state = VariablesHelper.load(workspace);
-    delete state[key];
-    VariablesHelper.save(workspace, state);
-  }
 }
