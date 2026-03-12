@@ -208,6 +208,9 @@ export class Git {
     if (!gitExtension.isActive) {
       await gitExtension.activate();
     }
+    if (!gitExtension.exports) {
+      return null;
+    }
     return gitExtension.exports.getAPI(Git.INTEGRATION.API_VERSION);
   }
 
