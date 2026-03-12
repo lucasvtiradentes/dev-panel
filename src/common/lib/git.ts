@@ -364,85 +364,8 @@ export class Git {
     workspacePath: string,
     baseBranch: string = BASE_BRANCH,
   ): Promise<string> {
-    logger.info(`[getChangedFilesListFormat] Starting git commands for workspace: ${workspacePath}`);
-
-    try {
-      const [results, untrackedFiles] = await Promise.all([
-        Promise.all([
-          Promise.all([
-            Git.diffBaseBranchNameStatus(workspacePath, baseBranch),
-            Git.diffBaseBranchNumstat(workspacePath, baseBranch),
-          ]),
-          Promise.all([Git.diffCachedNameStatus(workspacePath), Git.diffCachedNumstat(workspacePath)]),
-          Promise.all([Git.diffNameStatus(workspacePath), Git.diffNumstat(workspacePath)]),
-        ]),
-        Git.getUntrackedFiles(workspacePath),
-      ]);
-
-      logger.info('[getChangedFilesListFormat] Git commands completed successfully');
-
-      const statusMap = new Map<string, string>();
-      const statsMap = new Map<string, { added: string; deleted: string }>();
-
-      for (const [status, num] of results) {
-        status
-          .split('\n')
-          .filter((line) => line)
-          .forEach((line) => {
-            const [st, ...fileParts] = line.split('\t');
-            const statusChar = st.charAt(0);
-            const file =
-              statusChar === GitFileStatus.Renamed && fileParts.length > 1
-                ? fileParts[fileParts.length - 1]
-                : fileParts.join('\t');
-            statusMap.set(file, st);
-          });
-
-        num
-          .split('\n')
-          .filter((line) => line)
-          .forEach((line) => {
-            const [added, deleted, ...fileParts] = line.split('\t');
-            const file = fileParts.length > 1 ? fileParts[fileParts.length - 1] : fileParts.join('\t');
-            statsMap.set(file, { added, deleted });
-          });
-      }
-
-      untrackedFiles
-        .split('\n')
-        .filter((f) => f)
-        .forEach((file) => {
-          if (!statusMap.has(file)) {
-            statusMap.set(file, '?');
-          }
-        });
-
-      if (statusMap.size === 0) {
-        logger.info('[getChangedFilesListFormat] No changes detected');
-        return NO_CHANGES;
-      }
-
-      const sortedFiles = Array.from(statusMap.keys()).sort();
-      logger.info(`[getChangedFilesListFormat] Found ${sortedFiles.length} changed files`);
-
-      const maxFileLength = Math.max(...sortedFiles.map((f) => f.length));
-
-      const lines: string[] = [];
-      for (const file of sortedFiles) {
-        const fileStatus = statusMap.get(file);
-        if (!fileStatus) continue;
-        const stats = statsMap.get(file) || { added: '0', deleted: '0' };
-        const statusSymbol = fileStatus.charAt(0);
-        const padding = ' '.repeat(Math.max(0, maxFileLength - file.length + 1));
-        lines.push(`${statusSymbol}  ${file}${padding}(+${stats.added} -${stats.deleted})`);
-      }
-
-      return lines.join('\n');
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      logger.error(`[getChangedFilesListFormat] Error executing git commands: ${message}`);
-      return NOT_GIT_REPO_MESSAGE;
-    }
+    const result = await Git.getChangedFilesListFormatWithSummary(workspacePath, baseBranch);
+    return result.content;
   }
 
   private static async getChangedFilesListFormatWithSummary(
