@@ -1,5 +1,15 @@
 # dev-panel
 
+## 0.5.1
+
+### Patch Changes
+
+- fbe2646: fix: resolve ${workspaceFolder} in hideTerminal tasks
+
+  - Fix variable substitution when running tasks with hideTerminal enabled
+  - Remove ~600 lines of dead code (-16kb bundle size)
+  - Improve type safety by removing `as any` casts
+
 ## 0.5.0
 
 ### Minor Changes
