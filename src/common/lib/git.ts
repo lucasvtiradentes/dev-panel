@@ -1,13 +1,10 @@
-import { BASE_BRANCH, ChangedFilesStyle, NOT_GIT_REPO_MESSAGE } from '../constants';
+import { BASE_BRANCH, NOT_GIT_REPO_MESSAGE } from '../constants';
 
 const NO_CHANGES = 'No changes';
 import { GitFileStatus } from '../constants/enums';
 import { execAsync } from '../utils/functions/exec-async';
 import { VscodeHelper } from '../vscode/vscode-helper';
 import type { Event } from '../vscode/vscode-types';
-import { createLogger } from './logger';
-
-const logger = createLogger('GitHelper');
 
 type GitAPI = {
   repositories: GitRepository[];
@@ -60,11 +57,6 @@ type ChangedFilesResult = {
   content: string;
   summary: string;
   sectionMetadata?: Record<string, unknown>;
-};
-
-type TreeNode = {
-  name: string;
-  children?: Map<string, TreeNode>;
 };
 
 export class Git {
@@ -244,122 +236,6 @@ export class Git {
     return { added, modified, deleted, renamed };
   }
 
-  static async getChangedFilesWithSummary(
-    workspacePath: string,
-    style: ChangedFilesStyle,
-    baseBranch: string = BASE_BRANCH,
-  ): Promise<ChangedFilesResult> {
-    if (style === ChangedFilesStyle.Tree) {
-      const content = await Git.getChangedFilesTreeFormat(workspacePath, baseBranch);
-      const summary = await Git.getChangedFilesSummaryFromGit(workspacePath, baseBranch);
-      const sectionMetadata = summary
-        ? { filesCount: summary.added + summary.modified + summary.deleted + summary.renamed, ...summary }
-        : { filesCount: 0, added: 0, modified: 0, deleted: 0, renamed: 0 };
-      return {
-        content,
-        summary: Git.formatChangedFilesSummary(summary),
-        sectionMetadata: content !== NO_CHANGES ? sectionMetadata : undefined,
-      };
-    }
-    return Git.getChangedFilesListFormatWithSummary(workspacePath, baseBranch);
-  }
-
-  private static async getChangedFilesSummaryFromGit(
-    workspacePath: string,
-    baseBranch: string = BASE_BRANCH,
-  ): Promise<ChangedFilesSummary | null> {
-    try {
-      const [results, untrackedFiles] = await Promise.all([
-        Promise.all([
-          Git.diffBaseBranchNameStatus(workspacePath, baseBranch),
-          Git.diffCachedNameStatus(workspacePath),
-          Git.diffNameStatus(workspacePath),
-        ]),
-        Git.getUntrackedFiles(workspacePath),
-      ]);
-
-      const statusMap = new Map<string, string>();
-
-      for (const output of results) {
-        output
-          .split('\n')
-          .filter((line) => line)
-          .forEach((line) => {
-            const [status, ...fileParts] = line.split('\t');
-            const statusChar = status.charAt(0);
-            const file =
-              statusChar === GitFileStatus.Renamed && fileParts.length > 1
-                ? fileParts[fileParts.length - 1]
-                : fileParts.join('\t');
-            if (file && !statusMap.has(file)) {
-              statusMap.set(file, statusChar);
-            }
-          });
-      }
-
-      untrackedFiles
-        .split('\n')
-        .filter((f) => f)
-        .forEach((file) => {
-          if (!statusMap.has(file)) {
-            statusMap.set(file, '?');
-          }
-        });
-
-      if (statusMap.size === 0) {
-        return null;
-      }
-
-      return Git.computeSummaryFromStatusMap(statusMap);
-    } catch {
-      return null;
-    }
-  }
-
-  static async getChangedFilesTree(
-    workspacePath: string,
-    style: ChangedFilesStyle,
-    baseBranch: string = BASE_BRANCH,
-  ): Promise<string> {
-    logger.info(`[getChangedFilesTree] Called with workspace: ${workspacePath}, style: ${style}`);
-
-    if (style === ChangedFilesStyle.Tree) {
-      return Git.getChangedFilesTreeFormat(workspacePath, baseBranch);
-    }
-    return Git.getChangedFilesListFormat(workspacePath, baseBranch);
-  }
-
-  private static async getChangedFilesTreeFormat(
-    workspacePath: string,
-    baseBranch: string = BASE_BRANCH,
-  ): Promise<string> {
-    try {
-      const results = await Promise.all([
-        Git.diffBaseBranchNameOnly(workspacePath, baseBranch),
-        Git.diffCachedNameOnly(workspacePath),
-        Git.diffNameOnly(workspacePath),
-        Git.getUntrackedFiles(workspacePath),
-      ]);
-
-      const allFiles = new Set<string>();
-
-      for (const output of results) {
-        output
-          .split('\n')
-          .filter((f) => f)
-          .forEach((f) => allFiles.add(f));
-      }
-
-      if (allFiles.size === 0) {
-        return NO_CHANGES;
-      }
-
-      return Git.buildFileTree(Array.from(allFiles));
-    } catch {
-      return NOT_GIT_REPO_MESSAGE;
-    }
-  }
-
   private static async getChangedFilesListFormat(
     workspacePath: string,
     baseBranch: string = BASE_BRANCH,
@@ -474,67 +350,5 @@ export class Git {
     } catch {
       return { content: NOT_GIT_REPO_MESSAGE, summary: NO_CHANGES };
     }
-  }
-
-  private static buildFileTree(files: string[]): string {
-    const root: TreeNode = { name: '.', children: new Map() };
-
-    for (const file of files.sort()) {
-      const parts = file.split('/');
-      let current = root;
-
-      for (let i = 0; i < parts.length; i++) {
-        const part = parts[i];
-        if (!current.children) {
-          current.children = new Map();
-        }
-
-        if (!current.children.has(part)) {
-          current.children.set(part, { name: part });
-        }
-
-        const next = current.children.get(part);
-        if (!next) continue;
-        current = next;
-      }
-    }
-
-    return Git.renderTree(root, '', true);
-  }
-
-  private static renderTree(node: TreeNode, prefix: string, isRoot: boolean): string {
-    if (isRoot) {
-      if (!node.children || node.children.size === 0) return '';
-
-      const lines: string[] = ['.'];
-      const entries = Array.from(node.children.entries());
-
-      entries.forEach(([, child], index) => {
-        const isLast = index === entries.length - 1;
-        lines.push(...Git.renderNode(child, '', isLast));
-      });
-
-      return lines.join('\n');
-    }
-
-    return Git.renderNode(node, prefix, false).join('\n');
-  }
-
-  private static renderNode(node: TreeNode, prefix: string, isLast: boolean): string[] {
-    const lines: string[] = [];
-    const connector = isLast ? '└── ' : '├── ';
-    const newPrefix = prefix + (isLast ? '    ' : '│   ');
-
-    lines.push(prefix + connector + node.name);
-
-    if (node.children && node.children.size > 0) {
-      const entries = Array.from(node.children.entries());
-      entries.forEach(([, child], index) => {
-        const childIsLast = index === entries.length - 1;
-        lines.push(...Git.renderNode(child, newPrefix, childIsLast));
-      });
-    }
-
-    return lines;
   }
 }
