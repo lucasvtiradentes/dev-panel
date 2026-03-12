@@ -4,7 +4,6 @@ import {
   type Stats,
   appendFileSync,
   copyFileSync,
-  cpSync,
   existsSync,
   mkdirSync,
   readFileSync,
@@ -97,18 +96,6 @@ export class FileIOHelper {
     return existsSync(filePath);
   }
 
-  static readFileIfExists(filePath: string): string | null {
-    if (!existsSync(filePath)) {
-      return null;
-    }
-
-    try {
-      return FileIOHelper.readFile(filePath);
-    } catch {
-      return null;
-    }
-  }
-
   static readFile(filePath: string): string {
     return readFileSync(filePath, UTF_ENCODING);
   }
@@ -153,12 +140,6 @@ export class FileIOHelper {
       return readdirSync(dirPath, { withFileTypes: true });
     }
     return readdirSync(dirPath);
-  }
-
-  static copyDirectory(sourcePath: string, targetPath: string) {
-    if (existsSync(sourcePath)) {
-      cpSync(sourcePath, targetPath, { recursive: true });
-    }
   }
 
   static stat(filePath: string): Stats {

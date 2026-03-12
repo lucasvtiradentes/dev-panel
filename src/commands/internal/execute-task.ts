@@ -159,8 +159,14 @@ async function handleExecuteTask(
   }
 
   if (taskConfig?.hideTerminal) {
+    let resolvedCommand = command;
+    if (scopeIsWorkspaceFolder) {
+      const folder = scope as WorkspaceFolder;
+      const workspacePath = folder.uri.fsPath;
+      resolvedCommand = command.replace(/\$\{workspaceFolder\}/g, workspacePath);
+    }
     log.info(`Executing task silently: ${task.name}`);
-    await executeTaskSilently({ command, cwd, env, taskName: task.name });
+    await executeTaskSilently({ command: resolvedCommand, cwd, env, taskName: task.name });
     return;
   }
 

@@ -1,13 +1,5 @@
 {
-  "settings": {
-    "exclude": [
-      "**/.devpanel/**",
-      "**/node_modules/**",
-      "**/.git/**",
-      "**/dist/**",
-      "**/out/**"
-    ]
-  },
+  "$schema": "../schema.json",
   "variables": [
     {
       "name": "environment",

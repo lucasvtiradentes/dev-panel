@@ -1,21 +1,4 @@
 {
-  "settings": {
-    "exclude": [
-      "**/.devpanel/**",
-      "**/.changeset/**",
-      "**/.claude/**",
-      "**/.ignore/**",
-      "**/.github/**",
-      "**/.husky/**",
-      "**/dist-dev/**",
-      "**/.tscanner/**",
-      "**/.vscode/**",
-      "**/out/**",
-      "**/resources/**",
-      "**/scripts/**",
-      "**/docs/**"
-    ]
-  },
   "variables": [
     {
       "name": "environment",

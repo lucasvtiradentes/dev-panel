@@ -166,7 +166,8 @@ async function runCommand(variable: DevPanelVariable, value: unknown) {
   if (!workspace) return;
 
   const formattedValue = Array.isArray(value) ? value.join(',') : String(value);
-  const command = `${variable.command} "${formattedValue}"`;
+  const resolvedCmd = variable.command.replace(/\$\{workspaceFolder\}/g, workspace);
+  const command = `${resolvedCmd} "${formattedValue}"`;
   const configDirPath = ConfigManager.getConfigDirPathFromWorkspacePath(workspace);
 
   await VscodeHelper.withProgress(

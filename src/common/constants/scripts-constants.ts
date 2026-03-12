@@ -52,5 +52,3 @@ export function getVscodeTasksFilePath(workspacePath: string): string {
 }
 
 export const WORKSPACE_STATE_CONFIG_DIR_KEY = `${CONFIG_DIR_KEY}.configDir`;
-
-export const NOT_GIT_REPO_MESSAGE = 'Not a git repository';

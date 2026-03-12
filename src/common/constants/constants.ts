@@ -11,10 +11,4 @@ export const QUICK_PICK_ACTION_SELECT = '__select__';
 export const QUICK_PICK_ACTION_PARENT = '__parent__';
 export const QUICK_PICK_ACTION_SEPARATOR = '__separator__';
 
-export const BASE_BRANCH = 'origin/main';
-
 export const DESCRIPTION_NOT_SET = '';
-
-export enum ChangedFilesStyle {
-  Tree = 'tree',
-}

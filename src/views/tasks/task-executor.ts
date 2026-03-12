@@ -14,7 +14,8 @@ export async function executeTaskFromKeybinding(options: ExecuteTaskOptions) {
   const { task, cwd, env } = options;
 
   if (task.hideTerminal) {
-    await executeTaskSilently({ command: task.command, cwd, env, taskName: task.name });
+    const resolvedCommand = task.command.replace(/\$\{workspaceFolder\}/g, cwd);
+    await executeTaskSilently({ command: resolvedCommand, cwd, env, taskName: task.name });
     return;
   }
 

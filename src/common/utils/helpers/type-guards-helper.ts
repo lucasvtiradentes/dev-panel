@@ -27,14 +27,6 @@ export class TypeGuardsHelper {
     return value.length > 0;
   }
 
-  static isEmptyString(value: string): boolean {
-    return value.trim() === '';
-  }
-
-  static isNonEmptyString(value: string): boolean {
-    return value.trim() !== '';
-  }
-
   static isEmpty(value: string): boolean {
     return value === '';
   }
