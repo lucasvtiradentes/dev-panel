@@ -22,8 +22,8 @@ Variables provide dynamic configuration values that persist across sessions and 
 | choose | Select from options | Quick pick dropdown  |
 | input  | Free text entry     | Input box            |
 | toggle | Boolean ON/OFF      | Toggle (click)       |
-| file   | File selection      | File picker dialog   |
-| folder | Folder selection    | Folder picker dialog |
+| file   | File selection      | Quick pick list      |
+| folder | Folder selection    | Quick pick list      |
 
 ## Configuration
 
@@ -37,7 +37,7 @@ Variables provide dynamic configuration values that persist across sessions and 
       "default": "development",
       "description": "Current environment",
       "group": "Config",
-      "command": "echo Selected: $VALUE"
+      "command": "echo Selected:"
     }
   ]
 }
@@ -136,7 +136,8 @@ When a variable has a `command` property, it executes after value change:
 ```
 
 The command runs from the `.devpanel/` directory with:
-- `$VALUE` or direct substitution of the value
+- The selected value appended as a quoted argument
+- `${workspaceFolder}` substitution for workspace path
 - Progress notification during execution
 - Error notification on failure
 
@@ -146,7 +147,7 @@ Example:
   "name": "branch",
   "kind": "choose",
   "options": ["main", "develop", "feature"],
-  "command": "git checkout $VALUE"
+  "command": "git checkout"
 }
 ```
 
