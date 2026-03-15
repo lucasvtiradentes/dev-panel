@@ -1,5 +1,11 @@
 # dev-panel
 
+## 0.5.2
+
+### Patch Changes
+
+- cc3941e: fix: include process.env in task shell execution
+
 ## 0.5.1
 
 ### Patch Changes
