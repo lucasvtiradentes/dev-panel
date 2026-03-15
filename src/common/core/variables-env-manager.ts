@@ -25,4 +25,8 @@ export class VariablesEnvManager {
     }
     return env;
   }
+
+  static withProcessEnv(customEnv: Record<string, string> = {}): Record<string, string> {
+    return { ...(process.env as Record<string, string>), ...customEnv };
+  }
 }

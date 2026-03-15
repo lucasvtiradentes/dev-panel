@@ -244,7 +244,8 @@ function createNpmTask(options: {
   if (showOnlyFavorites && !favorite) return null;
 
   const variablesPath = ConfigManager.getWorkspaceVariablesPath(folder);
-  const env = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);
+  const customEnv = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);
+  const env = VariablesEnvManager.withProcessEnv(customEnv);
   const shellExec = VscodeHelper.createShellExecution(`npm run ${name}`, { cwd, env });
   const task = VscodeHelper.createTask({
     definition: { type: 'npm' },

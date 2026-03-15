@@ -47,7 +47,7 @@ function cloneWithEnv(task: Task, env: Record<string, string>): Task {
   let newTask: Task;
 
   if (execution instanceof ShellExecutionClass) {
-    const mergedEnv = { ...execution.options?.env, ...env };
+    const mergedEnv = VariablesEnvManager.withProcessEnv({ ...execution.options?.env, ...env });
     const commandLine = execution.commandLine;
     const command = execution.command;
 
@@ -83,7 +83,7 @@ function cloneWithEnv(task: Task, env: Record<string, string>): Task {
   }
 
   if (execution instanceof ProcessExecutionClass) {
-    const mergedEnv = { ...execution.options?.env, ...env };
+    const mergedEnv = VariablesEnvManager.withProcessEnv({ ...execution.options?.env, ...env });
     const newExecution = VscodeHelper.createProcessExecution(execution.process, execution.args, {
       ...execution.options,
       env: mergedEnv,

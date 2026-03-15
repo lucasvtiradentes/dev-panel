@@ -1,4 +1,5 @@
 import { CONFIG_DIR_KEY } from '../../common/constants';
+import { VariablesEnvManager } from '../../common/core/variables-env-manager';
 import type { DevPanelConfig } from '../../common/schemas';
 import { executeTaskSilently } from '../../common/utils/functions/execute-silent';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
@@ -19,7 +20,8 @@ export async function executeTaskFromKeybinding(options: ExecuteTaskOptions) {
     return;
   }
 
-  const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd });
+  const fullEnv = VariablesEnvManager.withProcessEnv(env);
+  const shellExec = VscodeHelper.createShellExecution(task.command, { env: fullEnv, cwd });
   const vsTask = VscodeHelper.createTask({
     definition: { type: CONFIG_DIR_KEY },
     scope: VscodeConstants.TaskScope.Workspace,

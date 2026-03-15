@@ -83,8 +83,9 @@ function createDevPanelTask(
   if (showOnlyFavorites && !favorite) return null;
 
   const configDirPath = ConfigManager.getWorkspaceConfigDirPath(folder);
-  const env = VariablesEnvManager.readDevPanelVariablesAsEnv(configDirPath);
+  const customEnv = VariablesEnvManager.readDevPanelVariablesAsEnv(configDirPath);
   const cwd = task.useConfigDir ? configDirPath : folder.uri.fsPath;
+  const env = VariablesEnvManager.withProcessEnv(customEnv);
   const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd });
   const vsTask = VscodeHelper.createTask({
     definition: { type: CONFIG_DIR_KEY, task: task.name },
