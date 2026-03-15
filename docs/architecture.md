@@ -222,7 +222,7 @@ Commands are registered in `src/commands/register-all.ts`:
 
 ## Logging
 
-Logger writes to `/tmp/dev-panel-dev.log` with format:
+Logger writes to `/tmp/dev-panel.log` with format:
 
 ```
 [2026-03-01T10:30:45.123-03:00] [devpanel] [INFO ] message here
