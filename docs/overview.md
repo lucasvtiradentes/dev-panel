@@ -20,24 +20,6 @@ Dev Panel is a VSCode extension that provides an all-in-one command center for A
 - Manage local file modifications without polluting git history
 - Provide multi-source task execution (npm, VSCode, custom)
 
-## Technologies
-
-| Technology | Version | Purpose                      |
-|------------|---------|------------------------------|
-| TypeScript | 5.7+    | Primary language             |
-| VSCode API | 1.93+   | Extension platform           |
-| esbuild    | 0.24    | Bundling                     |
-| Zod        | 4.2     | Schema validation            |
-| JSON5      | 2.2     | Config parsing with comments |
-| pnpm       | 9.15    | Package manager              |
-
-## Runtime Dependencies
-
-The extension has only 2 runtime dependencies:
-
-- json5 - Parse JSONC config files
-- zod   - Validate configuration schema
-
 ## Entry Point
 
 ```
@@ -73,7 +55,3 @@ The extension reads configuration from `.devpanel/config.jsonc`:
 ├── variables.json    # Auto-generated variable state
 └── replacements/     # Replacement source files
 ```
-
-## Version
-
-Current version: 0.5.0
