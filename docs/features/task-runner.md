@@ -127,7 +127,8 @@ Variables are substituted in the command as `$name`:
                            v                        v
                     ┌──────────────────┐    ┌─────────────────┐
                     │ Build env object │←───│ Substitute vars │
-                    │ (with variables) │    │ in command      │
+                    │ (process.env +   │    │ in command      │
+                    │ variables)       │
                     └──────────────────┘    └─────────────────┘
                            │
          ┌─────────────────┴─────────────────┐
@@ -190,12 +191,13 @@ Tasks can be reordered via drag and drop:
 
 ## Environment Variables
 
-All DevPanel variables are available in task commands as environment variables:
+Tasks inherit the full process environment (`process.env`), merged with all DevPanel variables:
 
 ```
-Variable "projectName" with value "my-app"
+process.env (PATH, HOME, etc.)
+    + DevPanel variable "projectName" = "my-app"
     ↓
-Available as $projectName in command
+Available as $projectName in command (DevPanel variables override process.env)
 ```
 
 Combined with input variables for task execution.
