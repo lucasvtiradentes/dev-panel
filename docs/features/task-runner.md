@@ -11,6 +11,7 @@ sources:
   - src/views/tasks/devpanel-tasks.ts:     DevPanel task source
   - src/views/tasks/vscode-tasks.ts:       VSCode task source
   - src/views/tasks/package-json.ts:       npm scripts source
+  - src/views/tasks/makefile-tasks.ts:     Makefile task source
   - src/commands/internal/execute-task.ts: input collection
 ---
 
@@ -21,17 +22,17 @@ The Task Runner provides a unified interface for executing tasks from multiple s
 ## Task Sources
 
 ```
-┌───────────────────────────────────────────────────────────────┐
-│                     Task Runner View                          │
-│                                                               │
-│  Source Toggle: [VSCode] ←→ [npm] ←→ [DevPanel]               │
-│                                                               │
-│  ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐  │
-│  │ VSCode Tasks    │ │ npm Scripts     │ │ DevPanel Tasks  │  │
-│  │ .vscode/        │ │ package.json    │ │ config.jsonc    │  │
-│  │ tasks.json      │ │ scripts: {}     │ │ tasks: []       │  │
-│  └─────────────────┘ └─────────────────┘ └─────────────────┘  │
-└───────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────────────┐
+│                              Task Runner View                                     │
+│                                                                                   │
+│  Source Toggle: [VSCode] ←→ [npm] ←→ [DevPanel] ←→ [Makefile]                     │
+│                                                                                   │
+│  ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐ ┌──────────────────┐ │
+│  │ VSCode Tasks    │ │ npm Scripts     │ │ DevPanel Tasks  │ │ Makefile Targets │ │
+│  │ .vscode/        │ │ package.json    │ │ config.jsonc    │ │ Makefile         │ │
+│  │ tasks.json      │ │ scripts: {}     │ │ tasks: []       │ │ targets          │ │
+│  └─────────────────┘ └─────────────────┘ └─────────────────┘ └──────────────────┘ │
+└───────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 | Source   | Config Location          | Features                 |
@@ -39,6 +40,7 @@ The Task Runner provides a unified interface for executing tasks from multiple s
 | VSCode   | `.vscode/tasks.json`     | Native VSCode tasks      |
 | npm      | `package.json` scripts   | npm/yarn/pnpm scripts    |
 | DevPanel | `.devpanel/config.jsonc` | Custom tasks with inputs |
+| Makefile | `Makefile`               | Make targets             |
 
 ## DevPanel Task Definition
 
@@ -127,7 +129,8 @@ Variables are substituted in the command as `$name`:
                            v                        v
                     ┌──────────────────┐    ┌─────────────────┐
                     │ Build env object │←───│ Substitute vars │
-                    │ (with variables) │    │ in command      │
+                    │ (process.env +   │    │ in command      │
+                    │ variables)       │
                     └──────────────────┘    └─────────────────┘
                            │
          ┌─────────────────┴─────────────────┐
@@ -190,12 +193,13 @@ Tasks can be reordered via drag and drop:
 
 ## Environment Variables
 
-All DevPanel variables are available in task commands as environment variables:
+Tasks inherit the full process environment (`process.env`), merged with all DevPanel variables:
 
 ```
-Variable "projectName" with value "my-app"
+process.env (PATH, HOME, etc.)
+    + DevPanel variable "projectName" = "my-app"
     ↓
-Available as $projectName in command
+Available as $projectName in command (DevPanel variables override process.env)
 ```
 
 Combined with input variables for task execution.

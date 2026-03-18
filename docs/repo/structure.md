@@ -117,6 +117,7 @@ views/
 │   ├── devpanel-tasks.ts
 │   ├── vscode-tasks.ts
 │   ├── package-json.ts
+│   ├── makefile-tasks.ts
 │   ├── task-executor.ts
 │   └── keybindings-local.ts
 ├── variables/
