@@ -12,7 +12,8 @@ import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
-import { getExcludedDirs } from '../../../views/tasks/package-json';
+import { getExcludedDirs as getPackageExcludedDirs } from '../../../views/tasks/package-json';
+import { getExcludedDirs as getMakefileExcludedDirs } from '../../../views/tasks/makefile-tasks';
 import { getCurrentSource } from '../../../views/tasks/state';
 
 async function handleOpenTasksConfig() {
@@ -58,7 +59,7 @@ async function handleOpenTasksConfig() {
     }
 
     case TaskSource.Package: {
-      const excludedDirs = getExcludedDirs();
+      const excludedDirs = getPackageExcludedDirs();
       const packageJsons = await PackageJsonHelper.findAllPackageJsons(workspace, excludedDirs);
 
       if (!TypeGuardsHelper.isNonEmptyArray(packageJsons)) {
@@ -81,6 +82,63 @@ async function handleOpenTasksConfig() {
       }
       break;
     }
+
+    case TaskSource.Makefile: {
+      const excludedDirs = getMakefileExcludedDirs();
+      const makefiles = findMakefilesInWorkspace(workspacePath, excludedDirs);
+
+      if (!TypeGuardsHelper.isNonEmptyArray(makefiles)) {
+        void VscodeHelper.showToastMessage(ToastKind.Error, 'No Makefile found');
+      } else if (makefiles.length === 1) {
+        const uri = VscodeHelper.createFileUri(makefiles[0]);
+        await VscodeHelper.openDocument(uri);
+      } else {
+        const items = makefiles.map((makefilePath) => ({
+          label: NodePathHelper.relative(workspacePath, makefilePath),
+          path: makefilePath,
+        }));
+
+        const selected = await VscodeHelper.showQuickPickItems(items, {
+          placeHolder: 'Select Makefile to open',
+        });
+
+        if (selected) {
+          const uri = VscodeHelper.createFileUri(selected.path);
+          await VscodeHelper.openDocument(uri);
+        }
+      }
+      break;
+    }
+  }
+}
+
+function findMakefilesInWorkspace(rootPath: string, excludedDirs: Set<string>): string[] {
+  const results: string[] = [];
+  findMakefilesRecursive(rootPath, excludedDirs, results);
+  return results;
+}
+
+function findMakefilesRecursive(
+  dir: string,
+  excludedDirs: Set<string>,
+  results: string[],
+  maxDepth = 5,
+  currentDepth = 0,
+): void {
+  if (currentDepth > maxDepth) return;
+
+  try {
+    const entries = FileIOHelper.readDirectory(dir, { withFileTypes: true });
+
+    for (const entry of entries) {
+      if ((entry.name === 'Makefile' || entry.name === 'makefile') && entry.isFile()) {
+        results.push(NodePathHelper.join(dir, entry.name));
+      } else if (entry.isDirectory() && !excludedDirs.has(entry.name) && !entry.name.startsWith('dist-')) {
+        findMakefilesRecursive(NodePathHelper.join(dir, entry.name), excludedDirs, results, maxDepth, currentDepth + 1);
+      }
+    }
+  } catch {
+    // ignore permission errors
   }
 }
 
