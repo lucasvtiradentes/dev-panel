@@ -22,6 +22,7 @@ export enum TaskSource {
   VSCode = 'vscode',
   Package = 'package',
   DevPanel = 'devpanel',
+  Makefile = 'makefile',
 }
 
 export const TASK_SOURCE_VALUES = Object.values(TaskSource) as [string, ...string[]];
@@ -36,6 +37,7 @@ export const TASK_SOURCES: TaskSourceInfo[] = [
   { id: TaskSource.VSCode, label: 'VSCode', icon: 'tools' },
   { id: TaskSource.Package, label: 'Package.json', icon: 'package' },
   { id: TaskSource.DevPanel, label: 'DevPanel', icon: 'beaker' },
+  { id: TaskSource.Makefile, label: 'Makefile', icon: 'file-code' },
 ];
 
 type TaskIcon = {

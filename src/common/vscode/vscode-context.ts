@@ -7,6 +7,7 @@ export const ContextKey = {
   TaskSourceVSCode: 'taskSourceVSCode',
   TaskSourcePackage: 'taskSourcePackage',
   TaskSourceDevPanel: 'taskSourceDevPanel',
+  TaskSourceMakefile: 'taskSourceMakefile',
   TasksGrouped: 'tasksGrouped',
   TasksHasGroups: 'tasksHasGroups',
   TasksHasHidden: 'tasksHasHidden',
