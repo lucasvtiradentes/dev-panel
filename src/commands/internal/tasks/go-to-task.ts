@@ -36,6 +36,16 @@ export function createGoToTaskCommand() {
       return;
     }
 
+    if (task.taskSource === TaskSource.Makefile) {
+      const makefilePath = await findMakefileWithTarget(workspacePath, taskName);
+      if (makefilePath) {
+        await openFileAtLabel(makefilePath, `${taskName}:`);
+      } else {
+        VscodeHelper.showToastMessage(ToastKind.Error, `Makefile with target '${taskName}' not found`);
+      }
+      return;
+    }
+
     const tasksFilePath = NodePathHelper.join(workspacePath, VSCODE_TASKS_PATH);
     await openFileAtLabel(tasksFilePath, taskName);
   });
@@ -59,4 +69,57 @@ async function openFileAtLabel(filePath: string, label: string) {
   }
 
   await VscodeHelper.openDocument(fileUri);
+}
+
+async function findMakefileWithTarget(rootPath: string, targetName: string): Promise<string | null> {
+  const makefiles = findAllMakefiles(rootPath);
+
+  for (const makefilePath of makefiles) {
+    if (makefileHasTarget(makefilePath, targetName)) {
+      return makefilePath;
+    }
+  }
+
+  return null;
+}
+
+function findAllMakefiles(rootPath: string): string[] {
+  const results: string[] = [];
+  const excludedDirs = new Set(['node_modules', '.git', 'dist', 'build', 'coverage']);
+  findMakefilesRecursive(rootPath, excludedDirs, results);
+  return results;
+}
+
+function findMakefilesRecursive(
+  dir: string,
+  excludedDirs: Set<string>,
+  results: string[],
+  maxDepth = 5,
+  currentDepth = 0,
+): void {
+  if (currentDepth > maxDepth) return;
+
+  try {
+    const entries = FileIOHelper.readDirectory(dir, { withFileTypes: true });
+
+    for (const entry of entries) {
+      if ((entry.name === 'Makefile' || entry.name === 'makefile') && entry.isFile()) {
+        results.push(NodePathHelper.join(dir, entry.name));
+      } else if (entry.isDirectory() && !excludedDirs.has(entry.name) && !entry.name.startsWith('dist-')) {
+        findMakefilesRecursive(NodePathHelper.join(dir, entry.name), excludedDirs, results, maxDepth, currentDepth + 1);
+      }
+    }
+  } catch {
+    // ignore permission errors
+  }
+}
+
+function makefileHasTarget(makefilePath: string, targetName: string): boolean {
+  try {
+    const content = FileIOHelper.readFile(makefilePath, 'utf8');
+    const targetPattern = new RegExp(`^${targetName}:`, 'm');
+    return targetPattern.test(content);
+  } catch {
+    return false;
+  }
 }
