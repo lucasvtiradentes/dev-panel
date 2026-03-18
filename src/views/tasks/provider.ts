@@ -9,6 +9,7 @@ import { ExtensionConfigKey, getExtensionConfig } from '../../common/vscode/vsco
 import { createSourcedDragAndDropController } from '../_view_base';
 import { getDevPanelTasks, hasDevPanelGroups } from './devpanel-tasks';
 import { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
+import { getMakefileTasks, hasMakefileGroups } from './makefile-tasks';
 import { getPackageScripts, hasPackageGroups } from './package-json';
 import {
   getCurrentSource,
@@ -98,6 +99,8 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
         return hasPackageGroups();
       case TaskSource.DevPanel:
         return hasDevPanelGroups();
+      case TaskSource.Makefile:
+        return hasMakefileGroups();
     }
   }
 
@@ -108,6 +111,7 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
     void setContextKey(ContextKey.TaskSourceVSCode, this._source === TaskSource.VSCode);
     void setContextKey(ContextKey.TaskSourcePackage, this._source === TaskSource.Package);
     void setContextKey(ContextKey.TaskSourceDevPanel, this._source === TaskSource.DevPanel);
+    void setContextKey(ContextKey.TaskSourceMakefile, this._source === TaskSource.Makefile);
     void setContextKey(ContextKey.TasksGrouped, this._grouped);
     void setContextKey(ContextKey.TasksHasGroups, hasGroups);
     void setContextKey(ContextKey.TasksHasHidden, hiddenItems.length > 0);
@@ -216,6 +220,8 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
         return getPackageScripts(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn);
       case TaskSource.DevPanel:
         return getDevPanelTasks(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn);
+      case TaskSource.Makefile:
+        return getMakefileTasks(this._grouped, this._showHidden, this._showOnlyFavorites, sortFn);
     }
   }
 
