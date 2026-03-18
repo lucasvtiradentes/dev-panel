@@ -129,7 +129,7 @@ sources:
 │                    Workspace State                              │
 │  ┌────────────────────────────────────────────────────────────┐ │
 │  │ tasksState                                                 │ │
-│  │   ├── source (vscode | package | devpanel)                 │ │
+│  │   ├── source (vscode | package | devpanel | makefile)      │ │
 │  │   ├── grouped (boolean)                                    │ │
 │  │   ├── showHidden (per source)                              │ │
 │  │   ├── hidden (per source)                                  │ │
