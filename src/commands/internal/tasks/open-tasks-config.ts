@@ -12,8 +12,8 @@ import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
-import { getExcludedDirs as getPackageExcludedDirs } from '../../../views/tasks/package-json';
 import { getExcludedDirs as getMakefileExcludedDirs } from '../../../views/tasks/makefile-tasks';
+import { getExcludedDirs as getPackageExcludedDirs } from '../../../views/tasks/package-json';
 import { getCurrentSource } from '../../../views/tasks/state';
 
 async function handleOpenTasksConfig() {

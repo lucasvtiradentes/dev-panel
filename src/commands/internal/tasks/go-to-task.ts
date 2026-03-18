@@ -116,7 +116,7 @@ function findMakefilesRecursive(
 
 function makefileHasTarget(makefilePath: string, targetName: string): boolean {
   try {
-    const content = FileIOHelper.readFile(makefilePath, 'utf8');
+    const content = FileIOHelper.readFile(makefilePath);
     const targetPattern = new RegExp(`^${targetName}:`, 'm');
     return targetPattern.test(content);
   } catch {

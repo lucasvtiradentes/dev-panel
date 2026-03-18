@@ -25,11 +25,6 @@ type MakefileLocation = {
   folder: WorkspaceFolder;
 };
 
-type MakefileTarget = {
-  name: string;
-  description?: string;
-};
-
 export function getExcludedDirs(): Set<string> {
   return new Set(DEFAULT_EXCLUDED_DIRS);
 }
@@ -160,7 +155,7 @@ function parseMakefileTargets(makefilePath: string): Map<string, string> {
   const targets = new Map<string, string>();
 
   try {
-    const content = FileIOHelper.readFile(makefilePath, 'utf8');
+    const content = FileIOHelper.readFile(makefilePath);
     const lines = content.split('\n');
 
     let previousComment = '';
