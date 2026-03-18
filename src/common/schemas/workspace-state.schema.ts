@@ -10,6 +10,7 @@ const TasksStateSchema = z.object({
   vscode: SourceStateSchema,
   package: SourceStateSchema,
   devpanel: SourceStateSchema,
+  makefile: SourceStateSchema,
 });
 
 const VariablesStateSchema = z.object({
@@ -39,6 +40,7 @@ export const DEFAULT_TASKS_STATE: TasksState = {
   vscode: { ...DEFAULT_SOURCE_STATE },
   package: { ...DEFAULT_SOURCE_STATE },
   devpanel: { ...DEFAULT_SOURCE_STATE },
+  makefile: { ...DEFAULT_SOURCE_STATE },
 };
 
 export const DEFAULT_VARIABLES_STATE: VariablesState = {
