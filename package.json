@@ -679,7 +679,7 @@
       },
       {
         "view": "devPanelConfigs",
-        "contents": "No variables configured.\n\nAdd variables in your config file.",
+        "contents": "No variables available.",
         "when": "!extensionInitializing"
       },
       {
@@ -689,7 +689,7 @@
       },
       {
         "view": "devPanelReplacements",
-        "contents": "No replacements configured.",
+        "contents": "No replacements available.",
         "when": "!extensionInitializing"
       },
       {
@@ -699,17 +699,7 @@
       },
       {
         "view": "devPanelExcludes",
-        "contents": "No local excludes.",
-        "when": "!extensionInitializing"
-      },
-      {
-        "view": "devPanelTodos",
-        "contents": "Loading branch tasks...",
-        "when": "extensionInitializing"
-      },
-      {
-        "view": "devPanelTodos",
-        "contents": "No tasks in current branch.",
+        "contents": "No excludes available.",
         "when": "!extensionInitializing"
       },
       {
@@ -719,7 +709,7 @@
       },
       {
         "view": "devPanelTasksExplorer",
-        "contents": "No tasks available for the current source.",
+        "contents": "No tasks available.",
         "when": "!extensionInitializing"
       },
       {
@@ -729,17 +719,7 @@
       },
       {
         "view": "devPanelTasksPanel",
-        "contents": "No tasks available for the current source.",
-        "when": "!extensionInitializing"
-      },
-      {
-        "view": "devPanelChangedFiles",
-        "contents": "Loading changed files...",
-        "when": "extensionInitializing"
-      },
-      {
-        "view": "devPanelChangedFiles",
-        "contents": "No changed files in current branch.",
+        "contents": "No tasks available.",
         "when": "!extensionInitializing"
       }
     ],
