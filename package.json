@@ -195,22 +195,22 @@
       },
       {
         "command": "devPanel.switchTaskSource",
-        "title": "Switch to npm Scripts",
+        "title": "Switch Task Source",
         "icon": "$(arrow-swap)"
       },
       {
         "command": "devPanel.switchTaskSourceFromPackage",
-        "title": "Switch to DevPanel Tasks",
+        "title": "Switch Task Source",
         "icon": "$(arrow-swap)"
       },
       {
         "command": "devPanel.switchTaskSourceFromDevPanel",
-        "title": "Switch to Makefile",
+        "title": "Switch Task Source",
         "icon": "$(arrow-swap)"
       },
       {
         "command": "devPanel.switchTaskSourceFromMakefile",
-        "title": "Switch to VSCode Tasks",
+        "title": "Switch Task Source",
         "icon": "$(arrow-swap)"
       },
       {
@@ -578,32 +578,32 @@
         },
         {
           "command": "devPanel.toggleGroupMode",
-          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && !tasksGrouped && tasksHasGroups",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && !tasksGrouped",
           "group": "navigation@4"
         },
         {
           "command": "devPanel.toggleGroupModeGrouped",
-          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && tasksGrouped && tasksHasGroups",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && tasksGrouped",
           "group": "navigation@4"
         },
         {
           "command": "devPanel.switchTaskSource",
-          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceVSCode",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceVSCode && taskSourceHasMultiple",
           "group": "navigation@6"
         },
         {
           "command": "devPanel.switchTaskSourceFromPackage",
-          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourcePackage",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourcePackage && taskSourceHasMultiple",
           "group": "navigation@6"
         },
         {
           "command": "devPanel.switchTaskSourceFromDevPanel",
-          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceDevPanel",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceDevPanel && taskSourceHasMultiple",
           "group": "navigation@6"
         },
         {
           "command": "devPanel.switchTaskSourceFromMakefile",
-          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceMakefile",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceMakefile && taskSourceHasMultiple",
           "group": "navigation@6"
         }
       ],
@@ -719,7 +719,7 @@
       },
       {
         "view": "devPanelTasksExplorer",
-        "contents": "No tasks available.\n\nAdd tasks in your config file or package.json.",
+        "contents": "No tasks available for the current source.",
         "when": "!extensionInitializing"
       },
       {
@@ -729,7 +729,7 @@
       },
       {
         "view": "devPanelTasksPanel",
-        "contents": "No tasks available.\n\nAdd tasks in your config file or package.json.",
+        "contents": "No tasks available for the current source.",
         "when": "!extensionInitializing"
       },
       {
