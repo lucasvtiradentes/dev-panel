@@ -9,8 +9,8 @@ import { ExtensionConfigKey, getExtensionConfig } from '../../common/vscode/vsco
 import { createSourcedDragAndDropController } from '../_view_base';
 import { getDevPanelTasks, hasDevPanelGroups } from './devpanel-tasks';
 import { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
-import { getMakefileTasks, hasMakefileGroups } from './makefile-tasks';
-import { getPackageScripts, hasPackageGroups } from './package-json';
+import { getMakefileTasks, hasMakefileGroups, hasMakefileSourceFiles } from './makefile-tasks';
+import { getPackageScripts, hasPackageGroups, hasPackageSourceFiles } from './package-json';
 import {
   getCurrentSource,
   getFavoriteItems,
@@ -26,7 +26,7 @@ import {
   toggleFavorite as toggleFavoriteState,
   toggleHidden,
 } from './state';
-import { getVSCodeTasks, hasVSCodeGroups } from './vscode-tasks';
+import { getVSCodeTasks, hasVSCodeGroups, hasVSCodeSourceFiles } from './vscode-tasks';
 
 export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTreeItem | WorkspaceTreeItem> {
   private readonly _onDidChangeTreeData: EventEmitter<TreeTask | null> =
@@ -55,7 +55,7 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
       getSource: () => this._source,
       onReorder: () => this.refresh(),
     });
-    this.updateContextKeys();
+    this.updateContextKeys(this.getAvailableSources());
   }
 
   setTreeView(treeView: TreeView<TreeTask | GroupTreeItem | WorkspaceTreeItem>) {
@@ -64,22 +64,46 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
   }
 
   refresh() {
-    this.updateContextKeys();
+    const available = this.getAvailableSources();
+    if (!available.some((s) => s.id === this._source)) {
+      this.applySource(TaskSource.DevPanel);
+    }
+    this.updateContextKeys(available);
     this._onDidChangeTreeData.fire(null);
   }
 
   switchSource() {
-    const currentIndex = TASK_SOURCES.findIndex((s) => s.id === this._source);
-    const nextIndex = (currentIndex + 1) % TASK_SOURCES.length;
-    const nextSource = TASK_SOURCES[nextIndex];
+    const available = this.getAvailableSources();
+    const currentIndex = available.findIndex((s) => s.id === this._source);
+    const nextIndex = (currentIndex + 1) % available.length;
+    this.applySource(available[nextIndex].id);
+    this.updateContextKeys(available);
+    this._onDidChangeTreeData.fire(null);
+  }
 
-    this._source = nextSource.id;
+  private applySource(source: TaskSource) {
+    this._source = source;
     this._showHidden = getShowHidden(this._source);
     this._showOnlyFavorites = getShowOnlyFavorites(this._source);
     saveCurrentSource(this._source);
     this.updateViewTitle();
-    this.updateContextKeys();
-    this._onDidChangeTreeData.fire(null);
+  }
+
+  private getAvailableSources() {
+    return TASK_SOURCES.filter((s) => this.isSourceAvailable(s.id));
+  }
+
+  private isSourceAvailable(source: TaskSource): boolean {
+    switch (source) {
+      case TaskSource.DevPanel:
+        return true;
+      case TaskSource.VSCode:
+        return hasVSCodeSourceFiles();
+      case TaskSource.Package:
+        return hasPackageSourceFiles();
+      case TaskSource.Makefile:
+        return hasMakefileSourceFiles();
+    }
   }
 
   private updateViewTitle() {
@@ -104,14 +128,16 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
     }
   }
 
-  private async updateContextKeys() {
+  private async updateContextKeys(availableSources?: typeof TASK_SOURCES) {
     const hiddenItems = getHiddenItems(this._source);
     const favoriteItems = getFavoriteItems(this._source);
     const hasGroups = await this.checkHasGroups();
+    const sources = availableSources ?? this.getAvailableSources();
     void setContextKey(ContextKey.TaskSourceVSCode, this._source === TaskSource.VSCode);
     void setContextKey(ContextKey.TaskSourcePackage, this._source === TaskSource.Package);
     void setContextKey(ContextKey.TaskSourceDevPanel, this._source === TaskSource.DevPanel);
     void setContextKey(ContextKey.TaskSourceMakefile, this._source === TaskSource.Makefile);
+    void setContextKey(ContextKey.TaskSourceHasMultiple, sources.length > 1);
     void setContextKey(ContextKey.TasksGrouped, this._grouped);
     void setContextKey(ContextKey.TasksHasGroups, hasGroups);
     void setContextKey(ContextKey.TasksHasHidden, hiddenItems.length > 0);

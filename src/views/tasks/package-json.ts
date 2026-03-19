@@ -31,6 +31,14 @@ export function getExcludedDirs(): Set<string> {
   return new Set(DEFAULT_EXCLUDED_DIRS);
 }
 
+export function hasPackageSourceFiles(): boolean {
+  const folders = VscodeHelper.getWorkspaceFolders();
+  return folders.some((folder) => {
+    const packageJsonPath = NodePathHelper.join(folder.uri.fsPath, PACKAGE_JSON);
+    return FileIOHelper.fileExists(packageJsonPath);
+  });
+}
+
 export async function hasPackageGroups(): Promise<boolean> {
   const folders = VscodeHelper.getWorkspaceFolders();
   const allPackages: PackageLocation[] = [];

@@ -29,6 +29,19 @@ export function getExcludedDirs(): Set<string> {
   return new Set(DEFAULT_EXCLUDED_DIRS);
 }
 
+export function resolveMakefilePath(dir: string): string | null {
+  const makefilePath = NodePathHelper.join(dir, 'Makefile');
+  if (FileIOHelper.fileExists(makefilePath)) return makefilePath;
+  const makefileLowerPath = NodePathHelper.join(dir, 'makefile');
+  if (FileIOHelper.fileExists(makefileLowerPath)) return makefileLowerPath;
+  return null;
+}
+
+export function hasMakefileSourceFiles(): boolean {
+  const folders = VscodeHelper.getWorkspaceFolders();
+  return folders.some((folder) => resolveMakefilePath(folder.uri.fsPath) !== null);
+}
+
 export async function hasMakefileGroups(): Promise<boolean> {
   const folders = VscodeHelper.getWorkspaceFolders();
   const allMakefiles: MakefileLocation[] = [];
