@@ -12,6 +12,7 @@ import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
+import { resolveMakefilePath } from '../../../views/tasks/makefile-tasks';
 import { getExcludedDirs } from '../../../views/tasks/package-json';
 import { getCurrentSource } from '../../../views/tasks/state';
 
@@ -78,6 +79,18 @@ async function handleOpenTasksConfig() {
         if (selected) {
           await PackageJsonHelper.openPackageJsonAtScripts(selected.path);
         }
+      }
+      break;
+    }
+
+    case TaskSource.Makefile: {
+      const resolvedPath = resolveMakefilePath(workspacePath);
+
+      if (resolvedPath) {
+        const uri = VscodeHelper.createFileUri(resolvedPath);
+        await VscodeHelper.openDocument(uri);
+      } else {
+        void VscodeHelper.showToastMessage(ToastKind.Error, 'Makefile not found');
       }
       break;
     }
