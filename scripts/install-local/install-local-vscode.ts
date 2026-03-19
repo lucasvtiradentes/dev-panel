@@ -32,7 +32,6 @@ import {
 } from '../../src/common/constants/vscode-constants';
 import { FileIOHelper, NodeOsHelper, NodePathHelper } from '../../src/common/utils/helpers/node-helper';
 import { PackageJsonHelper } from '../../src/common/utils/helpers/package-json-helper';
-import { ENV } from '../../src/env';
 import { type ExtensionEntry, ExtensionsJsonHelper } from '../helpers/extensions-json-helper';
 
 const logger = console;
@@ -42,7 +41,7 @@ const ROOT_DIR = NodePathHelper.join(SCRIPT_DIR, '..', '..');
 const EXTENSION_ID_DEV = buildExtensionId(true);
 
 function main() {
-  if (ENV.CI) {
+  if (process.env.CI) {
     logger.log('Skipping local extension installation in CI environment');
     process.exit(0);
   }

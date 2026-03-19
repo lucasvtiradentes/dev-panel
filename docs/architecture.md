@@ -1,9 +1,8 @@
 ---
 title:       Architecture
 description: Technical architecture and data flow of the Dev Panel extension
-required_docs:
-  - docs/overview.md:                    high-level project understanding
 related_docs:
+  - docs/overview.md:                   high-level project understanding
   - docs/features/task-runner.md:       task execution details
   - docs/features/variables-manager.md: variable system details
 sources:
@@ -58,6 +57,7 @@ sources:
 │  │ 5. setupWatchers(context, providers, workspace)        │ │
 │  │    ├── ConfigWatcher                                   │ │
 │  │    ├── KeybindingsWatcher                              │ │
+│  │    ├── TaskSourcesWatcher                              │ │
 │  │    └── ExcludesWatcher                                 │ │
 │  ├────────────────────────────────────────────────────────┤ │
 │  │ 6. setupCommands(context, providers)                   │ │
@@ -199,6 +199,10 @@ sources:
 │  │   KeybindingsWatcher                                       │ │
 │  │   Pattern: <vscode-config>/User/keybindings.json           │ │
 │  │   Actions: reload task/variable keybindings                │ │
+│  ├────────────────────────────────────────────────────────────┤ │
+│  │   TaskSourcesWatcher                                       │ │
+│  │   Pattern: .vscode/tasks.json, package.json, Makefile      │ │
+│  │   Actions: refresh task provider                           │ │
 │  ├────────────────────────────────────────────────────────────┤ │
 │  │   ExcludesWatcher                                          │ │
 │  │   Pattern: .git/info/exclude                               │ │

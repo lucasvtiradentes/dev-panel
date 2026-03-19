@@ -1,5 +1,6 @@
-import { CONTEXT_VALUES, VscodeTaskSource, getCommandId } from '../../common/constants';
+import { CONTEXT_VALUES, VscodeTaskSource, getCommandId, getVscodeTasksFilePath } from '../../common/constants';
 import { TaskSource } from '../../common/schemas/types';
+import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -7,6 +8,11 @@ import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { ExtendedTask, Task } from '../../common/vscode/vscode-types';
 import { type GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
 import { isFavorite, isHidden } from './state';
+
+export function hasVSCodeSourceFiles(): boolean {
+  const folders = VscodeHelper.getWorkspaceFolders();
+  return folders.some((folder) => FileIOHelper.fileExists(getVscodeTasksFilePath(folder.uri.fsPath)));
+}
 
 export async function hasVSCodeGroups(): Promise<boolean> {
   const tasks: Task[] = await VscodeHelper.fetchTasks();

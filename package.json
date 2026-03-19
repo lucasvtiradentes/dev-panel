@@ -195,17 +195,22 @@
       },
       {
         "command": "devPanel.switchTaskSource",
-        "title": "Switch to npm Scripts",
+        "title": "Switch Task Source",
         "icon": "$(arrow-swap)"
       },
       {
         "command": "devPanel.switchTaskSourceFromPackage",
-        "title": "Switch to DevPanel Tasks",
+        "title": "Switch Task Source",
         "icon": "$(arrow-swap)"
       },
       {
         "command": "devPanel.switchTaskSourceFromDevPanel",
-        "title": "Switch to VSCode Tasks",
+        "title": "Switch Task Source",
+        "icon": "$(arrow-swap)"
+      },
+      {
+        "command": "devPanel.switchTaskSourceFromMakefile",
+        "title": "Switch Task Source",
         "icon": "$(arrow-swap)"
       },
       {
@@ -402,6 +407,10 @@
           "when": "false"
         },
         {
+          "command": "devPanel.switchTaskSourceFromMakefile",
+          "when": "false"
+        },
+        {
           "command": "devPanel.toggleGroupMode",
           "when": "false"
         },
@@ -569,27 +578,32 @@
         },
         {
           "command": "devPanel.toggleGroupMode",
-          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && !tasksGrouped && tasksHasGroups",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && !tasksGrouped",
           "group": "navigation@4"
         },
         {
           "command": "devPanel.toggleGroupModeGrouped",
-          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && tasksGrouped && tasksHasGroups",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && tasksGrouped",
           "group": "navigation@4"
         },
         {
           "command": "devPanel.switchTaskSource",
-          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceVSCode",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceVSCode && taskSourceHasMultiple",
           "group": "navigation@6"
         },
         {
           "command": "devPanel.switchTaskSourceFromPackage",
-          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourcePackage",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourcePackage && taskSourceHasMultiple",
           "group": "navigation@6"
         },
         {
           "command": "devPanel.switchTaskSourceFromDevPanel",
-          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceDevPanel",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceDevPanel && taskSourceHasMultiple",
+          "group": "navigation@6"
+        },
+        {
+          "command": "devPanel.switchTaskSourceFromMakefile",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceMakefile && taskSourceHasMultiple",
           "group": "navigation@6"
         }
       ],
@@ -665,7 +679,7 @@
       },
       {
         "view": "devPanelConfigs",
-        "contents": "No variables configured.\n\nAdd variables in your config file.",
+        "contents": "No variables available.",
         "when": "!extensionInitializing"
       },
       {
@@ -675,7 +689,7 @@
       },
       {
         "view": "devPanelReplacements",
-        "contents": "No replacements configured.",
+        "contents": "No replacements available.",
         "when": "!extensionInitializing"
       },
       {
@@ -685,17 +699,7 @@
       },
       {
         "view": "devPanelExcludes",
-        "contents": "No local excludes.",
-        "when": "!extensionInitializing"
-      },
-      {
-        "view": "devPanelTodos",
-        "contents": "Loading branch tasks...",
-        "when": "extensionInitializing"
-      },
-      {
-        "view": "devPanelTodos",
-        "contents": "No tasks in current branch.",
+        "contents": "No excludes available.",
         "when": "!extensionInitializing"
       },
       {
@@ -705,7 +709,7 @@
       },
       {
         "view": "devPanelTasksExplorer",
-        "contents": "No tasks available.\n\nAdd tasks in your config file or package.json.",
+        "contents": "No tasks available.",
         "when": "!extensionInitializing"
       },
       {
@@ -715,17 +719,7 @@
       },
       {
         "view": "devPanelTasksPanel",
-        "contents": "No tasks available.\n\nAdd tasks in your config file or package.json.",
-        "when": "!extensionInitializing"
-      },
-      {
-        "view": "devPanelChangedFiles",
-        "contents": "Loading changed files...",
-        "when": "extensionInitializing"
-      },
-      {
-        "view": "devPanelChangedFiles",
-        "contents": "No changed files in current branch.",
+        "contents": "No tasks available.",
         "when": "!extensionInitializing"
       }
     ],

@@ -42,6 +42,14 @@ The Task Runner provides a unified interface for executing tasks from multiple s
 | DevPanel | `.devpanel/config.jsonc` | Custom tasks with inputs |
 | Makefile | `Makefile`               | Make targets             |
 
+## Source Availability
+
+Sources are dynamic — VSCode, npm, and Makefile only appear if their files exist in the workspace. DevPanel is always available as fallback.
+
+- Switch button only shows when multiple sources are available
+- If the current source file is deleted, view falls back to DevPanel
+- File watcher auto-refreshes the view when source files change (tasks.json, package.json, Makefile)
+
 ## DevPanel Task Definition
 
 ```jsonc
