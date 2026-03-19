@@ -205,6 +205,11 @@
       },
       {
         "command": "devPanel.switchTaskSourceFromDevPanel",
+        "title": "Switch to Makefile",
+        "icon": "$(arrow-swap)"
+      },
+      {
+        "command": "devPanel.switchTaskSourceFromMakefile",
         "title": "Switch to VSCode Tasks",
         "icon": "$(arrow-swap)"
       },
@@ -402,6 +407,10 @@
           "when": "false"
         },
         {
+          "command": "devPanel.switchTaskSourceFromMakefile",
+          "when": "false"
+        },
+        {
           "command": "devPanel.toggleGroupMode",
           "when": "false"
         },
@@ -590,6 +599,11 @@
         {
           "command": "devPanel.switchTaskSourceFromDevPanel",
           "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceDevPanel",
+          "group": "navigation@6"
+        },
+        {
+          "command": "devPanel.switchTaskSourceFromMakefile",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceMakefile",
           "group": "navigation@6"
         }
       ],

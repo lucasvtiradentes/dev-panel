@@ -8,5 +8,6 @@ export function createSwitchTaskSourceCommands(taskTreeDataProvider: TaskTreeDat
     registerCommand(Command.SwitchTaskSource, handler),
     registerCommand(Command.SwitchTaskSourceFromPackage, handler),
     registerCommand(Command.SwitchTaskSourceFromDevPanel, handler),
+    registerCommand(Command.SwitchTaskSourceFromMakefile, handler),
   ];
 }

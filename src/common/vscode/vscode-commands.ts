@@ -7,6 +7,7 @@ export enum Command {
   SwitchTaskSource = 'switchTaskSource',
   SwitchTaskSourceFromPackage = 'switchTaskSourceFromPackage',
   SwitchTaskSourceFromDevPanel = 'switchTaskSourceFromDevPanel',
+  SwitchTaskSourceFromMakefile = 'switchTaskSourceFromMakefile',
   ToggleGroupMode = 'toggleGroupMode',
   ToggleGroupModeGrouped = 'toggleGroupModeGrouped',
   ToggleFavorite = 'toggleFavorite',
