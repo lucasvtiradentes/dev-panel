@@ -32,6 +32,7 @@ import { registerVariableKeybindings, reloadVariableKeybindings } from './views/
 import { createConfigWatcher } from './watchers/config-watcher';
 import { createExcludesWatcher } from './watchers/excludes-watcher';
 import { createKeybindingsWatcher } from './watchers/keybindings-watcher';
+import { createTaskSourcesWatcher } from './watchers/task-sources-watcher';
 
 type Providers = {
   statusBarManager: StatusBarManager;
@@ -156,6 +157,11 @@ function setupWatchers(context: ExtensionContext, providers: Providers, workspac
     providers.taskTreeDataProvider.refresh();
   });
   context.subscriptions.push(keybindingsWatcher);
+
+  const taskSourcesWatcher = createTaskSourcesWatcher(() => {
+    providers.taskTreeDataProvider.refresh();
+  });
+  context.subscriptions.push(taskSourcesWatcher);
 
   const excludesWatcher = createExcludesWatcher(() => {
     providers.excludesProvider.refresh();
