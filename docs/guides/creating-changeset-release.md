@@ -1,7 +1,7 @@
 ---
 title:       Creating Changesets and Releases
 description: How to create changesets for versioning and trigger releases
-related_docs:
+required_docs:
   - docs/repo/cicd.md: CI/CD pipeline and release process
 sources:
   - .changeset/config.json: changeset configuration
