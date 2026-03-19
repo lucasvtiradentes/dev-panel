@@ -25,7 +25,7 @@ type MakefileLocation = {
   folder: WorkspaceFolder;
 };
 
-export function getExcludedDirs(): Set<string> {
+function getExcludedDirs(): Set<string> {
   return new Set(DEFAULT_EXCLUDED_DIRS);
 }
 
