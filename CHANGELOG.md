@@ -1,5 +1,24 @@
 # dev-panel
 
+## 0.6.0
+
+### Minor Changes
+
+- c323cff: feat: dynamic task source availability
+
+  - Task sources (VSCode, npm, Makefile) only show if their files exist
+  - Switch button cycles only through available sources
+  - Falls back to DevPanel if current source file is deleted
+  - File watcher auto-refreshes on tasks.json, package.json, and Makefile changes
+
+### Patch Changes
+
+- c323cff: fix: complete Makefile task source integration
+
+  - Add switch source button for Makefile task view
+  - Add open config support for Makefile source
+  - Fix group toggle visibility (always available regardless of source)
+
 ## 0.5.2
 
 ### Patch Changes
