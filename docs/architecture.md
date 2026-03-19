@@ -57,6 +57,7 @@ sources:
 │  │ 5. setupWatchers(context, providers, workspace)        │ │
 │  │    ├── ConfigWatcher                                   │ │
 │  │    ├── KeybindingsWatcher                              │ │
+│  │    ├── TaskSourcesWatcher                              │ │
 │  │    └── ExcludesWatcher                                 │ │
 │  ├────────────────────────────────────────────────────────┤ │
 │  │ 6. setupCommands(context, providers)                   │ │
@@ -198,6 +199,10 @@ sources:
 │  │   KeybindingsWatcher                                       │ │
 │  │   Pattern: <vscode-config>/User/keybindings.json           │ │
 │  │   Actions: reload task/variable keybindings                │ │
+│  ├────────────────────────────────────────────────────────────┤ │
+│  │   TaskSourcesWatcher                                       │ │
+│  │   Pattern: .vscode/tasks.json, package.json, Makefile      │ │
+│  │   Actions: refresh task provider                           │ │
 │  ├────────────────────────────────────────────────────────────┤ │
 │  │   ExcludesWatcher                                          │ │
 │  │   Pattern: .git/info/exclude                               │ │
