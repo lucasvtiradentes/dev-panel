@@ -217,7 +217,7 @@ Commands are registered in `src/commands/register-all.ts`:
 
 | Command Category | Count | Examples                                   |
 |------------------|-------|--------------------------------------------|
-| Tasks            | 21    | executeTask, switchTaskSource, toggleHide  |
+| Tasks            | 22    | executeTask, switchTaskSource, toggleHide  |
 | Variables        | 8     | selectConfigOption, setVariableKeybinding  |
 | Replacements     | 7     | toggleReplacement, previewReplacementDiff  |
 | Excludes         | 3     | addExclude, removeExclude, openExcludeFile |
