@@ -18,7 +18,7 @@ Dev Panel is a VSCode extension that provides an all-in-one command center for A
 - Centralize development workflows in a single panel
 - Enable dynamic configuration through variables
 - Manage local file modifications without polluting git history
-- Provide multi-source task execution (npm, VSCode, custom)
+- Provide multi-source task execution (npm, VSCode, Makefile, custom)
 
 ## Entry Point
 
@@ -38,7 +38,7 @@ src/extension.ts
 
 ## Key Features
 
-- Multi-source task runner (npm scripts, VSCode tasks, DevPanel tasks)
+- Multi-source task runner (npm scripts, VSCode tasks, DevPanel tasks, Makefile targets)
 - Dynamic variables with shell command execution on change
 - File replacements using git skip-worktree
 - Local .git/info/exclude management from sidebar

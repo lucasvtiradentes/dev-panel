@@ -40,7 +40,7 @@ The Task Runner provides a unified interface for executing tasks from multiple s
 | VSCode   | `.vscode/tasks.json`     | Native VSCode tasks      |
 | npm      | `package.json` scripts   | npm/yarn/pnpm scripts    |
 | DevPanel | `.devpanel/config.jsonc` | Custom tasks with inputs |
-| Makefile | `Makefile`               | Make targets             |
+| Makefile | `Makefile` or `makefile` | Make targets             |
 
 ## Source Availability
 
@@ -48,7 +48,7 @@ Sources are dynamic — VSCode, npm, and Makefile only appear if their files exi
 
 - Switch button only shows when multiple sources are available
 - If the current source file is deleted, view falls back to DevPanel
-- File watcher auto-refreshes the view when source files change (tasks.json, package.json, Makefile)
+- File watcher auto-refreshes the view when source files change (tasks.json, package.json, Makefile/makefile)
 
 ## DevPanel Task Definition
 
