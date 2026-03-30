@@ -167,6 +167,10 @@ export const DevPanelConfigSchema = z
     variables: z.array(DevPanelVariableSchema).optional().describe('Configuration variables'),
     replacements: z.array(DevPanelReplacementSchema).optional().describe('File replacements/patches'),
     tasks: z.array(DevPanelTaskSchema).optional().describe('Executable tasks'),
+    taskScanIgnorePaths: z
+      .array(z.string())
+      .optional()
+      .describe('Directory names to ignore when scanning for task source files (package.json, Makefile)'),
   })
   .describe(`${EXTENSION_DISPLAY_NAME} configuration file`);
 

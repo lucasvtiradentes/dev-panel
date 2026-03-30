@@ -615,6 +615,13 @@
         ],
         "additionalProperties": false
       }
+    },
+    "taskScanIgnorePaths": {
+      "description": "Directory names to ignore when scanning for task source files (package.json, Makefile)",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     }
   },
   "additionalProperties": false
