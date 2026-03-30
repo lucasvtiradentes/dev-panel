@@ -3,6 +3,7 @@ import { INIT_RESOURCES_DIR_NAME, RESOURCES_DIR_NAME } from '../../common/consta
 import { ConfigManager } from '../../common/core/config-manager';
 import { extensionStore } from '../../common/core/extension-store';
 import { logger } from '../../common/lib/logger';
+import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 
@@ -21,6 +22,13 @@ export async function showInitMenu() {
     const configDirUri = VscodeHelper.createFileUri(configDirPath);
 
     await ConfigManager.copyDirectoryRecursive(initResourcesUri, configDirUri);
+
+    const configFilePath = NodePathHelper.join(configDirPath, CONFIG_FILE_NAME);
+    if (FileIOHelper.fileExists(configFilePath)) {
+      const content = FileIOHelper.readFile(configFilePath);
+      const cleaned = content.replace(/^\s*"\$schema":\s*"[^"]*",?\n/m, '');
+      FileIOHelper.writeFile(configFilePath, cleaned);
+    }
 
     logger.info(`${EXTENSION_DISPLAY_NAME} initialized successfully`);
     void VscodeHelper.showToastMessage(

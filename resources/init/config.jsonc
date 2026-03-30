@@ -1,5 +1,6 @@
 {
   "$schema": "../schema.json",
+  "taskScanIgnorePaths": [],
   "variables": [
     {
       "name": "environment",
@@ -23,7 +24,6 @@
       ]
     }
   ],
-  "taskScanIgnorePaths": [],
   "tasks": [
     {
       "name": "hello",
