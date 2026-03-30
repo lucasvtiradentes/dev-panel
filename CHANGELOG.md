@@ -1,5 +1,14 @@
 # dev-panel
 
+## 0.7.0
+
+### Minor Changes
+
+- 2cb70d4: feat: add taskScanIgnorePaths config to ignore directories when scanning for task sources
+
+  - New `taskScanIgnorePaths` option in config.jsonc to exclude directories from package.json and Makefile scanning
+  - Strip `$schema` line from config.jsonc when initializing workspace
+
 ## 0.6.0
 
 ### Minor Changes
