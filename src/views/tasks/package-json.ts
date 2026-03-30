@@ -27,8 +27,12 @@ type PackageLocation = {
   folder: WorkspaceFolder;
 };
 
-export function getExcludedDirs(): Set<string> {
-  return new Set(DEFAULT_EXCLUDED_DIRS);
+export function getExcludedDirs(extraIgnore?: string[]): Set<string> {
+  const dirs = new Set(DEFAULT_EXCLUDED_DIRS);
+  if (extraIgnore) {
+    for (const dir of extraIgnore) dirs.add(dir);
+  }
+  return dirs;
 }
 
 export function hasPackageSourceFiles(): boolean {
@@ -109,7 +113,8 @@ export async function getPackageScripts(
 async function findAllPackageJsons(folder: WorkspaceFolder): Promise<PackageLocation[]> {
   const packages: PackageLocation[] = [];
   const rootPath = folder.uri.fsPath;
-  const excludedDirs = getExcludedDirs();
+  const config = ConfigManager.loadWorkspaceConfig(folder);
+  const excludedDirs = getExcludedDirs(config?.taskScanIgnorePaths);
 
   const packageJsonPaths = findPackageJsonsRecursive(rootPath, excludedDirs);
 

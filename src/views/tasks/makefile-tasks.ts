@@ -25,8 +25,12 @@ type MakefileLocation = {
   folder: WorkspaceFolder;
 };
 
-function getExcludedDirs(): Set<string> {
-  return new Set(DEFAULT_EXCLUDED_DIRS);
+function getExcludedDirs(extraIgnore?: string[]): Set<string> {
+  const dirs = new Set(DEFAULT_EXCLUDED_DIRS);
+  if (extraIgnore) {
+    for (const dir of extraIgnore) dirs.add(dir);
+  }
+  return dirs;
 }
 
 export function resolveMakefilePath(dir: string): string | null {
@@ -112,7 +116,8 @@ export async function getMakefileTasks(
 async function findAllMakefiles(folder: WorkspaceFolder): Promise<MakefileLocation[]> {
   const makefiles: MakefileLocation[] = [];
   const rootPath = folder.uri.fsPath;
-  const excludedDirs = getExcludedDirs();
+  const config = ConfigManager.loadWorkspaceConfig(folder);
+  const excludedDirs = getExcludedDirs(config?.taskScanIgnorePaths);
 
   const makefilePaths = findMakefilesRecursive(rootPath, excludedDirs);
 

@@ -1,5 +1,6 @@
 {
   "$schema": "../schema.json",
+  "taskScanIgnorePaths": [],
   "variables": [
     {
       "name": "environment",
