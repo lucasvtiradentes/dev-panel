@@ -1,4 +1,4 @@
-import { DND_MIME_TYPE_TASKS, IS_DEV, NO_GROUP_NAME, addDevLabel } from '../../common/constants';
+import { DND_MIME_TYPE_TASKS, IS_DEV, NO_GROUP_NAME, ROOT_PACKAGE_LABEL, addDevLabel } from '../../common/constants';
 import { TASK_SOURCES, TaskSource } from '../../common/schemas/types';
 import { tasksState } from '../../common/state';
 import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
@@ -204,6 +204,9 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
       if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
       if (aIndex !== -1) return -1;
       if (bIndex !== -1) return 1;
+
+      if (aLabel === ROOT_PACKAGE_LABEL && bLabel !== ROOT_PACKAGE_LABEL) return -1;
+      if (bLabel === ROOT_PACKAGE_LABEL && aLabel !== ROOT_PACKAGE_LABEL) return 1;
 
       if (aLabel === NO_GROUP_NAME && bLabel !== NO_GROUP_NAME) return 1;
       if (bLabel === NO_GROUP_NAME && aLabel !== NO_GROUP_NAME) return -1;
