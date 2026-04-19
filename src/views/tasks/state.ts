@@ -1,6 +1,10 @@
 import type { TaskSource } from '../../common/schemas/types';
 import { tasksState } from '../../common/state';
 
+const STATE_KEY_SEPARATOR = '::';
+
+export const buildTaskStateKey = (...segments: string[]) => segments.join(STATE_KEY_SEPARATOR);
+
 export const getOrder = (source: TaskSource, isGrouped: boolean) => tasksState.getOrder(source, isGrouped);
 export const toggleFavorite = (source: TaskSource, itemName: string) => tasksState.toggleFavorite(source, itemName);
 export const toggleHidden = (source: TaskSource, itemName: string) => tasksState.toggleHidden(source, itemName);

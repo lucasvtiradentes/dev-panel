@@ -18,7 +18,7 @@ import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
-import { isFavorite, isHidden } from './state';
+import { buildTaskStateKey, isFavorite, isHidden } from './state';
 
 type PackageLocation = {
   relativePath: string;
@@ -255,7 +255,7 @@ function createNpmTask(options: {
   showOnlyFavorites: boolean;
 }): TreeTask | null {
   const { name, command, folder, cwd, relativePath, useDisplayName, showHidden, showOnlyFavorites } = options;
-  const stateKey = `${folder.name}::${relativePath}::${name}`;
+  const stateKey = buildTaskStateKey(folder.name, relativePath, name);
   const hidden = isHidden(TaskSource.Package, stateKey);
   const favorite = isFavorite(TaskSource.Package, stateKey);
   if (hidden && !showHidden) return null;

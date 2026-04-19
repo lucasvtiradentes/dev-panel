@@ -16,7 +16,7 @@ import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
-import { isFavorite, isHidden } from './state';
+import { buildTaskStateKey, isFavorite, isHidden } from './state';
 
 type MakefileLocation = {
   relativePath: string;
@@ -286,7 +286,7 @@ function createMakeTask(options: {
   showOnlyFavorites: boolean;
 }): TreeTask | null {
   const { name, description, folder, cwd, relativePath, useDisplayName, showHidden, showOnlyFavorites } = options;
-  const stateKey = `${folder.name}::${relativePath}::${name}`;
+  const stateKey = buildTaskStateKey(folder.name, relativePath, name);
   const hidden = isHidden(TaskSource.Makefile, stateKey);
   const favorite = isFavorite(TaskSource.Makefile, stateKey);
   if (hidden && !showHidden) return null;

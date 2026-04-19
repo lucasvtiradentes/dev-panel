@@ -8,7 +8,7 @@ import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { ExtendedTask, Task } from '../../common/vscode/vscode-types';
 import { type GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
-import { isFavorite, isHidden } from './state';
+import { buildTaskStateKey, isFavorite, isHidden } from './state';
 
 export function hasVSCodeSourceFiles(): boolean {
   const folders = VscodeHelper.getWorkspaceFolders();
@@ -38,12 +38,11 @@ export async function getVSCodeTasks(options: {
 
   const taskElements: Array<WorkspaceTreeItem | TreeTask> = [];
   const taskFolders: Record<string, WorkspaceTreeItem> = {};
+  const fallbackScopeName = VscodeHelper.getWorkspaceName() ?? 'root';
 
   for (const task of tasks) {
-    const scopeName = TypeGuardsHelper.isObject(task.scope)
-      ? (task.scope.name as string)
-      : (VscodeHelper.getWorkspaceName() ?? 'root');
-    const stateKey = `${scopeName}::${task.name}`;
+    const scopeName = TypeGuardsHelper.isObject(task.scope) ? (task.scope.name as string) : fallbackScopeName;
+    const stateKey = buildTaskStateKey(scopeName, task.name);
     const hidden = isHidden(TaskSource.VSCode, stateKey);
     const favorite = isFavorite(TaskSource.VSCode, stateKey);
     if (hidden && !showHidden) continue;
