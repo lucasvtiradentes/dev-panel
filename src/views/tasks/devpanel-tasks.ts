@@ -77,8 +77,9 @@ function createDevPanelTask(
   showHidden: boolean,
   showOnlyFavorites: boolean,
 ): TreeTask | null {
-  const hidden = isHidden(TaskSource.DevPanel, task.name);
-  const favorite = isFavorite(TaskSource.DevPanel, task.name);
+  const stateKey = `${folder.name}::${task.name}`;
+  const hidden = isHidden(TaskSource.DevPanel, stateKey);
+  const favorite = isFavorite(TaskSource.DevPanel, stateKey);
   if (hidden && !showHidden) return null;
   if (showOnlyFavorites && !favorite) return null;
 
@@ -115,6 +116,7 @@ function createDevPanelTask(
     folder,
   );
 
+  treeTask.stateKey = stateKey;
   treeTask.taskSource = TaskSource.DevPanel;
 
   if (task.description) {

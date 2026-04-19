@@ -94,6 +94,7 @@ export async function getPackageScripts(
         command,
         folder: pkg.folder,
         cwd: pkg.absolutePath,
+        relativePath: pkg.relativePath,
         useDisplayName: false,
         showHidden,
         showOnlyFavorites,
@@ -186,6 +187,7 @@ function getGroupedByLocation(
         command,
         folder: pkg.folder,
         cwd: pkg.absolutePath,
+        relativePath: pkg.relativePath,
         useDisplayName: false,
         showHidden,
         showOnlyFavorites,
@@ -219,6 +221,7 @@ function getGroupedByScriptPrefix(
       command,
       folder: pkg.folder,
       cwd: pkg.absolutePath,
+      relativePath: pkg.relativePath,
       useDisplayName: true,
       showHidden,
       showOnlyFavorites,
@@ -246,13 +249,15 @@ function createNpmTask(options: {
   command: string;
   folder: WorkspaceFolder;
   cwd: string;
+  relativePath: string;
   useDisplayName: boolean;
   showHidden: boolean;
   showOnlyFavorites: boolean;
 }): TreeTask | null {
-  const { name, command, folder, cwd, useDisplayName, showHidden, showOnlyFavorites } = options;
-  const hidden = isHidden(TaskSource.Package, name);
-  const favorite = isFavorite(TaskSource.Package, name);
+  const { name, command, folder, cwd, relativePath, useDisplayName, showHidden, showOnlyFavorites } = options;
+  const stateKey = `${folder.name}::${relativePath}::${name}`;
+  const hidden = isHidden(TaskSource.Package, stateKey);
+  const favorite = isFavorite(TaskSource.Package, stateKey);
   if (hidden && !showHidden) return null;
   if (showOnlyFavorites && !favorite) return null;
 
@@ -281,6 +286,7 @@ function createNpmTask(options: {
     folder,
   );
   treeTask.taskName = name;
+  treeTask.stateKey = stateKey;
   treeTask.taskSource = TaskSource.Package;
   treeTask.tooltip = command;
 

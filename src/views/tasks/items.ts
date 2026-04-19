@@ -66,6 +66,7 @@ export class TreeTask extends TreeItemClass {
   workspace: string | null = null;
   group: string | undefined;
   taskName: string;
+  stateKey?: string;
   taskSource?: TaskSource;
 
   constructor(

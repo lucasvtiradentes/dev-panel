@@ -169,14 +169,14 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
 
   toggleFavorite(item: TreeTask) {
     if (!item?.taskName) return;
-    toggleFavoriteState(this._source, item.taskName);
+    toggleFavoriteState(this._source, item.stateKey ?? item.taskName);
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
   }
 
   toggleHide(item: TreeTask) {
     if (!item?.taskName) return;
-    toggleHidden(this._source, item.taskName);
+    toggleHidden(this._source, item.stateKey ?? item.taskName);
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
   }

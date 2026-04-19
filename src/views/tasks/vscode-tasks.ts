@@ -1,6 +1,7 @@
 import { CONTEXT_VALUES, VscodeTaskSource, getCommandId, getVscodeTasksFilePath } from '../../common/constants';
 import { TaskSource } from '../../common/schemas/types';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
+import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -39,8 +40,12 @@ export async function getVSCodeTasks(options: {
   const taskFolders: Record<string, WorkspaceTreeItem> = {};
 
   for (const task of tasks) {
-    const hidden = isHidden(TaskSource.VSCode, task.name);
-    const favorite = isFavorite(TaskSource.VSCode, task.name);
+    const scopeName = TypeGuardsHelper.isObject(task.scope)
+      ? (task.scope.name as string)
+      : (VscodeHelper.getWorkspaceName() ?? 'root');
+    const stateKey = `${scopeName}::${task.name}`;
+    const hidden = isHidden(TaskSource.VSCode, stateKey);
+    const favorite = isFavorite(TaskSource.VSCode, stateKey);
     if (hidden && !showHidden) continue;
     if (showOnlyFavorites && !favorite) continue;
 
@@ -60,6 +65,7 @@ export async function getVSCodeTasks(options: {
     );
 
     treeTask.taskName = task.name;
+    treeTask.stateKey = stateKey;
     treeTask.taskSource = TaskSource.VSCode;
 
     if (task.detail != null) {
