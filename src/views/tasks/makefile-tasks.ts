@@ -16,7 +16,7 @@ import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
-import { isFavorite, isHidden } from './state';
+import { buildTaskStateKey, isFavorite, isHidden } from './state';
 
 type MakefileLocation = {
   relativePath: string;
@@ -97,6 +97,7 @@ export async function getMakefileTasks(
         description,
         folder: makefile.folder,
         cwd: makefile.absolutePath,
+        relativePath: makefile.relativePath,
         useDisplayName: false,
         showHidden,
         showOnlyFavorites,
@@ -189,6 +190,7 @@ function getGroupedByLocation(
         description,
         folder: makefile.folder,
         cwd: makefile.absolutePath,
+        relativePath: makefile.relativePath,
         useDisplayName: false,
         showHidden,
         showOnlyFavorites,
@@ -222,6 +224,7 @@ function getGroupedByTargetPrefix(
       description,
       folder: makefile.folder,
       cwd: makefile.absolutePath,
+      relativePath: makefile.relativePath,
       useDisplayName: true,
       showHidden,
       showOnlyFavorites,
@@ -277,13 +280,15 @@ function createMakeTask(options: {
   description: string;
   folder: WorkspaceFolder;
   cwd: string;
+  relativePath: string;
   useDisplayName: boolean;
   showHidden: boolean;
   showOnlyFavorites: boolean;
 }): TreeTask | null {
-  const { name, description, folder, cwd, useDisplayName, showHidden, showOnlyFavorites } = options;
-  const hidden = isHidden(TaskSource.Makefile, name);
-  const favorite = isFavorite(TaskSource.Makefile, name);
+  const { name, description, folder, cwd, relativePath, useDisplayName, showHidden, showOnlyFavorites } = options;
+  const stateKey = buildTaskStateKey(folder.name, relativePath, name);
+  const hidden = isHidden(TaskSource.Makefile, stateKey);
+  const favorite = isFavorite(TaskSource.Makefile, stateKey);
   if (hidden && !showHidden) return null;
   if (showOnlyFavorites && !favorite) return null;
 
@@ -312,6 +317,7 @@ function createMakeTask(options: {
     folder,
   );
   treeTask.taskName = name;
+  treeTask.stateKey = stateKey;
   treeTask.taskSource = TaskSource.Makefile;
   treeTask.tooltip = description || `make ${name}`;
 

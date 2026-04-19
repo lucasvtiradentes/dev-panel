@@ -259,6 +259,17 @@ export class VscodeHelper {
     return vscode.workspace.name;
   }
 
+  static resolveScopeName(scope: WorkspaceFolder | vscode.TaskScope | undefined): string | null;
+  static resolveScopeName(scope: WorkspaceFolder | vscode.TaskScope | undefined, fallback: string): string;
+  static resolveScopeName(
+    scope: WorkspaceFolder | vscode.TaskScope | undefined,
+    fallback: string | null = null,
+  ): string | null {
+    if (TypeGuardsHelper.isObject(scope)) return (scope as WorkspaceFolder).name;
+    if (scope === vscode.TaskScope.Workspace) return VscodeHelper.getWorkspaceName() ?? fallback;
+    return fallback;
+  }
+
   static findFiles(
     include: vscode.GlobPattern,
     exclude?: vscode.GlobPattern | null,

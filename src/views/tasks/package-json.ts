@@ -18,7 +18,7 @@ import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
-import { isFavorite, isHidden } from './state';
+import { buildTaskStateKey, isFavorite, isHidden } from './state';
 
 type PackageLocation = {
   relativePath: string;
@@ -94,6 +94,7 @@ export async function getPackageScripts(
         command,
         folder: pkg.folder,
         cwd: pkg.absolutePath,
+        relativePath: pkg.relativePath,
         useDisplayName: false,
         showHidden,
         showOnlyFavorites,
@@ -186,6 +187,7 @@ function getGroupedByLocation(
         command,
         folder: pkg.folder,
         cwd: pkg.absolutePath,
+        relativePath: pkg.relativePath,
         useDisplayName: false,
         showHidden,
         showOnlyFavorites,
@@ -219,6 +221,7 @@ function getGroupedByScriptPrefix(
       command,
       folder: pkg.folder,
       cwd: pkg.absolutePath,
+      relativePath: pkg.relativePath,
       useDisplayName: true,
       showHidden,
       showOnlyFavorites,
@@ -246,13 +249,15 @@ function createNpmTask(options: {
   command: string;
   folder: WorkspaceFolder;
   cwd: string;
+  relativePath: string;
   useDisplayName: boolean;
   showHidden: boolean;
   showOnlyFavorites: boolean;
 }): TreeTask | null {
-  const { name, command, folder, cwd, useDisplayName, showHidden, showOnlyFavorites } = options;
-  const hidden = isHidden(TaskSource.Package, name);
-  const favorite = isFavorite(TaskSource.Package, name);
+  const { name, command, folder, cwd, relativePath, useDisplayName, showHidden, showOnlyFavorites } = options;
+  const stateKey = buildTaskStateKey(folder.name, relativePath, name);
+  const hidden = isHidden(TaskSource.Package, stateKey);
+  const favorite = isFavorite(TaskSource.Package, stateKey);
   if (hidden && !showHidden) return null;
   if (showOnlyFavorites && !favorite) return null;
 
@@ -281,6 +286,7 @@ function createNpmTask(options: {
     folder,
   );
   treeTask.taskName = name;
+  treeTask.stateKey = stateKey;
   treeTask.taskSource = TaskSource.Package;
   treeTask.tooltip = command;
 

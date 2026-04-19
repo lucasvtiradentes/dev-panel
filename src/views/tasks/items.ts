@@ -2,7 +2,6 @@ import { readJsoncFile } from 'src/common/utils/functions/read-jsonc-file';
 import { CONTEXT_VALUES, NO_GROUP_NAME, VSCODE_TASKS_PATH } from '../../common/constants';
 import type { CodeWorkspaceFile, TaskDefinition, TaskSource, TasksJson } from '../../common/schemas/types';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
-import { TypeGuardsHelper } from '../../common/utils/helpers/type-guards-helper';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
@@ -66,6 +65,7 @@ export class TreeTask extends TreeItemClass {
   workspace: string | null = null;
   group: string | undefined;
   taskName: string;
+  stateKey?: string;
   taskSource?: TaskSource;
 
   constructor(
@@ -84,11 +84,7 @@ export class TreeTask extends TreeItemClass {
     this.taskName = label;
     this.contextValue = CONTEXT_VALUES.TASK;
 
-    if (TypeGuardsHelper.isObject(workspace)) {
-      this.workspace = workspace.name as string;
-    } else if (workspace === VscodeConstants.TaskScope.Workspace) {
-      this.workspace = VscodeHelper.getWorkspaceName() ?? 'root';
-    }
+    this.workspace = VscodeHelper.resolveScopeName(workspace);
 
     this.loadTaskMetadata();
   }

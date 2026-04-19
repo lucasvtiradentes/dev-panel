@@ -10,7 +10,7 @@ import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { getTaskKeybinding } from './keybindings-local';
-import { isFavorite, isHidden } from './state';
+import { buildTaskStateKey, isFavorite, isHidden } from './state';
 
 export function hasDevPanelGroups(): boolean {
   const folders = VscodeHelper.getWorkspaceFolders();
@@ -77,8 +77,9 @@ function createDevPanelTask(
   showHidden: boolean,
   showOnlyFavorites: boolean,
 ): TreeTask | null {
-  const hidden = isHidden(TaskSource.DevPanel, task.name);
-  const favorite = isFavorite(TaskSource.DevPanel, task.name);
+  const stateKey = buildTaskStateKey(folder.name, task.name);
+  const hidden = isHidden(TaskSource.DevPanel, stateKey);
+  const favorite = isFavorite(TaskSource.DevPanel, stateKey);
   if (hidden && !showHidden) return null;
   if (showOnlyFavorites && !favorite) return null;
 
@@ -115,6 +116,7 @@ function createDevPanelTask(
     folder,
   );
 
+  treeTask.stateKey = stateKey;
   treeTask.taskSource = TaskSource.DevPanel;
 
   if (task.description) {

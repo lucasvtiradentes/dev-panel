@@ -28,6 +28,13 @@ import {
 } from './state';
 import { getVSCodeTasks, hasVSCodeGroups, hasVSCodeSourceFiles } from './vscode-tasks';
 
+const FALLBACK_SOURCE_PRIORITY: TaskSource[] = [
+  TaskSource.Package,
+  TaskSource.Makefile,
+  TaskSource.VSCode,
+  TaskSource.DevPanel,
+];
+
 export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTreeItem | WorkspaceTreeItem> {
   private readonly _onDidChangeTreeData: EventEmitter<TreeTask | null> =
     VscodeHelper.createEventEmitter<TreeTask | null>();
@@ -44,7 +51,9 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
 
   constructor() {
     this.autoRefresh = getExtensionConfig(ExtensionConfigKey.AutoRefresh);
-    this._source = getCurrentSource();
+    const saved = getCurrentSource();
+    this._source = this.resolveSource(saved);
+    if (this._source !== saved) saveCurrentSource(this._source);
     this._grouped = getIsGrouped();
     this._showHidden = getShowHidden(this._source);
     this._showOnlyFavorites = getShowOnlyFavorites(this._source);
@@ -66,7 +75,7 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
   refresh() {
     const available = this.getAvailableSources();
     if (!available.some((s) => s.id === this._source)) {
-      this.applySource(TaskSource.DevPanel);
+      this.applySource(this.resolveSource(this._source));
     }
     this.updateContextKeys(available);
     this._onDidChangeTreeData.fire(null);
@@ -91,6 +100,14 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
 
   private getAvailableSources() {
     return TASK_SOURCES.filter((s) => this.isSourceAvailable(s.id));
+  }
+
+  private resolveSource(source: TaskSource): TaskSource {
+    if (this.isSourceAvailable(source)) return source;
+    for (const candidate of FALLBACK_SOURCE_PRIORITY) {
+      if (this.isSourceAvailable(candidate)) return candidate;
+    }
+    return TaskSource.DevPanel;
   }
 
   private isSourceAvailable(source: TaskSource): boolean {
@@ -169,14 +186,14 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
 
   toggleFavorite(item: TreeTask) {
     if (!item?.taskName) return;
-    toggleFavoriteState(this._source, item.taskName);
+    toggleFavoriteState(this._source, item.stateKey ?? item.taskName);
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
   }
 
   toggleHide(item: TreeTask) {
     if (!item?.taskName) return;
-    toggleHidden(this._source, item.taskName);
+    toggleHidden(this._source, item.stateKey ?? item.taskName);
     this.updateContextKeys();
     this._onDidChangeTreeData.fire(null);
   }
