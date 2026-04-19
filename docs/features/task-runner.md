@@ -47,7 +47,8 @@ The Task Runner provides a unified interface for executing tasks from multiple s
 Sources are dynamic — VSCode, npm, and Makefile only appear if their files exist in the workspace. DevPanel is always available as fallback.
 
 - Switch button only shows when multiple sources are available
-- If the current source file is deleted, view falls back to DevPanel
+- On initial load, the view picks the first available source by priority: Package → Makefile → VSCode → DevPanel
+- If the current source file is deleted, the view falls back to the first available source in the same priority order (DevPanel only wins when nothing else is present)
 - File watcher auto-refreshes the view when source files change (tasks.json, package.json, Makefile/makefile)
 
 ## DevPanel Task Definition
@@ -185,13 +186,13 @@ Tasks can be grouped by the `group` property:
 
 - Right-click -> "Add to Favorites"
 - Filter to show only favorites
-- Favorites persist per source
+- Favorites persist per source and per location (workspace folder + subpackage path), so a `dev` script in `packages/a` is tracked separately from `dev` in `packages/b`
 
 ### Hidden
 
 - Right-click -> "Hide Task"
 - Toggle hidden visibility in title bar
-- Hidden state persists per source
+- Hidden state persists per source and per location, using the same location-qualified key as favorites
 
 ### Drag and Drop
 
