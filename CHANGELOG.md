@@ -1,5 +1,17 @@
 # dev-panel
 
+## 0.7.1
+
+### Patch Changes
+
+- 5d4168d: fix: qualify task favorite/hidden state key with location
+
+  Favorite and hidden state for tasks was keyed only by bare task name. In monorepos with multiple subpackages sharing script names (e.g. `dev`), toggling favorite on one subpackage visually marked every other subpackage's `dev` script as favorited. The same bug class affected hidden items and the "show only favorites" filter across all task sources (package.json, Makefile, VSCode, DevPanel). State keys are now qualified by workspace folder and relative path so tasks in different locations no longer collide.
+
+- 1238b01: fix: pick default task source based on what the repo actually has
+
+  When opening a repo without a `.devpanel` folder, the tasks view defaulted to the DevPanel source even when the repo already had `package.json`, `Makefile`, or `.vscode/tasks.json`. It now resolves the initial source through an availability-aware priority (Package → Makefile → VSCode → DevPanel), with DevPanel as a last resort. The same priority is used when a previously selected source becomes unavailable, replacing the hardcoded DevPanel fallback.
+
 ## 0.7.0
 
 ### Minor Changes
