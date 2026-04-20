@@ -188,6 +188,7 @@ Active replacements are stored in workspace state:
 
 ```json
 {
+  "isGrouped": true,
   "activeReplacements": ["local-config", "debug-mode"],
   "lastBranch": "main"
 }
