@@ -54,13 +54,17 @@ sources:
 │  │    ├── Replacements view                               │ │
 │  │    └── Excludes view                                   │ │
 │  ├────────────────────────────────────────────────────────┤ │
-│  │ 5. setupWatchers(context, providers, workspace)        │ │
+│  │ 5. setupDisposables(context, providers, tasksViews)    │ │
+│  ├────────────────────────────────────────────────────────┤ │
+│  │ 6. setupConfigChangeListener(context, providers, ..)   │ │
+│  ├────────────────────────────────────────────────────────┤ │
+│  │ 7. setupWatchers(context, providers, workspace)        │ │
 │  │    ├── ConfigWatcher                                   │ │
 │  │    ├── KeybindingsWatcher                              │ │
 │  │    ├── TaskSourcesWatcher                              │ │
 │  │    └── ExcludesWatcher                                 │ │
 │  ├────────────────────────────────────────────────────────┤ │
-│  │ 6. setupCommands(context, providers)                   │ │
+│  │ 8. setupCommands(context, providers)                   │ │
 │  │    └── registerAllCommands() → 40+ commands            │ │
 │  └────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
@@ -134,6 +138,7 @@ sources:
 │  │   ├── showHidden (per source)                              │ │
 │  │   ├── hidden (per source)                                  │ │
 │  │   ├── favorites (per source)                               │ │
+│  │   ├── showOnlyFavorites (per source)                       │ │
 │  │   └── order (item ordering)                                │ │
 │  ├────────────────────────────────────────────────────────────┤ │
 │  │ variablesState                                             │ │
