@@ -3,7 +3,6 @@ import {
   CONTEXT_VALUES,
   DEFAULT_EXCLUDED_DIRS,
   DIST_DIR_PREFIX,
-  NO_GROUP_NAME,
   ROOT_PACKAGE_LABEL,
   getCommandId,
 } from '../../common/constants';
@@ -15,6 +14,7 @@ import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
+import { buildPrefixGroupTree } from './group-by-prefix';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { buildTaskStateKey, isFavorite, isHidden } from './state';
 
@@ -98,7 +98,7 @@ export async function getMakefileTasks(
         folder: makefile.folder,
         cwd: makefile.absolutePath,
         relativePath: makefile.relativePath,
-        useDisplayName: false,
+        displayName: name,
         showHidden,
         showOnlyFavorites,
       });
@@ -191,7 +191,7 @@ function getGroupedByLocation(
         folder: makefile.folder,
         cwd: makefile.absolutePath,
         relativePath: makefile.relativePath,
-        useDisplayName: false,
+        displayName: name,
         showHidden,
         showOnlyFavorites,
       });
@@ -214,31 +214,21 @@ function getGroupedByTargetPrefix(
     elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
   ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
 ): Array<TreeTask | GroupTreeItem | WorkspaceTreeItem> {
-  const taskElements: Array<TreeTask | GroupTreeItem> = [];
-  const groups: Record<string, GroupTreeItem> = {};
-  const allTargetNames = Array.from(makefile.targets.keys());
-
-  for (const [name, description] of makefile.targets) {
-    const treeTask = createMakeTask({
-      name,
-      description,
-      folder: makefile.folder,
-      cwd: makefile.absolutePath,
-      relativePath: makefile.relativePath,
-      useDisplayName: true,
-      showHidden,
-      showOnlyFavorites,
-    });
-    if (!treeTask) continue;
-
-    const groupName = extractGroupName(name, allTargetNames);
-
-    if (!groups[groupName]) {
-      groups[groupName] = new GroupTreeItem(groupName);
-      taskElements.push(groups[groupName]);
-    }
-    groups[groupName].children.push(treeTask);
-  }
+  const taskElements = buildPrefixGroupTree(
+    makefile.targets.entries(),
+    Array.from(makefile.targets.keys()),
+    (name, description, displayName) =>
+      createMakeTask({
+        name,
+        description,
+        folder: makefile.folder,
+        cwd: makefile.absolutePath,
+        relativePath: makefile.relativePath,
+        displayName,
+        showHidden,
+        showOnlyFavorites,
+      }),
+  );
 
   return sortFn(taskElements);
 }
@@ -281,11 +271,11 @@ function createMakeTask(options: {
   folder: WorkspaceFolder;
   cwd: string;
   relativePath: string;
-  useDisplayName: boolean;
+  displayName: string;
   showHidden: boolean;
   showOnlyFavorites: boolean;
 }): TreeTask | null {
-  const { name, description, folder, cwd, relativePath, useDisplayName, showHidden, showOnlyFavorites } = options;
+  const { name, description, folder, cwd, relativePath, displayName, showHidden, showOnlyFavorites } = options;
   const stateKey = buildTaskStateKey(folder.name, relativePath, name);
   const hidden = isHidden(TaskSource.Makefile, stateKey);
   const favorite = isFavorite(TaskSource.Makefile, stateKey);
@@ -303,7 +293,6 @@ function createMakeTask(options: {
     source: 'make',
     execution: shellExec,
   });
-  const displayName = useDisplayName && name.includes(':') ? name.split(':').slice(1).join(':') : name;
 
   const treeTask = new TreeTask(
     'make',
@@ -330,17 +319,4 @@ function createMakeTask(options: {
   }
 
   return treeTask;
-}
-
-function extractGroupName(targetName: string, allTargetNames: string[]): string {
-  if (targetName.includes(':')) {
-    return targetName.split(':')[0];
-  }
-
-  const hasRelatedTargets = allTargetNames.some((name) => name.startsWith(`${targetName}:`));
-  if (hasRelatedTargets) {
-    return targetName;
-  }
-
-  return NO_GROUP_NAME;
 }

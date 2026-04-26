@@ -3,7 +3,6 @@ import {
   CONTEXT_VALUES,
   DEFAULT_EXCLUDED_DIRS,
   DIST_DIR_PREFIX,
-  NO_GROUP_NAME,
   PACKAGE_JSON,
   ROOT_PACKAGE_LABEL,
   getCommandId,
@@ -17,6 +16,7 @@ import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
+import { buildPrefixGroupTree } from './group-by-prefix';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { buildTaskStateKey, isFavorite, isHidden } from './state';
 
@@ -211,53 +211,21 @@ function getGroupedByScriptPrefix(
     elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
   ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
 ): Array<TreeTask | GroupTreeItem | WorkspaceTreeItem> {
-  const taskElements: Array<TreeTask | GroupTreeItem> = [];
-  const topGroups: Record<string, GroupTreeItem> = {};
-  const subGroups: Record<string, GroupTreeItem> = {};
-  const allScriptNames = Object.keys(pkg.scripts);
-
-  for (const [name, command] of Object.entries(pkg.scripts)) {
-    const path = extractGroupPath(name, allScriptNames);
-    const displayName = path.task;
-
-    const treeTask = createNpmTask({
-      name,
-      command,
-      folder: pkg.folder,
-      cwd: pkg.absolutePath,
-      relativePath: pkg.relativePath,
-      displayName,
-      showHidden,
-      showOnlyFavorites,
-    });
-    if (!treeTask) continue;
-
-    if (path.top === null) {
-      taskElements.push(treeTask);
-      continue;
-    }
-
-    let topGroup = topGroups[path.top];
-    if (!topGroup) {
-      topGroup = new GroupTreeItem(path.top);
-      topGroups[path.top] = topGroup;
-      taskElements.push(topGroup);
-    }
-
-    if (path.sub === null) {
-      topGroup.children.push(treeTask);
-      continue;
-    }
-
-    const subKey = `${path.top}/${path.sub}`;
-    let subGroup = subGroups[subKey];
-    if (!subGroup) {
-      subGroup = new GroupTreeItem(path.sub);
-      subGroups[subKey] = subGroup;
-      topGroup.children.push(subGroup);
-    }
-    subGroup.children.push(treeTask);
-  }
+  const taskElements = buildPrefixGroupTree(
+    Object.entries(pkg.scripts),
+    Object.keys(pkg.scripts),
+    (name, command, displayName) =>
+      createNpmTask({
+        name,
+        command,
+        folder: pkg.folder,
+        cwd: pkg.absolutePath,
+        relativePath: pkg.relativePath,
+        displayName,
+        showHidden,
+        showOnlyFavorites,
+      }),
+  );
 
   return sortFn(taskElements);
 }
@@ -320,23 +288,4 @@ function createNpmTask(options: {
   }
 
   return treeTask;
-}
-
-type ScriptPath = { top: string | null; sub: string | null; task: string };
-
-function extractGroupPath(scriptName: string, allScriptNames: string[]): ScriptPath {
-  const parts = scriptName.split(':');
-
-  if (parts.length === 1) {
-    const hasRelated = allScriptNames.some((n) => n.startsWith(`${scriptName}:`));
-    return hasRelated
-      ? { top: scriptName, sub: null, task: scriptName }
-      : { top: NO_GROUP_NAME, sub: null, task: scriptName };
-  }
-
-  if (parts.length === 2) {
-    return { top: parts[0], sub: null, task: parts[1] };
-  }
-
-  return { top: parts[0], sub: parts[1], task: parts.slice(2).join(':') };
 }

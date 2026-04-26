@@ -15,4 +15,5 @@ _branch
 .devpanel/variables.json
 CLAUDE.local.md
 CLAUDE.md 
-.bctx/
+.bctx
+_branch 
