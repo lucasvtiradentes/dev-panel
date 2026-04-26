@@ -95,7 +95,7 @@ export async function getPackageScripts(
         folder: pkg.folder,
         cwd: pkg.absolutePath,
         relativePath: pkg.relativePath,
-        useDisplayName: false,
+        displayName: name,
         showHidden,
         showOnlyFavorites,
       });
@@ -188,7 +188,7 @@ function getGroupedByLocation(
         folder: pkg.folder,
         cwd: pkg.absolutePath,
         relativePath: pkg.relativePath,
-        useDisplayName: false,
+        displayName: name,
         showHidden,
         showOnlyFavorites,
       });
@@ -212,29 +212,51 @@ function getGroupedByScriptPrefix(
   ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
 ): Array<TreeTask | GroupTreeItem | WorkspaceTreeItem> {
   const taskElements: Array<TreeTask | GroupTreeItem> = [];
-  const groups: Record<string, GroupTreeItem> = {};
+  const topGroups: Record<string, GroupTreeItem> = {};
+  const subGroups: Record<string, GroupTreeItem> = {};
   const allScriptNames = Object.keys(pkg.scripts);
 
   for (const [name, command] of Object.entries(pkg.scripts)) {
+    const path = extractGroupPath(name, allScriptNames);
+    const displayName = path.task;
+
     const treeTask = createNpmTask({
       name,
       command,
       folder: pkg.folder,
       cwd: pkg.absolutePath,
       relativePath: pkg.relativePath,
-      useDisplayName: true,
+      displayName,
       showHidden,
       showOnlyFavorites,
     });
     if (!treeTask) continue;
 
-    const groupName = extractGroupName(name, allScriptNames);
-
-    if (!groups[groupName]) {
-      groups[groupName] = new GroupTreeItem(groupName);
-      taskElements.push(groups[groupName]);
+    if (path.top === null) {
+      taskElements.push(treeTask);
+      continue;
     }
-    groups[groupName].children.push(treeTask);
+
+    let topGroup = topGroups[path.top];
+    if (!topGroup) {
+      topGroup = new GroupTreeItem(path.top);
+      topGroups[path.top] = topGroup;
+      taskElements.push(topGroup);
+    }
+
+    if (path.sub === null) {
+      topGroup.children.push(treeTask);
+      continue;
+    }
+
+    const subKey = `${path.top}/${path.sub}`;
+    let subGroup = subGroups[subKey];
+    if (!subGroup) {
+      subGroup = new GroupTreeItem(path.sub);
+      subGroups[subKey] = subGroup;
+      topGroup.children.push(subGroup);
+    }
+    subGroup.children.push(treeTask);
   }
 
   return sortFn(taskElements);
@@ -250,11 +272,11 @@ function createNpmTask(options: {
   folder: WorkspaceFolder;
   cwd: string;
   relativePath: string;
-  useDisplayName: boolean;
+  displayName: string;
   showHidden: boolean;
   showOnlyFavorites: boolean;
 }): TreeTask | null {
-  const { name, command, folder, cwd, relativePath, useDisplayName, showHidden, showOnlyFavorites } = options;
+  const { name, command, folder, cwd, relativePath, displayName, showHidden, showOnlyFavorites } = options;
   const stateKey = buildTaskStateKey(folder.name, relativePath, name);
   const hidden = isHidden(TaskSource.Package, stateKey);
   const favorite = isFavorite(TaskSource.Package, stateKey);
@@ -272,7 +294,6 @@ function createNpmTask(options: {
     source: 'npm',
     execution: shellExec,
   });
-  const displayName = useDisplayName && name.includes(':') ? name.split(':').slice(1).join(':') : name;
 
   const treeTask = new TreeTask(
     'npm',
@@ -301,15 +322,21 @@ function createNpmTask(options: {
   return treeTask;
 }
 
-function extractGroupName(scriptName: string, allScriptNames: string[]): string {
-  if (scriptName.includes(':')) {
-    return scriptName.split(':')[0];
+type ScriptPath = { top: string | null; sub: string | null; task: string };
+
+function extractGroupPath(scriptName: string, allScriptNames: string[]): ScriptPath {
+  const parts = scriptName.split(':');
+
+  if (parts.length === 1) {
+    const hasRelated = allScriptNames.some((n) => n.startsWith(`${scriptName}:`));
+    return hasRelated
+      ? { top: scriptName, sub: null, task: scriptName }
+      : { top: NO_GROUP_NAME, sub: null, task: scriptName };
   }
 
-  const hasRelatedScripts = allScriptNames.some((name) => name.startsWith(`${scriptName}:`));
-  if (hasRelatedScripts) {
-    return scriptName;
+  if (parts.length === 2) {
+    return { top: parts[0], sub: null, task: parts[1] };
   }
 
-  return NO_GROUP_NAME;
+  return { top: parts[0], sub: parts[1], task: parts.slice(2).join(':') };
 }
