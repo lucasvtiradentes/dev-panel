@@ -4,6 +4,7 @@ import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-he
 export function applyFileReplacement(workspace: string, source: string, target: string) {
   const sourcePath = NodePathHelper.join(workspace, source);
   const targetPath = NodePathHelper.join(workspace, target);
+  FileIOHelper.ensureDirectoryExists(NodePathHelper.dirname(targetPath));
   FileIOHelper.copyFile(sourcePath, targetPath);
 }
 
