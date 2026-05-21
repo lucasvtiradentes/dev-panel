@@ -725,6 +725,18 @@
     ],
     "taskDefinitions": [
       {
+        "type": "devpanel-task",
+        "required": [
+          "taskId"
+        ],
+        "properties": {
+          "taskId": {
+            "type": "string",
+            "description": "Unique Dev Panel task execution identifier"
+          }
+        }
+      },
+      {
         "type": "util"
       }
     ],

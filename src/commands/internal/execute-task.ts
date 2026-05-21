@@ -22,16 +22,46 @@ import { isMultiRootWorkspace } from '../../common/vscode/vscode-workspace';
 
 const log = createLogger('execute-task');
 
+function getTaskScopeId(task: Task): string {
+  const scope = task.scope;
+  if (!scope) return 'unknown-scope';
+  if (TypeGuardsHelper.isNumber(scope)) return String(scope);
+  return `${scope.name}:${scope.uri.fsPath}`;
+}
+
+function getTaskCwd(task: Task): string {
+  const execution = task.execution;
+  if (execution instanceof ShellExecutionClass || execution instanceof ProcessExecutionClass) {
+    return String(execution.options?.cwd ?? '');
+  }
+  return '';
+}
+
+function getUniqueTaskId(task: Task): string {
+  return [task.source, getTaskScopeId(task), getTaskCwd(task), getTaskGroup(task), task.name].join(':');
+}
+
+function getTaskGroup(task: Task): string {
+  const group = (task as { presentationOptions?: { group?: string } }).presentationOptions?.group;
+  return group ?? '';
+}
+
+function getTerminalTaskName(task: Task): string {
+  const group = getTaskGroup(task);
+  if (!group) return task.name;
+  return `${task.name} - ${group}`;
+}
+
 function createTaskWithUniqueDefinition(task: Task): Task {
   const execution = task.execution;
   if (!execution) return task;
 
-  const uniqueDefinition = { type: DEVPANEL_TASK_TYPE, taskId: task.name };
+  const uniqueDefinition = { type: DEVPANEL_TASK_TYPE, taskId: getUniqueTaskId(task) };
 
   const newTask = VscodeHelper.createTask({
     definition: uniqueDefinition,
     scope: task.scope ?? VscodeConstants.TaskScope.Workspace,
-    name: task.name,
+    name: getTerminalTaskName(task),
     source: DEVPANEL_TASK_TYPE,
     execution,
     problemMatchers: task.problemMatchers,

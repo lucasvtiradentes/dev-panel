@@ -265,6 +265,11 @@ function readMakefileTargets(makefilePath: string): Map<string, string> {
   return targets;
 }
 
+function getMakeTaskName(relativePath: string, name: string): string {
+  if (relativePath === ROOT_PACKAGE_LABEL) return name;
+  return `${name} - ${relativePath}`;
+}
+
 function createMakeTask(options: {
   name: string;
   description: string;
@@ -286,10 +291,11 @@ function createMakeTask(options: {
   const customEnv = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);
   const env = VariablesEnvManager.withProcessEnv(customEnv);
   const shellExec = VscodeHelper.createShellExecution(`make ${name}`, { cwd, env });
+  const taskName = getMakeTaskName(relativePath, name);
   const task = VscodeHelper.createTask({
-    definition: { type: 'make' },
+    definition: { type: 'make', task: taskName },
     scope: folder,
-    name,
+    name: taskName,
     source: 'make',
     execution: shellExec,
   });

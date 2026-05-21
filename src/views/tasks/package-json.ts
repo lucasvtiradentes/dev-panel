@@ -234,6 +234,11 @@ function readPackageScripts(packageJsonPath: string): Record<string, string> {
   return PackageJsonHelper.readScripts(packageJsonPath);
 }
 
+function getNpmTaskName(relativePath: string, name: string): string {
+  if (relativePath === ROOT_PACKAGE_LABEL) return name;
+  return `${name} - ${relativePath}`;
+}
+
 function createNpmTask(options: {
   name: string;
   command: string;
@@ -255,10 +260,11 @@ function createNpmTask(options: {
   const customEnv = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);
   const env = VariablesEnvManager.withProcessEnv(customEnv);
   const shellExec = VscodeHelper.createShellExecution(`npm run ${name}`, { cwd, env });
+  const taskName = getNpmTaskName(relativePath, name);
   const task = VscodeHelper.createTask({
-    definition: { type: 'npm' },
+    definition: { type: 'npm', task: taskName },
     scope: folder,
-    name,
+    name: taskName,
     source: 'npm',
     execution: shellExec,
   });
