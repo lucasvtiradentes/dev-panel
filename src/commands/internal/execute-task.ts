@@ -150,7 +150,7 @@ async function handleExecuteTask(
 
   const execution = task.execution;
   if (execution instanceof ShellExecutionClass) {
-    command = execution.commandLine ?? String(execution.command);
+    command = taskConfig?.command ?? execution.commandLine ?? String(execution.command);
     cwd = execution.options?.cwd ?? '';
     env = (execution.options?.env as Record<string, string>) ?? {};
   }
