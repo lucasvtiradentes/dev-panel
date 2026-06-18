@@ -68,15 +68,15 @@ Replacements allow temporary file modifications that are hidden from git status 
 
 ## Properties
 
-| Property    | Type    | Description                          |
-|-------------|---------|--------------------------------------|
-| name        | string  | Unique identifier                    |
-| type        | string  | "file" or "patch"                    |
-| target      | string  | Target file path (relative)          |
-| source      | string  | Source file path (file type only)    |
-| patches     | array   | Search/replace patterns (patch type) |
-| group       | string? | Group for organizing                 |
-| description | string? | Tooltip text                         |
+| Property    | Type    | Description                                          |
+|-------------|---------|------------------------------------------------------|
+| name        | string  | Unique identifier                                    |
+| type        | string  | "file" or "patch"                                    |
+| target      | string  | Target file path (relative/absolute)                 |
+| source      | string  | Source file path (file type only, relative/absolute) |
+| patches     | array   | Search/replace patterns (patch type)                 |
+| group       | string? | Group for organizing                                 |
+| description | string? | Tooltip text                                         |
 
 ## Activation Flow
 
