@@ -118,6 +118,7 @@ views/
 │   ├── vscode-tasks.ts
 │   ├── package-json.ts
 │   ├── makefile-tasks.ts
+│   ├── group-by-prefix.ts # Shared prefix grouping logic
 │   ├── task-executor.ts
 │   └── keybindings-local.ts
 ├── variables/

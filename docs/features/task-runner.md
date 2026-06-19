@@ -12,6 +12,7 @@ sources:
   - src/views/tasks/vscode-tasks.ts:       VSCode task source
   - src/views/tasks/package-json.ts:       npm scripts source
   - src/views/tasks/makefile-tasks.ts:     Makefile task source
+  - src/views/tasks/group-by-prefix.ts:    shared colon-prefix grouping
   - src/views/tasks/state.ts:              task state keys and persistence helpers
   - src/commands/internal/execute-task.ts: input collection
 ---
