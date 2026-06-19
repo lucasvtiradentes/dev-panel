@@ -12,14 +12,14 @@ import {
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { readJsoncFile } from '../../common/utils/functions/read-jsonc-file';
 import { GroupHelper } from '../../common/utils/helpers/group-helper';
-import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
+import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import { type TreeDataProvider, type TreeItem, TreeItemClass } from '../../common/vscode/vscode-types';
-import { applyFileReplacement, applyPatches, fileExists, isReplacementActive } from './file-ops';
+import { applyFileReplacement, applyPatches, fileExists, getReplacementPath, isReplacementActive } from './file-ops';
 import {
   addActiveReplacement,
   getActiveReplacements,
@@ -274,7 +274,7 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
         await Git.setSkipWorktree(workspace, replacement.target, false);
         await Git.restoreFile(workspace, replacement.target);
       } else {
-        const targetPath = NodePathHelper.join(workspace, replacement.target);
+        const targetPath = getReplacementPath(workspace, replacement.target);
         if (FileIOHelper.fileExists(targetPath)) {
           FileIOHelper.deleteFile(targetPath);
         }

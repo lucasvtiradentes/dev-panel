@@ -1,5 +1,11 @@
 # dev-panel
 
+## 0.7.2
+
+### Patch Changes
+
+- 8c1242c: Allow same-name tasks from different groups or locations to run concurrently and show location-aware terminal names.
+
 ## 0.7.1
 
 ### Patch Changes

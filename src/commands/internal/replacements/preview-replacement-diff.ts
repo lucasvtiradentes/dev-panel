@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 import { Git } from '../../../common/lib/git';
 import { type DevPanelReplacement, ReplacementType, normalizePatchItem } from '../../../common/schemas';
-import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
+import { FileIOHelper } from '../../../common/utils/helpers/node-helper';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import { computePatchedContent } from '../../../views/replacements/file-ops';
+import { computePatchedContent, getReplacementPath } from '../../../views/replacements/file-ops';
 import { getActiveReplacements } from '../../../views/replacements/state';
 
 const DIFF_SCHEME = 'devpanel-diff';
@@ -30,7 +30,7 @@ async function computeDiffContent(
   replacement: DevPanelReplacement,
   isActive: boolean,
 ): Promise<DiffContent | null> {
-  const targetPath = NodePathHelper.join(workspace, replacement.target);
+  const targetPath = getReplacementPath(workspace, replacement.target);
   const targetExists = FileIOHelper.fileExists(targetPath);
 
   let currentContent = '';
@@ -58,7 +58,7 @@ async function computeDiffContent(
   let afterContent: string;
 
   if (replacement.type === ReplacementType.File) {
-    const sourcePath = NodePathHelper.join(workspace, replacement.source);
+    const sourcePath = getReplacementPath(workspace, replacement.source);
     try {
       afterContent = FileIOHelper.readFile(sourcePath);
     } catch {

@@ -3,7 +3,6 @@ import {
   CONTEXT_VALUES,
   DEFAULT_EXCLUDED_DIRS,
   DIST_DIR_PREFIX,
-  NO_GROUP_NAME,
   PACKAGE_JSON,
   ROOT_PACKAGE_LABEL,
   getCommandId,
@@ -17,6 +16,7 @@ import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import { VscodeIcons } from '../../common/vscode/vscode-icons';
 import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
+import { buildPrefixGroupTree } from './group-by-prefix';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { buildTaskStateKey, isFavorite, isHidden } from './state';
 
@@ -95,7 +95,7 @@ export async function getPackageScripts(
         folder: pkg.folder,
         cwd: pkg.absolutePath,
         relativePath: pkg.relativePath,
-        useDisplayName: false,
+        displayName: name,
         showHidden,
         showOnlyFavorites,
       });
@@ -188,7 +188,7 @@ function getGroupedByLocation(
         folder: pkg.folder,
         cwd: pkg.absolutePath,
         relativePath: pkg.relativePath,
-        useDisplayName: false,
+        displayName: name,
         showHidden,
         showOnlyFavorites,
       });
@@ -211,31 +211,21 @@ function getGroupedByScriptPrefix(
     elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
   ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
 ): Array<TreeTask | GroupTreeItem | WorkspaceTreeItem> {
-  const taskElements: Array<TreeTask | GroupTreeItem> = [];
-  const groups: Record<string, GroupTreeItem> = {};
-  const allScriptNames = Object.keys(pkg.scripts);
-
-  for (const [name, command] of Object.entries(pkg.scripts)) {
-    const treeTask = createNpmTask({
-      name,
-      command,
-      folder: pkg.folder,
-      cwd: pkg.absolutePath,
-      relativePath: pkg.relativePath,
-      useDisplayName: true,
-      showHidden,
-      showOnlyFavorites,
-    });
-    if (!treeTask) continue;
-
-    const groupName = extractGroupName(name, allScriptNames);
-
-    if (!groups[groupName]) {
-      groups[groupName] = new GroupTreeItem(groupName);
-      taskElements.push(groups[groupName]);
-    }
-    groups[groupName].children.push(treeTask);
-  }
+  const taskElements = buildPrefixGroupTree(
+    Object.entries(pkg.scripts),
+    Object.keys(pkg.scripts),
+    (name, command, displayName) =>
+      createNpmTask({
+        name,
+        command,
+        folder: pkg.folder,
+        cwd: pkg.absolutePath,
+        relativePath: pkg.relativePath,
+        displayName,
+        showHidden,
+        showOnlyFavorites,
+      }),
+  );
 
   return sortFn(taskElements);
 }
@@ -244,17 +234,22 @@ function readPackageScripts(packageJsonPath: string): Record<string, string> {
   return PackageJsonHelper.readScripts(packageJsonPath);
 }
 
+function getNpmTaskName(relativePath: string, name: string): string {
+  if (relativePath === ROOT_PACKAGE_LABEL) return name;
+  return `${name} - ${relativePath}`;
+}
+
 function createNpmTask(options: {
   name: string;
   command: string;
   folder: WorkspaceFolder;
   cwd: string;
   relativePath: string;
-  useDisplayName: boolean;
+  displayName: string;
   showHidden: boolean;
   showOnlyFavorites: boolean;
 }): TreeTask | null {
-  const { name, command, folder, cwd, relativePath, useDisplayName, showHidden, showOnlyFavorites } = options;
+  const { name, command, folder, cwd, relativePath, displayName, showHidden, showOnlyFavorites } = options;
   const stateKey = buildTaskStateKey(folder.name, relativePath, name);
   const hidden = isHidden(TaskSource.Package, stateKey);
   const favorite = isFavorite(TaskSource.Package, stateKey);
@@ -265,14 +260,14 @@ function createNpmTask(options: {
   const customEnv = VariablesEnvManager.readDevPanelVariablesAsEnv(variablesPath);
   const env = VariablesEnvManager.withProcessEnv(customEnv);
   const shellExec = VscodeHelper.createShellExecution(`npm run ${name}`, { cwd, env });
+  const taskName = getNpmTaskName(relativePath, name);
   const task = VscodeHelper.createTask({
-    definition: { type: 'npm' },
+    definition: { type: 'npm', task: taskName },
     scope: folder,
-    name,
+    name: taskName,
     source: 'npm',
     execution: shellExec,
   });
-  const displayName = useDisplayName && name.includes(':') ? name.split(':').slice(1).join(':') : name;
 
   const treeTask = new TreeTask(
     'npm',
@@ -299,17 +294,4 @@ function createNpmTask(options: {
   }
 
   return treeTask;
-}
-
-function extractGroupName(scriptName: string, allScriptNames: string[]): string {
-  if (scriptName.includes(':')) {
-    return scriptName.split(':')[0];
-  }
-
-  const hasRelatedScripts = allScriptNames.some((name) => name.startsWith(`${scriptName}:`));
-  if (hasRelatedScripts) {
-    return scriptName;
-  }
-
-  return NO_GROUP_NAME;
 }

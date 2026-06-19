@@ -1,9 +1,14 @@
 import { type DevPanelReplacement, type NormalizedPatchItem, ReplacementType } from '../../common/schemas';
 import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
 
+export function getReplacementPath(workspace: string, filePath: string): string {
+  return NodePathHelper.isAbsolute(filePath) ? filePath : NodePathHelper.resolve(workspace, filePath);
+}
+
 export function applyFileReplacement(workspace: string, source: string, target: string) {
-  const sourcePath = NodePathHelper.join(workspace, source);
-  const targetPath = NodePathHelper.join(workspace, target);
+  const sourcePath = getReplacementPath(workspace, source);
+  const targetPath = getReplacementPath(workspace, target);
+  FileIOHelper.ensureDirectoryExists(NodePathHelper.dirname(targetPath));
   FileIOHelper.copyFile(sourcePath, targetPath);
 }
 
@@ -26,7 +31,7 @@ type ApplyPatchesResult = {
 };
 
 export function applyPatches(workspace: string, target: string, patches: NormalizedPatchItem[]): ApplyPatchesResult {
-  const targetPath = NodePathHelper.join(workspace, target);
+  const targetPath = getReplacementPath(workspace, target);
   let content = FileIOHelper.readFile(targetPath);
   const unmatchedPatches: number[] = [];
 
@@ -43,7 +48,7 @@ export function applyPatches(workspace: string, target: string, patches: Normali
 }
 
 export function fileExists(workspace: string, filePath: string): boolean {
-  return FileIOHelper.fileExists(NodePathHelper.join(workspace, filePath));
+  return FileIOHelper.fileExists(getReplacementPath(workspace, filePath));
 }
 
 type IsReplacementActiveOptions = {
@@ -54,7 +59,7 @@ type IsReplacementActiveOptions = {
 
 export function isReplacementActive(options: IsReplacementActiveOptions): boolean {
   const { workspace, replacement, normalizedPatches } = options;
-  const targetPath = NodePathHelper.join(workspace, replacement.target);
+  const targetPath = getReplacementPath(workspace, replacement.target);
 
   if (!FileIOHelper.fileExists(targetPath)) {
     return false;
@@ -70,7 +75,7 @@ export function isReplacementActive(options: IsReplacementActiveOptions): boolea
   }
 
   if (replacement.type === ReplacementType.File) {
-    const sourcePath = NodePathHelper.join(workspace, replacement.source);
+    const sourcePath = getReplacementPath(workspace, replacement.source);
     if (!FileIOHelper.fileExists(sourcePath)) return false;
 
     const sourceContent = FileIOHelper.readFile(sourcePath);

@@ -147,13 +147,13 @@ export enum ReplacementType {
 
 const DevPanelReplacementFileSchema = DevPanelReplacementBaseSchema.extend({
   type: z.literal(ReplacementType.File).describe('Replace entire file content'),
-  source: z.string().describe('Source file path relative to workspace'),
-  target: z.string().describe('Target file path relative to workspace'),
+  source: z.string().describe('Source file path relative to workspace, or absolute path'),
+  target: z.string().describe('Target file path relative to workspace, or absolute path'),
 });
 
 const DevPanelReplacementPatchTypeSchema = DevPanelReplacementBaseSchema.extend({
   type: z.literal(ReplacementType.Patch).describe('Apply patches to file'),
-  target: z.string().describe('Target file path relative to workspace'),
+  target: z.string().describe('Target file path relative to workspace, or absolute path'),
   patches: z.array(DevPanelReplacementPatchSchema).describe('List of search/replace patches'),
 });
 

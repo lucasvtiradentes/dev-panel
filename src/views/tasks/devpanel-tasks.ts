@@ -71,6 +71,11 @@ function readDevPanelTasks(folder: WorkspaceFolder): NonNullable<DevPanelConfig[
   return config?.tasks ?? [];
 }
 
+function getDevPanelTaskName(task: NonNullable<DevPanelConfig['tasks']>[number]): string {
+  if (!task.group) return task.name;
+  return `${task.name} - ${task.group}`;
+}
+
 function createDevPanelTask(
   task: NonNullable<DevPanelConfig['tasks']>[number],
   folder: WorkspaceFolder,
@@ -88,10 +93,11 @@ function createDevPanelTask(
   const cwd = task.useConfigDir ? configDirPath : folder.uri.fsPath;
   const env = VariablesEnvManager.withProcessEnv(customEnv);
   const shellExec = VscodeHelper.createShellExecution(task.command, { env, cwd });
+  const taskName = getDevPanelTaskName(task);
   const vsTask = VscodeHelper.createTask({
-    definition: { type: CONFIG_DIR_KEY, task: task.name },
+    definition: { type: CONFIG_DIR_KEY, task: taskName },
     scope: folder,
-    name: task.name,
+    name: taskName,
     source: CONFIG_DIR_KEY,
     execution: shellExec,
   });
