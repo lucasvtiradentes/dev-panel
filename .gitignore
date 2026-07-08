@@ -5,8 +5,6 @@ dist-dev
 node_modules
 out
 .claude
-_branch
-.bctx/branches/
 .vscode
 
 # FILES ========================================================================
@@ -15,5 +13,3 @@ _branch
 .devpanel/variables.json
 CLAUDE.local.md
 CLAUDE.md 
-.bctx
-_branch 
