@@ -6,6 +6,7 @@ import {
   getViewIdReplacements,
   getViewIdTasksExplorer,
   getViewIdTasksPanel,
+  getViewIdVscodeExcludes,
 } from './common/constants';
 import { ConfigManager } from './common/core/config-manager';
 import { extensionStore } from './common/core/extension-store';
@@ -29,6 +30,7 @@ import { type GroupTreeItem, TaskTreeDataProvider, type TreeTask, type Workspace
 import { registerTaskKeybindings, reloadTaskKeybindings } from './views/tasks/keybindings-local';
 import { VariablesProvider, loadVariablesState } from './views/variables';
 import { registerVariableKeybindings, reloadVariableKeybindings } from './views/variables/keybindings-local';
+import { VscodeExcludesProvider } from './views/vscode-excludes';
 import { createConfigWatcher } from './watchers/config-watcher';
 import { createExcludesWatcher } from './watchers/excludes-watcher';
 import { createKeybindingsWatcher } from './watchers/keybindings-watcher';
@@ -40,6 +42,7 @@ type Providers = {
   variablesProvider: VariablesProvider;
   replacementsProvider: ReplacementsProvider;
   excludesProvider: ExcludesProvider;
+  vscodeExcludesProvider: VscodeExcludesProvider;
 };
 
 function setupStatesAndContext(context: ExtensionContext) {
@@ -67,6 +70,7 @@ function setupProviders(workspace: string): Providers {
   const variablesProvider = new VariablesProvider();
   const replacementsProvider = new ReplacementsProvider();
   const excludesProvider = new ExcludesProvider();
+  const vscodeExcludesProvider = new VscodeExcludesProvider();
 
   void VscodeHelper.fetchTasks();
 
@@ -76,6 +80,7 @@ function setupProviders(workspace: string): Providers {
     variablesProvider,
     replacementsProvider,
     excludesProvider,
+    vscodeExcludesProvider,
   };
 }
 
@@ -106,6 +111,7 @@ function setupTreeViews(providers: Providers): TasksTreeViews {
   VscodeHelper.registerTreeDataProvider(getViewIdConfigs(), providers.variablesProvider);
   VscodeHelper.registerTreeDataProvider(getViewIdReplacements(), providers.replacementsProvider);
   VscodeHelper.registerTreeDataProvider(getViewIdExcludes(), providers.excludesProvider);
+  VscodeHelper.registerTreeDataProvider(getViewIdVscodeExcludes(), providers.vscodeExcludesProvider);
 
   return { explorerView, panelView };
 }
@@ -118,12 +124,17 @@ function setupDisposables(context: ExtensionContext, providers: Providers, tasks
   context.subscriptions.push({ dispose: () => providers.variablesProvider.dispose() });
   context.subscriptions.push({ dispose: () => providers.replacementsProvider.dispose() });
   context.subscriptions.push({ dispose: () => providers.excludesProvider.dispose() });
+  context.subscriptions.push({ dispose: () => providers.vscodeExcludesProvider.dispose() });
 }
 
 function setupConfigChangeListener(context: ExtensionContext, providers: Providers, tasksViews: TasksTreeViews) {
   const configSection = getExtensionConfigSection();
 
   const configWatcher = VscodeHelper.onDidChangeConfiguration((e) => {
+    if (e.affectsConfiguration('files.exclude')) {
+      providers.vscodeExcludesProvider.refresh();
+    }
+
     if (e.affectsConfiguration(`${configSection}.${ExtensionConfigKey.TasksLocation}`)) {
       const newLocation = getExtensionConfig(ExtensionConfigKey.TasksLocation);
       const activeView = newLocation === 'explorer' ? tasksViews.explorerView : tasksViews.panelView;
@@ -177,6 +188,8 @@ function setupCommands(context: ExtensionContext, providers: Providers) {
     taskTreeDataProvider: providers.taskTreeDataProvider,
     variablesProvider: providers.variablesProvider,
     replacementsProvider: providers.replacementsProvider,
+    excludesProvider: providers.excludesProvider,
+    vscodeExcludesProvider: providers.vscodeExcludesProvider,
   });
   context.subscriptions.push(...commandDisposables);
 

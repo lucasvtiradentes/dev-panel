@@ -18,6 +18,10 @@ export const ContextKey = {
   ReplacementsGrouped: 'replacementsGrouped',
   ReplacementsAllActive: 'replacementsAllActive',
   ConfigsGrouped: 'configsGrouped',
+  GitExcludesShowAll: 'gitExcludesShowAll',
+  GitExcludesGrouped: 'gitExcludesGrouped',
+  VscodeExcludesShowAll: 'vscodeExcludesShowAll',
+  VscodeExcludesGrouped: 'vscodeExcludesGrouped',
   WorkspaceId: `${CONTEXT_PREFIX}.workspaceId`,
 } as const;
 

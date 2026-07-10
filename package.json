@@ -105,8 +105,12 @@
           "name": "Replacements"
         },
         {
+          "id": "devPanelVscodeExcludes",
+          "name": "VS Code Excludes"
+        },
+        {
           "id": "devPanelExcludes",
-          "name": "Excludes"
+          "name": "Git Excludes"
         },
         {
           "id": "devPanelTasksPanel",
@@ -180,7 +184,65 @@
       },
       {
         "command": "devPanel.openExcludeFile",
-        "title": "Open Exclude File",
+        "title": "Open Git Exclude File",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "devPanel.toggleExclude",
+        "title": "Toggle"
+      },
+      {
+        "command": "devPanel.toggleExcludesShowAll",
+        "title": "Toggle All / Excluded",
+        "icon": "$(eye-closed)"
+      },
+      {
+        "command": "devPanel.toggleExcludesShowAllActive",
+        "title": "Toggle All / Excluded",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "devPanel.toggleExcludesGroupMode",
+        "title": "Toggle Group Mode",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "devPanel.toggleExcludesGroupModeGrouped",
+        "title": "Toggle Group Mode",
+        "icon": "$(list-flat)"
+      },
+      {
+        "command": "devPanel.addVscodeExclude",
+        "title": "Add VS Code Exclude",
+        "icon": "$(add)"
+      },
+      {
+        "command": "devPanel.toggleVscodeExclude",
+        "title": "Toggle"
+      },
+      {
+        "command": "devPanel.toggleVscodeExcludesShowAll",
+        "title": "Toggle All / Excluded",
+        "icon": "$(eye-closed)"
+      },
+      {
+        "command": "devPanel.toggleVscodeExcludesShowAllActive",
+        "title": "Toggle All / Excluded",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "devPanel.toggleVscodeExcludesGroupMode",
+        "title": "Toggle Group Mode",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "devPanel.toggleVscodeExcludesGroupModeGrouped",
+        "title": "Toggle Group Mode",
+        "icon": "$(list-flat)"
+      },
+      {
+        "command": "devPanel.openVscodeExcludesSettings",
+        "title": "Open Workspace Settings",
         "icon": "$(go-to-file)"
       },
       {
@@ -542,9 +604,59 @@
           "group": "navigation@1"
         },
         {
+          "command": "devPanel.toggleExcludesShowAll",
+          "when": "view == devPanelExcludes && !gitExcludesShowAll",
+          "group": "navigation@2"
+        },
+        {
+          "command": "devPanel.toggleExcludesShowAllActive",
+          "when": "view == devPanelExcludes && gitExcludesShowAll",
+          "group": "navigation@2"
+        },
+        {
+          "command": "devPanel.toggleExcludesGroupMode",
+          "when": "view == devPanelExcludes && !gitExcludesGrouped",
+          "group": "navigation@3"
+        },
+        {
+          "command": "devPanel.toggleExcludesGroupModeGrouped",
+          "when": "view == devPanelExcludes && gitExcludesGrouped",
+          "group": "navigation@3"
+        },
+        {
           "command": "devPanel.openExcludeFile",
           "when": "view == devPanelExcludes",
+          "group": "navigation@4"
+        },
+        {
+          "command": "devPanel.addVscodeExclude",
+          "when": "view == devPanelVscodeExcludes",
+          "group": "navigation@1"
+        },
+        {
+          "command": "devPanel.toggleVscodeExcludesShowAll",
+          "when": "view == devPanelVscodeExcludes && !vscodeExcludesShowAll",
           "group": "navigation@2"
+        },
+        {
+          "command": "devPanel.toggleVscodeExcludesShowAllActive",
+          "when": "view == devPanelVscodeExcludes && vscodeExcludesShowAll",
+          "group": "navigation@2"
+        },
+        {
+          "command": "devPanel.toggleVscodeExcludesGroupMode",
+          "when": "view == devPanelVscodeExcludes && !vscodeExcludesGrouped",
+          "group": "navigation@3"
+        },
+        {
+          "command": "devPanel.toggleVscodeExcludesGroupModeGrouped",
+          "when": "view == devPanelVscodeExcludes && vscodeExcludesGrouped",
+          "group": "navigation@3"
+        },
+        {
+          "command": "devPanel.openVscodeExcludesSettings",
+          "when": "view == devPanelVscodeExcludes",
+          "group": "navigation@4"
         },
         {
           "command": "devPanel.openTasksConfig",
@@ -663,8 +775,13 @@
           "group": "inline@1"
         },
         {
-          "command": "devPanel.removeExclude",
-          "when": "view == devPanelExcludes && viewItem == excludeItem",
+          "command": "devPanel.toggleExclude",
+          "when": "view == devPanelExcludes && (viewItem == gitExcludeVisible || viewItem == gitExcludeHidden)",
+          "group": "inline@1"
+        },
+        {
+          "command": "devPanel.toggleVscodeExclude",
+          "when": "view == devPanelVscodeExcludes && (viewItem == vscodeExcludeVisible || viewItem == vscodeExcludeHidden)",
           "group": "inline@1"
         }
       ],
@@ -699,7 +816,17 @@
       },
       {
         "view": "devPanelExcludes",
-        "contents": "No excludes available.",
+        "contents": "No Git excludes available.",
+        "when": "!extensionInitializing"
+      },
+      {
+        "view": "devPanelVscodeExcludes",
+        "contents": "Loading VS Code excludes...",
+        "when": "extensionInitializing"
+      },
+      {
+        "view": "devPanelVscodeExcludes",
+        "contents": "No VS Code excludes available.",
         "when": "!extensionInitializing"
       },
       {

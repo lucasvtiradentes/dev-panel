@@ -2,12 +2,16 @@ import { syncKeybindings } from '../common/core/keybindings-sync';
 import { Command, registerCommand } from '../common/vscode/vscode-commands';
 import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
 import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
+import type { ExcludesProvider } from '../views/excludes';
 import type { ReplacementsProvider } from '../views/replacements';
 import type { TaskTreeDataProvider } from '../views/tasks';
 import type { VariablesProvider } from '../views/variables';
+import type { VscodeExcludesProvider } from '../views/vscode-excludes';
 import { createAddExcludeCommand } from './internal/excludes/add-exclude';
 import { createOpenExcludeFileCommand } from './internal/excludes/open-exclude-file';
 import { createRemoveExcludeCommand } from './internal/excludes/remove-exclude';
+import { createToggleExcludeCommand } from './internal/excludes/toggle-exclude';
+import { createToggleExcludesViewCommands } from './internal/excludes/toggle-excludes-view';
 import { createExecuteTaskCommand } from './internal/execute-task';
 import { createGoToReplacementTargetFileCommand } from './internal/replacements/go-to-replacement-target-file';
 import { createPreviewReplacementDiffCommand } from './internal/replacements/preview-replacement-diff';
@@ -34,6 +38,7 @@ import {
   createSetVariableKeybindingCommand,
 } from './internal/variables/set-variable-keybinding';
 import { createToggleVariablesViewCommands } from './internal/variables/toggle-variables-view';
+import { createVscodeExcludesCommands } from './internal/vscode-excludes/vscode-excludes-commands';
 import { createClearWorkspaceStateCommand } from './public/clear-workspace-state';
 import { createShowLogsCommand } from './public/show-logs';
 import { createShowWorkspaceStateCommand } from './public/show-workspace-state';
@@ -43,8 +48,17 @@ export function registerAllCommands(options: {
   taskTreeDataProvider: TaskTreeDataProvider;
   variablesProvider: VariablesProvider;
   replacementsProvider: ReplacementsProvider;
+  excludesProvider: ExcludesProvider;
+  vscodeExcludesProvider: VscodeExcludesProvider;
 }): Disposable[] {
-  const { context, taskTreeDataProvider, variablesProvider, replacementsProvider } = options;
+  const {
+    context,
+    taskTreeDataProvider,
+    variablesProvider,
+    replacementsProvider,
+    excludesProvider,
+    vscodeExcludesProvider,
+  } = options;
   return [
     createRefreshCommand(taskTreeDataProvider),
     ...createSwitchTaskSourceCommands(taskTreeDataProvider),
@@ -66,6 +80,9 @@ export function registerAllCommands(options: {
     createAddExcludeCommand(),
     createRemoveExcludeCommand(),
     createOpenExcludeFileCommand(),
+    createToggleExcludeCommand(),
+    ...createToggleExcludesViewCommands(excludesProvider),
+    ...createVscodeExcludesCommands(vscodeExcludesProvider),
     createShowLogsCommand(),
     createShowWorkspaceStateCommand(),
     createClearWorkspaceStateCommand(),

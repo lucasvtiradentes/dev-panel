@@ -9,6 +9,7 @@ import {
   VIEW_ID_REPLACEMENTS,
   VIEW_ID_TASKS_EXPLORER,
   VIEW_ID_TASKS_PANEL,
+  VIEW_ID_VSCODE_EXCLUDES,
   addDevSuffix,
   buildLogFilename,
 } from './scripts-constants';
@@ -36,6 +37,10 @@ export function getViewIdReplacements(): string {
 
 export function getViewIdExcludes(): string {
   return IS_DEV ? addDevSuffix(VIEW_ID_EXCLUDES) : VIEW_ID_EXCLUDES;
+}
+
+export function getViewIdVscodeExcludes(): string {
+  return IS_DEV ? addDevSuffix(VIEW_ID_VSCODE_EXCLUDES) : VIEW_ID_VSCODE_EXCLUDES;
 }
 
 export function getLogFilename(): string {

@@ -14,7 +14,10 @@ export const CONTEXT_VALUES = {
   VARIABLE_ITEM: 'variableItem',
   REPLACEMENT_GROUP: 'replacementGroup',
   REPLACEMENT_ITEM: 'replacementItem',
-  EXCLUDE_ITEM: 'excludeItem',
+  GIT_EXCLUDE_VISIBLE: 'gitExcludeVisible',
+  GIT_EXCLUDE_HIDDEN: 'gitExcludeHidden',
+  VSCODE_EXCLUDE_VISIBLE: 'vscodeExcludeVisible',
+  VSCODE_EXCLUDE_HIDDEN: 'vscodeExcludeHidden',
 } as const;
 
 const VSCODE_DIR = '.vscode';
