@@ -85,12 +85,13 @@ export class ExcludesProvider implements TreeDataProvider<TreeItem> {
     const entries = readExcludeFile(workspace);
     const entriesByPattern = new Map(entries.map((entry) => [entry.pattern, entry]));
     const rootItems = FileIOHelper.readDirectory(workspace, { withFileTypes: true }).map((directoryEntry) => {
+      const isDirectory = FileIOHelper.isDirectoryEntry(workspace, directoryEntry);
       const directoryPattern = `${directoryEntry.name}/`;
       const entry = entriesByPattern.get(directoryPattern) ?? entriesByPattern.get(directoryEntry.name);
       return new ExcludeTreeItem(
-        entry?.pattern ?? (directoryEntry.isDirectory() ? directoryPattern : directoryEntry.name),
+        entry?.pattern ?? (isDirectory ? directoryPattern : directoryEntry.name),
         Boolean(entry),
-        directoryEntry.isDirectory(),
+        isDirectory,
         entry,
       );
     });

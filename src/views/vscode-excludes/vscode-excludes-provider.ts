@@ -68,12 +68,13 @@ export class VscodeExcludesProvider implements TreeDataProvider<TreeItem> {
 
     const excludes = VscodeExcludesProvider.getExcludes();
     const rootItems = FileIOHelper.readDirectory(workspace, { withFileTypes: true }).map((entry) => {
+      const isDirectory = FileIOHelper.isDirectoryEntry(workspace, entry);
       const directoryPattern = `${entry.name}/`;
       const matchedPattern = Object.hasOwn(excludes, directoryPattern) ? directoryPattern : entry.name;
       return {
         pattern: matchedPattern,
         excluded: excludes[matchedPattern] === true,
-        isDirectory: entry.isDirectory(),
+        isDirectory,
       };
     });
     const rootPatterns = new Set(rootItems.map((item) => item.pattern));

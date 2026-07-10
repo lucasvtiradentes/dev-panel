@@ -145,6 +145,17 @@ export class FileIOHelper {
   static stat(filePath: string): Stats {
     return statSync(filePath);
   }
+
+  static isDirectoryEntry(parentPath: string, entry: Dirent): boolean {
+    if (entry.isDirectory()) return true;
+    if (!entry.isSymbolicLink()) return false;
+
+    try {
+      return statSync(join(parentPath, entry.name)).isDirectory();
+    } catch {
+      return false;
+    }
+  }
 }
 
 export class NodeOsHelper {
