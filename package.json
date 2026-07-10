@@ -449,6 +449,14 @@
           "when": "false"
         },
         {
+          "command": "devPanel.toggleExclude",
+          "when": "false"
+        },
+        {
+          "command": "devPanel.toggleVscodeExclude",
+          "when": "false"
+        },
+        {
           "command": "devPanel.openTasksConfig",
           "when": "false"
         },
@@ -772,16 +780,6 @@
         {
           "command": "devPanel.resetConfigOption",
           "when": "view == devPanelConfigs && viewItem == variableItem",
-          "group": "inline@1"
-        },
-        {
-          "command": "devPanel.toggleExclude",
-          "when": "view == devPanelExcludes && (viewItem == gitExcludeVisible || viewItem == gitExcludeHidden)",
-          "group": "inline@1"
-        },
-        {
-          "command": "devPanel.toggleVscodeExclude",
-          "when": "view == devPanelVscodeExcludes && (viewItem == vscodeExcludeVisible || viewItem == vscodeExcludeHidden)",
           "group": "inline@1"
         }
       ],
