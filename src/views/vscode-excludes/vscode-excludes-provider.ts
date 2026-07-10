@@ -1,4 +1,5 @@
 import { CONTEXT_VALUES, getCommandId } from '../../common/constants';
+import { vscodeExcludesState } from '../../common/state';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
@@ -28,10 +29,12 @@ export class VscodeExcludeTreeItem extends TreeItemClass {
 export class VscodeExcludesProvider implements TreeDataProvider<TreeItem> {
   private readonly _onDidChangeTreeData = VscodeHelper.createEventEmitter<TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
-  private showAll = true;
-  private grouped = false;
+  private showAll: boolean;
+  private grouped: boolean;
 
   constructor() {
+    this.showAll = vscodeExcludesState.getShowAll();
+    this.grouped = vscodeExcludesState.getIsGrouped();
     void setContextKey(ContextKey.VscodeExcludesShowAll, this.showAll);
     void setContextKey(ContextKey.VscodeExcludesGrouped, this.grouped);
   }
@@ -46,12 +49,14 @@ export class VscodeExcludesProvider implements TreeDataProvider<TreeItem> {
 
   toggleShowAll() {
     this.showAll = !this.showAll;
+    vscodeExcludesState.saveShowAll(this.showAll);
     void setContextKey(ContextKey.VscodeExcludesShowAll, this.showAll);
     this.refresh();
   }
 
   toggleGroupMode() {
     this.grouped = !this.grouped;
+    vscodeExcludesState.saveIsGrouped(this.grouped);
     void setContextKey(ContextKey.VscodeExcludesGrouped, this.grouped);
     this.refresh();
   }

@@ -7,6 +7,8 @@ export enum StateKey {
   Tasks = 'tasks',
   Replacements = 'replacements',
   Variables = 'variables',
+  GitExcludes = 'gitExcludes',
+  VscodeExcludes = 'vscodeExcludes',
 }
 
 type BaseStateManager<T> = {

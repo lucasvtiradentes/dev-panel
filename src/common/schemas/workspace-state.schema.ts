@@ -23,15 +23,23 @@ const ReplacementsStateSchema = z.object({
   lastBranch: z.string().optional(),
 });
 
+const ExcludesViewStateSchema = z.object({
+  isGrouped: z.boolean(),
+  showAll: z.boolean(),
+});
+
 const WorkspaceUIStateSchema = z.object({
   tasks: TasksStateSchema.optional(),
   variables: VariablesStateSchema.optional(),
   replacements: ReplacementsStateSchema.optional(),
+  gitExcludes: ExcludesViewStateSchema.optional(),
+  vscodeExcludes: ExcludesViewStateSchema.optional(),
 });
 
 export type TasksState = z.infer<typeof TasksStateSchema>;
 export type VariablesState = z.infer<typeof VariablesStateSchema>;
 export type ReplacementsState = z.infer<typeof ReplacementsStateSchema>;
+export type ExcludesViewState = z.infer<typeof ExcludesViewStateSchema>;
 export type WorkspaceUIState = z.infer<typeof WorkspaceUIStateSchema>;
 
 export const DEFAULT_TASKS_STATE: TasksState = {
@@ -50,4 +58,9 @@ export const DEFAULT_VARIABLES_STATE: VariablesState = {
 export const DEFAULT_REPLACEMENTS_STATE: ReplacementsState = {
   isGrouped: true,
   activeReplacements: [],
+};
+
+export const DEFAULT_EXCLUDES_VIEW_STATE: ExcludesViewState = {
+  isGrouped: false,
+  showAll: true,
 };

@@ -1,5 +1,6 @@
 import { CONTEXT_VALUES, getCommandId } from '../../common/constants';
 import { Git } from '../../common/lib/git';
+import { gitExcludesState } from '../../common/state';
 import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
@@ -32,11 +33,13 @@ export class ExcludesProvider implements TreeDataProvider<TreeItem> {
   private readonly _onDidChangeTreeData = VscodeHelper.createEventEmitter<TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
   private _isGitRepo: boolean | null = null;
-  private showAll = true;
-  private grouped = false;
+  private showAll: boolean;
+  private grouped: boolean;
 
   constructor() {
     providerInstance = this;
+    this.showAll = gitExcludesState.getShowAll();
+    this.grouped = gitExcludesState.getIsGrouped();
     void setContextKey(ContextKey.GitExcludesShowAll, this.showAll);
     void setContextKey(ContextKey.GitExcludesGrouped, this.grouped);
   }
@@ -60,12 +63,14 @@ export class ExcludesProvider implements TreeDataProvider<TreeItem> {
 
   toggleShowAll() {
     this.showAll = !this.showAll;
+    gitExcludesState.saveShowAll(this.showAll);
     void setContextKey(ContextKey.GitExcludesShowAll, this.showAll);
     this._onDidChangeTreeData.fire(undefined);
   }
 
   toggleGroupMode() {
     this.grouped = !this.grouped;
+    gitExcludesState.saveIsGrouped(this.grouped);
     void setContextKey(ContextKey.GitExcludesGrouped, this.grouped);
     this._onDidChangeTreeData.fire(undefined);
   }

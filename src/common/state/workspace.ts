@@ -1,9 +1,11 @@
 import type { SourceState } from '../schemas/shared-state.schema';
 import { TaskSource } from '../schemas/types';
 import {
+  DEFAULT_EXCLUDES_VIEW_STATE,
   DEFAULT_REPLACEMENTS_STATE,
   DEFAULT_TASKS_STATE,
   DEFAULT_VARIABLES_STATE,
+  type ExcludesViewState,
   type ReplacementsState,
   type TasksState,
   type VariablesState,
@@ -220,3 +222,31 @@ export const variablesState: StateManager<VariablesState> & {
   ...baseVariablesState,
   ...variablesGroupedMethods,
 };
+
+type ExcludesViewStateManager = StateManager<ExcludesViewState> & {
+  getIsGrouped(): boolean;
+  saveIsGrouped(isGrouped: boolean): void;
+  getShowAll(): boolean;
+  saveShowAll(showAll: boolean): void;
+};
+
+function createExcludesViewStateManager(stateKey: StateKey): ExcludesViewStateManager {
+  const baseState = createStateManager<ExcludesViewState>({
+    stateKey,
+    defaultState: DEFAULT_EXCLUDES_VIEW_STATE,
+  });
+
+  return {
+    ...baseState,
+    ...createGroupedStateMethods(baseState),
+    getShowAll: () => baseState.load().showAll ?? true,
+    saveShowAll(showAll: boolean) {
+      const state = baseState.load();
+      state.showAll = showAll;
+      baseState.save(state);
+    },
+  };
+}
+
+export const gitExcludesState = createExcludesViewStateManager(StateKey.GitExcludes);
+export const vscodeExcludesState = createExcludesViewStateManager(StateKey.VscodeExcludes);
