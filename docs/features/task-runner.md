@@ -215,4 +215,4 @@ Combined with input variables for task execution.
 
 Recursive npm and Makefile scans always skip `.git`, `.next`, `dist`, `dist-*`, `node_modules`, and `out`.
 
-Use `Dev Panel: Manage Task Scan Ignores` or the exclude button in the Tasks view to manage additional workspace-relative folders. Custom ignores are stored in VS Code workspace state per active workspace and never written to `config.jsonc`.
+Use `Dev Panel: Manage Task Scan Ignores` to manage additional workspace-relative folders. The Tasks view also shows an exclude button for npm or Makefile sources when more than one corresponding config file is found. Custom ignores are stored in VS Code workspace state per active workspace and never written to `config.jsonc`.

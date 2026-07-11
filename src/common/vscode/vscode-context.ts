@@ -11,6 +11,7 @@ export const ContextKey = {
   TaskSourceHasMultiple: 'taskSourceHasMultiple',
   TasksGrouped: 'tasksGrouped',
   TasksHasGroups: 'tasksHasGroups',
+  TasksHasMultipleConfigEntries: 'tasksHasMultipleConfigEntries',
   TasksHasHidden: 'tasksHasHidden',
   TasksShowHidden: 'tasksShowHidden',
   TasksHasFavorites: 'tasksHasFavorites',

@@ -678,7 +678,7 @@
         },
         {
           "command": "devPanel.manageTaskScanIgnores",
-          "when": "view == devPanelTasksExplorer || view == devPanelTasksPanel",
+          "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && (taskSourcePackage || taskSourceMakefile) && tasksHasMultipleConfigEntries",
           "group": "navigation@0"
         },
         {

@@ -34,6 +34,13 @@ export function hasMakefileSourceFiles(): boolean {
   return folders.some((folder) => resolveMakefilePath(folder.uri.fsPath) !== null);
 }
 
+export function hasMultipleMakefileConfigEntries(): boolean {
+  return VscodeHelper.getWorkspaceFolders().some((folder) => {
+    const rootPath = folder.uri.fsPath;
+    return findTaskSourceFiles(rootPath, ['Makefile', 'makefile'], tasksState.getTaskScanIgnorePaths()).length > 1;
+  });
+}
+
 export async function hasMakefileGroups(): Promise<boolean> {
   const folders = VscodeHelper.getWorkspaceFolders();
   const allMakefiles: MakefileLocation[] = [];

@@ -9,8 +9,18 @@ import { ExtensionConfigKey, getExtensionConfig } from '../../common/vscode/vsco
 import { createSourcedDragAndDropController } from '../_view_base';
 import { getDevPanelTasks, hasDevPanelGroups } from './devpanel-tasks';
 import { GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
-import { getMakefileTasks, hasMakefileGroups, hasMakefileSourceFiles } from './makefile-tasks';
-import { getPackageScripts, hasPackageGroups, hasPackageSourceFiles } from './package-json';
+import {
+  getMakefileTasks,
+  hasMakefileGroups,
+  hasMakefileSourceFiles,
+  hasMultipleMakefileConfigEntries,
+} from './makefile-tasks';
+import {
+  getPackageScripts,
+  hasMultiplePackageConfigEntries,
+  hasPackageGroups,
+  hasPackageSourceFiles,
+} from './package-json';
 import {
   getCurrentSource,
   getFavoriteItems,
@@ -156,6 +166,12 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
     }
   }
 
+  private hasMultipleConfigEntries(): boolean {
+    if (this._source === TaskSource.Package) return hasMultiplePackageConfigEntries();
+    if (this._source === TaskSource.Makefile) return hasMultipleMakefileConfigEntries();
+    return false;
+  }
+
   private async updateContextKeys(availableSources?: typeof TASK_SOURCES) {
     const hiddenItems = getHiddenItems(this._source);
     const favoriteItems = getFavoriteItems(this._source);
@@ -168,6 +184,7 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
     void setContextKey(ContextKey.TaskSourceHasMultiple, sources.length > 1);
     void setContextKey(ContextKey.TasksGrouped, this._grouped);
     void setContextKey(ContextKey.TasksHasGroups, hasGroups);
+    void setContextKey(ContextKey.TasksHasMultipleConfigEntries, this.hasMultipleConfigEntries());
     void setContextKey(ContextKey.TasksHasHidden, hiddenItems.length > 0);
     void setContextKey(ContextKey.TasksShowHidden, this._showHidden);
     void setContextKey(ContextKey.TasksHasFavorites, favoriteItems.length > 0);

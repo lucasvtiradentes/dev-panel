@@ -30,6 +30,13 @@ export function hasPackageSourceFiles(): boolean {
   });
 }
 
+export function hasMultiplePackageConfigEntries(): boolean {
+  return VscodeHelper.getWorkspaceFolders().some((folder) => {
+    const rootPath = folder.uri.fsPath;
+    return findTaskSourceFiles(rootPath, [PACKAGE_JSON], tasksState.getTaskScanIgnorePaths()).length > 1;
+  });
+}
+
 export async function hasPackageGroups(): Promise<boolean> {
   const folders = VscodeHelper.getWorkspaceFolders();
   const allPackages: PackageLocation[] = [];
