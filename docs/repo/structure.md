@@ -54,8 +54,7 @@ dev-panel/
 ├── scripts/                      # Build and utility scripts
 │   ├── generate-schema.ts        # Generate JSON schema from Zod
 │   ├── install-local/            # Dev extension installer
-│   ├── release/                  # Release automation
-│   └── helpers/                  # Script utilities
+│   └── release/                  # Release automation
 │
 ├── resources/                    # Static assets
 │   ├── icon.svg                  # Extension icon (sidebar)

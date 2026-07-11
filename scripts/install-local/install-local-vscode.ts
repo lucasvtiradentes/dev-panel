@@ -30,15 +30,22 @@ import {
   README_FILE,
   VSCODE_EXTENSIONS_FILE,
 } from '../../src/common/constants/vscode-constants';
+import { JsonHelper } from '../../src/common/utils/helpers/json-helper';
 import { FileIOHelper, NodeOsHelper, NodePathHelper } from '../../src/common/utils/helpers/node-helper';
 import { PackageJsonHelper } from '../../src/common/utils/helpers/package-json-helper';
-import { type ExtensionEntry, ExtensionsJsonHelper } from '../helpers/extensions-json-helper';
 
 const logger = console;
 
 const SCRIPT_DIR = __dirname;
 const ROOT_DIR = NodePathHelper.join(SCRIPT_DIR, '..', '..');
 const EXTENSION_ID_DEV = buildExtensionId(true);
+
+type ExtensionEntry = {
+  identifier?: { id: string };
+  version?: string;
+  location?: { $mid: number; path: string; scheme: string };
+  relativeLocation?: string;
+};
 
 function main() {
   if (process.env.CI) {
@@ -153,13 +160,10 @@ function registerExtensionInEditors() {
     if (!FileIOHelper.fileExists(extensionsJsonPath)) continue;
 
     try {
-      const extensionsJson = ExtensionsJsonHelper.read(extensionsJsonPath);
-      const filteredExtensions = ExtensionsJsonHelper.removeById(extensionsJson, EXTENSION_ID_DEV);
-
-      const newEntry: ExtensionEntry = {
-        identifier: {
-          id: EXTENSION_ID_DEV,
-        },
+      const extensions = JsonHelper.parseOrThrow<ExtensionEntry[]>(FileIOHelper.readFile(extensionsJsonPath));
+      const currentExtensions = extensions.filter((extension) => extension.identifier?.id !== EXTENSION_ID_DEV);
+      currentExtensions.push({
+        identifier: { id: EXTENSION_ID_DEV },
         version,
         location: {
           $mid: 1,
@@ -167,11 +171,9 @@ function registerExtensionInEditors() {
           scheme: 'file',
         },
         relativeLocation: EXTENSION_ID_DEV,
-      };
+      });
 
-      filteredExtensions.push(newEntry);
-
-      ExtensionsJsonHelper.write(extensionsJsonPath, filteredExtensions);
+      FileIOHelper.writeFile(extensionsJsonPath, JsonHelper.stringifyPretty(currentExtensions));
       logger.log(`[VSCode] ✅ Registered in ${EDITOR_DISPLAY_NAMES[editor]} extensions.json`);
     } catch (error) {
       logger.log(`[VSCode] ⚠️  Failed to register in ${EDITOR_DISPLAY_NAMES[editor]}: ${error}`);
