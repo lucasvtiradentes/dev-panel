@@ -2,7 +2,6 @@ export {
   DevPanelConfigSchema,
   InputType,
   ReplacementType,
-  VariableKind,
   type DevPanelConfig,
   type DevPanelInput,
   type DevPanelReplacement,

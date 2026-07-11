@@ -9,7 +9,7 @@ import {
 
 const ERROR_VARIABLE_COMMAND_FAILED = 'Variable command failed';
 import { ConfigManager } from '../../common/core/config-manager';
-import { type DevPanelVariable, VariableKind } from '../../common/schemas';
+import { type DevPanelVariable, InputType } from '../../common/schemas';
 import { DevPanelConfigSchema } from '../../common/schemas/config-schema';
 import { execAsync } from '../../common/utils/functions/exec-async';
 import { GroupHelper } from '../../common/utils/helpers/group-helper';
@@ -20,7 +20,7 @@ import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
 import { ContextKey, setContextKey } from '../../common/vscode/vscode-context';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
-import { type FileSelectionOptions, selectFiles, selectFolders } from '../../common/vscode/vscode-inputs';
+import { type InputValue, collectInputValue } from '../../common/vscode/vscode-inputs';
 import { type TreeDataProvider, type TreeItem, TreeItemClass } from '../../common/vscode/vscode-types';
 import { getVariableKeybinding } from './keybindings-local';
 import { getIsGrouped, saveIsGrouped } from './state';
@@ -193,89 +193,14 @@ async function runCommand(variable: DevPanelVariable, value: unknown) {
 
 export async function selectVariableOption(variable: DevPanelVariable) {
   const state = loadVariablesState();
-  let newValue: unknown;
+  const workspaceFolder = VscodeHelper.getFirstWorkspaceFolder();
+  if (!workspaceFolder) return;
 
-  switch (variable.kind) {
-    case VariableKind.Choose: {
-      if (variable.multiSelect) {
-        const currentValue = (state[variable.name] as string[] | undefined) || [];
-        const items = (variable.options || []).map((opt) => ({
-          label: opt,
-          picked: currentValue.includes(opt),
-        }));
-        const selected = await VscodeHelper.showQuickPickItems(items, {
-          canPickMany: true,
-          placeHolder: `Select ${variable.name}`,
-        });
-        if (!selected) return;
-        newValue = selected.map((s) => s.label);
-        break;
-      }
-
-      const selected = await VscodeHelper.showQuickPick(variable.options || [], {
-        placeHolder: `Select ${variable.name}`,
-      });
-      if (!selected) return;
-      newValue = selected;
-      break;
-    }
-
-    case VariableKind.Input: {
-      const currentValue = state[variable.name] as string | undefined;
-      const defaultValue = variable.default as string | undefined;
-      const input = await VscodeHelper.showInputBox({
-        prompt: variable.description || `Enter value for ${variable.name}`,
-        value: currentValue || defaultValue || '',
-        placeHolder: `Enter ${variable.name}`,
-      });
-      if (input === undefined) return;
-      newValue = input;
-      break;
-    }
-
-    case VariableKind.Toggle: {
-      const currentValue = state[variable.name] as boolean | undefined;
-      const defaultValue = variable.default as boolean | undefined;
-      const current = currentValue ?? defaultValue ?? false;
-      newValue = !current;
-      break;
-    }
-
-    case VariableKind.File: {
-      const workspaceFolder = VscodeHelper.getFirstWorkspaceFolder();
-      if (!workspaceFolder) return;
-
-      const options: FileSelectionOptions = {
-        label: variable.description || `Select file for ${variable.name}`,
-        multiSelect: variable.multiSelect ?? false,
-        includes: variable.includes,
-        excludes: variable.excludes,
-      };
-
-      const result = await selectFiles(workspaceFolder, options);
-      if (!result) return;
-      newValue = result;
-      break;
-    }
-
-    case VariableKind.Folder: {
-      const workspaceFolder = VscodeHelper.getFirstWorkspaceFolder();
-      if (!workspaceFolder) return;
-
-      const options: FileSelectionOptions = {
-        label: variable.description || `Select folder for ${variable.name}`,
-        multiSelect: variable.multiSelect ?? false,
-        includes: variable.includes,
-        excludes: variable.excludes,
-      };
-
-      const result = await selectFolders(workspaceFolder, options);
-      if (!result) return;
-      newValue = result;
-      break;
-    }
-  }
-
+  const currentValue = state[variable.name] as InputValue | undefined;
+  const newValue = await collectInputValue(variable, workspaceFolder, {
+    currentValue,
+    booleanMode: variable.type === InputType.Boolean ? 'toggle' : 'prompt',
+  });
   if (newValue === undefined) return;
 
   state[variable.name] = newValue;

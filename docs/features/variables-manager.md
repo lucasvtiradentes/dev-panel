@@ -15,13 +15,13 @@ sources:
 
 Variables provide dynamic configuration values that persist across sessions and can trigger shell commands on change.
 
-## Variable Types
+## Input Types
 
-| Kind   | Description         | UI Element           |
-|--------|---------------------|----------------------|
-| choose | Select from options | Quick pick dropdown  |
-| input  | Free text entry     | Input box            |
-| toggle | Boolean ON/OFF      | Toggle (click)       |
+| Type    | Description         | UI Element           |
+|---------|---------------------|----------------------|
+| choice  | Select from options | Quick pick dropdown  |
+| text    | Free text entry     | Input box            |
+| boolean | Boolean ON/OFF      | Toggle (click)       |
 | file   | File selection      | Quick pick list      |
 | folder | Folder selection    | Quick pick list      |
 
@@ -32,7 +32,7 @@ Variables provide dynamic configuration values that persist across sessions and 
   "variables": [
     {
       "name": "environment",
-      "kind": "choose",
+      "type": "choice",
       "options": ["development", "staging", "production"],
       "default": "development",
       "description": "Current environment",
@@ -48,57 +48,57 @@ Variables provide dynamic configuration values that persist across sessions and 
 | Property    | Type     | Description                                     |
 |-------------|----------|-------------------------------------------------|
 | name        | string   | Unique identifier                               |
-| kind        | string   | Variable type (choose/input/toggle/file/folder) |
+| type        | string   | Input type (`text`, `number`, `boolean`, `choice`, `file`, `folder`) |
 | default     | varies   | Default value                                   |
 | description | string?  | Tooltip text                                    |
 | group       | string?  | Group for organizing in tree view               |
 | command     | string?  | Shell command to run on value change            |
-| options     | array?   | Options for choose kind                         |
-| multiSelect | boolean? | Enable multi-selection (choose/file/folder)     |
+| options     | array?   | Options for `choice`                            |
+| multiSelect | boolean? | Enable multi-selection for choice/file/folder   |
 | includes    | array?   | Glob patterns to include (file/folder)          |
 | excludes    | array?   | Glob patterns to exclude (file/folder)          |
 
-## Variable Kinds
+## Variable Input Types
 
-### Choose (Single)
+### Choice (Single)
 
 ```jsonc
 {
   "name": "theme",
-  "kind": "choose",
+  "type": "choice",
   "options": ["light", "dark", "auto"],
   "default": "auto"
 }
 ```
 
-### Choose (Multi-select)
+### Choice (Multi-select)
 
 ```jsonc
 {
   "name": "features",
-  "kind": "choose",
+  "type": "choice",
   "options": ["auth", "api", "ui", "tests"],
   "multiSelect": true,
   "default": ["auth", "api"]
 }
 ```
 
-### Input
+### Text
 
 ```jsonc
 {
   "name": "apiUrl",
-  "kind": "input",
+  "type": "text",
   "default": "http://localhost:3000"
 }
 ```
 
-### Toggle
+### Boolean
 
 ```jsonc
 {
   "name": "debugMode",
-  "kind": "toggle",
+  "type": "boolean",
   "default": false
 }
 ```
@@ -108,7 +108,7 @@ Variables provide dynamic configuration values that persist across sessions and 
 ```jsonc
 {
   "name": "configFile",
-  "kind": "file",
+  "type": "file",
   "includes": ["**/*.json", "**/*.yaml"],
   "excludes": ["**/node_modules/**"]
 }
@@ -119,7 +119,7 @@ Variables provide dynamic configuration values that persist across sessions and 
 ```jsonc
 {
   "name": "outputDir",
-  "kind": "folder",
+  "type": "folder",
   "multiSelect": false
 }
 ```
@@ -145,7 +145,7 @@ Example:
 ```jsonc
 {
   "name": "branch",
-  "kind": "choose",
+  "type": "choice",
   "options": ["main", "develop", "feature"],
   "command": "git checkout"
 }
@@ -189,11 +189,11 @@ Variables
 
 ### Display Format
 
-| Kind   | Display              |
-|--------|----------------------|
-| choose | Selected option      |
-| input  | Current value        |
-| toggle | "ON" or "OFF"        |
+| Type    | Display              |
+|---------|----------------------|
+| choice  | Selected option      |
+| text    | Current value         |
+| boolean | "ON" or "OFF"        |
 | file   | Filename or count    |
 | folder | Folder name or count |
 

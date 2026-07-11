@@ -241,143 +241,167 @@ async function selectFoldersFlat(opts: InternalSelectionOptions): Promise<string
   return result?.description;
 }
 
+export type InputValue = string | number | boolean | string[];
 type InputValues = Record<string, string>;
+type FileInput = Extract<DevPanelInput, { type: InputType.File }>;
+type FolderInput = Extract<DevPanelInput, { type: InputType.Folder }>;
+type TextInput = Extract<DevPanelInput, { type: InputType.Text }>;
+type NumberInput = Extract<DevPanelInput, { type: InputType.Number }>;
+type BooleanInput = Extract<DevPanelInput, { type: InputType.Boolean }>;
+type ChoiceInput = Extract<DevPanelInput, { type: InputType.Choice }>;
+
+type CollectInputOptions = {
+  currentValue?: InputValue;
+  booleanMode?: 'prompt' | 'toggle';
+  basePath?: string;
+};
+
+function getInputLabel(input: DevPanelInput): string {
+  return input.label ?? input.description ?? input.name;
+}
+
+function serializeInputValue(value: InputValue): string {
+  return Array.isArray(value) ? value.join('\n') : String(value);
+}
 
 export async function collectInputs(
   inputs: DevPanelInput[],
   workspaceFolder: WorkspaceFolder | null,
-  basePath?: string,
 ): Promise<InputValues | null> {
   const values: InputValues = {};
 
   for (const input of inputs) {
-    const value = await collectSingleInput(input, workspaceFolder, basePath);
+    const value = await collectInputValue(input, workspaceFolder);
     if (value === undefined) return null;
-    values[input.name] = value;
+    values[input.name] = serializeInputValue(value);
   }
 
   return values;
 }
 
-async function collectSingleInput(
+export async function collectInputValue(
   input: DevPanelInput,
   workspaceFolder: WorkspaceFolder | null,
-  basePath?: string,
-): Promise<string | undefined> {
+  options: CollectInputOptions = {},
+): Promise<InputValue | undefined> {
   switch (input.type) {
     case InputType.File:
-      return collectFileInput(input, workspaceFolder, input.multiSelect ?? false, basePath);
+      return collectFileInput(input, workspaceFolder, options.basePath);
     case InputType.Folder:
-      return collectFolderInput(input, workspaceFolder, input.multiSelect ?? false, basePath);
+      return collectFolderInput(input, workspaceFolder, options.basePath);
     case InputType.Text:
-      return collectTextInput(input);
+      return collectTextInput(input, options.currentValue);
     case InputType.Number:
-      return collectNumberInput(input);
-    case InputType.Confirm:
-      return collectConfirmInput(input);
+      return collectNumberInput(input, options.currentValue);
+    case InputType.Boolean:
+      return collectBooleanInput(input, options.currentValue, options.booleanMode ?? 'prompt');
     case InputType.Choice:
-      return collectChoiceInput(input, false);
-    case InputType.Multichoice:
-      return collectChoiceInput(input, true);
-    default:
-      return undefined;
+      return collectChoiceInput(input, options.currentValue);
   }
 }
 
 async function collectFileInput(
-  input: DevPanelInput,
+  input: FileInput,
   workspaceFolder: WorkspaceFolder | null,
-  multiple: boolean,
   basePath?: string,
-): Promise<string | undefined> {
-  log.info(`collectFileInput called - multiple: ${multiple}, basePath: ${basePath ?? 'workspace'}`);
-
+): Promise<InputValue | undefined> {
   const folder = workspaceFolder ?? VscodeHelper.getFirstWorkspaceFolder();
   if (!folder) {
     void VscodeHelper.showToastMessage(ToastKind.Error, ERROR_MSG_WORKSPACE_REQUIRED);
     return undefined;
   }
 
-  const options: FileSelectionOptions = {
-    label: input.label,
-    multiSelect: multiple,
+  const result = await selectFiles(folder, {
+    label: getInputLabel(input),
+    multiSelect: input.multiSelect ?? false,
     includes: replaceVariablesInPatterns(input.includes, folder),
     excludes: replaceVariablesInPatterns(input.excludes, folder),
     basePath,
-  };
-
-  return selectFiles(folder, options);
+  });
+  if (!result) return undefined;
+  return input.multiSelect ? result.split('\n') : result;
 }
 
 async function collectFolderInput(
-  input: DevPanelInput,
+  input: FolderInput,
   workspaceFolder: WorkspaceFolder | null,
-  multiple: boolean,
   basePath?: string,
-): Promise<string | undefined> {
+): Promise<InputValue | undefined> {
   const folder = workspaceFolder ?? VscodeHelper.getFirstWorkspaceFolder();
   if (!folder) {
     void VscodeHelper.showToastMessage(ToastKind.Error, ERROR_MSG_WORKSPACE_REQUIRED);
     return undefined;
   }
 
-  const options: FileSelectionOptions = {
-    label: input.label,
-    multiSelect: multiple,
+  const result = await selectFolders(folder, {
+    label: getInputLabel(input),
+    multiSelect: input.multiSelect ?? false,
     includes: replaceVariablesInPatterns(input.includes, folder),
     excludes: replaceVariablesInPatterns(input.excludes, folder),
     basePath,
-  };
-
-  return selectFolders(folder, options);
+  });
+  if (!result) return undefined;
+  return input.multiSelect ? result.split('\n') : result;
 }
 
-async function collectTextInput(input: DevPanelInput): Promise<string | undefined> {
+async function collectTextInput(input: TextInput, currentValue?: InputValue): Promise<string | undefined> {
+  const value = typeof currentValue === 'string' ? currentValue : input.default;
   return VscodeHelper.showInputBox({
-    prompt: input.label,
+    prompt: getInputLabel(input),
+    value: value ?? '',
     placeHolder: input.placeholder,
     ignoreFocusOut: true,
   });
 }
 
-async function collectNumberInput(input: DevPanelInput): Promise<string | undefined> {
-  return VscodeHelper.showInputBox({
-    prompt: input.label,
+async function collectNumberInput(input: NumberInput, currentValue?: InputValue): Promise<number | undefined> {
+  const value = typeof currentValue === 'number' ? currentValue : input.default;
+  const result = await VscodeHelper.showInputBox({
+    prompt: getInputLabel(input),
+    value: value === undefined ? '' : String(value),
     placeHolder: input.placeholder,
     ignoreFocusOut: true,
-    validateInput: (value: string) => {
-      if (value && Number.isNaN(Number(value))) {
-        return ERROR_MSG_INVALID_NUMBER;
-      }
+    validateInput: (inputValue: string) => {
+      if (inputValue && Number.isNaN(Number(inputValue))) return ERROR_MSG_INVALID_NUMBER;
       return null;
     },
   });
+  if (result === undefined) return undefined;
+  return Number(result);
 }
 
-async function collectConfirmInput(input: DevPanelInput): Promise<string | undefined> {
+async function collectBooleanInput(
+  input: BooleanInput,
+  currentValue: InputValue | undefined,
+  mode: 'prompt' | 'toggle',
+): Promise<boolean | undefined> {
+  const current = typeof currentValue === 'boolean' ? currentValue : (input.default ?? false);
+  if (mode === 'toggle') return !current;
+
   const result = await VscodeHelper.showQuickPick(CONFIRM_OPTIONS, {
-    placeHolder: input.label,
+    placeHolder: getInputLabel(input),
     ignoreFocusOut: true,
   });
   if (!result) return undefined;
-  return result === CONFIRM_YES ? 'true' : 'false';
+  return result === CONFIRM_YES;
 }
 
-async function collectChoiceInput(input: DevPanelInput, multiple: boolean): Promise<string | undefined> {
-  if (!input.options || input.options.length === 0) return undefined;
-
-  if (multiple) {
-    const result = await VscodeHelper.showQuickPick(input.options, {
-      placeHolder: input.label,
-      canPickMany: true,
-      ignoreFocusOut: true,
-    });
+async function collectChoiceInput(
+  input: ChoiceInput,
+  currentValue?: InputValue,
+): Promise<string | string[] | undefined> {
+  if (input.multiSelect) {
+    const selectedValues = Array.isArray(currentValue) ? currentValue : (input.default ?? []);
+    const result = await VscodeHelper.showQuickPickItems(
+      input.options.map((option) => ({ label: option, picked: selectedValues.includes(option) })),
+      { placeHolder: getInputLabel(input), canPickMany: true, ignoreFocusOut: true },
+    );
     if (!result || result.length === 0) return undefined;
-    return result.join('\n');
+    return result.map((item) => item.label);
   }
 
   return VscodeHelper.showQuickPick(input.options, {
-    placeHolder: input.label,
+    placeHolder: getInputLabel(input),
     canPickMany: false,
     ignoreFocusOut: true,
   });

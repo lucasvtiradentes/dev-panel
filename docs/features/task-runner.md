@@ -92,11 +92,11 @@ Sources are dynamic — VSCode, npm, and Makefile only appear if their files exi
 |-------------|---------------------------|---------------------------------|
 | text        | Free text input           | placeholder                     |
 | number      | Numeric input             | placeholder                     |
-| confirm     | Yes/No boolean            | -                               |
+| boolean     | Yes/No boolean            | -                               |
 | file        | File picker               | multiSelect, includes, excludes |
 | folder      | Folder picker             | multiSelect, includes, excludes |
 | choice      | Single selection dropdown | options                         |
-| multichoice | Multi-selection dropdown  | options                         |
+
 
 ### Input Example
 
@@ -112,7 +112,7 @@ Sources are dynamic — VSCode, npm, and Makefile only appear if their files exi
     },
     {
       "name": "verbose",
-      "type": "confirm",
+      "type": "boolean",
       "label": "Enable verbose output?"
     }
   ]

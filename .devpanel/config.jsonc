@@ -2,7 +2,7 @@
   "variables": [
     {
       "name": "environment",
-      "kind": "choose",
+      "type": "choice",
       "options": ["local", "local-staging", "local-prod", "staging", "prod"],
       "command": "bash .devpanel/scripts/environment-select.sh",
       "description": "Select the target environment",
@@ -11,7 +11,7 @@
     },
     {
       "name": "debug",
-      "kind": "toggle",
+      "type": "boolean",
       "command": "bash .devpanel/scripts/toggle-debug.sh",
       "description": "Enable or disable debug mode",
       "default": false,
@@ -19,14 +19,14 @@
     },
     {
       "name": "api-url",
-      "kind": "input",
+      "type": "text",
       "command": "bash .devpanel/scripts/set-api-url.sh",
       "description": "Set the API base URL",
       "group": "API"
     },
     {
       "name": "features",
-      "kind": "choose",
+      "type": "choice",
       "multiSelect": true,
       "options": ["auth", "analytics", "notifications", "dark-mode"],
       "command": "bash .devpanel/scripts/set-features.sh",
@@ -36,23 +36,23 @@
     },
     {
       "name": "config-file",
-      "kind": "file",
+      "type": "file",
       "description": "Select a configuration file"
     },
     {
       "name": "output-dir",
-      "kind": "folder",
+      "type": "folder",
       "description": "Select output directory"
     },
     {
       "name": "multiple-files",
-      "kind": "file",
+      "type": "file",
       "multiSelect": true,
       "description": "Select multiple files"
     },
     {
       "name": "multiple-folders",
-      "kind": "folder",
+      "type": "folder",
       "multiSelect": true,
       "description": "Select multiple folders"
     }

@@ -2,30 +2,106 @@ import { z } from 'zod';
 import { EXTENSION_DISPLAY_NAME } from '../constants/scripts-constants';
 
 export enum InputType {
-  File = 'file',
-  Folder = 'folder',
   Text = 'text',
   Number = 'number',
-  Confirm = 'confirm',
+  Boolean = 'boolean',
   Choice = 'choice',
-  Multichoice = 'multichoice',
+  File = 'file',
+  Folder = 'folder',
 }
 
-const DevPanelInputSchema = z
-  .object({
-    name: z.string().describe('Variable name used in template as $name'),
-    type: z.enum(InputType).describe('Input type'),
-    label: z.string().describe('Label shown in the input dialog'),
-    placeholder: z.string().optional().describe('Placeholder text for text/number inputs'),
-    options: z.array(z.string()).optional().describe('Available options for choice/multichoice types'),
-    multiSelect: z.boolean().optional().describe('Enable multi-selection for file/folder types'),
-    includes: z
-      .array(z.string())
-      .optional()
-      .describe('Glob patterns to include for this input. If not specified, all files are shown'),
-    excludes: z.array(z.string()).optional().describe('Glob patterns to exclude for this input'),
-  })
-  .describe('An input required before execution (used by tasks)');
+const InputBaseShape = {
+  name: z.string().describe('Input name'),
+  label: z.string().optional().describe('Label shown in the input dialog'),
+  description: z.string().optional().describe('Human-readable description'),
+};
+
+const TextInputShape = {
+  ...InputBaseShape,
+  type: z.literal(InputType.Text).describe('Free text input'),
+  placeholder: z.string().optional().describe('Placeholder text'),
+  default: z.string().optional().describe('Default value'),
+};
+
+const NumberInputShape = {
+  ...InputBaseShape,
+  type: z.literal(InputType.Number).describe('Numeric input'),
+  placeholder: z.string().optional().describe('Placeholder text'),
+  default: z.number().optional().describe('Default value'),
+};
+
+const BooleanInputShape = {
+  ...InputBaseShape,
+  type: z.literal(InputType.Boolean).describe('Boolean input'),
+  default: z.boolean().optional().describe('Default value'),
+};
+
+const ChoiceInputSingleShape = {
+  ...InputBaseShape,
+  type: z.literal(InputType.Choice).describe('Choose one option'),
+  options: z.array(z.string()).min(1).describe('Available options'),
+  multiSelect: z.literal(false).optional().describe('Single selection'),
+  default: z.string().optional().describe('Default value'),
+};
+
+const ChoiceInputMultiShape = {
+  ...InputBaseShape,
+  type: z.literal(InputType.Choice).describe('Choose multiple options'),
+  options: z.array(z.string()).min(1).describe('Available options'),
+  multiSelect: z.literal(true).describe('Multi-selection enabled'),
+  default: z.array(z.string()).optional().describe('Default values'),
+};
+
+const FileInputSingleShape = {
+  ...InputBaseShape,
+  type: z.literal(InputType.File).describe('File selection'),
+  multiSelect: z.literal(false).optional().describe('Single selection'),
+  includes: z.array(z.string()).optional().describe('Glob patterns to include'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude'),
+  default: z.string().optional().describe('Default value'),
+};
+
+const FileInputMultiShape = {
+  ...InputBaseShape,
+  type: z.literal(InputType.File).describe('Multiple file selection'),
+  multiSelect: z.literal(true).describe('Multi-selection enabled'),
+  includes: z.array(z.string()).optional().describe('Glob patterns to include'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude'),
+  default: z.array(z.string()).optional().describe('Default values'),
+};
+
+const FolderInputSingleShape = {
+  ...InputBaseShape,
+  type: z.literal(InputType.Folder).describe('Folder selection'),
+  multiSelect: z.literal(false).optional().describe('Single selection'),
+  includes: z.array(z.string()).optional().describe('Glob patterns to include'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude'),
+  default: z.string().optional().describe('Default value'),
+};
+
+const FolderInputMultiShape = {
+  ...InputBaseShape,
+  type: z.literal(InputType.Folder).describe('Multiple folder selection'),
+  multiSelect: z.literal(true).describe('Multi-selection enabled'),
+  includes: z.array(z.string()).optional().describe('Glob patterns to include'),
+  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude'),
+  default: z.array(z.string()).optional().describe('Default values'),
+};
+
+const createInputSchemas = <T extends z.ZodRawShape>(extraShape: T) =>
+  [
+    z.object({ ...TextInputShape, ...extraShape }).strict(),
+    z.object({ ...NumberInputShape, ...extraShape }).strict(),
+    z.object({ ...BooleanInputShape, ...extraShape }).strict(),
+    z.object({ ...ChoiceInputSingleShape, ...extraShape }).strict(),
+    z.object({ ...ChoiceInputMultiShape, ...extraShape }).strict(),
+    z.object({ ...FileInputSingleShape, ...extraShape }).strict(),
+    z.object({ ...FileInputMultiShape, ...extraShape }).strict(),
+    z.object({ ...FolderInputSingleShape, ...extraShape }).strict(),
+    z.object({ ...FolderInputMultiShape, ...extraShape }).strict(),
+  ] as const;
+
+const DevPanelInputSchema = z.union(createInputSchemas({})).describe('An input collected before task execution');
 
 const DevPanelTaskSchema = z
   .object({
@@ -42,89 +118,14 @@ const DevPanelTaskSchema = z
   .strict()
   .describe('A task that can be executed from the Tasks view');
 
-export enum VariableKind {
-  Choose = 'choose',
-  Input = 'input',
-  Toggle = 'toggle',
-  File = 'file',
-  Folder = 'folder',
-}
-
-const DevPanelVariableBaseSchema = z.object({
-  name: z.string().describe('Unique identifier for the variable'),
+const VariableMetadataShape = {
   command: z.string().optional().describe('Shell command to execute when value changes'),
-  description: z.string().optional().describe('Human-readable description'),
   group: z.string().optional().describe('Group name for organizing variables'),
-});
-
-const DevPanelVariableChooseSingleSchema = DevPanelVariableBaseSchema.extend({
-  kind: z.literal('choose').describe('Choose from a list of options'),
-  options: z.array(z.string()).describe('Available options'),
-  multiSelect: z.literal(false).optional().describe('Single selection'),
-  default: z.string().optional().describe('Default value'),
-});
-
-const DevPanelVariableChooseMultiSchema = DevPanelVariableBaseSchema.extend({
-  kind: z.literal('choose').describe('Choose from a list of options (multi-select)'),
-  options: z.array(z.string()).describe('Available options'),
-  multiSelect: z.literal(true).describe('Multi-selection enabled'),
-  default: z.array(z.string()).optional().describe('Default values'),
-});
-
-const DevPanelVariableToggleSchema = DevPanelVariableBaseSchema.extend({
-  kind: z.literal('toggle').describe('Toggle between ON/OFF'),
-  default: z.boolean().optional().describe('Default value'),
-});
-
-const DevPanelVariableInputSchema = DevPanelVariableBaseSchema.extend({
-  kind: z.literal('input').describe('Free text input'),
-  default: z.string().optional().describe('Default value'),
-});
-
-const DevPanelVariableFileSingleSchema = DevPanelVariableBaseSchema.extend({
-  kind: z.literal('file').describe('File selection'),
-  multiSelect: z.literal(false).optional().describe('Single selection'),
-  includes: z.array(z.string()).optional().describe('Glob patterns to include. If not specified, all files are shown'),
-  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude'),
-  default: z.string().optional().describe('Default value'),
-});
-
-const DevPanelVariableFileMultiSchema = DevPanelVariableBaseSchema.extend({
-  kind: z.literal('file').describe('File selection (multi-select)'),
-  multiSelect: z.literal(true).describe('Multi-selection enabled'),
-  includes: z.array(z.string()).optional().describe('Glob patterns to include. If not specified, all files are shown'),
-  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude'),
-  default: z.array(z.string()).optional().describe('Default values'),
-});
-
-const DevPanelVariableFolderSingleSchema = DevPanelVariableBaseSchema.extend({
-  kind: z.literal('folder').describe('Folder selection'),
-  multiSelect: z.literal(false).optional().describe('Single selection'),
-  includes: z.array(z.string()).optional().describe('Glob patterns to include. If not specified, all files are shown'),
-  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude'),
-  default: z.string().optional().describe('Default value'),
-});
-
-const DevPanelVariableFolderMultiSchema = DevPanelVariableBaseSchema.extend({
-  kind: z.literal('folder').describe('Folder selection (multi-select)'),
-  multiSelect: z.literal(true).describe('Multi-selection enabled'),
-  includes: z.array(z.string()).optional().describe('Glob patterns to include. If not specified, all files are shown'),
-  excludes: z.array(z.string()).optional().describe('Glob patterns to exclude'),
-  default: z.array(z.string()).optional().describe('Default values'),
-});
+};
 
 const DevPanelVariableSchema = z
-  .union([
-    DevPanelVariableChooseSingleSchema,
-    DevPanelVariableChooseMultiSchema,
-    DevPanelVariableToggleSchema,
-    DevPanelVariableInputSchema,
-    DevPanelVariableFileSingleSchema,
-    DevPanelVariableFileMultiSchema,
-    DevPanelVariableFolderSingleSchema,
-    DevPanelVariableFolderMultiSchema,
-  ])
-  .describe('A configuration variable shown in the Variables view');
+  .union(createInputSchemas(VariableMetadataShape))
+  .describe('A persistent input shown in the Variables view');
 
 const DevPanelReplacementPatchSchema = z.object({
   search: z.string().describe('Text or pattern to search for'),
