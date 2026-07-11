@@ -1,1 +1,0 @@
-export { createOpenSettingsMenuCommand } from './menu';

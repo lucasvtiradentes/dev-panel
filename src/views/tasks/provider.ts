@@ -72,6 +72,16 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
     this.updateViewTitle();
   }
 
+  reloadWorkspaceState() {
+    const savedSource = getCurrentSource();
+    this._source = this.resolveSource(savedSource);
+    this._grouped = getIsGrouped();
+    this._showHidden = getShowHidden(this._source);
+    this._showOnlyFavorites = getShowOnlyFavorites(this._source);
+    this.updateViewTitle();
+    this.refresh();
+  }
+
   refresh() {
     const available = this.getAvailableSources();
     if (!available.some((s) => s.id === this._source)) {

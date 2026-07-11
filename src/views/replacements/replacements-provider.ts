@@ -102,6 +102,12 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
     void setContextKey(ContextKey.ReplacementsAllActive, allActive);
   }
 
+  reloadWorkspaceState() {
+    this._grouped = getIsGrouped();
+    this.updateContextKeys();
+    this.refresh();
+  }
+
   toggleGroupMode() {
     this._grouped = !this._grouped;
     saveIsGrouped(this._grouped);

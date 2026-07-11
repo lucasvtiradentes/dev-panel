@@ -8,8 +8,8 @@ import {
   getViewIdTasksPanel,
   getViewIdVscodeExcludes,
 } from './common/constants';
-import { ConfigManager } from './common/core/config-manager';
 import { extensionStore } from './common/core/extension-store';
+import { workspaceManager } from './common/core/workspace-manager';
 import { logger } from './common/lib/logger';
 import { initWorkspaceState } from './common/state';
 import { ContextKey, setContextKey } from './common/vscode/vscode-context';
@@ -28,7 +28,7 @@ import { ReplacementsProvider } from './views/replacements';
 import { registerReplacementKeybindings } from './views/replacements/keybindings-local';
 import { type GroupTreeItem, TaskTreeDataProvider, type TreeTask, type WorkspaceTreeItem } from './views/tasks';
 import { registerTaskKeybindings, reloadTaskKeybindings } from './views/tasks/keybindings-local';
-import { VariablesProvider, loadVariablesState } from './views/variables';
+import { VariablesProvider } from './views/variables';
 import { registerVariableKeybindings, reloadVariableKeybindings } from './views/variables/keybindings-local';
 import { VscodeExcludesProvider } from './views/vscode-excludes';
 import { createConfigWatcher } from './watchers/config-watcher';
@@ -48,6 +48,7 @@ type Providers = {
 function setupStatesAndContext(context: ExtensionContext) {
   initWorkspaceState(context);
   extensionStore.initialize(context);
+  workspaceManager.initialize(context);
 
   const workspaceId = generateWorkspaceId();
   setWorkspaceId(workspaceId);
@@ -60,12 +61,8 @@ function setupInitialKeybindings() {
   reloadVariableKeybindings();
 }
 
-function setupProviders(workspace: string): Providers {
-  const hasConfig = ConfigManager.configDirExists(workspace);
-  const statusBarManager = new StatusBarManager(hasConfig);
-  if (hasConfig) {
-    statusBarManager.setVariables(loadVariablesState());
-  }
+function setupProviders(): Providers {
+  const statusBarManager = new StatusBarManager();
   const taskTreeDataProvider = new TaskTreeDataProvider();
   const variablesProvider = new VariablesProvider();
   const replacementsProvider = new ReplacementsProvider();
@@ -125,6 +122,7 @@ function setupDisposables(context: ExtensionContext, providers: Providers, tasks
   context.subscriptions.push({ dispose: () => providers.replacementsProvider.dispose() });
   context.subscriptions.push({ dispose: () => providers.excludesProvider.dispose() });
   context.subscriptions.push({ dispose: () => providers.vscodeExcludesProvider.dispose() });
+  context.subscriptions.push(workspaceManager);
 }
 
 function setupConfigChangeListener(context: ExtensionContext, providers: Providers, tasksViews: TasksTreeViews) {
@@ -147,12 +145,9 @@ function setupConfigChangeListener(context: ExtensionContext, providers: Provide
   context.subscriptions.push(configWatcher);
 }
 
-function setupWatchers(context: ExtensionContext, providers: Providers, workspace: string) {
+function setupWatchers(context: ExtensionContext, providers: Providers) {
   const configWatcher = createConfigWatcher(() => {
     logger.info('Config changed, refreshing views');
-    const hasConfig = ConfigManager.configDirExists(workspace);
-    providers.statusBarManager.setHasConfig(hasConfig);
-    providers.statusBarManager.setVariables(hasConfig ? loadVariablesState() : {});
     providers.variablesProvider.refresh();
     providers.replacementsProvider.refresh();
     providers.taskTreeDataProvider.refresh();
@@ -179,6 +174,20 @@ function setupWatchers(context: ExtensionContext, providers: Providers, workspac
   });
   context.subscriptions.push(excludesWatcher);
 
+  const workspaceSubscription = workspaceManager.onDidChangeActiveWorkspace(() => {
+    const workspaceId = generateWorkspaceId();
+    setWorkspaceId(workspaceId);
+    void setContextKey(ContextKey.WorkspaceId, workspaceId);
+    providers.taskTreeDataProvider.reloadWorkspaceState();
+    providers.variablesProvider.reloadWorkspaceState();
+    providers.replacementsProvider.reloadWorkspaceState();
+    providers.excludesProvider.reloadWorkspaceState();
+    providers.vscodeExcludesProvider.reloadWorkspaceState();
+    reloadTaskKeybindings();
+    reloadVariableKeybindings();
+  });
+  context.subscriptions.push(workspaceSubscription);
+
   logger.info('[extension] [setupWatchers] All watchers registered');
 }
 
@@ -203,8 +212,8 @@ export function activate(context: ExtensionContext): object {
   logger.clear();
   logger.info('=== EXTENSION ACTIVATE START ===');
 
-  const workspace = VscodeHelper.getFirstWorkspacePath();
-  if (!workspace) {
+  const hasWorkspace = VscodeHelper.getAllWorkspaceFolders().length > 0;
+  if (!hasWorkspace) {
     logger.info('No workspace found, skipping extension initialization');
     return {};
   }
@@ -214,11 +223,11 @@ export function activate(context: ExtensionContext): object {
   setupStatesAndContext(context);
   setupInitialKeybindings();
 
-  const providers = setupProviders(workspace);
+  const providers = setupProviders();
   const tasksViews = setupTreeViews(providers);
   setupDisposables(context, providers, tasksViews);
   setupConfigChangeListener(context, providers, tasksViews);
-  setupWatchers(context, providers, workspace);
+  setupWatchers(context, providers);
   setupCommands(context, providers);
 
   void setContextKey(ContextKey.ExtensionInitializing, false);

@@ -326,8 +326,12 @@
         "icon": "$(heart-filled)"
       },
       {
-        "command": "devPanel.openSettingsMenu",
-        "title": "Open Settings Menu"
+        "command": "devPanel.selectWorkspace",
+        "title": "Dev Panel: Select Workspace"
+      },
+      {
+        "command": "devPanel.changeTasksLocation",
+        "title": "Dev Panel: Change Tasks Location"
       },
       {
         "command": "devPanel.deleteTask",
@@ -518,10 +522,6 @@
         },
         {
           "command": "devPanel.toggleTasksShowOnlyFavoritesActive",
-          "when": "false"
-        },
-        {
-          "command": "devPanel.openSettingsMenu",
           "when": "false"
         },
         {

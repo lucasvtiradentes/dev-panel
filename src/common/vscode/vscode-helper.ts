@@ -10,6 +10,8 @@ export enum ToastKind {
 }
 
 export class VscodeHelper {
+  private static activeWorkspaceUri: string | null = null;
+
   static getFirstWorkspaceFolder(): WorkspaceFolder | undefined {
     return VscodeHelper.getWorkspaceFolders()[0];
   }
@@ -252,7 +254,23 @@ export class VscodeHelper {
   }
 
   static getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] {
+    const folders = VscodeHelper.getAllWorkspaceFolders();
+    if (!VscodeHelper.activeWorkspaceUri) return folders.slice(0, 1);
+    return folders.filter((folder) => folder.uri.toString() === VscodeHelper.activeWorkspaceUri);
+  }
+
+  static getAllWorkspaceFolders(): readonly vscode.WorkspaceFolder[] {
     return vscode.workspace.workspaceFolders ?? [];
+  }
+
+  static setActiveWorkspaceUri(uri: string | null) {
+    VscodeHelper.activeWorkspaceUri = uri;
+  }
+
+  static onDidChangeWorkspaceFolders(
+    listener: (event: vscode.WorkspaceFoldersChangeEvent) => unknown,
+  ): vscode.Disposable {
+    return vscode.workspace.onDidChangeWorkspaceFolders(listener);
   }
 
   static getWorkspaceName(): string | undefined {

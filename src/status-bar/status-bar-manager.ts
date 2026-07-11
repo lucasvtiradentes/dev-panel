@@ -1,61 +1,38 @@
-import { EXTENSION_DISPLAY_NAME, getCommandId } from '../common/constants';
+import { getCommandId } from '../common/constants';
+import { workspaceManager } from '../common/core/workspace-manager';
 import { Command } from '../common/vscode/vscode-commands';
-import { VscodeConstants, VscodeIcon } from '../common/vscode/vscode-constants';
+import { VscodeConstants } from '../common/vscode/vscode-constants';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
-import type { StatusBarItem } from '../common/vscode/vscode-types';
+import type { Disposable, StatusBarItem } from '../common/vscode/vscode-types';
 
-export class StatusBarManager {
+export class StatusBarManager implements Disposable {
   private readonly statusBarItem: StatusBarItem;
-  private hasConfig = true;
-  private variables: Record<string, unknown> = {};
+  private readonly workspaceSubscription: Disposable;
 
-  constructor(hasConfig = true) {
-    this.hasConfig = hasConfig;
-    this.statusBarItem = VscodeHelper.createStatusBarItem(VscodeConstants.StatusBarAlignment.Left, 100);
-    this.statusBarItem.command = getCommandId(Command.OpenSettingsMenu);
-    this.updateDisplay();
-    this.statusBarItem.show();
-  }
-
-  setHasConfig(hasConfig: boolean) {
-    this.hasConfig = hasConfig;
-    this.updateDisplay();
-  }
-
-  setVariables(variables: Record<string, unknown>) {
-    this.variables = variables;
+  constructor() {
+    this.statusBarItem = VscodeHelper.createStatusBarItem(VscodeConstants.StatusBarAlignment.Right, 100);
+    this.statusBarItem.command = getCommandId(Command.SelectWorkspace);
+    this.workspaceSubscription = workspaceManager.onDidChangeActiveWorkspace(() => this.updateDisplay());
     this.updateDisplay();
   }
 
   private updateDisplay() {
-    const icon = this.hasConfig ? VscodeIcon.Flame : VscodeIcon.Warning;
-    this.statusBarItem.text = `$(${icon}) ${EXTENSION_DISPLAY_NAME}`;
-    this.statusBarItem.tooltip = this.buildTooltip();
-  }
+    const folders = workspaceManager.getAllFolders();
+    const activeFolder = workspaceManager.getActiveFolder();
+    const hasMultipleWorkspaces = folders.length > 1;
 
-  private buildTooltip(): string {
-    if (!this.hasConfig) {
-      return `${EXTENSION_DISPLAY_NAME} - Not initialized. Click to setup.`;
+    if (!hasMultipleWorkspaces || !activeFolder) {
+      this.statusBarItem.hide();
+      return;
     }
-    const entries = Object.entries(this.variables);
-    if (entries.length === 0) {
-      return EXTENSION_DISPLAY_NAME;
-    }
-    const lines = entries.map(([k, v]) => `${k}: ${this.formatValue(v)}`);
-    return `${EXTENSION_DISPLAY_NAME}\n\n${lines.join('\n')}`;
-  }
 
-  private formatValue(value: unknown): string {
-    if (Array.isArray(value)) return value.join(', ') || '(none)';
-    if (typeof value === 'boolean') return value ? 'On' : 'Off';
-    return String(value ?? '');
-  }
-
-  refresh() {
-    this.updateDisplay();
+    this.statusBarItem.text = `$(folder) ${activeFolder.name}`;
+    this.statusBarItem.tooltip = 'Click to select the active Dev Panel workspace';
+    this.statusBarItem.show();
   }
 
   dispose() {
+    this.workspaceSubscription.dispose();
     this.statusBarItem.dispose();
   }
 }

@@ -61,6 +61,14 @@ export class ExcludesProvider implements TreeDataProvider<TreeItem> {
     this._onDidChangeTreeData.fire(undefined);
   }
 
+  reloadWorkspaceState() {
+    this.showAll = gitExcludesState.getShowAll();
+    this.grouped = gitExcludesState.getIsGrouped();
+    void setContextKey(ContextKey.GitExcludesShowAll, this.showAll);
+    void setContextKey(ContextKey.GitExcludesGrouped, this.grouped);
+    this.refresh();
+  }
+
   toggleShowAll() {
     this.showAll = !this.showAll;
     gitExcludesState.saveShowAll(this.showAll);

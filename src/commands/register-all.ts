@@ -1,7 +1,6 @@
 import { syncKeybindings } from '../common/core/keybindings-sync';
 import { Command, registerCommand } from '../common/vscode/vscode-commands';
 import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
-import { createOpenSettingsMenuCommand } from '../status-bar/status-bar-actions';
 import type { ExcludesProvider } from '../views/excludes';
 import type { ReplacementsProvider } from '../views/replacements';
 import type { TaskTreeDataProvider } from '../views/tasks';
@@ -39,7 +38,9 @@ import {
 } from './internal/variables/set-variable-keybinding';
 import { createToggleVariablesViewCommands } from './internal/variables/toggle-variables-view';
 import { createVscodeExcludesCommands } from './internal/vscode-excludes/vscode-excludes-commands';
+import { createChangeTasksLocationCommand } from './public/change-tasks-location';
 import { createClearWorkspaceStateCommand } from './public/clear-workspace-state';
+import { createSelectWorkspaceCommand } from './public/select-workspace';
 import { createShowLogsCommand } from './public/show-logs';
 import { createShowWorkspaceStateCommand } from './public/show-workspace-state';
 
@@ -67,7 +68,8 @@ export function registerAllCommands(options: {
     createOpenTasksConfigCommand(),
     createDeleteTaskCommand(),
     createExecuteTaskCommand(context),
-    createOpenSettingsMenuCommand(),
+    createSelectWorkspaceCommand(),
+    createChangeTasksLocationCommand(),
     createSelectConfigOptionCommand(),
     createResetConfigOptionCommand(),
     ...createToggleVariablesViewCommands(variablesProvider),

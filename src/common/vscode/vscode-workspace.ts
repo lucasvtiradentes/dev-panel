@@ -3,7 +3,7 @@ import { CONTEXT_PREFIX, DEV_SUFFIX } from '../constants/scripts-constants';
 import { VscodeHelper } from './vscode-helper';
 
 export function isMultiRootWorkspace(): boolean {
-  const folders = VscodeHelper.getWorkspaceFolders();
+  const folders = VscodeHelper.getAllWorkspaceFolders();
   return folders.length > 1;
 }
 

@@ -1,6 +1,7 @@
 import { WORKSPACE_STATE_KEY } from '../constants/scripts-constants';
 import { DEFAULT_SOURCE_STATE, type SourceState } from '../schemas/shared-state.schema';
 import type { WorkspaceUIState } from '../schemas/workspace-state.schema';
+import { VscodeHelper } from '../vscode/vscode-helper';
 import type { ExtensionContext } from '../vscode/vscode-types';
 
 export enum StateKey {
@@ -34,14 +35,19 @@ export function initWorkspaceState(context: ExtensionContext) {
   workspaceContext = context;
 }
 
+function getScopedWorkspaceStateKey(): string {
+  const workspaceUri = VscodeHelper.getFirstWorkspaceFolder()?.uri.toString();
+  return workspaceUri ? `${WORKSPACE_STATE_KEY}:${workspaceUri}` : WORKSPACE_STATE_KEY;
+}
+
 function getWorkspaceState(): WorkspaceUIState {
   if (!workspaceContext) return {};
-  return workspaceContext.workspaceState.get<WorkspaceUIState>(WORKSPACE_STATE_KEY) ?? {};
+  return workspaceContext.workspaceState.get<WorkspaceUIState>(getScopedWorkspaceStateKey()) ?? {};
 }
 
 function saveWorkspaceState(state: WorkspaceUIState) {
   if (!workspaceContext) return;
-  void workspaceContext.workspaceState.update(WORKSPACE_STATE_KEY, state);
+  void workspaceContext.workspaceState.update(getScopedWorkspaceStateKey(), state);
 }
 
 export function loadWorkspaceState(): WorkspaceUIState {
@@ -50,7 +56,7 @@ export function loadWorkspaceState(): WorkspaceUIState {
 
 export function clearWorkspaceState() {
   if (!workspaceContext) return;
-  void workspaceContext.workspaceState.update(WORKSPACE_STATE_KEY, undefined);
+  void workspaceContext.workspaceState.update(getScopedWorkspaceStateKey(), undefined);
 }
 
 type StateManagerConfig<T> = {

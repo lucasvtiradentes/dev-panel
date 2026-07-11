@@ -47,6 +47,14 @@ export class VscodeExcludesProvider implements TreeDataProvider<TreeItem> {
     this._onDidChangeTreeData.fire(undefined);
   }
 
+  reloadWorkspaceState() {
+    this.showAll = vscodeExcludesState.getShowAll();
+    this.grouped = vscodeExcludesState.getIsGrouped();
+    void setContextKey(ContextKey.VscodeExcludesShowAll, this.showAll);
+    void setContextKey(ContextKey.VscodeExcludesGrouped, this.grouped);
+    this.refresh();
+  }
+
   toggleShowAll() {
     this.showAll = !this.showAll;
     vscodeExcludesState.saveShowAll(this.showAll);
@@ -101,21 +109,24 @@ export class VscodeExcludesProvider implements TreeDataProvider<TreeItem> {
   }
 
   static getExcludes(): Record<string, boolean> {
-    return VscodeHelper.getConfiguration('files').get<Record<string, boolean>>('exclude', {});
+    const scope = VscodeHelper.getFirstWorkspaceFolder()?.uri;
+    return VscodeHelper.getConfiguration('files', scope).get<Record<string, boolean>>('exclude', {});
   }
 
   static async toggle(pattern: string, excluded: boolean): Promise<void> {
     const excludes = { ...VscodeExcludesProvider.getExcludes() };
     if (excluded) delete excludes[pattern];
     else excludes[pattern] = true;
-    await VscodeHelper.getConfiguration('files').update('exclude', excludes, false);
+    const scope = VscodeHelper.getFirstWorkspaceFolder()?.uri;
+    await VscodeHelper.getConfiguration('files', scope).update('exclude', excludes, false);
   }
 
   static async add(pattern: string): Promise<boolean> {
     const cleaned = pattern.trim();
     if (!cleaned) return false;
     const excludes = { ...VscodeExcludesProvider.getExcludes(), [cleaned]: true };
-    await VscodeHelper.getConfiguration('files').update('exclude', excludes, false);
+    const scope = VscodeHelper.getFirstWorkspaceFolder()?.uri;
+    await VscodeHelper.getConfiguration('files', scope).update('exclude', excludes, false);
     return true;
   }
 }
