@@ -38,6 +38,7 @@ export function buildWorkspaceWhenClause(workspaceId: string): string {
 export enum ExtensionConfigKey {
   AutoRefresh = 'autorefresh',
   TasksLocation = 'tasksLocation',
+  GlobalActionsConfigPath = 'globalActionsConfigPath',
 }
 
 export type TasksLocationValue = 'explorer' | 'devpanel';
@@ -45,11 +46,13 @@ export type TasksLocationValue = 'explorer' | 'devpanel';
 type ExtensionConfigSchema = {
   [ExtensionConfigKey.AutoRefresh]: boolean;
   [ExtensionConfigKey.TasksLocation]: TasksLocationValue;
+  [ExtensionConfigKey.GlobalActionsConfigPath]: string;
 };
 
 const extensionConfigDefaults: ExtensionConfigSchema = {
   [ExtensionConfigKey.AutoRefresh]: true,
   [ExtensionConfigKey.TasksLocation]: 'devpanel',
+  [ExtensionConfigKey.GlobalActionsConfigPath]: '',
 };
 
 export function getExtensionConfigSection(): string {
@@ -59,4 +62,11 @@ export function getExtensionConfigSection(): string {
 export function getExtensionConfig<K extends ExtensionConfigKey>(key: K): ExtensionConfigSchema[K] {
   const config = VscodeHelper.getConfiguration(getExtensionConfigSection());
   return config.get<ExtensionConfigSchema[K]>(key) ?? extensionConfigDefaults[key];
+}
+
+export async function setExtensionConfig<K extends ExtensionConfigKey>(
+  key: K,
+  value: ExtensionConfigSchema[K] | undefined,
+): Promise<void> {
+  await VscodeHelper.getConfiguration(getExtensionConfigSection()).update(key, value, true);
 }

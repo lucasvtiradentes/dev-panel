@@ -8,10 +8,12 @@ type ExecuteTaskSilentlyOptions = {
   cwd: string;
   env: Record<string, string>;
   taskName: string;
+  customNotification?: boolean;
+  itemKind?: 'Action' | 'Task';
 };
 
 export async function executeTaskSilently(options: ExecuteTaskSilentlyOptions) {
-  const { command, cwd, env, taskName } = options;
+  const { command, cwd, env, taskName, customNotification = false, itemKind = 'Task' } = options;
 
   await VscodeHelper.withProgress(
     {
@@ -21,13 +23,32 @@ export async function executeTaskSilently(options: ExecuteTaskSilentlyOptions) {
     },
     async () => {
       try {
-        await execAsync(command, { cwd, env: { ...process.env, ...env } });
+        const result = await execAsync(command, { cwd, env: { ...process.env, ...env } });
+        if (customNotification) {
+          const message = getLastNonEmptyLine(result.stdout) ?? `${itemKind} "${taskName}" completed`;
+          void VscodeHelper.showToastMessage(ToastKind.Info, message);
+        }
       } catch (error: unknown) {
-        void VscodeHelper.showToastMessage(
-          ToastKind.Error,
-          `Task "${taskName}" failed: ${TypeGuardsHelper.getErrorMessage(error)}`,
-        );
+        const defaultMessage = TypeGuardsHelper.getErrorMessage(error);
+        const customMessage = getErrorOutput(error) ?? `${itemKind} "${taskName}" failed`;
+        const message = customNotification ? customMessage : `${itemKind} "${taskName}" failed: ${defaultMessage}`;
+        void VscodeHelper.showToastMessage(ToastKind.Error, message);
       }
     },
+  );
+}
+
+function getErrorOutput(error: unknown): string | null {
+  if (!TypeGuardsHelper.isObjectWithProperty(error, 'stderr')) return null;
+  return typeof error.stderr === 'string' ? getLastNonEmptyLine(error.stderr) : null;
+}
+
+function getLastNonEmptyLine(output: string): string | null {
+  const lines = output.trim().split('\n');
+  return (
+    lines
+      .reverse()
+      .find((line) => line.trim())
+      ?.trim() ?? null
   );
 }

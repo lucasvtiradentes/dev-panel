@@ -1,0 +1,461 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Dev Panel global actions configuration file",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "description": "JSON Schema reference",
+      "type": "string"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "description": "A machine-global action",
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Unique identifier for the action",
+            "type": "string"
+          },
+          "command": {
+            "description": "Shell command to execute",
+            "type": "string"
+          },
+          "description": {
+            "description": "Human-readable description",
+            "type": "string"
+          },
+          "cwd": {
+            "description": "Working directory; defaults to the active workspace",
+            "type": "string"
+          },
+          "inputs": {
+            "description": "Inputs to collect before running the action",
+            "type": "array",
+            "items": {
+              "description": "An input collected before task execution",
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Input name",
+                      "type": "string"
+                    },
+                    "label": {
+                      "description": "Label shown in the input dialog",
+                      "type": "string"
+                    },
+                    "description": {
+                      "description": "Human-readable description",
+                      "type": "string"
+                    },
+                    "type": {
+                      "description": "Free text input",
+                      "type": "string",
+                      "const": "text"
+                    },
+                    "placeholder": {
+                      "description": "Placeholder text",
+                      "type": "string"
+                    },
+                    "default": {
+                      "description": "Default value",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Input name",
+                      "type": "string"
+                    },
+                    "label": {
+                      "description": "Label shown in the input dialog",
+                      "type": "string"
+                    },
+                    "description": {
+                      "description": "Human-readable description",
+                      "type": "string"
+                    },
+                    "type": {
+                      "description": "Numeric input",
+                      "type": "string",
+                      "const": "number"
+                    },
+                    "placeholder": {
+                      "description": "Placeholder text",
+                      "type": "string"
+                    },
+                    "default": {
+                      "description": "Default value",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Input name",
+                      "type": "string"
+                    },
+                    "label": {
+                      "description": "Label shown in the input dialog",
+                      "type": "string"
+                    },
+                    "description": {
+                      "description": "Human-readable description",
+                      "type": "string"
+                    },
+                    "type": {
+                      "description": "Boolean input",
+                      "type": "string",
+                      "const": "boolean"
+                    },
+                    "default": {
+                      "description": "Default value",
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Input name",
+                      "type": "string"
+                    },
+                    "label": {
+                      "description": "Label shown in the input dialog",
+                      "type": "string"
+                    },
+                    "description": {
+                      "description": "Human-readable description",
+                      "type": "string"
+                    },
+                    "type": {
+                      "description": "Choose one option",
+                      "type": "string",
+                      "const": "choice"
+                    },
+                    "options": {
+                      "description": "Available options",
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "multiSelect": {
+                      "description": "Single selection",
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "default": {
+                      "description": "Default value",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "type",
+                    "options"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Input name",
+                      "type": "string"
+                    },
+                    "label": {
+                      "description": "Label shown in the input dialog",
+                      "type": "string"
+                    },
+                    "description": {
+                      "description": "Human-readable description",
+                      "type": "string"
+                    },
+                    "type": {
+                      "description": "Choose multiple options",
+                      "type": "string",
+                      "const": "choice"
+                    },
+                    "options": {
+                      "description": "Available options",
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "multiSelect": {
+                      "description": "Multi-selection enabled",
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "default": {
+                      "description": "Default values",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "type",
+                    "options",
+                    "multiSelect"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Input name",
+                      "type": "string"
+                    },
+                    "label": {
+                      "description": "Label shown in the input dialog",
+                      "type": "string"
+                    },
+                    "description": {
+                      "description": "Human-readable description",
+                      "type": "string"
+                    },
+                    "type": {
+                      "description": "File selection",
+                      "type": "string",
+                      "const": "file"
+                    },
+                    "multiSelect": {
+                      "description": "Single selection",
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "includes": {
+                      "description": "Glob patterns to include",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "excludes": {
+                      "description": "Glob patterns to exclude",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "default": {
+                      "description": "Default value",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Input name",
+                      "type": "string"
+                    },
+                    "label": {
+                      "description": "Label shown in the input dialog",
+                      "type": "string"
+                    },
+                    "description": {
+                      "description": "Human-readable description",
+                      "type": "string"
+                    },
+                    "type": {
+                      "description": "Multiple file selection",
+                      "type": "string",
+                      "const": "file"
+                    },
+                    "multiSelect": {
+                      "description": "Multi-selection enabled",
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "includes": {
+                      "description": "Glob patterns to include",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "excludes": {
+                      "description": "Glob patterns to exclude",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "default": {
+                      "description": "Default values",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "type",
+                    "multiSelect"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Input name",
+                      "type": "string"
+                    },
+                    "label": {
+                      "description": "Label shown in the input dialog",
+                      "type": "string"
+                    },
+                    "description": {
+                      "description": "Human-readable description",
+                      "type": "string"
+                    },
+                    "type": {
+                      "description": "Folder selection",
+                      "type": "string",
+                      "const": "folder"
+                    },
+                    "multiSelect": {
+                      "description": "Single selection",
+                      "type": "boolean",
+                      "const": false
+                    },
+                    "includes": {
+                      "description": "Glob patterns to include",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "excludes": {
+                      "description": "Glob patterns to exclude",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "default": {
+                      "description": "Default value",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Input name",
+                      "type": "string"
+                    },
+                    "label": {
+                      "description": "Label shown in the input dialog",
+                      "type": "string"
+                    },
+                    "description": {
+                      "description": "Human-readable description",
+                      "type": "string"
+                    },
+                    "type": {
+                      "description": "Multiple folder selection",
+                      "type": "string",
+                      "const": "folder"
+                    },
+                    "multiSelect": {
+                      "description": "Multi-selection enabled",
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "includes": {
+                      "description": "Glob patterns to include",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "excludes": {
+                      "description": "Glob patterns to exclude",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "default": {
+                      "description": "Default values",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "type",
+                    "multiSelect"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "customNotification": {
+            "description": "Show the last stdout/stderr line as the success/failure notification",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "command"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "actions"
+  ],
+  "additionalProperties": false
+}

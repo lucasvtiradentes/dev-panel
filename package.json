@@ -82,6 +82,12 @@
           ],
           "default": "devpanel",
           "description": "Where to show the Tasks view (Explorer sidebar or Dev Panel sidebar)"
+        },
+        "devPanel.globalActionsConfigPath": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "description": "Absolute path to the machine-global Dev Panel actions config"
         }
       }
     },
@@ -129,6 +135,18 @@
       ]
     },
     "commands": [
+      {
+        "command": "devPanel.showGlobalActions",
+        "title": "Dev Panel: Show Global Actions"
+      },
+      {
+        "command": "devPanel.configureGlobalActions",
+        "title": "Dev Panel: Configure Global Actions"
+      },
+      {
+        "command": "devPanel.removeGlobalActionsConfig",
+        "title": "Dev Panel: Remove Global Actions Config"
+      },
       {
         "command": "devPanel.selectConfigOption",
         "title": "Select Config Option"
@@ -879,6 +897,10 @@
       {
         "fileMatch": "**/.devpanel/config.jsonc",
         "url": "./resources/schema.json"
+      },
+      {
+        "fileMatch": "**/devpanel-actions.jsonc",
+        "url": "./resources/global-actions-schema.json"
       }
     ]
   }

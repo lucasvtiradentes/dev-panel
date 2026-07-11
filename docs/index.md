@@ -7,6 +7,7 @@
 |           | docs/rules.md                             | Code conventions and patterns used in the codebase                    |     2     |     0     |    3    |
 |-----------|-------------------------------------------|-----------------------------------------------------------------------|-----------|-----------|---------|
 | features  | docs/features/git-excludes.md             | Manage local git exclude patterns from the sidebar                    |     1     |     0     |    6    |
+|           | docs/features/global-actions.md            | Machine-global commands available from every workspace                |     1     |     1     |    3    |
 |           | docs/features/replacements-view.md        | File replacement and patching with git skip-worktree                  |     1     |     1     |    4    |
 |           | docs/features/task-runner.md              | Multi-source task execution with inputs and keybindings               |     1     |     1     |    6    |
 |           | docs/features/variables-manager.md        | Dynamic configuration variables with persistence and shell commands   |     1     |     1     |    3    |

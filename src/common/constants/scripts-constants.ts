@@ -8,6 +8,9 @@ export const CONFIG_DIR_KEY = 'devpanel';
 export const DEVPANEL_TASK_TYPE = 'devpanel-task';
 export const CONFIG_DIR_NAME = `.${CONFIG_DIR_KEY}`;
 export const CONFIG_FILE_NAME = 'config.jsonc';
+export const GLOBAL_ACTIONS_CONFIG_FILE_NAME = 'devpanel-actions.jsonc';
+export const RESOURCES_DIR_NAME = 'resources';
+export const INIT_RESOURCES_DIR_NAME = 'init';
 export const VARIABLES_FILE_NAME = 'variables.json';
 export const DEFAULT_EXCLUDED_DIRS = ['.git', '.next', 'dist', 'node_modules', 'out'];
 export const MAKEFILE_NAMES = ['Makefile', 'makefile'] as const;
@@ -30,6 +33,7 @@ const LOG_BASENAME = EXTENSION_NAME;
 export const REPLACEMENT_COMMAND_SUFFIX = 'replacement';
 export const VARIABLE_COMMAND_SUFFIX = 'variable';
 export const TASK_COMMAND_SUFFIX = 'task';
+export const ACTION_COMMAND_SUFFIX = 'action';
 export const NO_GROUP_NAME = 'no-group';
 
 export function addDevSuffix(str: string): string {

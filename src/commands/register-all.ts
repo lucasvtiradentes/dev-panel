@@ -1,6 +1,7 @@
 import { syncKeybindings } from '../common/core/keybindings-sync';
 import { Command, registerCommand } from '../common/vscode/vscode-commands';
 import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
+import type { GlobalActionsManager } from '../global-actions/global-actions-manager';
 import type { GitExcludesProvider } from '../views/git-excludes';
 import type { ReplacementsProvider } from '../views/replacements';
 import type { TaskTreeDataProvider } from '../views/tasks';
@@ -41,6 +42,10 @@ import { createToggleVariablesViewCommands } from './internal/variables/toggle-v
 import { createVscodeExcludesCommands } from './internal/vscode-excludes/vscode-excludes-commands';
 import { createChangeTasksLocationCommand } from './public/change-tasks-location';
 import { createClearWorkspaceStateCommand } from './public/clear-workspace-state';
+import {
+  createConfigureGlobalActionsCommand,
+  createRemoveGlobalActionsConfigCommand,
+} from './public/global-actions-config';
 import { createSelectWorkspaceCommand } from './public/select-workspace';
 import { createShowLogsCommand } from './public/show-logs';
 import { createShowWorkspaceStateCommand } from './public/show-workspace-state';
@@ -52,6 +57,7 @@ export function registerAllCommands(options: {
   replacementsProvider: ReplacementsProvider;
   gitExcludesProvider: GitExcludesProvider;
   vscodeExcludesProvider: VscodeExcludesProvider;
+  globalActionsManager: GlobalActionsManager;
 }): Disposable[] {
   const {
     context,
@@ -60,6 +66,7 @@ export function registerAllCommands(options: {
     replacementsProvider,
     gitExcludesProvider,
     vscodeExcludesProvider,
+    globalActionsManager,
   } = options;
   return [
     createRefreshCommand(taskTreeDataProvider),
@@ -72,6 +79,9 @@ export function registerAllCommands(options: {
     createExecuteTaskCommand(context),
     createSelectWorkspaceCommand(),
     createChangeTasksLocationCommand(),
+    registerCommand(Command.ShowGlobalActions, () => globalActionsManager.showActions()),
+    createConfigureGlobalActionsCommand(globalActionsManager, context),
+    createRemoveGlobalActionsConfigCommand(globalActionsManager),
     createSelectConfigOptionCommand(),
     createResetConfigOptionCommand(),
     ...createToggleVariablesViewCommands(variablesProvider),

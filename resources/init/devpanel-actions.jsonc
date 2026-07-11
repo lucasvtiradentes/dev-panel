@@ -1,0 +1,10 @@
+{
+  "actions": [
+    {
+      "name": "Example",
+      "description": "Example global action",
+      "command": "echo \"Hello from Dev Panel\"",
+      "customNotification": true
+    }
+  ]
+}

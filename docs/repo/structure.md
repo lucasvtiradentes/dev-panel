@@ -61,7 +61,7 @@ dev-panel/
 │   ├── icon.svg                  # Extension icon (sidebar)
 │   ├── icon-colored.png          # Extension icon (marketplace)
 │   ├── schema.json               # Generated config schema
-│   └── init/                     # Config templates
+│   └── init/                     # Workspace and global-actions config templates
 │
 ├── out/                          # Production build output
 │   └── extension.js              # Bundled extension

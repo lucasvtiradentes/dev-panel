@@ -1,5 +1,6 @@
 export {
   DevPanelConfigSchema,
+  GlobalActionsConfigSchema,
   InputType,
   ReplacementType,
   type DevPanelConfig,

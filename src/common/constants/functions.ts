@@ -1,5 +1,6 @@
 import { IS_DEV } from './constants';
 import {
+  ACTION_COMMAND_SUFFIX,
   CONTEXT_PREFIX,
   REPLACEMENT_COMMAND_SUFFIX,
   TASK_COMMAND_SUFFIX,
@@ -65,6 +66,10 @@ export function getVariableCommandId(variableName: string): string {
 
 export function getVariableCommandPrefix(): string {
   return `${getContextPrefix()}.${VARIABLE_COMMAND_SUFFIX}.`;
+}
+
+export function getActionCommandId(actionName: string): string {
+  return `${getContextPrefix()}.${ACTION_COMMAND_SUFFIX}.${actionName}`;
 }
 
 export function getTaskCommandId(taskName: string): string {

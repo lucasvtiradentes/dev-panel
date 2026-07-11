@@ -103,6 +103,38 @@ const createInputSchemas = <T extends z.ZodRawShape>(extraShape: T) =>
 
 const DevPanelInputSchema = z.union(createInputSchemas({})).describe('An input collected before task execution');
 
+const GlobalActionSchema = z
+  .object({
+    name: z.string().describe('Unique identifier for the action'),
+    command: z.string().describe('Shell command to execute'),
+    description: z.string().optional().describe('Human-readable description'),
+    cwd: z.string().optional().describe('Working directory; defaults to the active workspace'),
+    inputs: z.array(DevPanelInputSchema).optional().describe('Inputs to collect before running the action'),
+    customNotification: z
+      .boolean()
+      .optional()
+      .describe('Show the last stdout/stderr line as the success/failure notification'),
+  })
+  .strict()
+  .describe('A machine-global action');
+
+export const GlobalActionsConfigSchema = z
+  .object({
+    $schema: z.string().optional().describe('JSON Schema reference'),
+    actions: z.array(GlobalActionSchema),
+  })
+  .strict()
+  .superRefine((config, context) => {
+    const names = new Set<string>();
+    for (const [index, action] of config.actions.entries()) {
+      if (names.has(action.name)) {
+        context.addIssue({ code: 'custom', message: 'Action names must be unique', path: ['actions', index, 'name'] });
+      }
+      names.add(action.name);
+    }
+  })
+  .describe(`${EXTENSION_DISPLAY_NAME} global actions configuration file`);
+
 const DevPanelTaskSchema = z
   .object({
     name: z.string().describe('Unique identifier for the task'),
@@ -170,6 +202,7 @@ export const DevPanelConfigSchema = z
   .describe(`${EXTENSION_DISPLAY_NAME} configuration file`);
 
 export type DevPanelInput = z.infer<typeof DevPanelInputSchema>;
+export type GlobalAction = z.infer<typeof GlobalActionSchema>;
 export type DevPanelConfig = z.infer<typeof DevPanelConfigSchema>;
 export type DevPanelVariable = z.infer<typeof DevPanelVariableSchema>;
 export type DevPanelReplacement = z.infer<typeof DevPanelReplacementSchema>;

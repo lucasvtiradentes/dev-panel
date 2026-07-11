@@ -11,6 +11,7 @@ sources:
   - src/watchers/:                file system watchers
   - src/commands/register-all.ts: command registration
   - src/status-bar/:              status bar management
+  - src/global-actions/:          machine-global action lifecycle
   - src/common/core/:             core utilities
 ---
 
@@ -46,7 +47,8 @@ sources:
 │  │    ├── VariablesProvider                               │ │
 │  │    ├── ReplacementsProvider                            │ │
 │  │    ├── GitExcludesProvider                             │ │
-│  │    └── VscodeExcludesProvider                          │ │
+│  │    ├── VscodeExcludesProvider                          │ │
+│  │    └── GlobalActionsManager                            │ │
 │  ├────────────────────────────────────────────────────────┤ │
 │  │ 4. setupTreeViews(providers)                           │ │
 │  │    ├── Tasks Explorer/Panel view                       │ │
@@ -201,6 +203,10 @@ sources:
 │  │   Pattern: **/.devpanel/{config.jsonc,variables.json}      │ │
 │  │   Actions: refresh all providers, reload variables         │ │
 │  ├────────────────────────────────────────────────────────────┤ │
+│  │   GlobalActionsManager                                     │ │
+│  │   Pattern: configured global actions JSONC file            │ │
+│  │   Actions: reload actions and dynamic commands             │ │
+│  ├────────────────────────────────────────────────────────────┤ │
 │  │   KeybindingsWatcher                                       │ │
 │  │   Pattern: <vscode-config>/User/keybindings.json           │ │
 │  │   Actions: reload task/variable keybindings                │ │
@@ -251,6 +257,7 @@ Components:
 │                                                                 │
 │  Hidden for single-folder workspaces                            │
 │  Multi-root: $(folder) <active-workspace>                       │
-│  Click: Select active Dev Panel workspace                       │
+│  Global actions: $(globe) Actions                               │
+│  Click: Select workspace or run a global action                 │
 └─────────────────────────────────────────────────────────────────┘
 ```

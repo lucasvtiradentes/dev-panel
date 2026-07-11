@@ -21,6 +21,7 @@ import {
   getExtensionConfigSection,
   setWorkspaceId,
 } from './common/vscode/vscode-workspace';
+import { GlobalActionsManager } from './global-actions/global-actions-manager';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import { GitExcludesProvider } from './views/git-excludes';
 import { ReplacementsProvider } from './views/replacements';
@@ -42,6 +43,7 @@ type Providers = {
   replacementsProvider: ReplacementsProvider;
   gitExcludesProvider: GitExcludesProvider;
   vscodeExcludesProvider: VscodeExcludesProvider;
+  globalActionsManager: GlobalActionsManager;
 };
 
 function setupStatesAndContext(context: ExtensionContext) {
@@ -59,8 +61,9 @@ function setupInitialKeybindings() {
   reloadVariableKeybindings();
 }
 
-function setupProviders(): Providers {
+function setupProviders(context: ExtensionContext): Providers {
   const statusBarManager = new StatusBarManager();
+  const globalActionsManager = new GlobalActionsManager(context);
   const taskTreeDataProvider = new TaskTreeDataProvider();
   const variablesProvider = new VariablesProvider();
   const replacementsProvider = new ReplacementsProvider();
@@ -76,6 +79,7 @@ function setupProviders(): Providers {
     replacementsProvider,
     gitExcludesProvider,
     vscodeExcludesProvider,
+    globalActionsManager,
   };
 }
 
@@ -120,6 +124,7 @@ function setupDisposables(context: ExtensionContext, providers: Providers, tasks
   context.subscriptions.push({ dispose: () => providers.replacementsProvider.dispose() });
   context.subscriptions.push({ dispose: () => providers.gitExcludesProvider.dispose() });
   context.subscriptions.push({ dispose: () => providers.vscodeExcludesProvider.dispose() });
+  context.subscriptions.push(providers.globalActionsManager);
   context.subscriptions.push(workspaceManager);
 }
 
@@ -129,6 +134,10 @@ function setupConfigChangeListener(context: ExtensionContext, providers: Provide
   const configWatcher = VscodeHelper.onDidChangeConfiguration((e) => {
     if (e.affectsConfiguration('files.exclude')) {
       providers.vscodeExcludesProvider.refresh();
+    }
+
+    if (e.affectsConfiguration(`${configSection}.${ExtensionConfigKey.GlobalActionsConfigPath}`)) {
+      providers.globalActionsManager.reload();
     }
 
     if (e.affectsConfiguration(`${configSection}.${ExtensionConfigKey.TasksLocation}`)) {
@@ -197,6 +206,7 @@ function setupCommands(context: ExtensionContext, providers: Providers) {
     replacementsProvider: providers.replacementsProvider,
     gitExcludesProvider: providers.gitExcludesProvider,
     vscodeExcludesProvider: providers.vscodeExcludesProvider,
+    globalActionsManager: providers.globalActionsManager,
   });
   context.subscriptions.push(...commandDisposables);
 
@@ -210,18 +220,12 @@ export function activate(context: ExtensionContext): object {
   logger.clear();
   logger.info('=== EXTENSION ACTIVATE START ===');
 
-  const hasWorkspace = VscodeHelper.getAllWorkspaceFolders().length > 0;
-  if (!hasWorkspace) {
-    logger.info('No workspace found, skipping extension initialization');
-    return {};
-  }
-
   void setContextKey(ContextKey.ExtensionInitializing, true);
 
   setupStatesAndContext(context);
   setupInitialKeybindings();
 
-  const providers = setupProviders();
+  const providers = setupProviders(context);
   const tasksViews = setupTreeViews(providers);
   setupDisposables(context, providers, tasksViews);
   setupConfigChangeListener(context, providers, tasksViews);

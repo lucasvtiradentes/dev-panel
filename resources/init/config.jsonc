@@ -1,10 +1,9 @@
 {
   "$schema": "../schema.json",
-  "taskScanIgnorePaths": [],
   "variables": [
     {
       "name": "environment",
-      "kind": "choose",
+      "type": "choice",
       "options": ["dev", "staging", "prod"],
       "description": "Select target environment",
       "default": "dev"

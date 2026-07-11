@@ -43,7 +43,8 @@ src/extension.ts
 - File replacements using git skip-worktree
 - Local .git/info/exclude management from sidebar
 - Status bar with variable state tooltip
-- Keyboard shortcut bindings for tasks and variables
+- Keyboard shortcut bindings for tasks, variables, and global actions
+- Machine-global actions available from a compact status bar menu
 
 ## Configuration
 
@@ -55,3 +56,5 @@ The extension reads configuration from `.devpanel/config.jsonc`:
 ├── variables.json    # Auto-generated variable state
 └── replacements/     # Replacement source files
 ```
+
+Machine-global commands use a separate JSONC file configured through `Dev Panel: Configure Global Actions`. They are not merged into workspace configuration.
