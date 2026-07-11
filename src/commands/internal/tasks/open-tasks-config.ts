@@ -1,4 +1,5 @@
 import {
+  CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   CONFIG_TASKS_ARRAY_PATTERN,
   PACKAGE_JSON,
@@ -52,8 +53,7 @@ async function handleOpenTasksConfig() {
         const uri = VscodeHelper.createFileUri(configPath);
         await VscodeHelper.openDocumentAtLine(uri, tasksLine);
       } else {
-        const configDirLabel = ConfigManager.getConfigDirLabel(ConfigManager.getCurrentConfigDir());
-        void VscodeHelper.showToastMessage(ToastKind.Error, `${configDirLabel}/${CONFIG_FILE_NAME} not found`);
+        void VscodeHelper.showToastMessage(ToastKind.Error, `${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME} not found`);
       }
       break;
     }

@@ -142,7 +142,7 @@ feat: add variable substitution in glob patterns
 "dev-panel": major
 ---
 
-feat: rename `useConfigDir` to `relativeTo` (BREAKING)
+feat: replace legacy task fields with workspace-relative commands (BREAKING)
 ```
 
 ### Multiple Changes in One

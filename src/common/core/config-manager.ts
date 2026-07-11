@@ -1,131 +1,43 @@
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, VARIABLES_FILE_NAME } from '../constants';
 import type { ConfigKey } from '../constants/enums';
-import type { DevPanelConfig } from '../schemas';
+import { type DevPanelConfig, DevPanelConfigSchema } from '../schemas';
 import { readJsoncFile } from '../utils/functions/read-jsonc-file';
 import { JsonHelper } from '../utils/helpers/json-helper';
 import { FileIOHelper, NodePathHelper } from '../utils/helpers/node-helper';
-import { VscodeConstants } from '../vscode/vscode-constants';
 import { ToastKind, VscodeHelper } from '../vscode/vscode-helper';
-import type { Uri, WorkspaceFolder } from '../vscode/vscode-types';
-import { StoreKey, extensionStore } from './extension-store';
+import type { WorkspaceFolder } from '../vscode/vscode-types';
 
 export type ConfigArrayKey = ConfigKey.Tasks;
 export type ConfigArrayItem = NonNullable<DevPanelConfig['tasks']>[number];
 
 export class ConfigManager {
-  private static getConfigDir(workspacePath: string, configDir: string | null): Uri {
-    const baseDir = VscodeHelper.createFileUri(workspacePath);
-
-    if (!configDir) {
-      return VscodeHelper.joinPath(baseDir, CONFIG_DIR_NAME);
-    }
-
-    const customDir = NodePathHelper.isAbsolute(configDir)
-      ? VscodeHelper.createFileUri(configDir)
-      : VscodeHelper.joinPath(baseDir, configDir);
-    return VscodeHelper.joinPath(customDir, CONFIG_DIR_NAME);
+  static getConfigDirPath(workspacePath: string): string {
+    return NodePathHelper.join(workspacePath, CONFIG_DIR_NAME);
   }
 
-  static async copyDirectoryRecursive(source: Uri, target: Uri) {
-    await VscodeHelper.createDirectory(target);
-
-    const entries = await VscodeHelper.readDirectory(source);
-    for (const [name, type] of entries) {
-      const sourceEntry = VscodeHelper.joinPath(source, name);
-      const targetEntry = VscodeHelper.joinPath(target, name);
-
-      if (type === VscodeConstants.FileType.Directory) {
-        await ConfigManager.copyDirectoryRecursive(sourceEntry, targetEntry);
-      } else {
-        await VscodeHelper.copy(sourceEntry, targetEntry, { overwrite: true });
-      }
-    }
-  }
-
-  static getConfigPath(workspacePath: string, configDir: string | null, fileName: string): string {
-    return VscodeHelper.joinPath(ConfigManager.getConfigDir(workspacePath, configDir), fileName).fsPath;
-  }
-
-  static getConfigDirPath(workspacePath: string, configDir: string | null): string {
-    return ConfigManager.getConfigDir(workspacePath, configDir).fsPath;
-  }
-
-  static async hasConfig(workspacePath: string, configDir: string | null, fileName: string): Promise<boolean> {
-    const configPath = VscodeHelper.createFileUri(ConfigManager.getConfigPath(workspacePath, configDir, fileName));
-    try {
-      await VscodeHelper.stat(configPath);
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  static async moveConfig(workspacePath: string, fromConfigDir: string | null, toConfigDir: string | null) {
-    const sourceDir = ConfigManager.getConfigDir(workspacePath, fromConfigDir);
-    const targetDir = ConfigManager.getConfigDir(workspacePath, toConfigDir);
-
-    await ConfigManager.copyDirectoryRecursive(sourceDir, targetDir);
-    await VscodeHelper.delete(sourceDir, { recursive: true });
-  }
-
-  static getConfigDirLabel(configDir: string | null): string {
-    return configDir ? `${configDir}/${CONFIG_DIR_NAME}` : CONFIG_DIR_NAME;
-  }
-
-  static getCurrentConfigDir(): string | null {
-    return extensionStore.get(StoreKey.ConfigDir);
-  }
-
-  static setConfigDir(configDir: string | null) {
-    extensionStore.set(StoreKey.ConfigDir, configDir);
+  static getConfigFilePathFromWorkspacePath(workspacePath: string, fileName: string): string {
+    return NodePathHelper.join(ConfigManager.getConfigDirPath(workspacePath), fileName);
   }
 
   static getWorkspaceConfigDirPath(folder: WorkspaceFolder): string {
-    const configDir = ConfigManager.getCurrentConfigDir();
-    return ConfigManager.getConfigDirPath(folder.uri.fsPath, configDir);
+    return ConfigManager.getConfigDirPath(folder.uri.fsPath);
   }
 
   static getWorkspaceConfigFilePath(folder: WorkspaceFolder, fileName: string): string {
-    const configDir = ConfigManager.getCurrentConfigDir();
-    return ConfigManager.getConfigPath(folder.uri.fsPath, configDir, fileName);
+    return ConfigManager.getConfigFilePathFromWorkspacePath(folder.uri.fsPath, fileName);
   }
 
   static joinConfigPath(folder: WorkspaceFolder, ...segments: string[]): string {
-    const configDir = ConfigManager.getCurrentConfigDir();
-    const basePath = ConfigManager.getConfigDirPath(folder.uri.fsPath, configDir);
-    return NodePathHelper.join(basePath, ...segments);
+    return NodePathHelper.join(ConfigManager.getWorkspaceConfigDirPath(folder), ...segments);
   }
 
   static getWorkspaceVariablesPath(folder: WorkspaceFolder): string {
     return ConfigManager.joinConfigPath(folder, VARIABLES_FILE_NAME);
   }
 
-  static getConfigDirPathFromWorkspacePath(workspacePath: string): string {
-    const configDir = ConfigManager.getCurrentConfigDir();
-    return ConfigManager.getConfigDirPath(workspacePath, configDir);
-  }
-
-  static configDirExists(workspacePath: string): boolean {
-    const configDirPath = ConfigManager.getConfigDirPathFromWorkspacePath(workspacePath);
-    return FileIOHelper.fileExists(configDirPath);
-  }
-
-  static getConfigFilePathFromWorkspacePath(workspacePath: string, fileName: string): string {
-    const configDir = ConfigManager.getCurrentConfigDir();
-    return ConfigManager.getConfigPath(workspacePath, configDir, fileName);
-  }
-
-  static getConfigDirPattern(): string {
-    const configDir = ConfigManager.getCurrentConfigDir();
-    if (!configDir) {
-      return CONFIG_DIR_NAME;
-    }
-    return `${configDir}/${CONFIG_DIR_NAME}`;
-  }
-
   static parseConfig(content: string): DevPanelConfig | null {
     try {
-      return readJsoncFile(content) as DevPanelConfig;
+      return DevPanelConfigSchema.parse(readJsoncFile(content));
     } catch {
       return null;
     }
@@ -134,7 +46,7 @@ export class ConfigManager {
   static loadConfigFromPath(configPath: string): DevPanelConfig | null {
     if (!FileIOHelper.fileExists(configPath)) return null;
     try {
-      return readJsoncFile(FileIOHelper.readFile(configPath)) as DevPanelConfig;
+      return DevPanelConfigSchema.parse(readJsoncFile(FileIOHelper.readFile(configPath)));
     } catch {
       return null;
     }
@@ -151,19 +63,11 @@ export class ConfigManager {
   }
 
   static forEachWorkspaceConfig(callback: (folder: WorkspaceFolder, config: DevPanelConfig) => void) {
-    const folders = VscodeHelper.getWorkspaceFolders();
-    if (folders.length === 0) return;
-
-    for (const folder of folders) {
+    for (const folder of VscodeHelper.getWorkspaceFolders()) {
       const config = ConfigManager.loadWorkspaceConfig(folder);
       if (!config) continue;
-
       callback(folder, config);
     }
-  }
-
-  static ensureDirectoryExists(dirPath: string) {
-    FileIOHelper.ensureDirectoryExists(dirPath);
   }
 
   static saveConfigToPath(configPath: string, config: DevPanelConfig) {
@@ -173,7 +77,7 @@ export class ConfigManager {
   static saveWorkspaceConfig(folder: WorkspaceFolder, config: DevPanelConfig) {
     const workspaceConfigDir = ConfigManager.getWorkspaceConfigDirPath(folder);
     const workspaceConfigPath = ConfigManager.getWorkspaceConfigFilePath(folder, CONFIG_FILE_NAME);
-    ConfigManager.ensureDirectoryExists(workspaceConfigDir);
+    FileIOHelper.ensureDirectoryExists(workspaceConfigDir);
     ConfigManager.saveConfigToPath(workspaceConfigPath, config);
   }
 
@@ -192,7 +96,7 @@ export class ConfigManager {
     const array = config[arrayKey] as ConfigArrayItem[];
     if (!array) return null;
 
-    const index = array.findIndex((i) => i.name === itemName);
+    const index = array.findIndex((item) => item.name === itemName);
     if (index === -1) return null;
 
     const [item] = array.splice(index, 1);

@@ -34,7 +34,6 @@ sources:
 │  ┌────────────────────────────────────────────────────────┐ │
 │  │ 1. setupStatesAndContext()                             │ │
 │  │    ├── initWorkspaceState(context)                     │ │
-│  │    ├── extensionStore.initialize(context)              │ │
 │  │    └── setWorkspaceId()                                │ │
 │  ├────────────────────────────────────────────────────────┤ │
 │  │ 2. setupInitialKeybindings()                           │ │

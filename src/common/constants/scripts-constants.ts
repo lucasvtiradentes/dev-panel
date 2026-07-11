@@ -51,5 +51,3 @@ export function buildLogFilename(isDev: boolean): string {
 export function getVscodeTasksFilePath(workspacePath: string): string {
   return NodePathHelper.join(workspacePath, '.vscode', 'tasks.json');
 }
-
-export const WORKSPACE_STATE_CONFIG_DIR_KEY = `${CONFIG_DIR_KEY}.configDir`;

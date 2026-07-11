@@ -39,6 +39,7 @@ const DevPanelTaskSchema = z
       .optional()
       .describe('If true, run command silently with progress notification instead of showing terminal'),
   })
+  .strict()
   .describe('A task that can be executed from the Tasks view');
 
 export enum VariableKind {

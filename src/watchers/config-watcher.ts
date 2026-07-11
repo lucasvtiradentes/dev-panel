@@ -1,6 +1,4 @@
-import { CONFIG_FILE_NAME, VARIABLES_FILE_NAME } from '../common/constants';
-import { ConfigManager } from '../common/core/config-manager';
-import { StoreKey, extensionStore } from '../common/core/extension-store';
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, VARIABLES_FILE_NAME } from '../common/constants';
 import { createLogger } from '../common/lib/logger';
 import { VscodeHelper } from '../common/vscode/vscode-helper';
 import type { Disposable, Uri } from '../common/vscode/vscode-types';
@@ -9,8 +7,7 @@ import { type RefreshCallback, attachFileWatcherHandlers } from '../common/vscod
 const logger = createLogger('ConfigWatcher');
 
 export function createConfigWatcher(onConfigChange: RefreshCallback): Disposable {
-  const configDirPattern = ConfigManager.getConfigDirPattern();
-  const pattern = `**/${configDirPattern}/{${CONFIG_FILE_NAME},${VARIABLES_FILE_NAME}}`;
+  const pattern = `**/${CONFIG_DIR_NAME}/{${CONFIG_FILE_NAME},${VARIABLES_FILE_NAME}}`;
   logger.info(`[createConfigWatcher] Pattern: ${pattern}`);
 
   const configWatcher = VscodeHelper.createFileSystemWatcher(pattern);
@@ -26,18 +23,12 @@ export function createConfigWatcher(onConfigChange: RefreshCallback): Disposable
     onDelete: handleConfigChange,
   });
 
-  const storeUnsubscribe = extensionStore.subscribe(StoreKey.ConfigDir, () => {
-    logger.info('[configWatcher] ConfigDir store changed');
-    onConfigChange();
-  });
-
   logger.info('[createConfigWatcher] Watcher created OK');
 
   return {
     dispose: () => {
       logger.info('[createConfigWatcher] Disposing');
       configWatcher.dispose();
-      storeUnsubscribe();
     },
   };
 }

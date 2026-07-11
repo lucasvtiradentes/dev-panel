@@ -8,7 +8,6 @@ import {
   getViewIdTasksPanel,
   getViewIdVscodeExcludes,
 } from './common/constants';
-import { extensionStore } from './common/core/extension-store';
 import { workspaceManager } from './common/core/workspace-manager';
 import { logger } from './common/lib/logger';
 import { initWorkspaceState } from './common/state';
@@ -47,7 +46,6 @@ type Providers = {
 
 function setupStatesAndContext(context: ExtensionContext) {
   initWorkspaceState(context);
-  extensionStore.initialize(context);
   workspaceManager.initialize(context);
 
   const workspaceId = generateWorkspaceId();

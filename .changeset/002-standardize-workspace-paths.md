@@ -2,6 +2,13 @@
 "dev-panel": major
 ---
 
-feat: standardize commands and paths on the workspace root
+feat: standardize commands, config, and paths on the workspace root
 
-BREAKING: remove `useConfigDir`. DevPanel tasks and variable commands now always run from the owning workspace root. Prefix config-local scripts with `.devpanel/`.
+BREAKING:
+
+- Remove `useConfigDir`; tasks and variable commands always run from the owning workspace root
+- Fix Dev Panel config location to `<workspace>/.devpanel`
+- Remove custom config-location state and behavior
+- Reject legacy task fields instead of providing fallback or backward compatibility
+
+Prefix config-local scripts with `.devpanel/`.

@@ -145,7 +145,6 @@ common/
 │   └── scripts-constants.ts
 ├── core/
 │   ├── config-manager.ts
-│   ├── extension-store.ts
 │   ├── keybindings-sync.ts
 │   └── tree-item-utils.ts
 ├── lib/
