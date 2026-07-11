@@ -73,8 +73,7 @@ export function isReplacementActive(options: IsReplacementActiveOptions): boolea
   if (replacement.type === ReplacementType.Patch) {
     if (!normalizedPatches || normalizedPatches.length === 0) return false;
 
-    const firstReplace = normalizeSearchReplace(normalizedPatches[0].replace);
-    return targetContent.includes(firstReplace);
+    return normalizedPatches.every((patch) => targetContent.includes(normalizeSearchReplace(patch.replace)));
   }
 
   if (replacement.type === ReplacementType.File) {
