@@ -137,8 +137,9 @@ export class TaskTreeDataProvider implements TreeDataProvider<TreeTask | GroupTr
     if (!this._treeView) return;
     const source = TASK_SOURCES.find((s) => s.id === this._source);
     if (source) {
-      const title = `Tasks - ${source.label}`;
+      const title = 'Tasks';
       this._treeView.title = IS_DEV ? addDevLabel(title) : title;
+      this._treeView.description = source.label;
     }
   }
 
