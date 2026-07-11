@@ -210,3 +210,9 @@ Available as $projectName in command (DevPanel variables override process.env)
 ```
 
 Combined with input variables for task execution.
+
+## Task Scan Ignores
+
+Recursive npm and Makefile scans always skip `.git`, `.next`, `dist`, `dist-*`, `node_modules`, and `out`.
+
+Use `Dev Panel: Manage Task Scan Ignores` or the exclude button in the Tasks view to manage additional workspace-relative folders. Custom ignores are stored in VS Code workspace state per active workspace and never written to `config.jsonc`.

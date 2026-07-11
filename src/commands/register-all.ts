@@ -23,6 +23,7 @@ import { createToggleReplacementsViewCommands } from './internal/replacements/to
 import { createResetConfigOptionCommand, createSelectConfigOptionCommand } from './internal/select-config-option';
 import { createDeleteTaskCommand } from './internal/tasks/delete-task';
 import { createGoToTaskCommand } from './internal/tasks/go-to-task';
+import { createManageTaskScanIgnoresCommand } from './internal/tasks/manage-task-scan-ignores';
 import { createOpenTasksConfigCommand } from './internal/tasks/open-tasks-config';
 import { createRefreshCommand } from './internal/tasks/refresh-tasks';
 import {
@@ -66,6 +67,7 @@ export function registerAllCommands(options: {
     ...createToggleTasksViewCommands(taskTreeDataProvider),
     createGoToTaskCommand(),
     createOpenTasksConfigCommand(),
+    createManageTaskScanIgnoresCommand(taskTreeDataProvider),
     createDeleteTaskCommand(),
     createExecuteTaskCommand(context),
     createSelectWorkspaceCommand(),

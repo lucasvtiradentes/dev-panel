@@ -7,6 +7,7 @@ const TaskSourceEnum = z.enum(TASK_SOURCE_VALUES);
 const TasksStateSchema = z.object({
   current: TaskSourceEnum,
   isGrouped: z.boolean(),
+  taskScanIgnorePaths: z.array(z.string()),
   vscode: SourceStateSchema,
   package: SourceStateSchema,
   devpanel: SourceStateSchema,
@@ -45,6 +46,7 @@ export type WorkspaceUIState = z.infer<typeof WorkspaceUIStateSchema>;
 export const DEFAULT_TASKS_STATE: TasksState = {
   current: 'vscode',
   isGrouped: false,
+  taskScanIgnorePaths: [],
   vscode: { ...DEFAULT_SOURCE_STATE },
   package: { ...DEFAULT_SOURCE_STATE },
   devpanel: { ...DEFAULT_SOURCE_STATE },

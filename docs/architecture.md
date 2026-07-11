@@ -129,6 +129,7 @@ sources:
 │  ┌────────────────────────────────────────────────────────────┐ │
 │  │ tasksState                                                 │ │
 │  │   ├── source (vscode | package | devpanel | makefile)      │ │
+│  │   ├── taskScanIgnorePaths (workspace-relative string[])    │ │
 │  │   ├── grouped (boolean)                                    │ │
 │  │   ├── showHidden (per source)                              │ │
 │  │   ├── hidden (per source)                                  │ │

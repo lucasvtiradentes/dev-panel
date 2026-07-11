@@ -1,13 +1,8 @@
 import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
-import {
-  CONTEXT_VALUES,
-  DEFAULT_EXCLUDED_DIRS,
-  DIST_DIR_PREFIX,
-  ROOT_PACKAGE_LABEL,
-  getCommandId,
-} from '../../common/constants';
+import { CONTEXT_VALUES, ROOT_PACKAGE_LABEL, getCommandId } from '../../common/constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import { TaskSource } from '../../common/schemas/types';
+import { tasksState } from '../../common/state';
 import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
 import { Command } from '../../common/vscode/vscode-commands';
 import { VscodeConstants } from '../../common/vscode/vscode-constants';
@@ -17,6 +12,7 @@ import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
 import { buildPrefixGroupTree } from './group-by-prefix';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { buildTaskStateKey, isFavorite, isHidden } from './state';
+import { findTaskSourceFiles } from './task-source-scanner';
 
 type MakefileLocation = {
   relativePath: string;
@@ -24,14 +20,6 @@ type MakefileLocation = {
   targets: Map<string, string>;
   folder: WorkspaceFolder;
 };
-
-function getExcludedDirs(extraIgnore?: string[]): Set<string> {
-  const dirs = new Set(DEFAULT_EXCLUDED_DIRS);
-  if (extraIgnore) {
-    for (const dir of extraIgnore) dirs.add(dir);
-  }
-  return dirs;
-}
 
 export function resolveMakefilePath(dir: string): string | null {
   const makefilePath = NodePathHelper.join(dir, 'Makefile');
@@ -117,10 +105,7 @@ export async function getMakefileTasks(
 async function findAllMakefiles(folder: WorkspaceFolder): Promise<MakefileLocation[]> {
   const makefiles: MakefileLocation[] = [];
   const rootPath = folder.uri.fsPath;
-  const config = ConfigManager.loadWorkspaceConfig(folder);
-  const excludedDirs = getExcludedDirs(config?.taskScanIgnorePaths);
-
-  const makefilePaths = findMakefilesRecursive(rootPath, excludedDirs);
+  const makefilePaths = findTaskSourceFiles(rootPath, ['Makefile', 'makefile'], tasksState.getTaskScanIgnorePaths());
 
   for (const makefilePath of makefilePaths) {
     const targets = readMakefileTargets(makefilePath);
@@ -144,30 +129,6 @@ async function findAllMakefiles(folder: WorkspaceFolder): Promise<MakefileLocati
   });
 
   return makefiles;
-}
-
-function findMakefilesRecursive(dir: string, excludedDirs: Set<string>, maxDepth = 5, currentDepth = 0): string[] {
-  if (currentDepth > maxDepth) return [];
-
-  const results: string[] = [];
-
-  try {
-    const entries = FileIOHelper.readDirectory(dir, { withFileTypes: true });
-
-    for (const entry of entries) {
-      if ((entry.name === 'Makefile' || entry.name === 'makefile') && entry.isFile()) {
-        results.push(NodePathHelper.join(dir, entry.name));
-      } else if (entry.isDirectory() && !excludedDirs.has(entry.name) && !entry.name.startsWith(DIST_DIR_PREFIX)) {
-        results.push(
-          ...findMakefilesRecursive(NodePathHelper.join(dir, entry.name), excludedDirs, maxDepth, currentDepth + 1),
-        );
-      }
-    }
-  } catch {
-    // ignore permission errors
-  }
-
-  return results;
 }
 
 function getGroupedByLocation(

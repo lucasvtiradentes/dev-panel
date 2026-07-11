@@ -22,6 +22,8 @@ export const tasksState: StateManager<TasksState> & {
   saveCurrentSource(source: TaskSource): void;
   getIsGrouped(): boolean;
   saveIsGrouped(isGrouped: boolean): void;
+  getTaskScanIgnorePaths(): string[];
+  saveTaskScanIgnorePaths(paths: string[]): void;
   getSourceState(source: TaskSource): SourceState;
   saveSourceState(source: TaskSource, sourceState: SourceState): void;
   getOrder(source: TaskSource, isGrouped: boolean): string[];
@@ -57,6 +59,16 @@ export const tasksState: StateManager<TasksState> & {
   saveIsGrouped(isGrouped: boolean) {
     const tasks = this.load();
     tasks.isGrouped = isGrouped;
+    this.save(tasks);
+  },
+
+  getTaskScanIgnorePaths(): string[] {
+    return this.load().taskScanIgnorePaths ?? [];
+  },
+
+  saveTaskScanIgnorePaths(paths: string[]) {
+    const tasks = this.load();
+    tasks.taskScanIgnorePaths = paths;
     this.save(tasks);
   },
 

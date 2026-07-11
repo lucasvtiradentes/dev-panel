@@ -9,13 +9,14 @@ import {
 import { ConfigManager } from '../../../common/core/config-manager';
 import { PackageJsonHelper } from '../../../common/core/package-json-helper';
 import { TaskSource } from '../../../common/schemas/types';
+import { tasksState } from '../../../common/state';
 import { FileIOHelper, NodePathHelper } from '../../../common/utils/helpers/node-helper';
 import { TypeGuardsHelper } from '../../../common/utils/helpers/type-guards-helper';
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import { resolveMakefilePath } from '../../../views/tasks/makefile-tasks';
-import { getExcludedDirs } from '../../../views/tasks/package-json';
 import { getCurrentSource } from '../../../views/tasks/state';
+import { findTaskSourceFiles } from '../../../views/tasks/task-source-scanner';
 
 async function handleOpenTasksConfig() {
   const source = getCurrentSource();
@@ -59,8 +60,7 @@ async function handleOpenTasksConfig() {
     }
 
     case TaskSource.Package: {
-      const excludedDirs = getExcludedDirs();
-      const packageJsons = await PackageJsonHelper.findAllPackageJsons(workspace, excludedDirs);
+      const packageJsons = findTaskSourceFiles(workspacePath, [PACKAGE_JSON], tasksState.getTaskScanIgnorePaths());
 
       if (!TypeGuardsHelper.isNonEmptyArray(packageJsons)) {
         void VscodeHelper.showToastMessage(ToastKind.Error, `No ${PACKAGE_JSON} found`);

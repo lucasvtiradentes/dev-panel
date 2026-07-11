@@ -21,6 +21,7 @@ export enum Command {
   GoToTask = 'goToTask',
   ExecuteTask = 'executeTask',
   OpenTasksConfig = 'openTasksConfig',
+  ManageTaskScanIgnores = 'manageTaskScanIgnores',
   SelectConfigOption = 'selectConfigOption',
   ResetConfigOption = 'resetConfigOption',
   ToggleConfigsGroupMode = 'toggleConfigsGroupMode',

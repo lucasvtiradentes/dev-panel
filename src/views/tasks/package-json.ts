@@ -1,14 +1,8 @@
 import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
-import {
-  CONTEXT_VALUES,
-  DEFAULT_EXCLUDED_DIRS,
-  DIST_DIR_PREFIX,
-  PACKAGE_JSON,
-  ROOT_PACKAGE_LABEL,
-  getCommandId,
-} from '../../common/constants';
+import { CONTEXT_VALUES, PACKAGE_JSON, ROOT_PACKAGE_LABEL, getCommandId } from '../../common/constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import { TaskSource } from '../../common/schemas/types';
+import { tasksState } from '../../common/state';
 import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
 import { PackageJsonHelper } from '../../common/utils/helpers/package-json-helper';
 import { Command } from '../../common/vscode/vscode-commands';
@@ -19,6 +13,7 @@ import type { WorkspaceFolder } from '../../common/vscode/vscode-types';
 import { buildPrefixGroupTree } from './group-by-prefix';
 import { GroupTreeItem, TreeTask, type WorkspaceTreeItem } from './items';
 import { buildTaskStateKey, isFavorite, isHidden } from './state';
+import { findTaskSourceFiles } from './task-source-scanner';
 
 type PackageLocation = {
   relativePath: string;
@@ -26,14 +21,6 @@ type PackageLocation = {
   scripts: Record<string, string>;
   folder: WorkspaceFolder;
 };
-
-export function getExcludedDirs(extraIgnore?: string[]): Set<string> {
-  const dirs = new Set(DEFAULT_EXCLUDED_DIRS);
-  if (extraIgnore) {
-    for (const dir of extraIgnore) dirs.add(dir);
-  }
-  return dirs;
-}
 
 export function hasPackageSourceFiles(): boolean {
   const folders = VscodeHelper.getWorkspaceFolders();
@@ -114,10 +101,7 @@ export async function getPackageScripts(
 async function findAllPackageJsons(folder: WorkspaceFolder): Promise<PackageLocation[]> {
   const packages: PackageLocation[] = [];
   const rootPath = folder.uri.fsPath;
-  const config = ConfigManager.loadWorkspaceConfig(folder);
-  const excludedDirs = getExcludedDirs(config?.taskScanIgnorePaths);
-
-  const packageJsonPaths = findPackageJsonsRecursive(rootPath, excludedDirs);
+  const packageJsonPaths = findTaskSourceFiles(rootPath, [PACKAGE_JSON], tasksState.getTaskScanIgnorePaths());
 
   for (const pkgPath of packageJsonPaths) {
     const scripts = readPackageScripts(pkgPath);
@@ -141,30 +125,6 @@ async function findAllPackageJsons(folder: WorkspaceFolder): Promise<PackageLoca
   });
 
   return packages;
-}
-
-function findPackageJsonsRecursive(dir: string, excludedDirs: Set<string>, maxDepth = 5, currentDepth = 0): string[] {
-  if (currentDepth > maxDepth) return [];
-
-  const results: string[] = [];
-
-  try {
-    const entries = FileIOHelper.readDirectory(dir, { withFileTypes: true });
-
-    for (const entry of entries) {
-      if (entry.name === PACKAGE_JSON && entry.isFile()) {
-        results.push(NodePathHelper.join(dir, entry.name));
-      } else if (entry.isDirectory() && !excludedDirs.has(entry.name) && !entry.name.startsWith(DIST_DIR_PREFIX)) {
-        results.push(
-          ...findPackageJsonsRecursive(NodePathHelper.join(dir, entry.name), excludedDirs, maxDepth, currentDepth + 1),
-        );
-      }
-    }
-  } catch {
-    // ignore permission errors
-  }
-
-  return results;
 }
 
 function getGroupedByLocation(

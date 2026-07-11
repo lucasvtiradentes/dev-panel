@@ -251,6 +251,11 @@
         "icon": "$(go-to-file)"
       },
       {
+        "command": "devPanel.manageTaskScanIgnores",
+        "title": "Dev Panel: Manage Task Scan Ignores",
+        "icon": "$(exclude)"
+      },
+      {
         "command": "devPanel.refresh",
         "title": "Refresh",
         "icon": "$(extensions-refresh)"
@@ -669,7 +674,12 @@
         {
           "command": "devPanel.openTasksConfig",
           "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel)",
-          "group": "navigation@5"
+          "group": "navigation@6"
+        },
+        {
+          "command": "devPanel.manageTaskScanIgnores",
+          "when": "view == devPanelTasksExplorer || view == devPanelTasksPanel",
+          "group": "navigation@0"
         },
         {
           "command": "devPanel.toggleTasksShowOnlyFavorites",
@@ -684,12 +694,12 @@
         {
           "command": "devPanel.toggleTasksShowHidden",
           "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && tasksHasHidden && !tasksShowHidden",
-          "group": "navigation@3"
+          "group": "navigation@4"
         },
         {
           "command": "devPanel.toggleTasksShowHiddenActive",
           "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && tasksHasHidden && tasksShowHidden",
-          "group": "navigation@3"
+          "group": "navigation@4"
         },
         {
           "command": "devPanel.openTasksKeybindings",
@@ -699,32 +709,32 @@
         {
           "command": "devPanel.toggleGroupMode",
           "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && !tasksGrouped",
-          "group": "navigation@4"
+          "group": "navigation@5"
         },
         {
           "command": "devPanel.toggleGroupModeGrouped",
           "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && tasksGrouped",
-          "group": "navigation@4"
+          "group": "navigation@5"
         },
         {
           "command": "devPanel.switchTaskSource",
           "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceVSCode && taskSourceHasMultiple",
-          "group": "navigation@6"
+          "group": "navigation@7"
         },
         {
           "command": "devPanel.switchTaskSourceFromPackage",
           "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourcePackage && taskSourceHasMultiple",
-          "group": "navigation@6"
+          "group": "navigation@7"
         },
         {
           "command": "devPanel.switchTaskSourceFromDevPanel",
           "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceDevPanel && taskSourceHasMultiple",
-          "group": "navigation@6"
+          "group": "navigation@7"
         },
         {
           "command": "devPanel.switchTaskSourceFromMakefile",
           "when": "(view == devPanelTasksExplorer || view == devPanelTasksPanel) && taskSourceMakefile && taskSourceHasMultiple",
-          "group": "navigation@6"
+          "group": "navigation@7"
         }
       ],
       "view/item/context": [
