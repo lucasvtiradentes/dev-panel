@@ -5,7 +5,7 @@ import {
   TASK_COMMAND_SUFFIX,
   VARIABLE_COMMAND_SUFFIX,
   VIEW_ID_CONFIGS,
-  VIEW_ID_EXCLUDES,
+  VIEW_ID_GIT_EXCLUDES,
   VIEW_ID_REPLACEMENTS,
   VIEW_ID_TASKS_EXPLORER,
   VIEW_ID_TASKS_PANEL,
@@ -35,8 +35,8 @@ export function getViewIdReplacements(): string {
   return IS_DEV ? addDevSuffix(VIEW_ID_REPLACEMENTS) : VIEW_ID_REPLACEMENTS;
 }
 
-export function getViewIdExcludes(): string {
-  return IS_DEV ? addDevSuffix(VIEW_ID_EXCLUDES) : VIEW_ID_EXCLUDES;
+export function getViewIdGitExcludes(): string {
+  return IS_DEV ? addDevSuffix(VIEW_ID_GIT_EXCLUDES) : VIEW_ID_GIT_EXCLUDES;
 }
 
 export function getViewIdVscodeExcludes(): string {

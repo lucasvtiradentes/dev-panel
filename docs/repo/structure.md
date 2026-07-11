@@ -129,9 +129,11 @@ views/
 │   ├── file-ops.ts      # File/patch operations
 │   ├── state.ts
 │   └── keybindings-local.ts
-└── excludes/
-    ├── excludes-provider.ts
-    └── file-ops.ts      # .git/info/exclude operations
+├── git-excludes/
+│   ├── git-excludes-provider.ts
+│   └── file-ops.ts      # .git/info/exclude operations
+└── vscode-excludes/
+    └── vscode-excludes-provider.ts
 ```
 
 ### Common (`src/common/`)

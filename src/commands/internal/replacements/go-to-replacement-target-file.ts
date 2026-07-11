@@ -9,7 +9,7 @@ type GoToReplacementTargetFileParams = { replacement?: DevPanelReplacement };
 export function createGoToReplacementTargetFileCommand(): Disposable {
   return registerCommand(Command.GoToReplacementTargetFile, async (item: GoToReplacementTargetFileParams) => {
     if (item?.replacement?.target) {
-      const workspaceFolder = VscodeHelper.getFirstWorkspaceFolder();
+      const workspaceFolder = VscodeHelper.getActiveWorkspaceFolder();
       if (!workspaceFolder) return;
       const targetPath = getReplacementPath(workspaceFolder.uri.fsPath, item.replacement.target);
       const uri = VscodeHelper.createFileUri(targetPath);

@@ -305,7 +305,7 @@ async function collectFileInput(
   workspaceFolder: WorkspaceFolder | null,
   basePath?: string,
 ): Promise<InputValue | undefined> {
-  const folder = workspaceFolder ?? VscodeHelper.getFirstWorkspaceFolder();
+  const folder = workspaceFolder ?? VscodeHelper.getActiveWorkspaceFolder();
   if (!folder) {
     void VscodeHelper.showToastMessage(ToastKind.Error, ERROR_MSG_WORKSPACE_REQUIRED);
     return undefined;
@@ -327,7 +327,7 @@ async function collectFolderInput(
   workspaceFolder: WorkspaceFolder | null,
   basePath?: string,
 ): Promise<InputValue | undefined> {
-  const folder = workspaceFolder ?? VscodeHelper.getFirstWorkspaceFolder();
+  const folder = workspaceFolder ?? VscodeHelper.getActiveWorkspaceFolder();
   if (!folder) {
     void VscodeHelper.showToastMessage(ToastKind.Error, ERROR_MSG_WORKSPACE_REQUIRED);
     return undefined;

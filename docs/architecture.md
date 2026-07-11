@@ -40,18 +40,20 @@ sources:
 │  │    ├── reloadTaskKeybindings()                         │ │
 │  │    └── reloadVariableKeybindings()                     │ │
 │  ├────────────────────────────────────────────────────────┤ │
-│  │ 3. setupProviders(workspace)                           │ │
+│  │ 3. setupProviders()                                    │ │
 │  │    ├── StatusBarManager                                │ │
 │  │    ├── TaskTreeDataProvider                            │ │
 │  │    ├── VariablesProvider                               │ │
 │  │    ├── ReplacementsProvider                            │ │
-│  │    └── ExcludesProvider                                │ │
+│  │    ├── GitExcludesProvider                             │ │
+│  │    └── VscodeExcludesProvider                          │ │
 │  ├────────────────────────────────────────────────────────┤ │
 │  │ 4. setupTreeViews(providers)                           │ │
 │  │    ├── Tasks Explorer/Panel view                       │ │
 │  │    ├── Variables view                                  │ │
 │  │    ├── Replacements view                               │ │
-│  │    └── Excludes view                                   │ │
+│  │    ├── Git Excludes view                               │ │
+│  │    └── VS Code Excludes view                           │ │
 │  ├────────────────────────────────────────────────────────┤ │
 │  │ 5. setupWatchers(context, providers, workspace)        │ │
 │  │    ├── ConfigWatcher                                   │ │
@@ -86,8 +88,11 @@ sources:
 │  │ Replacements (devPanelReplacements)                        │  │
 │  │   └── ReplacementsProvider → ReplacementTreeItem           │  │
 │  ├────────────────────────────────────────────────────────────┤  │
-│  │ Excludes (devPanelExcludes)                                │  │
-│  │   └── ExcludesProvider → ExcludeTreeItem                   │  │
+│  │ Git Excludes (devPanelExcludes)                            │  │
+│  │   └── GitExcludesProvider → GitExcludeTreeItem             │  │
+│  ├────────────────────────────────────────────────────────────┤  │
+│  │ VS Code Excludes (devPanelVscodeExcludes)                  │  │
+│  │   └── VscodeExcludesProvider → VscodeExcludeTreeItem       │  │
 │  ├────────────────────────────────────────────────────────────┤  │
 │  │ Task Runner (devPanelTasksPanel | devPanelTasksExplorer)   │  │
 │  │   └── TaskTreeDataProvider → TreeTask                      │  │
@@ -220,8 +225,8 @@ Commands are registered in `src/commands/register-all.ts`:
 | Tasks            | 22    | executeTask, switchTaskSource, toggleHide  |
 | Variables        | 8     | selectConfigOption, setVariableKeybinding  |
 | Replacements     | 7     | toggleReplacement, previewReplacementDiff  |
-| Excludes         | 3     | addExclude, removeExclude, openExcludeFile |
-| General          | 1     | openSettingsMenu                           |
+| Excludes         | 10+   | toggleExclude, addVscodeExclude            |
+| General          | 2     | selectWorkspace, changeTasksLocation       |
 | Debug            | 3     | showLogs, showWorkspaceState, clearState   |
 
 ## Logging

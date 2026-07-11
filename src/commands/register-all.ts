@@ -1,17 +1,17 @@
 import { syncKeybindings } from '../common/core/keybindings-sync';
 import { Command, registerCommand } from '../common/vscode/vscode-commands';
 import type { Disposable, ExtensionContext } from '../common/vscode/vscode-types';
-import type { ExcludesProvider } from '../views/excludes';
+import type { GitExcludesProvider } from '../views/git-excludes';
 import type { ReplacementsProvider } from '../views/replacements';
 import type { TaskTreeDataProvider } from '../views/tasks';
 import type { VariablesProvider } from '../views/variables';
 import type { VscodeExcludesProvider } from '../views/vscode-excludes';
-import { createAddExcludeCommand } from './internal/excludes/add-exclude';
-import { createOpenExcludeFileCommand } from './internal/excludes/open-exclude-file';
-import { createRemoveExcludeCommand } from './internal/excludes/remove-exclude';
-import { createToggleExcludeCommand } from './internal/excludes/toggle-exclude';
-import { createToggleExcludesViewCommands } from './internal/excludes/toggle-excludes-view';
 import { createExecuteTaskCommand } from './internal/execute-task';
+import { createAddExcludeCommand } from './internal/git-excludes/add-exclude';
+import { createOpenExcludeFileCommand } from './internal/git-excludes/open-exclude-file';
+import { createRemoveExcludeCommand } from './internal/git-excludes/remove-exclude';
+import { createToggleExcludeCommand } from './internal/git-excludes/toggle-exclude';
+import { createToggleExcludesViewCommands } from './internal/git-excludes/toggle-excludes-view';
 import { createGoToReplacementTargetFileCommand } from './internal/replacements/go-to-replacement-target-file';
 import { createPreviewReplacementDiffCommand } from './internal/replacements/preview-replacement-diff';
 import {
@@ -50,7 +50,7 @@ export function registerAllCommands(options: {
   taskTreeDataProvider: TaskTreeDataProvider;
   variablesProvider: VariablesProvider;
   replacementsProvider: ReplacementsProvider;
-  excludesProvider: ExcludesProvider;
+  gitExcludesProvider: GitExcludesProvider;
   vscodeExcludesProvider: VscodeExcludesProvider;
 }): Disposable[] {
   const {
@@ -58,7 +58,7 @@ export function registerAllCommands(options: {
     taskTreeDataProvider,
     variablesProvider,
     replacementsProvider,
-    excludesProvider,
+    gitExcludesProvider,
     vscodeExcludesProvider,
   } = options;
   return [
@@ -85,7 +85,7 @@ export function registerAllCommands(options: {
     createRemoveExcludeCommand(),
     createOpenExcludeFileCommand(),
     createToggleExcludeCommand(),
-    ...createToggleExcludesViewCommands(excludesProvider),
+    ...createToggleExcludesViewCommands(gitExcludesProvider),
     ...createVscodeExcludesCommands(vscodeExcludesProvider),
     createShowLogsCommand(),
     createShowWorkspaceStateCommand(),

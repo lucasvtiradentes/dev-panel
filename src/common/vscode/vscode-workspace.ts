@@ -8,7 +8,7 @@ export function isMultiRootWorkspace(): boolean {
 }
 
 export function generateWorkspaceId(): string {
-  const folders = VscodeHelper.getWorkspaceFolders();
+  const folders = VscodeHelper.getActiveWorkspaceFolders();
   if (folders.length === 0) return '';
   const paths = folders
     .map((f) => f.uri.fsPath)

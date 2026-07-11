@@ -1,5 +1,11 @@
 import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
-import { CONTEXT_VALUES, PACKAGE_JSON, ROOT_PACKAGE_LABEL, getCommandId } from '../../common/constants';
+import {
+  CONTEXT_VALUES,
+  PACKAGE_JSON,
+  ROOT_PACKAGE_LABEL,
+  TASK_LOCATION_SEPARATOR,
+  getCommandId,
+} from '../../common/constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import { TaskSource } from '../../common/schemas/types';
 import { tasksState } from '../../common/state';
@@ -23,7 +29,7 @@ type PackageLocation = {
 };
 
 export function hasPackageSourceFiles(): boolean {
-  const folders = VscodeHelper.getWorkspaceFolders();
+  const folders = VscodeHelper.getActiveWorkspaceFolders();
   return folders.some((folder) => {
     const packageJsonPath = NodePathHelper.join(folder.uri.fsPath, PACKAGE_JSON);
     return FileIOHelper.fileExists(packageJsonPath);
@@ -31,14 +37,14 @@ export function hasPackageSourceFiles(): boolean {
 }
 
 export function hasMultiplePackageConfigEntries(): boolean {
-  return VscodeHelper.getWorkspaceFolders().some((folder) => {
+  return VscodeHelper.getActiveWorkspaceFolders().some((folder) => {
     const rootPath = folder.uri.fsPath;
     return findTaskSourceFiles(rootPath, [PACKAGE_JSON], tasksState.getTaskScanIgnorePaths()).length > 1;
   });
 }
 
 export async function hasPackageGroups(): Promise<boolean> {
-  const folders = VscodeHelper.getWorkspaceFolders();
+  const folders = VscodeHelper.getActiveWorkspaceFolders();
   const allPackages: PackageLocation[] = [];
 
   for (const folder of folders) {
@@ -65,7 +71,7 @@ export async function getPackageScripts(
     elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
   ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
 ): Promise<Array<TreeTask | GroupTreeItem | WorkspaceTreeItem>> {
-  const folders = VscodeHelper.getWorkspaceFolders();
+  const folders = VscodeHelper.getActiveWorkspaceFolders();
   const allPackages: PackageLocation[] = [];
 
   for (const folder of folders) {
@@ -152,7 +158,7 @@ function getFlatByLocation(
           folder: pkg.folder,
           cwd: pkg.absolutePath,
           relativePath: pkg.relativePath,
-          displayName: `${pkg.relativePath} · ${name}`,
+          displayName: `${pkg.relativePath}${TASK_LOCATION_SEPARATOR}${name}`,
           showHidden,
           showOnlyFavorites,
         }),

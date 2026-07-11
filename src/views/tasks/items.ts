@@ -101,7 +101,7 @@ export class TreeTask extends TreeItemClass {
 
   private loadTaskMetadata() {
     const multiRoot = isMultiRootWorkspace();
-    const workspaceFolders = VscodeHelper.getWorkspaceFolders();
+    const workspaceFolders = VscodeHelper.getActiveWorkspaceFolders();
 
     if (workspaceFolders.length === 0) return;
 

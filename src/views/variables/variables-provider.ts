@@ -32,13 +32,13 @@ type DevPanelVariables = {
 type DevPanelState = VariablesState;
 
 export function loadVariablesState(): DevPanelState {
-  const workspace = VscodeHelper.getFirstWorkspacePath();
+  const workspace = VscodeHelper.getActiveWorkspacePath();
   if (!workspace) return {};
   return VariablesHelper.load(workspace);
 }
 
 function saveState(state: DevPanelState) {
-  const workspace = VscodeHelper.getFirstWorkspacePath();
+  const workspace = VscodeHelper.getActiveWorkspacePath();
   if (!workspace) return;
   VariablesHelper.save(workspace, state);
 }
@@ -152,7 +152,7 @@ export class VariablesProvider implements TreeDataProvider<TreeItem> {
   }
 
   private loadConfig(): DevPanelVariables | null {
-    const workspace = VscodeHelper.getFirstWorkspacePath();
+    const workspace = VscodeHelper.getActiveWorkspacePath();
     if (!workspace) return null;
 
     const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
@@ -168,7 +168,7 @@ export class VariablesProvider implements TreeDataProvider<TreeItem> {
 async function runCommand(variable: DevPanelVariable, value: unknown) {
   if (!variable.command) return;
 
-  const workspace = VscodeHelper.getFirstWorkspacePath();
+  const workspace = VscodeHelper.getActiveWorkspacePath();
   if (!workspace) return;
 
   const formattedValue = Array.isArray(value) ? value.join(',') : String(value);
@@ -193,7 +193,7 @@ async function runCommand(variable: DevPanelVariable, value: unknown) {
 
 export async function selectVariableOption(variable: DevPanelVariable) {
   const state = loadVariablesState();
-  const workspaceFolder = VscodeHelper.getFirstWorkspaceFolder();
+  const workspaceFolder = VscodeHelper.getActiveWorkspaceFolder();
   if (!workspaceFolder) return;
 
   const currentValue = state[variable.name] as InputValue | undefined;

@@ -12,37 +12,21 @@ export enum ToastKind {
 export class VscodeHelper {
   private static activeWorkspaceUri: string | null = null;
 
-  static getFirstWorkspaceFolder(): WorkspaceFolder | undefined {
-    return VscodeHelper.getWorkspaceFolders()[0];
+  static getActiveWorkspaceFolder(): WorkspaceFolder | undefined {
+    return VscodeHelper.getActiveWorkspaceFolders()[0];
   }
 
-  static getFirstWorkspacePath(): string | null {
-    return VscodeHelper.getFirstWorkspaceFolder()?.uri.fsPath ?? null;
+  static getActiveWorkspacePath(): string | null {
+    return VscodeHelper.getActiveWorkspaceFolder()?.uri.fsPath ?? null;
   }
 
   static requireWorkspaceFolder(): WorkspaceFolder | null {
-    const folder = VscodeHelper.getFirstWorkspaceFolder();
+    const folder = VscodeHelper.getActiveWorkspaceFolder();
     if (!folder) {
       VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
       return null;
     }
     return folder;
-  }
-
-  static async selectWorkspaceFolder(placeholder: string): Promise<WorkspaceFolder | null> {
-    const folders = VscodeHelper.getWorkspaceFolders();
-    if (folders.length === 0) {
-      VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
-      return null;
-    }
-
-    if (folders.length === 1) {
-      return folders[0];
-    }
-
-    const items = folders.map((f) => ({ label: f.name, folder: f }));
-    const selected = await VscodeHelper.showQuickPickItems(items, { placeHolder: placeholder });
-    return selected?.folder ?? null;
   }
 
   static createIcon(icon: VscodeIcon, color?: VscodeColor): ThemeIcon {
@@ -253,7 +237,7 @@ export class VscodeHelper {
     return vscode.workspace.fs.delete(uri, options);
   }
 
-  static getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] {
+  static getActiveWorkspaceFolders(): readonly vscode.WorkspaceFolder[] {
     const folders = VscodeHelper.getAllWorkspaceFolders();
     if (!VscodeHelper.activeWorkspaceUri) return folders.slice(0, 1);
     return folders.filter((folder) => folder.uri.toString() === VscodeHelper.activeWorkspaceUri);

@@ -2,7 +2,7 @@ import { registerAllCommands } from './commands/register-all';
 import {
   GLOBAL_STATE_WORKSPACE_SOURCE,
   getViewIdConfigs,
-  getViewIdExcludes,
+  getViewIdGitExcludes,
   getViewIdReplacements,
   getViewIdTasksExplorer,
   getViewIdTasksPanel,
@@ -22,7 +22,7 @@ import {
   setWorkspaceId,
 } from './common/vscode/vscode-workspace';
 import { StatusBarManager } from './status-bar/status-bar-manager';
-import { ExcludesProvider } from './views/excludes';
+import { GitExcludesProvider } from './views/git-excludes';
 import { ReplacementsProvider } from './views/replacements';
 import { registerReplacementKeybindings } from './views/replacements/keybindings-local';
 import { type GroupTreeItem, TaskTreeDataProvider, type TreeTask, type WorkspaceTreeItem } from './views/tasks';
@@ -31,7 +31,7 @@ import { VariablesProvider } from './views/variables';
 import { registerVariableKeybindings, reloadVariableKeybindings } from './views/variables/keybindings-local';
 import { VscodeExcludesProvider } from './views/vscode-excludes';
 import { createConfigWatcher } from './watchers/config-watcher';
-import { createExcludesWatcher } from './watchers/excludes-watcher';
+import { createGitExcludesWatcher } from './watchers/git-excludes-watcher';
 import { createKeybindingsWatcher } from './watchers/keybindings-watcher';
 import { createTaskSourcesWatcher } from './watchers/task-sources-watcher';
 
@@ -40,7 +40,7 @@ type Providers = {
   taskTreeDataProvider: TaskTreeDataProvider;
   variablesProvider: VariablesProvider;
   replacementsProvider: ReplacementsProvider;
-  excludesProvider: ExcludesProvider;
+  gitExcludesProvider: GitExcludesProvider;
   vscodeExcludesProvider: VscodeExcludesProvider;
 };
 
@@ -64,7 +64,7 @@ function setupProviders(): Providers {
   const taskTreeDataProvider = new TaskTreeDataProvider();
   const variablesProvider = new VariablesProvider();
   const replacementsProvider = new ReplacementsProvider();
-  const excludesProvider = new ExcludesProvider();
+  const gitExcludesProvider = new GitExcludesProvider();
   const vscodeExcludesProvider = new VscodeExcludesProvider();
 
   void VscodeHelper.fetchTasks();
@@ -74,7 +74,7 @@ function setupProviders(): Providers {
     taskTreeDataProvider,
     variablesProvider,
     replacementsProvider,
-    excludesProvider,
+    gitExcludesProvider,
     vscodeExcludesProvider,
   };
 }
@@ -105,7 +105,7 @@ function setupTreeViews(providers: Providers): TasksTreeViews {
 
   VscodeHelper.registerTreeDataProvider(getViewIdConfigs(), providers.variablesProvider);
   VscodeHelper.registerTreeDataProvider(getViewIdReplacements(), providers.replacementsProvider);
-  VscodeHelper.registerTreeDataProvider(getViewIdExcludes(), providers.excludesProvider);
+  VscodeHelper.registerTreeDataProvider(getViewIdGitExcludes(), providers.gitExcludesProvider);
   VscodeHelper.registerTreeDataProvider(getViewIdVscodeExcludes(), providers.vscodeExcludesProvider);
 
   return { explorerView, panelView };
@@ -118,7 +118,7 @@ function setupDisposables(context: ExtensionContext, providers: Providers, tasks
   context.subscriptions.push({ dispose: () => providers.taskTreeDataProvider.dispose() });
   context.subscriptions.push({ dispose: () => providers.variablesProvider.dispose() });
   context.subscriptions.push({ dispose: () => providers.replacementsProvider.dispose() });
-  context.subscriptions.push({ dispose: () => providers.excludesProvider.dispose() });
+  context.subscriptions.push({ dispose: () => providers.gitExcludesProvider.dispose() });
   context.subscriptions.push({ dispose: () => providers.vscodeExcludesProvider.dispose() });
   context.subscriptions.push(workspaceManager);
 }
@@ -167,8 +167,8 @@ function setupWatchers(context: ExtensionContext, providers: Providers) {
   });
   context.subscriptions.push(taskSourcesWatcher);
 
-  const excludesWatcher = createExcludesWatcher(() => {
-    providers.excludesProvider.refresh();
+  const excludesWatcher = createGitExcludesWatcher(() => {
+    providers.gitExcludesProvider.refresh();
   });
   context.subscriptions.push(excludesWatcher);
 
@@ -179,7 +179,7 @@ function setupWatchers(context: ExtensionContext, providers: Providers) {
     providers.taskTreeDataProvider.reloadWorkspaceState();
     providers.variablesProvider.reloadWorkspaceState();
     providers.replacementsProvider.reloadWorkspaceState();
-    providers.excludesProvider.reloadWorkspaceState();
+    providers.gitExcludesProvider.reloadWorkspaceState();
     providers.vscodeExcludesProvider.reloadWorkspaceState();
     reloadTaskKeybindings();
     reloadVariableKeybindings();
@@ -195,7 +195,7 @@ function setupCommands(context: ExtensionContext, providers: Providers) {
     taskTreeDataProvider: providers.taskTreeDataProvider,
     variablesProvider: providers.variablesProvider,
     replacementsProvider: providers.replacementsProvider,
-    excludesProvider: providers.excludesProvider,
+    gitExcludesProvider: providers.gitExcludesProvider,
     vscodeExcludesProvider: providers.vscodeExcludesProvider,
   });
   context.subscriptions.push(...commandDisposables);

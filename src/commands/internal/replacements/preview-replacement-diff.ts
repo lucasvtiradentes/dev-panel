@@ -92,7 +92,7 @@ export function createPreviewReplacementDiffCommand(): Disposable[] {
     async (item: PreviewReplacementDiffParams) => {
       if (!item?.replacement) return;
 
-      const workspace = VscodeHelper.getFirstWorkspacePath();
+      const workspace = VscodeHelper.getActiveWorkspacePath();
       if (!workspace) return;
 
       const activeReplacements = getActiveReplacements();

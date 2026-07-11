@@ -36,7 +36,7 @@ export function initWorkspaceState(context: ExtensionContext) {
 }
 
 function getScopedWorkspaceStateKey(): string {
-  const workspaceUri = VscodeHelper.getFirstWorkspaceFolder()?.uri.toString();
+  const workspaceUri = VscodeHelper.getActiveWorkspaceFolder()?.uri.toString();
   return workspaceUri ? `${WORKSPACE_STATE_KEY}:${workspaceUri}` : WORKSPACE_STATE_KEY;
 }
 

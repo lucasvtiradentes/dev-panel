@@ -16,7 +16,7 @@ import { type GroupTreeItem, TreeTask, WorkspaceTreeItem } from './items';
 import { buildTaskStateKey, isFavorite, isHidden } from './state';
 
 export function hasVSCodeSourceFiles(): boolean {
-  const folders = VscodeHelper.getWorkspaceFolders();
+  const folders = VscodeHelper.getActiveWorkspaceFolders();
   return folders.some((folder) => FileIOHelper.fileExists(getVscodeTasksFilePath(folder.uri.fsPath)));
 }
 

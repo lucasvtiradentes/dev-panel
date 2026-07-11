@@ -1,11 +1,11 @@
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import { addExcludeEntry, refreshExcludes } from '../../../views/excludes';
+import { addExcludeEntry, refreshGitExcludes } from '../../../views/git-excludes';
 
 export function createAddExcludeCommand(): Disposable {
   return registerCommand(Command.AddExclude, async () => {
-    const workspace = VscodeHelper.getFirstWorkspacePath();
+    const workspace = VscodeHelper.getActiveWorkspacePath();
     if (!workspace) return;
 
     const pattern = await VscodeHelper.showInputBox({
@@ -28,6 +28,6 @@ export function createAddExcludeCommand(): Disposable {
       return;
     }
 
-    refreshExcludes();
+    refreshGitExcludes();
   });
 }

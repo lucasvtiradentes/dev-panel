@@ -15,7 +15,7 @@ export function createGoToTaskCommand() {
       return;
     }
 
-    const folders = VscodeHelper.getWorkspaceFolders();
+    const folders = VscodeHelper.getActiveWorkspaceFolders();
     if (!TypeGuardsHelper.isNonEmptyArray(folders)) {
       VscodeHelper.showToastMessage(ToastKind.Error, 'No workspace folder found');
       return;

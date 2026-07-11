@@ -20,7 +20,7 @@ import { findTaskSourceFiles } from '../../../views/tasks/task-source-scanner';
 
 async function handleOpenTasksConfig() {
   const source = getCurrentSource();
-  const workspace = VscodeHelper.getFirstWorkspaceFolder();
+  const workspace = VscodeHelper.getActiveWorkspaceFolder();
   if (!workspace) return;
 
   const workspacePath = workspace.uri.fsPath;

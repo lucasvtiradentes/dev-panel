@@ -56,7 +56,7 @@ async function showManageMenu(provider: TaskTreeDataProvider): Promise<void> {
 }
 
 async function addIgnoredFolder(provider: TaskTreeDataProvider): Promise<void> {
-  const workspaceFolder = VscodeHelper.getFirstWorkspaceFolder();
+  const workspaceFolder = VscodeHelper.getActiveWorkspaceFolder();
   if (!workspaceFolder) return;
 
   const selectedPath = await selectFolders(workspaceFolder, {

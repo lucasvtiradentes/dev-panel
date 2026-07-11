@@ -5,7 +5,7 @@ import { Command, registerCommand } from '../../../common/vscode/vscode-commands
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 
 async function handleOpenVariablesConfig() {
-  const workspace = VscodeHelper.getFirstWorkspaceFolder();
+  const workspace = VscodeHelper.getActiveWorkspaceFolder();
   if (!workspace) return;
 
   const configPath = ConfigManager.getWorkspaceConfigFilePath(workspace, CONFIG_FILE_NAME);

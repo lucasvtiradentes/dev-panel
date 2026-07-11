@@ -63,7 +63,7 @@ export class ConfigManager {
   }
 
   static forEachWorkspaceConfig(callback: (folder: WorkspaceFolder, config: DevPanelConfig) => void) {
-    for (const folder of VscodeHelper.getWorkspaceFolders()) {
+    for (const folder of VscodeHelper.getActiveWorkspaceFolders()) {
       const config = ConfigManager.loadWorkspaceConfig(folder);
       if (!config) continue;
       callback(folder, config);

@@ -5,14 +5,14 @@ import { type RefreshCallback, attachFileWatcherHandlers } from '../common/vscod
 
 const logger = createLogger('ExcludesWatcher');
 
-export function createExcludesWatcher(onExcludeChange: RefreshCallback): Disposable {
+export function createGitExcludesWatcher(onExcludeChange: RefreshCallback): Disposable {
   const pattern = '**/.git/info/exclude';
-  logger.info(`[createExcludesWatcher] Pattern: ${pattern}`);
+  logger.info(`[createGitExcludesWatcher] Pattern: ${pattern}`);
 
   const excludesWatcher = VscodeHelper.createFileSystemWatcher(pattern);
 
   const handleExcludeChange = (uri: Uri) => {
-    logger.info(`[createExcludesWatcher] File changed: ${uri.fsPath}`);
+    logger.info(`[createGitExcludesWatcher] File changed: ${uri.fsPath}`);
     onExcludeChange();
   };
 
@@ -22,11 +22,11 @@ export function createExcludesWatcher(onExcludeChange: RefreshCallback): Disposa
     onDelete: handleExcludeChange,
   });
 
-  logger.info('[createExcludesWatcher] Watcher created OK');
+  logger.info('[createGitExcludesWatcher] Watcher created OK');
 
   return {
     dispose: () => {
-      logger.info('[createExcludesWatcher] Disposing');
+      logger.info('[createGitExcludesWatcher] Disposing');
       excludesWatcher.dispose();
     },
   };

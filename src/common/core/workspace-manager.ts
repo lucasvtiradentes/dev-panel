@@ -1,7 +1,6 @@
+import { ACTIVE_WORKSPACE_STATE_KEY } from '../constants';
 import { VscodeHelper } from '../vscode/vscode-helper';
 import type { Disposable, Event, EventEmitter, ExtensionContext, WorkspaceFolder } from '../vscode/vscode-types';
-
-const ACTIVE_WORKSPACE_KEY = 'devPanel.activeWorkspaceUri';
 
 class WorkspaceManager implements Disposable {
   private readonly onDidChangeEmitter: EventEmitter<WorkspaceFolder | undefined> = VscodeHelper.createEventEmitter();
@@ -12,7 +11,7 @@ class WorkspaceManager implements Disposable {
 
   initialize(context: ExtensionContext) {
     this.context = context;
-    this.activeUri = context.workspaceState.get<string>(ACTIVE_WORKSPACE_KEY) ?? null;
+    this.activeUri = context.workspaceState.get<string>(ACTIVE_WORKSPACE_STATE_KEY) ?? null;
     this.ensureValidSelection();
     this.foldersListener = VscodeHelper.onDidChangeWorkspaceFolders(() => {
       this.ensureValidSelection();
@@ -50,7 +49,7 @@ class WorkspaceManager implements Disposable {
     if (nextUri === this.activeUri) return;
     this.activeUri = nextUri;
     VscodeHelper.setActiveWorkspaceUri(nextUri);
-    void this.context?.workspaceState.update(ACTIVE_WORKSPACE_KEY, nextUri);
+    void this.context?.workspaceState.update(ACTIVE_WORKSPACE_STATE_KEY, nextUri);
     this.onDidChangeEmitter.fire(folder);
   }
 
@@ -60,7 +59,7 @@ class WorkspaceManager implements Disposable {
     const activeFolder = activeExists ? this.getActiveFolder() : folders[0];
     this.activeUri = activeFolder?.uri.toString() ?? null;
     VscodeHelper.setActiveWorkspaceUri(this.activeUri);
-    void this.context?.workspaceState.update(ACTIVE_WORKSPACE_KEY, this.activeUri);
+    void this.context?.workspaceState.update(ACTIVE_WORKSPACE_STATE_KEY, this.activeUri);
   }
 
   dispose() {

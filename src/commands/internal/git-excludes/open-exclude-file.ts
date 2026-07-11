@@ -1,11 +1,11 @@
 import { Command, registerCommand } from '../../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../../common/vscode/vscode-helper';
 import type { Disposable } from '../../../common/vscode/vscode-types';
-import { ensureExcludeFileExists, getExcludeFilePath } from '../../../views/excludes';
+import { ensureExcludeFileExists, getExcludeFilePath } from '../../../views/git-excludes';
 
 export function createOpenExcludeFileCommand(): Disposable {
   return registerCommand(Command.OpenExcludeFile, async () => {
-    const workspace = VscodeHelper.getFirstWorkspacePath();
+    const workspace = VscodeHelper.getActiveWorkspacePath();
     if (!workspace) return;
 
     if (!ensureExcludeFileExists(workspace)) {

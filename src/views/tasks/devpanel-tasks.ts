@@ -13,7 +13,7 @@ import { getTaskKeybinding } from './keybindings-local';
 import { buildTaskStateKey, isFavorite, isHidden } from './state';
 
 export function hasDevPanelGroups(): boolean {
-  const folders = VscodeHelper.getWorkspaceFolders();
+  const folders = VscodeHelper.getActiveWorkspaceFolders();
   for (const folder of folders) {
     const tasks = readDevPanelTasks(folder);
     if (tasks.some((task) => task.group != null)) return true;
@@ -29,7 +29,7 @@ export async function getDevPanelTasks(
     elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
   ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
 ): Promise<Array<TreeTask | GroupTreeItem | WorkspaceTreeItem>> {
-  const folders = VscodeHelper.getWorkspaceFolders();
+  const folders = VscodeHelper.getActiveWorkspaceFolders();
 
   if (!grouped) {
     const taskElements: TreeTask[] = [];

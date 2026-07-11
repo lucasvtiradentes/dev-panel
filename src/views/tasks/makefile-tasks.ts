@@ -1,5 +1,11 @@
 import { VariablesEnvManager } from 'src/common/core/variables-env-manager';
-import { CONTEXT_VALUES, ROOT_PACKAGE_LABEL, getCommandId } from '../../common/constants';
+import {
+  CONTEXT_VALUES,
+  MAKEFILE_NAMES,
+  ROOT_PACKAGE_LABEL,
+  TASK_LOCATION_SEPARATOR,
+  getCommandId,
+} from '../../common/constants';
 import { ConfigManager } from '../../common/core/config-manager';
 import { TaskSource } from '../../common/schemas/types';
 import { tasksState } from '../../common/state';
@@ -22,27 +28,27 @@ type MakefileLocation = {
 };
 
 export function resolveMakefilePath(dir: string): string | null {
-  const makefilePath = NodePathHelper.join(dir, 'Makefile');
-  if (FileIOHelper.fileExists(makefilePath)) return makefilePath;
-  const makefileLowerPath = NodePathHelper.join(dir, 'makefile');
-  if (FileIOHelper.fileExists(makefileLowerPath)) return makefileLowerPath;
+  for (const fileName of MAKEFILE_NAMES) {
+    const filePath = NodePathHelper.join(dir, fileName);
+    if (FileIOHelper.fileExists(filePath)) return filePath;
+  }
   return null;
 }
 
 export function hasMakefileSourceFiles(): boolean {
-  const folders = VscodeHelper.getWorkspaceFolders();
+  const folders = VscodeHelper.getActiveWorkspaceFolders();
   return folders.some((folder) => resolveMakefilePath(folder.uri.fsPath) !== null);
 }
 
 export function hasMultipleMakefileConfigEntries(): boolean {
-  return VscodeHelper.getWorkspaceFolders().some((folder) => {
+  return VscodeHelper.getActiveWorkspaceFolders().some((folder) => {
     const rootPath = folder.uri.fsPath;
-    return findTaskSourceFiles(rootPath, ['Makefile', 'makefile'], tasksState.getTaskScanIgnorePaths()).length > 1;
+    return findTaskSourceFiles(rootPath, MAKEFILE_NAMES, tasksState.getTaskScanIgnorePaths()).length > 1;
   });
 }
 
 export async function hasMakefileGroups(): Promise<boolean> {
-  const folders = VscodeHelper.getWorkspaceFolders();
+  const folders = VscodeHelper.getActiveWorkspaceFolders();
   const allMakefiles: MakefileLocation[] = [];
 
   for (const folder of folders) {
@@ -69,7 +75,7 @@ export async function getMakefileTasks(
     elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
   ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
 ): Promise<Array<TreeTask | GroupTreeItem | WorkspaceTreeItem>> {
-  const folders = VscodeHelper.getWorkspaceFolders();
+  const folders = VscodeHelper.getActiveWorkspaceFolders();
   const allMakefiles: MakefileLocation[] = [];
 
   for (const folder of folders) {
@@ -113,7 +119,7 @@ export async function getMakefileTasks(
 async function findAllMakefiles(folder: WorkspaceFolder): Promise<MakefileLocation[]> {
   const makefiles: MakefileLocation[] = [];
   const rootPath = folder.uri.fsPath;
-  const makefilePaths = findTaskSourceFiles(rootPath, ['Makefile', 'makefile'], tasksState.getTaskScanIgnorePaths());
+  const makefilePaths = findTaskSourceFiles(rootPath, MAKEFILE_NAMES, tasksState.getTaskScanIgnorePaths());
 
   for (const makefilePath of makefilePaths) {
     const targets = readMakefileTargets(makefilePath);
@@ -156,7 +162,7 @@ function getFlatByLocation(
           folder: makefile.folder,
           cwd: makefile.absolutePath,
           relativePath: makefile.relativePath,
-          displayName: `${makefile.relativePath} · ${name}`,
+          displayName: `${makefile.relativePath}${TASK_LOCATION_SEPARATOR}${name}`,
           showHidden,
           showOnlyFavorites,
         }),

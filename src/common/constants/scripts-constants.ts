@@ -12,17 +12,20 @@ export const VARIABLES_FILE_NAME = 'variables.json';
 export const RESOURCES_DIR_NAME = 'resources';
 export const INIT_RESOURCES_DIR_NAME = 'init';
 export const DEFAULT_EXCLUDED_DIRS = ['.git', '.next', 'dist', 'node_modules', 'out'];
+export const MAKEFILE_NAMES = ['Makefile', 'makefile'] as const;
+export const TASK_LOCATION_SEPARATOR = ' · ';
 
 export const DND_MIME_TYPE_TASKS = `application/vnd.code.tree.${CONFIG_DIR_KEY}tasks`;
 
 export const WORKSPACE_STATE_KEY = `${CONFIG_DIR_KEY}.uiState`;
 
 export const CONTEXT_PREFIX = 'devPanel';
+export const ACTIVE_WORKSPACE_STATE_KEY = `${CONTEXT_PREFIX}.activeWorkspaceUri`;
 export const VIEW_ID_TASKS_EXPLORER = `${CONTEXT_PREFIX}TasksExplorer`;
 export const VIEW_ID_TASKS_PANEL = `${CONTEXT_PREFIX}TasksPanel`;
 export const VIEW_ID_CONFIGS = `${CONTEXT_PREFIX}Configs`;
 export const VIEW_ID_REPLACEMENTS = `${CONTEXT_PREFIX}Replacements`;
-export const VIEW_ID_EXCLUDES = `${CONTEXT_PREFIX}Excludes`;
+export const VIEW_ID_GIT_EXCLUDES = `${CONTEXT_PREFIX}Excludes`;
 export const VIEW_ID_VSCODE_EXCLUDES = `${CONTEXT_PREFIX}VscodeExcludes`;
 export const DEV_SUFFIX = 'dev';
 const LOG_BASENAME = EXTENSION_NAME;

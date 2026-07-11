@@ -4,11 +4,11 @@ description: Manage local git exclude patterns from the sidebar
 related_docs:
   - docs/features/replacements-view.md:  related git features
 sources:
-  - src/views/excludes/excludes-provider.ts:             ExcludesProvider
-  - src/views/excludes/file-ops.ts:                      exclude file operations
-  - src/commands/internal/excludes/add-exclude.ts:       add exclude command
-  - src/commands/internal/excludes/remove-exclude.ts:    remove exclude command
-  - src/commands/internal/excludes/open-exclude-file.ts: open exclude file command
+  - src/views/git-excludes/git-excludes-provider.ts:         GitExcludesProvider
+  - src/views/git-excludes/file-ops.ts:                      exclude file operations
+  - src/commands/internal/git-excludes/add-exclude.ts:       add exclude command
+  - src/commands/internal/git-excludes/remove-exclude.ts:    remove exclude command
+  - src/commands/internal/git-excludes/open-exclude-file.ts: open exclude file command
   - src/watchers/excludes-watcher.ts:                    file watcher
 ---
 

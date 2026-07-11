@@ -116,7 +116,7 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
   }
 
   private async handleStartup() {
-    const workspace = VscodeHelper.getFirstWorkspacePath();
+    const workspace = VscodeHelper.getActiveWorkspacePath();
     if (workspace && (await Git.isRepository(workspace))) {
       const currentBranch = await Git.getCurrentBranch(workspace);
       setLastBranch(currentBranch);
@@ -125,7 +125,7 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
   }
 
   private syncReplacementState() {
-    const workspace = VscodeHelper.getFirstWorkspacePath();
+    const workspace = VscodeHelper.getActiveWorkspacePath();
     if (!workspace) return;
 
     const config = this.loadConfig();
@@ -191,7 +191,7 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
   }
 
   private loadConfig(): DevPanelConfig | null {
-    const workspace = VscodeHelper.getFirstWorkspacePath();
+    const workspace = VscodeHelper.getActiveWorkspacePath();
     if (!workspace) return null;
 
     const configPath = ConfigManager.getConfigFilePathFromWorkspacePath(workspace, CONFIG_FILE_NAME);
@@ -227,7 +227,7 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
   }
 
   private async activateReplacement(replacement: DevPanelReplacement) {
-    const workspace = VscodeHelper.getFirstWorkspacePath();
+    const workspace = VscodeHelper.getActiveWorkspacePath();
     if (!workspace) return;
 
     if (!(await Git.isRepository(workspace))) {
@@ -270,7 +270,7 @@ export class ReplacementsProvider implements TreeDataProvider<TreeItem> {
   }
 
   private async deactivateReplacement(replacement: DevPanelReplacement) {
-    const workspace = VscodeHelper.getFirstWorkspacePath();
+    const workspace = VscodeHelper.getActiveWorkspacePath();
     if (!workspace) return;
 
     if (await Git.isRepository(workspace)) {
