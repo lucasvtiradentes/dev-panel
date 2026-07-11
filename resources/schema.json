@@ -600,10 +600,6 @@
               "additionalProperties": false
             }
           },
-          "useConfigDir": {
-            "description": "If true, run command from .devpanel directory instead of workspace root",
-            "type": "boolean"
-          },
           "hideTerminal": {
             "description": "If true, run command silently with progress notification instead of showing terminal",
             "type": "boolean"

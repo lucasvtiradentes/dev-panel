@@ -135,7 +135,7 @@ When a variable has a `command` property, it executes after value change:
 └──────────────┘    └──────────────────┘    └─────────────────┘
 ```
 
-The command runs from the `.devpanel/` directory with:
+The command runs from the owning workspace root with:
 - The selected value appended as a quoted argument
 - `${workspaceFolder}` substitution for workspace path
 - Progress notification during execution

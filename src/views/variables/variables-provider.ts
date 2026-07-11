@@ -174,8 +174,6 @@ async function runCommand(variable: DevPanelVariable, value: unknown) {
   const formattedValue = Array.isArray(value) ? value.join(',') : String(value);
   const resolvedCmd = variable.command.replace(/\$\{workspaceFolder\}/g, workspace);
   const command = `${resolvedCmd} "${formattedValue}"`;
-  const configDirPath = ConfigManager.getConfigDirPathFromWorkspacePath(workspace);
-
   await VscodeHelper.withProgress(
     {
       location: VscodeConstants.ProgressLocation.Notification,
@@ -184,7 +182,7 @@ async function runCommand(variable: DevPanelVariable, value: unknown) {
     },
     async () => {
       try {
-        await execAsync(command, { cwd: configDirPath, env: process.env });
+        await execAsync(command, { cwd: workspace, env: process.env });
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         void VscodeHelper.showToastMessage(ToastKind.Error, `${ERROR_VARIABLE_COMMAND_FAILED}: ${errorMessage}`);

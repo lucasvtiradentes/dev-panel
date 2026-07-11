@@ -4,7 +4,7 @@
       "name": "environment",
       "kind": "choose",
       "options": ["local", "local-staging", "local-prod", "staging", "prod"],
-      "command": "bash scripts/environment-select.sh",
+      "command": "bash .devpanel/scripts/environment-select.sh",
       "description": "Select the target environment",
       "default": "local",
       "group": "Environment"
@@ -12,7 +12,7 @@
     {
       "name": "debug",
       "kind": "toggle",
-      "command": "bash scripts/toggle-debug.sh",
+      "command": "bash .devpanel/scripts/toggle-debug.sh",
       "description": "Enable or disable debug mode",
       "default": false,
       "group": "Environment"
@@ -20,7 +20,7 @@
     {
       "name": "api-url",
       "kind": "input",
-      "command": "bash scripts/set-api-url.sh",
+      "command": "bash .devpanel/scripts/set-api-url.sh",
       "description": "Set the API base URL",
       "group": "API"
     },
@@ -29,7 +29,7 @@
       "kind": "choose",
       "multiSelect": true,
       "options": ["auth", "analytics", "notifications", "dark-mode"],
-      "command": "bash scripts/set-features.sh",
+      "command": "bash .devpanel/scripts/set-features.sh",
       "description": "Enable feature flags",
       "default": ["auth"],
       "group": "API"

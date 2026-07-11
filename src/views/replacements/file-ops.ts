@@ -2,7 +2,10 @@ import { type DevPanelReplacement, type NormalizedPatchItem, ReplacementType } f
 import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
 
 export function getReplacementPath(workspace: string, filePath: string): string {
-  return NodePathHelper.isAbsolute(filePath) ? filePath : NodePathHelper.resolve(workspace, filePath);
+  const resolvedWorkspacePath = filePath.replaceAll('${workspaceFolder}', workspace);
+  return NodePathHelper.isAbsolute(resolvedWorkspacePath)
+    ? resolvedWorkspacePath
+    : NodePathHelper.resolve(workspace, resolvedWorkspacePath);
 }
 
 export function applyFileReplacement(workspace: string, source: string, target: string) {

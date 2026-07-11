@@ -157,9 +157,7 @@ async function handleExecuteTask(
 
   if (taskConfig?.inputs && taskConfig.inputs.length > 0) {
     const folder = scopeIsWorkspaceFolder ? (scope as WorkspaceFolder) : null;
-    const basePath = taskConfig.useConfigDir && folder ? ConfigManager.getWorkspaceConfigDirPath(folder) : undefined;
-
-    const inputValues = await collectInputs(taskConfig.inputs, folder, basePath);
+    const inputValues = await collectInputs(taskConfig.inputs, folder);
     if (inputValues === null) return;
 
     command = replaceInputPlaceholders(command, inputValues);

@@ -62,7 +62,6 @@ Sources are dynamic — VSCode, npm, and Makefile only appear if their files exi
       "group": "Development",
       "description": "Build the project",
       "hideTerminal": false,
-      "useConfigDir": false,
       "inputs": [
         {
           "name": "mode",
@@ -85,7 +84,6 @@ Sources are dynamic — VSCode, npm, and Makefile only appear if their files exi
 | group        | string?  | Group for organizing in tree view        |
 | description  | string?  | Tooltip text                             |
 | hideTerminal | boolean? | Run silently with progress notification  |
-| useConfigDir | boolean? | Run from .devpanel/ instead of workspace |
 | inputs       | array?   | Inputs to collect before execution       |
 
 ## Input Types

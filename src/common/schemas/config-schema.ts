@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CONFIG_DIR_NAME, EXTENSION_DISPLAY_NAME } from '../constants/scripts-constants';
+import { EXTENSION_DISPLAY_NAME } from '../constants/scripts-constants';
 
 export enum InputType {
   File = 'file',
@@ -34,10 +34,6 @@ const DevPanelTaskSchema = z
     group: z.string().optional().describe('Group name for organizing tasks'),
     description: z.string().optional().describe('Human-readable description shown as tooltip'),
     inputs: z.array(DevPanelInputSchema).optional().describe('Inputs to collect before running the task'),
-    useConfigDir: z
-      .boolean()
-      .optional()
-      .describe(`If true, run command from ${CONFIG_DIR_NAME} directory instead of workspace root`),
     hideTerminal: z
       .boolean()
       .optional()

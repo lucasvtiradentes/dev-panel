@@ -169,7 +169,7 @@ sources:
 │  │ 1. Get workspace path                                      │ │
 │  │ 2. Load variable values                                    │ │
 │  │ 3. Build env object with $VAR_NAME substitution            │ │
-│  │ 4. Set cwd (workspace or config dir)                       │ │
+│  │ 4. Set cwd to the owning workspace                         │ │
 │  └────────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────┘
                               │
@@ -242,13 +242,10 @@ Components:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ Status Bar (left, priority 100)                                 │
+│ Status Bar (right, priority 100)                                │
 │                                                                 │
-│  Icon: $(flame) when config exists                              │
-│        $(warning) when no config                                │
-│                                                                 │
-│  Tooltip: Lists all variable current values                     │
-│                                                                 │
-│  Click: Opens settings menu                                     │
+│  Hidden for single-folder workspaces                            │
+│  Multi-root: $(folder) <active-workspace>                       │
+│  Click: Select active Dev Panel workspace                       │
 └─────────────────────────────────────────────────────────────────┘
 ```
