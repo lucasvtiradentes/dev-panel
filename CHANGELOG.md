@@ -1,5 +1,70 @@
 # dev-panel
 
+## 1.0.0
+
+### Major Changes
+
+- e68d49d: feat: standardize commands, config, and paths on the workspace root
+
+  BREAKING:
+
+  - Remove `useConfigDir`; tasks and variable commands always run from the owning workspace root
+  - Fix Dev Panel config location to `<workspace>/.devpanel`
+  - Remove custom config-location state and behavior
+  - Reject legacy task fields instead of providing fallback or backward compatibility
+
+  Prefix config-local scripts with `.devpanel/`.
+
+- 0a1610b: feat: unify variable and task input types
+
+  BREAKING:
+
+  - Replace variable `kind` with `type`
+  - Rename variable `choose`, `input`, and `toggle` to `choice`, `text`, and `boolean`
+  - Replace task input `confirm` with `boolean`
+  - Replace task input `multichoice` with `choice` plus `multiSelect: true`
+  - Reject all legacy input definitions without fallback or backward compatibility
+
+  Variables and task inputs now share the same schema and collection runtime while retaining persistent and ephemeral lifecycles.
+
+- 17e1e66: feat: manage task scan ignores in workspace state
+
+  BREAKING: remove `taskScanIgnorePaths` from `config.jsonc`. Legacy config entries are rejected without migration or fallback.
+
+  - Add built-in scan ignores for `.git`, `.next`, `dist`, `dist-*`, `node_modules`, and `out`
+  - Add a command and Tasks view action to manage custom ignored folders
+  - Persist custom paths per active workspace
+  - Share one scanner between npm and Makefile task sources
+
+### Minor Changes
+
+- 0fe4981: feat: add active workspace selection for multi-root workspaces
+
+  - Add a workspace selector in the status bar for multi-root windows
+  - Scope views and persisted UI state to the active workspace
+  - Expose task view location as a public command
+  - Remove the previous status bar settings menu
+
+- 89f0534: feat: add interactive Git and VS Code exclude views
+
+  - Add a VS Code Excludes view backed by `files.exclude`
+  - Rename the existing view to Git Excludes
+  - List workspace-root files and folders for click-to-toggle visibility
+  - Add all/excluded filters and file/folder grouping with persisted view state
+  - Support linked-directory detection and multi-workspace isolation
+
+- 8bc821d: Add machine-global actions with a compact status bar launcher, configurable working directories, task-style inputs, progress notifications, and dynamic keyboard shortcut commands.
+
+### Patch Changes
+
+- 89f0534: fix: improve task view source, grouping, and scan-ignore controls
+
+  - Show the active task source as the view description
+  - Make grouped/flat mode work with multiple package.json and Makefile locations
+  - Preserve location order and prefix flat task labels with their source path
+  - Show scan-ignore controls only for recursive npm and Makefile sources
+  - Hide built-in scan ignores from the management menu
+
 ## 0.7.2
 
 ### Patch Changes
