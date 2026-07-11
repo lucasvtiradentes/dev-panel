@@ -119,9 +119,9 @@ Used in CI for PR code review with Claude AI analysis.
 
 Script: `scripts/generate-schema.ts`
 
-Generates JSON Schema from Zod definitions for config validation:
+Generates JSON Schemas from Zod definitions for config validation:
 ```bash
-pnpm run schema      # Generate resources/schema.json
+pnpm run schema      # Generate resources/schemas/*.schema.json
 ```
 
 The schema enables IntelliSense in `.devpanel/config.jsonc` files.

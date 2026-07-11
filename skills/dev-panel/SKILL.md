@@ -14,7 +14,7 @@ Dev Panel reads `.devpanel/config.jsonc` from the active workspace root. The sch
 3. Preserve JSONC comments and formatting.
 4. Keep names unique within each category.
 5. Run commands and resolve relative paths from the active workspace root.
-6. Validate the final config against `resources/schema.json`.
+6. Validate the final config against `resources/schemas/config.schema.json`.
 
 ## Top-Level Config
 

@@ -37,7 +37,7 @@ pnpm run build
 
 This runs:
 1. esbuild bundling to `out/`
-2. Schema generation to `resources/schema.json`
+2. Schema generation to `resources/schemas/config.schema.json`
 3. Local installation script
 
 ## Dev Extension Location
@@ -105,7 +105,7 @@ Create `.devpanel/config.jsonc` in your test workspace:
 
 ```jsonc
 {
-  "$schema": "./resources/schema.json",
+  "$schema": "./resources/schemas/config.schema.json",
   "variables": [],
   "tasks": [],
   "replacements": []

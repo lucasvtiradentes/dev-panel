@@ -56,11 +56,10 @@ dev-panel/
 │   ├── install-local/            # Dev extension installer
 │   └── release/                  # Release automation
 │
-├── resources/                    # Static assets
-│   ├── icon.svg                  # Extension icon (sidebar)
-│   ├── icon-colored.png          # Extension icon (marketplace)
-│   ├── schema.json               # Generated config schema
-│   └── init/                     # Workspace and global-actions config templates
+├── resources/                    # Static extension resources
+│   ├── images/                   # Sidebar and marketplace icons
+│   ├── schemas/                  # Generated JSON schemas
+│   └── templates/                # workspace-config.jsonc and global-actions.jsonc
 │
 ├── out/                          # Production build output
 │   └── extension.js              # Bundled extension

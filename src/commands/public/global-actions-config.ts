@@ -1,4 +1,9 @@
-import { GLOBAL_ACTIONS_CONFIG_FILE_NAME, INIT_RESOURCES_DIR_NAME, RESOURCES_DIR_NAME } from '../../common/constants';
+import {
+  GLOBAL_ACTIONS_CONFIG_FILE_NAME,
+  GLOBAL_ACTIONS_TEMPLATE_FILE_NAME,
+  RESOURCES_DIR_NAME,
+  TEMPLATES_RESOURCES_DIR_NAME,
+} from '../../common/constants';
 import { FileIOHelper, NodePathHelper } from '../../common/utils/helpers/node-helper';
 import { Command, registerCommand } from '../../common/vscode/vscode-commands';
 import { ToastKind, VscodeHelper } from '../../common/vscode/vscode-helper';
@@ -21,7 +26,7 @@ export function createConfigureGlobalActionsCommand(manager: GlobalActionsManage
     const configPath = NodePathHelper.join(folderPath.trim(), GLOBAL_ACTIONS_CONFIG_FILE_NAME);
     if (!FileIOHelper.fileExists(configPath)) {
       const templatePath = context.asAbsolutePath(
-        NodePathHelper.join(RESOURCES_DIR_NAME, INIT_RESOURCES_DIR_NAME, GLOBAL_ACTIONS_CONFIG_FILE_NAME),
+        NodePathHelper.join(RESOURCES_DIR_NAME, TEMPLATES_RESOURCES_DIR_NAME, GLOBAL_ACTIONS_TEMPLATE_FILE_NAME),
       );
       FileIOHelper.copyFile(templatePath, configPath);
     }

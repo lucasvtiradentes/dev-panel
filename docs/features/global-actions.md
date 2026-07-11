@@ -9,7 +9,7 @@ sources:
   - src/global-actions/global-actions-manager.ts: config loading, status bar, execution, and keybindings
   - src/commands/public/global-actions-config.ts: create/reuse and remove config commands
   - src/common/schemas/config-schema.ts: GlobalActionsConfigSchema
-  - resources/init/devpanel-actions.jsonc: seed copied when creating a config
+  - resources/templates/global-actions.jsonc: seed copied when creating a config
 ---
 
 # Global Actions
@@ -18,11 +18,11 @@ Global Actions are machine-level shell commands available from every workspace w
 
 ## Configuration path
 
-Run `Dev Panel: Configure Global Actions` and paste an absolute folder path. Dev Panel creates or reuses `devpanel-actions.jsonc`, stores its absolute path in the machine-scoped `devPanel.globalActionsConfigPath` setting, and opens it. New files are copied from `resources/init/devpanel-actions.jsonc`, which contains an example action.
+Run `Dev Panel: Configure Global Actions` and paste an absolute folder path. Dev Panel creates or reuses `devpanel-actions.jsonc`, stores its absolute path in the machine-scoped `devPanel.globalActionsConfigPath` setting, and opens it. New files are copied from `resources/templates/global-actions.jsonc`, which contains an example action.
 
 Run `Dev Panel: Remove Global Actions Config` to detach the config. The file is never deleted.
 
-VS Code automatically applies `resources/global-actions-schema.json` to files named `devpanel-actions.jsonc`, providing validation and IntelliSense without a manual `$schema` property.
+VS Code automatically applies `resources/schemas/global-actions.schema.json` to files named `devpanel-actions.jsonc`, providing validation and IntelliSense without a manual `$schema` property.
 
 ## Configuration
 

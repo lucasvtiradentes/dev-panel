@@ -1,7 +1,7 @@
 <a name="TOC"></a>
 
 <div align="center">
-  <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/dev-panel@main/resources/icon-colored.png" alt="dev-panel logo">
+  <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/dev-panel@main/resources/images/icon-colored.png" alt="dev-panel logo">
   <div><strong>Dev Panel</strong></div>
   <br />
   <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-usage">Usage</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
@@ -228,7 +228,7 @@ The extension provides JSON schema validation for `config.jsonc`.
 
 ```jsonc
 {
-  "$schema": "./node_modules/dev-panel/resources/schema.json",
+  "$schema": "./node_modules/dev-panel/resources/schemas/config.schema.json",
   "settings": {
     "exclude": ["**/node_modules/**", "**/dist/**"]
   },

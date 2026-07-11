@@ -6,10 +6,10 @@ runs:
   using: 'composite'
   steps:
     - name: Install pnpm
-      uses: pnpm/action-setup@v4
+      uses: pnpm/action-setup@v6
 
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: 20
         cache: 'pnpm'
@@ -28,7 +28,7 @@ runs:
         fi
 
     - name: Cache node_modules
-      uses: actions/cache@v3
+      uses: actions/cache@v6
       with:
         path: node_modules
         key: node_modules-${{ hashFiles('pnpm-lock.yaml') }}

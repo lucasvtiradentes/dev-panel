@@ -27,7 +27,7 @@ jobs:
     outputs:
       should_release: ${{ steps.check.outputs.should_release }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 2
       - name: Check if version was bumped
@@ -38,7 +38,7 @@ jobs:
     if: inputs.run_lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-and-install
 
       - name: Run lint
@@ -54,7 +54,7 @@ jobs:
     if: inputs.run_build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-and-install
 
       - name: Run typecheck
@@ -69,7 +69,7 @@ jobs:
     if: inputs.run_test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-and-install
 
       - name: Run tests
