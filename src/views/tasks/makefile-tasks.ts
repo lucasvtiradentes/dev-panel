@@ -106,7 +106,8 @@ export async function getMakefileTasks(
     return getGroupedByTargetPrefix(allMakefiles[0], showHidden, showOnlyFavorites, sortFn);
   }
 
-  return getGroupedByLocation(allMakefiles, showHidden, showOnlyFavorites, sortFn);
+  if (grouped) return getGroupedByLocation(allMakefiles, showHidden, showOnlyFavorites, sortFn);
+  return getFlatByLocation(allMakefiles, showHidden, showOnlyFavorites, sortFn);
 }
 
 async function findAllMakefiles(folder: WorkspaceFolder): Promise<MakefileLocation[]> {
@@ -136,6 +137,33 @@ async function findAllMakefiles(folder: WorkspaceFolder): Promise<MakefileLocati
   });
 
   return makefiles;
+}
+
+function getFlatByLocation(
+  makefiles: MakefileLocation[],
+  showHidden: boolean,
+  showOnlyFavorites: boolean,
+  sortFn: (
+    elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
+  ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
+): Array<TreeTask | GroupTreeItem | WorkspaceTreeItem> {
+  return makefiles.flatMap((makefile) => {
+    const tasks = Array.from(makefile.targets.entries())
+      .map(([name, description]) =>
+        createMakeTask({
+          name,
+          description,
+          folder: makefile.folder,
+          cwd: makefile.absolutePath,
+          relativePath: makefile.relativePath,
+          displayName: `${makefile.relativePath} · ${name}`,
+          showHidden,
+          showOnlyFavorites,
+        }),
+      )
+      .filter((task): task is TreeTask => task !== null);
+    return sortFn(tasks) as TreeTask[];
+  });
 }
 
 function getGroupedByLocation(

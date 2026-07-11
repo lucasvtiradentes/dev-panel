@@ -176,8 +176,10 @@ View/edit keybindings:
 
 ### Grouping
 
-Tasks can be grouped by the `group` property:
-- Toggle grouped/flat view with title bar button
+Tasks can be grouped with the title bar button:
+- DevPanel tasks use their `group` property
+- A single npm/Makefile config groups by task-name prefix
+- Multiple npm/Makefile configs group by file location; flat mode preserves location blocks and prefixes labels (`root · build`, `api · dev`)
 - Groups collapse/expand
 
 ### Favorites

@@ -102,7 +102,8 @@ export async function getPackageScripts(
     return getGroupedByScriptPrefix(allPackages[0], showHidden, showOnlyFavorites, sortFn);
   }
 
-  return getGroupedByLocation(allPackages, showHidden, showOnlyFavorites, sortFn);
+  if (grouped) return getGroupedByLocation(allPackages, showHidden, showOnlyFavorites, sortFn);
+  return getFlatByLocation(allPackages, showHidden, showOnlyFavorites, sortFn);
 }
 
 async function findAllPackageJsons(folder: WorkspaceFolder): Promise<PackageLocation[]> {
@@ -132,6 +133,33 @@ async function findAllPackageJsons(folder: WorkspaceFolder): Promise<PackageLoca
   });
 
   return packages;
+}
+
+function getFlatByLocation(
+  packages: PackageLocation[],
+  showHidden: boolean,
+  showOnlyFavorites: boolean,
+  sortFn: (
+    elements: Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
+  ) => Array<WorkspaceTreeItem | GroupTreeItem | TreeTask>,
+): Array<TreeTask | GroupTreeItem | WorkspaceTreeItem> {
+  return packages.flatMap((pkg) => {
+    const tasks = Object.entries(pkg.scripts)
+      .map(([name, command]) =>
+        createNpmTask({
+          name,
+          command,
+          folder: pkg.folder,
+          cwd: pkg.absolutePath,
+          relativePath: pkg.relativePath,
+          displayName: `${pkg.relativePath} · ${name}`,
+          showHidden,
+          showOnlyFavorites,
+        }),
+      )
+      .filter((task): task is TreeTask => task !== null);
+    return sortFn(tasks) as TreeTask[];
+  });
 }
 
 function getGroupedByLocation(
