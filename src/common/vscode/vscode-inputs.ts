@@ -15,7 +15,7 @@ const CONFIRM_OPTIONS = [CONFIRM_YES, CONFIRM_NO] as const;
 
 const log = createLogger('inputs');
 
-export type FileSelectionOptions = {
+type FileSelectionOptions = {
   label: string;
   multiSelect?: boolean;
   includes?: string[];
@@ -119,7 +119,7 @@ function replaceVariablesInPatterns(patterns: string[] | undefined, folder: Work
   });
 }
 
-export async function selectFiles(
+async function selectFiles(
   workspaceFolder: WorkspaceFolder,
   options: FileSelectionOptions,
 ): Promise<string | undefined> {

@@ -2,7 +2,7 @@ import { FileIOHelper } from '../../common/utils/helpers/node-helper';
 import type { TreeItem } from '../../common/vscode/vscode-types';
 import { FileTypeGroupTreeItem } from './file-type-group-tree-item';
 
-export type WorkspaceFileTypeEntry = {
+type WorkspaceFileTypeEntry = {
   name: string;
   pattern: string;
   isDirectory: boolean;

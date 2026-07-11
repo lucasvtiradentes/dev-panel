@@ -1,9 +1,9 @@
 import { NO_GROUP_NAME } from '../../common/constants';
 import { GroupTreeItem, type TreeTask } from './items';
 
-export type ScriptPath = { top: string; sub: string | null; task: string };
+type ScriptPath = { top: string; sub: string | null; task: string };
 
-export function extractGroupPath(name: string, allNames: string[]): ScriptPath {
+function extractGroupPath(name: string, allNames: string[]): ScriptPath {
   const parts = name.split(':');
 
   if (parts.length === 1) {

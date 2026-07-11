@@ -3,7 +3,7 @@ import { VscodeHelper } from '../../common/vscode/vscode-helper';
 import type { TreeDataProvider, TreeItem } from '../../common/vscode/vscode-types';
 import { FileTypeGroupTreeItem } from './file-type-group-tree-item';
 
-export type ExcludesViewStateManager = {
+type ExcludesViewStateManager = {
   getIsGrouped(): boolean;
   saveIsGrouped(isGrouped: boolean): void;
   getShowAll(): boolean;

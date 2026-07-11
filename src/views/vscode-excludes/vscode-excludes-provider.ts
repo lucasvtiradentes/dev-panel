@@ -15,7 +15,7 @@ function getFilesConfiguration() {
   return VscodeHelper.getConfiguration(FILES_CONFIGURATION_SECTION, scope);
 }
 
-export type VscodeExcludeItem = {
+type VscodeExcludeItem = {
   pattern: string;
   excluded: boolean;
   isDirectory: boolean;

@@ -31,7 +31,7 @@ type DevPanelVariables = {
 
 type DevPanelState = VariablesState;
 
-export function loadVariablesState(): DevPanelState {
+function loadVariablesState(): DevPanelState {
   const workspace = VscodeHelper.getActiveWorkspacePath();
   if (!workspace) return {};
   return VariablesHelper.load(workspace);
