@@ -7,7 +7,7 @@ import { selectFolders } from '../../../common/vscode/vscode-inputs';
 import type { Disposable } from '../../../common/vscode/vscode-types';
 import type { TaskTreeDataProvider } from '../../../views/tasks';
 
-type ManageAction = { type: 'add' } | { type: 'remove'; path: string } | { type: 'reset' } | { type: 'default' };
+type ManageAction = { type: 'add' } | { type: 'remove'; path: string } | { type: 'reset' };
 
 type ManageItem = {
   label: string;
@@ -27,11 +27,6 @@ async function showManageMenu(provider: TaskTreeDataProvider): Promise<void> {
       label: `$(x) ${path}`,
       description: 'Remove',
       action: { type: 'remove' as const, path },
-    })),
-    ...DEFAULT_EXCLUDED_DIRS.map((path) => ({
-      label: `$(lock) ${path}`,
-      description: 'Built-in',
-      action: { type: 'default' as const },
     })),
     ...(customPaths.length > 0
       ? [{ label: '$(discard) Reset custom ignores', action: { type: 'reset' as const } }]
@@ -56,9 +51,6 @@ async function showManageMenu(provider: TaskTreeDataProvider): Promise<void> {
     case 'reset':
       tasksState.saveTaskScanIgnorePaths([]);
       provider.refresh();
-      await showManageMenu(provider);
-      return;
-    case 'default':
       await showManageMenu(provider);
   }
 }
