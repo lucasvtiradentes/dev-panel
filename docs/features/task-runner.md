@@ -44,11 +44,11 @@ The Task Runner provides a unified interface for executing tasks from multiple s
 
 ## Source Availability
 
-Sources are dynamic — VSCode, npm, and Makefile only appear if their files exist in the workspace. DevPanel is always available as fallback.
+Sources are dynamic — VSCode, npm, and Makefile only appear if their files exist in the workspace. DevPanel is the always-available baseline source.
 
 - Switch button only shows when multiple sources are available
 - On initial load, the view picks the first available source by priority: Package → Makefile → VSCode → DevPanel
-- If the current source file is deleted, the view falls back to the first available source in the same priority order (DevPanel only wins when nothing else is present)
+- If the current source disappears, the view selects the first available source in the same priority order
 - File watcher auto-refreshes the view when source files change (tasks.json, package.json, Makefile/makefile)
 
 ## DevPanel Task Definition
