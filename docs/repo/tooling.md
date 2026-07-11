@@ -49,6 +49,7 @@ Configuration: `tsconfig.json`
 | Module            | commonjs |
 | Strict            | true     |
 | Skip Lib Check    | true     |
+| Types             | node, vscode |
 | ES Module Interop | true     |
 
 Command:
